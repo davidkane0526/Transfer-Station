@@ -18,6 +18,19 @@ jobs:
         run: |
           node --check src/app.js
           node --check src/parts.js
+      - name: Install browser smoke-test runner
+        run: npm install --no-save playwright-core
+      - name: Exercise full 3D viewer and capture screenshot
+        run: |
+          python3 -m http.server 8765 > /tmp/transfer-site.log 2>&1 &
+          node tests/smoke.mjs
+      - name: Upload 3D preview screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Transfer-Station-Preview
+          path: Transfer-Station-Preview-B.png
+          if-no-files-found: ignore
       - name: Check whether Pages was enabled in repository settings
         id: check-pages
         env:
