@@ -101,8 +101,8 @@ def make_b():
     add('B','B16B','microscope_boom',box(35,132,26,cx,-52,259))
     add('B','B16C','microscope_body',box(55,55,50,cx,0,224))
     add('B','B16D','objective_tube_mount',vz(17,44,cx,0,186))
-    add('B','B18','objective',vz(12.5,38,cx,0,167.5))
-    add('B','B18A','objective_tip',vz(7,12,cx,0,155.5))
+    add('B','B18','objective',vz(12.5,38,cx,0,162.0))
+    add('B','B18A','objective_tip',vz(7,12,cx,0,150.0))
     add('B','B17','digital_camera',box(47,48,48,cx,0,276))
     add('B','B19','temperature_box',box(125,87,85,265,-95,25))
     add('B','B20','vacuum_pump',box(135,80,65,265,75,20))
@@ -120,6 +120,7 @@ def make_a():
     # the slide center (cx); earlier 151 mm proxy stopped ~46 mm short.
     add('A','A05A','slide_arm_CANDIDATE',box(215,12,8,(ax+cx)/2,0,153))
     add('A','A05B','slide_arm_vertical_support_CANDIDATE',box(13,13,62,ax,0,91))
+    add('A','A05C','slide_edge_clamp_CANDIDATE',box(12,12,39,cx+33,0,114))
     rot('A','A06',cx,0,20,'I')
     add('A','A07','heater_proxy',box(65,65,18,cx,0,73.2))
     add('A','A10','imaging_column',vz(13,225,cx,-112,32))
