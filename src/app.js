@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {CSS2DRenderer,CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
+import {STLLoader} from 'three/addons/loaders/STLLoader.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js';
 import {enrichParts} from './details.js';
 import {enriched,pricedSummary,csvExportRows} from './procurement.js';
@@ -573,6 +575,54 @@ $('search').oninput=e=>{
 $('open-bom').onclick=()=>$('bom-drawer').classList.add('open');
 $('close-bom').onclick=()=>$('bom-drawer').classList.remove('open');
 $('bom-drawer').onclick=e=>{if(e.target===$('bom-drawer'))$('bom-drawer').classList.remove('open')};
+async function importVendorMesh(file){
+ if(!active){$('import-status').textContent='请先在3D场景中点击要替换的零件。';return;}
+ if(!file){return;}
+ const part=active;
+ const name=file.name.toLowerCase();
+ if(!(name.endsWith('.stl')||name.endsWith('.glb'))){
+   $('import-status').textContent='仅支持 STL / GLB，STEP 需先用 FreeCAD/CadQuery 转换。';return;
+ }
+ try{
+   const raw=await file.arrayBuffer();
+   let imported;
+   if(name.endsWith('.stl')){
+      const geometry=new STLLoader().parse(raw);
+      const mat=new THREE.MeshStandardMaterial({color:0xb1becb,metalness:.68,roughness:.35,side:THREE.DoubleSide});
+      imported=new THREE.Mesh(geometry,mat);
+   }else{
+      const gltf=await new Promise((resolve,reject)=>
+        new GLTFLoader().parse(raw,'',resolve,reject));
+      imported=gltf.scene;
+   }
+   const sizeScale=Number($('import-units').value||1);
+   imported.scale.setScalar(sizeScale);
+   imported.updateMatrixWorld(true);
+   const bounds=new THREE.Box3().setFromObject(imported);
+   if(bounds.isEmpty()||![bounds.min.x,bounds.max.x,bounds.min.y,bounds.max.y].every(Number.isFinite))throw Error('无法获取导入模型的有效边界');
+   const w=bounds.max.x-bounds.min.x,h=bounds.max.y-bounds.min.y,d=bounds.max.z-bounds.min.z;
+   if(Math.max(w,h,d)>2000||Math.min(w,h,d)<=0)throw Error('模型单位或方向不正确，请检查 STL/GLB 比例');
+   const center=bounds.getCenter(new THREE.Vector3());
+   imported.position.sub(new THREE.Vector3(center.x,bounds.min.y,center.z));
+   // Keep original geometry in the scene but hide it (non-destructive).
+   // Material renderers still use the correct parent group and measured mm.
+   part.g.traverse(ob=>{if(ob.isMesh&&!ob.userData.vendorModel)ob.visible=false;});
+   if(part.g.userData.vendorImport)part.g.remove(part.g.userData.vendorImport);
+   part.g.add(imported);
+   part.g.userData.vendorImport=imported;
+   imported.traverse(ob=>{
+     if(ob.isMesh){ob.castShadow=true;ob.receiveShadow=true;ob.userData.vendorModel=true;
+      ob.userData.partId=part.part.id;hitMeshes.push(ob);}
+   });
+   $('import-status').textContent=part.part.id+' 已导入 '+file.name+' · '+[w,h,d].map(x=>x.toFixed(1)).join('×')+' mm（文件尺寸，不保证装配对位）';
+   updateMeasurement();selectedLabels();
+ }catch(e){console.error(e);$('import-status').textContent='导入失败：'+String(e?.message||e);}
+}
+$('import-cad').onclick=()=>{
+ if(!active){$('import-status').textContent='请先点击3D中的零件，再导入其厂家模型。';return;}
+ $('cad-file').click();
+};
+$('cad-file').onchange=ev=>importVendorMesh(ev.target.files?.[0]);
 $('export-csv').onclick=exportCSV;
 for(const id of ['bom-query','bom-sort','priced-only']){
  const el=$(id);el.addEventListener(id==='bom-query'?'input':'change',updateTable);
