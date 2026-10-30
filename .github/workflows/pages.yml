@@ -18,6 +18,10 @@ jobs:
         run: |
           node --check src/app.js
           node --check src/parts.js
+      - name: Add CJK fonts for accurate screenshot validation
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
       - name: Install browser smoke-test runner
         run: npm install --no-save playwright-core
       - name: Exercise full 3D viewer and capture screenshot
