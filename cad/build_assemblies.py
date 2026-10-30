@@ -148,9 +148,9 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V17')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V18')
     for key,name,grade,shape in PARTS[sys]: assembly.add(shape,name=key+'__'+name)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V17.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V18.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
