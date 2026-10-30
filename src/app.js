@@ -422,6 +422,9 @@ function updateTransforms(){
  if(active)updateMeasurement();
 }
 function resetScene(){
+ // Each platform has its own independent BOM; prevent previous queries from hiding rows.
+ if($('bom-query'))$('bom-query').value='';
+ if($('priced-only'))$('priced-only').checked=false;
  active=null;clearMeasurement();parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
  scene.remove(currentRoot);currentRoot=new THREE.Group();scene.add(currentRoot);
  makeBoard();
