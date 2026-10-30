@@ -24,6 +24,7 @@ jobs:
           node --check src/parts.js
           node --check src/kinematics.js
           node tests/kinematics.mjs
+          node tests/photo-assembly.mjs
       - name: Add CJK fonts for accurate screenshot validation
         run: |
           sudo apt-get update -qq
