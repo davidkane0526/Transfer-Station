@@ -33,7 +33,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Transfer-Station-Preview
-          path: Transfer-Station-Preview-B.png
+          path: |
+            Transfer-Station-Preview-B.png
+            Transfer-Station-Detail-B.png
+            Transfer-Station-Preview-A.png
           if-no-files-found: ignore
       - name: Check whether Pages was enabled in repository settings
         id: check-pages
