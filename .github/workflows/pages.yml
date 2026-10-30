@@ -18,6 +18,8 @@ jobs:
         run: |
           node --check src/app.js
           node --check src/parts.js
+          node --check src/kinematics.js
+          node tests/kinematics.mjs
       - name: Add CJK fonts for accurate screenshot validation
         run: |
           sudo apt-get update -qq
@@ -58,6 +60,8 @@ jobs:
             index.html
             src/
             docs/
+            cad/
+            tests/
             README.md
           retention-days: 90
   publish:
