@@ -145,7 +145,10 @@ function filmB(){
  makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M (micrometer -X)',false,{},-1);
  addPart('B04',ax,60,0,g=>{
   add(g,cub(65,8,66,mats.steel,0,4,0));
-  add(g,cub(52,46,53,mats.dark,0,31,0));
+  // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
+  add(g,cub(56,52,18,mats.dark,0,32,-10));
+  add(g,cub(34,49,8,mats.steel,0,34,3));
+  for(const x of [-22,22])add(g,cub(4,47,5,mats.silver,x,32,0));
   add(g,cub(65,8,66,mats.steel,0,58,0));
   // 108.jpg: V25M micrometer is VERTICAL (+Y), distinct from T25M.
   add(g,cub(16,14,18,mats.dark,-24,24,0));
@@ -317,7 +320,10 @@ function platformA(){
  makeStageBlock('A15',ax,20,0,65,65,20,'载玻片侧 GCM-T25M (+X)',false,{},1);
  addPart('A03',ax,40,0,g=>{
     add(g,cub(65,8,65,mats.steel,0,4,0));
-    add(g,cub(55,36,45,mats.dark,0,26,0));
+    // Photo 97: VC13M is a vertical face and slide, not a tall square box.
+    add(g,cub(56,36,17,mats.dark,0,26,-9));
+    add(g,cub(38,36,8,mats.steel,0,26,2));
+    for(const x of [-22,22])add(g,cub(3,34,4,mats.silver,x,26,-1));
     add(g,cub(65,7,65,mats.steel,0,47.5,0));
     // 97.jpg: vertically directed measuring barrel on the VC13M face.
     add(g,cub(14,12,12,mats.dark,0,22,30));
