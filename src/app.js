@@ -114,11 +114,12 @@ function filmB(){
   add(g,cub(36,20,36,mats.black,0,10,0));
   add(g,cyl(6.35,155,mats.steel,0,97,0));
   add(g,cub(30,28,30,mats.black,0,136,0));
-  const rod=add(g,cyl(6.35,181,mats.steel,90,139,0));rod.rotation.z=Math.PI/2;
-  add(g,cub(27,28,30,mats.black,180,139,0));
+  const rod=add(g,cyl(6.35,249,mats.steel,124.5,139,0));rod.rotation.z=Math.PI/2;
+  add(g,cub(27,28,30,mats.black,249,139,0));
+  add(g,cyl(5,90,mats.steel,249,94,0);
   label(g,'玻片转移臂：立柱 / 横杆',20,201,0);
  },{explode:[-30,55,-13],moveFilm:true});
- addPart('B06',CONFIG.B.sampleX,167,0,g=>{
+ addPart('B06',CONFIG.B.sampleX+52,167,0,g=>{
   add(g,cub(52,13,21,mats.dark,0,0,0));
   add(g,cub(16,23,32,mats.steel,19,-9,0));
   const jaw=add(g,cub(48,4,14,mats.silver,-14,-19,0));
@@ -206,7 +207,7 @@ function microscopeB(){
    add(g,cub(30,18,30,mats.steel,0,3,0));
    label(g,'SDPTOP 相机 · 型号待核',0,77,0);
  },{explode:[0,95,0]});
- addPart('B18',sx,167,0,g=>{
+ addPart('B18',sx,205,0,g=>{
    add(g,cyl(17,13,mats.dark,0,6.5,0));
    add(g,cyl(12.5,38,mats.steel,0,-18.5,0));
    add(g,cyl(10,12,mats.black,0,-43.5,0));
