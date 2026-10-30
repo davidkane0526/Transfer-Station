@@ -18,7 +18,7 @@ const sun=new THREE.DirectionalLight(0xffffff,2.4);sun.position.set(240,550,210)
 const rim=new THREE.DirectionalLight(0x60a9ed,.9);rim.position.set(-350,250,-180);scene.add(rim);
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(2000,2000),new THREE.MeshStandardMaterial({color:'#112031',roughness:.95}));floor.rotation.x=-Math.PI/2;floor.position.y=-3;floor.receiveShadow=true;scene.add(floor);
 const mats={
-board:new THREE.MeshStandardMaterial({color:'#586b7b',metalness:.72,roughness:.35}),
+board:new THREE.MeshStandardMaterial({color:'#353d45',metalness:.78,roughness:.43}),
 steel:new THREE.MeshStandardMaterial({color:'#a9bccc',metalness:.75,roughness:.29}),
 silver:new THREE.MeshStandardMaterial({color:'#b7c2c9',metalness:.8,roughness:.3}),
 dark:new THREE.MeshStandardMaterial({color:'#313d4b',metalness:.65,roughness:.39}),
@@ -108,7 +108,7 @@ function makeBoard(){
   const {width:w,depth:d,height:h,pitch:p}=CONFIG.board;const c=[];
   for(let x=-200;x<=200;x+=p)for(let z=-125;z<=125;z+=p)c.push([x,z,2.6]);
   const slab=plate(w,d,h,mats.board,c);add(g,slab);
-  const grid=new THREE.GridHelper(425,17,0x92a8b8,0x5e7180);grid.position.y=h+.18;g.add(grid);grid.userData.partId=platform+'01';
+  const grid=new THREE.GridHelper(425,17,0x586671,0x414b57);grid.position.y=h+.18;g.add(grid);grid.userData.partId=platform+'01';
   label(g,'光学面包板 · 25 mm 网格',-140,h+10,120);
  },{explode:[0,0,0]});
 }
@@ -332,12 +332,13 @@ function populateGroups(){
  const meta=PARTS[platform];for(const [key,cfg] of Object.entries(groups)){
    const subset=meta.filter(x=>x.group===key);if(!subset.length)continue;
    const line=document.createElement('label');line.className='group-row';
-   const input=document.createElement('input');input.type='checkbox';input.checked=true;input.dataset.group=key;
+   const input=document.createElement('input');input.type='checkbox';input.checked=key!=='external';input.dataset.group=key;
    input.onchange=()=>parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked});
    const dot=document.createElement('i');dot.className='dot';dot.style.background=cfg.color;
    const tx=document.createElement('span');tx.textContent=cfg.name;
    const count=document.createElement('span');count.className='count';count.textContent=subset.length+' 件';
    line.append(input,dot,tx,count);list.append(line);
+   if(key==='external')parts.forEach(v=>{if(v.part.group==='external')v.g.visible=false});
  }
 }
 function updateDetail(part){
@@ -426,10 +427,10 @@ function resetScene(){
  updateTable();
 }
 function focus(mode){
- const target=new THREE.Vector3(platform==='B'?20:0,130,0);
+ const target=new THREE.Vector3(platform==='B'?-15:0,128,0);
  const dst=mode==='top'?new THREE.Vector3(0,780,0.01):
   mode==='front'?new THREE.Vector3(0,185,760):
-  mode==='iso'?new THREE.Vector3(470,395,505):new THREE.Vector3(520,400,570);
+  mode==='iso'?new THREE.Vector3(350,300,440):new THREE.Vector3(425,365,505);
  camera.position.copy(dst);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
 
