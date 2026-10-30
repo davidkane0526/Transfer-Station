@@ -91,7 +91,7 @@ export function enrichParts(partMap, platform, onMesh){
     const g=part.g;
     const movingTop=g.userData.slidingTop||g;
     const stageType=part.part.id;
-    const topY=stageType==='B09'?23:stageType==='B03'||stageType==='A02'?20:65;
+    const topY=stageType==='B09'?23:['B03','A02','A15'].includes(stageType)?20:65;
     box(g,51,1.2,5,0,stageType==='B09'?11.5:10.4,31,graphite,.1);
     box(g,51,1.2,5,0,stageType==='B09'?11.5:10.4,-31,graphite,.1);
     for(let x of [-21,21])for(let z of [-24,24])screwHead(movingTop,x,topY+.7,z,2.1);
@@ -104,7 +104,9 @@ export function enrichParts(partMap, platform, onMesh){
       knurl(g,73,12,0,8.8,27,'x',48);
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
-      knurl(g,63,10,0,8.4,26,'x',48);
+      // Photo 109: B03 points LEFT, while A02/A15 point RIGHT.
+      const handX=stageType==='B03'?-63:63;
+      knurl(g,handX,10,0,8.4,26,'x',48);
     }
   }
   function microscopeHardware(g){
@@ -154,7 +156,8 @@ export function enrichParts(partMap, platform, onMesh){
     decoration('B04',(g)=>{
        for(let z of [-24,24]){box(g,3,34,7,-28,31,z,aluminum,.5);for(let y of [13,47])screwHead(g,-28,y,z,2.1);}
        decal(g,'GCM-V25M',50,9,0,27,27.6,'front','#ebedf2');
-       knurl(g,53,31,0,8.5,22,'x',44);
+       // 108.jpg: this knob is the VERTICAL Z-axis adjuster, not another +X.
+       knurl(g,-24,73,0,8.5,16,'y',44);
        for(let x of [-24,24])for(let z of [-23,23])screwHead(g,x,66.2,z,2.8);
     });
     decoration('B05',(g)=>{
@@ -184,7 +187,8 @@ export function enrichParts(partMap, platform, onMesh){
           box(g,6,3,9,x,9,z,gunmetal,.5);
        }
        drilled(g,[[-25,-25],[-25,25],[25,-25],[25,25],[0,0]],33.3,2.75);
-       knurl(g,78,12,0,7.2,22,'x',36);
+       // 111.jpg: rotary stage's operator-facing lock/drive along +Z.
+       const collar=cyl(g,7.2,22,0,12,77,ring,40);collar.rotation.x=Math.PI/2;
        decal(g,'GCM-1107M',44,9,0,9,46.5,'front','#e1e6ea');
     });
     decoration('B10',(g)=>{
@@ -238,8 +242,17 @@ export function enrichParts(partMap, platform, onMesh){
        decal(g,'MEAN WELL  SE-600-48',146,18,0,31,64,'front','#283e53');
     });
   }else {
-     for(const id of ['A02']){const p=partMap.get(id);if(p)stageHardware(p,'GCM-T25M')}
-     decoration('A06',(g)=>{analogScale(g,46.2,12);knurl(g,65,12,0,7,24,'x',38)});
+     for(const id of ['A02','A15']){const p=partMap.get(id);if(p)stageHardware(p,'GCM-T25M')}
+     decoration('A03',(g)=>{
+       knurl(g,0,70,31,8.5,15,'y',44);
+       decal(g,'GCM-VC13M',53,8,0,30,33,'front','#e6ebf1');
+    });
+    decoration('A04',(g)=>{
+       knurl(g,42,10,0,7.5,19,'x',42);
+       decal(g,'GCM-G40M60L',38,6,0,10,20.5,'front','#e3e5e9');
+    });
+    decoration('A06',(g)=>{analogScale(g,46.2,12);
+       const c=cyl(g,7,24,0,12,69,ring);c.rotation.x=Math.PI/2;});
      decoration('A08',(g)=>{
         for(let y of [2,73,84])cyl(g,21.5,2,0,y,0,ring);
         decal(g,'THORLABS TTL200-A',31,8,0,37,21.4,'front','#dce5f1');
