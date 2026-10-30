@@ -146,7 +146,7 @@ function filmB(){
   const sc=add(g,cyl(7,44,mats.silver,27,31,0));sc.rotation.z=Math.PI/2;
   label(g,'GCM-V25M · Z行程25',0,83,0);
  },{explode:[-24,30,0],moveFilm:true});
- addPart('B05',ax,126,0,g=>{
+ addPart('B05',ax,122,0,g=>{
   add(g,cub(36,20,36,mats.black,0,10,0));
   add(g,cyl(6.35,155,mats.steel,0,97,0));
   add(g,cub(30,28,30,mats.black,0,136,0));
@@ -298,12 +298,12 @@ function platformA(){
  // not the separate left transfer-arm adjustment stage.
  makeStageBlock('A02',sx,53.2,0,65,65,20,'GCM-T25M',true,{rotateSample:true});
  addPart('A03',ax,20,0,g=>{
-    add(g,cub(65,8,65,mats.steel,0,4,0));add(g,cub(55,32,45,mats.dark,0,24,0));add(g,cub(65,7,65,mats.steel,0,44,0));
+    add(g,cub(65,8,65,mats.steel,0,4,0));add(g,cub(55,36,45,mats.dark,0,26,0));add(g,cub(65,7,65,mats.steel,0,47.5,0));
     label(g,'GCM-VC13M',0,65,0);
  },{explode:[-15,18,0],moveFilm:true});
  addPart('A04',ax,71,0,g=>{
-  add(g,cub(40,20,40,mats.dark,0,10,0));
-  const top=add(g,cub(40,5,40,mats.steel,0,25,0));top.rotation.z=.06;
+  add(g,cub(40,15,40,mats.dark,0,7.5,0));
+  const top=add(g,cub(40,5,40,mats.steel,0,17.5,0));top.rotation.z=0;
   label(g,'GCM-G40M60L 摆角台',0,45,0);
  },{explode:[-25,42,0],moveFilm:true});
  addPart('A05',sx,132,0,g=>{
