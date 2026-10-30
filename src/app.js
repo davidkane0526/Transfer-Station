@@ -146,26 +146,30 @@ function filmB(){
   const sc=add(g,cyl(7,44,mats.silver,27,31,0));sc.rotation.z=Math.PI/2;
   label(g,'GCM-V25M · Z行程25',0,83,0);
  },{explode:[-24,30,0],moveFilm:true});
+ // Rear-offset bar avoids the microscope/optical axis. All dimensions here
+ // are constrained candidate geometry, not measured from the original device.
  addPart('B05',ax,122,0,g=>{
   add(g,cub(36,20,36,mats.black,0,10,0));
-  add(g,cyl(6.35,155,mats.steel,0,97,0));
-  add(g,cub(30,28,30,mats.black,0,136,0));
-  const rod=add(g,cyl(6.35,249,mats.steel,124.5,139,0));rod.rotation.z=Math.PI/2;
-  add(g,cub(27,28,30,mats.black,249,139,0));
-  add(g,cyl(5,90,mats.steel,249,94,0));
-  label(g,'玻片转移臂：立柱 / 横杆',20,201,0);
+  add(g,cyl(6.35,85,mats.steel,0,62,0));
+  add(g,cub(30,28,80,mats.black,0,63,-20));
+  const bar=add(g,cyl(6.35,249,mats.steel,124.5,63,-40));bar.rotation.z=Math.PI/2;
+  add(g,cub(27,28,70,mats.black,249,63,-20));
+  add(g,cyl(5,57,mats.steel,249,34.5,0));
+  label(g,'玻片转移臂：后置横杆 / 悬挂夹具（尺寸候选）',20,102,-40);
  },{explode:[-30,55,-13],moveFilm:true});
- addPart('B06',CONFIG.B.sampleX+52,167,0,g=>{
+ // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
+ addPart('B06',CONFIG.B.sampleX+52,121.5,0,g=>{
   add(g,cub(52,13,21,mats.dark,0,0,0));
   add(g,cub(16,23,32,mats.steel,19,-9,0));
-  const jaw=add(g,cub(48,4,14,mats.silver,-14,-19,0));
-  jaw.rotation.z=-.03;
-  label(g,'GCM-1302M 玻片夹',0,31,0);
+  add(g,cub(48,4,14,mats.silver,-14,-19,0));
+  add(g,cub(48,4,14,mats.silver,-14,-13.5,0));
+  add(g,cub(6,15,14,mats.dark,9,-13.5,0)); // outer rear jaw bridge
+  label(g,'玻片夹：1.5-mm 夹口（候选）',0,24,0);
  },{explode:[-20,65,5],moveFilm:true});
- addPart('B07',CONFIG.B.sampleX+5,139,0,g=>{
+ addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
   add(g,cub(76,1,26,mats.glass,0,0,0));
-  add(g,cub(20,1.8,20,mats.ceramic,20,-2,0));
-  label(g,'载玻片 / 转移膜',2,16,0);
+  add(g,cub(20,1.8,20,mats.ceramic,-5,-1.4,0));
+  label(g,'玻片与转移膜：默认热台间距4.5mm（候选）',2,16,0);
  },{explode:[0,80,15],moveFilm:true});
 }
 function rotaryB(){
@@ -206,7 +210,7 @@ function rotaryB(){
    const cb=corners.map(a=>[a[0],a[1],5.5]);cb.push([0,0,.7]);
    add(g,plate(65,65,6.5,mats.steel,cb)).position.y=5.5;
    // Visual channel inside metal; confirmed route is not known
-   const ch=tube([[-32,9.3,0],[-18,9.3,0],[0,9.3,0]],1.4,mats.blue);
+   const ch=tube([[0,9.3,-32.5],[0,9.3,-18],[0,9.3,0]],1.4,mats.blue);
    ch.material= new THREE.MeshStandardMaterial({color:'#4bc9e8',transparent:true,opacity:.78,depthTest:false});
    add(g,ch);holes.push(ch);
    const top=tube([[0,9.3,0],[0,12.3,0]],.72,mats.blue);add(g,top);holes.push(top);
@@ -214,13 +218,16 @@ function rotaryB(){
  },{explode:[0,61,0],rotateSample:true,translateSample:true});
  addPart('B12',sx,86.5,0,g=>{
    add(g,cub(38,5,38,mats.ceramic,0,2.5,0));
-   add(g,cub(6,2,1,mats.copper,-24,2.5,12));
-   add(g,tube([[-25,2.5,12],[-39,2.5,16],[-55,-2,17]],.85,mats.copper));
-   label(g,'陶瓷加热块 38×38×5（优化候选）',0,12,0);
+   // Pair of heater leads exiting the BACK (-Z) of the milled chuck.
+   for(const x of [10,15]){
+      add(g,cub(2,1.5,2,mats.copper,x,2.5,-18.5));
+      add(g,tube([[x,2.5,-19],[x,2.5,-32.5],[x,2.5,-48],[x+1,0,-60]],.55,mats.copper));
+   }
+   label(g,'加热片后侧双引线（孔位候选）',0,12,-18);
  },{explode:[38,74,12],rotateSample:true,translateSample:true});
  addPart('B13',sx,91.35,0,g=>{
-   add(g,cyl(.6,1.2,mats.copper,6,.6,0));
-   add(g,tube([[6,.8,0],[-20,.8,2],[-35,-4,10],[-55,-10,15]],.52,mats.blue));
+    add(g,cyl(.6,1.2,mats.copper,6,.6,0));
+    add(g,tube([[6,.6,0],[6,.6,-19.5],[6,.6,-33],[6,-3,-51]],.34,mats.blue));
  },{explode:[-17,70,0],rotateSample:true,translateSample:true});
  addPart('B14',sx,86.2,0,g=>{
    for(const x of [-25,25])for(const z of [-25,25]){
@@ -229,9 +236,9 @@ function rotaryB(){
    label(g,'4 枚顶部齐平螺钉（M6×25 候选）',0,45,0);
  },{explode:[0,88,0],rotateSample:true,translateSample:true});
  addPart('B15',sx,95.5,0,g=>{
-   add(g,cyl(3,13,mats.silver,-37,-0.1,0)).rotation.z=Math.PI/2;
-   add(g,tube([[-44,0,0],[-63,2,0],[-73,-13,-11],[-91,-45,-35]],1.8,mats.rubber));
- },{explode:[-25,60,-20],rotateSample:true,translateSample:true});
+   const fitting=add(g,cyl(3,13,mats.silver,0,0,-39));fitting.rotation.x=Math.PI/2;
+   add(g,tube([[0,0,-45.5],[0,1,-58],[1,-3,-70],[12,-17,-79]],1.8,mats.rubber));
+ },{explode:[0,60,-20],rotateSample:true,translateSample:true});
  const substrate=cub(24,.6,24,mats.glass,0,98.5,0);substrate.position.x=sx;currentRoot.add(substrate);
 }
 function microscopeB(){
@@ -472,7 +479,7 @@ function resetScene(){
  populateGroups();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?'平台 B · MXFMS / 双运动分支 / 真空加热吸附台':'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  '样品：光学面包板 → GCM-1107M 旋转 → NFP-1462C 平移 → 10mm 隔热板 → 开腔金属吸附块（内部嵌入陶瓷加热块）。另一分支：磁座 → T25M → V25M → 立柱/横杆 → 玻片夹持。显微镜独立安装。':
+  '样品：光学面包板 → GCM-1107M 旋转 → NFP-1462C 平移 → 10mm 隔热板 → 开腔金属吸附块。真空接头与陶瓷加热片双引线都在后侧（−Z）。玻片夹口与1mm厚玻片已经按候选高度对齐。':
   '样品和玻片运动台与成像系统为独立分支。此套系统的显微成像路径含 Thorlabs TTL200-A 和 Daheng 工业相机。A 套样品加热台内部结构未经确认，因此未复制 B 套真空气孔。';
  focus('iso');
  updateTable();
@@ -481,7 +488,7 @@ function focus(mode){
  const target=new THREE.Vector3(platform==='B'?-15:0,128,0);
  const dst=mode==='top'?new THREE.Vector3(0,780,0.01):
   mode==='front'?new THREE.Vector3(0,185,760):
-  mode==='iso'?new THREE.Vector3(350,300,440):new THREE.Vector3(425,365,505);
+  mode==='rear'?new THREE.Vector3(295,250,-380):mode==='iso'?new THREE.Vector3(350,300,440):new THREE.Vector3(425,365,505);
  camera.position.copy(dst);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
 
@@ -603,7 +610,7 @@ function switchPlatform(next){
 }
 $('show-b').onclick=()=>switchPlatform('B');
 $('show-a').onclick=()=>switchPlatform('A');
-$('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$('btn-front').onclick=()=>focus('front');$('btn-iso').onclick=()=>focus('iso');
+$('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$('btn-front').onclick=()=>focus('front');$('btn-rear').onclick=()=>focus('rear');$('btn-iso').onclick=()=>focus('iso');
 $('explode').oninput=e=>{explosion=Number(e.target.value);$('explode-value').textContent=explosion+'%';updateTransforms()};
 $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value').textContent=filmShift.toFixed(1)+' mm';updateTransforms()};
 $('sample-move').oninput=e=>{sampleShift=Number(e.target.value);$('sample-value').textContent=sampleShift.toFixed(1)+' mm';updateTransforms()};
