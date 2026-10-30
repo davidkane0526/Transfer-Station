@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="干法转移平台工程复原：显微镜、玻片移动台、样品平移旋转台与嵌入式真空加热台的交互式3D装配。">
+<title>Transfer Station | 交互式工程装配</title>
+<link rel="stylesheet" href="./src/styles.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script></head>
+<body><header class="top">
+<div><div class="eyebrow">TRANSFER STATION / ENGINEERING DIGITAL TWIN · RECONSTRUCTION</div><h1>两套干法转移平台 · 交互式工程总装</h1><p class="subtitle">显微镜 · 载玻片运动臂 · 样品平移台 · 旋转台 · 陶瓷加热真空吸附台</p></div>
+<div class="top-actions"><button id="open-bom">零件 BOM / 证据</button><a href="https://github.com/davidkane0526/Transfer-Station" target="_blank" rel="noreferrer">GitHub 项目</a></div>
+</header>
+<div class="layout">
+<aside class="side">
+<div class="title">01 / 系统</div><div class="tabs"><button id="show-b" class="on">平台 B</button><button id="show-a">平台 A</button></div>
+<div class="control-block"><div class="title">02 / 三维视图</div><div class="buttons"><button id="btn-home">默认视角</button><button id="btn-top">俯视</button><button id="btn-front">正视</button><button id="btn-iso">轴测</button></div>
+<div class="control-line"><label for="explode">爆炸分解</label><span id="explode-value">0%</span></div><input id="explode" type="range" min="0" max="100" step="1" value="0" style="width:100%">
+<div class="control-line"><label for="translate">玻片 X 移动</label><span id="translate-value">0 mm</span></div><input id="translate" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
+<div class="control-line"><label for="sample-move">样品平移</label><span id="sample-value">0 mm</span></div><input id="sample-move" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
+<div class="control-line"><label for="rotate-sample">样品旋转</label><span id="rotate-value">0°</span></div><input id="rotate-sample" type="range" min="-90" max="90" step="1" value="0" style="width:100%">
+</div>
+<div class="control-block"><div class="title">03 / 显示与筛选</div>
+<div class="buttons"><button id="toggle-holes" class="on">孔位</button><button id="toggle-axes">坐标轴</button><button id="toggle-wire">线框</button><button id="toggle-labels" class="on">标签</button></div>
+<input id="search" class="search" placeholder="查找型号或零件，例如 NFP / 显微镜" aria-label="搜索零件"><div id="group-list" class="list"></div>
+</div><p class="small">鼠标左键旋转 · 滚轮缩放 · 右键平移 · 点击零件查看规格。所有空间坐标以毫米计。</p>
+</aside>
+<main class="stage"><div id="viewer" class="viewer" role="img" aria-label="可旋转、选择零件的三维装配模型"></div>
+<div class="stage-top"><span class="pill" id="platform-caption">平台 B · 样品旋转 / 显微镜 / 玻片转移臂</span><span class="pill">实际尺寸与代理几何分级</span></div>
+<div class="stage-bottom"><span id="hover-help">点击零件读取尺寸、孔位及来源</span><span>坐标 X / Y(高度) / Z · 单位 mm</span></div>
+</main>
+<aside class="detail"><div class="title">04 / 零件信息与装配证据</div><div id="part-detail" class="select-placeholder">点击模型中的部件，或在下面查看零件表。绿色标签代表厂家标称尺寸，橙色/红色表示尚需验证的候选几何。</div>
+<div class="control-block"><div class="title">尺寸可信度</div><div class="legend"><span class="status D">D 原厂图纸</span><span class="status P">P 照片</span><span class="status U">U 用户确认</span><span class="status I">I 推导</span><span class="status C">C 候选</span></div><div class="warning">**工程使用限制**：真实外形、真实孔距与厂家完整 CAD 是三个不同层次。本模型的显微镜和部分转接件仍为外形代理，不能直接用于加工或接线。</div></div>
+<div class="control-block"><div class="title">装配链</div><div id="stack-note" class="small"></div></div>
+<div class="control-block"><div class="title">文件与资料</div><div class="footlinks"><a href="docs/engineering.md">孔位/证据说明</a><a href="cad/build_assemblies.py">CAD 生成脚本</a><a href="README.md">项目说明</a></div></div>
+</aside>
+</div>
+<footer class="bottom"><span>研究用途的逆向工程模型 · 主基准尺寸为 mm · 未经核实的螺纹深度和电气配置不得直接用于采购加工</span><span>公开仓库不包含原始照片视频</span></footer>
+<div class="drawer" id="bom-drawer" role="dialog" aria-modal="true" aria-label="整机零件清单"><div class="modal">
+<div class="modal-head"><h2 id="bom-heading">零件 BOM / 型号、尺寸、价格与证据等级</h2><div class="buttons"><button id="export-csv">导出当前 BOM.csv</button><button id="close-bom">关闭</button></div></div>
+<p class="small">历史价格均为原先公开资料的参考值，不代表 2026 年现价。零件等级 D/P/U/I/C 描述证据来源，不等于整件 CAD 精度。</p>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>系统</th><th>零件</th><th>厂家 / 型号</th><th>标称或候选尺寸</th><th>级别</th><th>报价状态</th><th>照片</th></tr></thead><tbody id="bom-body"></tbody></table></div></div></div>
+<script type="module" src="./src/app.js"></script></body></html>
