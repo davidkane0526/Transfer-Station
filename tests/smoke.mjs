@@ -7,7 +7,8 @@ const browser=await chromium.launch({
 const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
 const fatal=[];
 page.on('pageerror',e=>fatal.push(String(e)));
-page.on('console',m=>{if(m.type()==='error'&& !/favicon/i.test(m.text()))fatal.push(m.text())});
+page.on('console',m=>{if(m.type()==='error'&& !/favicon|Failed to load resource.*404/i.test(m.text()))fatal.push(m.text())});
+page.on('response',r=>{if(r.status()>=400&&!/favicon\.ico/.test(r.url()))fatal.push('HTTP '+r.status()+' '+r.url())});
 await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
 await page.waitForSelector('#viewer canvas',{timeout:30000});
 await page.waitForTimeout(1800);
