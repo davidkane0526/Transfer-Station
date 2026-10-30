@@ -48,6 +48,7 @@ let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
 function clearMeasurement(){
+ if($('measurement-text'))$('measurement-text').textContent='坐标 X / Y(高度) / Z · 单位 mm';
  while(measurementOverlay.children.length){
     const o=measurementOverlay.children[0];measurementOverlay.remove(o);
     if(o.geometry)o.geometry.dispose();
@@ -63,11 +64,7 @@ function updateMeasurement(){
  if(bounds.isEmpty())return;
  const w=bounds.max.x-bounds.min.x,h=bounds.max.y-bounds.min.y,d=bounds.max.z-bounds.min.z;
  const helper=new THREE.Box3Helper(bounds,0x7ec8f4);measurementOverlay.add(helper);
- const el=document.createElement('div');el.className='dimension-bubble';
- el.textContent='显示包络 '+[w,h,d].map(x=>x.toFixed(1)).join(' × ')+' mm';
- const bubble=new CSS2DObject(el);
- bubble.position.set(bounds.max.x+8,bounds.max.y+12,bounds.max.z+5);
- measurementOverlay.add(bubble);
+ $('measurement-text').textContent='选中几何包络：'+[w,h,d].map(x=>x.toFixed(1)).join(' × ')+' mm';
 }
 scene.add(currentRoot);
 const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2();
