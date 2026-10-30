@@ -7,29 +7,51 @@ permissions:
   contents: read
   pages: write
   id-token: write
-concurrency:
-  group: github-pages
-  cancel-in-progress: true
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      pages_enabled: ${{ steps.check-pages.outputs.enabled }}
     steps:
       - uses: actions/checkout@v4
       - name: Validate JavaScript syntax
         run: |
           node --check src/app.js
           node --check src/parts.js
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Check whether Pages was enabled in repository settings
+        id: check-pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          CODE=$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$GITHUB_REPOSITORY/pages")
+          if [ "$CODE" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Enable GitHub Pages: Settings > Pages > Source = GitHub Actions, then rerun this workflow."
+          fi
+      - name: Upload downloadable source package
+        uses: actions/upload-artifact@v4
         with:
-          enablement: true
-      - name: Upload static website
-        uses: actions/upload-pages-artifact@v3
+          name: Transfer-Station-Interactive-Viewer
+          path: |
+            index.html
+            src/
+            docs/
+            README.md
+          retention-days: 90
+  publish:
+    needs: validate
+    if: needs.validate.outputs.pages_enabled == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: .
-      - name: Deploy to Pages
+      - uses: actions/deploy-pages@v4
         id: deployment
-        uses: actions/deploy-pages@v4
