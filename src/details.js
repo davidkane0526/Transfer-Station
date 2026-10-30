@@ -158,24 +158,23 @@ export function enrichParts(partMap, platform, onMesh){
        for(let x of [-24,24])for(let z of [-23,23])screwHead(g,x,66.2,z,2.8);
     });
     decoration('B05',(g)=>{
-       // Photo 108 shows a dual-rod holder and a black cylindrical Zolix clamp.
-       cyl(g,19,41,72,139,0,graphite);
-       cyl(g,18,2,72,159,0,ring);
-       cyl(g,18,2,72,118,0,ring);
-       pipe(g,[[72,146,-24],[72,170,-35]],3,graphite);
-       box(g,31,29,30,0,136,0,graphite,1.8);
-       knurl(g,27,136,13,5.5,7,'x',24);
-       decal(g,'Zolix',22,7,72,139,19,'front','#d5d5d5');
-       box(g,30,12,20,190,132,-16,graphite,1);
-       for(const x of [185,202]) knurl(g,x,151,-16,3.5,10,'y',18);
-       // Vertical support threaded end and second rod crossbar (photo)
-       cyl(g,5.2,77,38,132,-7,ring);
-       cyl(g,7,4,38,168,-7,graphite);
+       // Photo 108 shows Zolix black coupler and a clamped rear-offset rod.
+       // These are visual proxies, NOT measured crossbar dimensions.
+       cyl(g,19,41,72,63,-40,graphite);
+       cyl(g,18,2,72,83,-40,ring);
+       cyl(g,18,2,72,42,-40,ring);
+       pipe(g,[[72,63,-53],[72,70,-63]],3,graphite);
+       box(g,31,29,65,0,63,-20,graphite,1.8);
+       knurl(g,27,63,-40,5.5,7,'x',24);
+       decal(g,'Zolix',22,7,72,63,-20,'front','#d5d5d5');
+       box(g,30,12,36,190,63,-18,graphite,1);
+       for(const x of [185,202])knurl(g,x,79,-18,3.5,10,'y',18);
     });
     decoration('B06',(g)=>{
-       box(g,46,5,29,-9,-14,0,graphite,1.2);
-       for(let x of [-16,6])screwHead(g,x,9,0,3.2);
-       knurl(g,30,22,5,4.3,15,'y',28);
+       // Do not place decorative block into the actual 1.5-mm slide gap.
+       box(g,32,1.1,13,-8,-11.0,0,graphite,.3);
+       for(const x of [-16,6])screwHead(g,x,6.5,0,2.4);
+       knurl(g,29,3,5,4.3,15,'y',28);
        decal(g,'CLAMP',30,6,0,7,11.5,'front','#dce3e9');
     });
     decoration('B08',(g)=>{
