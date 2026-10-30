@@ -156,7 +156,7 @@ function rotaryB(){
  addPart('B11',sx,86.2,0,g=>{
    const corners=[[-25,-25,3.3],[-25,25,3.3],[25,-25,3.3],[25,25,3.3]];
    // Lower layer with real open underside ceramic pocket
-   add(g,plate(65,65,5.4,mats.steel,corners,[42.6,42.6]));
+   add(g,plate(65,65,5.4,mats.steel,corners,[38.6,38.6]));
    add(g,plate(65,65,.1,mats.steel,corners)).position.y=5.4;
    const cb=corners.map(a=>[a[0],a[1],5.5]);cb.push([0,0,.7]);
    add(g,plate(65,65,6.5,mats.steel,cb)).position.y=5.5;
@@ -168,10 +168,10 @@ function rotaryB(){
    label(g,'单中心孔 / 底面开腔 / 4×沉孔',0,31,0);
  },{explode:[0,61,0],rotateSample:true,translateSample:true});
  addPart('B12',sx,86.5,0,g=>{
-   add(g,cub(42,5,42,mats.ceramic,0,2.5,0));
+   add(g,cub(38,5,38,mats.ceramic,0,2.5,0));
    add(g,cub(6,2,1,mats.copper,-24,2.5,12));
    add(g,tube([[-25,2.5,12],[-39,2.5,16],[-55,-2,17]],.85,mats.copper));
-   label(g,'陶瓷加热块 42×42×5（候选）',0,12,0);
+   label(g,'陶瓷加热块 38×38×5（优化候选）',0,12,0);
  },{explode:[38,74,12],rotateSample:true,translateSample:true});
  addPart('B13',sx,91.35,0,g=>{
    add(g,cyl(.6,1.2,mats.copper,6,.6,0));
