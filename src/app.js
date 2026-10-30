@@ -101,7 +101,14 @@ function label(parent,title,x,y,z){
  const lbl=new CSS2DObject(el);lbl.position.set(x,y,z);parent.add(lbl);labels.push(lbl);return lbl;
 }
 function circleGuide(g,r,y,x=0,z=0){const o=add(g,torus(r,.55,mats.blue,x,y,z));holes.push(o);return o}
-function screw(g,x,y,z,length=25){add(g,cyl(3,length,mats.steel,x,y-length/2,z));add(g,cyl(5,6,mats.silver,x,y-3,z));const hex=add(g,cyl(2.8,.35,mats.ink,x,y-.16,z,6));holes.push(hex)}
+function screw(g,x,topY,z,length=25){
+ // ISO-style M6 candidate: length measured under 6 mm head; top recess 0.5 mm.
+ const headBottom=topY-6;
+ add(g,cyl(3,length,mats.steel,x,headBottom-length/2,z));
+ add(g,cyl(5,6,mats.silver,x,topY-3,z));
+ const hex=add(g,cyl(2.8,.35,mats.ink,x,topY-.16,z,6));
+ holes.push(hex);
+}
 function makeBoard(){
  addPart(platform+'01',0,0,0,g=>{
   const {width:w,depth:d,height:h,pitch:p}=CONFIG.board;const c=[];
@@ -111,15 +118,17 @@ function makeBoard(){
   label(g,'光学面包板 · 25 mm 网格',-140,h+10,120);
  },{explode:[0,0,0]});
 }
-function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false){
+function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={}){
  addPart(id,x,y,z,g=>{
-   add(g,cub(w,h*.55,d,mats.dark,0,h*.275,0));add(g,cub(w*.94,h*.45,d*.92,mats.steel,0,h*.78,0));
+   add(g,cub(w,h*.55,d,mats.dark,0,h*.275,0));
+   const carriage=new THREE.Group();g.add(carriage);g.userData.slidingTop=carriage;
+   add(carriage,cub(w*.94,h*.45,d*.92,mats.steel,0,h*.78,0));
    add(g,cub(14,12,14,mats.dark,w/2+6,h*.5,0));
    const v=add(g,cyl(6,24,mats.silver,w/2+22,h*.5,0));v.rotation.z=Math.PI/2;
    add(g,cyl(9,12,mats.silver,w/2+34,h*.5,0)).rotation.z=Math.PI/2;
-   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g,3,h+.5,xx,zz);
+   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(carriage,3,h+.5,xx,zz);
    label(g,title,0,h+11,0);
- },{explode:[0,id.endsWith('03')?15:10,0]});
+ },{explode:[0,id.endsWith('03')?15:10,0],...motion});
 }
 function filmB(){
  const ax=CONFIG.B.armX;
@@ -171,7 +180,14 @@ function rotaryB(){
  addPart('B09',sx,53.2,0,g=>{
    add(g,cub(65,11,65,mats.dark,0,5.5,0));
    const slidingTop=new THREE.Group();g.add(slidingTop);g.userData.slidingTop=slidingTop;
-   add(slidingTop,cub(65,12,65,mats.steel,0,17,0));
+   // A blind-hole proxy: two-mm solid bottom + ten-mm drilled top layer.
+   // Thread minor diameters and depths are candidates, not manufacturer drawings.
+   const nfpHoles=[
+     ...[-25,0,25].flatMap(x=>[-25,0,25].map(z=>[x,z,2.5])),
+     ...[-16,16].flatMap(x=>[-16,16].map(z=>[x,z,1.25]))
+   ];
+   const lower=plate(65,65,2,mats.steel);lower.position.y=11;add(slidingTop,lower);
+   const drilled=plate(65,65,10,mats.steel,nfpHoles);drilled.position.y=13;add(slidingTop,drilled);
    const mic=add(g,cyl(7,32,mats.silver,46,12,0));mic.rotation.z=Math.PI/2;
    for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
    for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
@@ -207,7 +223,7 @@ function rotaryB(){
  },{explode:[-17,70,0],rotateSample:true,translateSample:true});
  addPart('B14',sx,86.2,0,g=>{
    for(const x of [-25,25])for(const z of [-25,25]){
-      screw(g,x,12,z,25);circleGuide(g,5.5,12.2,x,z);
+      screw(g,x,11.5,z,25);circleGuide(g,5.5,12.2,x,z);
    }
    label(g,'4 枚顶部齐平螺钉（M6×25 候选）',0,45,0);
  },{explode:[0,88,0],rotateSample:true,translateSample:true});
@@ -234,7 +250,7 @@ function microscopeB(){
    add(g,cub(30,18,30,mats.steel,0,3,0));
    label(g,'SDPTOP 相机 · 型号待核',0,77,0);
  },{explode:[0,95,0]});
- addPart('B18',sx,159,0,g=>{
+ addPart('B18',sx,200,0,g=>{
    add(g,cyl(17,13,mats.dark,0,6.5,0));
    add(g,cyl(12.5,38,mats.steel,0,-18.5,0));
    add(g,cyl(10,12,mats.black,0,-43.5,0));
@@ -279,7 +295,7 @@ function platformA(){
  const ax=CONFIG.A.armX,sx=CONFIG.A.sampleX;
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
  // not the separate left transfer-arm adjustment stage.
- makeStageBlock('A02',sx,53.2,0,65,65,20,'GCM-T25M',true);
+ makeStageBlock('A02',sx,53.2,0,65,65,20,'GCM-T25M',true,{rotateSample:true});
  addPart('A03',ax,20,0,g=>{
     add(g,cub(65,8,65,mats.steel,0,4,0));add(g,cub(55,32,45,mats.dark,0,24,0));add(g,cub(65,7,65,mats.steel,0,44,0));
     label(g,'GCM-VC13M',0,65,0);
@@ -290,12 +306,16 @@ function platformA(){
   label(g,'GCM-G40M60L 摆角台',0,45,0);
  },{explode:[-25,42,0],moveFilm:true});
  addPart('A05',sx,132,0,g=>{
-   add(g,cub(12,12,60,mats.dark,-55,0,0));
-   add(g,cub(155,8,12,mats.steel,-71,25,0));
+   // Candidate structural closure: vertical riser on A04 and horizontal arm
+   // from ax to sx. Photo does not prove exact rod length or mounting screws.
+   const span=sx-ax,risey=(91+153)/2-132;
+   add(g,cub(13,62,13,mats.steel,ax-sx,risey,0));
+   add(g,cub(span+20,8,12,mats.steel,(ax-sx)/2,25,0));
+   add(g,cub(12,39,12,33,1.5,0));
    add(g,cub(52,13,20,mats.dark,-4,-8,0));
    add(g,cub(76,1,26,mats.glass,0,-18,0));
-   label(g,'载玻片转移台 / 夹具',0,34,0);
- },{explode:[-13,65,0],moveFilm:true});
+   label(g,'载玻片转移台 / 夹具 · 自制连接件候选',0,34,0);
+ },{explode:[-13,65,0]});
  addPart('A06',sx,20,0,g=>{
   add(g,cyl(47,33.2,mats.dark,0,16.6,0));add(g,torus(44,1,mats.steel,0,33.5,0));
   label(g,'A 套旋转台：GCM-11 系列疑似',0,54,0);
@@ -304,7 +324,7 @@ function platformA(){
   add(g,cub(65,18,65,mats.steel,0,9,0));
   add(g,cub(28,1.4,28,mats.glass,0,19.1,0));
   label(g,'A 套样品加热座（形状候选）',0,38,0);
- },{explode:[0,26,0],translateSample:true});
+ },{explode:[0,26,0],translateSample:true,rotateSample:true});
  addPart('A10',sx,20,-112,g=>{
     add(g,cub(72,14,65,mats.dark,0,7,0));
     add(g,cyl(13,225,mats.steel,0,126,0));
@@ -414,9 +434,15 @@ function updateTransforms(){
  const e=explosion/100,angle=sampleAngle*Math.PI/180;
  parts.forEach(({g,base,part,explode,moveFilm,translateSample,rotateSample})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,sx=translateSample?sampleShift:0;
-  g.position.set(base.x+off[0]*e+fx+sx,base.y+off[1]*e,base.z+off[2]*e);
+  // Translation in a rotating stage's LOCAL X basis, then rotation about Y.
+  const dx=rotateSample?sx*Math.cos(angle):sx;
+  const dz=rotateSample?-sx*Math.sin(angle):0;
+  g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e,base.z+off[2]*e+dz);
   g.rotation.y=rotateSample?angle:0;
-  if(part.id==='B09'&&g.userData.slidingTop)g.userData.slidingTop.position.x=sampleShift;
+  if(g.userData.slidingTop){
+    g.userData.slidingTop.position.x=part.id==='B03'?filmShift:
+      (part.id==='B09'||part.id==='A02'?sampleShift:0);
+  }
  
  });
  if(active)updateMeasurement();
@@ -561,8 +587,21 @@ renderer.domElement.addEventListener('pointerup',ev=>{
    if(cur?.userData.partId){selectPart(cur.userData.partId);found=true;break;}}
  if(!found)selectPart(null);
 });
-$('show-b').onclick=()=>{platform='B';$('show-b').classList.add('on');$('show-a').classList.remove('on');resetScene()};
-$('show-a').onclick=()=>{platform='A';$('show-a').classList.add('on');$('show-b').classList.remove('on');resetScene()};
+function switchPlatform(next){
+  platform=next;
+  explosion=0;filmShift=0;sampleShift=0;sampleAngle=0;
+  for(const [id,value] of [['explode','0'],['translate','0'],['sample-move','0'],['rotate-sample','0']])$(id).value=value;
+  $('explode-value').textContent='0%';$('translate-value').textContent='0 mm';
+  $('sample-value').textContent='0 mm';$('rotate-value').textContent='0°';
+  $('show-b').classList.toggle('on',next==='B');
+  $('show-a').classList.toggle('on',next==='A');
+  // The A transfer arm's X mobility is not verified from photos: disable fictional travel.
+  $('translate').disabled=next==='A';
+  $('translate').title=next==='A'?'A 套载玻片侧 X 轴驱动未经实物确认':'B 套 T25M 平移';
+  resetScene();
+}
+$('show-b').onclick=()=>switchPlatform('B');
+$('show-a').onclick=()=>switchPlatform('A');
 $('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$('btn-front').onclick=()=>focus('front');$('btn-iso').onclick=()=>focus('iso');
 $('explode').oninput=e=>{explosion=Number(e.target.value);$('explode-value').textContent=explosion+'%';updateTransforms()};
 $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value').textContent=filmShift.toFixed(1)+' mm';updateTransforms()};
