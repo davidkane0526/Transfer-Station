@@ -7,6 +7,7 @@ import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js';
 import {enrichParts} from './details.js';
 import {enriched,pricedSummary,csvExportRows} from './procurement.js';
 import {stageLocalTranslation} from './kinematics.js';
+import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -119,14 +120,16 @@ function makeBoard(){
   label(g,'光学面包板 · 25 mm 网格',-140,h+10,120);
  },{explode:[0,0,0]});
 }
-function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={}){
+function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handleSide=1){
  addPart(id,x,y,z,g=>{
    add(g,cub(w,h*.55,d,mats.dark,0,h*.275,0));
    const carriage=new THREE.Group();g.add(carriage);g.userData.slidingTop=carriage;
    add(carriage,cub(w*.94,h*.45,d*.92,mats.steel,0,h*.78,0));
-   add(g,cub(14,12,14,mats.dark,w/2+6,h*.5,0));
-   const v=add(g,cyl(6,24,mats.silver,w/2+22,h*.5,0));v.rotation.z=Math.PI/2;
-   add(g,cyl(9,12,mats.silver,w/2+34,h*.5,0)).rotation.z=Math.PI/2;
+   // This is an *individual stage* micrometer. Never give every axis +X.
+   const side=handleSide;
+   add(g,cub(14,12,14,mats.dark,side*(w/2+6),h*.5,0));
+   const v=add(g,cyl(6,24,mats.silver,side*(w/2+22),h*.5,0));v.rotation.z=Math.PI/2;
+   add(g,cyl(9,12,mats.silver,side*(w/2+34),h*.5,0)).rotation.z=Math.PI/2;
    if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(carriage,3,h+.5,xx,zz);
    label(g,title,0,h+11,0);
  },{explode:[0,id.endsWith('03')?15:10,0],...motion});
@@ -138,13 +141,17 @@ function filmB(){
     for(const pitch of [50,40,32])for(const x of [-pitch/2,pitch/2])for(const z of [-pitch/2,pitch/2])circleGuide(g,pitch===50?3:2,20.4,x,z);
     label(g,'GCM-420302M',0,38,0);
  },{explode:[-25,0,0]});
- makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M');
+ // 108/109: magnet B02 touches board, T25M is ON magnet and handle faces -X.
+ makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M (micrometer -X)',false,{},-1);
  addPart('B04',ax,60,0,g=>{
   add(g,cub(65,8,66,mats.steel,0,4,0));
   add(g,cub(52,46,53,mats.dark,0,31,0));
   add(g,cub(65,8,66,mats.steel,0,58,0));
-  const sc=add(g,cyl(7,44,mats.silver,27,31,0));sc.rotation.z=Math.PI/2;
-  label(g,'GCM-V25M · Z行程25',0,83,0);
+  // 108.jpg: V25M micrometer is VERTICAL (+Y), distinct from T25M.
+  add(g,cub(16,14,18,mats.dark,-24,24,0));
+  add(g,cyl(6.5,40,mats.silver,-24,46,0));
+  add(g,cyl(9,17,mats.silver,-24,73,0));
+  label(g,'GCM-V25M · 竖直测微头 +Y',0,89,0);
  },{explode:[-24,30,0],moveFilm:true});
  // Rear-offset bar avoids the microscope/optical axis. All dimensions here
  // are constrained candidate geometry, not measured from the original device.
@@ -179,7 +186,8 @@ function rotaryB(){
     add(g,cyl(47,10.2,mats.steel,0,28.1,0));
     add(g,torus(45,1.0,mats.ink,0,33.35,0));
     for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(g,2.6,33.5,x,z);
-    const knob=add(g,cyl(8,31,mats.silver,54,12,0));knob.rotation.z=Math.PI/2;
+    // 111.jpg rotary silver lock handle faces the operator (+Z), not +X.
+    const knob=add(g,cyl(6,31,mats.silver,0,12,57));knob.rotation.x=Math.PI/2;
     label(g,'GCM-1107M · Ø94×33.2',0,46,0);
  },{explode:[12,0,0],rotateSample:false});
  addPart('B09',sx,53.2,0,g=>{
@@ -303,30 +311,43 @@ function platformA(){
  const ax=CONFIG.A.armX,sx=CONFIG.A.sampleX;
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
  // not the separate left transfer-arm adjustment stage.
- makeStageBlock('A02',sx,53.2,0,65,65,20,'GCM-T25M',true,{rotateSample:true});
- addPart('A03',ax,20,0,g=>{
-    add(g,cub(65,8,65,mats.steel,0,4,0));add(g,cub(55,36,45,mats.dark,0,26,0));add(g,cub(65,7,65,mats.steel,0,47.5,0));
-    label(g,'GCM-VC13M',0,65,0);
+ // A sample branch: 100.jpg rotation -> sample-side T25M.
+ makeStageBlock('A02',sx,53.2,0,65,65,20,'样品侧 GCM-T25M (+X)',true,{rotateSample:true},1);
+ // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
+ makeStageBlock('A15',ax,20,0,65,65,20,'载玻片侧 GCM-T25M (+X)',false,{},1);
+ addPart('A03',ax,40,0,g=>{
+    add(g,cub(65,8,65,mats.steel,0,4,0));
+    add(g,cub(55,36,45,mats.dark,0,26,0));
+    add(g,cub(65,7,65,mats.steel,0,47.5,0));
+    // 97.jpg: vertically directed measuring barrel on the VC13M face.
+    add(g,cub(14,12,12,mats.dark,0,22,30));
+    add(g,cyl(5.5,35,mats.silver,0,43,31));
+    add(g,cyl(8.5,15,mats.silver,0,70,31));
+    label(g,'GCM-VC13M / 竖直测微头',0,76,0);
  },{explode:[-15,18,0],moveFilm:true});
- addPart('A04',ax,71,0,g=>{
+ addPart('A04',ax,91,0,g=>{
   add(g,cub(40,15,40,mats.dark,0,7.5,0));
-  const top=add(g,cub(40,5,40,mats.steel,0,17.5,0));top.rotation.z=0;
-  label(g,'GCM-G40M60L 摆角台',0,45,0);
+  const top=add(g,cub(40,5,40,mats.steel,0,17.5,0));
+  const screw=add(g,cyl(5,22,mats.silver,29,10,0));screw.rotation.z=Math.PI/2;
+  add(g,cyl(8.5,15,mats.silver,43,10,0)).rotation.z=Math.PI/2;
+  label(g,'GCM-G40M60L / 右侧测微头',0,45,0);
  },{explode:[-25,42,0],moveFilm:true});
  addPart('A05',sx,132,0,g=>{
    // Candidate structural closure: vertical riser on A04 and horizontal arm
    // from ax to sx. Photo does not prove exact rod length or mounting screws.
-   const span=sx-ax,risey=(91+153)/2-132;
-   add(g,cub(13,62,13,mats.steel,ax-sx,risey,0));
+   const span=sx-ax,risey=(111+153)/2-132;
+   add(g,cub(13,42,13,mats.steel,ax-sx,risey,0));
    add(g,cub(span+20,8,12,mats.steel,(ax-sx)/2,25,0));
    add(g,cub(12,39,12,33,1.5,0));
    add(g,cub(52,13,20,mats.dark,-4,-8,0));
    add(g,cub(76,1,26,mats.glass,0,-18,0));
    label(g,'载玻片转移台 / 夹具 · 自制连接件候选',0,34,0);
- },{explode:[-13,65,0]});
+ },{explode:[-13,65,0],moveFilm:true});
  addPart('A06',sx,20,0,g=>{
-  add(g,cyl(47,33.2,mats.dark,0,16.6,0));add(g,torus(44,1,mats.steel,0,33.5,0));
-  label(g,'A 套旋转台：GCM-11 系列疑似',0,54,0);
+  add(g,cyl(47,33.2,mats.dark,0,16.6,0));
+  add(g,torus(44,1,mats.steel,0,33.5,0));
+  const lock=add(g,cyl(6,28,mats.steel,0,12,59));lock.rotation.x=Math.PI/2;
+  label(g,'A 套旋转台：前侧锁止杆候选',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,73.2,0,g=>{
   add(g,cub(65,18,65,mats.steel,0,9,0));
@@ -448,8 +469,8 @@ function updateTransforms(){
   g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e,base.z+off[2]*e+dz);
   g.rotation.y=rotateSample?angle:0;
   if(g.userData.slidingTop){
-    g.userData.slidingTop.position.x=part.id==='B03'?filmShift:
-      (part.id==='B09'||part.id==='A02'?sampleShift:0);
+    g.userData.slidingTop.position.x=(part.id==='B03'||part.id==='A15')?filmShift:
+      (part.id==='B09'||part.id==='A02')?sampleShift:0;
   }
  
  });
@@ -479,8 +500,8 @@ function resetScene(){
  populateGroups();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?'平台 B · MXFMS / 双运动分支 / 真空加热吸附台':'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  '样品：光学面包板 → GCM-1107M 旋转 → NFP-1462C 平移 → 10mm 隔热板 → 开腔金属吸附块。真空接头与陶瓷加热片双引线都在后侧（−Z）。玻片夹口与1mm厚玻片已经按候选高度对齐。':
-  '样品和玻片运动台与成像系统为独立分支。此套系统的显微成像路径含 Thorlabs TTL200-A 和 Daheng 工业相机。A 套样品加热台内部结构未经确认，因此未复制 B 套真空气孔。';
+  '载玻片侧由下至上：B02磁吸底座（贴面包板最底层）→B03 T25M（手柄−X）→B04 V25M（竖直手柄+Y）→转移臂。样品侧：B08旋转台（锁止+Z）→B09 NFP（手柄+X）→隔热和加热台。照片108/109/110/111证实顺序，尺寸仍含候选。':
+  '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
 }
@@ -603,9 +624,9 @@ function switchPlatform(next){
   $('sample-value').textContent='0 mm';$('rotate-value').textContent='0°';
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
-  // The A transfer arm's X mobility is not verified from photos: disable fictional travel.
-  $('translate').disabled=next==='A';
-  $('translate').title=next==='A'?'A 套载玻片侧 X 轴驱动未经实物确认':'B 套 T25M 平移';
+  // Both A and B have photo-confirmed film-side T25M. Actual travel use remains candidate.
+  $('translate').disabled=false;
+  $('translate').title=next==='A'?'A15: 照片95/97证明存在载玻片侧 T25M':'B03: 照片108/109证明存在磁座上T25M';
   resetScene();
 }
 $('show-b').onclick=()=>switchPlatform('B');
