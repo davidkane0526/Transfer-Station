@@ -394,6 +394,32 @@ function platformA(){
 function addAxis(){
  const axes=new THREE.AxesHelper(80);axes.position.set(-216,22,145);currentRoot.add(axes);axisObjects.push(axes);
 }
+function renderPhotoLedger(){
+ const host=$('photo-ledger');if(!host)return;host.replaceChildren();
+ const stack=STACKS[platform];
+ const note=document.createElement('p');note.textContent=stack.confidence;host.append(note);
+ for(const [side,ids] of Object.entries({film:stack.film,sample:stack.sample})){
+   const heading=document.createElement('div');heading.className='key';
+   heading.textContent=side==='film'?'载玻片侧（从下至上）':'样品侧（从下至上）';
+   host.append(heading);
+   const list=document.createElement('div');list.className='list';
+   for(const id of ids){
+     const part=PARTS[platform].find(x=>x.id===id);if(!part)continue;
+     const b=document.createElement('button');b.className='photo-part';
+     b.textContent=id+' · '+part.model+' · '+part.name;
+     const h=HANDLES[id];
+     if(h){const sp=document.createElement('span');sp.className='source-tag';
+       sp.textContent='手柄 '+h.direction+' · '+h.evidence;b.append(sp);}
+     b.onclick=()=>selectPart(id);list.append(b);
+   }
+   host.append(list);
+ }
+ const m=document.createElement('div');m.className='marked-note';
+ m.textContent=platform==='B'?
+   'B02 GCM-420302M 必须直接接触面包板并位于 B03 T25M 下面；中部圆柱是 Zolix 夹持器，不是第二个磁吸底座。':
+   'A15 与 A02 为两台不同 T25M：照片97所示 A15 在 VC13M 下；照片100所示 A02 在旋转台上。';
+ host.append(m);
+}
 function populateGroups(){
  const list=$('group-list');list.replaceChildren();
  const meta=PARTS[platform];for(const [key,cfg] of Object.entries(groups)){
@@ -497,7 +523,7 @@ function resetScene(){
    if(p?.userData.partId){mesh.userData.partId=p.userData.partId;hitMeshes.push(mesh)}
  });
  holes.forEach(h=>h.visible=showHoles);selectedLabels();
- populateGroups();updateDetail(null);updateTransforms();
+ populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?'平台 B · MXFMS / 双运动分支 / 真空加热吸附台':'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
   '载玻片侧由下至上：B02磁吸底座（贴面包板最底层）→B03 T25M（手柄−X）→B04 V25M（竖直手柄+Y）→转移臂。样品侧：B08旋转台（锁止+Z）→B09 NFP（手柄+X）→隔热和加热台。照片108/109/110/111证实顺序，尺寸仍含候选。':
