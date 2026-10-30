@@ -13,6 +13,7 @@ def box(w,d,h,x,y,z):
     return cq.Workplane('XY').box(w,d,h,centered=(True,True,False)).translate((x,y,z)).val()
 def vz(r,h,x,y,z): return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,0,1))
 def vx(r,h,x,y,z): return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(1,0,0))
+def vy(r,h,x,y,z): return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,1,0))
 def cut(s,coords,diam,h,z):
     for x,y in coords:s=s.cut(vz(diam/2,h,x,y,z))
     return s
@@ -43,18 +44,27 @@ def heater(cx=82,cy=0,z=86.2):
     metal=box(65,65,12,cx,cy,z)
     # Bottom milled pocket + lead side route + bead contact shallow relief.
     metal=metal.cut(box(38.6,38.6,5.4,cx,cy,z))
-    metal=metal.cut(box(14,5,3,cx-26,cy+12,z))
+    # BACK is -Y in the CadQuery XY ground plane, equivalent to web -Z.
+    # Heater wires pass through the rear wall towards the ceramic heater pocket.
+    for lead_x in (10,15):
+        metal=metal.cut(vy(1.2,13.5,cx+lead_x,cy-32.5,z+2.5))
+    # Thermocouple groove in the underside of cavity roof exits BACK.
+    metal=metal.cut(box(1.6,32.5,.9,cx+6,cy-16.25,z+5.4))
     metal=metal.cut(box(5,2,.8,cx+6,cy,z+5.4))
     metal=cut(metal,corners,6.6,12,z)
     metal=cut(metal,corners,11,6.5,z+5.5)
     metal=metal.cut(vz(.7,3,cx,cy,z+9))
-    metal=metal.cut(vx(1.4,32.6,cx-32.6,cy,z+9.3))
+    metal=metal.cut(vy(1.4,32.6,cx,cy-32.6,z+9.3))
     add('B','B11','milled_chuck_single_vacuum_hole',metal,'U')
     add('B','B12','ceramic_heater_38x38x5_NEW_CANDIDATE',box(38,38,5,cx,cy,z+.3))
     ins=cut(box(65,65,10,cx,cy,z-10),corners,6.8,10,z-10)
     add('B','B10','insulator_10mm_CANDIDATE',ins,'U')
     add('B','B13','thermocouple_bead_CANDIDATE',vz(.4,.8,cx+6,cy,z+5.35))
-    add('B','B15','vacuum_fitting_PROXY',vx(2.4,9,cx-41.5,cy,z+9.3))
+    add('B','B15','rear_vacuum_fitting_PROXY',vy(2.4,12,cx,cy-44.5,z+9.3))
+    add('B','B15T','rear_vacuum_hose_PROXY',vy(1.8,30,cx,cy-74.5,z+9.3))
+    for n,xx in enumerate((10,15),1):
+        add('B',f'B12L{n}',f'rear_heater_wire_{n}_PROXY',vy(.55,40.5,cx+xx,cy-59.5,z+2.5))
+    add('B','B13L','rear_thermocouple_wire_PROXY',vy(.34,59.5,cx+6,cy-59.5,z+5.85))
     for i,(x,y) in enumerate(corners,1):
         # M6×25 length is specified *under the head*. Head sits 0.5 mm below the
         # top plane in a 6.5 mm counterbore. Join shaft/head with zero axial gap.
@@ -76,13 +86,18 @@ def make_b():
     add('B','B04A','GCMV25M_body_PROXY',box(52,53,46,ax,0,68))
     add('B','B04B','GCMV25M_top',box(65,66,8,ax,0,114))
     add('B','B05D','post_to_V25M_base_CANDIDATE',box(36,36,20,ax,0,122))
-    add('B','B05','post',vz(6.35,155,ax,0,141.5))
-    add('B','B05A','post_clamp',box(35,31,27,ax,0,251))
-    add('B','B05B','horizontal_rod',vx(6.35,249,ax,0,265))
-    add('B','B05C','hanging_rod',vz(5,90,cx+52,0,175))
-    add('B','B06','film_clamp',box(52,21,13,cx+52,0,165))
-    add('B','B07','glass_slide',box(76,26,1,cx,0,138.5))
-    add('B','B07A','pdms',box(20,20,1,cx+20,0,137))
+    add('B','B05','post',vz(6.35,85,ax,0,141.5))
+    add('B','B05A','rear_offset_post_clamp',box(35,80,27,ax,-20,171.5))
+    add('B','B05B','rear_horizontal_rod',vx(6.35,249,ax,-40,185))
+    add('B','B05C','hanging_rod',vz(5,57,cx+55,0,128))
+    clip=box(52,21,13,cx+52,0,115)
+    clip=clip.fuse(box(48,14,4,cx+38,0,100.5)) # lower jaw
+    clip=clip.fuse(box(48,14,4,cx+38,0,106))   # upper jaw
+    clip=clip.fuse(box(8,14,15,cx+61,0,100.5)) # outside bridge
+    assert len(clip.Solids())==1, 'Clamp should be one connected bracket'
+    add('B','B06','clamp_1p5mm_open_slot_CANDIDATE',clip)
+    add('B','B07','glass_slide',box(76,26,1,cx+5,0,104.5))
+    add('B','B07A','pdms',box(20,20,1.8,cx,0,102.7))
     rot('B','B08',cx,0,20,'D')
     corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
     lo=cut(box(65,65,11,cx,0,53.2),corners,6.5,11,53.2)
