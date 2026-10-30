@@ -89,12 +89,13 @@ export function enrichParts(partMap, platform, onMesh){
   }
   function stageHardware(part,frontLabel){
     const g=part.g;
+    const movingTop=g.userData.slidingTop||g;
     const stageType=part.part.id;
     const topY=stageType==='B09'?23:stageType==='B03'||stageType==='A02'?20:65;
     box(g,51,1.2,5,0,stageType==='B09'?11.5:10.4,31,graphite,.1);
     box(g,51,1.2,5,0,stageType==='B09'?11.5:10.4,-31,graphite,.1);
-    for(let x of [-21,21])for(let z of [-24,24])screwHead(g,x,topY+.7,z,2.1);
-    for(let i=-2;i<=2;i++) box(g,3,2.4,18,i*10,topY-1.5,0,gunmetal,.3);
+    for(let x of [-21,21])for(let z of [-24,24])screwHead(movingTop,x,topY+.7,z,2.1);
+    for(let i=-2;i<=2;i++) box(movingTop,3,2.4,18,i*10,topY-1.5,0,gunmetal,.3);
     // Black crossed roller bearing carrier, side cover screws and engraved branding
     if(stageType==='B09'){
       for(let x of [-26,-15,16,27])screwHead(g,x,11.5,33,2.7,'front');
