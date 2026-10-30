@@ -54,6 +54,8 @@ await page.locator('#rotate-sample').fill('0');
 await page.locator('#show-a').click();
 await page.waitForTimeout(600);
 assert((await page.locator('#platform-caption').textContent()).includes('平台 A'),'switch to A failed');
+const stale=await page.locator('#viewer').evaluate(el=>(el.innerText||'').includes('NFP-1462C'));
+assert(!stale,'old platform B CSS2D part label is still visible after A switch');
 await page.locator('#open-bom').click();
 const aRows=await page.locator('#bom-body tr').count();
 assert(aRows>=14,'A BOM missing revised parts');
