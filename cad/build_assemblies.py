@@ -56,9 +56,14 @@ def heater(cx=82,cy=0,z=86.2):
     add('B','B13','thermocouple_bead_CANDIDATE',vz(.4,.8,cx+6,cy,z+5.35))
     add('B','B15','vacuum_fitting_PROXY',vx(2.4,9,cx-41.5,cy,z+9.3))
     for i,(x,y) in enumerate(corners,1):
-        shaft=vz(3,25,x,y,z+12-6.5-25)
-        head=vz(5,6,x,y,z+12-6)
-        add('B','B14_'+str(i),'M6x25_candidate_'+str(i),shaft.fuse(head),'I')
+        # M6×25 length is specified *under the head*. Head sits 0.5 mm below the
+        # top plane in a 6.5 mm counterbore. Join shaft/head with zero axial gap.
+        head_bottom=z+12-6.5
+        shaft=vz(3,25,x,y,head_bottom-25)
+        head=vz(5,6,x,y,head_bottom)
+        screw=shaft.fuse(head)
+        assert len(screw.Solids())==1, 'Disconnected screw head/shaft'
+        add('B','B14_'+str(i),'M6x25_candidate_'+str(i),screw,'I')
 def make_b():
     board('B')
     ax,cx=-112,82
@@ -82,7 +87,10 @@ def make_b():
     lo=cut(box(65,65,11,cx,0,53.2),corners,6.5,11,53.2)
     add('B','B09','NFP1462C_lower_ENVELOPE',lo,'D')
     top=box(65,65,12,cx,0,64.2)
-    top=cut(top,[(cx+dx,dy) for dx in (-25,0,25) for dy in (-25,0,25)],5,7,69.2)
+    # 10 mm drilled depth is a *candidate*, NOT vendor-confirmed tapping depth.
+    # It clears the proposed 9.5 mm screw engagement with 0.5 mm axial margin.
+    # Correct hole depth must be checked on the physical slide before purchase.
+    top=cut(top,[(cx+dx,dy) for dx in (-25,0,25) for dy in (-25,0,25)],5,10,66.2)
     top=cut(top,[(cx+dx,dy) for dx in (-16,16) for dy in (-16,16)],2.5,7,69.2)
     add('B','B09A','NFP1462C_upper_M6_M3_ENVELOPE',top,'D')
     add('B','B09B','NFP_micro',vx(6.5,62,cx+33,0,64.5))
@@ -108,7 +116,10 @@ def make_a():
     add('A','A03','VC13M_ENVELOPE',box(65,65,51,ax,0,20))
     add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,71),'D')
     add('A','A05','slide',box(76,26,1,cx,0,114))
-    add('A','A05A','slide_arm',box(151,12,8,cx-71,0,143))
+    # A transfer beam must span from the left tilt-stage axis (ax) to
+    # the slide center (cx); earlier 151 mm proxy stopped ~46 mm short.
+    add('A','A05A','slide_arm_CANDIDATE',box(215,12,8,(ax+cx)/2,0,153))
+    add('A','A05B','slide_arm_vertical_support_CANDIDATE',box(13,13,62,ax,0,91))
     rot('A','A06',cx,0,20,'I')
     add('A','A07','heater_proxy',box(65,65,18,cx,0,73.2))
     add('A','A10','imaging_column',vz(13,225,cx,-112,32))
