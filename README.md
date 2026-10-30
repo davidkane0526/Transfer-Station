@@ -1,4 +1,4 @@
-# Transfer Station · 二维材料干法转移平台工程复原（V18）
+# Transfer Station · 二维材料干法转移平台工程复原（V19）
 
 基于两套实物平台照片/视频、厂家手册与经使用者确认的装配结构，持续复原显微镜、载玻片移动臂、样品平移/旋转台、真空陶瓷加热台、光学面包板、LED驱动与温控气路。**V17 是图纸/照片约束下的交互工程数字样机，并非所有部件均为厂家原生 CAD。**
 
@@ -13,6 +13,15 @@ python -m http.server 8765
 ```
 
 然后打开 `http://localhost:8765`，依赖联网加载 Three.js。不能直接双击 index.html 在 `file://` 下打开，因为 ES Modules 与浏览器 CORS 限制可能阻止加载。
+
+## V19：从原始照片与两段视频重做装配顺序和手柄方向
+
+- **A 套必须有两台独立 GCM-T25M**。照片 95/97 显示载玻片侧最底层 A15（在 VC13M 下），照片 100 显示另一台 A02 位于样品旋转台和样品金属块之间。以前合并成一台属于根本性复原错误。BOM 已分别计入。
+- **B 套磁吸底座 GCM-420302M 贴在光学面包板上，处于载玻片侧最底层**（108、112），其上才是 T25M，再上是竖直 V25M。中间黑色大圆柱是 **Zolix 圆杆夹具而非磁座**。
+- **按部件区别手柄方向**：B03 T25M→−X，B04 V25M→+Y，B08旋转台锁止→+Z，B09 NFP→+X；A15/A02 T25M→+X，A03 VC13M→+Y，A04摆角台→+X。各方向在统一模型坐标系中表述，参考照片编号见下方对照账本。
+- **网页增加两种局部放大视角**：载玻片侧、样品侧；右侧显示**可点击的照片–部件–手柄证据清单**。
+- **CAD回归测试**校验磁座必须接触面包板、各台上下接触关系、两台T25M独立实例、所有候选方向；软件校核不等于真机尺寸认证。
+- [查看V19逐张照片及视频对照](docs/photo-audit-v19.md)。
 
 ## V18 核心修复：载玻片夹具 / 后侧真空气、电接口
 
@@ -48,12 +57,14 @@ index.html                    前端入口
 src/app.js                    Three.js 主装配、运动约束、选择和 BOM
 src/details.js                写实细节模型、PBR 材质、刻度、滚花、金属印字
 src/parts.js                  两套平台的部件与证据等级
+src/photo-evidence.js         两平台原图支持的叠层顺序及各测微头方向
 src/procurement.js            公开报价、替代供应商、来源网址、汇总
 src/styles.css                响应式页面
 cad/build_assemblies.py       可拆分 STEP 生成脚本（以 mm 为单位）
 docs/engineering.md           机械基准、孔位与碰撞风险
 docs/forensics-v17.md         对原照片/视频逐项核对
 tests/smoke.mjs               Playwright 浏览器交互测试
+tests/photo-assembly.mjs       原照片装配链与手柄方向回归检查
 .github/workflows/            STEP 构建、UI测试与 GitHub Pages 部署
 ```
 
