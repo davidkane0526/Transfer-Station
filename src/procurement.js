@@ -28,7 +28,8 @@ const base={
 };
 const A={
  A01:base.B01,
- A02:{...base.B03,qty:1},
+ A02:{...base.B03,qty:1,note:'照片100：安装于样品旋转台上方的独立GCM-T25M，右侧测微头。不能与照片97所示载玻片侧A15合并'},
+ A15:{...base.B03,qty:1,note:'照片95、97：载玻片支架最底层，VC13M正下方的第二台独立GCM-T25M，右侧测微头。应单独采购/计费'},
  A03:{qty:1,category:'精密垂直台',alternatives:[['Zolix','高精度垂直微调台','https://www.zolix-group.com/']],note:'A 组 95/97 可见 GCM-VC13M；外壳尺寸尚未由厂家图纸确认'},
  A04:{qty:1,category:'倾角平台',alternatives:[['Newport','双轴倾角平台','https://www.newport.com/'],['Thorlabs','Goniometer/tilt platform','https://www.thorlabs.com/']],note:'照片94 GCM-G40M60L 型号清晰，但完整机械孔位尚待厂家图确认'},
  A05:base.B07,
