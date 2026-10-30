@@ -7,6 +7,10 @@ permissions:
   contents: read
   pages: write
   id-token: write
+# Prevent simultaneous Pages deployments from failing with HTTP 400.
+concurrency:
+  group: transfer-station-pages
+  cancel-in-progress: false
 jobs:
   validate:
     runs-on: ubuntu-latest
