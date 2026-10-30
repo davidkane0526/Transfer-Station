@@ -29,6 +29,12 @@
 <aside class="detail"><div class="title">04 / 点击选中 · 尺寸与装配证据</div><div id="part-detail" class="select-placeholder">点击模型中的部件，或在下面查看零件表。绿色标签代表厂家标称尺寸，橙色/红色表示尚需验证的候选几何。</div>
 <div class="control-block"><div class="title">尺寸可信度</div><div class="legend"><span class="status D">D 原厂图纸</span><span class="status P">P 照片</span><span class="status U">U 用户确认</span><span class="status I">I 推导</span><span class="status C">C 候选</span></div><div class="warning">**工程使用限制**：真实外形、真实孔距与厂家完整 CAD 是三个不同层次。本模型的显微镜和部分转接件仍为外形代理，不能直接用于加工或接线。</div></div>
 <div class="control-block"><div class="title">装配链</div><div id="stack-note" class="small"></div></div>
+<div class="control-block"><div class="title">导入原厂三维 CAD（本地）</div>
+<p class="small">选中模型中的一个零件后，可以导入该零件的原厂 STL 或 GLB，用真实网格替换候选外形。浏览器不上传文件；要保留修改需在本地另存。</p>
+<div class="buttons"><button id="import-cad">为选中零件导入 STL / GLB</button>
+<select id="import-units" aria-label="导入模型尺寸单位"><option value="1">文件为 mm</option><option value="1000">文件为 m → mm</option></select></div>
+<input type="file" id="cad-file" accept=".stl,.glb" hidden>
+<p class="small" id="import-status">尚未导入；STEP 请先转换为 STL。</p></div>
 <div class="control-block"><div class="title">文件与资料</div><div class="footlinks"><a href="docs/engineering.md">孔位/证据说明</a><a href="cad/build_assemblies.py">CAD 生成脚本</a><a href="README.md">项目说明</a></div></div>
 </aside>
 </div>
