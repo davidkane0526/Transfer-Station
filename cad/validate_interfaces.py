@@ -75,9 +75,9 @@ arot=part(A,'A06')[0].BoundingBox()
 a02=part(A,'A02')[0].BoundingBox()
 aheat=part(A,'A07')[0].BoundingBox()
 check(abs(a15.zmin-20)<.02,'A film T25M at bottom level 20')
-check(abs(a15.zmax-a03.zmin)<.02,'A film T25M directly UNDER VC13M')
+check(abs(part(A,'A15A')[0].BoundingBox().zmax-a03.zmin)<.02,'A film T25M directly UNDER VC13M')
 check(abs(a03.zmax-a04.zmin)<.02,'A VC13M directly UNDER G40M60L')
-check(abs(arot.zmax-a02.zmin)<.02,'A sample T25M above rotary')
+check(abs(part(A,'A06A')[0].BoundingBox().zmax-a02.zmin)<.02,'A sample T25M above rotary')
 check(abs((a02.zmin+20)-aheat.zmin)<.02,'A sample heater above second T25M')
 check(part(A,'A15B')[0].BoundingBox().xmin>=a15.xmax-.02,
       'A film T25M handle points to RIGHT +X')
@@ -87,7 +87,8 @@ check(part(A,'A03M')[0].BoundingBox().zmax<=part(A,'A03K')[0].BoundingBox().zmin
       'A VC13M micrometer is vertically oriented')
 check(part(A,'A04M')[0].BoundingBox().xmin>=a04.xmax-.02,
       'A tilt micrometer exits RIGHT')
-check(len([k for k,_,_,_ in []])==0,'Independent A T25M instances in different branches') if False else None
+check(abs((a15.xmin+a15.xmax)/2-(a02.xmin+a02.xmax)/2)>100,
+      'Two independent A T25M instances occupy distinct film/sample positions')
 # A's transfer beam, vertical support, edge clamp contact by boundary (not true fasteners).
 a_rot=part(A,'A06A')[0].BoundingBox()
 a_stg=part(A,'A02')[0].BoundingBox()
