@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {CSS2DRenderer,CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
 import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js';
+import {enrichParts} from './details.js';
+import {enriched,pricedSummary,csvExportRows} from './procurement.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -41,7 +43,32 @@ illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
 let platform='B', currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
-    filmShift=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,wireframe=false,showAxes=false;
+    filmShift=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
+let pointerDown=null;
+const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
+const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
+function clearMeasurement(){
+ while(measurementOverlay.children.length){
+    const o=measurementOverlay.children[0];measurementOverlay.remove(o);
+    if(o.geometry)o.geometry.dispose();
+ }
+}
+function selectedLabels(){
+ labels.forEach(l=>l.visible=Boolean(showLabels&&active&&l.parent===active.g));
+}
+function updateMeasurement(){
+ clearMeasurement();if(!showDimensions||!active)return;
+ active.g.updateWorldMatrix(true,true);
+ const bounds=new THREE.Box3().setFromObject(active.g,true);
+ if(bounds.isEmpty())return;
+ const w=bounds.max.x-bounds.min.x,h=bounds.max.y-bounds.min.y,d=bounds.max.z-bounds.min.z;
+ const helper=new THREE.Box3Helper(bounds,0x7ec8f4);measurementOverlay.add(helper);
+ const el=document.createElement('div');el.className='dimension-bubble';
+ el.textContent='显示包络 '+[w,h,d].map(x=>x.toFixed(1)).join(' × ')+' mm';
+ const bubble=new CSS2DObject(el);
+ bubble.position.set(bounds.max.x+8,bounds.max.y+12,bounds.max.z+5);
+ measurementOverlay.add(bubble);
+}
 scene.add(currentRoot);
 const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2();
 const hitMeshes=[],holes=[],labels=[],axisObjects=[];
@@ -144,10 +171,11 @@ function rotaryB(){
  },{explode:[12,0,0],rotateSample:false});
  addPart('B09',sx,53.2,0,g=>{
    add(g,cub(65,11,65,mats.dark,0,5.5,0));
-   add(g,cub(65,12,65,mats.steel,0,17,0));
+   const slidingTop=new THREE.Group();g.add(slidingTop);g.userData.slidingTop=slidingTop;
+   add(slidingTop,cub(65,12,65,mats.steel,0,17,0));
    const mic=add(g,cyl(7,32,mats.silver,46,12,0));mic.rotation.z=Math.PI/2;
-   for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(g,2.8,23.4,x,z);
-   for(const x of [-16,16])for(const z of [-16,16])circleGuide(g,1.6,23.42,x,z);
+   for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
+   for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
    label(g,'NFP-1462C · 65×65×23',0,42,0);
  },{explode:[0,16,0],rotateSample:true});
  addPart('B10',sx,76.2,0,g=>{
@@ -207,7 +235,7 @@ function microscopeB(){
    add(g,cub(30,18,30,mats.steel,0,3,0));
    label(g,'SDPTOP 相机 · 型号待核',0,77,0);
  },{explode:[0,95,0]});
- addPart('B18',sx,205,0,g=>{
+ addPart('B18',sx,159,0,g=>{
    add(g,cyl(17,13,mats.dark,0,6.5,0));
    add(g,cyl(12.5,38,mats.steel,0,-18.5,0));
    add(g,cyl(10,12,mats.black,0,-43.5,0));
@@ -313,7 +341,7 @@ function populateGroups(){
  }
 }
 function updateDetail(part){
- const el=$('part-detail');if(!part){el.className='select-placeholder';el.textContent='点击模型中的任一实体，读取对应厂家、型号、尺寸、孔位证据及当前待核实信息。';return}
+ const el=$('part-detail');if(!part){el.className='select-placeholder';el.textContent='点击零件选中；再点空白取消。只显示被选中的零件标签，不遮挡模型。';return}
  el.className='';
  const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
@@ -323,14 +351,45 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
- '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>';
+ '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
+ '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
+ '<div class="field"><b>原厂资料 / 采购链接</b><div id="selected-source-links" class="footlinks"></div></div>';
+ const ex=enriched(platform,part);
+ const refs=[
+    ['原厂尺寸图',ex.drawing],['原厂 CAD',ex.cad],['型号规格',ex.datasheet],
+    ['报价页面',ex.quote?.source]
+ ];
+ const linkBox=$('selected-source-links');
+ for(const [name,url] of refs){if(!url?.startsWith('https://'))continue;
+    const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=name;linkBox.append(a);}
+
 }
 function selectPart(id){
- const v=parts.get(id);if(!v)return;
- if(active&&active.g)active.g.traverse(o=>{if(o.isMesh&&o.userData.restoreEmissive!==undefined){o.material=o.userData.originalMat;delete o.userData.originalMat;delete o.userData.restoreEmissive;}});
- active=v;
- v.g.traverse(o=>{if(o.isMesh){const m=o.material;if(m&&m.isMeshStandardMaterial&&!m.transparent){o.userData.originalMat=m;const newmat=m.clone();newmat.emissive=new THREE.Color('#134769');newmat.emissiveIntensity=.65;o.material=newmat;o.userData.restoreEmissive=true;}}});
- updateDetail(v.part);$('hover-help').textContent=v.part.id+' · '+v.part.name;
+ if(active&&active.g)active.g.traverse(o=>{
+   if(o.isMesh&&o.userData.originalMat){
+      o.material=o.userData.originalMat;
+      delete o.userData.originalMat;
+   }
+ });
+ const v=id?parts.get(id):null;
+ active=v||null;
+ if(!v){
+   updateDetail(null);selectedLabels();clearMeasurement();
+   $('hover-help').textContent='点击零件查看尺寸、来源和供应商；点击空白取消';
+   return;
+ }
+ v.g.traverse(o=>{
+   if(!o.isMesh||o.userData.originalMat)return;
+   const m=o.material;
+   if(m&&(m.isMeshStandardMaterial||m.isMeshPhysicalMaterial)&&!m.transparent){
+      o.userData.originalMat=m;
+      const highlight=m.clone();highlight.emissive=new THREE.Color('#12405b');highlight.emissiveIntensity=.42;
+      o.material=highlight;
+   }
+ });
+ updateDetail(v.part);
+ $('hover-help').textContent=v.part.id+' · '+v.part.name;
+ selectedLabels();updateMeasurement();
 }
 function updateTransforms(){
  const e=explosion/100,angle=sampleAngle*Math.PI/180;
@@ -338,16 +397,26 @@ function updateTransforms(){
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,sx=translateSample?sampleShift:0;
   g.position.set(base.x+off[0]*e+fx+sx,base.y+off[1]*e,base.z+off[2]*e);
   g.rotation.y=rotateSample?angle:0;
+  if(part.id==='B09'&&g.userData.slidingTop)g.userData.slidingTop.position.x=sampleShift;
+ 
  });
+ if(active)updateMeasurement();
 }
 function resetScene(){
- if(active){active=null}parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
+ active=null;clearMeasurement();parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
  scene.remove(currentRoot);currentRoot=new THREE.Group();scene.add(currentRoot);
  makeBoard();
  if(platform==='B'){filmB();rotaryB();microscopeB();externalB();}
  else platformA();
  addAxis();axisObjects.forEach(a=>a.visible=showAxes);
- holes.forEach(h=>h.visible=showHoles);labels.forEach(l=>l.visible=showLabels);
+ // Add detailed photo-informed finish, engraved markings, micrometer scales,
+ // and a realistic multi-objective imaging head. All remain proxy geometries.
+ enrichParts(parts,platform,mesh=>{
+   let p=mesh.parent;
+   while(p&&!p.userData.partId)p=p.parent;
+   if(p?.userData.partId){mesh.userData.partId=p.userData.partId;hitMeshes.push(mesh)}
+ });
+ holes.forEach(h=>h.visible=showHoles);selectedLabels();
  populateGroups();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?'平台 B · MXFMS / 双运动分支 / 真空加热吸附台':'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
@@ -363,26 +432,109 @@ function focus(mode){
   mode==='iso'?new THREE.Vector3(470,395,505):new THREE.Vector3(520,400,570);
  camera.position.copy(dst);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
+
+function buildLink(name,url){
+ if(!url?.startsWith('https://'))return document.createTextNode('—');
+ const a=document.createElement('a');a.href=url;a.target='_blank';
+ a.rel='noopener noreferrer';a.textContent=name;return a;
+}
+function summaryBOM(rows){
+ const dst=$('bom-summary');dst.replaceChildren();
+ const sum=pricedSummary(rows);
+ const card=(number,desc)=>{
+   const b=document.createElement('div');b.className='bom-stat';
+   const strong=document.createElement('strong');strong.textContent=number;
+   const sm=document.createElement('span');sm.textContent=desc;b.append(strong,sm);dst.append(b);
+ };
+ card(String(rows.length),'当前平台零件类别 / 行数');
+ card(String(sum.priced),'有公开参考价格');
+ card(String(sum.unpriced),'待询价零件行数');
+ for(const c of sum.currencies)card(c.currency+' '+c.amount.toFixed(2),'有价零件已知小计 · '+c.rows+' 行');
+ const n=document.createElement('div');n.className='bom-note';
+ n.textContent='没有不同币种混加；各小计仅覆盖已有公开报价，不代表整机总报价。历史参考价与新版现价混用时尤其需要重新询价。';
+ dst.append(n);
+}
+function sortedBOM(rows){
+ const sort=$('bom-sort').value;
+ const list=[...rows];
+ if(sort==='price-asc'||sort==='price-desc'){
+   list.sort((a,b)=>{
+      const ac=a.quote?.currency||'~',bc=b.quote?.currency||'~';
+      if(ac!==bc)return ac.localeCompare(bc);
+      const av=a.quote?.value,bv=b.quote?.value;
+      if(av==null)return 1;if(bv==null)return -1;
+      return sort==='price-desc'?bv-av:av-bv;
+   });
+ }else list.sort((a,b)=>String(a[sort]||'').localeCompare(String(b[sort]||''),'zh-CN',{numeric:true}));
+ return list;
+}
+function visibleBOM(){
+ const q=$('bom-query').value.trim().toLowerCase();
+ const priceOnly=$('priced-only').checked;
+ return sortedBOM(PARTS[platform].map(p=>enriched(platform,p)).filter(p=>
+    (!priceOnly||Boolean(p.quote?.value))&&
+    (!q||[p.id,p.name,p.model,p.maker,p.category,p.note,
+          ...(p.alternatives||[]).flatMap(a=>a.slice(0,2))]
+     .join(' ').toLowerCase().includes(q))
+ ));
+}
 function updateTable(){
  const tbody=$('bom-body');tbody.replaceChildren();
- for(const part of PARTS[platform]){
-  const tr=document.createElement('tr');const fields=[part.id,groups[part.group].name,part.name,part.maker+' / '+part.model,part.dims,part.level,part.price,part.evidence];
-  for(let i=0;i<fields.length;i++){const td=document.createElement('td');td.textContent=fields[i];if(i===5){const badge=document.createElement('span');badge.className='status '+part.level;badge.textContent=part.level;td.replaceChildren(badge)}tr.append(td)}
-  tr.onclick=()=>{selectPart(part.id);$('bom-drawer').classList.remove('open')};tr.style.cursor='pointer';tbody.append(tr)
+ const visible=visibleBOM();
+ for(const part of visible){
+  const tr=document.createElement('tr');tr.style.cursor='pointer';
+  function cell(text='',cls=''){
+    const td=document.createElement('td');td.textContent=text;td.className=cls;tr.append(td);return td;
+  }
+  cell(part.id);cell(groups[part.group].name);
+  cell(part.name+'\n'+(part.category||''));cell(part.maker+' / '+part.model);
+  cell(String(part.qty||1)+' '+(part.unit||'件'));cell(part.dims);
+  const b=cell();const badge=document.createElement('span');
+  badge.className='status '+part.level;badge.textContent=part.level;b.append(badge);
+  const materialCell=cell(part.material||'未定');
+  for(const alt of part.alternatives||[]){
+    const sp=document.createElement('span');sp.className='bom-alt';
+    sp.append('候选：',buildLink(alt[0],alt[2]),' · '+alt[1]);
+    materialCell.append(sp);
+  }
+  const q=part.quote;
+  cell(q?q.currency+' '+q.value.toFixed(2):'待询价','bom-price');
+  cell(q?q.currency+' '+(q.value*(part.qty||1)).toFixed(2):'—','bom-price');
+  const priceCell=cell(q?(q.type||'公开参考价')+'\n'+q.date:'—');
+  if(q?.source)priceCell.append(' · ',buildLink('价格来源',q.source));
+  const drawing=cell();
+  drawing.append(buildLink('原厂图纸',part.drawing));
+  if(part.cad)drawing.append(' · ',buildLink('CAD',part.cad));
+  if(part.datasheet)drawing.append(' · ',buildLink('产品页',part.datasheet));
+  cell(part.evidence||'未指定');
+  tr.onclick=(ev)=>{
+    if(ev.target.closest('a'))return;
+    selectPart(part.id);$('bom-drawer').classList.remove('open');
+  };
+  tbody.append(tr);
  }
- $('bom-heading').textContent='平台 '+platform+' · BOM 零件规格与证据';
+ summaryBOM(PARTS[platform].map(x=>enriched(platform,x)));
+ $('bom-heading').textContent='平台 '+platform+' · 原厂 BOM / 替代厂家 / 采购价格和总额';
 }
-function csvEscape(s){const v=String(s||'');return '"'+v.replaceAll('"','""')+'"'}
+function csvEscape(v){return '"'+String(v??'').replaceAll('"','""')+'"'}
 function exportCSV(){
- const fields=['id','group','name','maker','model','dims','level','detail','interfaceNote','evidence','price'];
- const body='\ufeff'+[fields.join(','),...PARTS[platform].map(o=>fields.map(f=>csvEscape(o[f])).join(','))].join('\r\n');
- const url=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='Transfer_Station_'+platform+'_BOM.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ const matrix=csvExportRows(PARTS[platform].map(p=>enriched(platform,p)));
+ const body='\\ufeff'+matrix.map(row=>row.map(csvEscape).join(',')).join('\\r\\n');
+ const url=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));
+ const a=document.createElement('a');a.href=url;a.download='Transfer_Station_'+platform+'_Procurement_BOM.csv';a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+renderer.domElement.addEventListener('pointerdown',ev=>{
+ pointerDown={x:ev.clientX,y:ev.clientY};
+});
 renderer.domElement.addEventListener('pointerup',ev=>{
- if(Math.abs(ev.movementX)>5||Math.abs(ev.movementY)>5)return;
+ if(!pointerDown||Math.hypot(ev.clientX-pointerDown.x,ev.clientY-pointerDown.y)>6)return;
  const bounds=renderer.domElement.getBoundingClientRect();pointer.set(((ev.clientX-bounds.left)/bounds.width)*2-1,-((ev.clientY-bounds.top)/bounds.height)*2+1);
  raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(hitMeshes.filter(x=>x.visible&&x.parent?.visible),false);
- for(const hit of hits){let cur=hit.object;while(cur&&!cur.userData.partId)cur=cur.parent;if(cur?.userData.partId){selectPart(cur.userData.partId);break}}
+ let found=false;
+ for(const hit of hits){let cur=hit.object;while(cur&&!cur.userData.partId)cur=cur.parent;
+   if(cur?.userData.partId){selectPart(cur.userData.partId);found=true;break;}}
+ if(!found)selectPart(null);
 });
 $('show-b').onclick=()=>{platform='B';$('show-b').classList.add('on');$('show-a').classList.remove('on');resetScene()};
 $('show-a').onclick=()=>{platform='A';$('show-a').classList.add('on');$('show-b').classList.remove('on');resetScene()};
@@ -392,7 +544,8 @@ $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value')
 $('sample-move').oninput=e=>{sampleShift=Number(e.target.value);$('sample-value').textContent=sampleShift.toFixed(1)+' mm';updateTransforms()};
 $('rotate-sample').oninput=e=>{sampleAngle=Number(e.target.value);$('rotate-value').textContent=sampleAngle+'°';updateTransforms()};
 $('toggle-holes').onclick=e=>{showHoles=!showHoles;e.currentTarget.classList.toggle('on',showHoles);holes.forEach(h=>h.visible=showHoles)};
-$('toggle-labels').onclick=e=>{showLabels=!showLabels;e.currentTarget.classList.toggle('on',showLabels);labels.forEach(h=>h.visible=showLabels)};
+$('toggle-labels').onclick=e=>{showLabels=!showLabels;e.currentTarget.classList.toggle('on',showLabels);selectedLabels()};
+$('toggle-dim').onclick=e=>{showDimensions=!showDimensions;e.currentTarget.classList.toggle('on',showDimensions);updateMeasurement()};
 $('toggle-axes').onclick=e=>{showAxes=!showAxes;e.currentTarget.classList.toggle('on',showAxes);axisObjects.forEach(a=>a.visible=showAxes)};
 $('toggle-wire').onclick=e=>{wireframe=!wireframe;e.currentTarget.classList.toggle('on',wireframe);parts.forEach(v=>v.g.traverse(o=>{if(o.isMesh&&o.material?.wireframe!==undefined)o.material.wireframe=wireframe}))};
 $('search').oninput=e=>{
@@ -403,7 +556,11 @@ $('search').oninput=e=>{
 $('open-bom').onclick=()=>$('bom-drawer').classList.add('open');
 $('close-bom').onclick=()=>$('bom-drawer').classList.remove('open');
 $('bom-drawer').onclick=e=>{if(e.target===$('bom-drawer'))$('bom-drawer').classList.remove('open')};
-$('export-csv').onclick=exportCSV;document.addEventListener('keydown',e=>{if(e.key==='Escape')$('bom-drawer').classList.remove('open')});
+$('export-csv').onclick=exportCSV;
+for(const id of ['bom-query','bom-sort','priced-only']){
+ const el=$(id);el.addEventListener(id==='bom-query'?'input':'change',updateTable);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('bom-drawer').classList.remove('open')});
 function resize(){
  const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;
  camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);labelRenderer.setSize(w,h);
