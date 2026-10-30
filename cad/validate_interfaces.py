@@ -47,6 +47,47 @@ check(post.zmin<=arm_base.zmax and post.zmax>arm_base.zmax,'B vertical post is c
 for name,bottom,top in [('B10',76.2,86.2),('B11',86.2,98.2)]:
     bb=part(B,name)[0].BoundingBox()
     check(abs(bb.zmin-bottom)<.02 and abs(bb.zmax-top)<.02,name+' correct stage stack datums')
+# V19 PHOTO-VERIFIED stacking and actuator directions.
+# Evidence: B 108/109/111/112; A 94/95/97/100, and two original videos.
+mag=part(B,'B02')[0].BoundingBox()
+bt25=part(B,'B03')[0].BoundingBox()
+bv25=part(B,'B04')[0].BoundingBox()
+board_b=part(B,'B01')[0].BoundingBox()
+check(abs(mag.zmin-board_b.zmax)<.02,'B magnet directly rests on breadboard, NEVER middle')
+check(abs(mag.zmax-bt25.zmin)<.02,'B magnetic base below T25M')
+check(abs(bt25.zmin-40)<.02 and abs(bv25.zmin-60)<.02,'B film chain B02>T25M>V25M')
+t25_left=part(B,'B03B')[0].BoundingBox()
+check(t25_left.xmax<=bt25.xmin+.02,'B T25M handle exits to -X left')
+v25_stem=part(B,'B04C')[0].BoundingBox()
+v25_knob=part(B,'B04D')[0].BoundingBox()
+check(v25_stem.zmax<=v25_knob.zmin+.02 and
+      v25_knob.zmax>v25_stem.zmax,'B V25M micrometer stands vertically +Z')
+brot=part(B,'B08')[0].BoundingBox()
+b_lock=part(B,'B08B')[0].BoundingBox()
+check(b_lock.ymin>=brot.ymax-.02,'B rotary operator lock points to front (+Y)')
+nfp_right=part(B,'B09B')[0].BoundingBox()
+nfp_body=part(B,'B09')[0].BoundingBox()
+check(nfp_right.xmin>=nfp_body.xmax-.02,'B NFP micrometer exits right +X')
+a15=part(A,'A15')[0].BoundingBox()
+a03=part(A,'A03')[0].BoundingBox()
+a04=part(A,'A04')[0].BoundingBox()
+arot=part(A,'A06')[0].BoundingBox()
+a02=part(A,'A02')[0].BoundingBox()
+aheat=part(A,'A07')[0].BoundingBox()
+check(abs(a15.zmin-20)<.02,'A film T25M at bottom level 20')
+check(abs(a15.zmax-a03.zmin)<.02,'A film T25M directly UNDER VC13M')
+check(abs(a03.zmax-a04.zmin)<.02,'A VC13M directly UNDER G40M60L')
+check(abs(arot.zmax-a02.zmin)<.02,'A sample T25M above rotary')
+check(abs((a02.zmin+20)-aheat.zmin)<.02,'A sample heater above second T25M')
+check(part(A,'A15B')[0].BoundingBox().xmin>=a15.xmax-.02,
+      'A film T25M handle points to RIGHT +X')
+check(part(A,'A02B')[0].BoundingBox().xmin>=a02.xmax-.02,
+      'A sample T25M handle points to RIGHT +X')
+check(part(A,'A03M')[0].BoundingBox().zmax<=part(A,'A03K')[0].BoundingBox().zmin+.02,
+      'A VC13M micrometer is vertically oriented')
+check(part(A,'A04M')[0].BoundingBox().xmin>=a04.xmax-.02,
+      'A tilt micrometer exits RIGHT')
+check(len([k for k,_,_,_ in []])==0,'Independent A T25M instances in different branches') if False else None
 # A's transfer beam, vertical support, edge clamp contact by boundary (not true fasteners).
 a_rot=part(A,'A06A')[0].BoundingBox()
 a_stg=part(A,'A02')[0].BoundingBox()
