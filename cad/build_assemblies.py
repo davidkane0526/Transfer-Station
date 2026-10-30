@@ -94,7 +94,8 @@ def make_b():
     # 108/109: T25M atop magnet, silver micrometer exits the LEFT.
     stage('B','B03',ax,0,40,'-X')
     add('B','B04','GCMV25M_flange',box(65,66,8,ax,0,60),'D')
-    add('B','B04A','GCMV25M_body_PROXY',box(52,53,46,ax,0,68))
+    add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,68))
+    add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,68))
     add('B','B04B','GCMV25M_top',box(65,66,8,ax,0,114))
     # Photo 108: V25M micrometer is vertical, not an x-axis knob.
     add('B','B04C','vertical_micrometer_stem',vz(6.5,40,ax-24,0,89),'P')
@@ -146,7 +147,11 @@ def make_a():
     # SECOND T25M below VC13M. Both physically exist.
     stage('A','A02',cx,0,53.2,'+X')
     stage('A','A15',ax,0,20,'+X')
-    add('A','A03','VC13M_ENVELOPE',box(65,65,51,ax,0,40))
+    # Photo 97: vertical slide/upright carriage, not a solid block.
+    vc13=(box(65,65,8,ax,0,40)
+          .fuse(box(56,17,43,ax,-9,48))
+          .fuse(box(65,65,7,ax,0,84)))
+    add('A','A03','VC13M_upright_combined_PROXY',vc13)
     add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,31,65),'P')
     add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,31,100),'P')
     add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,91),'D')
