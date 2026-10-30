@@ -280,16 +280,16 @@ function platformA(){
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
  // not the separate left transfer-arm adjustment stage.
  makeStageBlock('A02',sx,53.2,0,65,65,20,'GCM-T25M',true);
- addPart('A03',ax,40,0,g=>{
+ addPart('A03',ax,20,0,g=>{
     add(g,cub(65,8,65,mats.steel,0,4,0));add(g,cub(55,32,45,mats.dark,0,24,0));add(g,cub(65,7,65,mats.steel,0,44,0));
     label(g,'GCM-VC13M',0,65,0);
  },{explode:[-15,18,0],moveFilm:true});
- addPart('A04',ax,91,0,g=>{
+ addPart('A04',ax,71,0,g=>{
   add(g,cub(40,20,40,mats.dark,0,10,0));
   const top=add(g,cub(40,5,40,mats.steel,0,25,0));top.rotation.z=.06;
   label(g,'GCM-G40M60L 摆角台',0,45,0);
  },{explode:[-25,42,0],moveFilm:true});
- addPart('A05',sx,152,0,g=>{
+ addPart('A05',sx,132,0,g=>{
    add(g,cub(12,12,60,mats.dark,-55,0,0));
    add(g,cub(155,8,12,mats.steel,-71,25,0));
    add(g,cub(52,13,20,mats.dark,-4,-8,0));
@@ -425,7 +425,10 @@ function resetScene(){
  // Each platform has its own independent BOM; prevent previous queries from hiding rows.
  if($('bom-query'))$('bom-query').value='';
  if($('priced-only'))$('priced-only').checked=false;
- active=null;clearMeasurement();parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
+ active=null;clearMeasurement();
+ // CSS2DRenderer retains node references unless explicitly detached on platform switch.
+ for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
+ parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
  scene.remove(currentRoot);currentRoot=new THREE.Group();scene.add(currentRoot);
  makeBoard();
  if(platform==='B'){filmB();rotaryB();microscopeB();externalB();}
