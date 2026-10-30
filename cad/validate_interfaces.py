@@ -37,6 +37,12 @@ check(abs(nfp.BoundingBox().zmax-76.2)<.01,'NFP top mounting datum')
 # The modeled hole depth is 10 mm. Tip at 66.7 and blind bottom at 66.2 => .5 mm.
 hole_bottom=66.2;tip=66.7
 check(tip-hole_bottom>=.5-1e-4,'candidate fastener has 0.5 mm axial blind-hole clearance')
+# B transfer arm must not float 4 mm above the V25M upper plate.
+v25_top=part(B,'B04B')[0].BoundingBox()
+arm_base=part(B,'B05D')[0].BoundingBox()
+post=part(B,'B05')[0].BoundingBox()
+check(abs(arm_base.zmin-v25_top.zmax)<.02,'B post base sits directly on V25M')
+check(post.zmin<=arm_base.zmax and post.zmax>arm_base.zmax,'B vertical post is captured by base')
 # Check exposed stage stack contact datums.
 for name,bottom,top in [('B10',76.2,86.2),('B11',86.2,98.2)]:
     bb=part(B,name)[0].BoundingBox()
