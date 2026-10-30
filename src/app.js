@@ -263,10 +263,24 @@ function externalB(){
    for(let i=0;i<18;i++)add(g,cub(3,.5,90,mats.dark,-99+i*11,64,0));
    label(g,'Mean Well SE-600-48',0,91,0);
  },{explode:[70,10,-25]});
+ addPart('B22',280,35,-20,g=>{
+   add(g,cub(65,48,72,mats.dark,0,24,0));
+   add(g,cub(44,22,4,mats.steel,0,24,37));
+   const plug=add(g,cyl(7,12,mats.steel,33,16,0));plug.rotation.z=Math.PI/2;
+   label(g,'LED LAMP ADAPTOR / 115.jpg',0,68,0);
+ },{explode:[55,0,-20]});
+ addPart('B23',305,35,-110,g=>{
+   add(g,cub(93,38,58,mats.dark,0,19,0));
+   for(let i=-3;i<=3;i++)add(g,cub(4,2,41,mats.ink,i*10,39,0));
+   add(g,cub(48,13,10,mats.steel,0,16,32));
+   label(g,'CONTROL MODULE / 119.jpg',0,53,0);
+ },{explode:[50,0,-30]});
 }
 function platformA(){
  const ax=CONFIG.A.armX,sx=CONFIG.A.sampleX;
- makeStageBlock('A02',ax,20,0,65,65,20,'GCM-T25M',true);
+ // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
+ // not the separate left transfer-arm adjustment stage.
+ makeStageBlock('A02',sx,53.2,0,65,65,20,'GCM-T25M',true);
  addPart('A03',ax,40,0,g=>{
     add(g,cub(65,8,65,mats.steel,0,4,0));add(g,cub(55,32,45,mats.dark,0,24,0));add(g,cub(65,7,65,mats.steel,0,44,0));
     label(g,'GCM-VC13M',0,65,0);
@@ -287,7 +301,7 @@ function platformA(){
   add(g,cyl(47,33.2,mats.dark,0,16.6,0));add(g,torus(44,1,mats.steel,0,33.5,0));
   label(g,'A 套旋转台：GCM-11 系列疑似',0,54,0);
  },{explode:[0,0,0]});
- addPart('A07',sx,53.2,0,g=>{
+ addPart('A07',sx,73.2,0,g=>{
   add(g,cub(65,18,65,mats.steel,0,9,0));
   add(g,cub(28,1.4,28,mats.glass,0,19.1,0));
   label(g,'A 套样品加热座（形状候选）',0,38,0);
@@ -323,6 +337,11 @@ function platformA(){
   add(g,cub(40,15,4,mats.silver,0,16,34));
   label(g,'德力西 CDG1-1DD/25A',0,62,0);
  },{explode:[45,15,20]});
+ addPart('A14',sx,248,0,g=>{
+   add(g,cyl(16,7,mats.dark,0,3.5,0));
+   add(g,cyl(14.5,2,mats.silver,0,7.7,0));
+   label(g,'SM1/SM2 光学接口待核实',0,20,0);
+ },{explode:[0,25,0]});
 }
 function addAxis(){
  const axes=new THREE.AxesHelper(80);axes.position.set(-216,22,145);currentRoot.add(axes);axisObjects.push(axes);
