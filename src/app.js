@@ -116,7 +116,7 @@ function filmB(){
   add(g,cub(30,28,30,mats.black,0,136,0));
   const rod=add(g,cyl(6.35,249,mats.steel,124.5,139,0));rod.rotation.z=Math.PI/2;
   add(g,cub(27,28,30,mats.black,249,139,0));
-  add(g,cyl(5,90,mats.steel,249,94,0);
+  add(g,cyl(5,90,mats.steel,249,94,0));
   label(g,'玻片转移臂：立柱 / 横杆',20,201,0);
  },{explode:[-30,55,-13],moveFilm:true});
  addPart('B06',CONFIG.B.sampleX+52,167,0,g=>{
