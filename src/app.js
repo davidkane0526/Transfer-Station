@@ -668,7 +668,8 @@ function focusMechanicalBranch(which){
  const y=which==='film'?85:79;
  const t=new THREE.Vector3(x,y,0);
  // A front / side oblique perspective showing installed handles and base height.
- camera.position.set(x+128,y+100,235);
+ const handSide=which==='film'&&platform==='B'?-1:1;
+ camera.position.set(x+handSide*155,y+100,235);
  orbit.target.copy(t);camera.lookAt(t);orbit.update();
 }
 $('btn-film-stack').onclick=()=>focusMechanicalBranch('film');
