@@ -99,16 +99,18 @@ def make_b():
     add('B','B19','temperature_box',box(125,87,85,265,-95,25))
     add('B','B20','vacuum_pump',box(135,80,65,265,75,20))
     add('B','B21','MeanWell_power_supply_247x127x63p5',box(247,127,63.5,245,-195,25),'D')
+    add('B','B22','LED_lamp_adapter_proxy',box(65,72,48,280,-20,35),'P')
+    add('B','B23','control_auxiliary_module_proxy',box(93,58,38,305,-110,35),'P')
 def make_a():
     board('A')
     ax,cx=-116,78
-    stage('A','A02',ax,0,20)
+    stage('A','A02',cx,0,53.2)
     add('A','A03','VC13M_ENVELOPE',box(65,65,51,ax,0,40))
     add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,91),'D')
     add('A','A05','slide',box(76,26,1,cx,0,134))
     add('A','A05A','slide_arm',box(151,12,8,cx-71,0,163))
     rot('A','A06',cx,0,20,'I')
-    add('A','A07','heater_proxy',box(65,65,18,cx,0,53.2))
+    add('A','A07','heater_proxy',box(65,65,18,cx,0,73.2))
     add('A','A10','imaging_column',vz(13,225,cx,-112,32))
     add('A','A10A','imaging_boom',box(34,125,25,cx,-50,243))
     add('A','A08','TTL200A',vz(21,85,cx,0,170),'P')
@@ -116,6 +118,7 @@ def make_a():
     add('A','A11','MWWHL4',vz(13,33,155,60,184),'P')
     add('A','A12','LEDD1B',box(60,73,104,262,-80,20),'P')
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
+    add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V16')
     for key,name,grade,shape in PARTS[sys]: assembly.add(shape,name=key+'__'+name)
