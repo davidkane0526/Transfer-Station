@@ -42,6 +42,9 @@ jobs:
           name: Transfer-Station-Preview
           path: |
             Transfer-Station-Preview-B.png
+            Transfer-Station-Film-Stack-B.png
+            Transfer-Station-Film-Stack-A.png
+            Transfer-Station-Sample-Stack-A.png
             Transfer-Station-Rear-Ports-B.png
             Transfer-Station-Detail-B.png
             Transfer-Station-Preview-A.png
