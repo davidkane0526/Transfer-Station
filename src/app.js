@@ -6,6 +6,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js';
 import {enrichParts} from './details.js';
 import {enriched,pricedSummary,csvExportRows} from './procurement.js';
+import {stageLocalTranslation} from './kinematics.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -435,8 +436,8 @@ function updateTransforms(){
  parts.forEach(({g,base,part,explode,moveFilm,translateSample,rotateSample})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,sx=translateSample?sampleShift:0;
   // Translation in a rotating stage's LOCAL X basis, then rotation about Y.
-  const dx=rotateSample?sx*Math.cos(angle):sx;
-  const dz=rotateSample?-sx*Math.sin(angle):0;
+  const travel=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
+  const dx=travel.x,dz=travel.z;
   g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e,base.z+off[2]*e+dz);
   g.rotation.y=rotateSample?angle:0;
   if(g.userData.slidingTop){
