@@ -59,6 +59,42 @@ check(abs(ris.zmin-a_tilt.zmax)<.01,'A riser contacts tilt stage top')
 check(abs(ris.zmax-beam.zmin)<.01,'A riser contacts transfer beam')
 check(abs(clip.zmax-beam.zmin)<.01,'A edge clip contacts transfer beam')
 check(beam.xmin<=-116 and beam.xmax>=78,'A beam spans left-to-right physical supports')
+# V18: glass must be INSIDE clip opening, never penetrating either jaw.
+clip=part(B,'B06')[0]
+glass=part(B,'B07')[0]
+pdms=part(B,'B07A')[0]
+chuck=part(B,'B11')[0]
+suspension=part(B,'B05C')[0]
+check(clip.intersect(glass).Volume()<1e-6,'Glass has no volumetric overlap with clip')
+check(clip.intersect(pdms).Volume()<1e-6,'Transfer membrane does not intersect clamp')
+check(clip.intersect(chuck).Volume()<1e-6,'Clip lower jaw clears hot metal')
+check(glass.intersect(chuck).Volume()<1e-6,'Glass does not penetrate hot metal')
+check(abs(glass.BoundingBox().zmin-104.5)<.02,'Glass bottom at lower jaw top')
+check(abs(glass.BoundingBox().zmax-105.5)<.02,'Glass has 1-mm thickness')
+check(abs(glass.BoundingBox().zmin-pdms.BoundingBox().zmax)<.02,'PDMS underside contacts glass')
+check(pdms.BoundingBox().zmin-chuck.BoundingBox().zmax>=4.4,'Membrane has >=4.4mm no-contact clearance to hot metal')
+check(abs(suspension.BoundingBox().zmin-clip.BoundingBox().zmax)<.02,'Hanging rod reaches clip top')
+bar=part(B,'B05B')[0]
+check(bar.intersect(part(B,'B18')[0]).Volume()<1e-6,'Rear beam does not intersect objective')
+check(bar.intersect(part(B,'B16C')[0]).Volume()<1e-6,'Rear beam does not intersect microscope body')
+# CAD XY plane maps to WebGL X/Z. CAD back = negative Y.
+from cadquery import Vector
+vac=part(B,'B15')[0]
+check(abs(vac.BoundingBox().ymax+32.5)<.02,'Vacuum fitting joins rear -Y face')
+for i in (1,2):
+    wire=part(B,f'B12L{i}')[0]
+    check(wire.BoundingBox().ymin<-55 and wire.BoundingBox().ymax<=-18.9,
+          f'Heater wire {i} exits rear, not left')
+    check(wire.intersect(chuck).Volume()<1e-6,f'Heater wire {i} fits milled rear tunnel')
+thermo=part(B,'B13L')[0]
+check(thermo.intersect(chuck).Volume()<1e-6,'Thermocouple wire fits rear shallow roof groove')
+center_vac=cq.Solid.makeCylinder(1.25,32.5,Vector(82,-32.5,95.5),Vector(0,1,0))
+center_top=cq.Solid.makeCylinder(.55,2.9,Vector(82,0,95.3),Vector(0,0,1))
+check(center_vac.intersect(chuck).Volume()<1e-6,'Rear vacuum bore is connected towards center')
+check(center_top.intersect(chuck).Volume()<1e-6,'One central top suction hole is unobstructed')
+left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,95.5),Vector(1,0,0))
+check(left_probe.intersect(chuck).Volume()>1.0,'Old left-side inlet is absent from metal')
+
 # Optical tips are a conservative candidate for open clearance, not WD qualification.
 tipbb=part(B,'B18A')[0].BoundingBox()
 glass=part(B,'B07')[0].BoundingBox()
