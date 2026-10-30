@@ -64,6 +64,19 @@ tests/smoke.mjs               Playwright 浏览器交互测试
 - 图片 110 中能读出的一支物镜为 10×/NA0.15/DIC/WD10.8；另一支有 OptoSigma 品牌，尚未完全识别具体型号。
 - **LED D1000**（图片115）与 **Mean Well SE-600-48**（图片117）为两个不同电源，勿混接。
 
+## 使用真正的原厂 STEP/IGES 替换代理模型
+
+现有网页提供 **“为选中零件导入 STL / GLB”**：可以把厂家的机械 CAD 网格导入本地浏览器，从而显著提高该单件的外形准确度。导入前先点击目标零件，选择文件尺寸单位为 mm 或 m。导入不会上传服务器，也不会改写仓库。
+
+厂家如果提供 STEP/IGES 而不是 STL，可以在本地安装 CadQuery 后执行：
+
+```bash
+pip install cadquery
+python cad/convert_vendor_step_to_stl.py ./manufacturer_nfp.step ./nfp_for_viewer.stl
+```
+
+然后在交互网页中点选 NFP-1462C，选择 `nfp_for_viewer.stl`。**注意：网页在导入时居中和底面归零，不会自动知道原厂坐标基准与机台的装配变换；真实孔位对齐仍需由CAD原始坐标与安装变换复核。** 原厂 CAD 权利归属厂商，请勿未经许可公开转载。
+
 ## 发布和保密
 
 仓库公开，故不把用户原始 88MB ZIP 中的全部照片、视频公开上传；照片编号与所见信息在 `docs/forensics-v17.md` 留有证据索引。凡是电气连接、200°C 加热、真空密封、螺钉受力和光学工作距离，必须在实际设备上复测并完成安全审查。
