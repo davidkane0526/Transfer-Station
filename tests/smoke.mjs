@@ -15,6 +15,12 @@ assert(!(await page.locator('.css2d').count()),'never create floating labels out
 const labelCount=await page.evaluate(()=>[...document.querySelectorAll('.dimension-bubble')].filter(x=>x.offsetParent!==null).length);
 assert(labelCount===0,'selected dimensions must not show before selection');
 await page.screenshot({path:'Transfer-Station-Preview-B.png',fullPage:true});
+assert((await page.locator('#photo-ledger').textContent()).includes('B02'),'B magnetic-base proof absent');
+assert((await page.locator('#photo-ledger').textContent()).includes('手柄 -X'),'B T25M left handle proof absent');
+await page.locator('#btn-film-stack').click();
+await page.waitForTimeout(450);
+await page.screenshot({path:'Transfer-Station-Film-Stack-B.png',fullPage:true});
+await page.locator('#btn-iso').click();
 // Inspect external vacuum hose and ceramic wires from the BACK.
 // Hide the independent microscope for this specific close inspection only.
 await page.locator('#btn-rear').click();
@@ -73,6 +79,16 @@ await page.locator('#rotate-sample').fill('0');
 await page.locator('#show-a').click();
 await page.waitForTimeout(600);
 assert((await page.locator('#platform-caption').textContent()).includes('平台 A'),'switch to A failed');
+const aProof=await page.locator('#photo-ledger').textContent();
+assert(aProof.includes('A15')&&aProof.includes('A02'),'A needs two separate photo-proven T25M stages');
+assert(aProof.includes('94.jpg')&&aProof.includes('100.jpg'),'A actuator photo evidence missing');
+await page.locator('#btn-film-stack').click();
+await page.waitForTimeout(450);
+await page.screenshot({path:'Transfer-Station-Film-Stack-A.png',fullPage:true});
+await page.locator('#btn-sample-stack').click();
+await page.waitForTimeout(450);
+await page.screenshot({path:'Transfer-Station-Sample-Stack-A.png',fullPage:true});
+await page.locator('#btn-iso').click();
 const stale=await page.locator('#viewer').evaluate(el=>(el.innerText||'').includes('NFP-1462C'));
 assert(!stale,'old platform B CSS2D part label is still visible after A switch');
 await page.locator('#open-bom').click();
