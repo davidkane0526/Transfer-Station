@@ -49,12 +49,12 @@ assert((await page.locator('#sample-value').textContent()).includes('5'),'sample
 await page.screenshot({path:'Transfer-Station-Detail-B.png',fullPage:true});
 // A small fabricated local STL is used only for testing the replacement control.
 // This exercise is not a vendor CAD or real manufactured component.
-const tetra='solid fixture\\n'+[
+const tetra='solid fixture\n'+[
  [[0,0,0],[8,0,0],[0,8,0]],
  [[0,0,0],[8,0,0],[0,0,8]],
  [[0,0,0],[0,8,0],[0,0,8]],
  [[8,0,0],[0,8,0],[0,0,8]]
-].map(v=>'facet normal 0 0 1\\nouter loop\\n'+v.map(p=>'vertex '+p.join(' ')).join('\\n')+'\\nendloop\\nendfacet\\n').join('')+'endsolid fixture';
+].map(v=>'facet normal 0 0 1\nouter loop\n'+v.map(p=>'vertex '+p.join(' ')).join('\n')+'\nendloop\nendfacet\n').join('')+'endsolid fixture';
 await page.locator('#cad-file').setInputFiles({name:'qa_fixture.stl',mimeType:'model/stl',buffer:Buffer.from(tetra)});
 await page.waitForFunction(()=>document.getElementById('import-status').textContent.includes('已导入'),{timeout:9000});
 assert((await page.locator('#import-status').textContent()).includes('qa_fixture.stl'),'local STL import did not complete');
