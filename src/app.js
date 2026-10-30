@@ -663,6 +663,16 @@ function switchPlatform(next){
 }
 $('show-b').onclick=()=>switchPlatform('B');
 $('show-a').onclick=()=>switchPlatform('A');
+function focusMechanicalBranch(which){
+ const x=which==='film'?(platform==='B'?CONFIG.B.armX:CONFIG.A.armX):(platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX);
+ const y=which==='film'?85:79;
+ const t=new THREE.Vector3(x,y,0);
+ // A front / side oblique perspective showing installed handles and base height.
+ camera.position.set(x+128,y+100,235);
+ orbit.target.copy(t);camera.lookAt(t);orbit.update();
+}
+$('btn-film-stack').onclick=()=>focusMechanicalBranch('film');
+$('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
 $('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$('btn-front').onclick=()=>focus('front');$('btn-rear').onclick=()=>focus('rear');$('btn-iso').onclick=()=>focus('iso');
 $('explode').oninput=e=>{explosion=Number(e.target.value);$('explode-value').textContent=explosion+'%';updateTransforms()};
 $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value').textContent=filmShift.toFixed(1)+' mm';updateTransforms()};
