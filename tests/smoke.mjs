@@ -15,6 +15,14 @@ assert(!(await page.locator('.css2d').count()),'never create floating labels out
 const labelCount=await page.evaluate(()=>[...document.querySelectorAll('.dimension-bubble')].filter(x=>x.offsetParent!==null).length);
 assert(labelCount===0,'selected dimensions must not show before selection');
 await page.screenshot({path:'Transfer-Station-Preview-B.png',fullPage:true});
+// Inspect external vacuum hose and ceramic wires from the BACK.
+// Hide the independent microscope for this specific close inspection only.
+await page.locator('#btn-rear').click();
+await page.locator('#group-list input[data-group="microscope"]').uncheck();
+await page.waitForTimeout(350);
+await page.screenshot({path:'Transfer-Station-Rear-Ports-B.png',fullPage:true});
+await page.locator('#group-list input[data-group="microscope"]').check();
+await page.locator('#btn-iso').click();
 const partCountB=await page.locator('#group-list .group-row').count();
 assert(partCountB>=6,'missing subsystem visibility groups');
 // Rich BOM checks and click selection
