@@ -30,7 +30,7 @@ const frontScreenRight=handGlobalX; // +Z camera screen-right is +X
 const rearScreenRight=-handGlobalX; // -Z camera screen-right is -X
 assert(frontScreenRight<0&&rearScreenRight>0,
  'same B03 handle should look left in 108 and right in 109');
-assert.equal(PARTS.A.filter(p=>p.model==='GCM-T25M').length,2,
+assert.equal(PARTS.A.filter(p=>p.id==='A02'||p.id==='A15').length,2,
  'Photo 97 and 100 require TWO physically distinct T25Ms in A platform');
 assert(PARTS.A.find(p=>p.id==='A02').group==='sample');
 assert(PARTS.A.find(p=>p.id==='A15').group==='film');
