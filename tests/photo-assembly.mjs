@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {PARTS} from '../src/parts.js';
-import {STACKS,HANDLES,MAGNET_PLACEMENT} from '../src/photo-evidence.js';
+import {STACKS,HANDLES,MAGNET_PLACEMENT,OEM_DRAWING_CONSTRAINTS} from '../src/photo-evidence.js';
 
 for(const [name,stack] of Object.entries(STACKS)){
   const ids=new Set(PARTS[name].map(p=>p.id));
@@ -38,4 +38,13 @@ const expected={B03:'-X',B04:'+Y',B08:'+Z',B09:'+X',
  A02:'+X',A15:'+X',A03:'+Y',A04:'+X'};
 for(const [id,dir]of Object.entries(expected))
  assert.equal(HANDLES[id].direction,dir,'Wrong actuator direction '+id);
-console.log('Photo-grounded A/B component ordering and actuator direction checks passed');
+assert.equal(OEM_DRAWING_CONSTRAINTS.twoAxisT25M.heightMm,33);
+assert.equal(OEM_DRAWING_CONSTRAINTS.twoAxisT25M.micrometerCount,2);
+for(const id of ['B03','A15']){
+  assert.equal(HANDLES[id].handles,2,id+' must have TWO horizontal heads');
+  assert.equal(HANDLES[id].axes,2,id+' must have two motion axes');
+  assert.equal(HANDLES[id].thicknessMm,33,id+' must use original 33mm manufacturer thickness');
+  assert.equal(HANDLES[id].secondaryDirection,'+Z',id+' has perpendicular depth control');
+}
+assert.equal(HANDLES.A02.subtypeUnverified,true);
+console.log('Photo-grounded 2-axis/3-axis drive counts and maker dimension constraints passed');
