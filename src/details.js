@@ -91,7 +91,7 @@ export function enrichParts(partMap, platform, onMesh){
     const g=part.g;
     const movingTop=g.userData.slidingTop||g;
     const stageType=part.part.id;
-    const topY=stageType==='B09'?23:['B03','A02','A15'].includes(stageType)?20:65;
+    const topY=stageType==='B09'?23:['B03','A15'].includes(stageType)?33:stageType==='A02'?20:65;
     box(g,51,1.2,5,0,stageType==='B09'?11.5:10.4,31,graphite,.1);
     box(g,51,1.2,5,0,stageType==='B09'?11.5:10.4,-31,graphite,.1);
     for(let x of [-21,21])for(let z of [-24,24])screwHead(movingTop,x,topY+.7,z,2.1);
@@ -108,7 +108,20 @@ export function enrichParts(partMap, platform, onMesh){
       // own branded face (photo109), the handwheel is local +X/right.
       // From the opposite magnetic-base face (photo108), it looks left.
       const handX=63;
-      knurl(g,handX,10,0,8.4,26,'x',48);
+      knurl(g,handX,topY-9,0,8.4,26,'x',48);
+      // Source 97/108 + GCM-901604M drawing: two crossed lateral
+      // micrometers are mandatory on -M2L. A02 remains a 1-axis candidate.
+      if(stageType==='B03'||stageType==='A15'){
+        const sign=stageType==='B03'?-1:1;
+        const depth=sign*72;
+        const barrel=cyl(g,8.6,24,0,6,depth,ring,48);
+        barrel.rotation.x=Math.PI/2;
+        for(let n=0;n<32;n++){
+          const a=n*Math.PI/16;
+          const stripe=box(g,.34,.34,20,8.6*Math.cos(a),6+8.6*Math.sin(a),depth,graphite,.1);
+        }
+        const cap=cyl(g,9.1,4,0,6,depth+sign*13,graphite,48);cap.rotation.x=Math.PI/2;
+      }
     }
   }
   function microscopeHardware(g){
