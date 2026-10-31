@@ -93,7 +93,11 @@ def make_b():
     add('B','B02P','magnet_front_label_plate',box(50,1,8,ax,33,26),'P')
     # 108/109: T25M atop magnet, silver micrometer exits the LEFT.
     stage('B','B03',ax,0,40,'-X')
+    # Opposing photographic views: magnet OFF/ON plate is at front(+Y),
+    # both T25M and V25M logo plates on rear(-Y). Label plaques are proxies.
+    add('B','B03L','T25M_branded_rear_face_PROXY',box(51,.6,7,ax,-33.1,44),'P')
     add('B','B04','GCMV25M_flange',box(65,66,8,ax,0,60),'D')
+    add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,114.5),'P')
     add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,68))
     add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,68))
     add('B','B04B','GCMV25M_top',box(65,66,8,ax,0,114))
