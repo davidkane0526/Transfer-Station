@@ -142,7 +142,10 @@ function filmB(){
     label(g,'GCM-420302M',0,38,0);
  },{explode:[-25,0,0]});
  // 108/109: magnet B02 touches board, T25M is ON magnet and handle faces -X.
- makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M (micrometer -X)',false,{},-1);
+ // Photo108 sees magnetic-base branded +Z, photo109 sees T25M branded -Z.
+// T25M is installed yaw=180° relative to the magnetic base: ONE handle,
+// appearing left in the former view and right in the latter.
+makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M · 局部右手柄',false,{facingYaw:Math.PI},1);
  addPart('B04',ax,60,0,g=>{
   add(g,cub(65,8,66,mats.dark,0,4,0));
   // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
@@ -493,15 +496,16 @@ function selectPart(id){
 }
 function updateTransforms(){
  const e=explosion/100,angle=sampleAngle*Math.PI/180;
- parts.forEach(({g,base,part,explode,moveFilm,translateSample,rotateSample})=>{
+ parts.forEach(({g,base,part,explode,moveFilm,translateSample,rotateSample,facingYaw=0})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,sx=translateSample?sampleShift:0;
   // Translation in a rotating stage's LOCAL X basis, then rotation about Y.
   const travel=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
   const dx=travel.x,dz=travel.z;
   g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e,base.z+off[2]*e+dz);
-  g.rotation.y=rotateSample?angle:0;
+  g.rotation.y=(rotateSample?angle:0)+facingYaw;
   if(g.userData.slidingTop){
-    g.userData.slidingTop.position.x=(part.id==='B03'||part.id==='A15')?filmShift:
+    // B03 yaw=180°: local -X corresponds to world +X.
+    g.userData.slidingTop.position.x=part.id==='B03'?-filmShift:part.id==='A15'?filmShift:
       (part.id==='B09'||part.id==='A02')?sampleShift:0;
   }
  
@@ -532,7 +536,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?'平台 B · MXFMS / 双运动分支 / 真空加热吸附台':'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  '载玻片侧由下至上：B02磁吸底座（贴面包板最底层）→B03 T25M（手柄−X）→B04 V25M（竖直手柄+Y）→转移臂。样品侧：B08旋转台（锁止+Z）→B09 NFP（手柄+X）→隔热和加热台。照片108/109/110/111证实顺序，尺寸仍含候选。':
+  'B03在照片108的磁座铭牌观察面看手柄在左；照片109从相反的T25M铭牌面看手柄在右，这是同一根手柄。模型以T25M局部+X安装、绕高度轴旋转180°，从磁座铭牌面对应全局−X。B04竖直测微头另设；A套两台T25M不合并。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
@@ -673,6 +677,15 @@ function focusMechanicalBranch(which){
  orbit.target.copy(t);camera.lookAt(t);orbit.update();
 }
 $('btn-film-stack').onclick=()=>focusMechanicalBranch('film');
+// Compare the same stage from opposing sides without changing any part geometry.
+function focusBPhoto(photo){
+ if(platform!=='B')switchPlatform('B');
+ const x=CONFIG.B.armX, y=85, magnetView=photo==='108';
+ camera.position.set(x+(magnetView?-90:90),y+60,magnetView?245:-245);
+ orbit.target.set(x,y,0);camera.lookAt(orbit.target);orbit.update();
+}
+$('btn-photo108').onclick=()=>focusBPhoto('108');
+$('btn-photo109').onclick=()=>focusBPhoto('109');
 $('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
 $('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$('btn-front').onclick=()=>focus('front');$('btn-rear').onclick=()=>focus('rear');$('btn-iso').onclick=()=>focus('iso');
 $('explode').oninput=e=>{explosion=Number(e.target.value);$('explode-value').textContent=explosion+'%';updateTransforms()};
