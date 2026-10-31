@@ -16,10 +16,16 @@ const labelCount=await page.evaluate(()=>[...document.querySelectorAll('.dimensi
 assert(labelCount===0,'selected dimensions must not show before selection');
 await page.screenshot({path:'Transfer-Station-Preview-B.png',fullPage:true});
 assert((await page.locator('#photo-ledger').textContent()).includes('B02'),'B magnetic-base proof absent');
-assert((await page.locator('#photo-ledger').textContent()).includes('手柄 -X'),'B T25M left handle proof absent');
+assert((await page.locator('#photo-ledger').textContent()).includes('双轴手柄 X:-X / Y:+Z'),'B two orthogonal micrometer heads not shown');
 await page.locator('#btn-film-stack').click();
 await page.waitForTimeout(450);
 await page.screenshot({path:'Transfer-Station-Film-Stack-B.png',fullPage:true});
+await page.locator('#translate').fill('4');
+await page.locator('#translate-depth').fill('6');
+assert((await page.locator('#translate-value').textContent()).includes('4'),'first film axis broken');
+assert((await page.locator('#translate-depth-value').textContent()).includes('6'),'second horizontal axis missing');
+await page.locator('#translate').fill('0');
+await page.locator('#translate-depth').fill('0');
 await page.locator('#btn-iso').click();
 // Inspect external vacuum hose and ceramic wires from the BACK.
 // Hide the independent microscope for this specific close inspection only.
@@ -87,7 +93,8 @@ await page.locator('#show-a').click();
 await page.waitForTimeout(600);
 assert((await page.locator('#platform-caption').textContent()).includes('平台 A'),'switch to A failed');
 const aProof=await page.locator('#photo-ledger').textContent();
-assert(aProof.includes('A15')&&aProof.includes('A02'),'A needs two separate photo-proven T25M stages');
+assert(aProof.includes('A15')&&aProof.includes('A02'),'A needs two physically separate T25M units');
+assert(aProof.includes('双轴手柄 X:+X / Y:+Z'),'A15 second orthogonal micrometer absent');
 assert(aProof.includes('94.jpg')&&aProof.includes('100.jpg'),'A actuator photo evidence missing');
 await page.locator('#btn-film-stack').click();
 await page.waitForTimeout(450);
