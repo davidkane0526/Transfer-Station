@@ -17,7 +17,7 @@ export const STACKS={
   }
 };
 export const HANDLES={
-  B03:{kind:'horizontal',direction:'-X',evidence:'109.jpg：向左前方伸出的银色微分头',confidence:'photo'},
+  B03:{kind:'horizontal',direction:'-X',localDirection:'+X',installationYawDeg:180,brandedFace:'-Z',evidence:'108.jpg磁座铭牌面见手柄在左；109.jpg从相反的T25M铭牌面看手柄在右，是同一根手柄',confidence:'photo'},
   B04:{kind:'vertical',direction:'+Y',evidence:'108.jpg：移动臂侧面竖直银色测微头',confidence:'photo'},
   B08:{kind:'rotation-lock',direction:'+Z',evidence:'111.jpg：刻度旋转台朝向观察者的银色调节杆',confidence:'photo'},
   B09:{kind:'horizontal',direction:'+X',evidence:'110.jpg：NFP-1462C右侧的银色微分头',confidence:'photo'},
