@@ -54,6 +54,13 @@ bt25=part(B,'B03')[0].BoundingBox()
 bv25=part(B,'B04')[0].BoundingBox()
 board_b=part(B,'B01')[0].BoundingBox()
 check(abs(mag.zmin-board_b.zmax)<.02,'B magnet directly rests on breadboard, NEVER middle')
+# Photo108 and photo109 show OPPOSING photographic faces; front/rear
+# plaques must not falsely face the same way in the digital assembly.
+mag_front=part(B,'B02P')[0].BoundingBox()
+t25_rear=part(B,'B03L')[0].BoundingBox()
+v25_rear=part(B,'B04L')[0].BoundingBox()
+check(mag_front.ymin>0 and t25_rear.ymax<0 and v25_rear.ymax<0,
+      'Magnet label front; both displacement-stage labels rear')
 check(abs(mag.zmax-bt25.zmin)<.02,'B magnetic base below T25M')
 check(abs(bt25.zmin-40)<.02 and abs(bv25.zmin-60)<.02,'B film chain B02>T25M>V25M')
 t25_left=part(B,'B03B')[0].BoundingBox()
