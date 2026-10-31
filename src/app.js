@@ -120,19 +120,36 @@ function makeBoard(){
   label(g,'光学面包板 · 25 mm 网格',-140,h+10,120);
  },{explode:[0,0,0]});
 }
-function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handleSide=1){
+function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handleSide=1,axes=1,depthHandleSide=1){
+ // Vendor GCM-T25M series: 1 axis = 20 mm; 2 axes (T25M2L/2C) = 33 mm.
+ // The double-axis stage has orthogonal actuators and TWO coupled carriages.
+ if(axes===2 && Math.abs(h-33)>0.01)throw Error('Official GCM-T25M two-axis thickness must be 33mm');
  addPart(id,x,y,z,g=>{
-   add(g,cub(w,h*.55,d,mats.dark,0,h*.275,0));
-   const carriage=new THREE.Group();g.add(carriage);g.userData.slidingTop=carriage;
-   add(carriage,cub(w*.94,h*.45,d*.92,mats.dark,0,h*.78,0));
-   // This is an *individual stage* micrometer. Never give every axis +X.
-   const side=handleSide;
-   add(g,cub(14,12,14,mats.dark,side*(w/2+6),h*.5,0));
-   const v=add(g,cyl(6,24,mats.silver,side*(w/2+22),h*.5,0));v.rotation.z=Math.PI/2;
-   add(g,cyl(9,12,mats.silver,side*(w/2+34),h*.5,0)).rotation.z=Math.PI/2;
-   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(carriage,3,h+.5,xx,zz);
-   label(g,title,0,h+11,0);
- },{explode:[0,id.endsWith('03')?15:10,0],...motion});
+  const lowerH=axes===2?11:11.6;
+  add(g,cub(w,lowerH,d,mats.dark,0,lowerH/2,0));
+  const carriageX=new THREE.Group();g.add(carriageX);g.userData.slidingX=carriageX;
+  if(axes===2){
+   const middleH=11,topH=h-lowerH-middleH;
+   add(carriageX,cub(w*.96,middleH,d*.94,mats.dark,0,lowerH+middleH/2,0));
+   const carriageY=new THREE.Group();carriageX.add(carriageY);
+   g.userData.slidingDepth=carriageY;g.userData.slidingTop=carriageY;
+   add(carriageY,cub(w*.94,topH,d*.92,mats.dark,0,lowerH+middleH+topH/2,0));
+   // Two REAL distinct crossed micrometer assemblies, per original 97/108 and GCM-T25M2L.
+   const supportZ=depthHandleSide*(d/2+6);
+   add(g,cub(14,11,14,0,lowerH*.5,supportZ));
+   const yStem=add(g,cyl(6,27,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+23)));yStem.rotation.x=Math.PI/2;
+   const yDrum=add(g,cyl(9,14,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+39)));yDrum.rotation.x=Math.PI/2;
+  }else{
+   g.userData.slidingTop=carriageX;
+   add(carriageX,cub(w*.94,h-lowerH,d*.92,mats.dark,0,lowerH+(h-lowerH)/2,0));
+  }
+  const side=handleSide;
+  add(g,cub(14,12,14,mats.dark,side*(w/2+6),h-9,0));
+  const xStem=add(g,cyl(6,27,mats.silver,side*(w/2+24),h-9,0));xStem.rotation.z=Math.PI/2;
+  const xDrum=add(g,cyl(9,14,mats.silver,side*(w/2+43),h-9,0));xDrum.rotation.z=Math.PI/2;
+  if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g.userData.slidingTop,3,h+.5,xx,zz);
+  label(g,title,0,h+11,0);
+ },{explode:[0,id==='B03'?15:10,0],...motion});
 }
 function filmB(){
  const ax=CONFIG.B.armX;
@@ -145,8 +162,8 @@ function filmB(){
  // Photo108 sees magnetic-base branded +Z, photo109 sees T25M branded -Z.
 // T25M is installed yaw=180° relative to the magnetic base: ONE handle,
 // appearing left in the former view and right in the latter.
-makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M · 局部右手柄',false,{facingYaw:Math.PI*HANDLES.B03.installationYawDeg/180},1);
- addPart('B04',ax,60,0,g=>{
+makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw:Math.PI*HANDLES.B03.installationYawDeg/180},1,2,-1);
+ addPart('B04',ax,73,0,g=>{
   add(g,cub(65,8,66,mats.dark,0,4,0));
   // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
   add(g,cub(56,52,18,mats.dark,0,32,-10));
@@ -161,13 +178,13 @@ makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M · 局部右手柄',false,{facin
  },{explode:[-24,30,0],moveFilm:true});
  // Rear-offset bar avoids the microscope/optical axis. All dimensions here
  // are constrained candidate geometry, not measured from the original device.
- addPart('B05',ax,122,0,g=>{
+ addPart('B05',ax,139,0,g=>{
   add(g,cub(36,20,36,mats.black,0,10,0));
   add(g,cyl(6.35,85,mats.steel,0,62,0));
   add(g,cub(30,28,80,mats.black,0,63,-20));
   const bar=add(g,cyl(6.35,249,mats.steel,124.5,63,-40));bar.rotation.z=Math.PI/2;
   add(g,cub(27,28,70,mats.black,249,63,-20));
-  add(g,cyl(5,57,mats.steel,249,34.5,0));
+  add(g,cyl(5,74,mats.steel,249,26,0));
   label(g,'玻片转移臂：后置横杆 / 悬挂夹具（尺寸候选）',20,102,-40);
  },{explode:[-30,55,-13],moveFilm:true});
  // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
@@ -320,8 +337,8 @@ function platformA(){
  // A sample branch: 100.jpg rotation -> sample-side T25M.
  makeStageBlock('A02',sx,53.2,0,65,65,20,'样品侧 GCM-T25M (+X)',true,{rotateSample:true},1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
- makeStageBlock('A15',ax,20,0,65,65,20,'载玻片侧 GCM-T25M (+X)',false,{},1);
- addPart('A03',ax,40,0,g=>{
+ makeStageBlock('A15',ax,20,0,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
+ addPart('A03',ax,53,0,g=>{
     add(g,cub(65,8,65,mats.dark,0,4,0));
     // Photo 97: VC13M is a vertical face and slide, not a tall square box.
     add(g,cub(56,36,17,mats.dark,0,26,-9));
@@ -334,7 +351,7 @@ function platformA(){
     add(g,cyl(8.5,15,mats.silver,0,70,31));
     label(g,'GCM-VC13M / 竖直测微头',0,76,0);
  },{explode:[-15,18,0],moveFilm:true});
- addPart('A04',ax,91,0,g=>{
+ addPart('A04',ax,104,0,g=>{
   add(g,cub(40,15,40,mats.dark,0,7.5,0));
   const top=add(g,cub(40,5,40,mats.dark,0,17.5,0));
   const screw=add(g,cyl(5,22,mats.silver,29,10,0));screw.rotation.z=Math.PI/2;
@@ -344,8 +361,8 @@ function platformA(){
  addPart('A05',sx,132,0,g=>{
    // Candidate structural closure: vertical riser on A04 and horizontal arm
    // from ax to sx. Photo does not prove exact rod length or mounting screws.
-   const span=sx-ax,risey=(111+153)/2-132;
-   add(g,cub(13,42,13,mats.steel,ax-sx,risey,0));
+   const span=sx-ax,risey=(124+153)/2-132;
+   add(g,cub(13,29,13,mats.steel,ax-sx,risey,0));
    add(g,cub(span+20,8,12,mats.steel,(ax-sx)/2,25,0));
    add(g,cub(12,39,12,33,1.5,0));
    add(g,cub(52,13,20,mats.dark,-4,-8,0));
