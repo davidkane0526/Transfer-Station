@@ -435,7 +435,7 @@ function renderPhotoLedger(){
      b.textContent=id+' · '+part.model+' · '+part.name;
      const h=HANDLES[id];
      if(h){const sp=document.createElement('span');sp.className='source-tag';
-       sp.textContent='手柄 '+h.direction+' · '+h.evidence;b.append(sp);}
+       sp.textContent=(h.axes===2?'双轴手柄 X:'+h.direction+' / Y:'+h.secondaryDirection+' · 厚'+h.thicknessMm+'mm':'手柄 '+h.direction)+' · '+h.evidence;b.append(sp);}
      b.onclick=()=>selectPart(id);list.append(b);
    }
    host.append(list);
