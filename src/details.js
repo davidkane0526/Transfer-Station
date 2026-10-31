@@ -104,8 +104,10 @@ export function enrichParts(partMap, platform, onMesh){
       knurl(g,73,12,0,8.8,27,'x',48);
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
-      // Photo 109: B03 points LEFT, while A02/A15 point RIGHT.
-      const handX=stageType==='B03'?-63:63;
+      // Stage B03 is installed yaw=180° relative to magnet. From its
+      // own branded face (photo109), the handwheel is local +X/right.
+      // From the opposite magnetic-base face (photo108), it looks left.
+      const handX=63;
       knurl(g,handX,10,0,8.4,26,'x',48);
     }
   }
