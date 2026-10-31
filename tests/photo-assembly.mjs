@@ -15,6 +15,9 @@ assert.deepEqual(STACKS.A.film.slice(0,3),['A15','A03','A04']);
 assert.deepEqual(STACKS.A.sample.slice(0,2),['A06','A02']);
 assert.equal(MAGNET_PLACEMENT.id,'B02');
 assert.equal(MAGNET_PLACEMENT.lowest,true);
+assert.equal(HANDLES.B03.localDirection,'+X');
+assert.equal(HANDLES.B03.installationYawDeg,180);
+assert.equal(HANDLES.B03.brandedFace,'-Z');
 assert.equal(PARTS.A.filter(p=>p.model==='GCM-T25M').length,2,
  'Photo 97 and 100 require TWO physically distinct T25Ms in A platform');
 assert(PARTS.A.find(p=>p.id==='A02').group==='sample');
