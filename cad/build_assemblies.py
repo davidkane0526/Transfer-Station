@@ -115,10 +115,10 @@ def make_b():
     # both T25M and V25M logo plates on rear(-Y). Label plaques are proxies.
     add('B','B03L','T25M_branded_rear_face_PROXY',box(51,.6,7,ax,-33.1,44),'P')
     add('B','B04','GCMV25M_flange',box(65,66,8,ax,0,73),'D')
-    add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,127.5),'P')
+    add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,134.5),'P')
     add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,81))
     add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,81))
-    add('B','B04B','GCMV25M_top',box(65,66,8,ax,0,127))
+    add('B','B04B','GCMV25M_top',box(65,66,8,ax,0,131))
     # Photo 108: V25M micrometer is vertical, not an x-axis knob.
     add('B','B04C','vertical_micrometer_stem',vz(6.5,40,ax-24,0,102),'P')
     add('B','B04D','vertical_micrometer_knob',vz(9,17,ax-24,0,142),'P')
@@ -127,6 +127,8 @@ def make_b():
     add('B','B05A','rear_offset_post_clamp',box(35,80,27,ax,-20,188.5))
     add('B','B05B','rear_horizontal_rod',vx(6.35,249,ax,-40,202))
     add('B','B05C','hanging_rod',vz(5,74,cx+55,0,128))
+    # Connect bar centre (rear -40) to hanging rod (depth 0); older CAD left them floating.
+    add('B','B05E','rear_bar_to_hanger_bridge_PROXY',box(27,70,28,cx+55,-20,198),'I')
     clip=box(52,21,13,cx+52,0,115)
     clip=clip.fuse(box(48,14,4,cx+38,0,100.5)) # lower jaw
     clip=clip.fuse(box(48,14,4,cx+38,0,106))   # upper jaw
