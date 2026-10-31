@@ -62,7 +62,8 @@ v25_rear=part(B,'B04L')[0].BoundingBox()
 check(mag_front.ymin>0 and t25_rear.ymax<0 and v25_rear.ymax<0,
       'Magnet label front; both displacement-stage labels rear')
 check(abs(mag.zmax-bt25.zmin)<.02,'B magnetic base below T25M')
-check(abs(bt25.zmin-40)<.02 and abs(bv25.zmin-60)<.02,'B film chain B02>T25M>V25M')
+check(abs(bt25.zmin-40)<.02 and abs(bv25.zmin-73)<.02,'B stage B03 double-axis height 33mm; B04 begins at z=73')
+check(abs(part(B,'B03A')[0].BoundingBox().zmax-bv25.zmin)<.02,'B T25M2L top surface directly touches V25M')
 t25_left=part(B,'B03B')[0].BoundingBox()
 check(t25_left.xmax<=bt25.xmin+.02,'B T25M handle exits to -X left')
 v25_stem=part(B,'B04C')[0].BoundingBox()
@@ -82,6 +83,7 @@ arot=part(A,'A06')[0].BoundingBox()
 a02=part(A,'A02')[0].BoundingBox()
 aheat=part(A,'A07')[0].BoundingBox()
 check(abs(a15.zmin-20)<.02,'A film T25M at bottom level 20')
+check(abs(part(A,'A15A')[0].BoundingBox().zmax-53)<.02,'A T25M2L 33 mm overall manufacturer height')
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-a03.zmin)<.02,'A film T25M directly UNDER VC13M')
 check(abs(a03.zmax-a04.zmin)<.02,'A VC13M directly UNDER G40M60L')
 check(abs(part(A,'A06A')[0].BoundingBox().zmax-a02.zmin)<.02,'A sample T25M above rotary')
@@ -96,6 +98,33 @@ check(part(A,'A04M')[0].BoundingBox().xmin>=a04.xmax-.02,
       'A tilt micrometer exits RIGHT')
 check(abs((a15.xmin+a15.xmax)/2-(a02.xmin+a02.xmax)/2)>100,
       'Two independent A T25M instances occupy distinct film/sample positions')
+# Source-model correction: manufacturer's GCM-T25M2L has 33mm / two
+# perpendicular micrometers, not 20mm / one head. Photo 97 and 108 confirm.
+for sys,key,expected_bottom in [('B','B03',40),('A','A15',20)]:
+    base=part(B if sys=='B' else A,key)[0].BoundingBox()
+    top=part(B if sys=='B' else A,key+'A')[0].BoundingBox()
+    middle=part(B if sys=='B' else A,key+'M')[0].BoundingBox()
+    xshaft=part(B if sys=='B' else A,key+'B')[0].BoundingBox()
+    yshaft=part(B if sys=='B' else A,key+'D')[0].BoundingBox()
+    yknob=part(B if sys=='B' else A,key+'E')[0].BoundingBox()
+    check(abs(base.zmin-expected_bottom)<.01 and abs(top.zmax-expected_bottom-33)<.01,
+          sys+' '+key+' true 33mm two-axis stage')
+    check(abs(base.zmax-middle.zmin)<.01 and abs(middle.zmax-top.zmin)<.01,
+          sys+' '+key+' three layer X/Y stage has contiguous carriage stack')
+    check(xshaft.xlen > xshaft.ylen*2 and yshaft.ylen > yshaft.xlen*2,
+          sys+' '+key+' crossed actuators follow perpendicular X and Y')
+    check(abs(yshaft.ymax-yknob.ymin)<.01,
+          sys+' '+key+' second perpendicular micrometer shaft and drum touch')
+    check(yknob.ymin>base.ymax,sys+' '+key+' Y handle exits forward')
+# The sample-side A02 is not proven to be a -2L; do NOT invent a second handle.
+check(not (A/'A02D.step').exists(),
+      'A02 single-axis remains unresolved; no imaginary second actuator')
+# Rear bar and suspension had been floating independently.
+clampbridge=part(B,'B05E')[0]
+check(clampbridge.intersect(part(B,'B05B')[0]).Volume()>0.01,
+      'B rear bar physically overlaps hanger bridge')
+check(clampbridge.intersect(part(B,'B05C')[0]).Volume()>0.01,
+      'B suspension attaches to bar bridge')
 # A's transfer beam, vertical support, edge clamp contact by boundary (not true fasteners).
 a_rot=part(A,'A06A')[0].BoundingBox()
 a_stg=part(A,'A02')[0].BoundingBox()
