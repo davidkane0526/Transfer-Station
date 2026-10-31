@@ -47,7 +47,7 @@ illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
 let platform='B', currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
-    filmShift=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
+    filmShift=0,filmShiftDepth=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
@@ -514,16 +514,19 @@ function selectPart(id){
 function updateTransforms(){
  const e=explosion/100,angle=sampleAngle*Math.PI/180;
  parts.forEach(({g,base,part,explode,moveFilm,translateSample,rotateSample,facingYaw=0})=>{
-  const off=explode||[0,0,0],fx=moveFilm?filmShift:0,sx=translateSample?sampleShift:0;
+  const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0,sx=translateSample?sampleShift:0;
   // Translation in a rotating stage's LOCAL X basis, then rotation about Y.
   const travel=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
   const dx=travel.x,dz=travel.z;
-  g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e,base.z+off[2]*e+dz);
+  g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e,base.z+off[2]*e+dz+fz);
   g.rotation.y=(rotateSample?angle:0)+facingYaw;
-  if(g.userData.slidingTop){
-    // B03 yaw=180°: local -X corresponds to world +X.
-    g.userData.slidingTop.position.x=part.id==='B03'?-filmShift:part.id==='A15'?filmShift:
-      (part.id==='B09'||part.id==='A02')?sampleShift:0;
+  if(g.userData.slidingX){
+    // A physical X carriage carries a SECOND, nested depth carriage.
+    // B03 has a yaw-180 installation; local negative X maps to world +X.
+    g.userData.slidingX.position.x=part.id==='B03'?-filmShift:filmShift;
+    if(g.userData.slidingDepth)g.userData.slidingDepth.position.z=part.id==='B03'?-filmShiftDepth:filmShiftDepth;
+  }else if(g.userData.slidingTop){
+    g.userData.slidingTop.position.x=(part.id==='B09'||part.id==='A02')?sampleShift:0;
   }
  
  });
@@ -671,9 +674,9 @@ renderer.domElement.addEventListener('pointerup',ev=>{
 });
 function switchPlatform(next){
   platform=next;
-  explosion=0;filmShift=0;sampleShift=0;sampleAngle=0;
-  for(const [id,value] of [['explode','0'],['translate','0'],['sample-move','0'],['rotate-sample','0']])$(id).value=value;
-  $('explode-value').textContent='0%';$('translate-value').textContent='0 mm';
+  explosion=0;filmShift=0;filmShiftDepth=0;sampleShift=0;sampleAngle=0;
+  for(const [id,value] of [['explode','0'],['translate','0'],['translate-depth','0'],['sample-move','0'],['rotate-sample','0']])$(id).value=value;
+  $('explode-value').textContent='0%';$('translate-value').textContent='0 mm';$('translate-depth-value').textContent='0 mm';
   $('sample-value').textContent='0 mm';$('rotate-value').textContent='0°';
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
@@ -707,6 +710,7 @@ $('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
 $('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$('btn-front').onclick=()=>focus('front');$('btn-rear').onclick=()=>focus('rear');$('btn-iso').onclick=()=>focus('iso');
 $('explode').oninput=e=>{explosion=Number(e.target.value);$('explode-value').textContent=explosion+'%';updateTransforms()};
 $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value').textContent=filmShift.toFixed(1)+' mm';updateTransforms()};
+$('translate-depth').oninput=e=>{filmShiftDepth=Number(e.target.value);$('translate-depth-value').textContent=filmShiftDepth.toFixed(1)+' mm';updateTransforms()};
 $('sample-move').oninput=e=>{sampleShift=Number(e.target.value);$('sample-value').textContent=sampleShift.toFixed(1)+' mm';updateTransforms()};
 $('rotate-sample').oninput=e=>{sampleAngle=Number(e.target.value);$('rotate-value').textContent=sampleAngle+'°';updateTransforms()};
 $('toggle-holes').onclick=e=>{showHoles=!showHoles;e.currentTarget.classList.toggle('on',showHoles);holes.forEach(h=>h.visible=showHoles)};
