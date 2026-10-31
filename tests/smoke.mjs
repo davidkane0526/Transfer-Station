@@ -29,6 +29,13 @@ await page.waitForTimeout(350);
 await page.screenshot({path:'Transfer-Station-Rear-Ports-B.png',fullPage:true});
 await page.locator('#group-list input[data-group="microscope"]').check();
 await page.locator('#btn-iso').click();
+await page.locator('#btn-photo108').click();
+await page.waitForTimeout(350);
+await page.screenshot({path:'Transfer-Station-Photo108-magnet-front.png',fullPage:true});
+await page.locator('#btn-photo109').click();
+await page.waitForTimeout(350);
+await page.screenshot({path:'Transfer-Station-Photo109-T25M-label.png',fullPage:true});
+await page.locator('#btn-iso').click();
 const partCountB=await page.locator('#group-list .group-row').count();
 assert(partCountB>=6,'missing subsystem visibility groups');
 // Rich BOM checks and click selection
