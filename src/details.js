@@ -48,22 +48,34 @@ export function enrichParts(partMap, platform, onMesh){
     if(mode==='front'){head.rotation.x=Math.PI/2;recess.rotation.x=Math.PI/2;recess.position.set(x,y,z+.74);}
   }
   function knurl(g,x,y,z,r=8,length=24,axis='x',num=42){
+    // Physically consistent micrometer drum: each groove runs ALONG the
+    // cylinder axis. V17-V21 placed "X" grooves along Y, causing black spikes.
+    if(!['x','y','z'].includes(axis))throw Error('Invalid knurl axis');
     const group=new THREE.Group();group.position.set(x,y,z);g.add(group);
     const barrel=new THREE.Mesh(new THREE.CylinderGeometry(r,r,length,48),ring);
     if(axis==='x')barrel.rotation.z=Math.PI/2;
+    if(axis==='z')barrel.rotation.x=Math.PI/2;
     group.add(barrel);extras.push(barrel);
-    const edge=new THREE.Mesh(new THREE.TorusGeometry(r-.5,.58,7,48),graphite);
-    if(axis==='x')edge.rotation.y=Math.PI/2;else edge.rotation.x=Math.PI/2;
-    group.add(edge);extras.push(edge);
-    // Fine longitudinal knurl, symmetric about the shaft axis
-    const stripeMat=new THREE.MeshStandardMaterial({color:0x69737d,metalness:1,roughness:.4});
+    const stripeMat=new THREE.MeshStandardMaterial({color:0x66727d,metalness:.85,roughness:.42});
     for(let i=0;i<num;i++){
-       const a=2*Math.PI*i/num;
-       const tooth=new THREE.Mesh(new THREE.BoxGeometry(.35,length*.84,.5),stripeMat);
-       if(axis==='x'){tooth.position.set(0,r*Math.sin(a),r*Math.cos(a));tooth.rotation.x=a;}
-       else {tooth.geometry.dispose();tooth.geometry=new THREE.BoxGeometry(.35,.5,length*.84);tooth.position.set(r*Math.sin(a),r*Math.cos(a),0);tooth.rotation.z=a}
-       group.add(tooth);extras.push(tooth);
+      const a=2*Math.PI*i/num;
+      let o,offset=r+.02;
+      if(axis==='x'){
+        o=new THREE.Mesh(new THREE.BoxGeometry(length*.86,.22,.32),stripeMat);
+        o.position.set(0,offset*Math.sin(a),offset*Math.cos(a));o.rotation.x=a;
+      }else if(axis==='y'){
+        o=new THREE.Mesh(new THREE.BoxGeometry(.22,length*.86,.32),stripeMat);
+        o.position.set(offset*Math.sin(a),0,offset*Math.cos(a));o.rotation.y=a;
+      }else{
+        o=new THREE.Mesh(new THREE.BoxGeometry(.22,.32,length*.86),stripeMat);
+        o.position.set(offset*Math.sin(a),offset*Math.cos(a),0);o.rotation.z=a;
+      }
+      group.add(o);extras.push(o);
     }
+    const rim=new THREE.Mesh(new THREE.TorusGeometry(r-.45,.5,8,48),graphite);
+    if(axis==='x')rim.rotation.y=Math.PI/2;
+    if(axis==='y')rim.rotation.x=Math.PI/2;
+    group.add(rim);extras.push(rim);
     return group;
   }
   function analogScale(g,x,y,z,r,height=2){
