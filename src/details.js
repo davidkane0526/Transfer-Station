@@ -157,7 +157,8 @@ export function enrichParts(partMap, platform, onMesh){
     }
     decoration('B04',(g)=>{
        for(let z of [-24,24]){box(g,3,34,7,-28,31,z,aluminum,.5);for(let y of [13,47])screwHead(g,-28,y,z,2.1);}
-       decal(g,'GCM-V25M',50,9,0,27,27.6,'front','#ebedf2');
+       // V25M branded flange is visible from the SAME rear view as T25M (109).
+       decal(g,'GCM-V25M',50,9,0,60,-33.5,'back','#ebedf2');
        // 108.jpg: this knob is the VERTICAL Z-axis adjuster, not another +X.
        knurl(g,-24,73,0,8.5,16,'y',44);
        for(let x of [-24,24])for(let z of [-23,23])screwHead(g,x,66.2,z,2.8);
