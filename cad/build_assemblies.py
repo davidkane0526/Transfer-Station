@@ -28,17 +28,35 @@ def board(sys):
     holes=[(x,y) for x in range(-200,201,25) for y in range(-125,126,25)]
     s=cq.Workplane('XY').add(s).faces('>Z').workplane().pushPoints(holes).hole(5,12).val()
     add(sys,sys+'01','breadboard_430x300_25mm_grid_CANDIDATE',s,'I')
-def stage(sys,key,x,y,z,direction='+X'):
-    """Stage group with one photo-grounded right/left handwheel orientation."""
-    assert direction in ('+X','-X')
-    add(sys,key,'stage_fixed',box(65,65,11.6,x,y,z),'C')
-    add(sys,key+'A','stage_moving',box(62.4,61.1,8.4,x,y,z+11.6),'C')
-    if direction=='+X':
-        add(sys,key+'B','micrometer_right',vx(6,40,x+32.5,y,z+10))
-        add(sys,key+'C','micrometer_knob_right',vx(9,12,x+72.5,y,z+10))
+def stage(sys,key,x,y,z,direction='+X',axes=1,depth_direction='+Y'):
+    """Vendor-dimension constrained GCM-T25M stages. XY double stack = 33mm.
+    2 orthogonal micrometer assemblies are mandatory for -T25M2L/-2C.
+    Exact screw-boss detailing requires manufacturer's native CAD.
+    """
+    assert direction in ('+X','-X') and axes in (1,2)
+    assert depth_direction in ('+Y','-Y')
+    if axes==2:
+        add(sys,key,'lower_fixed_11mm',box(65,65,11,x,y,z),'D')
+        add(sys,key+'M','crossed_X_carriage_11mm',box(63,63,11,x,y,z+11),'D')
+        add(sys,key+'A','crossed_Y_carriage_11mm',box(62,62,11,x,y,z+22),'D')
+        h=33
     else:
-        add(sys,key+'B','micrometer_left',vx(6,40,x-72.5,y,z+10))
-        add(sys,key+'C','micrometer_knob_left',vx(9,12,x-84.5,y,z+10))
+        add(sys,key,'single_fixed_11p6mm',box(65,65,11.6,x,y,z),'D')
+        add(sys,key+'A','single_moving_8p4mm',box(62.4,61.1,8.4,x,y,z+11.6),'D')
+        h=20
+    if direction=='+X':
+        add(sys,key+'B','X_micrometer_stem',vx(6,40,x+32.5,y,z+h-9))
+        add(sys,key+'C','X_micrometer_knob',vx(9,14,x+72.5,y,z+h-9))
+    else:
+        add(sys,key+'B','X_micrometer_stem',vx(6,40,x-72.5,y,z+h-9))
+        add(sys,key+'C','X_micrometer_knob',vx(9,14,x-86.5,y,z+h-9))
+    if axes==2:
+        if depth_direction=='+Y':
+            add(sys,key+'D','Y_micrometer_stem',vy(6,40,x,y+32.5,z+5.5),'D')
+            add(sys,key+'E','Y_micrometer_knob',vy(9,14,x,y+72.5,z+5.5),'D')
+        else:
+            add(sys,key+'D','Y_micrometer_stem',vy(6,40,x,y-72.5,z+5.5),'D')
+            add(sys,key+'E','Y_micrometer_knob',vy(9,14,x,y-86.5,z+5.5),'D')
 def rot(sys,key,x,y,z,grade):
     add(sys,key,'rotary_lower',vz(47,23,x,y,z),grade)
     top=vz(47,10.2,x,y,z+23)
@@ -92,23 +110,23 @@ def make_b():
     add('B','B02L','magnet_OFF_ON_lever',vy(3,12,ax-23,32.5,27),'P')
     add('B','B02P','magnet_front_label_plate',box(50,1,8,ax,33,26),'P')
     # 108/109: T25M atop magnet, silver micrometer exits the LEFT.
-    stage('B','B03',ax,0,40,'-X')
+    stage('B','B03',ax,0,40,'-X',axes=2,depth_direction='+Y')
     # Opposing photographic views: magnet OFF/ON plate is at front(+Y),
     # both T25M and V25M logo plates on rear(-Y). Label plaques are proxies.
     add('B','B03L','T25M_branded_rear_face_PROXY',box(51,.6,7,ax,-33.1,44),'P')
-    add('B','B04','GCMV25M_flange',box(65,66,8,ax,0,60),'D')
-    add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,114.5),'P')
-    add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,68))
-    add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,68))
-    add('B','B04B','GCMV25M_top',box(65,66,8,ax,0,114))
+    add('B','B04','GCMV25M_flange',box(65,66,8,ax,0,73),'D')
+    add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,127.5),'P')
+    add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,81))
+    add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,81))
+    add('B','B04B','GCMV25M_top',box(65,66,8,ax,0,127))
     # Photo 108: V25M micrometer is vertical, not an x-axis knob.
-    add('B','B04C','vertical_micrometer_stem',vz(6.5,40,ax-24,0,89),'P')
-    add('B','B04D','vertical_micrometer_knob',vz(9,17,ax-24,0,129),'P')
-    add('B','B05D','post_to_V25M_base_CANDIDATE',box(36,36,20,ax,0,122))
-    add('B','B05','post',vz(6.35,85,ax,0,141.5))
-    add('B','B05A','rear_offset_post_clamp',box(35,80,27,ax,-20,171.5))
-    add('B','B05B','rear_horizontal_rod',vx(6.35,249,ax,-40,185))
-    add('B','B05C','hanging_rod',vz(5,57,cx+55,0,128))
+    add('B','B04C','vertical_micrometer_stem',vz(6.5,40,ax-24,0,102),'P')
+    add('B','B04D','vertical_micrometer_knob',vz(9,17,ax-24,0,142),'P')
+    add('B','B05D','post_to_V25M_base_CANDIDATE',box(36,36,20,ax,0,139))
+    add('B','B05','post',vz(6.35,85,ax,0,158.5))
+    add('B','B05A','rear_offset_post_clamp',box(35,80,27,ax,-20,188.5))
+    add('B','B05B','rear_horizontal_rod',vx(6.35,249,ax,-40,202))
+    add('B','B05C','hanging_rod',vz(5,74,cx+55,0,128))
     clip=box(52,21,13,cx+52,0,115)
     clip=clip.fuse(box(48,14,4,cx+38,0,100.5)) # lower jaw
     clip=clip.fuse(box(48,14,4,cx+38,0,106))   # upper jaw
@@ -150,22 +168,22 @@ def make_a():
     # A photo 100 shows sample-side T25M above rotary; A photo 97 shows a
     # SECOND T25M below VC13M. Both physically exist.
     stage('A','A02',cx,0,53.2,'+X')
-    stage('A','A15',ax,0,20,'+X')
+    stage('A','A15',ax,0,20,'+X',axes=2,depth_direction='+Y')
     # Photo 97: vertical slide/upright carriage, not a solid block.
-    vc13=(box(65,65,8,ax,0,40)
-          .fuse(box(56,17,43,ax,-9,48))
-          .fuse(box(65,65,7,ax,0,84)))
+    vc13=(box(65,65,8,ax,0,53)
+          .fuse(box(56,17,43,ax,-9,61))
+          .fuse(box(65,65,7,ax,0,97)))
     add('A','A03','VC13M_upright_combined_PROXY',vc13)
-    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,31,65),'P')
-    add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,31,100),'P')
-    add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,91),'D')
-    add('A','A04M','G40M60L_right_micrometer',vx(5,22,ax+20,0,101),'P')
-    add('A','A04K','G40M60L_right_knob',vx(8.5,15,ax+42,0,101),'P')
+    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,31,78),'P')
+    add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,31,113),'P')
+    add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,104),'D')
+    add('A','A04M','G40M60L_right_micrometer',vx(5,22,ax+20,0,114),'P')
+    add('A','A04K','G40M60L_right_knob',vx(8.5,15,ax+42,0,114),'P')
     add('A','A05','slide',box(76,26,1,cx,0,114))
     # A transfer beam must span from the left tilt-stage axis (ax) to
     # the slide center (cx); earlier 151 mm proxy stopped ~46 mm short.
     add('A','A05A','slide_arm_CANDIDATE',box(215,12,8,(ax+cx)/2,0,153))
-    add('A','A05B','slide_arm_vertical_support_CANDIDATE',box(13,13,42,ax,0,111))
+    add('A','A05B','slide_arm_vertical_support_CANDIDATE',box(13,13,29,ax,0,124))
     add('A','A05C','slide_edge_clamp_CANDIDATE',box(12,12,39,cx+33,0,114))
     rot('A','A06',cx,0,20,'I')
     add('A','A07','heater_proxy',box(65,65,18,cx,0,73.2))
@@ -178,9 +196,9 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V20')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V21')
     for key,name,grade,shape in PARTS[sys]: assembly.add(shape,name=key+'__'+name)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V20.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V21.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
