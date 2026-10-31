@@ -145,7 +145,7 @@ function filmB(){
  // Photo108 sees magnetic-base branded +Z, photo109 sees T25M branded -Z.
 // T25M is installed yaw=180° relative to the magnetic base: ONE handle,
 // appearing left in the former view and right in the latter.
-makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M · 局部右手柄',false,{facingYaw:Math.PI},1);
+makeStageBlock('B03',ax,40,0,65,65,20,'GCM-T25M · 局部右手柄',false,{facingYaw:Math.PI*HANDLES.B03.installationYawDeg/180},1);
  addPart('B04',ax,60,0,g=>{
   add(g,cub(65,8,66,mats.dark,0,4,0));
   // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
