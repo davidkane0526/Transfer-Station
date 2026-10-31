@@ -28,7 +28,7 @@ const base={
 };
 const A={
  A01:base.B01,
- A02:{...base.B03,qty:1,category:'手动平移台，轴数待定',quote:{value:4485,currency:'TWD',date:'2026-10-31',type:'GCM-T25MC 单轴候选参考价，实物型号后缀待核',source:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/平移台/gcm-t13m-gcm-t25m系列-精密平移台/'},note:'照片100仅清楚看到一根测微头，暂保留单轴20mm代理；若另一方向确有第二轴，应换33mm GCM-T25M2L/2C，并重新报价。不能直接套用B03价格。'},
+ A02:{...base.B03,qty:1,category:'手动平移台，轴数待定',drawing:'https://www.kryptronic.de/images/catalog/catalog-download-daheng-optics.pdf',datasheet:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/平移台/gcm-t13m-gcm-t25m系列-精密平移台/',quote:{value:4485,currency:'TWD',date:'2026-10-31',type:'GCM-T25MC 单轴候选参考价，实物型号后缀待核',source:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/平移台/gcm-t13m-gcm-t25m系列-精密平移台/'},note:'照片100仅清楚看到一根测微头，暂保留单轴20mm代理；若另一方向确有第二轴，应换33mm GCM-T25M2L/2C，并重新报价。不能直接套用B03价格。'},
  A15:{...base.B03,qty:1,note:'照片97明确显示两根相互垂直的水平测微头。厂家双轴33mm，2L参考NT$8,740 / 2C参考NT$8,453；确切尾缀需实物确认。'},
  A03:{qty:1,category:'精密垂直台',alternatives:[['Zolix','高精度垂直微调台','https://www.zolix-group.com/']],note:'A 组 95/97 可见 GCM-VC13M；外壳尺寸尚未由厂家图纸确认'},
  A04:{qty:1,category:'倾角平台',alternatives:[['Newport','双轴倾角平台','https://www.newport.com/'],['Thorlabs','Goniometer/tilt platform','https://www.thorlabs.com/']],note:'照片94 GCM-G40M60L 型号清晰，但完整机械孔位尚待厂家图确认'},
