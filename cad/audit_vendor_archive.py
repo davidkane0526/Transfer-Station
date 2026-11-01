@@ -54,12 +54,16 @@ with tempfile.TemporaryDirectory() as tmp:
             except Exception as ex:
                 report['step_solids'].append({'filename':str(file.relative_to(dest)),'error':str(ex)[:350]})
         if a.export_local_stl:
+            import sys
             f=next((x for x in steps if x.suffix.lower() in ('.step','.stp')),None)
             if not f:raise ValueError('No STEP for STL conversion')
             a.export_local_stl.parent.mkdir(parents=True,exist_ok=True)
-            cq.exporters.export(cq.importers.importStep(str(f)),str(a.export_local_stl),
-                                exportType='STL',tolerance=.05)
+            subprocess.run([sys.executable,str(Path(__file__).with_name('convert_vendor_step_to_stl.py')),
+                str(f),str(a.export_local_stl),'--preset','nfp1462c'],check=True,timeout=200)
             report['local_stl']=str(a.export_local_stl)
+            report['local_stl_bytes']=a.export_local_stl.stat().st_size
+            report['local_stl_orientation']='NFP source STEP OEM XYZ rotated into webpage X-horizontal/Y-vertical/Z-depth'
+            report['local_stl_republished']=False
 a.report.parent.mkdir(parents=True,exist_ok=True)
 a.report.write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps(report,ensure_ascii=False,indent=2))
