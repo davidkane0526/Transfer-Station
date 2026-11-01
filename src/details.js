@@ -110,10 +110,12 @@ export function enrichParts(partMap, platform, onMesh){
     for(let i=-2;i<=2;i++) box(movingTop,3,2.4,18,i*10,topY-1.5,0,gunmetal,.3);
     // Black crossed roller bearing carrier, side cover screws and engraved branding
     if(stageType==='B09'){
-      for(let x of [-26,-15,16,27])screwHead(g,x,11.5,33,2.7,'front');
-      decal(g,'Zolix  NFP-1462C',54,9,0,15,33.4,'front','#20262b');
-      decal(g,'NFP-1462C',47,8,0,5.2,-33.3,'back','#ebedf3');
-      knurl(g,73,12,0,8.8,27,'x',48);
+      // The maker drawing looks at the native drive on -X, while photo110
+      // sees the complete stage turned 180°: drive becomes world +X.
+      // The actual photo shows Zolix branding toward the camera.
+      for(let x of [-26,-15,16,27])screwHead(g,x,11.5,-33,2.7,'back');
+      decal(g,'Zolix  NFP-1462C',54,9,0,15,-33.4,'back','#20262b');
+      knurl(g,-131,12,0,10.5,27,'x',48);
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
       // Stage B03 is installed yaw=180° relative to magnet. From its
