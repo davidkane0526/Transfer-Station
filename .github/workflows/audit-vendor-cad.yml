@@ -25,7 +25,10 @@ jobs:
         run: |
           python cad/audit_vendor_archive.py \
             --url "https://www.zolix-group.com/public/storage/upload/files/Motioncontrol3D/NFP-1462C.rar" \
-            --report build/vendor/NFP-1462C-metadata.json
+            --report build/vendor/NFP-1462C-metadata.json \
+            --export-local-stl "$RUNNER_TEMP/NFP-1462C-private.stl"
+          test -s "$RUNNER_TEMP/NFP-1462C-private.stl"
+          echo "Local-only OEM mesh exists; it will NOT be uploaded to GitHub."
       - name: Upload ONLY public metadata; never redistribute OEM CAD
         uses: actions/upload-artifact@v4
         with:
