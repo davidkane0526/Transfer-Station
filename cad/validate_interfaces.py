@@ -7,6 +7,8 @@ The actual NFP thread depth MUST be measured or supported by its vendor drawing.
 from pathlib import Path
 import json
 import cadquery as cq
+from cadquery import Vector
+def vz(r,h,x,y,z):return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,0,1))
 
 ROOT=Path(__file__).resolve().parents[1]
 B=ROOT/'build'/'platform_B'/'parts'
@@ -155,7 +157,7 @@ for dx in (-25,25):
           'NFP fixed base corner Ø6.5 clearance is open (not a thread)')
     check(nfp_clearance.intersect(cb).Volume()<1e-5,
           'NFP 50mm corner mounting counterbore Ø11 exists')
-check(part(B,'B09A')[0].BoundingBox().zmax==76.2,
+check(abs(part(B,'B09A')[0].BoundingBox().zmax-76.2)<.02,
       'NFP moving top nominal 23mm above 53.2 mount datum')
 # V18: glass must be INSIDE clip opening, never penetrating either jaw.
 clip=part(B,'B06')[0]
