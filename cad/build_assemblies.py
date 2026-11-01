@@ -139,17 +139,23 @@ def make_b():
     add('B','B07A','pdms',box(20,20,1.8,cx,0,102.7))
     rot('B','B08',cx,0,20,'D')
     corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
+    # Manufacturer PDF (NFP-1462C) specifies four Ø6.5 clearance
+    # holes with Ø11 counterbore on fixed-stage view (50mm square).
+    # They are NOT M6 tapped holes and should not be modeled as threads.
     lo=cut(box(65,65,11,cx,0,53.2),corners,6.5,11,53.2)
-    add('B','B09','NFP1462C_lower_ENVELOPE',lo,'D')
+    lo=cut(lo,corners,11,4,60.2)
+    add('B','B09','NFP1462C_lower_4clearance_O6p5_counterbore_O11',lo,'D')
+    # Opposite view shows 9-M6 / 4-M3 threaded-hole arrays on the moving plate.
+    # Minor diameters and 10mm/7mm hole DEPTHS are candidates, not OEM data.
     top=box(65,65,12,cx,0,64.2)
-    # 10 mm drilled depth is a *candidate*, NOT vendor-confirmed tapping depth.
-    # It clears the proposed 9.5 mm screw engagement with 0.5 mm axial margin.
-    # Correct hole depth must be checked on the physical slide before purchase.
     top=cut(top,[(cx+dx,dy) for dx in (-25,0,25) for dy in (-25,0,25)],5,10,66.2)
     top=cut(top,[(cx+dx,dy) for dx in (-16,16) for dy in (-16,16)],2.5,7,69.2)
-    add('B','B09A','NFP1462C_upper_M6_M3_ENVELOPE',top,'D')
-    add('B','B09B','NFP_micro',vx(6.5,62,cx+33,0,64.5))
-    add('B','B09C','NFP_knob',vx(10,17,cx+95,0,64.5))
+    add('B','B09A','NFP1462C_upper_9M6_4M3_candidates',top,'D')
+    # OEM drawing: native micrometer left. The user photo110 shows right
+    # after whole-stage installation yaw=180° relative to native plan.
+    # OEM overall maker dimension: 155.5..180.5 mm along drive axis.
+    add('B','B09B','NFP_micro_extended_world_RIGHT',vx(4,76,cx+33,0,64.5),'D')
+    add('B','B09C','NFP_micro_drum_world_RIGHT',vx(10,25,cx+109,0,64.5),'D')
     heater()
     add('B','B16','microscope_column_PROXY',vz(13,240,cx,-112,32))
     add('B','B16A','microscope_base',box(65,65,12,cx,-112,20))
@@ -198,9 +204,9 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V21')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V22')
     for key,name,grade,shape in PARTS[sys]: assembly.add(shape,name=key+'__'+name)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V21.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V22.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
