@@ -74,6 +74,31 @@ await page.locator('#rotate-sample').fill('16');
 await page.waitForTimeout(350);
 assert((await page.locator('#sample-value').textContent()).includes('5'),'sample slider broken');
 await page.screenshot({path:'Transfer-Station-Detail-B.png',fullPage:true});
+// Vendor-NFP registration test uses an entirely synthetic bounding box.
+// It tests orientation/datum code ONLY and must never be presented as genuine CAD.
+const vertices=[[0,0,0],[167.5,0,0],[167.5,27.6,0],[0,27.6,0],
+  [0,0,77.5],[167.5,0,77.5],[167.5,27.6,77.5],[0,27.6,77.5]];
+const faces=[[0,1,2],[0,2,3],[4,6,5],[4,7,6],
+  [0,4,5],[0,5,1],[1,5,6],[1,6,2],
+  [2,6,7],[2,7,3],[3,7,4],[3,4,0]];
+const synth='solid synthetic_dimension_fixture\n'+faces.map(ids=>
+  'facet normal 0 0 1\nouter loop\n'+ids.map(id=>
+     'vertex '+vertices[id].join(' ')).join('\n')+
+  '\nendloop\nendfacet\n').join('')+'endsolid synthetic_dimension_fixture';
+await page.locator('#cad-profile').selectOption('nfp1462c');
+await page.locator('#cad-file').setInputFiles({
+  name:'synthetic_bbox_not_vendor.stl',mimeType:'model/stl',buffer:Buffer.from(synth)
+});
+await page.waitForFunction(()=>document.getElementById('import-status').textContent.includes('synthetic_bbox_not_vendor.stl'));
+assert((await page.locator('#import-status').textContent()).includes('nfp1462c'),
+  'NFP specific native-axis/datum import profile broken');
+await page.locator('#cad-offset-x').fill('2.5');
+await page.locator('#cad-offset-z').fill('-1');
+await page.locator('#cad-yaw').fill('5');
+await page.locator('#apply-cad-alignment').click();
+assert((await page.locator('#import-status').textContent()).includes('已应用本地显示配准'),
+  'Imported vendor mesh alignment controls broken');
+await page.locator('#cad-profile').selectOption('center');
 // A small fabricated local STL is used only for testing the replacement control.
 // This exercise is not a vendor CAD or real manufactured component.
 const tetra='solid fixture\n'+[
@@ -83,7 +108,7 @@ const tetra='solid fixture\n'+[
  [[8,0,0],[0,8,0],[0,0,8]]
 ].map(v=>'facet normal 0 0 1\nouter loop\n'+v.map(p=>'vertex '+p.join(' ')).join('\n')+'\nendloop\nendfacet\n').join('')+'endsolid fixture';
 await page.locator('#cad-file').setInputFiles({name:'qa_fixture.stl',mimeType:'model/stl',buffer:Buffer.from(tetra)});
-await page.waitForFunction(()=>document.getElementById('import-status').textContent.includes('已导入'),{timeout:9000});
+await page.waitForFunction(()=>document.getElementById('import-status').textContent.includes('qa_fixture.stl'),{timeout:9000});
 assert((await page.locator('#import-status').textContent()).includes('qa_fixture.stl'),'local STL import did not complete');
 // Verify A's corrected base-stage relation and BOM
 await page.locator('#explode').fill('0');
