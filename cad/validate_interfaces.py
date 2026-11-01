@@ -137,6 +137,26 @@ check(abs(ris.zmin-a_tilt.zmax)<.01,'A riser contacts tilt stage top')
 check(abs(ris.zmax-beam.zmin)<.01,'A riser contacts transfer beam')
 check(abs(clip.zmax-beam.zmin)<.01,'A edge clip contacts transfer beam')
 check(beam.xmin<=-116 and beam.xmax>=78,'A beam spans left-to-right physical supports')
+# OEM NFP-1462C manufacturer drawing: do not confuse the 4x Ø6.5
+# counterbored clearance holes on lower mounting face with the
+# distinct 9-M6/4-M3 threaded pattern on the moving plate.
+nfp_clearance=part(B,'B09')[0]
+nfp_drive=part(B,'B09B')[0]
+nfp_drum=part(B,'B09C')[0]
+check(155.5<=max(nfp_drum.BoundingBox().xmax,
+    nfp_drive.BoundingBox().xmax)-nfp_clearance.BoundingBox().xmin<=180.5,
+      'NFP micrometer + body fit OEM 155.5--180.5 overall length')
+for dx in (-25,25):
+ for dy in (-25,25):
+    bx,by=82+dx,dy
+    small=vz(3.1,11,bx,by,53.2)
+    cb=vz(5.35,4,bx,by,60.2)
+    check(nfp_clearance.intersect(small).Volume()<1e-5,
+          'NFP fixed base corner Ø6.5 clearance is open (not a thread)')
+    check(nfp_clearance.intersect(cb).Volume()<1e-5,
+          'NFP 50mm corner mounting counterbore Ø11 exists')
+check(part(B,'B09A')[0].BoundingBox().zmax==76.2,
+      'NFP moving top nominal 23mm above 53.2 mount datum')
 # V18: glass must be INSIDE clip opening, never penetrating either jaw.
 clip=part(B,'B06')[0]
 glass=part(B,'B07')[0]
