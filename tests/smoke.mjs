@@ -27,6 +27,10 @@ assert((await page.locator('#translate-depth-value').textContent()).includes('6'
 await page.locator('#translate').fill('0');
 await page.locator('#translate-depth').fill('0');
 await page.locator('#btn-iso').click();
+await page.locator('#btn-sample-stack').click();
+await page.waitForTimeout(450);
+await page.screenshot({path:'Transfer-Station-Sample-Stack-B.png',fullPage:true});
+await page.locator('#btn-iso').click();
 // Inspect external vacuum hose and ceramic wires from the BACK.
 // Hide the independent microscope for this specific close inspection only.
 await page.locator('#btn-rear').click();
