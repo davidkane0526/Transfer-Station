@@ -29,3 +29,11 @@
 .viewer canvas{outline:0}
 .marked-note{background:#1d3041;padding:7px 9px;border-left:2px solid #78bbde;border-radius:4px;font-size:12px}
 .figure-meta{font-variant-numeric:tabular-nums;color:#9bcce6}
+
+/* OEM-local CAD datum registration. Deliberately neutral and compact. */
+.cad-alignment{display:grid;gap:7px;padding:9px;margin-top:9px;border:1px solid #34475b;border-radius:7px}
+.cad-alignment label{display:grid;gap:4px;font-size:11px;color:#b7cbd9}
+.cad-alignment select,.cad-alignment input{max-width:100%;min-width:0;background:#15283b;color:#eaf1f7;border:1px solid #354b60;border-radius:6px;padding:6px;font-size:12px}
+.cad-offsets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.cad-alignment a{color:#96c8ed;font-size:11px}
+.cad-alignment button{min-width:0}
