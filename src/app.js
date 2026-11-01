@@ -214,21 +214,31 @@ function rotaryB(){
     label(g,'GCM-1107M · Ø94×33.2',0,46,0);
  },{explode:[12,0,0],rotateSample:false});
  addPart('B09',sx,53.2,0,g=>{
-   add(g,cub(65,11,65,mats.dark,0,5.5,0));
+   // OEM dimension drawing distinguishes 4 x clearance Ø6.5 / Ø11 counterbore
+   // on fixed base from 9-M6 / 4-M3 tapped hole array on moving stage.
+   // The original native CAD download is not yet incorporated.
+   const mounting=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
+   add(g,plate(65,65,6,mats.steel,mounting));
+   add(g,plate(65,65,5,mats.steel,mounting.map(p=>[p[0],p[1],5.5]))).position.y=6;
    const slidingTop=new THREE.Group();g.add(slidingTop);g.userData.slidingTop=slidingTop;
-   // A blind-hole proxy: two-mm solid bottom + ten-mm drilled top layer.
-   // Thread minor diameters and depths are candidates, not manufacturer drawings.
-   const nfpHoles=[
+   const tapped=[
      ...[-25,0,25].flatMap(x=>[-25,0,25].map(z=>[x,z,2.5])),
      ...[-16,16].flatMap(x=>[-16,16].map(z=>[x,z,1.25]))
    ];
    const lower=plate(65,65,2,mats.steel);lower.position.y=11;add(slidingTop,lower);
-   const drilled=plate(65,65,10,mats.steel,nfpHoles);drilled.position.y=13;add(slidingTop,drilled);
-   const mic=add(g,cyl(7,32,mats.silver,46,12,0));mic.rotation.z=Math.PI/2;
+   const drilled=plate(65,65,10,mats.steel,tapped);drilled.position.y=13;add(slidingTop,drilled);
+   // NFP official local-coordinate micrometer is LEFT. In the actual photo
+   // 110.jpg it points RIGHT due to stage installation at 180° about Y.
+   // Maker dimension drawing indicates overall length 155.5--180.5mm.
+   add(g,cub(24,15,30,mats.steel,-45,12,0));
+   const spindle=add(g,cyl(3.6,74,mats.silver,-85,12,0));spindle.rotation.z=Math.PI/2;
+   const collar=add(g,cyl(9,23,mats.steel,-119,12,0));collar.rotation.z=Math.PI/2;
+   const drum=add(g,cyl(11,28,mats.silver,-131,12,0));drum.rotation.z=Math.PI/2;
    for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
    for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
-   label(g,'NFP-1462C · 65×65×23',0,42,0);
- },{explode:[0,16,0],rotateSample:true});
+   for(const x of [-25,25])for(const z of [-25,25])circleGuide(g,5.5,11.3,x,z);
+   label(g,'NFP-1462C · 原厂65×65×23 · 正面安装180°候选',0,42,0);
+ },{explode:[0,16,0],rotateSample:true,facingYaw:Math.PI});
  addPart('B10',sx,76.2,0,g=>{
    const h=plate(65,65,10,mats.white,[[-25,-25,3.4],[-25,25,3.4],[25,-25,3.4],[25,25,3.4]]);add(g,h);
    label(g,'白色无机隔热层 ≈10mm',0,22,0);
@@ -526,7 +536,7 @@ function updateTransforms(){
     g.userData.slidingX.position.x=part.id==='B03'?-filmShift:filmShift;
     if(g.userData.slidingDepth)g.userData.slidingDepth.position.z=part.id==='B03'?-filmShiftDepth:filmShiftDepth;
   }else if(g.userData.slidingTop){
-    g.userData.slidingTop.position.x=(part.id==='B09'||part.id==='A02')?sampleShift:0;
+    g.userData.slidingTop.position.x=part.id==='B09'?-sampleShift:part.id==='A02'?sampleShift:0;
   }
  
  });
