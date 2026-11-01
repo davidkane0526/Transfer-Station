@@ -35,7 +35,16 @@
 <div class="buttons"><button id="import-cad">为选中零件导入 STL / GLB</button>
 <select id="import-units" aria-label="导入模型尺寸单位"><option value="1">文件为 mm</option><option value="1000">文件为 m → mm</option></select></div>
 <input type="file" id="cad-file" accept=".stl,.glb" hidden>
-<p class="small" id="import-status">尚未导入；STEP 请先转换为 STL。</p></div>
+<div class="cad-alignment">
+<label>安装配准预设<select id="cad-profile"><option value="center">通用：包络居中（仅外观）</option><option value="nfp1462c">NFP-1462C 原厂 STEP 轴向预设</option></select></label>
+<div class="cad-offsets"><label>X 偏移 (mm)<input id="cad-offset-x" type="number" value="0" step="0.5"></label>
+<label>Y 偏移 (mm)<input id="cad-offset-y" type="number" value="0" step="0.5"></label>
+<label>Z 偏移 (mm)<input id="cad-offset-z" type="number" value="0" step="0.5"></label>
+<label>绕Y旋转 (°)<input id="cad-yaw" type="number" value="0" step="1"></label></div>
+<button id="apply-cad-alignment">应用局部配准修正</button>
+<a href="https://www.zolix-group.com/product/specification/179.html" target="_blank" rel="noopener noreferrer">NFP 原厂 CAD / 尺寸图</a>
+</div>
+<p class="small" id="import-status">STEP 先用 cad/convert_vendor_step_to_stl.py 转换。NFP 原厂文件为44个壳体而非封闭实体；导入后需人工核对孔中心和高度基准。</p></div>
 <div class="control-block"><div class="title">照片对照 · 安装顺序与手柄</div><div class="small" id="photo-ledger">加载照片证据索引...</div></div>
 <div class="control-block"><div class="title">文件与资料</div><div class="footlinks"><a href="docs/engineering.md">孔位/证据说明</a><a href="cad/build_assemblies.py">CAD 生成脚本</a><a href="README.md">项目说明</a></div></div>
 </aside>
