@@ -764,7 +764,22 @@ async function importVendorMesh(file){
    const w=bounds.max.x-bounds.min.x,h=bounds.max.y-bounds.min.y,d=bounds.max.z-bounds.min.z;
    if(Math.max(w,h,d)>2000||Math.min(w,h,d)<=0)throw Error('模型单位或方向不正确，请检查 STL/GLB 比例');
    const center=bounds.getCenter(new THREE.Vector3());
-   imported.position.sub(new THREE.Vector3(center.x,bounds.min.y,center.z));
+   const profile=$('cad-profile').value;
+   let calibrationX=0;
+   if(profile==='nfp1462c'){
+     if(part.part.id!=='B09')throw Error('NFP 原厂预设仅适用于 B09');
+     // Original Zolix shell STEP has [27.6,77.5,167.5] native bbox.
+     // The CLI converter --preset nfp1462c permutes XYZ into [167.5,27.6,77.5].
+     if(Math.abs(w-167.5)>10 || Math.abs(h-27.6)>5 || Math.abs(d-77.5)>7){
+       throw Error('NFP 轴向不匹配。请先使用 --preset nfp1462c 转换官方 STEP；导入网格的外廓应约 167.5×27.6×77.5 mm。');
+     }
+     // OEM full envelope contains a long micrometer. Bounding-box center
+     // is NOT the 65mm carriage center; register to maker body-end datum.
+     // Stage body assumed at the short (+X) end: candidate, verify holes.
+     calibrationX=-(w-65)/2;
+   }
+   imported.position.set(-center.x+calibrationX,-bounds.min.y,-center.z);
+   part.g.userData.vendorImportBase=imported.position.clone();
    // Keep original geometry in the scene but hide it (non-destructive).
    // Material renderers still use the correct parent group and measured mm.
    part.g.traverse(ob=>{if(ob.isMesh&&!ob.userData.vendorModel)ob.visible=false;});
@@ -775,7 +790,7 @@ async function importVendorMesh(file){
      if(ob.isMesh){ob.castShadow=true;ob.receiveShadow=true;ob.userData.vendorModel=true;
       ob.userData.partId=part.part.id;hitMeshes.push(ob);}
    });
-   $('import-status').textContent=part.part.id+' 已导入 '+file.name+' · '+[w,h,d].map(x=>x.toFixed(1)).join('×')+' mm（文件尺寸，不保证装配对位）';
+   $('import-status').textContent=part.part.id+' 导入 '+file.name+' · '+[w,h,d].map(x=>x.toFixed(1)).join('×')+' mm；预设 '+profile+'，尚未通过实际螺纹孔配准。';
    updateMeasurement();selectedLabels();
  }catch(e){console.error(e);$('import-status').textContent='导入失败：'+String(e?.message||e);}
 }
@@ -784,6 +799,19 @@ $('import-cad').onclick=()=>{
  $('cad-file').click();
 };
 $('cad-file').onchange=ev=>importVendorMesh(ev.target.files?.[0]);
+$('apply-cad-alignment').onclick=()=>{
+ if(!active?.g?.userData.vendorImport){$('import-status').textContent='请先选中B09并导入原厂 STL。';return;}
+ const parse=id=>{const x=Number($(id).value);if(!Number.isFinite(x)||Math.abs(x)>500)throw Error(id+' 数值超出可接受范围 ±500');return x;};
+ try{
+   const g=active.g, m=g.userData.vendorImport;
+   const base=g.userData.vendorImportBase;
+   if(!base)throw Error('导入模型缺少初始基准');
+   m.position.copy(base).add(new THREE.Vector3(parse('cad-offset-x'),parse('cad-offset-y'),parse('cad-offset-z')));
+   m.rotation.y=parse('cad-yaw')*Math.PI/180;
+   updateMeasurement();
+   $('import-status').textContent='已应用本地显示配准。偏移为相对于预设的增量，不代表孔系已验收。';
+ }catch(e){$('import-status').textContent='配准参数错误：'+e.message;}
+};
 $('export-csv').onclick=exportCSV;
 for(const id of ['bom-query','bom-sort','priced-only']){
  const el=$(id);el.addEventListener(id==='bom-query'?'input':'change',updateTable);
