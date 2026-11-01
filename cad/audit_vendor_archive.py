@@ -39,10 +39,18 @@ with tempfile.TemporaryDirectory() as tmp:
             try:
                 obj=cq.importers.importStep(str(file)) if file.suffix.lower() in ('.step','.stp') else cq.importers.importIges(str(file))
                 solids=obj.solids().vals()
-                bb=obj.val().BoundingBox()
-                report['step_solids'].append({'filename':str(file.relative_to(dest)),
-                  'solids':len(solids),'bbox_mm':[round(bb.xlen,2),round(bb.ylen,2),round(bb.zlen,2)],
-                  'valid':all(s.isValid() for s in solids)})
+                shapes=obj.objects
+                compound=cq.Compound.makeCompound(shapes)
+                bb=compound.BoundingBox()
+                faces=compound.Faces();shells=compound.Shells()
+                report['step_solids'].append({
+                  'filename':str(file.relative_to(dest)),
+                  'top_level_shapes':len(shapes),
+                  'shape_types':[sh.ShapeType() for sh in shapes[:12]],
+                  'solids':len(solids),'shells':len(shells),'faces':len(faces),
+                  'bbox_mm':[round(bb.xlen,2),round(bb.ylen,2),round(bb.zlen,2)],
+                  'valid':all(sh.isValid() for sh in shapes),
+                  'can_export_as_step':len(shapes)>0})
             except Exception as ex:
                 report['step_solids'].append({'filename':str(file.relative_to(dest)),'error':str(ex)[:350]})
         if a.export_local_stl:
