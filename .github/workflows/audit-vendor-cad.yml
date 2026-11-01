@@ -1,0 +1,31 @@
+name: Audit manufacturer NFP-1462C CAD without distributing OEM files
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'cad/audit_vendor_archive.py'
+      - '.github/workflows/audit-vendor-cad.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install archive support and CadQuery
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq p7zip-full
+          python -m pip install 'cadquery>=2.4,<2.8'
+      - name: Download OEM CAD and inspect solid geometry locally
+        run: |
+          python cad/audit_vendor_archive.py \
+            --url "https://www.zolix-group.com/public/storage/upload/files/Motioncontrol3D/NFP-1462C.rar" \
+            --report build/vendor/NFP-1462C-metadata.json
+      - name: Upload ONLY public metadata; never redistribute OEM CAD
+        uses: actions/upload-artifact@v4
+        with:
+          name: NFP-1462C-OEM-CAD-METADATA-ONLY
+          path: build/vendor/NFP-1462C-metadata.json
+          retention-days: 30
