@@ -29,6 +29,18 @@ jobs:
             --export-local-stl "$RUNNER_TEMP/NFP-1462C-private.stl"
           test -s "$RUNNER_TEMP/NFP-1462C-private.stl"
           echo "Local-only OEM mesh exists; it will NOT be uploaded to GitHub."
+      - name: Verify OEM shell visually in 3D viewer (no CAD upload)
+        run: |
+          npm install --no-save playwright-core
+          python3 -m http.server 8765 > /tmp/transfer-vendor-site.log 2>&1 &
+          OEM_STL_PATH="$RUNNER_TEMP/NFP-1462C-private.stl" node tests/vendor-nfp-preview.mjs
+      - name: Upload OEM-derived image preview ONLY
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NFP-1462C-OEM-SHELL-RENDER-ONLY
+          path: NFP-1462C-OEM-NATIVE-SHELL-PREVIEW.png
+          if-no-files-found: ignore
       - name: Upload ONLY public metadata; never redistribute OEM CAD
         uses: actions/upload-artifact@v4
         with:
