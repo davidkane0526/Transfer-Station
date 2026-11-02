@@ -13,7 +13,10 @@ from OCP.BRepAdaptor import BRepAdaptor_Surface
 
 
 def _xyz(v):
-    return [float(v.X()), float(v.Y()), float(v.Z())]
+    # OpenCascade gp_Pnt/gp_Dir expose X()/Y()/Z(), whereas CadQuery
+    # Vector exposes x/y/z attributes. Both appear in cylinder evaluation.
+    return [float(getattr(v, axis)() if callable(getattr(v, axis, None))
+                  else getattr(v, axis.lower())) for axis in ('X','Y','Z')]
 
 
 def _web(v,preset):
