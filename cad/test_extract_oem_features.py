@@ -25,6 +25,17 @@ class CandidateBrepFeatureTest(unittest.TestCase):
         self.assertEqual(out['summary']['square_pitch_layout_candidates']['32mm'],0)
         self.assertTrue(all(not x['thread_verified'] for x in holes))
 
+    def test_nominal_diameter_separates_counterbore_from_threadlike_grid(self):
+        block=(cq.Workplane('XY').box(65,65,23).faces('>Z').workplane()
+               .pushPoints([(-25,-25),(-25,25),(25,-25),(25,25)])
+               .cboreHole(6.5,11,4).val())
+        by=describe(block)['summary']['square_pitch_by_diameter']
+        self.assertGreaterEqual(by['Ø6.5mm']['square_layouts']['50mm'],1)
+        self.assertGreaterEqual(by['Ø11mm']['square_layouts']['50mm'],1)
+        self.assertEqual(by['Ø6.5mm']['square_layouts']['25mm'],0)
+        self.assertEqual(by['Ø11mm']['square_layouts']['25mm'],0)
+        self.assertEqual(by['Ø6mm']['ring_candidates'],0)
+
     def test_axis_permutation_and_handedness(self):
         self.assertEqual(rotate_into_web([1,2,3],'nfp1462c'),[3,1,2])
         out=describe(self.example,preset='nfp1462c')
