@@ -119,6 +119,26 @@ const projectedBounds=yawDeg=>{
 const nativeBounds=await page.locator('#measurement-text').textContent();
 assert(nativeBounds.includes(projectedBounds(16)),
   'OEM mesh world AABB must reflect 16-degree stage rotation without hidden proxy: '+nativeBounds);
+// Point-matching QA uses entirely synthetic landmark coordinates. It must
+// preserve native scale, reject a false pitch and label all outcomes as PREVIEW.
+await page.locator('#cad-src-1').fill('10,0');
+await page.locator('#cad-dst-1').fill('7,10');
+await page.locator('#cad-src-2').fill('35,0');
+await page.locator('#cad-dst-2').fill('7,-15');
+await page.locator('#cad-src-3').fill('10,20');
+await page.locator('#cad-dst-3').fill('27,10');
+await page.locator('#fit-cad-landmarks').click();
+let matchStatus=await page.locator('#cad-registration-status').textContent();
+assert(matchStatus.includes('3 对点')&&matchStatus.includes('90.000°')&&matchStatus.includes('0.000 mm'),
+ 'Rigid landmark registration did not compute expected +90 degree yaw: '+matchStatus);
+assert(matchStatus.includes('不是机械公差验收'),'Registration may not imply physical acceptance');
+await page.locator('#cad-dst-2').fill('7,-14');
+await page.locator('#fit-cad-landmarks').click();
+matchStatus=await page.locator('#cad-registration-status').textContent();
+assert(matchStatus.includes('配准未应用')&&matchStatus.includes('距离不一致'),
+ 'Landmark input with false 1mm hole spacing was not rejected: '+matchStatus);
+// Restore the original manual yaw path; landmark state should be explicitly
+// cleared, and the existing world AABB regression remains meaningful.
 // Toggling hole guides must not reveal hidden OEM-replaced proxy geometry.
 await page.locator('#toggle-holes').click();
 await page.locator('#toggle-holes').click();
