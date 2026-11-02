@@ -21,6 +21,8 @@ class CandidateBrepFeatureTest(unittest.TestCase):
         self.assertTrue(all(x['horizontal_plane_candidate'] for x in holes))
         self.assertEqual(out['summary']['vertical_axis_cylindrical_faces'],4)
         self.assertFalse(out['summary']['physical_interface_accepted'])
+        self.assertGreaterEqual(out['summary']['square_pitch_layout_candidates']['50mm'],1)
+        self.assertEqual(out['summary']['square_pitch_layout_candidates']['32mm'],0)
         self.assertTrue(all(not x['thread_verified'] for x in holes))
 
     def test_axis_permutation_and_handedness(self):
