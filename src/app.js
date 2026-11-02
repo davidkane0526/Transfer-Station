@@ -168,6 +168,7 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
    add(g,cub(14,11,14,mats.dark,0,lowerH*.5,supportZ));
    const yStem=add(g,cyl(6,27,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+23)));yStem.rotation.x=Math.PI/2;
    const yDrum=add(g,cyl(9,14,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+39)));yDrum.rotation.x=Math.PI/2;
+   label(g,'机构Y / 场景Z：前后微调',0,lowerH+5,depthHandleSide*(d/2+55));
   }else{
    g.userData.slidingTop=carriageX;
    add(carriageX,cub(w*.94,h-lowerH,d*.92,mats.dark,0,lowerH+(h-lowerH)/2,0));
@@ -176,6 +177,8 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
   add(g,cub(14,12,14,mats.dark,side*(w/2+6),h-9,0));
   const xStem=add(g,cyl(6,27,mats.silver,side*(w/2+24),h-9,0));xStem.rotation.z=Math.PI/2;
   const xDrum=add(g,cyl(9,14,mats.silver,side*(w/2+43),h-9,0));xDrum.rotation.z=Math.PI/2;
+  label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,0);
+  if(JOINTS[id])addJointHeads(g,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g.userData.slidingTop,3,h+.5,xx,zz);
   label(g,title,0,h+11,0);
  },{explode:[0,id==='B03'?15:10,0],...motion});
@@ -185,6 +188,7 @@ function filmB(){
  addPart('B02',ax,20,0,g=>{
     add(g,cub(65,20,65,mats.dark,0,10,0));
     for(const pitch of [50,40,32])for(const x of [-pitch/2,pitch/2])for(const z of [-pitch/2,pitch/2])circleGuide(g,pitch===50?3:2,20.4,x,z);
+    addJointHeads(g,'B02',19.95,[[-25,-25],[-25,25],[25,-25],[25,25]]);
     label(g,'GCM-420302M',0,38,0);
  },{explode:[-25,0,0]});
  // 108/109: magnet B02 touches board, T25M is ON magnet and handle faces -X.
@@ -204,6 +208,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   add(g,cub(16,14,18,mats.dark,-24,24,0));
   add(g,cyl(6.5,40,mats.silver,-24,46,0));
   add(g,cyl(9,17,mats.silver,-24,73,0));
+  addJointHeads(g,'B04',7.95,[[-25,-24],[-25,24],[25,-24],[25,24]],{headR:2.5});
   label(g,'GCM-V25M · 竖直测微头 +Y',0,89,0);
  },{explode:[-24,30,0],moveFilm:true});
  // A direct cantilever replaces the unsupported 85mm vertical post,
@@ -229,6 +234,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   add(g,cub(48,4,14,mats.silver,-14,-19,0));
   add(g,cub(48,4,14,mats.silver,-14,-13.5,0));
   add(g,cub(6,15,14,mats.dark,9,-13.5,0)); // outer rear jaw bridge
+  addJointHeads(g,'B06',6.35,[[-10,-6],[8,6]],{headR:2.6});
   label(g,'玻片夹：1.5-mm 夹口（候选）',0,24,0);
  },{explode:[-20,65,5],moveFilm:true});
  addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
@@ -246,6 +252,7 @@ function rotaryB(){
     for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(g,2.6,33.5,x,z);
     // 111.jpg rotary silver lock handle faces the operator (+Z), not +X.
     const knob=add(g,cyl(6,31,mats.silver,0,12,57));knob.rotation.x=Math.PI/2;
+    addJointHeads(g,'B08',33.15,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.9});
     label(g,'GCM-1107M · Ø94×33.2',0,46,0);
  },{explode:[12,0,0],rotateSample:false});
  addPart('B09',sx,53.2,0,g=>{
@@ -272,6 +279,8 @@ function rotaryB(){
    for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
    for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
    for(const x of [-25,25])for(const z of [-25,25])circleGuide(g,5.5,11.3,x,z);
+   addJointHeads(g,'B09',10.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:4.2});
+   label(g,'NFP 仅单轴 X / 一根测微头',-38,46,0);
    label(g,'NFP-1462C · 原厂65×65×23 · 正面安装180°候选',0,42,0);
  },{explode:[0,16,0],rotateSample:true,facingYaw:Math.PI});
  addPart('B10',sx,76.2,0,g=>{
@@ -307,9 +316,10 @@ function rotaryB(){
  },{explode:[-17,70,0],rotateSample:true,translateSample:true});
  addPart('B14',sx,86.2,0,g=>{
    for(const x of [-25,25])for(const z of [-25,25]){
-      screw(g,x,11.5,z,25);circleGuide(g,5.5,12.2,x,z);
+      screw(g,x,12.03,z,25); // head surface flush at 12.03; do not mask by blue hole guide
    }
-   label(g,'4 枚顶部齐平螺钉（M6×25 候选）',0,45,0);
+   g.userData.fastenerProxies=4;
+   label(g,'4 枚顶部齐平螺钉（仅数量、齐平已确认）',0,45,0);
  },{explode:[0,88,0],rotateSample:true,translateSample:true});
  addPart('B15',sx,95.5,0,g=>{
    const fitting=add(g,cyl(3,13,mats.silver,0,0,-39));fitting.rotation.x=Math.PI/2;
@@ -327,6 +337,7 @@ function microscopeB(){
    add(g,cub(55,50,55,mats.microscope,0,229,112));
    add(g,cyl(17,44,mats.dark,0,188,112));
    const knob=add(g,cyl(15,13,mats.dark,45,225,108));knob.rotation.z=Math.PI/2;
+   addJointHeads(g,'B16',11.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
    label(g,'MXFMS 显微镜本体 / 支架（包络代理）',0,303,80);
  },{explode:[0,15,-42]});
  addPart('B17',sx,276,0,g=>{
