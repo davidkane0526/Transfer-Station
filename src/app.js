@@ -951,7 +951,12 @@ $('cad-features-file').onchange=async ev=>{
    localCadFeatureCandidates=candidates.slice(0,limit);
    localCadFeatureCandidates.forEach((p,i)=>{
      const opt=document.createElement('option');opt.value=String(i);
+     const wallLabel=({closed_solid_bore_wall_candidate:'封闭实体内向孔壁候选',
+       closed_solid_external_wall_candidate:'封闭实体外向轴壁候选',
+       surface_shell_unresolved:'原厂开放壳体内外未决',
+       circle_only_unresolved:'孤立圆边，未找到同轴壁'})[p.geometric_wall_kind]||'仅几何圆边未分型';
      opt.textContent='候选 '+(i+1)+' · Ø'+(2*p.radius_mm).toFixed(3)+
+       ' · '+wallLabel+(p.stepped_coaxial_candidate?' · 同轴多级圆径候选':'')+
        ' · 原厂转换坐标 X='+p.center_mm[0].toFixed(3)+
        ', Y='+p.center_mm[1].toFixed(3)+', Z='+p.center_mm[2].toFixed(3);
      list.append(opt);
@@ -978,7 +983,7 @@ $('use-cad-feature').onclick=()=>{
  const feature=localCadFeatureCandidates[index],slot=$('cad-feature-slot').value;
  $('cad-src-'+slot).value=feature.center_mm[0]+','+feature.center_mm[2];
  $('cad-feature-status').textContent='已将候选圆心 X/Z 填入源点'+slot+
-  '；请独立确认安装面及对应目标点，不能据此认定螺孔已匹配。';
+  '；几何类别：'+(feature.geometric_wall_kind||'未分型')+'。请独立确认实际安装面及目标点，不能据此认定螺孔已匹配。';
 };
 
 // Feature-point fitting uses coordinates extracted from the converted STL itself
