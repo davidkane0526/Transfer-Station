@@ -105,9 +105,18 @@ assert(await page.locator('#cad-motion-note').isVisible(),
   'Static OEM shell limitation must be disclosed in the interface');
 assert((await page.locator('#sample-value').textContent()).includes('0'),
   'Import must reset sample translation to its reference position');
+// The viewer was previously rotated 16 degrees. Its displayed measurement
+// is a WORLD-AXIS AABB, not the manufacturer mesh's unrotated local envelope.
+// Account for this 16-degree transform rather than conflating coordinate bases.
+const projectedBounds=yawDeg=>{
+ const t=yawDeg*Math.PI/180;
+ const x=167.5*Math.abs(Math.cos(t))+77.5*Math.abs(Math.sin(t));
+ const z=167.5*Math.abs(Math.sin(t))+77.5*Math.abs(Math.cos(t));
+ return [x,27.6,z].map(n=>n.toFixed(1)).join(' × ');
+};
 const nativeBounds=await page.locator('#measurement-text').textContent();
-assert(nativeBounds.includes('167.5 × 27.6 × 77.5'),
-  'Hidden proxy contaminates measurement of visible OEM mesh: '+nativeBounds);
+assert(nativeBounds.includes(projectedBounds(16)),
+  'OEM mesh world AABB must reflect 16-degree stage rotation without hidden proxy: '+nativeBounds);
 // Toggling hole guides must not reveal hidden OEM-replaced proxy geometry.
 await page.locator('#toggle-holes').click();
 await page.locator('#toggle-holes').click();
@@ -117,14 +126,14 @@ await page.locator('#cad-yaw').fill('5');
 await page.locator('#apply-cad-alignment').click();
 assert((await page.locator('#import-status').textContent()).includes('已应用本地显示配准'),
   'Imported vendor mesh alignment controls broken');
-assert((await page.locator('#measurement-text').textContent()).includes('167.5 × 27.6 × 77.5'),
-  'Proxy hole guides leaked into measured OEM geometry after toggling');
+assert((await page.locator('#measurement-text').textContent()).includes(projectedBounds(21)),
+  'OEM world AABB must reflect 16-degree parent + 5-degree local yaw without hidden proxy guides');
 await page.locator('#restore-cad').click();
 assert(await page.locator('#restore-cad').isDisabled(),'Restore should remove imported geometry');
 assert(await page.locator('#sample-move').isEnabled(),'Candidate sample travel should return after restore');
 assert(await page.locator('#cad-motion-note').isHidden(),'Native shell warning should clear after restore');
-assert(!(await page.locator('#measurement-text').textContent()).includes('167.5 × 27.6 × 77.5'),
-  'Restored proxy must not retain native STL measurement bounds');
+assert(!(await page.locator('#measurement-text').textContent()).includes(projectedBounds(21)),
+  'Restored proxy must not retain rotated native STL measurement bounds');
 await page.locator('#sample-move').fill('3');
 assert((await page.locator('#sample-value').textContent()).includes('3'),
   'Restored candidate carriage must still translate');
