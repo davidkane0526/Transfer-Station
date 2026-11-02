@@ -26,7 +26,7 @@ class CandidateBrepFeatureTest(unittest.TestCase):
         self.assertTrue(all(not x['thread_verified'] for x in holes))
 
     def test_nominal_diameter_separates_counterbore_from_threadlike_grid(self):
-        block=(cq.Workplane('XY').box(65,65,23).faces('>Z').workplane()
+        block=(cq.Workplane('XZ').box(65,65,23).faces('>Y').workplane()
                .pushPoints([(-25,-25),(-25,25),(25,-25),(25,25)])
                .cboreHole(6.5,11,4).val())
         by=describe(block)['summary']['square_pitch_by_diameter']
