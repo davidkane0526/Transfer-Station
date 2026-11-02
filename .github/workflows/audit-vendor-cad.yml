@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'cad/audit_vendor_archive.py'
+      - 'cad/extract_oem_features.py'
+      - 'cad/test_extract_oem_features.py'
       - '.github/workflows/audit-vendor-cad.yml'
 permissions:
   contents: read
@@ -21,6 +23,8 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq p7zip-full
           python -m pip install 'cadquery>=2.4,<2.8'
+      - name: Check BREP feature extraction using synthetic hole geometry
+        run: python cad/test_extract_oem_features.py
       - name: Download OEM CAD and inspect solid geometry locally
         run: |
           python cad/audit_vendor_archive.py \
