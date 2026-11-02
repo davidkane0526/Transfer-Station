@@ -65,6 +65,8 @@ const nfpRow=page.locator('#bom-body tr').filter({has:page.locator('td').filter(
 assert(await nfpRow.count()===1,'exact B09 item not uniquely searchable');
 await nfpRow.click();
 assert((await page.locator('#part-detail').textContent()).includes('NFP-1462C'),'table click did not select NFP');
+assert((await page.locator('#interface-review-panel').textContent()).includes('B-CHUCK-FASTENERS'),'NFP joint-acceptance review missing');
+assert((await page.locator('#interface-review-panel').textContent()).includes('有效螺纹深度'),'NFP thread-depth ambiguity must be visible');
 assert((await page.locator('#selected-source-links a').count())>=2,'selected item lacks drawings links');
 await page.waitForTimeout(350);
 const dimensions=(await page.locator('#measurement-text').textContent());
