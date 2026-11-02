@@ -113,6 +113,21 @@ def candidate_square_pitches(circles, pitches_mm=(25.,32.,50.), tolerance_mm=0.2
     return result
 
 
+def square_pitches_by_diameter(circles, diameters_mm=(6.,6.5,11.)):
+    """Separate 50mm outer 3x3 grid from counterbore-like circle rings.
+
+    Nominal diameter is geometric, NOT a statement about internal threading
+    or the OEM mounting face.
+    """
+    result={}
+    for diameter in diameters_mm:
+        subset=[c for c in circles if abs(2*c['radius_mm']-diameter)<.08]
+        result['Ø'+str(diameter).rstrip('0').rstrip('.')+'mm']={
+            'ring_candidates':len(subset),
+            'square_layouts':candidate_square_pitches(subset)}
+    return result
+
+
 def describe(shape,preset='none'):
     from classify_oem_mounting import enrich_circles
     circles=extract_circles(shape,preset)
@@ -125,6 +140,7 @@ def describe(shape,preset='none'):
         'nominal_diameter_hints':dict(sorted(Counter(
             f['diameter_hint'] for f in vertical).items())),
         'square_pitch_layout_candidates':candidate_square_pitches(circles),
+        'square_pitch_by_diameter':square_pitches_by_diameter(circles),
         'physical_interface_accepted':False,
         'warning':'Circular geometry, even with bore-wall evidence, does not prove a mounting hole, thread or engagement length',
         **count_cylinders(shape,preset),**topology}
