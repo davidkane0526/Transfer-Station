@@ -5,6 +5,8 @@ on:
     paths:
       - 'cad/audit_vendor_archive.py'
       - 'cad/extract_oem_features.py'
+      - 'cad/classify_oem_mounting.py'
+      - 'cad/test_classify_oem_mounting.py'
       - 'cad/test_extract_oem_features.py'
       - '.github/workflows/audit-vendor-cad.yml'
 permissions:
@@ -25,6 +27,8 @@ jobs:
           python -m pip install 'cadquery>=2.4,<2.8'
       - name: Check BREP feature extraction using synthetic hole geometry
         run: python cad/test_extract_oem_features.py
+      - name: Validate native cylindrical wall, bore and open-shell distinctions
+        run: python cad/test_classify_oem_mounting.py
       - name: Download OEM CAD and inspect solid geometry locally
         run: |
           python cad/audit_vendor_archive.py \
