@@ -702,6 +702,7 @@ renderer.domElement.addEventListener('pointerup',ev=>{
  if(!found)selectPart(null);
 });
 function switchPlatform(next){
+  clearCadFeatureCandidates();
   platform=next;
   explosion=0;filmShift=0;filmShiftDepth=0;sampleShift=0;sampleAngle=0;
   for(const [id,value] of [['explode','0'],['translate','0'],['translate-depth','0'],['sample-move','0'],['rotate-sample','0']])$(id).value=value;
@@ -799,6 +800,7 @@ function removeVendorMesh(v){
  delete v.g.userData.vendorImport;
  delete v.g.userData.vendorImportBase;
  delete v.g.userData.vendorLandmarkRegistration;
+ clearCadFeatureCandidates();
  if($('cad-registration-status'))$('cad-registration-status').textContent='已恢复候选几何；此前特征点配准不再应用。';
  syncVendorMotionLock();
  return true;
@@ -870,6 +872,7 @@ async function importVendorMesh(file){
    syncVendorMotionLock();
    // Select again so the new visible mesh gets measured, not its hidden proxy.
    selectPart(part.part.id);
+   clearCadFeatureCandidates();
    $('cad-registration-status').textContent='尚未按已知特征点配准；外形包络居中只用于粗略显示，不能作为安装基准。';
    $('import-status').textContent=part.part.id+' 导入 '+file.name+' · '+[w,h,d].map(x=>x.toFixed(1)).join('×')+' mm；预设 '+profile+'，尚未通过实际螺纹孔配准。';
  }catch(e){console.error(e);$('import-status').textContent='导入失败：'+String(e?.message||e);}
@@ -904,6 +907,80 @@ $('apply-cad-alignment').onclick=()=>{
    $('import-status').textContent='已应用本地显示配准。偏移为相对于预设的增量，不代表孔系已验收。';
  }catch(e){$('import-status').textContent='配准参数错误：'+e.message;}
 };
+// Private BREP candidate geometry is read in-memory only. No network or
+// persistence. A circular edge may be a shaft or cosmetic groove rather than a
+// mechanical fastening hole; never infer thread or mounting face from this list.
+let localCadFeatureCandidates=[];
+function clearCadFeatureCandidates(){
+ localCadFeatureCandidates=[];
+ const list=$('cad-feature-list');list.replaceChildren();
+ const option=document.createElement('option');option.value='';option.textContent='尚未载入特征数据';list.append(option);
+ list.disabled=true;$('use-cad-feature').disabled=true;
+ $('cad-feature-status').textContent='候选圆心已清空。导入新 CAD 时需要重新选择匹配的私有 JSON。';
+}
+$('load-cad-features').onclick=()=>{
+ if(platform!=='B'||active?.part.id!=='B09'||!active.g.userData.vendorImport){
+   $('cad-feature-status').textContent='请先在平台B选中B09并导入与候选圆心对应的NFP STL。';
+   return;
+ }
+ $('cad-features-file').click();
+};
+$('cad-features-file').onchange=async ev=>{
+ const file=ev.target.files?.[0];ev.target.value='';
+ if(!file)return;
+ try{
+   if(!active||platform!=='B'||active.part.id!=='B09'||!active.g.userData.vendorImport)
+      throw Error('必须先在平台B选中已导入原厂网格的B09');
+   if(file.size>5_000_000)throw Error('候选 JSON 超过5 MB，请检查是否错误选择了CAD网格');
+   const target=active,imported=target.g.userData.vendorImport;
+   const data=JSON.parse(await file.text());
+   if(active!==target||!target.g.userData.vendorImport||target.g.userData.vendorImport!==imported)
+      throw Error('读取过程中原厂CAD或选中零件发生变化，已取消');
+   if(data?.source?.preset!=='nfp1462c'||!Array.isArray(data?.candidate_features))
+      throw Error('不是按nfp1462c原厂轴向生成的特征JSON');
+   if(data.candidate_features.length>10000)
+      throw Error('特征项过多，无法安全加载');
+   const candidates=data.candidate_features.filter(item=>
+      item?.horizontal_plane_candidate===true&&item.full_circle_candidate===true&&
+      Array.isArray(item.center_mm)&&item.center_mm.length===3&&
+      item.center_mm.every(Number.isFinite)&&Number.isFinite(item.radius_mm)&&item.radius_mm>0);
+   if(!candidates.length)throw Error('没有法向朝竖直方向的完整候选圆边；不能凭空生成安装孔');
+   const limit=Math.min(candidates.length,1200);
+   const list=$('cad-feature-list');list.replaceChildren();
+   const empty=document.createElement('option');empty.value='';empty.textContent='请选择原厂圆边候选（尚未确认为安装孔）';list.append(empty);
+   localCadFeatureCandidates=candidates.slice(0,limit);
+   localCadFeatureCandidates.forEach((p,i)=>{
+     const opt=document.createElement('option');opt.value=String(i);
+     opt.textContent='候选 '+(i+1)+' · Ø'+(2*p.radius_mm).toFixed(3)+
+       ' · 原厂转换坐标 X='+p.center_mm[0].toFixed(3)+
+       ', Y='+p.center_mm[1].toFixed(3)+', Z='+p.center_mm[2].toFixed(3);
+     list.append(opt);
+   });
+   list.disabled=false;$('use-cad-feature').disabled=false;
+   $('cad-feature-status').textContent='私有CAD候选圆边 '+candidates.length+
+      ' 项，显示 '+limit+' 项；尚未认证孔位/面别/螺纹。确认实际同一安装面后才能用于配准。';
+ }catch(error){
+   clearCadFeatureCandidates();
+   $('cad-feature-status').textContent='候选JSON未载入：'+String(error?.message||error);
+ }
+};
+$('use-cad-feature').onclick=()=>{
+ const selected=$('cad-feature-list').value;
+ const index=Number(selected);
+ if(selected===''||!Number.isInteger(index)||!localCadFeatureCandidates[index]){
+   $('cad-feature-status').textContent='请先选择一个原厂圆形特征候选';
+   return;
+ }
+ if(platform!=='B'||active?.part.id!=='B09'||!active.g.userData.vendorImport){
+   $('cad-feature-status').textContent='原厂CAD已切换，候选点不能应用';
+   return;
+ }
+ const feature=localCadFeatureCandidates[index],slot=$('cad-feature-slot').value;
+ $('cad-src-'+slot).value=feature.center_mm[0]+','+feature.center_mm[2];
+ $('cad-feature-status').textContent='已将候选圆心 X/Z 填入源点'+slot+
+  '；请独立确认安装面及对应目标点，不能据此认定螺孔已匹配。';
+};
+
 // Feature-point fitting uses coordinates extracted from the converted STL itself
 // and the corresponding points in B09 *local* assembly coordinates. Nothing is
 // auto-assumed about bolt pitch, hole face, material or thread engagement.
