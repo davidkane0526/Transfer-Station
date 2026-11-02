@@ -183,7 +183,10 @@ export function enrichParts(partMap, platform, onMesh){
       const p=partMap.get(id);if(p)stageHardware(p,brand);
     }
     decoration('B04',(g)=>{
-       for(let z of [-24,24]){box(g,3,34,7,-28,31,z,aluminum,.5);for(let y of [13,47])screwHead(g,-28,y,z,2.1);}
+       // Do not recreate the two apparent floating steel rods on the
+       // V25M front/side. A single integrated flush face cover remains.
+       box(g,1.2,36,34,-28.3,31,0,gunmetal,.3);
+       for(const z of [-16,16])for(const y of [15,47])screwHead(g,-28.3,y,z,2.1,'front');
        // V25M branded flange is visible from the SAME rear view as T25M (109).
        decal(g,'GCM-V25M',50,9,0,60,-33.5,'back','#ebedf2');
        // 108.jpg: this knob is the VERTICAL Z-axis adjuster, not another +X.
@@ -191,17 +194,16 @@ export function enrichParts(partMap, platform, onMesh){
        for(let x of [-24,24])for(let z of [-23,23])screwHead(g,x,66.2,z,2.8);
     });
     decoration('B05',(g)=>{
-       // Photo 108 shows Zolix black coupler and a clamped rear-offset rod.
-       // These are visual proxies, NOT measured crossbar dimensions.
-       cyl(g,19,41,72,63,-40,graphite);
-       cyl(g,18,2,72,83,-40,ring);
-       cyl(g,18,2,72,42,-40,ring);
-       pipe(g,[[72,63,-53],[72,70,-63]],3,graphite);
-       box(g,31,29,65,0,63,-20,graphite,1.8);
-       knurl(g,27,63,-40,5.5,7,'x',24);
-       decal(g,'Zolix',22,7,72,63,-20,'front','#d5d5d5');
-       box(g,30,12,36,190,63,-18,graphite,1);
-       for(const x of [185,202])knurl(g,x,79,-18,3.5,10,'y',18);
+       // One direct lateral arm between V25M and glass clamp; no auxiliary
+       // 85mm unsupported post, rear return-loop or hanging square posts.
+       // Its nominal span remains an engineering placeholder.
+       decal(g,'FILM ARM · CANDIDATE',41,5,10,6,22.7,'front','#d5d5d5');
+       const b=box(g,23,24,22,246,3,0,graphite,1);
+       // Two screws on the accessible lateral face of the terminal clamp.
+       for(const y of [-5,5]){
+          const head=cyl(g,2.9,1.6,246,y,11.7,aluminum,24);
+          head.rotation.x=Math.PI/2;
+       }
     });
     decoration('B06',(g)=>{
        // Do not place decorative block into the actual 1.5-mm slide gap.
