@@ -178,7 +178,7 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
   const xStem=add(g,cyl(6,27,mats.silver,side*(w/2+24),h-9,0));xStem.rotation.z=Math.PI/2;
   const xDrum=add(g,cyl(9,14,mats.silver,side*(w/2+43),h-9,0));xDrum.rotation.z=Math.PI/2;
   label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,0);
-  if(JOINTS[id])addJointHeads(g,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
+  if(JOINTS[id])addJointHeads(g.userData.slidingTop,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g.userData.slidingTop,3,h+.5,xx,zz);
   label(g,title,0,h+11,0);
  },{explode:[0,id==='B03'?15:10,0],...motion});
@@ -405,13 +405,15 @@ function platformA(){
     add(g,cub(14,12,12,mats.dark,0,22,30));
     add(g,cyl(5.5,35,mats.silver,0,43,31));
     add(g,cyl(8.5,15,mats.silver,0,70,31));
-    label(g,'GCM-VC13M / 竖直测微头',0,76,0);
+    addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
+  label(g,'GCM-VC13M / 竖直测微头',0,76,0);
  },{explode:[-15,18,0],moveFilm:true});
  addPart('A04',ax,104,0,g=>{
   add(g,cub(40,15,40,mats.dark,0,7.5,0));
   const top=add(g,cub(40,5,40,mats.dark,0,17.5,0));
   const screw=add(g,cyl(5,22,mats.silver,29,10,0));screw.rotation.z=Math.PI/2;
   add(g,cyl(8.5,15,mats.silver,43,10,0)).rotation.z=Math.PI/2;
+  addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
   label(g,'GCM-G40M60L / 右侧测微头',0,45,0);
  },{explode:[-25,42,0],moveFilm:true});
  addPart('A05',sx,132,0,g=>{
@@ -429,18 +431,21 @@ function platformA(){
   add(g,cyl(47,33.2,mats.dark,0,16.6,0));
   add(g,torus(44,1,mats.steel,0,33.5,0));
   const lock=add(g,cyl(6,28,mats.steel,0,12,59));lock.rotation.x=Math.PI/2;
+  addJointHeads(g,'A06',33.15,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   label(g,'A 套旋转台：前侧锁止杆候选',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,73.2,0,g=>{
   add(g,cub(65,18,65,mats.steel,0,9,0));
   add(g,cub(28,1.4,28,mats.glass,0,19.1,0));
+  addJointHeads(g,'A07',17.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.9});
   label(g,'A 套样品加热座（形状候选）',0,38,0);
  },{explode:[0,26,0],translateSample:true,rotateSample:true});
  addPart('A10',sx,20,-112,g=>{
     add(g,cub(72,14,65,mats.dark,0,7,0));
     add(g,cyl(13,225,mats.steel,0,126,0));
     add(g,cub(34,25,127,mats.dark,0,234,65));
-    label(g,'A 套成像支架',0,267,60);
+    addJointHeads(g,'A10',13.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
+  label(g,'A 套成像支架',0,267,60);
  },{explode:[0,15,-30]});
  addPart('A08',sx,170,0,g=>{
   add(g,cyl(21,85,mats.black,0,42.5,0));
