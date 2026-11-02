@@ -41,3 +41,19 @@
 6. 再次点击原有“应用局部配准修正”会切回手动包络偏移并取消特征点求解状态；“恢复原代理几何”移除导入网格和记录。
 
 对应数值仅存在于当前浏览器页面，不会作为公开仓库制造数据保存。测试 `tests/cad-registration.mjs` 和 `tests/smoke.mjs` 使用**合成坐标/网格**，绝不可将测试坐标视为 NFP 原厂安装坐标。真实厂商文件仍按此前所述保持私有。
+
+## V23 增补：直接从原厂 STEP 提取候选圆心（2026-11-02）
+
+此前的对应点配准要求人工从原厂模型读取 X/Z。本项目现在提供 `cad/extract_oem_features.py`，读取 STEP/IGES 中的圆形 BREP 边缘，提取其**原始圆心、半径、法向量、圆弧覆盖角度及其所在平面方向**，并按与 STL 转换器相同的 NFP 坐标旋转 `(OEM X,Y,Z)→(Web Z,X,Y)` 导出局部候选特征。注意原厂 STEP 包含多个未封闭壳体，不能通过这些二维圆边判定孔是否贯通、已攻丝或允许承载。
+
+在本地使用（无需上传厂家 CAD）：
+
+```bash
+python cad/extract_oem_features.py ./NFP-1462C.step --preset nfp1462c --output ./private/NFP-1462C-feature-candidates.json
+```
+
+私有 JSON 中 `candidate_features[].center_mm` 为转换后、尚未包络居中的坐标 `[X,Y,Z]`。将真实安装面上经过原厂图与零件实体共同确认的圆心 **X,Z** 输入网页源点栏，将对应的 B09 装配局部坐标输入目标点栏。优先取三组不同且明确归属于同一个安装面的特征；不要仅依据半径 3.25 mm 或 5.5 mm 就把圆边判定为安装通孔或攻丝孔。若真实坐标仍不明确，继续将其标注为待验证。
+
+`horizontal_plane_candidate` 只表示圆边法向近似平行 Web Y，`diameter_hint` 仅表示几何圆直径接近 6.5/11/6/3 mm。即使 `full_circle_candidate` 为 true，也不能由此认定机械安装接口已验收。函数 `mounting_hole_verified` 和 `thread_verified` 默认恒为 false。软件分组精度 0.02 mm 仅用于重复曲线合并，不能解释为厂家尺寸公差。
+
+**保密边界：**生成的详细原厂候选圆心 JSON 只保留在个人电脑，不提交公共仓库，也不作为公开 Actions artifact。远程厂家 CAD 审计仅将候选数量、直径类别统计和无验收声明加入公共元信息，继续只上传非 CAD 的渲染截图与汇总统计。测试 `cad/test_extract_oem_features.py` 使用自行生成的合成孔位 BREP。
