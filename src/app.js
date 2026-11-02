@@ -193,7 +193,7 @@ function filmB(){
  },{explode:[-25,0,0]});
  // 108/109: magnet B02 touches board, T25M is ON magnet and handle faces -X.
  // Photo108 sees magnetic-base branded +Z, photo109 sees T25M branded -Z.
-// T25M is installed yaw=180° relative to the magnetic base: ONE handle,
+// T25M is yaw=180° relative to the magnetic base: the SAME X handle,
 // appearing left in the former view and right in the latter.
 makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw:Math.PI*HANDLES.B03.installationYawDeg/180},1,2,-1);
  addPart('B04',ax,73,0,g=>{
@@ -526,6 +526,16 @@ function updateDetail(part){
  el.className='';
  const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
  const reviews=interfaceEvidence(platform,part.id);
+ const joint=JOINTS[part.id];
+ const hardwareHtml=joint?'<div class="field"><b>可见紧固件（非验收）</b><p>'+joint.count+' 个，'+esc(joint.name)+'。'+
+   (joint.status==='candidate'?'具体数量、孔位、头型与螺杆尺寸均为显示候选。':
+   '只有顶部四枚及齐平外观经使用者确认；孔距、螺纹和长度仍为候选。')+'</p></div>':'';
+ const axis=AXES[part.id];
+ const axisHtml=axis?'<div class="field"><b>独立运动轴与驱动</b><p>线性轴 '+axis.linear+
+   '，线性测微头 '+axis.micrometers+'；厂商轴 '+esc(axis.makerAxes.join('/'))+
+   '，三维场景轴 '+esc(axis.sceneAxes.join('/'))+'。'+
+   (part.id==='B09'?'NFP 无第二根平移测微头；B08 是独立旋转轴。':'')+'</p></div>':'';
+
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
  '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
@@ -534,6 +544,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
+ hardwareHtml+axisHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
@@ -625,7 +636,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?'平台 B · MXFMS / 双运动分支 / 真空加热吸附台':'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  'B03在照片108的磁座铭牌观察面看手柄在左；照片109从相反的T25M铭牌面看手柄在右，这是同一根手柄。模型以T25M局部+X安装、绕高度轴旋转180°，从磁座铭牌面对应全局−X。B04竖直测微头另设；A套两台T25M不合并。':
+  'B03为真正双轴：机构X与机构Y对应场景X与Z，测微头两根且互相垂直。照片108和109分别从相反的观察面拍到同一根X手柄。B04是额外的竖直Y向升降台。B09 NFP-1462C官方仅单轴X，B08是独立旋转台；直线悬臂和非标连接件仍属于候选。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
