@@ -206,16 +206,21 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   add(g,cyl(9,17,mats.silver,-24,73,0));
   label(g,'GCM-V25M · 竖直测微头 +Y',0,89,0);
  },{explode:[-24,30,0],moveFilm:true});
- // Rear-offset bar avoids the microscope/optical axis. All dimensions here
- // are constrained candidate geometry, not measured from the original device.
+ // A direct cantilever replaces the unsupported 85mm vertical post,
+ // rearward 249mm return bar and second hanging post. Attachment is
+ // a candidate because the actual fixture screws are unmeasured.
+ const link=filmCantileverB({armX:ax,sampleX:CONFIG.B.sampleX});
  addPart('B05',ax,139,0,g=>{
-  add(g,cub(36,20,36,mats.black,0,10,0));
-  add(g,cyl(6.35,85,mats.steel,0,62,0));
-  add(g,cub(30,28,80,mats.black,0,63,-20));
-  const bar=add(g,cyl(6.35,249,mats.steel,124.5,63,-40));bar.rotation.z=Math.PI/2;
-  add(g,cub(27,28,70,mats.black,249,63,-20));
-  add(g,cyl(5,74,mats.steel,249,26,0));
-  label(g,'玻片转移臂：后置横杆 / 悬挂夹具（尺寸候选）',20,102,-40);
+   add(g,cub(47,6,45,mats.black,0,3,0)); // seats on B04 top at Y=139
+   add(g,cub(28,18,22,mats.dark,12,14,0));
+   const rod=add(g,cyl(6.35,link.rodLength,mats.steel,
+     link.rodCenterX,link.rodCenterY,link.rodZ));
+   rod.rotation.z=Math.PI/2;
+   // The only terminal clamp attaches directly to B06 at Y=128.
+   add(g,cub(23,link.terminalHeight+3,22,mats.dark,
+     link.rodEndX,link.terminalCenterY+1,0));
+   addJointHeads(g,'B05',5.95,[[-18,-16],[-18,16],[18,-16],[18,16]],{headR:2.6});
+   label(g,'直线悬臂和末端玻片夹（候选）',80,39,0);
  },{explode:[-30,55,-13],moveFilm:true});
  // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
  addPart('B06',CONFIG.B.sampleX+52,121.5,0,g=>{
