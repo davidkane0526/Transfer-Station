@@ -34,7 +34,10 @@ export function filmCantileverB({armX,sampleX,glassClampXOffset=52,baseY=139,cla
  const xReach=clampX-armX;
  if(!(xReach>80 && xReach<350))throw new Error('Unexpected film-clamp horizontal span');
  if(!(baseY>clampTopY&&baseY-clampTopY<40))throw new Error('Unexpected film-clamp height difference');
- const rodCenterY=16,rodStartX=12,rodEndX=xReach;
+ const rodCenterY=8,rodStartX=12,rodEndX=xReach;
+ // The nominal film rod now passes below the lowest four-objective proxy
+ // (rendered at about Y=160). This is only scene-level, not physical clearance.
+ if(baseY+rodCenterY+6.35>=160)throw new Error('Proxy arm would collide with the objective lower envelope');
  const rodLength=rodEndX-rodStartX;
  const terminalBottomLocalY=clampTopY-baseY;
  const terminalHeight=rodCenterY-terminalBottomLocalY;
