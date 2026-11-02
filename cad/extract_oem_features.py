@@ -88,6 +88,31 @@ def count_cylinders(shape,preset='none'):
             'vertical_axis_cylindrical_faces':vertical}
 
 
+def candidate_square_pitches(circles, pitches_mm=(25.,32.,50.), tolerance_mm=0.2):
+    """Count co-planar, equal-radius axis-aligned square circle layouts.
+
+    These are potential geometric signatures only, not mounting-hole or
+    thread verification. No private feature coordinates leave the local run.
+    """
+    vertical=[f for f in circles if
+              f['horizontal_plane_candidate'] and f['full_circle_candidate']]
+    groups={}
+    for f in vertical:
+        x,y,z=f['center_mm']
+        key=(round(y/tolerance_mm),round(f['radius_mm']/tolerance_mm))
+        groups.setdefault(key,set()).add((round(x/tolerance_mm),round(z/tolerance_mm)))
+    result={}
+    for pitch in pitches_mm:
+        p=round(pitch/tolerance_mm)
+        count=0
+        for coords in groups.values():
+            for x,z in coords:
+                if (x+p,z) in coords and (x,z+p) in coords and (x+p,z+p) in coords:
+                    count+=1
+        result[str(int(pitch))+'mm']=count
+    return result
+
+
 def describe(shape,preset='none'):
     circles=extract_circles(shape,preset)
     vertical=[f for f in circles if f['horizontal_plane_candidate']]
@@ -97,6 +122,7 @@ def describe(shape,preset='none'):
         'full_circle_candidates':sum(f['full_circle_candidate'] for f in vertical),
         'nominal_diameter_hints':dict(sorted(Counter(
             f['diameter_hint'] for f in vertical).items())),
+        'square_pitch_layout_candidates':candidate_square_pitches(circles),
         'physical_interface_accepted':False,
         'warning':'Circular geometry does not prove a mounting hole, thread or engagement length',
         **count_cylinders(shape,preset)}
