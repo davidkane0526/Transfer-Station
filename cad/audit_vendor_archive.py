@@ -43,6 +43,10 @@ with tempfile.TemporaryDirectory() as tmp:
                 compound=cq.Compound.makeCompound(shapes)
                 bb=compound.BoundingBox()
                 faces=compound.Faces();shells=compound.Shells()
+                # Only aggregate counts go into public metadata; never export
+                # OEM-derived per-circle coordinates into the GitHub artifact.
+                from extract_oem_features import describe
+                private_feature_scan=describe(compound,'nfp1462c')
                 report['step_solids'].append({
                   'filename':str(file.relative_to(dest)),
                   'top_level_shapes':len(shapes),
@@ -50,7 +54,8 @@ with tempfile.TemporaryDirectory() as tmp:
                   'solids':len(solids),'shells':len(shells),'faces':len(faces),
                   'bbox_mm':[round(bb.xlen,2),round(bb.ylen,2),round(bb.zlen,2)],
                   'valid':all(sh.isValid() for sh in shapes),
-                  'can_export_as_step':len(shapes)>0})
+                  'can_export_as_step':len(shapes)>0,
+                  'candidate_feature_summary':private_feature_scan['summary']})
             except Exception as ex:
                 report['step_solids'].append({'filename':str(file.relative_to(dest)),'error':str(ex)[:350]})
         if a.export_local_stl:
