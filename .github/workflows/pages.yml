@@ -28,6 +28,8 @@ jobs:
           node --check src/interface-evidence.js
           node --check src/procurement.js
           node tests/interface-evidence.mjs
+          node --check src/cad-registration.js
+          node tests/cad-registration.mjs
       - name: Add CJK fonts for accurate screenshot validation
         run: |
           sudo apt-get update -qq
