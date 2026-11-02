@@ -114,7 +114,9 @@ def candidate_square_pitches(circles, pitches_mm=(25.,32.,50.), tolerance_mm=0.2
 
 
 def describe(shape,preset='none'):
+    from classify_oem_mounting import enrich_circles
     circles=extract_circles(shape,preset)
+    topology=enrich_circles(shape,circles,preset)
     vertical=[f for f in circles if f['horizontal_plane_candidate']]
     summary={
         'candidate_circular_features':len(circles),
@@ -124,8 +126,8 @@ def describe(shape,preset='none'):
             f['diameter_hint'] for f in vertical).items())),
         'square_pitch_layout_candidates':candidate_square_pitches(circles),
         'physical_interface_accepted':False,
-        'warning':'Circular geometry does not prove a mounting hole, thread or engagement length',
-        **count_cylinders(shape,preset)}
+        'warning':'Circular geometry, even with bore-wall evidence, does not prove a mounting hole, thread or engagement length',
+        **count_cylinders(shape,preset),**topology}
     return {
         'source':{'preset':preset,'units':'mm',
                   'coordinates':('web X=OEM Z, Y=OEM X, Z=OEM Y'
