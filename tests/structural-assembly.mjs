@@ -21,7 +21,7 @@ assert.equal(film.terminalBottomLocalY,-11,'The support must meet B06 top at wor
 assert.equal(film.terminalHeight,19);
 assert(film.rodCenterY+139+6.35<160,'No objective proxy strike');
 assert.equal(film.terminalBottomLocalY+139,128);
-assert.equal(film.physicalJointAccepted,false,'Don't certify a guessed rod height');
+assert.equal(film.physicalJointAccepted,false,'Candidate arm height is not physical acceptance');
 assert.throws(()=>filmCantileverB({armX:1,sampleX:2}),/span/);
 const valid=new Set(Object.values(PARTS).flatMap(x=>x.map(v=>v.id)));
 for(const [id,joint] of Object.entries(JOINTS)){
