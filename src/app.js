@@ -64,7 +64,16 @@ function selectedLabels(){
 function updateMeasurement(){
  clearMeasurement();if(!showDimensions||!active)return;
  active.g.updateWorldMatrix(true,true);
- const bounds=new THREE.Box3().setFromObject(active.g,true);
+ // A group-level bounding box includes hidden proxy meshes as well as OEM CAD.
+ // Measure visible geometry only, never claim this is physical tolerance QA.
+ const bounds=new THREE.Box3();
+ active.g.traverse(o=>{
+   if(!o.isMesh||!o.visible||!o.geometry)return;
+   let parent=o.parent;
+   while(parent&&parent!==active.g){if(!parent.visible)return;parent=parent.parent;}
+   if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();
+   if(o.geometry.boundingBox)bounds.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld));
+ });
  if(bounds.isEmpty())return;
  const w=bounds.max.x-bounds.min.x,h=bounds.max.y-bounds.min.y,d=bounds.max.z-bounds.min.z;
  const helper=new THREE.Box3Helper(bounds,0x7ec8f4);measurementOverlay.add(helper);
@@ -503,6 +512,7 @@ function selectPart(id){
  });
  const v=id?parts.get(id):null;
  active=v||null;
+ $('restore-cad').disabled=!Boolean(v?.g?.userData.vendorImport);
  if(!v){
    updateDetail(null);selectedLabels();clearMeasurement();
    $('hover-help').textContent='点击零件查看尺寸、来源和供应商；点击空白取消';
@@ -550,6 +560,10 @@ function resetScene(){
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
  parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
+ $('restore-cad').disabled=true;
+ $('sample-move').disabled=false;
+ $('cad-motion-note').hidden=true;
+ $('import-status').textContent='选中零件后可导入本地 STL / GLB；导入仅验证外观，接口仍需核实。';
  scene.remove(currentRoot);currentRoot=new THREE.Group();scene.add(currentRoot);
  makeBoard();
  if(platform==='B'){filmB();rotaryB();microscopeB();externalB();}
@@ -723,7 +737,15 @@ $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value')
 $('translate-depth').oninput=e=>{filmShiftDepth=Number(e.target.value);$('translate-depth-value').textContent=filmShiftDepth.toFixed(1)+' mm';updateTransforms()};
 $('sample-move').oninput=e=>{sampleShift=Number(e.target.value);$('sample-value').textContent=sampleShift.toFixed(1)+' mm';updateTransforms()};
 $('rotate-sample').oninput=e=>{sampleAngle=Number(e.target.value);$('rotate-value').textContent=sampleAngle+'°';updateTransforms()};
-$('toggle-holes').onclick=e=>{showHoles=!showHoles;e.currentTarget.classList.toggle('on',showHoles);holes.forEach(h=>h.visible=showHoles)};
+function proxyReplaced(o){
+ let p=o.parent;
+ while(p){if(p.userData.vendorImport)return true;p=p.parent;}
+ return false;
+}
+$('toggle-holes').onclick=e=>{
+ showHoles=!showHoles;e.currentTarget.classList.toggle('on',showHoles);
+ holes.forEach(h=>h.visible=showHoles&&!proxyReplaced(h));
+};
 $('toggle-labels').onclick=e=>{showLabels=!showLabels;e.currentTarget.classList.toggle('on',showLabels);selectedLabels()};
 $('toggle-dim').onclick=e=>{showDimensions=!showDimensions;e.currentTarget.classList.toggle('on',showDimensions);updateMeasurement()};
 $('toggle-axes').onclick=e=>{showAxes=!showAxes;e.currentTarget.classList.toggle('on',showAxes);axisObjects.forEach(a=>a.visible=showAxes)};
