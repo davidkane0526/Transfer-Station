@@ -119,6 +119,32 @@ const projectedBounds=yawDeg=>{
 const nativeBounds=await page.locator('#measurement-text').textContent();
 assert(nativeBounds.includes(projectedBounds(16)),
   'OEM mesh world AABB must reflect 16-degree stage rotation without hidden proxy: '+nativeBounds);
+// A wholly synthetic local JSON file proves that private extracted candidates
+// can populate a point field without being mistaken for an OEM-verified hole.
+const qaFeatures={
+ source:{preset:'nfp1462c',units:'mm'},
+ candidate_features:[
+  {center_mm:[10,0,0],radius_mm:3.25,full_circle_candidate:true,horizontal_plane_candidate:true},
+  {center_mm:[35,0,0],radius_mm:3.25,full_circle_candidate:true,horizontal_plane_candidate:true},
+  {center_mm:[10,0,20],radius_mm:3.25,full_circle_candidate:true,horizontal_plane_candidate:true},
+  {center_mm:[999,0,999],radius_mm:40,full_circle_candidate:false,horizontal_plane_candidate:true}
+ ]
+};
+await page.locator('#cad-features-file').setInputFiles({
+ name:'synthetic_feature_candidates_not_oem.json',mimeType:'application/json',
+ buffer:Buffer.from(JSON.stringify(qaFeatures))
+});
+await page.waitForFunction(()=>document.getElementById('cad-feature-status').textContent.includes('显示 3 项'));
+assert(await page.locator('#cad-feature-list option').count()===4,
+ 'Only complete horizontal candidate circles must populate the local feature list');
+await page.locator('#cad-feature-list').selectOption('0');
+await page.locator('#cad-feature-slot').selectOption('1');
+await page.locator('#use-cad-feature').click();
+assert((await page.locator('#cad-src-1').inputValue())==='10,0',
+ 'Local STEP-derived candidate did not populate X/Z source landmark');
+assert((await page.locator('#cad-feature-status').textContent()).includes('尚未'),
+ 'UI must not claim the CAD circle is a physically accepted hole');
+
 // Point-matching QA uses entirely synthetic landmark coordinates. It must
 // preserve native scale, reject a false pitch and label all outcomes as PREVIEW.
 await page.locator('#cad-src-1').fill('10,0');
