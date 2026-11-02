@@ -10,6 +10,7 @@ import {stageLocalTranslation} from './kinematics.js';
 import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
+import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -114,13 +115,30 @@ function label(parent,title,x,y,z){
  const lbl=new CSS2DObject(el);lbl.position.set(x,y,z);parent.add(lbl);labels.push(lbl);return lbl;
 }
 function circleGuide(g,r,y,x=0,z=0){const o=add(g,torus(r,.55,mats.blue,x,y,z));holes.push(o);return o}
+// Non-manufacturing visual screw heads for candidate mating locations.
+function jointHead(g,x,topY,z,{headR=3.1,shankR=1.6,shankL=4.8}={}){
+ const top=topY+.2,headH=2.2;
+ const shaft=add(g,cyl(shankR,shankL,mats.steel,x,top-headH-shankL/2,z,16));
+ const head=add(g,cyl(headR,headH,mats.silver,x,top-headH/2,z,32));
+ const socket=add(g,cyl(headR*.43,.22,mats.ink,x,top-.06,z,6));
+ for(const o of [shaft,head,socket]){o.userData.fastenerProxy=true;o.userData.verifiedFastener=false;}
+ return head;
+}
+function addJointHeads(g,id,topY,locations,{headR=3.1}={}){
+ const spec=JOINTS[id];
+ if(!spec||locations.length!==spec.count)throw Error('Fastener display count mismatch '+id);
+ for(const [x,z] of locations)jointHead(g,x,topY,z,{headR});
+ g.userData.fastenerProxies=locations.length;
+}
 function screw(g,x,topY,z,length=25){
- // ISO-style M6 candidate: length measured under 6 mm head; top recess 0.5 mm.
- const headBottom=topY-6;
- add(g,cyl(3,length,mats.steel,x,headBottom-length/2,z));
- add(g,cyl(5,6,mats.silver,x,topY-3,z));
- const hex=add(g,cyl(2.8,.35,mats.ink,x,topY-.16,z,6));
- holes.push(hex);
+ // User-confirmed four flush heads, NOT verified M6x25 or hole pitch.
+ const headH=6,headBottom=topY-headH;
+ const shaft=add(g,cyl(3,length,mats.steel,x,headBottom-length/2,z,24));
+ const head=add(g,cyl(5,headH,mats.silver,x,topY-headH/2,z,36));
+ const socket=add(g,cyl(2.65,.26,mats.ink,x,topY-.08,z,6));
+ const rim=add(g,torus(5.13,.25,mats.ink,x,topY-.02,z));
+ for(const o of [shaft,head,socket,rim])o.userData.fastenerProxy=true;
+ head.userData.confirmedHeadCount=true;
 }
 function makeBoard(){
  addPart(platform+'01',0,0,0,g=>{
@@ -147,7 +165,7 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
    add(carriageY,cub(w*.94,topH,d*.92,mats.dark,0,lowerH+middleH+topH/2,0));
    // Two REAL distinct crossed micrometer assemblies, per original 97/108 and GCM-T25M2L.
    const supportZ=depthHandleSide*(d/2+6);
-   add(g,cub(14,11,14,0,lowerH*.5,supportZ));
+   add(g,cub(14,11,14,mats.dark,0,lowerH*.5,supportZ));
    const yStem=add(g,cyl(6,27,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+23)));yStem.rotation.x=Math.PI/2;
    const yDrum=add(g,cyl(9,14,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+39)));yDrum.rotation.x=Math.PI/2;
   }else{
@@ -179,7 +197,8 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
   add(g,cub(56,52,18,mats.dark,0,32,-10));
   add(g,cub(34,49,8,mats.steel,0,34,3));
-  for(const x of [-22,22])add(g,cub(4,47,5,mats.silver,x,32,0));
+  // Embedded face rails, not two disconnected steel posts.
+  for(const x of [-17,17])add(g,cub(2.5,38,1.2,mats.silver,x,31,7.5));
   add(g,cub(65,8,66,mats.dark,0,58,0));
   // 108.jpg: V25M micrometer is VERTICAL (+Y), distinct from T25M.
   add(g,cub(16,14,18,mats.dark,-24,24,0));
