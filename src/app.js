@@ -839,27 +839,48 @@ async function importVendorMesh(file){
      // Stage body assumed at the short (+X) end: candidate, verify holes.
      calibrationX=-(w-65)/2;
    }
+   // A file read / GLB parse may finish after selection or platform changed.
+   // Never attach OEM geometry to an obsolete or unselected assembly.
+   if(active!==part||parts.get(part.part.id)!==part)
+     throw Error('读取期间已切换零件或平台，本次导入已取消');
    imported.position.set(-center.x+calibrationX,-bounds.min.y,-center.z);
+   if(part.g.userData.vendorImport)removeVendorMesh(part);
+   const proxyVisibility=new Map();
+   part.g.traverse(ob=>{
+     if(ob.isMesh&&!ob.userData.vendorModel){
+       proxyVisibility.set(ob,ob.visible);
+       ob.visible=false;
+     }
+   });
+   part.g.userData.proxyVisibility=proxyVisibility;
    part.g.userData.vendorImportBase=imported.position.clone();
-   // Keep original geometry in the scene but hide it (non-destructive).
-   // Material renderers still use the correct parent group and measured mm.
-   part.g.traverse(ob=>{if(ob.isMesh&&!ob.userData.vendorModel)ob.visible=false;});
-   if(part.g.userData.vendorImport)part.g.remove(part.g.userData.vendorImport);
    part.g.add(imported);
    part.g.userData.vendorImport=imported;
    imported.traverse(ob=>{
      if(ob.isMesh){ob.castShadow=true;ob.receiveShadow=true;ob.userData.vendorModel=true;
       ob.userData.partId=part.part.id;hitMeshes.push(ob);}
    });
+   syncVendorMotionLock();
+   // Select again so the new visible mesh gets measured, not its hidden proxy.
+   selectPart(part.part.id);
    $('import-status').textContent=part.part.id+' 导入 '+file.name+' · '+[w,h,d].map(x=>x.toFixed(1)).join('×')+' mm；预设 '+profile+'，尚未通过实际螺纹孔配准。';
-   updateMeasurement();selectedLabels();
  }catch(e){console.error(e);$('import-status').textContent='导入失败：'+String(e?.message||e);}
 }
 $('import-cad').onclick=()=>{
  if(!active){$('import-status').textContent='请先点击3D中的零件，再导入其厂家模型。';return;}
  $('cad-file').click();
 };
-$('cad-file').onchange=ev=>importVendorMesh(ev.target.files?.[0]);
+$('cad-file').onchange=ev=>{
+ const file=ev.target.files?.[0];
+ ev.target.value=''; // allow loading the same local file again
+ importVendorMesh(file);
+};
+$('restore-cad').onclick=()=>{
+ if(!active||!removeVendorMesh(active))return;
+ const id=active.part.id;
+ selectPart(id);
+ $('import-status').textContent=id+' 已恢复图纸/照片约束下的代理几何；运动与接口仍属工程候选。';
+};
 $('apply-cad-alignment').onclick=()=>{
  if(!active?.g?.userData.vendorImport){$('import-status').textContent='请先选中B09并导入原厂 STL。';return;}
  const parse=id=>{const x=Number($(id).value);if(!Number.isFinite(x)||Math.abs(x)>500)throw Error(id+' 数值超出可接受范围 ±500');return x;};
