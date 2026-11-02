@@ -52,6 +52,15 @@
 <label>源点3（可选）· STL X,Z <input id="cad-src-3" type="text" inputmode="decimal" placeholder="源点3 X,Z" value=""></label>
 <label>目标点3（可选）· 局部 X,Z <input id="cad-dst-3" type="text" inputmode="decimal" placeholder="目标点3 X,Z" value=""></label>
 </div>
+<div class="field"><b>从原厂 STEP 导出的本地候选圆心 JSON</b>
+<p class="small">先用 cad/extract_oem_features.py 在本机生成特征 JSON。列表只显示 BREP 圆形特征候选，不能确认它是安装孔或内螺纹。文件仅在本机浏览器读取，不上传。</p>
+<div class="buttons"><button id="load-cad-features">选择本地候选圆心 JSON</button>
+<input type="file" accept=".json,application/json" id="cad-features-file" hidden></div>
+<label>候选特征<select id="cad-feature-list" aria-label="原厂几何候选圆心" disabled><option value="">尚未载入特征数据</option></select></label>
+<div class="buttons"><label>填入源点<select id="cad-feature-slot"><option value="1">第1对</option><option value="2">第2对</option><option value="3">第3对</option></select></label>
+<button id="use-cad-feature" disabled>将候选圆心填入源点</button></div>
+<p class="small" id="cad-feature-status">原厂几何未从本地载入。不得将列表圆边直接判为已攻丝安装孔。</p>
+</div>
 <button id="fit-cad-landmarks">按实测对应点配准 X/Z 与偏航</button>
 <p class="small" id="cad-registration-status">尚未提供对应点。任何配准计算通过均不代表螺纹、孔面、高度或装配干涉已验收。</p></div>
 <a href="https://www.zolix-group.com/product/specification/179.html" target="_blank" rel="noopener noreferrer">NFP 原厂 CAD / 尺寸图</a>
