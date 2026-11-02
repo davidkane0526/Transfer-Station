@@ -1,3 +1,4 @@
+import {procurementInterfaceFields} from './interface-evidence.js';
 // Sourced BOM enrichments, 2026-10-30. A price record is a published listing,
 // not a purchase commitment or a quote. Cross-currency totals are NEVER added.
 export const REFERENCE_DATE='2026-10-30';
@@ -62,8 +63,9 @@ export function pricedSummary(rows){
  return {priced:quoted,unpriced:missing,currencies:[...sums].map(([currency,o])=>({currency,...o})),complete:missing===0};
 }
 export function csvExportRows(rows){
- const fields=['id','name','maker','model','qty','unit','category','dims','level','material','price','currency','priceDate','priceType','priceSource','drawing','cad','datasheet','alternatives','note','evidence'];
+ const fields=['id','name','maker','model','qty','unit','category','dims','level','material','price','currency','priceDate','priceType','priceSource','drawing','cad','datasheet','alternatives','note','evidence','interfaceReview','interfaceGaps'];
  return [fields, ...rows.map(p=>fields.map(f=>({
     price:p.quote?.value||'',currency:p.quote?.currency||'',priceDate:p.quote?.date||'',priceType:p.quote?.type||'',priceSource:p.quote?.source||'',alternatives:(p.alternatives||[]).map(v=>v[0]+' '+v[1]+' '+v[2]).join(' | ')
+    ...procurementInterfaceFields(p.id.startsWith('A')?'A':'B',p.id)
   }[f]??p[f]??'')))];
 }
