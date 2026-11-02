@@ -142,7 +142,7 @@ await page.locator('#cad-feature-slot').selectOption('1');
 await page.locator('#use-cad-feature').click();
 assert((await page.locator('#cad-src-1').inputValue())==='10,0',
  'Local STEP-derived candidate did not populate X/Z source landmark');
-assert((await page.locator('#cad-feature-status').textContent()).includes('尚未'),
+assert((await page.locator('#cad-feature-status').textContent()).includes('不能据此认定'),
  'UI must not claim the CAD circle is a physically accepted hole');
 
 // Point-matching QA uses entirely synthetic landmark coordinates. It must
