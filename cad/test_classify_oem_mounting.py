@@ -6,9 +6,12 @@ from classify_oem_mounting import enrich_circles, cylinder_walls
 
 
 class TopologyEvidenceTest(unittest.TestCase):
+    # WebGL uses Y as vertical; the XZ workplane creates a Y-axis cylinder.
+    # XY cylinders instead point along Z and are intentionally excluded.
+
     def test_real_brep_counterbore_walls_not_certified_fasteners(self):
-        block=(cq.Workplane('XY').box(65,65,23)
-          .faces('>Z').workplane()
+        block=(cq.Workplane('XZ').box(65,65,23)
+          .faces('>Y').workplane()
           .pushPoints([(-25,-25),(-25,25),(25,-25),(25,25)])
           .cboreHole(6.5,11,4).val())
         out=describe(block,'none')
@@ -28,7 +31,7 @@ class TopologyEvidenceTest(unittest.TestCase):
                              for f in feats))
 
     def test_external_cylindrical_shaft_not_misclassified_as_hole(self):
-        pin=cq.Workplane('XY').circle(3.25).extrude(12).val()
+        pin=cq.Workplane('XZ').circle(3.25).extrude(12).val()
         out=describe(pin)
         self.assertEqual(len(out['candidate_features']),2)
         self.assertTrue(all(f['geometric_wall_kind']=='closed_solid_external_wall_candidate'
@@ -36,7 +39,7 @@ class TopologyEvidenceTest(unittest.TestCase):
         self.assertTrue(all(not f['mounting_hole_verified'] for f in out['candidate_features']))
 
     def test_open_shell_has_no_certified_solid_orientation(self):
-        solid=cq.Workplane('XY').circle(3.25).extrude(12).val()
+        solid=cq.Workplane('XZ').circle(3.25).extrude(12).val()
         side=[f for f in solid.Faces() if f.geomType()=='CYLINDER'][0]
         # The vendor NFP source contains 0 enclosed solids; even a familiar
         # cylinder in a shell cannot imply an internal threaded bore.
