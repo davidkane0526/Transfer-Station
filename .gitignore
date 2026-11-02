@@ -1,0 +1,27 @@
+# Original user images/videos and third-party OEM CAD are private by default.
+# Do not add their geometry to a public GitHub repository without permission.
+/private/
+/vendor-local/
+/source-materials/
+/original-photos/
+/original-videos/
+/build/
+/tmp/
+*.rar
+*.7z
+*.step
+*.stp
+*.igs
+*.iges
+*.x_b
+*.x_t
+*.stl
+*.glb
+*feature-candidates*.json
+*feature_candidates*.json
+# Local development environment
+__pycache__/
+*.pyc
+node_modules/
+.env
+.env.*
