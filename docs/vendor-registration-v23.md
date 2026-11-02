@@ -57,3 +57,9 @@ python cad/extract_oem_features.py ./NFP-1462C.step --preset nfp1462c --output .
 `horizontal_plane_candidate` 只表示圆边法向近似平行 Web Y，`diameter_hint` 仅表示几何圆直径接近 6.5/11/6/3 mm。即使 `full_circle_candidate` 为 true，也不能由此认定机械安装接口已验收。函数 `mounting_hole_verified` 和 `thread_verified` 默认恒为 false。软件分组精度 0.02 mm 仅用于重复曲线合并，不能解释为厂家尺寸公差。
 
 **保密边界：**生成的详细原厂候选圆心 JSON 只保留在个人电脑，不提交公共仓库，也不作为公开 Actions artifact。远程厂家 CAD 审计仅将候选数量、直径类别统计和无验收声明加入公共元信息，继续只上传非 CAD 的渲染截图与汇总统计。测试 `cad/test_extract_oem_features.py` 使用自行生成的合成孔位 BREP。
+
+## 本地候选圆心直接导入网页（V23 补充）
+
+运行上述 `cad/extract_oem_features.py` 命令，生成私有的 `NFP-1462C-feature-candidates.json`。在网页选中 B09 并导入与其对应的原厂 STL 后，点击 **“选择本地候选圆心 JSON”**，从列表中选择圆边候选，将其 **X/Z** 填入第一、第二或第三对源点，再独立输入已确定的目标装配坐标。列表仅显示法向约为 Web Y、在 BREP 中形成完整圆的候选，输入仍可能代表转轴、外圆、滚珠等而非安装孔。
+
+若不清楚圆边所在的厂商固定面或移动面，**不要直接把它作为可靠的安装孔**。应用配准前至少核对真实图纸中的孔直径、孔距、所属孔面以及两组坐标是否处于同一局部坐标系。切换平台、恢复原代理几何或重新导入原厂网格时，之前加载的特征列表会清空，避免匹配到错误零件。合成 JSON 浏览器测试已加入 `tests/smoke.mjs`。
