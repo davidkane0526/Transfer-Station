@@ -65,7 +65,7 @@ export function pricedSummary(rows){
 export function csvExportRows(rows){
  const fields=['id','name','maker','model','qty','unit','category','dims','level','material','price','currency','priceDate','priceType','priceSource','drawing','cad','datasheet','alternatives','note','evidence','interfaceReview','interfaceGaps'];
  return [fields, ...rows.map(p=>fields.map(f=>({
-    price:p.quote?.value||'',currency:p.quote?.currency||'',priceDate:p.quote?.date||'',priceType:p.quote?.type||'',priceSource:p.quote?.source||'',alternatives:(p.alternatives||[]).map(v=>v[0]+' '+v[1]+' '+v[2]).join(' | ')
+    price:p.quote?.value||'',currency:p.quote?.currency||'',priceDate:p.quote?.date||'',priceType:p.quote?.type||'',priceSource:p.quote?.source||'',alternatives:(p.alternatives||[]).map(v=>v[0]+' '+v[1]+' '+v[2]).join(' | '),
     ...procurementInterfaceFields(p.id.startsWith('A')?'A':'B',p.id)
   }[f]??p[f]??'')))];
 }
