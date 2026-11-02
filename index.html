@@ -42,6 +42,18 @@
 <label>Z 偏移 (mm)<input id="cad-offset-z" type="number" value="0" step="0.5"></label>
 <label>绕Y旋转 (°)<input id="cad-yaw" type="number" value="0" step="1"></label></div>
 <button id="apply-cad-alignment">应用局部配准修正</button>
+<div class="field"><b>对应安装特征点配准（仅 B09，非自动认证）</b>
+<p class="small">在原厂转换后的 STL 上读取两个不同孔心或明确基准点的 X,Z（mm）；目标为 B09 装配局部坐标系内对应点的 X,Z（mm），不是光学板世界坐标。两组坐标必须来自可靠资料，不能直接用候选 50 mm 孔距填充。至少两对；两对点无法验证镜像/孔面，第三对更可靠。</p>
+<div class="cad-offsets">
+<label>源点1 · STL X,Z <input id="cad-src-1" type="text" inputmode="decimal" placeholder="源点1 X,Z" value=""></label>
+<label>目标点1 · 局部 X,Z <input id="cad-dst-1" type="text" inputmode="decimal" placeholder="目标点1 X,Z" value=""></label>
+<label>源点2 · STL X,Z <input id="cad-src-2" type="text" inputmode="decimal" placeholder="源点2 X,Z" value=""></label>
+<label>目标点2 · 局部 X,Z <input id="cad-dst-2" type="text" inputmode="decimal" placeholder="目标点2 X,Z" value=""></label>
+<label>源点3（可选）· STL X,Z <input id="cad-src-3" type="text" inputmode="decimal" placeholder="源点3 X,Z" value=""></label>
+<label>目标点3（可选）· 局部 X,Z <input id="cad-dst-3" type="text" inputmode="decimal" placeholder="目标点3 X,Z" value=""></label>
+</div>
+<button id="fit-cad-landmarks">按实测对应点配准 X/Z 与偏航</button>
+<p class="small" id="cad-registration-status">尚未提供对应点。任何配准计算通过均不代表螺纹、孔面、高度或装配干涉已验收。</p></div>
 <a href="https://www.zolix-group.com/product/specification/179.html" target="_blank" rel="noopener noreferrer">NFP 原厂 CAD / 尺寸图</a>
 </div>
 <p class="small" id="cad-motion-note" hidden>当前导入的是整件静态网格，未分离固定台与运动台。B09 的样品平移已暂时禁用，以免显示虚假的原厂运动；点击“恢复原代理几何”可恢复候选运动仿真。导入网格不代表螺孔和安装面已验收。</p>
