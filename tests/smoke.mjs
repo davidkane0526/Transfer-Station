@@ -75,7 +75,29 @@ assert((await page.locator('#selected-fastener-count').getAttribute('data-count'
 const selectBOM=async partId=>{
  await page.locator('#open-bom').click();
  await page.locator('#bom-query').fill(partId);
- const row=page.locator('#bom-body tr').filter({has:page.locator('td').filter({hasText:new RegExp('^'+partId+'
+ const row=page.locator('#bom-body tr').filter({hasText:partId});
+ assert(await row.count()===1,'Missing mechanical QA part '+partId);
+ await row.click();
+};
+await selectBOM('B05');
+assert((await page.locator('#part-detail').textContent()).includes('直线悬臂'),
+ 'Legacy return-loop must not survive in part details');
+assert(await page.locator('#selected-fastener-count').getAttribute('data-count')==='4',
+ 'Missing B05 straight-arm mounting hardware');
+await selectBOM('B03');
+assert((await page.locator('#part-detail').textContent()).includes('线性轴 2，线性测微头 2'),
+ 'Dual-axis film-side stage does not have two independent drives');
+assert(await page.locator('#selected-fastener-count').getAttribute('data-count')==='4',
+ 'Missing four B03 candidate heads');
+await selectBOM('B14');
+assert(await page.locator('#selected-fastener-count').getAttribute('data-count')==='4',
+ 'Confirmed four flush B14 screws not drawn in scene');
+assert((await page.locator('#part-detail').textContent()).includes('只有顶部四枚及齐平外观'),
+ 'Unverified screw lengths and bore diameter must not be claimed measured');
+await page.locator('#btn-sample-stack').click();
+await page.waitForTimeout(350);
+await page.screenshot({path:'Transfer-Station-V24-Chuck-Screw-Heads.png',fullPage:true});
+await selectBOM('B09');
 assert((await page.locator('#interface-review-panel').textContent()).includes('有效螺纹深度'),'NFP thread-depth ambiguity must be visible');
 assert((await page.locator('#selected-source-links a').count())>=2,'selected item lacks drawings links');
 await page.waitForTimeout(350);
