@@ -2,7 +2,7 @@
 from pathlib import Path
 import unittest
 import cadquery as cq
-from extract_oem_features import describe,extract_circles,rotate_into_web
+from extract_oem_features import describe,extract_circles,rotate_into_web,square_pitches_by_diameter
 
 
 class CandidateBrepFeatureTest(unittest.TestCase):
@@ -35,6 +35,23 @@ class CandidateBrepFeatureTest(unittest.TestCase):
         self.assertEqual(by['Ø6.5mm']['square_layouts']['25mm'],0)
         self.assertEqual(by['Ø11mm']['square_layouts']['25mm'],0)
         self.assertEqual(by['Ø6mm']['ring_candidates'],0)
+
+    def test_25mm_m6like_grid_outer_50mm_is_not_counterbore_evidence(self):
+        # Two distinct sets can BOTH make a 50mm square. This is the
+        # geometric ambiguity on the manufacturer's mounting drawing.
+        points=[
+            {'center_mm':[x,12.,z],'radius_mm':3.,
+             'horizontal_plane_candidate':True,'full_circle_candidate':True}
+            for x in (-25.,0.,25.) for z in (-25.,0.,25.)]
+        points.extend(
+            {'center_mm':[x,0.,z],'radius_mm':3.25,
+             'horizontal_plane_candidate':True,'full_circle_candidate':True}
+            for x in (-25.,25.) for z in (-25.,25.))
+        by=square_pitches_by_diameter(points)
+        self.assertEqual(by['Ø6mm']['square_layouts']['50mm'],1)
+        self.assertEqual(by['Ø6mm']['square_layouts']['25mm'],4)
+        self.assertEqual(by['Ø6.5mm']['square_layouts']['50mm'],1)
+        self.assertEqual(by['Ø6.5mm']['square_layouts']['25mm'],0)
 
     def test_axis_permutation_and_handedness(self):
         self.assertEqual(rotate_into_web([1,2,3],'nfp1462c'),[3,1,2])
