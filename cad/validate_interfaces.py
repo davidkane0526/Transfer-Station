@@ -13,7 +13,16 @@ def vz(r,h,x,y,z):return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,0,1))
 ROOT=Path(__file__).resolve().parents[1]
 B=ROOT/'build'/'platform_B'/'parts'
 A=ROOT/'build'/'platform_A'/'parts'
-report={'checks':[], 'meaning':'geometric proxy checks only; physical interfaces remain unverified'}
+report={'checks':[], 'scope':'candidate_proxy_geometry_only',
+        'meaning':'Geometric self-consistency of assumed CAD: NOT manufacturer fit or thread acceptance',
+        'physical_acceptance':{
+            'status':'pending',
+            'missing':['B14 actual four fastener center coordinates',
+                       'NFP moving-face tapped hole group and effective thread depth',
+                       'real clamped stack dimensions and fastener head geometry',
+                       'rotary-to-NFP fixed-base bolt compatibility',
+                       '200C thermal insulation and stress certification']
+        }}
 
 def part(d,id):
     f=d/(id+'.step')
@@ -200,6 +209,7 @@ tipbb=part(B,'B18A')[0].BoundingBox()
 glass=part(B,'B07')[0].BoundingBox()
 check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide collision')
 report['checks_passed']=len(report['checks'])
-report['status']='passed'
+report['geometry_status']='passed'
+report['status']='proxy_geometry_only__physical_acceptance_pending'
 (ROOT/'build'/'interface_validation.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
 print(json.dumps(report,indent=2,ensure_ascii=False))
