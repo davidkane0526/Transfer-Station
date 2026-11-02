@@ -150,6 +150,13 @@ const tetra='solid fixture\n'+[
 await page.locator('#cad-file').setInputFiles({name:'qa_fixture.stl',mimeType:'model/stl',buffer:Buffer.from(tetra)});
 await page.waitForFunction(()=>document.getElementById('import-status').textContent.includes('qa_fixture.stl'),{timeout:9000});
 assert((await page.locator('#import-status').textContent()).includes('qa_fixture.stl'),'local STL import did not complete');
+// Any unsegmented replacement of B09 (including a synthetic fixture) keeps
+// sample travel disabled. Restore the candidate before exercising travel.
+assert(await page.locator('#sample-move').isDisabled(),
+  'Unsegmented B09 fixture should not re-enable impossible native motion');
+await page.locator('#restore-cad').click();
+assert(await page.locator('#sample-move').isEnabled(),
+  'Fixture restoration must re-enable proxy travel before platform switching');
 // Verify A's corrected base-stage relation and BOM
 await page.locator('#explode').fill('0');
 await page.locator('#sample-move').fill('0');
