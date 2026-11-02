@@ -758,6 +758,44 @@ $('search').oninput=e=>{
 $('open-bom').onclick=()=>$('bom-drawer').classList.add('open');
 $('close-bom').onclick=()=>$('bom-drawer').classList.remove('open');
 $('bom-drawer').onclick=e=>{if(e.target===$('bom-drawer'))$('bom-drawer').classList.remove('open')};
+function syncVendorMotionLock(){
+ const locked=platform==='B'&&Boolean(parts.get('B09')?.g.userData.vendorImport);
+ $('cad-motion-note').hidden=!locked;
+ $('sample-move').disabled=locked;
+ if(locked){
+   sampleShift=0;$('sample-move').value='0';$('sample-value').textContent='0 mm';
+   // The entire OEM shell is a static mesh, not a movable carriage assembly.
+   updateTransforms();
+ }
+}
+function removeVendorMesh(v){
+ const imported=v.g.userData.vendorImport;
+ if(!imported)return false;
+ const importedMeshes=new Set();
+ const geometries=new Set(),materials=new Set();
+ imported.traverse(o=>{
+   if(!o.isMesh)return;
+   importedMeshes.add(o);
+   if(o.geometry)geometries.add(o.geometry);
+   for(const mat of (Array.isArray(o.material)?o.material:[o.material])){
+     if(mat)materials.add(mat);
+   }
+ });
+ for(let i=hitMeshes.length-1;i>=0;i--){
+   if(importedMeshes.has(hitMeshes[i]))hitMeshes.splice(i,1);
+ }
+ v.g.remove(imported);
+ geometries.forEach(geo=>geo.dispose());
+ materials.forEach(mat=>mat.dispose());
+ for(const [mesh,visible] of v.g.userData.proxyVisibility||[]){
+   mesh.visible=holes.includes(mesh)?showHoles:visible;
+ }
+ delete v.g.userData.proxyVisibility;
+ delete v.g.userData.vendorImport;
+ delete v.g.userData.vendorImportBase;
+ syncVendorMotionLock();
+ return true;
+}
 async function importVendorMesh(file){
  if(!active){$('import-status').textContent='请先在3D场景中点击要替换的零件。';return;}
  if(!file){return;}
@@ -779,10 +817,11 @@ async function importVendorMesh(file){
       imported=gltf.scene;
    }
    const sizeScale=Number($('import-units').value||1);
+   if(!Number.isFinite(sizeScale)||sizeScale<=0)throw Error('导入单位比例必须为有限正数');
    imported.scale.setScalar(sizeScale);
    imported.updateMatrixWorld(true);
    const bounds=new THREE.Box3().setFromObject(imported);
-   if(bounds.isEmpty()||![bounds.min.x,bounds.max.x,bounds.min.y,bounds.max.y].every(Number.isFinite))throw Error('无法获取导入模型的有效边界');
+   if(bounds.isEmpty()||![bounds.min.x,bounds.max.x,bounds.min.y,bounds.max.y,bounds.min.z,bounds.max.z].every(Number.isFinite))throw Error('无法获取导入模型的有效边界');
    const w=bounds.max.x-bounds.min.x,h=bounds.max.y-bounds.min.y,d=bounds.max.z-bounds.min.z;
    if(Math.max(w,h,d)>2000||Math.min(w,h,d)<=0)throw Error('模型单位或方向不正确，请检查 STL/GLB 比例');
    const center=bounds.getCenter(new THREE.Vector3());
