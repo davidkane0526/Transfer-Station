@@ -13,9 +13,9 @@
 <div class="title">01 / 系统</div><div class="tabs"><button id="show-b" class="on">平台 B</button><button id="show-a">平台 A</button></div>
 <div class="control-block"><div class="title">02 / 三维视图</div><div class="buttons"><button id="btn-home">默认视角</button><button id="btn-top">俯视</button><button id="btn-front">正视</button><button id="btn-rear">后侧接口</button><button id="btn-iso">轴测</button><button id="btn-film-stack">放大载玻片侧</button><button id="btn-photo108">照片108·磁座面</button><button id="btn-photo109">照片109·T25M面</button><button id="btn-sample-stack">放大样品侧</button></div>
 <div class="control-line"><label for="explode">爆炸分解</label><span id="explode-value">0%</span></div><input id="explode" type="range" min="0" max="100" step="1" value="0" style="width:100%">
-<div class="control-line"><label for="translate">玻片 X 移动</label><span id="translate-value">0 mm</span></div><input id="translate" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
-<div class="control-line"><label for="translate-depth">载玻片另一水平轴 Y</label><span id="translate-depth-value">0 mm</span></div><input id="translate-depth" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
-<div class="control-line"><label for="sample-move">样品平移</label><span id="sample-value">0 mm</span></div><input id="sample-move" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
+<div class="control-line"><label for="translate">玻片机构 X（场景 X）</label><span id="translate-value">0 mm</span></div><input id="translate" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
+<div class="control-line"><label for="translate-depth">玻片机构 Y（场景 Z，前后）</label><span id="translate-depth-value">0 mm</span></div><input id="translate-depth" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
+<div class="control-line"><label for="sample-move">样品 NFP 单轴 X 平移</label><span id="sample-value">0 mm</span></div><input id="sample-move" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
 <div class="control-line"><label for="rotate-sample">样品旋转</label><span id="rotate-value">0°</span></div><input id="rotate-sample" type="range" min="-90" max="90" step="1" value="0" style="width:100%">
 </div>
 <div class="control-block"><div class="title">03 / 显示与筛选</div>
@@ -24,11 +24,11 @@
 </div><p class="small">鼠标左键旋转 · 滚轮缩放 · 右键平移 · 点击零件查看规格。所有空间坐标以毫米计。</p>
 </aside>
 <main class="stage"><div id="viewer" class="viewer" role="img" aria-label="可旋转、选择零件的三维装配模型"></div>
-<div class="stage-top"><span class="pill" id="platform-caption">平台 B · 样品旋转 / 显微镜 / 玻片转移臂</span><span class="pill">实际尺寸与代理几何分级</span></div>
+<div class="stage-top"><span class="pill" id="platform-caption">平台 B · 样品旋转 / 显微镜 / 玻片转移臂</span><span class="pill">轴向：X 左右 / Y 高度 / Z 前后</span></div>
 <div class="stage-bottom"><span id="hover-help">点击零件显示唯一标签及尺寸；点空白取消</span><span id="measurement-text" aria-live="polite">坐标 X / Y(高度) / Z · 单位 mm</span></div>
 </main>
 <aside class="detail"><div class="title">04 / 点击选中 · 尺寸与装配证据</div><div id="part-detail" class="select-placeholder">点击模型中的部件，或在下面查看零件表。绿色标签代表厂家标称尺寸，橙色/红色表示尚需验证的候选几何。</div>
-<div class="control-block"><div class="title">尺寸可信度</div><div class="legend"><span class="status D">D 原厂图纸</span><span class="status P">P 照片</span><span class="status U">U 用户确认</span><span class="status I">I 推导</span><span class="status C">C 候选</span></div><div class="warning">**工程使用限制**：真实外形、真实孔距与厂家完整 CAD 是三个不同层次。本模型的显微镜和部分转接件仍为外形代理，不能直接用于加工或接线。</div></div>
+<div class="control-block"><div class="title">尺寸可信度</div><p class="small">NFP-1462C 原厂只有一个线性 X 轴；B03 玻片台的机构 X/Y 两轴在本三维坐标系中分别为 X/Z。模型中其他新绘制的螺钉（除 B14 的四枚数量与齐平状态）均为候选占位，不可据此加工。</p><div class="legend"><span class="status D">D 原厂图纸</span><span class="status P">P 照片</span><span class="status U">U 用户确认</span><span class="status I">I 推导</span><span class="status C">C 候选</span></div><div class="warning">**工程使用限制**：真实外形、真实孔距与厂家完整 CAD 是三个不同层次。本模型的显微镜和部分转接件仍为外形代理，不能直接用于加工或接线。</div></div>
 <div class="control-block"><div class="title">装配链</div><div id="stack-note" class="small"></div></div>
 <div class="control-block"><div class="title">导入原厂三维 CAD（本地）</div>
 <p class="small">选中模型中的一个零件后，可以导入该零件的原厂 STL 或 GLB，用真实网格替换候选外形。浏览器不上传文件；要保留修改需在本地另存。</p>
