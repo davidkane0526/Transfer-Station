@@ -186,7 +186,13 @@ export function enrichParts(partMap, platform, onMesh){
        // Do not recreate the two apparent floating steel rods on the
        // V25M front/side. A single integrated flush face cover remains.
        box(g,1.2,36,34,-28.3,31,0,gunmetal,.3);
-       for(const z of [-16,16])for(const y of [15,47])screwHead(g,-28.3,y,z,2.1,'front');
+       // Screw heads are normal to the -X side cover, not the front Z face.
+       for(const z of [-16,16])for(const y of [15,47]){
+         const head=cyl(g,2.1,1.1,-29.3,y,z,aluminum,24);
+         head.rotation.z=Math.PI/2;
+         const socket=cyl(g,1.0,.14,-30.0,y,z,matte,6);
+         socket.rotation.z=Math.PI/2;
+       }
        // V25M branded flange is visible from the SAME rear view as T25M (109).
        decal(g,'GCM-V25M',50,9,0,60,-33.5,'back','#ebedf2');
        // 108.jpg: this knob is the VERTICAL Z-axis adjuster, not another +X.
