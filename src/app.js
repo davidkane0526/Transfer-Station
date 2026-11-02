@@ -120,6 +120,7 @@ function jointHead(g,x,topY,z,{headR=3.1,shankR=1.6,shankL=4.8}={}){
  const top=topY+.2,headH=2.2;
  const shaft=add(g,cyl(shankR,shankL,mats.steel,x,top-headH-shankL/2,z,16));
  const head=add(g,cyl(headR,headH,mats.silver,x,top-headH/2,z,32));
+ head.userData.fastenerHead=true;
  const socket=add(g,cyl(headR*.43,.22,mats.ink,x,top-.06,z,6));
  for(const o of [shaft,head,socket]){o.userData.fastenerProxy=true;o.userData.verifiedFastener=false;}
  return head;
@@ -135,6 +136,7 @@ function screw(g,x,topY,z,length=25){
  const headH=6,headBottom=topY-headH;
  const shaft=add(g,cyl(3,length,mats.steel,x,headBottom-length/2,z,24));
  const head=add(g,cyl(5,headH,mats.silver,x,topY-headH/2,z,36));
+ head.userData.fastenerHead=true;
  const socket=add(g,cyl(2.65,.26,mats.ink,x,topY-.08,z,6));
  const rim=add(g,torus(5.13,.25,mats.ink,x,topY-.02,z));
  for(const o of [shaft,head,socket,rim])o.userData.fastenerProxy=true;
@@ -526,8 +528,10 @@ function updateDetail(part){
  el.className='';
  const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
  const reviews=interfaceEvidence(platform,part.id);
+ const visibleHeadMeshes=[];
+ parts.get(part.id)?.g.traverse(o=>{if(o.isMesh&&o.userData.fastenerHead)visibleHeadMeshes.push(o);});
  const joint=JOINTS[part.id];
- const hardwareHtml=joint?'<div class="field"><b>可见紧固件（非验收）</b><p>'+joint.count+' 个，'+esc(joint.name)+'。'+
+ const hardwareHtml=joint?'<div class="field" id="selected-fastener-count" data-count="'+visibleHeadMeshes.length+'"><b>可见紧固件（非验收）</b><p>实际绘制 '+visibleHeadMeshes.length+' 个头部，图示位置 '+joint.count+' 个，'+esc(joint.name)+'。'+
    (joint.status==='candidate'?'具体数量、孔位、头型与螺杆尺寸均为显示候选。':
    '只有顶部四枚及齐平外观经使用者确认；孔距、螺纹和长度仍为候选。')+'</p></div>':'';
  const axis=AXES[part.id];
