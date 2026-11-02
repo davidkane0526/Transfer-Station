@@ -8,6 +8,7 @@ import {enrichParts} from './details.js';
 import {enriched,pricedSummary,csvExportRows} from './procurement.js';
 import {stageLocalTranslation} from './kinematics.js';
 import {interfaceEvidence} from './interface-evidence.js';
+import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -797,6 +798,8 @@ function removeVendorMesh(v){
  delete v.g.userData.proxyVisibility;
  delete v.g.userData.vendorImport;
  delete v.g.userData.vendorImportBase;
+ delete v.g.userData.vendorLandmarkRegistration;
+ if($('cad-registration-status'))$('cad-registration-status').textContent='已恢复候选几何；此前特征点配准不再应用。';
  syncVendorMotionLock();
  return true;
 }
@@ -867,6 +870,7 @@ async function importVendorMesh(file){
    syncVendorMotionLock();
    // Select again so the new visible mesh gets measured, not its hidden proxy.
    selectPart(part.part.id);
+   $('cad-registration-status').textContent='尚未按已知特征点配准；外形包络居中只用于粗略显示，不能作为安装基准。';
    $('import-status').textContent=part.part.id+' 导入 '+file.name+' · '+[w,h,d].map(x=>x.toFixed(1)).join('×')+' mm；预设 '+profile+'，尚未通过实际螺纹孔配准。';
  }catch(e){console.error(e);$('import-status').textContent='导入失败：'+String(e?.message||e);}
 }
@@ -894,10 +898,49 @@ $('apply-cad-alignment').onclick=()=>{
    if(!base)throw Error('导入模型缺少初始基准');
    m.position.copy(base).add(new THREE.Vector3(parse('cad-offset-x'),parse('cad-offset-y'),parse('cad-offset-z')));
    m.rotation.y=parse('cad-yaw')*Math.PI/180;
+   delete g.userData.vendorLandmarkRegistration;
+   $('cad-registration-status').textContent='已改用手动包络偏移；之前的特征点配准结果已取消。';
    updateMeasurement();
    $('import-status').textContent='已应用本地显示配准。偏移为相对于预设的增量，不代表孔系已验收。';
  }catch(e){$('import-status').textContent='配准参数错误：'+e.message;}
 };
+// Feature-point fitting uses coordinates extracted from the converted STL itself
+// and the corresponding points in B09 *local* assembly coordinates. Nothing is
+// auto-assumed about bolt pitch, hole face, material or thread engagement.
+$('fit-cad-landmarks').onclick=()=>{
+ try{
+   if(platform!=='B'||active?.part.id!=='B09'||!active.g.userData.vendorImport)
+     throw Error('请在平台 B 选中 B09，并先导入转换后的 NFP 原厂 STL');
+   const pairs=[];
+   for(let i=1;i<=3;i++){
+     const source=$('cad-src-'+i).value.trim(),target=$('cad-dst-'+i).value.trim();
+     if(!source&&!target)continue;
+     if(!source||!target)throw Error('第'+i+'对特征点必须同时填写源坐标与目标坐标');
+     pairs.push({source:parseXZ(source),target:parseXZ(target)});
+   }
+   const result=fitRigidXZ(pairs);
+   const group=active.g, mesh=group.userData.vendorImport;
+   // The points are millimetres AFTER the imported STL's unit scale has been
+   // applied. Y remains the initial candidate vertical datum plus manual Y.
+   const offsetY=Number($('cad-offset-y').value);
+   if(!Number.isFinite(offsetY)||Math.abs(offsetY)>500)throw Error('高度偏移必须为 ±500 mm 内的有限数值');
+   const base=group.userData.vendorImportBase;
+   if(!base)throw Error('原厂导入基准不存在');
+   // Commit only after every input has been validated; failed fit preserves mesh.
+   mesh.rotation.y=result.yawRad;
+   mesh.position.set(result.translationXmm,base.y+offsetY,result.translationZmm);
+   group.userData.vendorLandmarkRegistration=result;
+   updateMeasurement();
+   $('cad-registration-status').textContent=
+      result.pairCount+' 对点刚性配准预览：偏航 '+result.yawDeg.toFixed(3)+'°，局部 X='+
+      result.translationXmm.toFixed(3)+' mm / Z='+result.translationZmm.toFixed(3)+
+      ' mm，最大坐标残差 '+result.maxErrorMm.toFixed(3)+' mm（仅输入一致性，不是机械公差验收）。高度基准、孔面、螺纹和实物干涉仍待验证。';
+   $('import-status').textContent='已应用特征点刚性配准预览；未缩放几何，亦未认证物理安装接口。';
+ }catch(error){
+   $('cad-registration-status').textContent='配准未应用：'+String(error?.message||error);
+ }
+};
+
 $('export-csv').onclick=exportCSV;
 for(const id of ['bom-query','bom-sort','priced-only']){
  const el=$(id);el.addEventListener(id==='bom-query'?'input':'change',updateTable);
