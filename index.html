@@ -32,7 +32,7 @@
 <div class="control-block"><div class="title">装配链</div><div id="stack-note" class="small"></div></div>
 <div class="control-block"><div class="title">导入原厂三维 CAD（本地）</div>
 <p class="small">选中模型中的一个零件后，可以导入该零件的原厂 STL 或 GLB，用真实网格替换候选外形。浏览器不上传文件；要保留修改需在本地另存。</p>
-<div class="buttons"><button id="import-cad">为选中零件导入 STL / GLB</button>
+<div class="buttons"><button id="import-cad">为选中零件导入 STL / GLB</button><button id="restore-cad" disabled>恢复原代理几何</button>
 <select id="import-units" aria-label="导入模型尺寸单位"><option value="1">文件为 mm</option><option value="1000">文件为 m → mm</option></select></div>
 <input type="file" id="cad-file" accept=".stl,.glb" hidden>
 <div class="cad-alignment">
@@ -44,6 +44,7 @@
 <button id="apply-cad-alignment">应用局部配准修正</button>
 <a href="https://www.zolix-group.com/product/specification/179.html" target="_blank" rel="noopener noreferrer">NFP 原厂 CAD / 尺寸图</a>
 </div>
+<p class="small" id="cad-motion-note" hidden>当前导入的是整件静态网格，未分离固定台与运动台。B09 的样品平移已暂时禁用，以免显示虚假的原厂运动；点击“恢复原代理几何”可恢复候选运动仿真。导入网格不代表螺孔和安装面已验收。</p>
 <p class="small" id="import-status">STEP 先用 cad/convert_vendor_step_to_stl.py 转换。NFP 原厂文件为44个壳体而非封闭实体；导入后需人工核对孔中心和高度基准。</p></div>
 <div class="control-block"><div class="title">照片对照 · 安装顺序与手柄</div><div class="small" id="photo-ledger">加载照片证据索引...</div></div>
 <div class="control-block"><div class="title">文件与资料</div><div class="footlinks"><a href="docs/engineering.md">孔位/证据说明</a><a href="cad/build_assemblies.py">CAD 生成脚本</a><a href="README.md">项目说明</a></div></div>
