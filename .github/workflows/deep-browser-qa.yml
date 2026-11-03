@@ -1,0 +1,29 @@
+name: Deep 3D interaction regression (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deep-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add CJK fonts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
+      - name: Install Playwright runner
+        run: npm install --no-save playwright-core
+      - name: Exhaustive 3D motion, BOM, CAD and photo regression
+        run: |
+          python3 -m http.server 8765 > /tmp/transfer-deep.log 2>&1 &
+          node tests/smoke.mjs
+      - name: Upload detailed evidence screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Transfer-Station-Deep-Visual-QA
+          path: |
+            Transfer-Station-*.png
+          if-no-files-found: ignore
