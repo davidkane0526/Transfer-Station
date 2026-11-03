@@ -485,12 +485,23 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // joining the support post to the first long horizontal Ø12 rod.
  // No identifiable OEM SKU is legible; shape is a two-hole proxy.
  addPart('B33',rack.postAxisX,rack.squareClampCenterY,-7.5,g=>{
-   add(g,sleeve(11,6.05,20,mats.dark,0,0,-7.5,'y'));
-   add(g,sleeve(11,6.05,20,mats.black,0,0,7.5,'x'));
+   // Unlike the old pair of FLOATING ROUND rings, photo149 shows ONE
+   // near-square body. Split its 30mm Z-depth into two contacting,
+   // fully bored halves: rear has a vertical Ø12 hole and front has
+   // an orthogonal horizontal Ø12 hole. The hole cylinders are
+   // 15mm apart along Z, avoiding both rod/solid intersections.
+   const rear=add(g,plate(28,15,30,mats.dark,[[0,0,6.05]]));
+   rear.position.set(0,-15,-7.5);
+   rear.userData.photo149TrueVerticalBore=true;
+   const front=add(g,frontXRodBracket(28,30,15,mats.black,
+     0,0,7.5,0,7.5,6.05));
+   front.userData.photo149TrueHorizontalBore=true;
    thumbKnob(g,0,12,-7.5,'y',3.5);
    thumbKnob(g,13,0,7.5,'x',3.5);
    g.userData.unidentifiedModel=true;
-   label(g,'照片149：立杆→横杆连接方夹（型号未读到）',0,24,0);
+   g.userData.squareBodyEnvelopeMm=[28,30,30];
+   g.userData.separateRealThroughBores=2;
+   label(g,'照片149：独立方夹 · 真Ø12立杆孔/横杆孔（型号待核）',0,27,0);
  },{explode:[-19,54,-12],moveFilm:true});
  // Photos 149 and 150 show an actual Zolix PHUC-1, NOT the earlier
  // PHCP-2. Manufacturer drawing: A60, BØ30, C/DØ12, bore pitch E33.
