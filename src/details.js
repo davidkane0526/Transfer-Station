@@ -212,19 +212,11 @@ export function enrichParts(partMap, platform, onMesh){
        decal(g,'M6?',13,4,0,-19,10.3,'front','#b0beca');
     });
     decoration('B06',(g)=>{
-       // Daheng GCM-13 plate-holder family shows a long black clamping
-       // body and two separate outward-facing silver adjustment screws.
-       // The exact GCM-1302M clamp-jaw geometry is still a photo candidate.
-       box(g,12,1.1,54,10,7.2,0,gunmetal,.25);
-       for(const z of [-17,17]){
-         // Cylindrical screw projects away from the film/optical axis after
-         // the clamp's 180-degree installation yaw.
-         const shaft=cyl(g,2.35,19,20,-10,z,ring,28);
-         shaft.rotation.z=Math.PI/2;
-         knurl(g,33,-10,z,4.6,10,'x',28);
-         const pad=box(g,3,3.8,8,-1,-13.6,z,aluminum,.4);
-       }
-       decal(g,'GCM-1302M ?',35,5,0,8.1,30.4,'front','#dce3e9');
+       // Geometry and actual two Y-axis adjustment screws live in app.js.
+       // Extra side-facing screws would create a fake third/fourth drive.
+       // Keep only shallow machined rail detail and a small candidate label.
+       box(g,10,.45,51,6,-5.8,0,gunmetal,.2);
+       decal(g,'GCM-1302M ?',34,5,0,2.55,30.4,'front','#dce3e9');
     });
     decoration('B08',(g)=>{
        analogScale(g,46.7,16,0);
