@@ -745,8 +745,9 @@ function addAxis(){
 function renderPhotoLedger(){
  const host=$('photo-ledger');if(!host)return;host.replaceChildren();
  const stack=STACKS[platform];
+ const filmIds=platform==='B'&&bPhoto94Mode?['B02','B03','B30','B31','B32']:stack.film;
  const note=document.createElement('p');note.textContent=stack.confidence;host.append(note);
- for(const [side,ids] of Object.entries({film:stack.film,sample:stack.sample})){
+ for(const [side,ids] of Object.entries({film:filmIds,sample:stack.sample})){
    const heading=document.createElement('div');heading.className='key';
    heading.textContent=side==='film'?'载玻片侧（从下至上）':'样品侧（从下至上）';
    host.append(heading);
@@ -763,7 +764,7 @@ function renderPhotoLedger(){
    host.append(list);
  }
  const m=document.createElement('div');m.className='marked-note';
- m.textContent=platform==='B'?
+ m.textContent=platform==='B'&&bPhoto94Mode?'用户要求的B新照片对照配置：GCM-T25M→GCM-VC13M→GCM-G40M60L→L型薄板；此前A/B照片归档冲突未解决，不能以此证明NFP样品侧同机。':platform==='B'?
    'B02 GCM-420302M 必须直接接触面包板并位于 B03 T25M 下面；中部圆柱是 Zolix 夹持器，不是第二个磁吸底座。':
    'A15 与 A02 为两台不同 T25M：照片97所示 A15 在 VC13M 下；照片100所示 A02 在旋转台上。';
  host.append(m);
@@ -888,8 +889,8 @@ function updateTransforms(){
   if(g.userData.slidingX){
     // A physical X carriage carries a SECOND, nested depth carriage.
     // B03 has a yaw-180 installation; local negative X maps to world +X.
-    g.userData.slidingX.position.x=part.id==='B03'?-filmShift:filmShift;
-    if(g.userData.slidingDepth)g.userData.slidingDepth.position.z=part.id==='B03'?-filmShiftDepth:filmShiftDepth;
+    g.userData.slidingX.position.x=part.id==='B03'&&!bPhoto94Mode?-filmShift:filmShift;
+    if(g.userData.slidingDepth)g.userData.slidingDepth.position.z=part.id==='B03'&&!bPhoto94Mode?-filmShiftDepth:filmShiftDepth;
   }else if(g.userData.slidingTop){
     g.userData.slidingTop.position.x=part.id==='B09'?-sampleShift:part.id==='A02'?sampleShift:0;
   }
@@ -923,9 +924,9 @@ function resetScene(){
  });
  holes.forEach(h=>h.visible=showHoles);selectedLabels();
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
- $('platform-caption').textContent=platform==='B'?'平台 B · MXFMS / 双运动分支 / 真空加热吸附台':'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
+ $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?'平台 B · 本次94/95/97实物对照配置（编号归属待核）':'平台 B · 旧108/109候选配置（未实物验收）'):'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  'B03为真正双轴：机构X与机构Y对应场景X与Z，测微头两根且互相垂直。照片108和109分别从相反的观察面拍到同一根X手柄。B04是额外的竖直Y向升降台。B09 NFP-1462C官方仅单轴X，B08是独立旋转台；直线悬臂和非标连接件仍属于候选。':
+  bPhoto94Mode?'本次实拍B对照配置：底层T25M两正交轴 → VC13M前置竖直测微头 → G40M60L右侧微分头 → 两螺钉固定的窄L折弯片。旧编号把照片94/95/97归档A，用户新指示用于纠正B，样品NFP与这些照片是否同一整机仍未物理确认。':'旧108/109候选配置：B02磁座→B03双轴T25M→B04 V25M→PHCP长杆，此路径尚未根据B原始实物复核，不可据此采购。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
