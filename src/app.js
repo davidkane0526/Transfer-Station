@@ -653,7 +653,7 @@ function updateDetail(part){
    '" data-pressure-plate-count="'+jawDatums.independentMovingPlates+
    '"><b>GCM-13 真实夹紧机构示意</b><p>已绘制 '+realScrewAxes+
    ' 根调节螺杆驱动 1 块共用活动压板；当前夹口 '+jawDatums.nominalJawGapMm+
-   ' mm 及夹爪坐标均为候选，尚未按原厂实体尺寸验收。</p></div>':'';
+   ' mm 是张开口；当前压板已移动 '+jawDatums.previewClosingTravelMm+' mm，与 '+jawDatums.contactJawGapMm+' mm 厚玻片处于名义接触。夹紧力、真实行程和夹口尺寸均未经验收。</p></div>':'';
  const axis=AXES[part.id];
  const axisHtml=axis?'<div class="field"><b>独立运动轴与驱动</b><p>线性轴 '+axis.linear+
    '，线性测微头 '+axis.micrometers+'；厂商轴 '+esc(axis.makerAxes.join('/'))+
