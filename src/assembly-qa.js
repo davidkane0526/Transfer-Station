@@ -29,21 +29,38 @@ export const JOINTS={
 // A single cantilever runs laterally from the V25M output flange toward
 // the independent glass clamp. This replaces the earlier unsupported loop
 // made of an 85mm riser, 249mm rear rail and two hanging rods.
-export function filmCantileverB({armX,sampleX,glassClampXOffset=52,baseY=139,clampTopY=128}){
- const clampX=sampleX+glassClampXOffset;
- const xReach=clampX-armX;
- if(!(xReach>80 && xReach<350))throw new Error('Unexpected film-clamp horizontal span');
- if(!(baseY>clampTopY&&baseY-clampTopY<40))throw new Error('Unexpected film-clamp height difference');
+// Optical-axis exclusion for the *displayed* assembly. It does not verify
+// a real OEM fixture: the bracket dimensions and jaw grip remain candidates.
+// The original rod crossed the sampleX optical axis and hid the substrate.
+// Here the film is clamped at its LEFT edge, so only transparent glass
+// continues over the specimen. +Y is height, +X is toward the specimen.
+export function filmCantileverB({
+ armX,sampleX,glassClampXOffset=-42,baseY=135,clampTopY=128,
+ glassCenterXOffset=5,glassWidth=76,objectiveRadius=17
+}){
+ const clampWorldX=sampleX+glassClampXOffset;
+ const xReach=clampWorldX-armX;
+ if(!(xReach>80 && xReach<350))throw new Error('Unexpected film-side rod span');
+ if(!(baseY>=clampTopY && baseY-clampTopY<40))throw new Error('Unexpected mounting height');
+ // 22 mm jaw reaches to the right after the GCM clamp is installed yaw=180.
+ const glassLeftEdgeX=sampleX+glassCenterXOffset-glassWidth/2;
+ const jawEndX=clampWorldX+21;
+ const opticalLeftLimitX=sampleX-objectiveRadius;
+ if(!(jawEndX>glassLeftEdgeX && jawEndX<opticalLeftLimitX))
+   throw new Error('Jaw fails to grip glass or crosses objective optical keep-out');
+ if(!(clampWorldX+17<opticalLeftLimitX))
+   throw new Error('Glass clamp body crosses objective optical keep-out');
  const rodCenterY=8,rodStartX=12,rodEndX=xReach;
- // The nominal film rod now passes below the lowest four-objective proxy
- // (rendered at about Y=160). This is only scene-level, not physical clearance.
- if(baseY+rodCenterY+6.35>=160)throw new Error('Proxy arm would collide with the objective lower envelope');
  const rodLength=rodEndX-rodStartX;
  const terminalBottomLocalY=clampTopY-baseY;
  const terminalHeight=rodCenterY-terminalBottomLocalY;
+ if(terminalHeight<=0)throw new Error('Cantilever terminal must meet top of slide clamp');
  return {rodStartX,rodEndX,rodLength,rodCenterX:(rodStartX+rodEndX)/2,
    rodCenterY,rodZ:0,terminalBottomLocalY,terminalHeight,
    terminalCenterY:(rodCenterY+terminalBottomLocalY)/2,
-   photos:'107/108 glass-side frame; span/height remain candidate',
-   physicalJointAccepted:false,loopBack:false,verticalFreeRods:0};
+   clampWorldX,glassLeftEdgeX,jawEndX,opticalLeftLimitX,
+   mountY:baseY,clampTopY,
+   photos:'107/108; dimensions and exact holder subtype still candidate',
+   physicalJointAccepted:false,loopBack:false,verticalFreeRods:0,
+   opticalAxisTraversed:false};
 }
