@@ -32,8 +32,8 @@ assert.throws(()=>getCrossClampDatums({supportPostZmm:0}),
  /intersect|clearance/);
 assert.throws(()=>getCrossClampDatums({ringOuterRadiiMm:[5,13]}),/thinner/);
 const jaws=getPlateHolderJawDatums();
-assert.equal(jaws.glassBottom,104.5);
-assert.equal(jaws.glassTop,105.5);
+assert.equal(jaws.glassBottom,125);
+assert.equal(jaws.glassTop,126);
 assert.equal(jaws.fixedJawTopLocalY,-17);
 assert.equal(jaws.movableJawBottomLocalY,-16);
 assert.equal(jaws.nominalJawGapMm,1.5,'1.5mm is open insertion gap only');
@@ -46,7 +46,7 @@ assert.equal(jaws.independentMovingPlates,1);
 assert.equal(jaws.screwShaftBottomLocalY,jaws.movablePlateTopLocalY,
  'Adjustment screws must physically contact, not float over, the common pressure plate');
 assert(jaws.fixedJawTopLocalY<jaws.movableJawBottomLocalY);
-assert.equal(jaws.movableJawBottomLocalY+121.5,jaws.glassTop);
+assert.equal(jaws.movableJawBottomLocalY+142,jaws.glassTop);
 assert.equal(jaws.physicallyAccepted,false);
 assert.throws(()=>getPlateHolderJawDatums({slideThicknessMm:5.1}),/exceeds/);
 assert.throws(()=>getPlateHolderJawDatums({nominalJawGapMm:.75}),/overlap/);
