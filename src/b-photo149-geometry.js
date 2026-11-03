@@ -5,19 +5,23 @@
 // Exact component length/pitch must not be inferred from perspective.
 export const B149=Object.freeze({
   b04BaseY:73,
+  stageCenterX:-112,
+  b05CenterX:-51.5,b05LeftFaceX:-84,
+  fixedGuideRightFaceX:-84,sideBracketRightFaceX:-84,
+  movingGuideFrontZ:7,sideBracketBackZ:7,
   b04GuideTopY:131,
   b04MovingFlangeTopY:90,
   supportPlateBottomY:90,
   supportPlateHeightMm:6,
-  postAxisX:-88,postAxisZ:-15,
+  postAxisX:-52,postAxisZ:-15,
   postHolderBottomY:96,postHolderHeightMm:50,postHolderODmm:20,
   supportPostBottomY:96,supportPostLengthMm:100,postDiameterMm:12,
   squareClampCenterY:168,squareClampHeightMm:30,
   upperRodY:168,lowerRodY:135,phucBorePitchMm:33,
-  phucCenterX:-30,phucCenterY:151.5,
+  phucCenterX:-5,phucCenterY:151.5,
   phucLengthMm:60,phucOuterDiameterMm:30,
-  upperRodStartX:-115,upperRodLengthMm:100,
-  lowerRodStartX:-55,lowerRodEndX:24.5,
+  upperRodStartX:-75,upperRodLengthMm:85,
+  lowerRodStartX:-30,lowerRodEndX:24.5,
   glassHolderOriginY:142,glassHolderSpineLeftX:24.5,
   glassCenterWorldY:125.5,
   heaterTopWorldY:98.2,
@@ -33,6 +37,15 @@ export function auditB149(d=B149){
  const glassToHeaterGapMm=d.glassCenterWorldY-.5-d.heaterTopWorldY;
  const lowerRodLengthMm=d.lowerRodEndX-d.lowerRodStartX;
  const upperRodEndX=d.upperRodStartX+d.upperRodLengthMm;
+ // Side-mounted V25M photo108 connection must NOT occupy the
+ // stationary upright's volume. Output bridge and B05 meet at X=-84;
+ // upper B05 plate lies ENTIRELY to the right of fixed guide.
+ if(Math.abs(d.b05LeftFaceX-d.fixedGuideRightFaceX)>.01 ||
+    Math.abs(d.sideBracketRightFaceX-d.b05LeftFaceX)>.01 ||
+    Math.abs(d.movingGuideFrontZ-d.sideBracketBackZ)>.01)
+   throw Error('Side mounted B05 would penetrate fixed V25M guide or detach from moving carriage');
+ if(Math.abs(d.postAxisX-d.b05CenterX)>22)
+   throw Error('Vertical sleeve would hang beyond B05 mounting plate');
  if(Math.abs(d.b04MovingFlangeTopY-d.supportPlateBottomY)>.01)
    throw Error('B05 floats above the MOVABLE V25M side carriage');
  if(d.b04MovingFlangeTopY>=d.b04GuideTopY)
