@@ -124,9 +124,19 @@ def make_b():
     # at X=ax+28, without any volumetric overlap.
     add('B','B04B','GCMV25M_SIDE_moving_bridge_photo108',
         box(25,18,15,ax+15.5,16,85))
-    # Photo 108: V25M micrometer is vertical, not an x-axis knob.
-    add('B','B04C','vertical_micrometer_stem',vz(6.5,40,ax-24,0,102),'P')
-    add('B','B04D','vertical_micrometer_knob',vz(9,17,ax-24,0,142),'P')
+    # Photo108/149: the vertical micrometer runs ALONG THE LEFT
+    # OUTSIDE face of the V25M upright. In V30 the 40mm silver stem
+    # wrongly penetrated solid B04A by ~1455.7 mm^3.
+    # Move it to the outer edge and support it in an actual Ø13.2
+    # clearance collar whose SHORT bridge meets the upright's side.
+    # This bracket is only a geometric photo-fit, not OEM catalog CAD.
+    mic_x=ax-39
+    collar=vz(9,10,mic_x,0,104)
+    collar=collar.fuse(box(5,4,10,ax-30.5,-2,104))
+    collar=collar.cut(vz(6.6,10,mic_x,0,104))
+    add('B','B04G','V25M_external_micrometer_collared_side_brace_CANDIDATE',collar,'C')
+    add('B','B04C','vertical_micrometer_stem',vz(6.5,40,mic_x,0,102),'P')
+    add('B','B04D','vertical_micrometer_knob',vz(9,17,mic_x,0,142),'P')
     # B ruler photo149: upper MOVABLE V25M output flange is below
     # the top of the stationary upright shell. The source images show
     # a flat black 65x66mm mount followed by a distinct 50mm CYLINDRICAL
@@ -189,7 +199,12 @@ def make_b():
     # Only the interconnection hierarchy is photographed; this 20.5mm
     # change is a geometry fit, NOT a confirmed measured clearance.
     jaw_shift=20.5
-    fixed_spine=box(17,56,15,clamp_x-7,0,104+jaw_shift)
+    # The moving pressure plate B06M must NOT penetrate the fixed
+    # spine. The old 17mm wide spine overlapped B06M by 490mm^3,
+    # and B06F by 70mm^3 in separate STEP parts.
+    # A 14.5mm spine ends at X=39 where both jaws BEGIN, so they
+    # share a guided side FACE rather than occupying the same metal.
+    fixed_spine=box(14.5,56,15,clamp_x-8.25,0,104+jaw_shift)
     fixed_spine=fixed_spine.cut(vx(3.06,10,24.5,0,lower_rod_z))
     add('B','B06','GCM13_fixed_spine_with_REAL_M6_candidate_side_bore',
         fixed_spine,'C')
