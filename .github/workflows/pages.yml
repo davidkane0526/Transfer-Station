@@ -35,6 +35,8 @@ jobs:
           node tests/vendor-hardware.mjs
           node --check src/holder-mechanics.js
           node tests/holder-mechanics.mjs
+          node --check src/b-physical-audit.js
+          node tests/b-profile-audit.mjs
           node --check src/interface-evidence.js
           node --check src/procurement.js
           node tests/interface-evidence.mjs
