@@ -695,6 +695,16 @@ function updateDetail(part){
  const hardwareHtml=joint?'<div class="field" id="selected-fastener-count" data-count="'+visibleHeadMeshes.length+'"><b>可见紧固件（非验收）</b><p>实际绘制 '+visibleHeadMeshes.length+' 个头部，图示位置 '+joint.count+' 个，'+esc(joint.name)+'。'+
    (joint.status==='candidate'?'具体数量、孔位、头型与螺杆尺寸均为显示候选。':
    '只有顶部四枚及齐平外观经使用者确认；孔距、螺纹和长度仍为候选。')+'</p></div>':'';
+ const refPhoto=platform==='A'?PHOTO_94_95_97.imageToParts:null;
+ const photoEvidenceBoltCount=[];
+ if(platform==='A'&&part.id==='A05'){
+   parts.get('A05')?.g.traverse(o=>{if(o.isMesh&&o.userData.photo94Fastener)photoEvidenceBoltCount.push(o)});
+ }
+ const photo94QAHtml=platform==='A'&&part.id==='A05'?
+   '<div class="field" id="photo-94-mechanics" data-folded="'+(!!parts.get('A05')?.g.userData.photo94BentSheet)+
+   '" data-top-fasteners="'+photoEvidenceBoltCount.length+
+   '"><b>94号实物照片装配检查</b><p>单片L形折弯金属板；顶面照片可见两颗紧固件，模型已绘制 '+
+   photoEvidenceBoltCount.length+' 个候选螺钉头。照片未展示的下端玻片夹不可据此指定型号。</p></div>':'';
  const selectedScenePart=parts.get(part.id)?.g;
  const xzDatums=selectedScenePart?.userData.crossClampDatums;
  const jawDatums=selectedScenePart?.userData.gcmJawDatums;
@@ -725,7 +735,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+axisHtml+holderQAHtml+
+ hardwareHtml+axisHtml+holderQAHtml+photo94QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
