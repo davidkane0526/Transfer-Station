@@ -155,11 +155,15 @@ check(abs(bb.zlen-60)<.02 and abs(bb.xlen-30)<.02 and abs(bb.ylen-30)<.02,
 # Real boolean void checks: both holes must be open within the 60-mm body.
 phuc_x=-30
 upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,171.5),Vector(1,0,0))
-lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x,-15,138.5),Vector(0,1,0))
+lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,138.5),Vector(1,0,0))
 check(phuc.intersect(upper_bore).Volume()<1e-4,'PHUC-1 upper Ø12 bore is real')
 check(phuc.intersect(lower_bore).Volume()<1e-4,'PHUC-1 lower Ø12 bore is real')
 check(abs(171.5-138.5-33)<.0001,
       'PHUC-1 manufacturer E33 bore-centre spacing')
+check(abs(second.BoundingBox().zmin+6-138.5)<.01,
+      'Lower rod center height follows photo149 and PHUC1 E=33')
+check(abs(long.BoundingBox().zmin+6-171.5)<.01,
+      'Upper rod center height follows photo149')
 check(phuc.intersect(long).Volume()<1e-4,
       'PHUC-1 upper shell must not penetrate Ø12 first rod')
 check(phuc.intersect(second).Volume()<1e-4,
@@ -171,12 +175,12 @@ check(square.intersect(long).Volume()<1e-4,
       'B33 actual Ø12 crossbar bore must not contain solid steel')
 check(support.intersect(long).Volume()<1e-5,
       'Support and first rod must remain separated by 15-mm nominal depth')
-check(terminal.intersect(long).Volume()<1e-4,
-      'B26 Ø12 socket must clear the first rod')
+check(terminal.intersect(second).Volume()<1e-4,
+      'B26 Ø12 socket must clear the second PHUC output rod')
 check(abs(terminal.BoundingBox().zmin-spine.BoundingBox().zmax)<.02,
       'Unverified B26 adapter at least meets B06 fixed-spine nominal datum')
-check(long.BoundingBox().xmax<82-17,
-      'First horizontal rod stops outside optical objective radius')
+check(long.BoundingBox().xmax<82-17 and second.BoundingBox().xmax<82-17,
+      'Both steel rods stop outside objective optical radius')
 check(long.BoundingBox().xmin<-70 and long.BoundingBox().xmax>30,
       'First candidate rod length spans its two clamp zones')
 check(not (B/'B06S3.step').exists(),
