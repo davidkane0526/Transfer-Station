@@ -286,6 +286,9 @@ assert(aProof.includes('双轴手柄 X:+X / Y:+Z'),'A15 second orthogonal microm
 assert(aProof.includes('94.jpg')&&aProof.includes('100.jpg'),'A actuator photo evidence missing');
 assert((await page.locator('#photo-scope-note').textContent()).includes('94/95/97'),
  'Physical photo comparison must identify the correct A rig, not B');
+// Keep candidate part selected for metadata, but hide the large cyan bounding
+// box in evidence comparison screenshots; the real stage remains fully visible.
+await page.locator('#toggle-dim').click();
 await page.locator('#btn-photo94').click();
 await selectBOM('A05');
 assert((await page.locator('#part-detail').textContent()).includes('L形薄金属折弯'),
@@ -307,6 +310,7 @@ assert((await page.locator('#part-detail').textContent()).includes('VC13M'),
  '97.jpg shows upright front-face VC13M micrometer, not B V25M');
 await page.waitForTimeout(350);
 await page.screenshot({path:'Transfer-Station-V26-Photo97-VC13M-A.png',fullPage:true});
+await page.locator('#toggle-dim').click();
 await page.locator('#btn-film-stack').click();
 await page.waitForTimeout(450);
 await page.screenshot({path:'Transfer-Station-Film-Stack-A.png',fullPage:true});
