@@ -626,6 +626,22 @@ function updateDetail(part){
  const hardwareHtml=joint?'<div class="field" id="selected-fastener-count" data-count="'+visibleHeadMeshes.length+'"><b>可见紧固件（非验收）</b><p>实际绘制 '+visibleHeadMeshes.length+' 个头部，图示位置 '+joint.count+' 个，'+esc(joint.name)+'。'+
    (joint.status==='candidate'?'具体数量、孔位、头型与螺杆尺寸均为显示候选。':
    '只有顶部四枚及齐平外观经使用者确认；孔距、螺纹和长度仍为候选。')+'</p></div>':'';
+ const selectedScenePart=parts.get(part.id)?.g;
+ const xzDatums=selectedScenePart?.userData.crossClampDatums;
+ const jawDatums=selectedScenePart?.userData.gcmJawDatums;
+ let realScrewAxes=0;
+ selectedScenePart?.traverse(o=>{if(o.isMesh&&o.userData.plateHolderActuator)realScrewAxes++});
+ const holderQAHtml=part.id==='B24'&&xzDatums?
+   '<div class="field" id="holder-geometric-qa" data-rod-clearance="'+xzDatums.rodSurfaceClearanceMm+
+   '"><b>PHCP-2 刚性孔轴检查</b><p>厂家 Ø12 × 2 通孔；当前两个接杆轴线错开 '+
+   xzDatums.boreSpacingMm+' mm，杆体表面净隙 '+xzDatums.rodSurfaceClearanceMm+
+   ' mm。此偏移是显示几何候选，不是原厂孔心坐标。</p></div>':
+   part.id==='B06'&&jawDatums?
+   '<div class="field" id="holder-geometric-qa" data-drive-count="'+realScrewAxes+
+   '" data-pressure-plate-count="'+jawDatums.independentMovingPlates+
+   '"><b>GCM-13 真实夹紧机构示意</b><p>已绘制 '+realScrewAxes+
+   ' 根调节螺杆驱动 1 块共用活动压板；当前夹口 '+jawDatums.nominalJawGapMm+
+   ' mm 及夹爪坐标均为候选，尚未按原厂实体尺寸验收。</p></div>':'';
  const axis=AXES[part.id];
  const axisHtml=axis?'<div class="field"><b>独立运动轴与驱动</b><p>线性轴 '+axis.linear+
    '，线性测微头 '+axis.micrometers+'；厂商轴 '+esc(axis.makerAxes.join('/'))+
@@ -640,7 +656,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+axisHtml+
+ hardwareHtml+axisHtml+holderQAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
