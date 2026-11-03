@@ -110,6 +110,22 @@ function sleeve(outerR,innerR,width,material,x=0,y=0,z=0,axis='x'){
  else if(axis!=='z')throw Error('Unsupported clamp socket direction '+axis);
  const mesh=mk(geo,material);mesh.position.set(x,y,z);return mesh;
 }
+// Rectangular photo95 bearing block with a TRUE Ø8.7 through-hole along X.
+// A solid cube traversed by a Ø8.6 steel rod was an actual mesh collision.
+// Local shape X maps to -scene Z, local shape Y to world Y after yaw 90°.
+function frontXRodBracket(width,height,depth,material,x,y,z,boreY,boreZ,boreRadius=4.35){
+ const shape=new THREE.Shape();
+ shape.moveTo(-depth/2,-height/2);
+ shape.lineTo(depth/2,-height/2);
+ shape.lineTo(depth/2,height/2);
+ shape.lineTo(-depth/2,height/2);
+ shape.closePath();
+ const h=new THREE.Path();h.absarc(-(boreZ-z),boreY-y,boreRadius,0,2*Math.PI,true);
+ shape.holes.push(h);
+ const geo=new THREE.ExtrudeGeometry(shape,{depth:width,bevelEnabled:false,steps:1,curveSegments:32});
+ geo.translate(0,0,-width/2);geo.rotateY(Math.PI/2);
+ const o=mk(geo,material);o.position.set(x,y,z);o.userData.trueThroughBore=true;return o;
+}
 function thumbKnob(parent,x,y,z,axis='z',r=5){
  const screw=add(parent,cyl(2.0,9,mats.steel,x,y,z,24));
  const knob=add(parent,cyl(r,5,mats.dark,x,y+(axis==='y'?7:0),z+(axis==='z'?7:0),36));
@@ -256,11 +272,21 @@ function filmB(){
  const gT25=parts.get('B03').g;
  const drive=photo95FrontDriveDatums();
  gT25.userData.photo95DriveDatums=drive;
- const frontShaft=add(gT25,cyl(4.3,drive.shaftLengthMm,mats.silver,drive.shaftCenterXmm,23.4,32.7,32));
+ const frontShaftY=23.4,frontShaftZ=drive.shaftCenterFrontZmm;
+ const frontShaft=add(gT25,cyl(drive.shaftRadiusMm,drive.shaftLengthMm,mats.silver,
+   drive.shaftCenterXmm,frontShaftY,frontShaftZ,32));
  frontShaft.rotation.z=Math.PI/2;
  frontShaft.userData.photo95FrontShaft=true;
- add(gT25,cub(drive.leftBracketWidthMm,13,10,mats.black,drive.leftBracketCenterXmm,22,33.3));
- add(gT25,cub(drive.rightBracketWidthMm,15,11,mats.black,drive.rightBracketCenterXmm,22,32.5));
+ // Two true-bore black bearing blocks support the shaft ends. Brackets
+ // overlap the stage face, while the shaft stays 1.7mm OUTSIDE its body.
+ const leftSupport=add(gT25,frontXRodBracket(
+   drive.leftBracketWidthMm,13,14,mats.black,drive.leftBracketCenterXmm,22,38,
+   frontShaftY,frontShaftZ));
+ const rightSupport=add(gT25,frontXRodBracket(
+   drive.rightBracketWidthMm,15,14,mats.black,drive.rightBracketCenterXmm,22,38,
+   frontShaftY,frontShaftZ));
+ leftSupport.userData.photo95FrontBearing=true;
+ rightSupport.userData.photo95FrontBearing=true;
  for(const x of [-21,-8,8,21]){
    const fastener=add(gT25,cyl(2,1.2,mats.steel,x,7.5,33.2,6));
    fastener.rotation.x=Math.PI/2;
@@ -268,6 +294,12 @@ function filmB(){
    fastener.userData.photo95FrontFastener=true;
    add(gT25,cyl(.85,.3,mats.ink,x,7.5,34.0,6)).rotation.x=Math.PI/2;
  }
+ // B03 front fittings are added after makeStageBlock() created its
+ // click-target list; register these meshes so front shaft and screws can
+ // actually be selected as part of B03 in the 3D viewer.
+ gT25.traverse(o=>{
+   if(o.isMesh&&!hitMeshes.includes(o)){o.userData.partId='B03';hitMeshes.push(o);}
+ });
  addPart('B30',ax,73,0,g=>{
    // Photo97 footprint has a much narrower upright body than the 65mm
    // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
