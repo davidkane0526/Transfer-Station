@@ -67,6 +67,7 @@ jobs:
             Transfer-Station-V24-Chuck-Screw-Heads.png
             Transfer-Station-V24-Optical-Left-Grip-B.png
             Transfer-Station-V25-Holder-Detail-B.png
+            Transfer-Station-V25-Holder-OEM-Closeup.png
             Transfer-Station-Preview-A.png
           if-no-files-found: ignore
       - name: Check whether Pages was enabled in repository settings
