@@ -52,16 +52,33 @@ hole_bottom=66.2;tip=66.7
 check(tip-hole_bottom>=.5-1e-4,'candidate fastener has 0.5 mm axial blind-hole clearance')
 # Photo149: formerly missing PHSH-style black 50mm sleeve, long
 # vertical post passing through it and the separate upper square clamp.
-v25_top=part(B,'B04B')[0].BoundingBox()
-arm_base=part(B,'B05')[0].BoundingBox()
+v25_fixed=part(B,'B04A')[0]
+v25_guide=part(B,'B04E')[0]
+v25_bridge=part(B,'B04B')[0]
+side_plate=part(B,'B05')[0]
+v25_top=v25_bridge.BoundingBox()
+arm_base=side_plate.BoundingBox()
 holder=part(B,'B34')[0]
 holderbb=holder.BoundingBox()
 post=part(B,'B27')[0]
 postbb=post.BoundingBox()
 squarebb=part(B,'B33')[0].BoundingBox()
-check(abs(v25_top.zmax-90)<.02,'B moving V25M SIDE flange ends 90mm beneath tall fixed guide')
-check(abs(arm_base.zmin-v25_top.zmax)<.02,'B05 plate must sit ON moving flange')
-check(abs(arm_base.zmax-holderbb.zmin)<.02,'B34 vertical holder sits ON B05 plate')
+check(v25_fixed.intersect(side_plate).Volume()<1e-4,
+      'B05 side-mounted plate cannot penetrate V25M STATIONARY 56mm upright')
+check(v25_guide.intersect(side_plate).Volume()<1e-4,
+      'B05 side-mounted plate cannot penetrate V25M moving guide')
+check(v25_bridge.intersect(side_plate).Volume()<1e-4 and
+      v25_fixed.intersect(v25_bridge).Volume()<1e-4 and
+      v25_guide.intersect(v25_bridge).Volume()<1e-4,
+      'B04/B05 moving carriage bridge has no volume penetration')
+check(abs(v25_bridge.BoundingBox().xmax-arm_base.xmin)<.02,
+      'V25M moving SIDE bridge meets B05 plate at its left X face')
+check(abs(v25_bridge.BoundingBox().ymin-v25_guide.BoundingBox().ymax)<.02,
+      'V25M moving SIDE bridge meets front guide at its +Y face')
+check(v25_bridge.BoundingBox().zmin<arm_base.zmax and
+      v25_bridge.BoundingBox().zmax>arm_base.zmin,
+      'Side bridge and B05 plate share nonzero mounting-face vertical span')
+check(abs(arm_base.zmax-holderbb.zmin)<.02,'B34 holder sits ON B05 plate')
 check(abs(holderbb.zlen-50)<.02,'PHSH2 50mm sleeve is a candidate but its CAD must be consistent')
 check(abs(postbb.zlen-100)<.02,'PHOTO149 rejects older 25mm post; 100mm installed-length candidate')
 check(abs(postbb.zmin-holderbb.zmin)<.02,'Support post inserted from sleeve bottom datum')
@@ -165,7 +182,7 @@ bb=phuc.BoundingBox()
 check(abs(bb.zlen-60)<.02 and abs(bb.xlen-30)<.02 and abs(bb.ylen-30)<.02,
       'Zolix PHUC-1 manufacturer A60 and BØ30 housing envelope')
 # Real boolean void checks: both holes must be open within the 60-mm body.
-phuc_x=-30
+phuc_x=-5
 upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,168),Vector(1,0,0))
 lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,135),Vector(1,0,0))
 check(phuc.intersect(upper_bore).Volume()<1e-4,'PHUC-1 upper Ø12 bore is real')
@@ -199,8 +216,8 @@ check(second.intersect(spine).Volume()<1e-4,
       'Full Ø12 lower rod must not penetrate solid plate-holder spine')
 check(long.BoundingBox().xmax<82-17 and second.BoundingBox().xmax<82-17,
       'Both steel rods stop outside objective optical radius')
-check(long.BoundingBox().xmin<-110 and long.BoundingBox().xmax<=-15+.02,
-      'First candidate rod connects B33 to PHUC but has NO invented long tail')
+check(abs(long.BoundingBox().xmin+75)<.02 and abs(long.BoundingBox().xmax-10)<.02,
+      'First rod crosses B33→PHUC without floating or extra metal tail')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
 # A's transfer beam, vertical support, edge clamp contact by boundary (not true fasteners).
