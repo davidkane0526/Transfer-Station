@@ -118,58 +118,64 @@ def make_b():
     add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,134.5),'P')
     add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,81))
     add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,81))
-    add('B','B04B','GCMV25M_top',box(65,66,8,ax,0,127))
+    add('B','B04B','GCMV25M_MOVING_output_flange_photo149',box(65,66,8,ax,0,97))
     # Photo 108: V25M micrometer is vertical, not an x-axis knob.
     add('B','B04C','vertical_micrometer_stem',vz(6.5,40,ax-24,0,102),'P')
     add('B','B04D','vertical_micrometer_knob',vz(9,17,ax-24,0,142),'P')
-    # ARCHIVE 108/109 CANDIDATE ONLY. No 85-mm riser, 249-mm rear
-    # return beam, suspended rod, or phantom rear hanger. These were
-    # disproved by the user's photographs and removed from the web viewer.
-    # CAD XY ground-plane corresponds to web X/Z; CAD Z is vertical.
-    add('B','B05D','V25M_mount_6mm_CANDIDATE',
-        box(65,66,6,ax,0,135))
-    # PHPB-1-like post base: Ø12 shallow seat and separate Ø6.1
-    # bottom bore. Body/seat depths are explicitly UNVERIFIED.
-    foot=vz(18,6,ax+14,-15,141)
-    foot=foot.cut(vz(3.05,6,ax+14,-15,141))
-    foot=foot.cut(vz(6.05,3,ax+14,-15,144))
-    add('B','B05','post_foot_PHPB1_approx_not_verified',foot,'C')
-    add('B','B27','vertical_post_O12x25_PHSP12_1_CANDIDATE',
-        vz(6,25,ax+14,-15,144),'C')
-    # PHOTO149: a small UNKNOWN square connector captures a vertical
-    # Ø12 post and the first horizontal Ø12 bar. Its actual maker is
-    # unrecognized. Two REAL drilled candidate bores avoid interpenetration.
-    cube=box(28,31,30,ax+14,-7.5,155)
-    cube=cube.cut(vz(6.05,30,ax+14,-15,155))
-    cube=cube.cut(vx(6.05,28,ax,0,171.5))
-    add('B','B33','photo149_UNKNOWN_square_cross_clamp',cube,'C')
-    # PHOTO149/150 + OEM: PHUC-1 universal swivel clamp, NOT PHCP-2.
-    # Maker A=60mm, B=Ø30mm, 2 Ø12 bores with E=33mm center pitch.
-    # Current photographic pose has parallel rod projections, not forced 90°.
+    # B ruler photo149: upper MOVABLE V25M output flange is below
+    # the top of the stationary upright shell. The source images show
+    # a flat black 65x66mm mount followed by a distinct 50mm CYLINDRICAL
+    # holder and a ~100mm steel post. Neither exact post/holder model
+    # is identified from an engraved label.
+    plate_z=105;plate_h=6
+    holder_z=plate_z+plate_h
+    post_len=100;holder_len=50
+    upper_rod_z=190;lower_rod_z=157
+    assert upper_rod_z-lower_rod_z==33  # PHUC-1 OEM E
+    add('B','B05','photo149_V25M_flat_top_mount_PROXY',
+        box(65,66,plate_h,ax,0,plate_z),'C')
+    # Photo149: missing black post sleeve. PHSH-2=50mm is a catalogue
+    # candidate, not a photo-identified exact model. True Ø12.16 bore.
+    sleeve=vz(10,holder_len,ax+14,-15,holder_z)
+    sleeve=sleeve.cut(vz(6.08,holder_len,ax+14,-15,holder_z))
+    add('B','B34','photo149_black_sleeve_PHSH2_50mm_candidate',sleeve,'C')
+    # The old PHSP12-1 25mm post cannot pass through BOTH the ~50mm
+    # sleeve and the distinct upper square clamp. Try OEM 100mm size;
+    # end thread and installed insertion depth remain photo candidates.
+    add('B','B27','photo149_vertical_O12x100_PHSP12-4_candidate',
+        vz(6,post_len,ax+14,-15,holder_z),'C')
+    # Separate, currently unidentified, little BLACK SQUARE clamp.
+    # Both bores cut THROUGH the actual box so two steel rods do not
+    # occupy unrelieved solid wall. X transverse vs vertical Z.
+    cube=box(28,30,30,ax+14,-7.5,upper_rod_z-15)
+    cube=cube.cut(vz(6.05,30,ax+14,-15,upper_rod_z-15))
+    cube=cube.cut(vx(6.05,28,ax,0,upper_rod_z))
+    add('B','B33','photo149_unknown_square_cross_clamp_two_real_bores',cube,'C')
+    # Zolix PHUC-1 OEM: 60mm long × Ø30 outer envelope, two
+    # Ø12 through bores, center spacing=33mm. Both physical rods
+    # appear HORIZONTAL from the same photo149 side view.
     phuc_x=-30
-    phuc=vz(15,60,phuc_x,0,125)
-    phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,171.5))
-    phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,138.5))
-    groove=vz(15.1,1,phuc_x,0,154.5).cut(vz(13,1,phuc_x,0,154.5))
+    phuc=vz(15,60,phuc_x,0,143.5)
+    phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,upper_rod_z))
+    phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,lower_rod_z))
+    groove=vz(15.1,1,phuc_x,0,173.5).cut(vz(13,1,phuc_x,0,173.5))
     phuc=phuc.cut(groove)
-    add('B','B24','Zolix_PHUC1_OEM_A60_B30_C12_D12_E33_photo149',phuc,'D')
-    # The FIRST rod ties the unknown B33 connector to PHUC upper bore
-    # and continues toward B26. Its specific PHSP subtype is still unknown.
-    add('B','B25','first_O12x150_post_LENGTH_CANDIDATE',
-        vx(6,150,ax+2,0,171.5),'C')
-    # PHUC lower bore holds a SECOND independently selectable post.
-    # The photographed two rods are horizontally parallel in frame 149.
-    # 82mm output length remains a candidate; no forced 90-degree swivel.
-    add('B','B28','second_O12x82_post_LENGTH_CANDIDATE',
-        vx(6,82,phuc_x,0,138.5),'C')
+    add('B','B24','Zolix_PHUC1_OEM_A60_B30_2X12_E33_photo149',phuc,'D')
+    # Candidate first/second Ø12 rods. PHUC's 33mm pitch and the
+    # TWO independently supported bars are preserved. Rod lengths
+    # and end coupling remain an engineering-fit hypothesis.
+    add('B','B25','first_O12x150_PHSP12-5_LENGTH_CANDIDATE',
+        vx(6,150,ax+2,0,upper_rod_z),'C')
+    add('B','B28','second_O12x82_LENGTH_CANDIDATE',
+        vx(6,82,phuc_x,0,lower_rod_z),'C')
     clamp_x=cx-42
-    # B26 is still an UNIDENTIFIED interface. Keep its top below the
-    # first rod, its bottom touching B06 at z=119, without false threads.
-    socket=vx(13,16,clamp_x-8,0,138.5)
-    stem=box(20,20,13,clamp_x,0,119)
+    # B26 is still an UNIDENTIFIED adapter, included only as a
+    # mated-face proxy between rod2 socket and B06 top. No thread SKU.
+    socket=vx(13,16,clamp_x-8,0,lower_rod_z)
+    stem=box(20,20,27,clamp_x,0,119)
     terminal=socket.fuse(stem)
-    terminal=terminal.cut(vx(6.05,16,clamp_x-8,0,138.5))
-    add('B','B26','unidentified_terminal_adapter_socket_CANDIDATE',
+    terminal=terminal.cut(vx(6.05,16,clamp_x-8,0,lower_rod_z))
+    add('B','B26','unidentified_terminal_adapter_CANDIDATE',
         terminal,'C')
     # Daheng GCM-13 mechanics: TWO adjusters push ONE moving plate.
     # 1mm glass thickness and the pressure-plate coordinates below
