@@ -935,6 +935,28 @@ renderer.domElement.addEventListener('pointerup',ev=>{
    if(cur?.userData.partId){selectPart(cur.userData.partId);found=true;break;}}
  if(!found)selectPart(null);
 });
+function updatePhotoScope(){
+ const scope=getPhotoComparison(platform);
+ const node=$('photo-scope-note');
+ node.dataset.refRig='A';
+ node.textContent=platform==='A'?
+  '当前 A：实物照片94/95/97明确对应 A15 GCM-T25M、A03 GCM-VC13M、A04 GCM-G40M60L 与 A05 薄L型连接板。尚未看清的末端夹具不冒充已识别产品。':
+  '当前 B：所上传94/95/97三张照片并不是本页 B 套的零件证据。B 的 GCM-V25M、PHCP-2 等候选不得通过A照片验收；应与108/109/110等B证据分别比较。';
+ $('btn-photo947').textContent=platform==='A'?'照片94/95/97对应的就是当前A装配':'切换到照片94/95/97对应的A装配';
+}
+function focusPhoto947(photo='94'){
+ if(platform!=='A')switchPlatform('A');
+ const x=CONFIG.A.armX;
+ // Photo94: G40 tilt head and bent bracket; photo95: lower dual stage;
+ // photo97: front central VC13 micrometer. All are the SAME A arm.
+ const y=photo==='94'?113:photo==='95'?48:80;
+ const src=photo==='94'?new THREE.Vector3(x+105,y+62,156):
+   photo==='95'?new THREE.Vector3(x+85,y+40,165):
+   new THREE.Vector3(x+45,y+32,179);
+ const target=new THREE.Vector3(x,y,0);
+ camera.position.copy(src);orbit.target.copy(target);camera.lookAt(target);orbit.update();
+}
+
 function switchPlatform(next){
   clearCadFeatureCandidates();
   platform=next;
@@ -947,10 +969,14 @@ function switchPlatform(next){
   // Both A and B have photo-confirmed film-side T25M. Actual travel use remains candidate.
   $('translate').disabled=false;
   $('translate').title=next==='A'?'A15: 照片95/97证明存在载玻片侧 T25M':'B03: 照片108/109证明存在磁座上T25M';
-  resetScene();
+  resetScene();updatePhotoScope();
 }
 $('show-b').onclick=()=>switchPlatform('B');
 $('show-a').onclick=()=>switchPlatform('A');
+$('btn-photo947').onclick=()=>focusPhoto947('94');
+$('btn-photo94').onclick=()=>focusPhoto947('94');
+$('btn-photo95').onclick=()=>focusPhoto947('95');
+$('btn-photo97').onclick=()=>focusPhoto947('97');
 function focusMechanicalBranch(which){
  const x=which==='film'?(platform==='B'?CONFIG.B.armX:CONFIG.A.armX):(platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX);
  const y=which==='film'?85:79;
@@ -1276,4 +1302,4 @@ function resize(){
  camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);labelRenderer.setSize(w,h);
 }
 window.addEventListener('resize',resize);new ResizeObserver(resize).observe(host);
-resetScene();resize();renderer.setAnimationLoop(()=>{orbit.update();renderer.render(scene,camera);labelRenderer.render(scene,camera)});
+resetScene();updatePhotoScope();resize();renderer.setAnimationLoop(()=>{orbit.update();renderer.render(scene,camera);labelRenderer.render(scene,camera)});
