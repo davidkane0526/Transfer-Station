@@ -11,7 +11,7 @@ assert.deepEqual(PHOTO_94_95_97.stageIds,STACKS.A.film.slice(0,4));
 assert.deepEqual(PHOTO_94_95_97.g40.nominalPlateMm,[40,40]);
 assert.equal(PHOTO_94_95_97.g40.nominalHeightMm,20);
 assert.equal(PHOTO_94_95_97.g40.centerOfRotationHeightMm,60);
-assert.deepEqual(PHOTO_94_95_97.vc13m.topSizeMm,[45,45]);
+assert.deepEqual(PHOTO_94_95_97.vc13m.topSizeMm,[65,65]);
 assert.equal(HANDLES.A15.handles,2);
 assert.equal(HANDLES.A04.direction,'+X');
 assert.equal(HANDLES.A03.direction,'+Y');
