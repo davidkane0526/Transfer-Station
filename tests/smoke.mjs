@@ -13,8 +13,10 @@ await page.waitForSelector('#viewer canvas',{timeout:30000});
 await page.waitForTimeout(2300);
 // USER CURRENT PHOTOGRAPHS: B default is the photo-matched stage chain,
 // NOT the old speculative PHCP/PHSP metal bar.
-assert((await page.locator('#platform-caption').textContent()).includes('本次94/95/97实物对照'),
- 'The B default has not changed from the incorrect old PHCP beam');
+assert((await page.locator('#platform-caption').textContent()).includes('94/95/97载玻片侧复原中（总装未闭合）'),
+ 'The B default must be the current PHOTO profile, clearly marked incomplete');
+assert((await page.locator('#b-physical-audit').textContent()).includes('缺少已识别玻片夹'),
+ 'B missing load-path must be explicitly visible in the UI');
 assert((await page.locator('#photo-ledger').textContent()).includes('GCM-VC13M'));
 assert((await page.locator('#photo-ledger').textContent()).includes('GCM-G40M60L'));
 assert((await page.locator('#photo-ledger').textContent()).includes('B29'),
