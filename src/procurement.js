@@ -25,7 +25,7 @@ const base={
     alternatives:[['Daheng','GCM-G40M40L虽为40×40×20mm但旋转中心R40、行程±7°，不是G40M60L','https://m.rympo.com/h-pd-3809.html']],
     note:'照片94可见GCM-G40M60L铭牌、右侧测微螺杆与上方L片。厂家参数40×40×20mm、R60、±5°。未获取完整G40M60L原生CAD，滑台侧面凹槽与螺丝位置仍为外观代理。'},
   B32:{qty:1,category:'自制折弯连接件',material:'黑色表面处理薄金属板，具体牌号/厚度待测',
-    alternatives:[['本地机加工','按实物测量折弯半径、板厚、螺纹方向和两孔中心距后定制','https://www.thorlabs.com/']],
+    alternatives:[], // no verified shop/quote; do not point a local custom plate to Thorlabs
     note:'94号实物照片明确只有一片L型薄板以及顶面两枚可见紧固件，绝非150mm圆杆。当前顶板80×12、板厚2.5、左折边72mm均为候选轮廓，不能据此下加工单。夹具下端连接未知。'},
   B24:{qty:1,category:'交叉杆夹（型号候选）',material:'黑色阳极氧化铝；锁紧结构',
     drawing:'https://www.zolix.com.cn/en/filespath/images/20220530094452.png',
