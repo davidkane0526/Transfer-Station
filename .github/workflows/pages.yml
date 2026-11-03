@@ -67,6 +67,7 @@ jobs:
           name: Transfer-Station-Preview
           path: |
             Transfer-Station-ModelB-Full-Assembly.png
+            Transfer-Station-ModelA-5306M-Base.png
             Transfer-Station-Preview-B.png
             Transfer-Station-V27-User-Photo-B-Overview.png
             Transfer-Station-V27-User-Photo94-Closeup-B.png
