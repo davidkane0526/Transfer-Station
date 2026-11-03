@@ -38,6 +38,8 @@ jobs:
           node tests/holder-mechanics.mjs
           node --check src/dimension-evidence.js
           node tests/dimension-evidence.mjs
+          node --check src/b-photo149-geometry.js
+          node tests/b-photo149-geometry.mjs
           node --check src/b-physical-audit.js
           node tests/b-profile-audit.mjs
           node --check src/interface-evidence.js
@@ -67,6 +69,7 @@ jobs:
           name: Transfer-Station-Preview
           path: |
             Transfer-Station-ModelB-Full-Assembly.png
+            Transfer-Station-V29-B-Post-Sleeve-Closeup.png
             Transfer-Station-ModelA-5306M-Base.png
             Transfer-Station-Preview-B.png
             Transfer-Station-V27-User-Photo-B-Overview.png
