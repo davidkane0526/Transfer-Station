@@ -95,6 +95,8 @@ assert((await page.locator('#part-detail').textContent()).includes('PHCP-2'),
  'The source-identified Zolix swivel post clamp must be separately selectable');
 assert(await page.locator('#selected-source-links a').count()>=1,
  'Zolix PHCP-2 manufacturer source not exposed');
+assert((await page.locator('#holder-geometric-qa').getAttribute('data-rod-clearance'))==='3',
+ 'PHCP swivel Ø12 rods physically overlap or datum gap is not exposed');
 await selectBOM('B25');
 assert((await page.locator('#part-detail').textContent()).includes('PHSP12-5'),
  'The OEM Ø12 x 150mm rod has no independent 3D part');
@@ -107,6 +109,11 @@ assert((await page.locator('#part-detail').textContent()).includes('待确认'),
 await selectBOM('B06');
 assert((await page.locator('#part-detail').textContent()).includes('GCM-1302M'),
  'The Daheng candidate plate-holder model is missing');
+assert((await page.locator('#holder-geometric-qa').getAttribute('data-drive-count'))==='2',
+ 'GCM-13 must contain two actual 3D adjustment screw drives');
+assert((await page.locator('#holder-geometric-qa').getAttribute('data-pressure-plate-count'))==='1',
+ 'Two GCM screws must drive one shared moving pressure plate');
+
 await page.locator('#btn-film-stack').click();
 await page.waitForTimeout(400);
 await page.screenshot({path:'Transfer-Station-V25-Holder-Detail-B.png',fullPage:true});
