@@ -20,9 +20,12 @@ try{
  const rect=await page.locator('#viewer canvas').boundingBox();
  assert(rect && rect.width>=400 && rect.height>=400,'3D canvas is missing or collapsed');
  for(const category of ['base','film','sample','heat','microscope','vacuum','external']){
-   assert.equal(await page.locator('#group-list input[data-group="'+category+'"]').count(),1,
-    'Model B scene is missing group '+category);
+   const toggle=page.locator('#group-list input[data-group="'+category+'"]');
+   assert.equal(await toggle.count(),1,'Model B scene is missing group '+category);
+   assert.equal(await toggle.isChecked(),true,
+      'Full model B must show restored '+category+' subgroup by default');
  }
+ assert.match(await page.locator('#photo-ledger').innerText(),/B07/);
  assert.match(await page.locator('#photo-ledger').innerText(),/B08/);
  assert.match(await page.locator('#photo-ledger').innerText(),/B09/);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
