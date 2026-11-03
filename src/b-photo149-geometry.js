@@ -48,7 +48,7 @@ export function auditB149(d=B149){
    throw Error('PHUC-1 33mm hole centre pitch or rod axes mismatch');
  if(d.phucLengthMm!==60||d.phucOuterDiameterMm!==30)
    throw Error('PHUC OEM envelope mismatch');
- if(!(d.upperRodStartX < d.postAxisX-12 && upperRodEndX>=d.phucCenterX+15))
+ if(!(d.upperRodStartX < d.postAxisX-12 && Math.abs(upperRodEndX-(d.phucCenterX+15))<.01))
    throw Error('Upper rod must reach from B33 into PHUC-1 without unsupported extra 150mm tail');
  // The plate holder is yawed 180°, so its spine's OUTER left face is X24.5.
  if(!(d.lowerRodStartX<d.phucCenterX-15 &&
