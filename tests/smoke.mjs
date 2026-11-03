@@ -75,8 +75,8 @@ await page.screenshot({path:'Transfer-Station-V27-User-Photo95-T25M-B.png',fullP
 // The original B/108/109 alternate remains available for historical
 // comparison, but must not be confused with the user-specified B default.
 await page.locator('#btn-b-archive').click();
-assert((await page.locator('#platform-caption').textContent()).includes('108/109旧方案候选'),
- 'Archived B profile caption must remain clearly marked as a distinct candidate');
+assert((await page.locator('#platform-caption').textContent()).includes('108/109玻片臂候选'),
+ 'Archived B profile must display full system with separate 108/109 film-arm candidate');
 await page.locator('#open-bom').click();
 const archiveRows=await page.locator('#bom-body tr').allTextContents();
 assert(archiveRows.some(t=>t.includes('B02'))&&archiveRows.some(t=>t.includes('B24')),
