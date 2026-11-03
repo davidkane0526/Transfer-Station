@@ -11,6 +11,27 @@ page.on('response',r=>{if(r.status()>=400&&!/favicon\.ico/.test(r.url()))fatal.p
 await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
 await page.waitForSelector('#viewer canvas',{timeout:30000});
 await page.waitForTimeout(2300);
+// USER CURRENT PHOTOGRAPHS: B default is the photo-matched stage chain,
+// NOT the old speculative PHCP/PHSP metal bar.
+assert((await page.locator('#platform-caption').textContent()).includes('本次94/95/97实物对照'),
+ 'The B default has not changed from the incorrect old PHCP beam');
+assert((await page.locator('#photo-ledger').textContent()).includes('GCM-VC13M'));
+assert((await page.locator('#photo-ledger').textContent()).includes('GCM-G40M60L'));
+await page.locator('#btn-photo94').click();
+await page.locator('#open-bom').click();
+await page.locator('#bom-query').fill('B32');
+await page.locator('#bom-body tr').filter({hasText:'B32'}).click();
+assert((await page.locator('#photo-94-mechanics').getAttribute('data-folded'))==='true',
+ 'The B photographic L sheet was not rendered');
+assert((await page.locator('#photo-94-mechanics').getAttribute('data-top-fasteners'))==='2',
+ 'The B photographic L sheet must show TWO actual top bolt heads');
+await page.screenshot({path:'Transfer-Station-V27-User-Photos-B.png',fullPage:true});
+// The original B/108/109 alternate remains available for historical
+// comparison, but must not be confused with the user-specified B default.
+await page.locator('#btn-b-archive').click();
+assert((await page.locator('#platform-caption').textContent()).includes('旧108/109候选'));
+assert(!(await page.locator('#photo-ledger').textContent()).includes('B32'),
+ 'Archived B must not silently blend in photographic G40 hardware');
 assert(!(await page.locator('.css2d').count()),'never create floating labels outside selection');
 const labelCount=await page.evaluate(()=>[...document.querySelectorAll('.dimension-bubble')].filter(x=>x.offsetParent!==null).length);
 assert(labelCount===0,'selected dimensions must not show before selection');
