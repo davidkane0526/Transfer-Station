@@ -4,7 +4,7 @@
 // For uncertain mounting sides, dimensions are still proxies.
 export const STACKS={
   B:{
-    film:['B02','B03','B04','B05','B27','B33','B25','B24','B28','B26','B06','B07'],
+    film:['B02','B03','B04','B05','B34','B27','B33','B25','B24','B28','B26','B06','B07'],
     sample:['B08','B09','B10','B11'],
     photo:['108.jpg','109.jpg','110.jpg','111.jpg','112.jpg','145.jpg','146.jpg','147.jpg','148.jpg','149.jpg','150.jpg','151.jpg'],
     confidence:'B02磁座→B03双轴T25M→B04升降台→B33方夹与杆→B24 PHUC-1万向杆夹（照片149可见铭牌）→B06 GCM-1302M夹板（照片150可见型号）；B08/NFP样品台由145–148支持。杆长度与实际装配角度未验收。'
