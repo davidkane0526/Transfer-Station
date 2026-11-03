@@ -31,7 +31,9 @@ try{
  // The default view alone can mask small missing mechanics: explicitly
  // focus on the film arm and capture a second mandatory detail screenshot.
  await page.locator('#btn-film-stack').click();
+ await page.evaluate(()=>window.scrollTo(0,0));
  await page.screenshot({path:'Transfer-Station-V29-B-Post-Sleeve-Closeup.png'});
+ await page.locator('#viewer').screenshot({path:'Transfer-Station-V29-B-Film-Viewer.png'});
  await page.locator('#btn-home').click();
  await page.locator('#open-bom').click();
  const rows=await page.locator('#bom-body tr').allTextContents();
@@ -49,6 +51,16 @@ try{
  await phuc.click();
  assert.match(await page.locator('#part-detail').innerText(),/PHUC-1/);
  assert.equal(await page.locator('#holder-geometric-qa').getAttribute('data-hole-spacing'),'33');
+ await page.locator('#bom-query').fill('B34');
+ const holder=page.locator('#bom-body tr').filter({hasText:'B34'});
+ assert.equal(await holder.count(),1,'Black photo149 sleeve must have its own BOM row');
+ await holder.click();
+ assert.match(await page.locator('#part-detail').innerText(),/PHSH-2/);
+ await page.locator('#bom-query').fill('B33');
+ const square=page.locator('#bom-body tr').filter({hasText:'B33'});
+ assert.equal(await square.count(),1,'Independent square clamp cannot disappear');
+ await square.click();
+ assert.match(await page.locator('#part-detail').innerText(),/方形夹块|方夹/);
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
  const evidenceA=await page.locator('#photo-ledger').innerText();
