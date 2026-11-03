@@ -168,8 +168,10 @@ def make_b():
         box(22,56,4,clamp_x+10,0,100.5),'C')
     add('B','B06M','GCM13_one_moving_pressure_plate_CANDIDATE',
         box(22,56,3.5,clamp_x+10,0,105.5),'C')
-    add('B','B06T','GCM13_common_top_drive_bridge_CANDIDATE',
-        box(24,56,5,clamp_x+6,0,119),'C')
+    bridge=box(24,56,5,clamp_x+6,0,119)
+    for yy in (-17,17):
+        bridge=bridge.cut(vz(1.75,5,clamp_x+10,yy,119))
+    add('B','B06T','GCM13_bridge_with_2_bores_CANDIDATE',bridge,'C')
     for i,yy in enumerate((-17,17),1):
         add('B',f'B06S{i}',
             'GCM13_one_of_two_pressure_screws_PROXY',
@@ -235,10 +237,13 @@ def make_b_photo94():
     add(sys,'B30','GCM_VC13M_PHOTO_PROFILE_PROXY',upright,'C')
     # Keep a visible front-mounted vertical microdrive, not a
     # floating object through the G40 base.
+    # Outer micrometer placement remains an envelope candidate.
+    # Keep its drum completely OUTSIDE the 65mm upper flange rather
+    # than allowing it to penetrate the solid G40 mounting plane.
     add(sys,'B30M','VC13M_vertical_micrometer_PROXY',
-        vz(4,27,ax,25,89),'C')
+        vz(4,27,ax,39.5,89),'C')
     add(sys,'B30K','VC13M_micrometer_drum_PROXY',
-        vz(6.8,18,ax,25,103),'C')
+        vz(6.8,18,ax,39.5,103),'C')
     add(sys,'B31','GCM_G40M60L_40x40x20_ENVELOPE',
         box(40,40,20,ax,0,124),'C')
     add(sys,'B31M','G40_right_micrometer_PROXY',
