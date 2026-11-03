@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {B149,auditB149} from '../src/b-photo149-geometry.js';
+const a=auditB149();
+assert.equal(a.postTopY,211);
+assert.equal(a.holderTopY,161);
+assert.equal(a.holderToSquareGapMm,14);
+assert.equal(a.exposedPostAboveHolderMm,50);
+assert.equal(a.upperRodY-a.lowerRodY,33);
+assert.equal(a.exactSleeveSkuConfirmed,false);
+assert.equal(a.realVerticalRegistrationAccepted,false);
+assert.throws(()=>auditB149({...B149,postHolderHeightMm:80}),/cannot cross square/);
+assert.throws(()=>auditB149({...B149,lowerRodY:160}),/PHUC/);
+assert.throws(()=>auditB149({...B149,supportPostLengthMm:25}),/cannot cross square/);
+console.log('B photo149: post/holder/square clamp axis, upper/lower PHUC 33mm pitch PASS');
