@@ -791,10 +791,12 @@ function renderPhotoLedger(){
  const host=$('photo-ledger');if(!host)return;host.replaceChildren();
  const stack=STACKS[platform];
  const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32']:stack.film;
+ const sampleIds=platform==='B'&&bPhoto94Mode?[]:stack.sample;
  const note=document.createElement('p');note.textContent=platform==='B'&&bPhoto94Mode?'照片94/95/97新结构：T25M→VC13M→G40M60L→L片；下方B29底座只辨认出轮廓，不能套用另一档案的磁吸底座型号。':stack.confidence;host.append(note);
- for(const [side,ids] of Object.entries({film:filmIds,sample:stack.sample})){
+ for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds})){
    const heading=document.createElement('div');heading.className='key';
-   heading.textContent=side==='film'?'载玻片侧（从下至上）':'样品侧（从下至上）';
+   heading.textContent=side==='film'?'载玻片侧（从下至上）':
+     sampleIds.length?'样品侧（从下至上）':'样品侧（尚未确认属于同机，暂不显示）';
    host.append(heading);
    const list=document.createElement('div');list.className='list';
    for(const id of ids){
@@ -830,7 +832,7 @@ function contextualPart(p){
 function activeParts(){
  if(platform!=='B')return PARTS[platform];
  const hidden=bPhoto94Mode?
-  new Set(['B02','B04','B05','B06','B07','B24','B25','B26','B27']):
+  new Set(PARTS.B.filter(p=>!['B01','B29','B03','B30','B31','B32'].includes(p.id)).map(p=>p.id)):
   new Set(['B29','B30','B31','B32']);
  return PARTS.B.filter(p=>!hidden.has(p.id)).map(contextualPart);
 }
@@ -988,12 +990,21 @@ function resetScene(){
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
  parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
  $('restore-cad').disabled=true;
- $('sample-move').disabled=false;
+ const photoOnly=platform==='B'&&bPhoto94Mode;
+ $('sample-move').disabled=photoOnly;
+ $('rotate-sample').disabled=photoOnly;
+ $('btn-sample-stack').disabled=photoOnly;
  $('cad-motion-note').hidden=true;
  $('import-status').textContent='选中零件后可导入本地 STL / GLB；导入仅验证外观，接口仍需核实。';
  scene.remove(currentRoot);currentRoot=new THREE.Group();scene.add(currentRoot);
  makeBoard();
- if(platform==='B'){filmB();rotaryB();microscopeB();externalB();}
+ if(platform==='B'){
+   filmB();
+   // The 94/95/97 images identify ONLY this film-side stack.
+   // Old sample/microscope modules B08+ are from unrelated photo records:
+   // drawing them here would silently present a fictional mixed machine.
+   if(!photoOnly){rotaryB();microscopeB();externalB();}
+ }
  else platformA();
  addAxis();axisObjects.forEach(a=>a.visible=showAxes);
  // Add detailed photo-informed finish, engraved markings, micrometer scales,
@@ -1007,7 +1018,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?'平台 B · 94/95/97载玻片侧复原中（总装未闭合）':'平台 B · 108/109旧方案候选（未实物验收）'):'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  bPhoto94Mode?'本次实拍B对照配置：底层T25M两正交轴 → VC13M前置竖直测微头 → G40M60L右侧微分头 → 两螺钉固定的窄L折弯片。旧编号把照片94/95/97归档A，用户新指示用于纠正B，样品NFP与这些照片是否同一整机仍未物理确认。':'旧108/109候选配置：B02磁座→B03双轴T25M→B04 V25M→PHCP长杆，此路径尚未根据B原始实物复核，不可据此采购。':
+  bPhoto94Mode?'当前仅渲染94/95/97可对照的B载玻片侧：底座候选 → T25M双轴 → VC13M竖直台 → G40M60L摆角台 → 薄L片。B08之后的NFP样品侧、显微镜和外设属于独立照片记录，无法证明同一物理机台，已从本装配和BOM中隔离。玻片夹端未被实拍确认，总装暂不完整。':'旧108/109候选配置：B02磁座→B03双轴T25M→B04 V25M→PHCP长杆，此路径尚未根据B原始实物复核，不可据此采购。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
