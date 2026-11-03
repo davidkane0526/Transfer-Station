@@ -52,6 +52,8 @@ export function filmCantileverB({
    throw new Error('Glass clamp body crosses objective optical keep-out');
  const rodCenterY=20,rodStartX=12,rodEndX=xReach;
  const rodLength=rodEndX-rodStartX;
+ const oemRodLengthMm=150,hiddenInsertionMm=oemRodLengthMm-rodLength;
+ if(hiddenInsertionMm<0||hiddenInsertionMm>25)throw new Error('OEM PHSP12-5 rod length is incompatible with selected span');
  const terminalBottomLocalY=clampTopY-baseY;
  const terminalHeight=rodCenterY-terminalBottomLocalY;
  if(terminalHeight<=0)throw new Error('Cantilever terminal must meet top of slide clamp');
