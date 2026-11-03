@@ -26,6 +26,7 @@ jobs:
           node tests/kinematics.mjs
           node tests/photo-assembly.mjs
           node --check src/photo-947-assembly.js
+          node --check tests/photo-947-assembly.mjs
           node tests/photo-947-assembly.mjs
           node --check src/assembly-qa.js
           node --check src/details.js
