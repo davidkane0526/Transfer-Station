@@ -693,7 +693,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   // Spine right-side face and the jaw/pressure plate only TOUCH.
   // V30 fixed width=17mm penetrated B06F by 70mm³ and B06M by
   // 490mm³; shrink from 17 to 14.5 without shifting the M6 side face.
-  const spine=add(g,frontXRodBracket(14.5,15,56,mats.dark,8.25,-10,0,
+  const spine=add(g,frontXRodBracket(14.5,18.5,56,mats.dark,8.25,-11.75,0,
      sideBoreY,0,rack.threadStubDiameterMm/2+.06));
   spine.userData.trueM6SideHole=true;
   add(g,cub(24,5,56,mats.black,-6,-.2,0)); // shared upper screw bridge
