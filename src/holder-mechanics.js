@@ -14,6 +14,22 @@ export const HOLDER_OEM={
   gcmMaximumOpticThicknessMm:5,
   gcmScrewDriveCount:2
 };
+export function getPostBaseDatums({
+ outerDiameterMm=36,mountBoreDiameterMm=6.1,seatDiameterMm=12.1,
+ heightMm=6,seatDepthMm=3
+}={}){
+ // PHPB-1 OEM confirms an M6 TH (through) interface and Ø12-mm
+ // post-base family. The actual seating depth and fitting diameters
+ // below remain preview placeholders rather than an OEM bore drawing.
+ if(mountBoreDiameterMm>=seatDiameterMm||seatDiameterMm>=outerDiameterMm)
+   throw new Error('Post base must distinguish M6 mounting through-hole from larger post seat');
+ if(seatDepthMm<=0||seatDepthMm>=heightMm)
+   throw new Error('Post-base upper seat must not become a full Ø12 through-hole');
+ return {outerDiameterMm,mountBoreDiameterMm,seatDiameterMm,
+  heightMm,seatDepthMm,lowerThroughLengthMm:heightMm-seatDepthMm,
+  verifiedThroughType:'M6 TH',manufacturer:'Zolix PHPB-1',
+  seatDepthVerified:false,physicalEngagementVerified:false};
+}
 export function getCrossClampDatums({
   supportPostZmm=-15,horizontalPostZmm=0,postRadiusMm=6,
   ringOuterRadiiMm=[12.5,13],minimumRodSurfaceGapMm=2
