@@ -388,6 +388,25 @@ function filmB(){
       -24,17,0);
  },{explode:[-13,65,0],moveFilm:true});
 
+   // Keep the slide/transfer film visible in the COMPLETE B layout.
+   // Photos 94/95/97 do not identify the missing jaw between B32 and B07.
+   // This is an explicitly detached, translucent TARGET-LOCATION REFERENCE,
+   // never a fabricated load-bearing connection.
+   addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
+     g.userData.connectionPending=true;
+     const previewGlass=new THREE.MeshPhysicalMaterial({
+       color:'#b6def3',transparent:true,opacity:.30,roughness:.1,
+       metalness:0,depthWrite:false,side:THREE.DoubleSide
+     });
+     const plate=add(g,cub(76,1,26,previewGlass,0,0,0));
+     plate.userData.unconnectedReference=true;
+     const membrane=add(g,cub(20,1.8,20,mats.ceramic,-5,-1.4,0));
+     membrane.material=new THREE.MeshStandardMaterial({
+       color:'#e6d7be',transparent:true,opacity:.55,depthWrite:false
+     });
+     membrane.userData.unconnectedReference=true;
+     label(g,'玻片/转移膜位置参考：B32至玻片夹接口缺失',0,18,0);
+   },{explode:[0,80,15]});
    return;
  }
 
@@ -823,12 +842,12 @@ function renderPhotoLedger(){
  const host=$('photo-ledger');if(!host)return;host.replaceChildren();
  const stack=STACKS[platform];
  const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32']:stack.film;
- const sampleIds=platform==='B'&&bPhoto94Mode?[]:stack.sample;
+ const sampleIds=stack.sample;
  const note=document.createElement('p');note.textContent=platform==='B'&&bPhoto94Mode?'照片94/95/97新结构：T25M→VC13M→G40M60L→L片；下方B29底座只辨认出轮廓，不能套用另一档案的磁吸底座型号。':stack.confidence;host.append(note);
  for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds})){
    const heading=document.createElement('div');heading.className='key';
    heading.textContent=side==='film'?'载玻片侧（从下至上）':
-     sampleIds.length?'样品侧（从下至上）':'样品侧（尚未确认属于同机，暂不显示）';
+     '样品侧（从下至上；与玻片侧接口待核验）';
    host.append(heading);
    const list=document.createElement('div');list.className='list';
    for(const id of ids){
@@ -844,7 +863,7 @@ function renderPhotoLedger(){
  }
  const m=document.createElement('div');m.className='marked-note';
  m.textContent=platform==='B'&&bPhoto94Mode?'用户要求的B新照片对照配置：GCM-T25M→GCM-VC13M→GCM-G40M60L→L型薄板；此前A/B照片归档冲突未解决，不能以此证明NFP样品侧同机。':platform==='B'?
-   'B02 GCM-420302M 必须直接接触面包板并位于 B03 T25M 下面；中部圆柱是 Zolix 夹持器，不是第二个磁吸底座。':
+   'B02 磁座在 B03 T25M 下方，B04为V25M。B08/B09样品侧、B16–B18显微镜及其余已知子系统均继续显示，不能因为切换玻片侧方案而删除。':
    'A15 与 A02 为两台不同 T25M：照片97所示 A15 在 VC13M 下；照片100所示 A02 在旋转台上。';
  host.append(m);
 }
@@ -864,8 +883,11 @@ function contextualPart(p){
 function activeParts(){
  if(platform!=='B')return PARTS[platform];
  const hidden=bPhoto94Mode?
-  new Set(PARTS.B.filter(p=>!['B01','B29','B03','B30','B31','B32'].includes(p.id)).map(p=>p.id)):
+  new Set(['B02','B04','B05','B06','B24','B25','B26','B27']):
   new Set(['B29','B30','B31','B32']);
+ // Never delete the sample stage, microscope, heater or peripherals when
+ // switching which photo-constrained FILM arm is shown. They are full-system
+ // layout candidates with explicit unverified cross-branch registration.
  return PARTS.B.filter(p=>!hidden.has(p.id)).map(contextualPart);
 }
 function populateGroups(){
@@ -1022,20 +1044,28 @@ function resetScene(){
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
  parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
  $('restore-cad').disabled=true;
- const photoOnly=platform==='B'&&bPhoto94Mode;
- $('sample-move').disabled=photoOnly;
- $('rotate-sample').disabled=photoOnly;
- $('btn-sample-stack').disabled=photoOnly;
+ $('sample-move').disabled=false;
+ $('rotate-sample').disabled=false;
+ $('btn-sample-stack').disabled=false;
  $('cad-motion-note').hidden=true;
  $('import-status').textContent='选中零件后可导入本地 STL / GLB；导入仅验证外观，接口仍需核实。';
  scene.remove(currentRoot);currentRoot=new THREE.Group();scene.add(currentRoot);
  makeBoard();
  if(platform==='B'){
    filmB();
-   // The 94/95/97 images identify ONLY this film-side stack.
-   // Old sample/microscope modules B08+ are from unrelated photo records:
-   // drawing them here would silently present a fictional mixed machine.
-   if(!photoOnly){rotaryB();microscopeB();externalB();}
+   // Preserve all known subassemblies in the FULL B viewer regardless
+   // of the chosen film-arm photo variant. Their relative placement
+   // remains a candidate until the cross-branch photos are registered.
+   rotaryB();
+   microscopeB();
+   externalB();
+   // Fail fast if a scene revision silently deletes a whole subsystem.
+   const required=['B01','B03','B07','B08','B09','B10','B11','B12',
+     'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23'];
+   if(bPhoto94Mode)required.push('B29','B30','B31','B32');
+   else required.push('B02','B04','B05','B06','B24','B25','B26','B27');
+   const missing=required.filter(id=>!parts.has(id));
+   if(missing.length)throw new Error('Model B missing required scene components: '+missing.join(', '));
  }
  else platformA();
  addAxis();axisObjects.forEach(a=>a.visible=showAxes);
@@ -1048,9 +1078,12 @@ function resetScene(){
  });
  holes.forEach(h=>h.visible=showHoles);selectedLabels();
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
- $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?'平台 B · 94/95/97载玻片侧复原中（总装未闭合）':'平台 B · 108/109旧方案候选（未实物验收）'):'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
+ $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
+   '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
+   '平台 B · 全系统布局 / 108/109玻片臂候选'):
+   '平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  bPhoto94Mode?'当前仅渲染94/95/97可对照的B载玻片侧：底座候选 → T25M双轴 → VC13M竖直台 → G40M60L摆角台 → 薄L片。B08之后的NFP样品侧、显微镜和外设属于独立照片记录，无法证明同一物理机台，已从本装配和BOM中隔离。玻片夹端未被实拍确认，总装暂不完整。':'旧108/109候选配置：B02磁座→B03双轴T25M→B04 V25M→PHCP长杆，此路径尚未根据B原始实物复核，不可据此采购。':
+  bPhoto94Mode?'B完整布局已恢复：玻片侧照片94/95/97对应B29→B03→B30→B31→B32；样品侧B08旋转台→B09 NFP→B10/B11/B12隔热与加热；B16/B17/B18显微镜、B15真空管、B19–B23外设均显示。B07玻片为透明位置参考，B32→B07的真实夹具/连接未识别。各照片组之间的相对位置尚未完成实物配准，不得作为制造总装。':'旧108/109候选配置：B02磁座→B03双轴T25M→B04 V25M→PHCP长杆，此路径尚未根据B原始实物复核，不可据此采购。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
@@ -1174,14 +1207,16 @@ function updatePhotoScope(){
  $('b-photo-profile').hidden=platform!=='B';
  $('btn-b-user-photos').classList.toggle('on',bPhoto94Mode);
  $('btn-b-archive').classList.toggle('on',!bPhoto94Mode);
- $('b-profile-note').textContent=bPhoto94Mode?'用户指定的B玻片侧照片构型：T25M→VC13M→G40M60L→薄L片。照片旧档案归A并不自动推翻用户的B归属，但没有证据证明末端玻片夹和B样品侧属于同一装配。':'旧108/109为另一独立候选：GCM-V25M与PHCP/PHSP圆杆链，杆夹与连接端型号仍未核验，不能混入本次照片构型。';
+ $('b-profile-note').textContent=bPhoto94Mode?
+   '全系统已显示。玻片侧采用94/95/97的T25M→VC13M→G40M60L→薄L片；样品侧、显微镜、加热/真空及外设仍显示为照片约束的独立子系统。跨分支位置与玻片夹接口尚未验证。':
+   '全系统已显示。载玻片侧切换为108/109的V25M与PHCP/PHSP杆夹候选；样品台、显微镜、加热/真空及外设不会被删除。';
  const critical=$('b-physical-audit');
  if(critical){
    critical.hidden=platform!=='B';
    if(platform==='B'&&bPhoto94Mode){
      const bracket=photo94BracketCandidate({stageCenterX:CONFIG.B.armX,stageTopY:144});
      const review=auditBPhotoProfile({stageCenterX:CONFIG.B.armX,sampleCenterX:CONFIG.B.sampleX,stageTopY:144,bracket});
-     critical.textContent='模型 B 未通过物理总装验收：B32 薄L片下端缺少已识别玻片夹；在当前候选坐标中薄片距样品中心至少 '+
+     critical.textContent='模型 B 全系统组件已恢复。照片94/95/97的B32薄L片至B07玻片缺少真实夹具连接；当前只是子系统布局，薄片距候选样品中心至少 '+
        review.horizontalGapMm.toFixed(1)+' mm，折边端相对候选玻片高度差 '+
        review.tipToGlassHeightMm.toFixed(1)+' mm。B样品侧与94/95/97是否同机未确认。这是必须解决的结构缺口，不得以装饰性杆件填补。';
    }else if(platform==='B'){
