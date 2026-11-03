@@ -99,11 +99,11 @@ export function getPlateHolderJawDatums({
 // WORLD Y values match the scene's non-exploded geometry. None of these
 // distances certifies an M6 thread, bolt pattern or plate-holder make.
 export function getTerminalAdapterDatums({
- socketCenterWorldYmm=138.5,
+ socketCenterWorldYmm=157,
  socketOuterRadiusMm=13,
  rodRadiusMm=6,
- adapterCenterLocalYmm=-13,
- adapterHeightMm=13,
+ adapterCenterLocalYmm=-24.5,
+ adapterHeightMm=27,
  holderBaseWorldYmm=121.5,
  fixedSpineCenterLocalYmm=-10,
  fixedSpineHeightMm=15
@@ -125,6 +125,6 @@ export function getTerminalAdapterDatums({
    adapterTopWorldYmm,spineTopWorldYmm,socketToStemOverlapMm,
    rodBottomWorldYmm,clearanceToRodMm,
    gapMm,physicalMatingVerified:false,
-   note:'Photo149 PHUC lower Ø12 output at scene height 138.5; stem meets GCM-13 spine nominally with 0.5mm steel rod clearance; no OEM thread verified'
+   note:'B149 photo-fit PHUC lower horizontal rod at Y157, 27mm terminal candidate contacts GCM-13 spine at Y119; no verified OEM threads'
  };
 }
