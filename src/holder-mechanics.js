@@ -52,7 +52,7 @@ export function getCrossClampDatums({
   };
 }
 export function getPlateHolderJawDatums({
-  holderBaseWorldYmm=121.5,slideCenterWorldYmm=105,
+  holderBaseWorldYmm=142,slideCenterWorldYmm=125.5,
   slideThicknessMm=1,nominalJawGapMm=1.5,
   jawLengthMm=22,jawHalfWidthZmm=28,screwZmm=[-17,17]
 }={}){
@@ -95,36 +95,32 @@ export function getPlateHolderJawDatums({
   };
 }
 
-// Terminal socket B26 must have a supported candidate mating face on B06.
-// WORLD Y values match the scene's non-exploded geometry. None of these
-// distances certifies an M6 thread, bolt pattern or plate-holder make.
-export function getTerminalAdapterDatums({
- socketCenterWorldYmm=157,
- socketOuterRadiusMm=13,
- rodRadiusMm=6,
- adapterCenterLocalYmm=-24.5,
- adapterHeightMm=27,
- holderBaseWorldYmm=121.5,
- fixedSpineCenterLocalYmm=-10,
- fixedSpineHeightMm=15
+// Direct B28 Ø12 bar-to-B06 GCM-1302M side-face interface per photos
+// 108 and 150. B26 now represents ONLY an unverified Ø6/M6 threaded
+// END STUD. The old 26mm black socket and 27mm hanging block did NOT
+// exist in the supplied photograph and must not return.
+export function getDirectSlideClampInterfaceDatums({
+  rodEndX=24.5,plateSpineFaceX=24.5,
+  lowerRodY=135,sideBoreY=135,
+  rodDiameterMm=12,studDiameterMm=6,studLengthMm=10,
+  spineLengthMm=17
 }={}){
- const adapterBottomWorldYmm=socketCenterWorldYmm+adapterCenterLocalYmm-adapterHeightMm/2;
- const adapterTopWorldYmm=socketCenterWorldYmm+adapterCenterLocalYmm+adapterHeightMm/2;
- const spineTopWorldYmm=holderBaseWorldYmm+fixedSpineCenterLocalYmm+fixedSpineHeightMm/2;
- const socketToStemOverlapMm=adapterTopWorldYmm-(socketCenterWorldYmm-socketOuterRadiusMm);
- // A stem reaching into the Ø12 through-bore would occupy solid rod volume.
- const rodBottomWorldYmm=socketCenterWorldYmm-rodRadiusMm;
- const clearanceToRodMm=rodBottomWorldYmm-adapterTopWorldYmm;
- const gapMm=adapterBottomWorldYmm-spineTopWorldYmm;
- if(gapMm>0.1)throw Error('B26 terminal block is disconnected from B06 fixed spine');
- if(gapMm<-.1)throw Error('B26 terminal block penetrates B06 fixed spine');
- if(socketToStemOverlapMm<1)throw Error('B26 stem does not engage the post socket');
- if(clearanceToRodMm<0.5)throw Error('B26 terminal stem penetrates the Ø12 horizontal rod');
- return {
-   adapterHeightMm,adapterCenterLocalYmm,adapterBottomWorldYmm,
-   adapterTopWorldYmm,spineTopWorldYmm,socketToStemOverlapMm,
-   rodBottomWorldYmm,clearanceToRodMm,
-   gapMm,physicalMatingVerified:false,
-   note:'B149 photo-fit PHUC lower horizontal rod at Y157, 27mm terminal candidate contacts GCM-13 spine at Y119; no verified OEM threads'
- };
+  const faceGapMm=plateSpineFaceX-rodEndX;
+  const axisMismatchMm=Math.abs(lowerRodY-sideBoreY);
+  const insertionDepthMm=studLengthMm;
+  if(Math.abs(faceGapMm)>0.05)throw Error('Lower Ø12 bar does not terminate on GCM1302M spine face');
+  if(axisMismatchMm>0.05)throw Error('M6 stud and plate-holder side hole are not coaxial');
+  if(studDiameterMm>=rodDiameterMm || studDiameterMm<=0)
+    throw Error('End stud must step down from Ø12 rod rather than continue full-sized rod into solid clamp');
+  if(studLengthMm>spineLengthMm || studLengthMm<3)
+    throw Error('Unverified stud would emerge beyond or fail to enter plate-holder spine');
+  return Object.freeze({
+    rodEndX,plateSpineFaceX,lowerRodY,sideBoreY,
+    rodDiameterMm,studDiameterMm,studLengthMm,insertionDepthMm,
+    faceGapMm,axisMismatchMm,
+    visibleBulkyAdapter:false,
+    threadIdentityVerified:false,
+    loadedLoadPathAccepted:false,
+    note:'A direct side connection appears in photos108/150; M6 thread and insertion are unconfirmed'
+  });
 }
