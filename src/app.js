@@ -466,12 +466,23 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    add(g,cyl(6,1.1,mats.silver,0,25,0,36));
    label(g,'竖向接杆 Ø12 · 当前长度仅为候选，照片149待配准',0,35,0);
  },{explode:[-25,55,-13],moveFilm:true});
+ // Photo149 additionally shows a SEPARATE small square connector
+ // joining the support post to the first long horizontal Ø12 rod.
+ // No identifiable OEM SKU is legible; shape is a two-hole proxy.
+ addPart('B33',ax+14,link.mountY+20,-7.5,g=>{
+   add(g,sleeve(11,6.05,20,mats.dark,0,0,-7.5,'y'));
+   add(g,sleeve(11,6.05,20,mats.black,0,0,7.5,'x'));
+   thumbKnob(g,0,12,-7.5,'y',3.5);
+   thumbKnob(g,13,0,7.5,'x',3.5);
+   g.userData.unidentifiedModel=true;
+   label(g,'照片149：立杆→横杆连接方夹（型号未读到）',0,24,0);
+ },{explode:[-19,54,-12],moveFilm:true});
  // Photos 149 and 150 show an actual Zolix PHUC-1, NOT the earlier
  // PHCP-2. Manufacturer drawing: A60, BØ30, C/DØ12, bore pitch E33.
  // Full housing, two rotatable barrel halves, and insertion datums are
  // not vendor-native CAD; the two orthogonal ring cutouts here are
  // presentation proxies until photo/part coordinate registration.
- addPart('B24',ax+14,link.mountY+20-16.5,0,g=>{
+ addPart('B24',-30,link.mountY+20-16.5,0,g=>{
    const oem=V28_OEM_DIMENSIONS.PHUC1;
    g.userData.phuc1OEM=oem;
    g.userData.photoMeasured=false;
@@ -502,7 +513,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // The second rod is visible through the other PHUC-1 opening in both
  // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
  // Keep it separate in BOM and selection. The glass coupling is unverified.
- addPart('B28',ax+14,link.mountY+20-33,0,g=>{
+ addPart('B28',-30,link.mountY+20-33,0,g=>{
    const output=add(g,cyl(6,82,mats.steel,0,0,41,48));
    output.rotation.x=Math.PI/2;
    g.userData.candidateLengthMm=82;
@@ -868,7 +879,7 @@ function renderPhotoLedger(){
  const host=$('photo-ledger');if(!host)return;host.replaceChildren();
  const stack=STACKS[platform];
  const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32','B07']:
-   platform==='B'?['B02','B03','B04','B05','B27','B24','B25','B28','B26','B06','B07']:stack.film;
+   platform==='B'?['B02','B03','B04','B05','B27','B33','B25','B24','B28','B26','B06','B07']:stack.film;
  const sampleIds=stack.sample;
  const note=document.createElement('p');note.textContent=platform==='B'&&bPhoto94Mode?'照片94/95/97新结构：T25M→VC13M→G40M60L→L片；下方B29底座只辨认出轮廓，不能套用另一档案的磁吸底座型号。':stack.confidence;host.append(note);
  for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds})){
@@ -1101,7 +1112,7 @@ function resetScene(){
    const required=['B01','B03','B07','B08','B09','B10','B11','B12',
      'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23'];
    if(bPhoto94Mode)required.push('B29','B30','B31','B32');
-   else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28');
+   else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33');
    const missing=required.filter(id=>!parts.has(id));
    if(missing.length)throw new Error('Model B missing required scene components: '+missing.join(', '));
  }
