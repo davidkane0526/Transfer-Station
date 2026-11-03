@@ -464,7 +464,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
      0,rack.supportPlateHeightMm/2,0));
    addJointHeads(g,'B05',rack.supportPlateHeightMm-.05,
       [[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
-   label(g,'照片108：V25M活动滑架侧板（与顶部固定导轨不同高）',0,28,0);
+   label(g,'V30照片108：活动导轨侧装B05安装板，避开固定V25M机架',0,28,0);
  },{explode:[-30,55,-13],moveFilm:true});
  // Photo149: steel post extends THROUGH a 50mm cylindrical holder
  // and THROUGH B33 square clamp with a threaded tip still exposed.
@@ -544,7 +544,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
      rack.upperRodLengthMm/2,0,0,60));
    rod.rotation.z=Math.PI/2;
    g.userData.photoFitNotOemLength=true;
-   label(g,'首根横杆 Ø12×100mm（拟合照片108，非型号确认）',32,17,0);
+   label(g,'首根横杆 Ø12×'+rack.upperRodLengthMm+'mm（照片空间拟合，非型号确认）',32,17,0);
  },{explode:[-20,64,-13],moveFilm:true});
  // The second rod is visible through the other PHUC-1 opening in both
  // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
@@ -1311,7 +1311,7 @@ function updatePhotoScope(){
  $('b-profile-note').textContent='照片149：B34黑色套筒、B27长立杆、B33方夹及PHUC-1双横杆。照片108/150：下杆直入GCM-1302M侧边，取消虚构B26大转接座。50mm套筒、100mm立杆和玻片高度仍为候选；PHUC孔距33mm、GCM夹具型号由原厂/铭牌支持。';
  const critical=$('b-physical-audit');
  critical.hidden=platform!=='B';
- if(platform==='B')critical.textContent='V30照片108/150纠错：删去未见于实物的B26粗大末端套筒/悬吊块，下层Ø12横杆止于GCM-1302M侧面；B26只保留M6候选小端头、BOM数量0。B05为V25M侧部活动滑架安装板，真实孔位和全行程干涉尚未认证，禁止用于加工。';
+ if(platform==='B')critical.textContent='V30已消除B05与V25M固定机架此前6048mm³的几何穿透：活动导轨通过独立侧向支承桥接B05。B26巨大转接块删除，只剩可能的M6端面连接。真实螺钉孔距、移动全行程及玻片工作距离仍未认证，禁止加工。';
  node.dataset.refRig=platform==='A'?'A-94-95-97-137-144-152-155-161':'B-107-112-145-151';
  node.textContent=platform==='A'?
   '平台 A：94/95/97、137–144、152、155、161。新增照片137/161的 GCM-5306M 是 112×70×8 mm 安装底座，不是旋转台。':
