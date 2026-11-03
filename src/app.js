@@ -841,12 +841,13 @@ function addAxis(){
 function renderPhotoLedger(){
  const host=$('photo-ledger');if(!host)return;host.replaceChildren();
  const stack=STACKS[platform];
- const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32']:stack.film;
+ const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32','B07']:stack.film;
  const sampleIds=stack.sample;
  const note=document.createElement('p');note.textContent=platform==='B'&&bPhoto94Mode?'照片94/95/97新结构：T25M→VC13M→G40M60L→L片；下方B29底座只辨认出轮廓，不能套用另一档案的磁吸底座型号。':stack.confidence;host.append(note);
  for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds})){
    const heading=document.createElement('div');heading.className='key';
-   heading.textContent=side==='film'?'载玻片侧（从下至上）':
+   heading.textContent=side==='film'?(platform==='B'&&bPhoto94Mode?
+     '载玻片侧（机构顺序 + 未连接的玻片位置参考）':'载玻片侧（从下至上）'):
      '样品侧（从下至上；与玻片侧接口待核验）';
    host.append(heading);
    const list=document.createElement('div');list.className='list';
@@ -870,6 +871,14 @@ function renderPhotoLedger(){
 // Only show/export parts that are actually present in the selected assembly.
 // Never add variant-exclusive prototypes to user-facing purchase totals.
 function contextualPart(p){
+ if(platform==='B'&&bPhoto94Mode&&p.id==='B07')return {
+   ...p,
+   name:'玻片及转移膜（透明位置参考，实际夹具缺失）',
+   model:'76×26×1mm 玻片参考轮廓；未接入 B32',
+   detail:'透明玻片和PDMS用于显示预计样品相对位置。当前B32的L形片距离玻片存在未闭合空间，不存在照片证实的夹紧机构和运动耦合。',
+   interfaceNote:'在实际夹具、孔位、支杆及装配长度确定前，不把B07视为已经固定或可随B03机构运动。此件不是可加工的夹具CAD。',
+   evidence:'B07参考照片107/108；B32来自94/95/97，关联未证实'
+ };
  if(platform==='B'&&bPhoto94Mode&&p.id==='B03')return {
    ...p,
    name:'实拍95/97 · GCM-T25M 双轴平移台',
@@ -895,7 +904,7 @@ function populateGroups(){
  const meta=activeParts();for(const [key,cfg] of Object.entries(groups)){
    const subset=meta.filter(x=>x.group===key);if(!subset.length)continue;
    const line=document.createElement('label');line.className='group-row';
-   const input=document.createElement('input');input.type='checkbox';input.checked=key!=='external';input.dataset.group=key;
+   const input=document.createElement('input');input.type='checkbox';input.checked=true;input.dataset.group=key;
    input.onchange=()=>parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked});
    const dot=document.createElement('i');dot.className='dot';dot.style.background=cfg.color;
    const tx=document.createElement('span');tx.textContent=cfg.name;
