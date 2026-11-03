@@ -51,11 +51,13 @@ try{
  await phuc.click();
  assert.match(await page.locator('#part-detail').innerText(),/PHUC-1/);
  assert.equal(await page.locator('#holder-geometric-qa').getAttribute('data-hole-spacing'),'33');
+ await page.locator('#open-bom').click(); // Selecting a row closes the BOM panel
  await page.locator('#bom-query').fill('B34');
  const holder=page.locator('#bom-body tr').filter({hasText:'B34'});
  assert.equal(await holder.count(),1,'Black photo149 sleeve must have its own BOM row');
  await holder.click();
  assert.match(await page.locator('#part-detail').innerText(),/PHSH-2/);
+ await page.locator('#open-bom').click();
  await page.locator('#bom-query').fill('B33');
  const square=page.locator('#bom-body tr').filter({hasText:'B33'});
  assert.equal(await square.count(),1,'Independent square clamp cannot disappear');
