@@ -112,6 +112,73 @@ function sleeve(outerR,innerR,width,material,x=0,y=0,z=0,axis='x'){
  else if(axis!=='z')throw Error('Unsupported clamp socket direction '+axis);
  const mesh=mk(geo,material);mesh.position.set(x,y,z);return mesh;
 }
+// Manufacturer-constrained PHUC-1 silhouette: ONE continuous vertical
+// Ø30 x 60mm barrel with TWO transverse Ø12.1 rod bores spaced 33mm.
+// This builds visible outer and INNER tunnel surfaces analytically;
+// no solid cube crosses either Ø12 steel rod. It also fixes V30's
+// obviously incorrect two detached horizontal rings. OEM-style external
+// envelope is known; clamp slot, thread/knob placement remain proxies.
+function phucContinuousTwoBores(outerR=15,height=60,throughR=6.05,pitch=33,material=mats.black){
+ const pos=[],norm=[];
+ const put=(p,n)=>{pos.push(...p);norm.push(...n);};
+ const tri=(a,b,c)=>{for(const [p,n] of [a,b,c])put(p,n)};
+ const quad=(a,b,c,d)=>{tri(a,b,c);tri(a,c,d)};
+ const N=128, M=64, e=pitch/2;
+ const outer=(theta,y)=>{
+   const ca=Math.cos(theta),sa=Math.sin(theta);
+   return [[outerR*ca,y,outerR*sa],[ca,0,sa]];
+ };
+ const aperture=(theta)=>{
+   const z=outerR*Math.sin(theta);
+   return Math.sqrt(Math.max(0,throughR*throughR-z*z));
+ };
+ for(let i=0;i<N;i++){
+   const t0=2*Math.PI*i/N,t1=2*Math.PI*(i+1)/N;
+   const w0=aperture(t0),w1=aperture(t1);
+   // Three connected outer-wall bands: below, between, and above
+   // the two bored tunnels. At Z beyond a bore's radius the
+   // gap width becomes zero, closing that window smoothly.
+   const bands0=[[-height/2,-e-w0],[-e+w0,e-w0],[e+w0,height/2]];
+   const bands1=[[-height/2,-e-w1],[-e+w1,e-w1],[e+w1,height/2]];
+   for(let k=0;k<3;k++){
+     const lo0=outer(t0,bands0[k][0]),hi0=outer(t0,bands0[k][1]);
+     const lo1=outer(t1,bands1[k][0]),hi1=outer(t1,bands1[k][1]);
+     quad(lo0,hi0,hi1,lo1);
+   }
+ }
+ for(const yc of [-e,e]){
+   const bore=(phi,sign)=>{
+     const zz=throughR*Math.sin(phi);
+     const yy=yc+throughR*Math.cos(phi);
+     const xx=sign*Math.sqrt(outerR*outerR-zz*zz);
+     return [[xx,yy,zz],[0,-Math.cos(phi),-Math.sin(phi)]];
+   };
+   for(let i=0;i<M;i++){
+     const f0=2*Math.PI*i/M,f1=2*Math.PI*(i+1)/M;
+     quad(bore(f0,-1),bore(f0,1),bore(f1,1),bore(f1,-1));
+   }
+ }
+ for(const yy of [-height/2,height/2]){
+   const ny=yy>0?1:-1;
+   for(let i=0;i<N;i++){
+     const t0=2*Math.PI*i/N,t1=2*Math.PI*(i+1)/N;
+     const a=[[0,yy,0],[0,ny,0]],b=outer(t0,yy),c=outer(t1,yy);
+     b[1]=[0,ny,0];c[1]=[0,ny,0];
+     if(ny>0)tri(a,c,b);else tri(a,b,c);
+   }
+ }
+ const geometry=new THREE.BufferGeometry();
+ geometry.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+ geometry.setAttribute('normal',new THREE.Float32BufferAttribute(norm,3));
+ geometry.computeBoundingSphere();
+ const mesh=mk(geometry,material);
+ mesh.userData.realSideBores=2;
+ mesh.userData.nominalOuterDiameterMm=outerR*2;
+ mesh.userData.oemBoreCenterPitchMm=pitch;
+ mesh.userData.photoFitGeometry=true;
+ return mesh;
+}
+
 // Rectangular photo95 bearing block with a TRUE Ø8.7 through-hole along X.
 // A solid cube traversed by a Ø8.6 steel rod was an actual mesh collision.
 // Local shape X maps to -scene Z, local shape Y to world Y after yaw 90°.
@@ -543,17 +610,17 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    const oem=V28_OEM_DIMENSIONS.PHUC1;
    g.userData.phuc1OEM=oem;
    g.userData.photoMeasured=false;
-   // The swivel half centers are spaced 33 mm along local vertical.
-   // The two Ø12.1 openings are genuinely hollow render meshes,
-   // rather than steel posts passing through a solid cuboid.
-   add(g,sleeve(oem.outerDiameterBmm/2,oem.boreCmm/2+.05,23,
-     mats.black,0,oem.boreCenterSpacingEmm/2,0,'x'));
-   // Photo149: second Ø12 rod points horizontally in the same plane.
-   // PHUC-1 is a swivel; 90° rotation is possible but not photographed.
-   add(g,sleeve(oem.outerDiameterBmm/2,oem.boreDmm/2+.05,23,
-     mats.dark,0,-oem.boreCenterSpacingEmm/2,0,'x'));
-   const pivot=add(g,cyl(8.5,9,mats.steel,0,0,0,40));
-   pivot.userData.candidateSwivelPivot=true;
+   // Photo149 body is ONE continuous cylindrical swivel clamp with
+   // a narrow horizontal assembly seam near mid-height. V30 wrongly
+   // drew two disconnected thick tube rings. This analytic surface
+   // has TWO open Ø12.1 bores with 33mm vertical pitch, matching STEP.
+   const barrel=add(g,phucContinuousTwoBores(
+      oem.outerDiameterBmm/2,oem.lengthAmm,oem.boreCmm/2+.05,
+      oem.boreCenterSpacingEmm,mats.black));
+   barrel.userData.manufacturerConstrainedEnvelope=true;
+   const splitSeam=add(g,torus(oem.outerDiameterBmm/2-.15,.28,
+      mats.ink,0,0,0));
+   splitSeam.userData.unverifiedHousingSplitWidth=true;
    // Independent upper/lower thumb screws are both photographically visible.
    thumbKnob(g,0,31,13,'z',5);
    thumbKnob(g,16,-16.5,0,'x',5);
