@@ -113,6 +113,10 @@ export function pricedSummary(rows){
  const sums=new Map();
  let quoted=0,missing=0;
  for(const p of rows){
+   // B26 is a zero-quantity UNVERIFIED M6 interface, not a physical
+   // procurement line. It stays visible for traceability, but must
+   // never be counted as one missing priced component or a purchased SKU.
+   if((p.qty??1)===0)continue;
    if(!p.quote?.value){missing++;continue;}
    quoted++;
    let cur=p.quote.currency;
