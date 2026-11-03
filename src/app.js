@@ -961,9 +961,9 @@ function focusPhoto947(photo='94'){
  // Photo94: G40 tilt head and bent bracket; photo95: lower dual stage;
  // photo97: front central VC13 micrometer. All are the SAME A arm.
  const y=photo==='94'?113:photo==='95'?48:80;
- const src=photo==='94'?new THREE.Vector3(x+105,y+62,156):
-   photo==='95'?new THREE.Vector3(x+85,y+40,165):
-   new THREE.Vector3(x+45,y+32,179);
+ const src=photo==='94'?new THREE.Vector3(x+30,y+43,218):
+   photo==='95'?new THREE.Vector3(x+48,y+40,190):
+   new THREE.Vector3(x+24,y+32,200);
  const target=new THREE.Vector3(x,y,0);
  camera.position.copy(src);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
