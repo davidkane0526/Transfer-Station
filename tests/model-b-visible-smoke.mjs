@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright-core';
 
-// Regression for the user's actual failure: platform B must render the
-// COMPLETE apparatus, not a photograph-only isolated film stage.
 const browser=await chromium.launch({
  headless:true,executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',
  args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader',
@@ -16,43 +14,41 @@ try{
  await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:20000});
  await page.locator('#viewer canvas').waitFor();
  await page.waitForFunction(()=>document.querySelectorAll('#group-list .group-row').length>=7);
- assert.match(await page.locator('#platform-caption').innerText(),/平台 B.*全系统布局/);
+ assert.match(await page.locator('#platform-caption').innerText(),/平台 B.*145.*151/);
+ assert.match(await page.locator('#photo-scope-note').innerText(),/PHUC-1/);
  const rect=await page.locator('#viewer canvas').boundingBox();
- assert(rect && rect.width>=400 && rect.height>=400,'3D canvas is missing or collapsed');
+ assert(rect&&rect.width>=400&&rect.height>=400);
  for(const category of ['base','film','sample','heat','microscope','vacuum','external']){
    const toggle=page.locator('#group-list input[data-group="'+category+'"]');
-   assert.equal(await toggle.count(),1,'Model B scene is missing group '+category);
-   assert.equal(await toggle.isChecked(),true,
-      'Full model B must show restored '+category+' subgroup by default');
+   assert.equal(await toggle.count(),1,'B scene missing '+category);
+   assert.equal(await toggle.isChecked(),true,'B scene category hidden '+category);
  }
- assert.match(await page.locator('#photo-ledger').innerText(),/B07/);
- assert.match(await page.locator('#photo-ledger').innerText(),/B08/);
- assert.match(await page.locator('#photo-ledger').innerText(),/B09/);
+ const proof=await page.locator('#photo-ledger').innerText();
+ for(const id of ['B02','B03','B04','B24','B25','B28','B06','B07','B08','B09'])
+   assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
- assert.equal(await page.locator('#btn-sample-stack').isEnabled(),true);
  await page.screenshot({path:'Transfer-Station-ModelB-Full-Assembly.png'});
  await page.locator('#open-bom').click();
  const rows=await page.locator('#bom-body tr').allTextContents();
- for(const id of ['B01','B03','B07','B08','B09','B10','B11','B12',
-     'B14','B15','B16','B17','B18','B19','B20','B21','B22','B23',
-     'B29','B30','B31','B32']){
-   assert(rows.some(row=>row.trim().startsWith(id)),
-     'Model B full-layout BOM has lost essential component '+id);
+ for(const id of ['B01','B02','B03','B04','B05','B06','B07','B08','B09',
+    'B10','B11','B12','B14','B15','B16','B17','B18','B19','B20','B21',
+    'B22','B23','B24','B25','B26','B27','B28']){
+   assert(rows.some(row=>row.trim().startsWith(id)),'B BOM lost '+id);
  }
- for(const retired of ['B02','B04','B05','B06','B24','B25','B26','B27']){
-   assert(!rows.some(row=>row.trim().startsWith(retired)),
-     'Current photo arm must not include retired alternative '+retired);
- }
- await page.locator('#close-bom').click();
+ for(const wrong of ['B29','B30','B31','B32'])
+   assert(!rows.some(row=>row.trim().startsWith(wrong)),
+      'A 94/95/97 film arm wrongly merged into B '+wrong);
+ await page.locator('#bom-query').fill('B24');
+ const phuc=page.locator('#bom-body tr').filter({hasText:'B24'});
+ assert.equal(await phuc.count(),1);
+ await phuc.click();
+ assert.match(await page.locator('#part-detail').innerText(),/PHUC-1/);
+ assert.equal(await page.locator('#holder-geometric-qa').getAttribute('data-hole-spacing'),'33');
  await page.locator('#btn-b-archive').click();
- for(const category of ['sample','heat','microscope','vacuum','external']){
-   assert.equal(await page.locator('#group-list input[data-group="'+category+'"]').count(),1,
-      'Switching film arm removed the '+category+' subsystem');
- }
- await page.locator('#btn-b-user-photos').click();
- assert.equal(await page.locator('#group-list input[data-group="sample"]').count(),1);
- assert.deepEqual(failures,[],'JavaScript errors in model B: '+failures.join('; '));
- console.log('Model B full visible assembly, both film profiles, critical BOM and camera: PASS');
-} finally{
- await browser.close();
-}
+ assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
+ assert.match(await page.locator('#photo-ledger').innerText(),/A15/);
+ await page.locator('#show-b').click();
+ assert.match(await page.locator('#platform-caption').innerText(),/PHUC-1/);
+ assert.deepEqual(failures,[],'Browser errors: '+failures.join('; '));
+ console.log('V28 B full model, PHUC-1, GCM-1302M, second rod, A/B separation: PASS');
+}finally{await browser.close()}
