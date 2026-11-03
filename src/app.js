@@ -1164,7 +1164,7 @@ function resetScene(){
    '平台 B · 145–151尺寸照片修正 / PHUC-1万向杆夹'):
    '平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  bPhoto94Mode?'历史误归类的94/95/97实际上属于平台A，不用于B的物理总装。':'平台B新尺规145–151确认：B02磁座→B03双轴T25M→B04竖直V25M→金属杆/万向杆夹 B24 PHUC-1→B06 GCM-1302M玻片夹；样品侧B08旋转台→B09 NFP→隔热/加热台。真实杆长、PHUC角度与跨支路连接仍待几何复核。':
+  bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
@@ -1295,10 +1295,10 @@ function updatePhotoScope(){
  $('b-photo-profile').hidden=platform!=='B';
  $('btn-b-user-photos').classList.toggle('on',platform==='B');
  $('btn-b-archive').classList.remove('on');
- $('b-profile-note').textContent='B 实物照片 107–112、145–151 同属一套机构：GCM-420302M 磁座→T25M→V25M→PHUC-1 万向杆夹及两根独立接杆→GCM-1302M 玻片夹。尺寸采用原厂 PHUC-1 A60 / Ø30 / Ø12×2 / 孔距33。杆长、转角及末端啮合待测。';
+ $('b-profile-note').textContent='照片149新增：B34黑色圆柱套筒、B27贯穿钢杆和B33独立方夹。套筒50mm/钢杆100mm只是照片与PHSH/PHSP厂商规格的拟合候选；PHUC-1的33mm上下孔距来自原厂图纸，照片150确认GCM-1302M型号。';
  const critical=$('b-physical-audit');
  critical.hidden=platform!=='B';
- if(platform==='B')critical.textContent='实拍149/150已确认 PHUC-1 与 GCM-1302M，同框连接了 B 的杆架与样品区域。但零件轴线、支杆实际长度、玻片定位与紧固孔面尚未完成坐标配准；当前模型仍为工程候选，不可直接加工。';
+ if(platform==='B')critical.textContent='照片149的黑色套筒和竖杆已恢复，B33方夹改用贯穿Ø12孔的方形外壳；B04静止导轨高于活动安装板。50mm套筒/100mm立杆仅为尺规比例候选，B26末端螺纹及跨支路配准仍未完成，禁止当作加工图。';
  node.dataset.refRig=platform==='A'?'A-94-95-97-137-144-152-155-161':'B-107-112-145-151';
  node.textContent=platform==='A'?
   '平台 A：94/95/97、137–144、152、155、161。新增照片137/161的 GCM-5306M 是 112×70×8 mm 安装底座，不是旋转台。':
