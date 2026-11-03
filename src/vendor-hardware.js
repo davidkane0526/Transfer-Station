@@ -14,7 +14,7 @@ export const OPTICAL_HARDWARE={
   },
   B25:{
     maker:'Zolix',model:'PHSP12-5',name:'不锈钢 Ø12×150 mm 接杆（候选）',
-    known:{diameterMm:12,overallLengthMm:150,weightKg:0.15},
+    known:{diameterMm:12,overallLengthMm:150,middleCrossHoleOffsetMm:50,weightKg:0.15},
     confidence:'manufacturer-product-exists/photo-length-not-confirmed',
     url:'https://www.zolix-group.com/product/detail/220.html',
     alternative:{maker:'Daheng',series:'GCM-0301',diameterMm:12.7,
@@ -22,7 +22,7 @@ export const OPTICAL_HARDWARE={
   },
   B27:{
     maker:'Zolix',model:'PHSP12-1',name:'不锈钢 Ø12×25 mm 短接杆（候选）',
-    known:{diameterMm:12,overallLengthMm:25,weightKg:0.025},
+    known:{diameterMm:12,overallLengthMm:25,middleCrossHoleOffsetMm:8,weightKg:0.025},
     confidence:'manufacturer-product-exists/vertical-pillar-not-confirmed',
     url:'https://www.zolix-group.com/product/specification/746.html'
   },
