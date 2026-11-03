@@ -217,13 +217,12 @@ def make_b():
     add('B','B22','LED_lamp_adapter_proxy',box(65,72,48,280,-20,35),'P')
     add('B','B23','control_auxiliary_module_proxy',box(93,58,38,305,-110,35),'P')
 def make_b_photo94():
-    """Current user-requested B 94/95/97 glass-side reference ONLY.
+    """Current user-requested B full layout with 94/95/97 glass-side arm.
 
-    DO NOT silently combine this photo branch with the old 108/109 PHCP
-    arm or claim that 110/111 NFP/sample-side evidence belongs to it.
-    No slide jaw has been identified downstream of the photographed L
-    sheet. Preserve that missing physical load path rather than building
-    a fake cantilever to the optical axis.
+    Preserve sample/heater/microscope/peripherals as unregistered
+    scene branches, but DO NOT borrow the obsolete 108/109 PHCP film arm.
+    No glass jaw is identified downstream of the photographed L sheet.
+    The layout is NOT a verified OEM assembly or machining plan.
     """
     sys='B_photo94'
     board(sys)
@@ -276,8 +275,20 @@ def make_b_photo94():
     for n,xx in enumerate((ax-14,ax+14),1):
         add(sys,f'B32H{n}',f'photo94_top_head_{n}_diameter_UNVERIFIED',
             vz(3,2.2,xx,13,146.5),'C')
-    # Deliberately NO B06 / B07 / B24 etc. An unknown clamp would be
-    # fabrication, and a photo-visible L sheet is not a glass holder.
+    # FULL LAYOUT, separated from the photo-constrained film-arm geometry.
+    # The original B 108–123 records supply sample-stage, microscope,
+    # heater, vacuum and external subsystem proxies. These are kept in
+    # the same VIEWER and STEP layout; relative registration to B32 is
+    # NOT yet established. Their addition does not certify the missing
+    # B32-to-B07 clamp interface. No obsolete PHCP rod-arm components.
+    keep_prefixes=tuple(f'B{i:02d}' for i in range(7,24))
+    for key,name,grade,solid in list(PARTS['B']):
+        if key.startswith(keep_prefixes):
+            add(sys,key,name+'_UNREGISTERED_FULL_SYSTEM_LAYOUT',solid,'C')
+    assert any(key=='B07' for key,*_ in PARTS[sys]), 'Missing film reference'
+    assert any(key=='B09' for key,*_ in PARTS[sys]), 'Missing NFP sample stage'
+    assert any(key=='B11' for key,*_ in PARTS[sys]), 'Missing vacuum heater'
+    assert any(key=='B16' for key,*_ in PARTS[sys]), 'Missing microscope'
 
 def make_a():
     board('A')
