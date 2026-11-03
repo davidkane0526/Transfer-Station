@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {PARTS} from '../src/parts.js';
-import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums} from '../src/photo-947-assembly.js';
+import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums,photo95FrontDriveDatums} from '../src/photo-947-assembly.js';
 import {STACKS,HANDLES} from '../src/photo-evidence.js';
 
 assert.equal(PHOTO_94_95_97.rig,'A','User photographs 94-97 must not be tagged as B');
@@ -10,6 +10,12 @@ assert.deepEqual(PHOTO_94_95_97.imageToParts['97'],['A15','A03']);
 assert.deepEqual(PHOTO_94_95_97.stageIds,STACKS.A.film.slice(0,4));
 assert.deepEqual(PHOTO_94_95_97.g40.nominalPlateMm,[40,40]);
 assert.equal(PHOTO_94_95_97.g40.nominalHeightMm,20);
+const frontDrive=photo95FrontDriveDatums();
+assert(frontDrive.supportConnected);
+assert.equal(frontDrive.overlapLeftMm,2.5);
+assert.equal(frontDrive.overlapRightMm,2.5);
+assert.throws(()=>photo95FrontDriveDatums({shaftLengthMm:40}),
+ /floating/,'Short front rod must not hang in space between black stops');
 const upright=vc13PhotoScrewDatums();
 assert.equal(upright.drumTopLocalYmm,48);
 assert.equal(upright.clearanceToG40Mm,3);
