@@ -7,10 +7,11 @@ permissions:
   contents: read
   pages: write
   id-token: write
-# Prevent simultaneous Pages deployments from failing with HTTP 400.
+# Prefer latest validated model; obsolete exhaustive runs must not block publishing
+# a corrected assembly. Only one Pages deployment is active at a time.
 concurrency:
   group: transfer-station-pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   validate:
     runs-on: ubuntu-latest
