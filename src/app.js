@@ -217,28 +217,33 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // rearward 249mm return bar and second hanging post. Attachment is
  // a candidate because the actual fixture screws are unmeasured.
  const link=filmCantileverB({armX:ax,sampleX:CONFIG.B.sampleX});
- addPart('B05',ax,139,0,g=>{
-   add(g,cub(47,6,45,mats.black,0,3,0)); // seats on B04 top at Y=139
+ addPart('B05',ax,link.mountY,0,g=>{
+   g.userData.cantileverLink=link;
+   add(g,cub(47,6,45,mats.black,0,3,0)); // flush contact with B04 top at Y=135
    add(g,cub(28,18,22,mats.dark,12,14,0));
    const rod=add(g,cyl(6.35,link.rodLength,mats.steel,
      link.rodCenterX,link.rodCenterY,link.rodZ));
    rod.rotation.z=Math.PI/2;
-   // The only terminal clamp attaches directly to B06 at Y=128.
-   add(g,cub(23,link.terminalHeight+3,22,mats.dark,
-     link.rodEndX,link.terminalCenterY+1,0));
+   // Terminal bracket seats exactly on B06 upper face (world Y=128).
+   add(g,cub(23,link.terminalHeight,22,mats.dark,
+     link.rodEndX,link.terminalCenterY,0));
    addJointHeads(g,'B05',5.95,[[-18,-16],[-18,16],[18,-16],[18,16]],{headR:2.6});
-   label(g,'直线悬臂和末端玻片夹（候选）',80,39,0);
+   label(g,'左侧边夹直线悬臂（孔位和长度待核）',49,39,0);
  },{explode:[-30,55,-13],moveFilm:true});
  // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
- addPart('B06',CONFIG.B.sampleX+52,121.5,0,g=>{
-  add(g,cub(52,13,21,mats.dark,0,0,0));
+ // Place plate clamp at glass LEFT edge, away from the sample optical axis.
+ // 180 degree yaw changes jaw engagement from leftward to rightward.
+ addPart('B06',link.clampWorldX,121.5,0,g=>{
+  add(g,cub(34,13,21,mats.dark,0,0,0));
   add(g,cub(16,23,32,mats.steel,19,-9,0));
-  add(g,cub(48,4,14,mats.silver,-14,-19,0));
-  add(g,cub(48,4,14,mats.silver,-14,-13.5,0));
-  add(g,cub(6,15,14,mats.dark,9,-13.5,0)); // outer rear jaw bridge
+  // Narrow opposed edge jaws only enter the first 12 mm of the glass;
+  // they must not enclose the optical/sample region at x=sampleX.
+  add(g,cub(22,4,14,mats.silver,-10,-19,0));
+  add(g,cub(22,4,14,mats.silver,-10,-13.5,0));
+  add(g,cub(6,15,14,mats.dark,2,-13.5,0)); // end jaw bridge
   addJointHeads(g,'B06',6.35,[[-10,-6],[8,6]],{headR:2.6});
   label(g,'玻片夹：1.5-mm 夹口（候选）',0,24,0);
- },{explode:[-20,65,5],moveFilm:true});
+ },{explode:[-20,65,5],moveFilm:true,facingYaw:Math.PI});
  addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
   add(g,cub(76,1,26,mats.glass,0,0,0));
   add(g,cub(20,1.8,20,mats.ceramic,-5,-1.4,0));
