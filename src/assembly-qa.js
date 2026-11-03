@@ -50,7 +50,7 @@ export function filmCantileverB({
    throw new Error('Jaw fails to grip glass or crosses objective optical keep-out');
  if(!(clampWorldX+17<opticalLeftLimitX))
    throw new Error('Glass clamp body crosses objective optical keep-out');
- const rodCenterY=8,rodStartX=12,rodEndX=xReach;
+ const rodCenterY=20,rodStartX=12,rodEndX=xReach;
  const rodLength=rodEndX-rodStartX;
  const terminalBottomLocalY=clampTopY-baseY;
  const terminalHeight=rodCenterY-terminalBottomLocalY;
