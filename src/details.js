@@ -212,11 +212,19 @@ export function enrichParts(partMap, platform, onMesh){
        decal(g,'M6?',13,4,0,-19,10.3,'front','#b0beca');
     });
     decoration('B06',(g)=>{
-       // Do not place decorative block into the actual 1.5-mm slide gap.
-       box(g,32,1.1,13,-8,-11.0,0,graphite,.3);
-       for(const x of [-16,6])screwHead(g,x,6.5,0,2.4);
-       knurl(g,29,3,5,4.3,15,'y',28);
-       decal(g,'GCM-1302M ?',34,5,3,7,30.7,'front','#dce3e9');
+       // Daheng GCM-13 plate-holder family shows a long black clamping
+       // body and two separate outward-facing silver adjustment screws.
+       // The exact GCM-1302M clamp-jaw geometry is still a photo candidate.
+       box(g,12,1.1,54,10,7.2,0,gunmetal,.25);
+       for(const z of [-17,17]){
+         // Cylindrical screw projects away from the film/optical axis after
+         // the clamp's 180-degree installation yaw.
+         const shaft=cyl(g,2.35,19,20,-10,z,ring,28);
+         shaft.rotation.z=Math.PI/2;
+         knurl(g,33,-10,z,4.6,10,'x',28);
+         const pad=box(g,3,3.8,8,-1,-13.6,z,aluminum,.4);
+       }
+       decal(g,'GCM-1302M ?',35,5,0,8.1,30.4,'front','#dce3e9');
     });
     decoration('B08',(g)=>{
        analogScale(g,46.7,16,0);
