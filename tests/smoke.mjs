@@ -284,6 +284,29 @@ const aProof=await page.locator('#photo-ledger').textContent();
 assert(aProof.includes('A15')&&aProof.includes('A02'),'A needs two physically separate T25M units');
 assert(aProof.includes('双轴手柄 X:+X / Y:+Z'),'A15 second orthogonal micrometer absent');
 assert(aProof.includes('94.jpg')&&aProof.includes('100.jpg'),'A actuator photo evidence missing');
+assert((await page.locator('#photo-scope-note').textContent()).includes('94/95/97'),
+ 'Physical photo comparison must identify the correct A rig, not B');
+await page.locator('#btn-photo94').click();
+await selectBOM('A05');
+assert((await page.locator('#part-detail').textContent()).includes('L形薄金属折弯'),
+ 'Photo 94 is a bent L sheet, not a random horizontal steel rod');
+assert((await page.locator('#photo-94-mechanics').getAttribute('data-folded'))==='true');
+assert((await page.locator('#photo-94-mechanics').getAttribute('data-top-fasteners'))==='2',
+ 'Photo94 requires two visible top bolt heads on the bent L sheet');
+await page.waitForTimeout(500);
+await page.screenshot({path:'Transfer-Station-V26-Photo94-G40-L-Bracket-A.png',fullPage:true});
+await page.locator('#btn-photo95').click();
+await selectBOM('A15');
+assert((await page.locator('#part-detail').textContent()).includes('T25M'),
+ '95.jpg shows A15 two-axis T25M below VC13M');
+await page.waitForTimeout(350);
+await page.screenshot({path:'Transfer-Station-V26-Photo95-T25M-A.png',fullPage:true});
+await page.locator('#btn-photo97').click();
+await selectBOM('A03');
+assert((await page.locator('#part-detail').textContent()).includes('VC13M'),
+ '97.jpg shows upright front-face VC13M micrometer, not B V25M');
+await page.waitForTimeout(350);
+await page.screenshot({path:'Transfer-Station-V26-Photo97-VC13M-A.png',fullPage:true});
 await page.locator('#btn-film-stack').click();
 await page.waitForTimeout(450);
 await page.screenshot({path:'Transfer-Station-Film-Stack-A.png',fullPage:true});
