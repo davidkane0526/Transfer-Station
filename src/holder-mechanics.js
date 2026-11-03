@@ -101,8 +101,9 @@ export function getPlateHolderJawDatums({
 export function getTerminalAdapterDatums({
  socketCenterWorldYmm=155,
  socketOuterRadiusMm=13,
- adapterCenterLocalYmm=-19,
- adapterHeightMm=34,
+ rodRadiusMm=6,
+ adapterCenterLocalYmm=-21.5,
+ adapterHeightMm=29,
  holderBaseWorldYmm=121.5,
  fixedSpineCenterLocalYmm=-10,
  fixedSpineHeightMm=15
@@ -111,13 +112,18 @@ export function getTerminalAdapterDatums({
  const adapterTopWorldYmm=socketCenterWorldYmm+adapterCenterLocalYmm+adapterHeightMm/2;
  const spineTopWorldYmm=holderBaseWorldYmm+fixedSpineCenterLocalYmm+fixedSpineHeightMm/2;
  const socketToStemOverlapMm=adapterTopWorldYmm-(socketCenterWorldYmm-socketOuterRadiusMm);
+ // A stem reaching into the Ø12 through-bore would occupy solid rod volume.
+ const rodBottomWorldYmm=socketCenterWorldYmm-rodRadiusMm;
+ const clearanceToRodMm=rodBottomWorldYmm-adapterTopWorldYmm;
  const gapMm=adapterBottomWorldYmm-spineTopWorldYmm;
  if(gapMm>0.1)throw Error('B26 terminal block is disconnected from B06 fixed spine');
  if(gapMm<-.1)throw Error('B26 terminal block penetrates B06 fixed spine');
  if(socketToStemOverlapMm<1)throw Error('B26 stem does not engage the post socket');
+ if(clearanceToRodMm<0.5)throw Error('B26 terminal stem penetrates the Ø12 horizontal rod');
  return {
    adapterHeightMm,adapterCenterLocalYmm,adapterBottomWorldYmm,
    adapterTopWorldYmm,spineTopWorldYmm,socketToStemOverlapMm,
+   rodBottomWorldYmm,clearanceToRodMm,
    gapMm,physicalMatingVerified:false,
    note:'World-Y face contact only; no known OEM adapter or proven fastener interface'
  };
