@@ -17,7 +17,9 @@ assert(b.tipToGlassHeightMm>0,'Do not imply the unmeasured L leg terminates at t
 const adapter=getTerminalAdapterDatums();
 assert.equal(adapter.spineTopWorldYmm,adapter.adapterBottomWorldYmm);
 assert(adapter.socketToStemOverlapMm>0,'Round sleeve and terminal stem must physically touch');
+assert(adapter.clearanceToRodMm>=0.5,'Adapter must stay BELOW the Ø12 steel rod');
 assert.equal(adapter.physicalMatingVerified,false);
 assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:21}),/disconnected/);
 assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:46}),/penetrates/);
+assert.throws(()=>getTerminalAdapterDatums({adapterCenterLocalYmm:-19,adapterHeightMm:34}),/penetrates.*rod/);
 console.log('B photo-profile and terminal adapter physical QA: confirmed unresolved interfaces are visible; candidate mating faces connected PASS');
