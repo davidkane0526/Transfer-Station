@@ -1,25 +1,22 @@
 import assert from 'node:assert/strict';
-import {CONFIG} from '../src/parts.js';
-import {photo94BracketCandidate} from '../src/photo-947-assembly.js';
-import {auditBPhotoProfile} from '../src/b-physical-audit.js';
+import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from '../src/dimension-evidence.js';
 import {getTerminalAdapterDatums} from '../src/holder-mechanics.js';
 
-const bracket=photo94BracketCandidate({stageCenterX:CONFIG.B.armX,stageTopY:144});
-const b=auditBPhotoProfile({stageCenterX:CONFIG.B.armX,
- sampleCenterX:CONFIG.B.sampleX,stageTopY:144,bracket});
-assert.equal(b.profile,'user-selected-B-94-95-97');
-assert.equal(b.observedFilmClamp,false);
-assert.equal(b.sampleAndFilmSameRigVerified,false);
-assert.equal(b.transferPathConnected,false);
-assert.equal(b.fullAssemblyAccepted,false);
-assert(b.horizontalGapMm>100,'Current L sheet ends far from the optical axis: never mark B as complete');
-assert(b.tipToGlassHeightMm>0,'Do not imply the unmeasured L leg terminates at the glass plane');
+assert.equal(DIMENSION_PHOTOS_V28.B.evidence.B24.observedModel,'Zolix PHUC-1');
+assert.equal(V28_OEM_DIMENSIONS.PHUC1.boreCenterSpacingEmm,33);
+
 const adapter=getTerminalAdapterDatums();
-assert.equal(adapter.spineTopWorldYmm,adapter.adapterBottomWorldYmm);
-assert(adapter.socketToStemOverlapMm>0,'Round sleeve and terminal stem must physically touch');
-assert(adapter.clearanceToRodMm>=0.5,'Adapter must stay BELOW the Ø12 steel rod');
-assert.equal(adapter.physicalMatingVerified,false);
-assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:21}),/disconnected/);
-assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:46}),/penetrates/);
-assert.throws(()=>getTerminalAdapterDatums({adapterCenterLocalYmm:-19,adapterHeightMm:34}),/penetrates.*rod/);
-console.log('B photo-profile and terminal adapter physical QA: confirmed unresolved interfaces are visible; candidate mating faces connected PASS');
+assert.equal(adapter.spineTopWorldYmm,adapter.adapterBottomWorldYmm,
+ 'Current B26 ends on B06 fixed spine, not floating');
+assert(adapter.socketToStemOverlapMm>0,
+ 'Unverified end adapter must remain attached to Ø12 socket housing');
+assert(adapter.clearanceToRodMm>=0.5,
+ 'Adapter stem must stay BELOW second PHUC Ø12 output rod');
+assert.equal(adapter.physicalMatingVerified,false,
+ 'Nominal contact is not real threaded mate acceptance');
+assert.equal(adapter.adapterBottomWorldYmm,119);
+assert.equal(adapter.rodBottomWorldYmm,132.5);
+assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:21}),/penetrates/);
+assert.throws(()=>getTerminalAdapterDatums({adapterCenterLocalYmm:-11,adapterHeightMm:17}),/penetrates.*rod/);
+assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:5}),/disconnected/);
+console.log('Photo149 PHUC lower rod-to-B26 candidate face contact and rod-clearance QA PASS');
