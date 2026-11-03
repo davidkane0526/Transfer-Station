@@ -707,8 +707,16 @@ function platformA(){
  const ax=CONFIG.A.armX,sx=CONFIG.A.sampleX;
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
  // not the separate left transfer-arm adjustment stage.
- // A sample branch: 100.jpg rotation -> sample-side T25M.
- makeStageBlock('A02',sx,53.2,0,65,65,20,'样品侧 GCM-T25M (+X)',true,{rotateSample:true},1);
+ // New photos137/161 show the factory-marked GCM-5306M 8mm mount
+ // below the A rotary. It is a BASE, not an additional rotary axis.
+ addPart('A16',sx,20,0,g=>{
+   const p=V28_OEM_DIMENSIONS.GCM5306M;
+   add(g,cub(p.lengthMm,p.thicknessMm,p.widthMm,mats.black,0,4,0));
+   addJointHeads(g,'A16',8-0.2,[[-43,-24],[-43,24],[43,-24],[43,24]],{headR:3});
+   label(g,'GCM-5306M 安装底座 · 112×70×8 mm（非旋转台）',0,24,0);
+ },{explode:[0,-6,0]});
+ // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
+ makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (+X)',true,{rotateSample:true},1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
  makeStageBlock('A15',ax,20,0,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
  // Actual photo 97: A15 dual-axis T25M below upright GCM-VC13M;
@@ -802,14 +810,14 @@ function platformA(){
    label(g,'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
       -24,17,0);
  },{explode:[-13,65,0],moveFilm:true});
- addPart('A06',sx,20,0,g=>{
+ addPart('A06',sx,28,0,g=>{
   add(g,cyl(47,33.2,mats.dark,0,16.6,0));
   add(g,torus(44,1,mats.steel,0,33.5,0));
   const lock=add(g,cyl(6,28,mats.steel,0,12,59));lock.rotation.x=Math.PI/2;
   addJointHeads(g,'A06',33.15,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   label(g,'A 套旋转台：前侧锁止杆候选',0,54,0);
  },{explode:[0,0,0]});
- addPart('A07',sx,73.2,0,g=>{
+ addPart('A07',sx,81.2,0,g=>{
   add(g,cub(65,18,65,mats.steel,0,9,0));
   add(g,cub(28,1.4,28,mats.glass,0,19.1,0));
   addJointHeads(g,'A07',17.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.9});
