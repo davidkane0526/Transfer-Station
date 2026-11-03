@@ -756,7 +756,7 @@ function renderPhotoLedger(){
      const part=PARTS[platform].find(x=>x.id===id);if(!part)continue;
      const b=document.createElement('button');b.className='photo-part';
      b.textContent=id+' · '+part.model+' · '+part.name;
-     const h=HANDLES[id];
+     const h=platform==='B'&&bPhoto94Mode&&id==='B03'?{...HANDLES.B03,direction:'+X',evidence:'用户实拍95，右向微分头；历史108/109为另一候选'}:HANDLES[id];
      if(h){const sp=document.createElement('span');sp.className='source-tag';
        sp.textContent=(h.axes===2?'双轴手柄 X:'+h.direction+' / Y:'+h.secondaryDirection+' · 厚'+h.thicknessMm+'mm':'手柄 '+h.direction)+' · '+h.evidence;b.append(sp);}
      b.onclick=()=>selectPart(id);list.append(b);
@@ -796,11 +796,11 @@ function updateDetail(part){
    '只有顶部四枚及齐平外观经使用者确认；孔距、螺纹和长度仍为候选。')+'</p></div>':'';
  const refPhoto=platform==='A'?PHOTO_94_95_97.imageToParts:null;
  const photoEvidenceBoltCount=[];
- if(platform==='A'&&part.id==='A05'){
-   parts.get('A05')?.g.traverse(o=>{if(o.isMesh&&o.userData.photo94Fastener)photoEvidenceBoltCount.push(o)});
+ if((platform==='A'&&part.id==='A05')||(platform==='B'&&bPhoto94Mode&&part.id==='B32')){
+   parts.get(part.id)?.g.traverse(o=>{if(o.isMesh&&o.userData.photo94Fastener)photoEvidenceBoltCount.push(o)});
  }
- const photo94QAHtml=platform==='A'&&part.id==='A05'?
-   '<div class="field" id="photo-94-mechanics" data-folded="'+(!!parts.get('A05')?.g.userData.photo94BentSheet)+
+ const photo94QAHtml=((platform==='A'&&part.id==='A05')||(platform==='B'&&bPhoto94Mode&&part.id==='B32'))?
+   '<div class="field" id="photo-94-mechanics" data-folded="'+(!!parts.get(part.id)?.g.userData.photo94BentSheet)+
    '" data-top-fasteners="'+photoEvidenceBoltCount.length+
    '"><b>94号实物照片装配检查</b><p>单片L形折弯金属板；顶面照片可见两颗紧固件，模型已绘制 '+
    photoEvidenceBoltCount.length+' 个候选螺钉头。照片未展示的下端玻片夹不可据此指定型号。</p></div>':'';
