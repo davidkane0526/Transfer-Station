@@ -208,9 +208,29 @@ check(abs(photo_sheet.zlen-2.5)<.02 and abs(photo_downfold.zlen-72)<.02,
       'Current B photo shows thin folded sheet, NOT thick beam')
 check(photo_sheet.xmax<82-17,
       'No fabricated bridge connecting photo L sheet to sample optical axis')
-for forbidden in ('B06','B07','B24','B25','B26','B27'):
+# A complete VIEWER/STEP layout must include the photographed system's
+# separate functional branches. A profile with only six film-arm parts is
+# an INCOMPLETE RENDER, not a full model B.
+for required in ('B07','B07A','B08','B09','B10','B11','B12','B13',
+                 'B14_1','B14_2','B14_3','B14_4','B15','B16','B17',
+                 'B18','B19','B20','B21','B22','B23'):
+    check((B94/(required+'.step')).exists(),
+          'B full-model display missing essential component '+required)
+for forbidden in ('B06','B24','B25','B26','B27'):
     check(not (B94/(forbidden+'.step')).exists(),
-          'Do not insert historical PHCP hardware or fake glass clamp into current B photos: '+forbidden)
+          'Do not insert old PHCP film-arm components into current B photo profile: '+forbidden)
+# B07 is only an unconnected optical-location reference until B32's jaw
+# is physically identified. No phantom steel beam may bridge the gap.
+photo_glass=part(B94,'B07')[0].BoundingBox()
+check(photo_sheet.xmax<photo_glass.xmin,
+      'Unregistered photo L sheet and glass are separate; never fabricate a rigid support')
+report['photo_profile_B_full_layout']={
+    'essential_components_present':True,
+    'photo_film_to_sample_mount_verified':False,
+    'glass_holder_connection_verified':False,
+    'status':'full_visible_layout_unregistered',
+    'missing':'B32 to B07 actual clamp and cross-photo frame registration'
+}
 check(part(B94,'B32H1')[0].BoundingBox().zmin>=photo_sheet.zmax-.02 and
       part(B94,'B32H2')[0].BoundingBox().zmin>=photo_sheet.zmax-.02,
       'B photo L plate has two TOP screw heads, not free floating posts')
@@ -219,7 +239,7 @@ report['photo_profile_B']={
   'status':'incomplete_missing_real_glass_grip',
   'same_physical_rig_as_sample_side_confirmed':False,
   'downstream_glass_clamp_confirmed':False,
-  'reason':'Only a folded L plate is photographically identified; no glass jaw or optical-axis reach'
+  'reason':'The entire sample/heater/microscope layout is visible, but B32 glass jaw and exact cross-branch registration remain unknown'
 }
 
 # OEM NFP-1462C manufacturer drawing: do not confuse the 4x Ø6.5
