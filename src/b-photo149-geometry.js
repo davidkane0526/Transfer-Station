@@ -17,8 +17,8 @@ export const B149=Object.freeze({
   phucCenterX:-30,phucCenterY:151.5,
   phucLengthMm:60,phucOuterDiameterMm:30,
   upperRodStartX:-115,upperRodLengthMm:100,
-  lowerRodStartX:-55,lowerRodEndX:38.5,
-  glassHolderOriginY:142,glassHolderSpineLeftX:38.5,
+  lowerRodStartX:-55,lowerRodEndX:24.5,
+  glassHolderOriginY:142,glassHolderSpineLeftX:24.5,
   glassCenterWorldY:125.5,
   heaterTopWorldY:98.2,
   threadStubDiameterMm:6,threadStubLengthMm:10
@@ -50,6 +50,7 @@ export function auditB149(d=B149){
    throw Error('PHUC OEM envelope mismatch');
  if(!(d.upperRodStartX < d.postAxisX-12 && upperRodEndX>=d.phucCenterX+15))
    throw Error('Upper rod must reach from B33 into PHUC-1 without unsupported extra 150mm tail');
+ // The plate holder is yawed 180°, so its spine's OUTER left face is X24.5.
  if(!(d.lowerRodStartX<d.phucCenterX-15 &&
       Math.abs(d.lowerRodEndX-d.glassHolderSpineLeftX)<.01))
    throw Error('Lower Ø12 bar must end exactly at glass holder side face, not pass through solid GCM-1302M');
