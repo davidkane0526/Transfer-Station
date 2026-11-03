@@ -15,6 +15,7 @@ import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrew
 import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums,getTerminalAdapterDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
 import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
+import {B149,auditB149} from './b-photo149-geometry.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -419,11 +420,14 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  addPart('B04',ax,73,0,g=>{
   add(g,cub(65,8,66,mats.dark,0,4,0));
   // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
-  add(g,cub(56,52,18,mats.dark,0,32,-10));
-  add(g,cub(34,49,8,mats.steel,0,34,3));
+  // Photo149 ruler fit: V25M upper mounting flange is nearer to
+  // T25M than V27 assumed. The 32mm rack rise is a PHOTO PROXY,
+  // not the OEM product's full housing-envelope dimension.
+  add(g,cub(56,25,18,mats.dark,0,16,-10));
+  add(g,cub(34,26,8,mats.steel,0,17,3));
   // Embedded face rails, not two disconnected steel posts.
-  for(const x of [-17,17])add(g,cub(2.5,38,1.2,mats.silver,x,31,7.5));
-  add(g,cub(65,8,66,mats.dark,0,58,0));
+  for(const x of [-17,17])add(g,cub(2.5,24,1.2,mats.silver,x,17,7.5));
+  add(g,cub(65,8,66,mats.dark,0,28,0));
   // 108.jpg: V25M micrometer is VERTICAL (+Y), distinct from T25M.
   add(g,cub(16,14,18,mats.dark,-24,24,0));
   add(g,cyl(6.5,40,mats.silver,-24,46,0));
@@ -434,7 +438,10 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // A direct cantilever replaces the unsupported 85mm vertical post,
  // rearward 249mm return bar and second hanging post. Attachment is
  // a candidate because the actual fixture screws are unmeasured.
- const link=filmCantileverB({armX:ax,sampleX:CONFIG.B.sampleX});
+ const rack=auditB149(B149);
+ const link=filmCantileverB({armX:ax,sampleX:CONFIG.B.sampleX,
+   baseY:rack.b04TopY,clampTopY:rack.glassHolderSpineTopY,
+   rodCenterY:rack.upperRodY-rack.b04TopY});
  // B05 is now only the B04 mounting foot; the hardware is decomposed
  // into independently selectable source-identified models, with a nonstandard
  // terminal adapter B26 still explicitly not accepted.
@@ -442,7 +449,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  const postBaseDatums=getPostBaseDatums();
  // The unverified plate adapter is separate from the SOURCE-DOCUMENTED
  // round Zolix PHPB-1 post base (Ø36); do not use a solid cube as the bore.
- addPart('B05',ax,link.mountY,0,g=>{
+ addPart('B05',ax,rack.supportPlateBottomY,0,g=>{
    g.userData.cantileverLink=link;
    add(g,cub(65,6,66,mats.black,0,3,0));
    // Source PHPB-1 nominal shape, flange height/center are fit candidates.
@@ -459,17 +466,32 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    addJointHeads(g,'B05',5.95,[[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
    label(g,'V25M转接基板 + PHPB-1型圆形杆底座（候选）',0,29,0);
  },{explode:[-30,55,-13],moveFilm:true});
- // The 25-mm PHSP12-1 post seats in the PHPB Ø12 through bore and
- // then in the lower PHCP-2 ring, without crossing the long steel post.
- addPart('B27',ax+14,link.mountY+9,crossDatums.verticalBore.z,g=>{
-   add(g,cyl(6,25,mats.steel,0,12.5,0,48));
-   add(g,cyl(6,1.1,mats.silver,0,25,0,36));
-   label(g,'竖向接杆 Ø12 · 当前长度仅为候选，照片149待配准',0,35,0);
+ // Photo149: steel post extends THROUGH a 50mm cylindrical holder
+ // and THROUGH B33 square clamp with a threaded tip still exposed.
+ // Previous 25mm rod was physically incapable of supporting B33.
+ addPart('B27',rack.postAxisX,rack.supportPostBottomY,rack.postAxisZ,g=>{
+   const rod=add(g,cyl(rack.postDiameterMm/2,rack.supportPostLengthMm,mats.steel,
+     0,rack.supportPostLengthMm/2,0,56));
+   rod.userData.candidate100mmFit=true;
+   // Small M6-like terminal witness, not a verified thread pitch.
+   add(g,cyl(3,3,mats.silver,0,rack.supportPostLengthMm+1.5,0,32));
+   label(g,'竖向接杆 Ø12×100 mm（PHSP12-4 尺规候选）',0,114,0);
  },{explode:[-25,55,-13],moveFilm:true});
+ // Photo149: missing BLACK sleeve: ~4-5 cm tall; Zolix PHSH-2 50mm
+ // is a series-length CANDIDATE, no photo-visible SKU.
+ addPart('B34',rack.postAxisX,rack.postHolderBottomY,rack.postAxisZ,g=>{
+   add(g,sleeve(rack.postHolderODmm/2,rack.postDiameterMm/2+.08,
+      rack.postHolderHeightMm,mats.black,0,rack.postHolderHeightMm/2,0,'y'));
+   add(g,torus(rack.postHolderODmm/2,.55,mats.dark,0,
+      rack.postHolderHeightMm-.75,0));
+   g.userData.photo149HolderDatums=rack;
+   g.userData.modelConfirmed=false;
+   label(g,'黑色立杆套筒 · PHSH-2 50mm仅候选',0,65,0);
+ },{explode:[-23,55,-13],moveFilm:true});
  // Photo149 additionally shows a SEPARATE small square connector
  // joining the support post to the first long horizontal Ø12 rod.
  // No identifiable OEM SKU is legible; shape is a two-hole proxy.
- addPart('B33',ax+14,171.5,-7.5,g=>{
+ addPart('B33',rack.postAxisX,rack.squareClampCenterY,-7.5,g=>{
    add(g,sleeve(11,6.05,20,mats.dark,0,0,-7.5,'y'));
    add(g,sleeve(11,6.05,20,mats.black,0,0,7.5,'x'));
    thumbKnob(g,0,12,-7.5,'y',3.5);
@@ -482,7 +504,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // Full housing, two rotatable barrel halves, and insertion datums are
  // not vendor-native CAD; the two orthogonal ring cutouts here are
  // presentation proxies until photo/part coordinate registration.
- addPart('B24',-30,155,0,g=>{
+ addPart('B24',rack.phucCenterX,rack.phucCenterY,0,g=>{
    const oem=V28_OEM_DIMENSIONS.PHUC1;
    g.userData.phuc1OEM=oem;
    g.userData.photoMeasured=false;
@@ -506,7 +528,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  },{explode:[-23,58,-13],moveFilm:true});
  // Zolix PHSP12-5: OEM Ø12×150, with ~10 mm hidden in mount.
  // The label is a product reference, not a claim of photo identification.
- addPart('B25',ax+2,171.5,0,g=>{
+ addPart('B25',ax+2,rack.upperRodY,0,g=>{
    const rod=add(g,cyl(6,150,mats.steel,75,0,0,60));
    rod.rotation.z=Math.PI/2;
    add(g,cub(.35,10,2.1,mats.ink,148,0,0)); // subdued rod-end witness
@@ -515,7 +537,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // The second rod is visible through the other PHUC-1 opening in both
  // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
  // Keep it separate in BOM and selection. The glass coupling is unverified.
- addPart('B28',-30,138.5,0,g=>{
+ addPart('B28',rack.phucCenterX,rack.lowerRodY,0,g=>{
    const output=add(g,cyl(6,82,mats.steel,41,0,0,48));
    output.rotation.z=Math.PI/2;
    g.userData.candidateLengthMm=82;
@@ -524,7 +546,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  },{explode:[-14,62,20],moveFilm:true});
  // A model-compatible terminal socket and down-link. The specific adapter
  // is NOT yet identified; do not give it an OEM part number.
- addPart('B26',link.clampWorldX,138.5,0,g=>{
+ addPart('B26',link.clampWorldX,rack.terminalSocketCenterY,0,g=>{
    const adapterDatums=getTerminalAdapterDatums();
    g.userData.terminalAdapterDatums=adapterDatums;
    add(g,sleeve(13,6.05,16,mats.black,0,0,0,'x'));
@@ -881,7 +903,7 @@ function renderPhotoLedger(){
  const host=$('photo-ledger');if(!host)return;host.replaceChildren();
  const stack=STACKS[platform];
  const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32','B07']:
-   platform==='B'?['B02','B03','B04','B05','B27','B33','B25','B24','B28','B26','B06','B07']:stack.film;
+   platform==='B'?['B02','B03','B04','B05','B34','B27','B33','B25','B24','B28','B26','B06','B07']:stack.film;
  const sampleIds=stack.sample;
  const note=document.createElement('p');note.textContent=platform==='B'&&bPhoto94Mode?'照片94/95/97新结构：T25M→VC13M→G40M60L→L片；下方B29底座只辨认出轮廓，不能套用另一档案的磁吸底座型号。':stack.confidence;host.append(note);
  for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds})){
@@ -1118,7 +1140,7 @@ function resetScene(){
    const required=['B01','B03','B07','B08','B09','B10','B11','B12',
      'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23'];
    if(bPhoto94Mode)required.push('B29','B30','B31','B32');
-   else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33');
+   else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33','B34');
    const missing=required.filter(id=>!parts.has(id));
    if(missing.length)throw new Error('Model B missing required scene components: '+missing.join(', '));
  }
