@@ -780,9 +780,18 @@ function renderPhotoLedger(){
    'A15 与 A02 为两台不同 T25M：照片97所示 A15 在 VC13M 下；照片100所示 A02 在旋转台上。';
  host.append(m);
 }
+// Only show/export parts that are actually present in the selected assembly.
+// Never add variant-exclusive prototypes to user-facing purchase totals.
+function activeParts(){
+ if(platform!=='B')return PARTS[platform];
+ const hidden=bPhoto94Mode?
+  new Set(['B02','B04','B05','B06','B07','B24','B25','B26','B27']):
+  new Set(['B29','B30','B31','B32']);
+ return PARTS.B.filter(p=>!hidden.has(p.id));
+}
 function populateGroups(){
  const list=$('group-list');list.replaceChildren();
- const meta=PARTS[platform];for(const [key,cfg] of Object.entries(groups)){
+ const meta=activeParts();for(const [key,cfg] of Object.entries(groups)){
    const subset=meta.filter(x=>x.group===key);if(!subset.length)continue;
    const line=document.createElement('label');line.className='group-row';
    const input=document.createElement('input');input.type='checkbox';input.checked=key!=='external';input.dataset.group=key;
@@ -990,9 +999,7 @@ function sortedBOM(rows){
 function visibleBOM(){
  const q=$('bom-query').value.trim().toLowerCase();
  const priceOnly=$('priced-only').checked;
- return sortedBOM(PARTS[platform].filter(p=>platform!=='B'||(bPhoto94Mode?
-   !['B04','B05','B06','B07','B24','B25','B26','B27'].includes(p.id):
-   !['B30','B31','B32'].includes(p.id))).map(p=>enriched(platform,p)).filter(p=>
+ return sortedBOM(activeParts().map(p=>enriched(platform,p)).filter(p=>
     (!priceOnly||Boolean(p.quote?.value))&&
     (!q||[p.id,p.name,p.model,p.maker,p.category,p.note,
           ...(p.alternatives||[]).flatMap(a=>a.slice(0,2))]
@@ -1034,12 +1041,12 @@ function updateTable(){
   };
   tbody.append(tr);
  }
- summaryBOM(PARTS[platform].map(x=>enriched(platform,x)));
+ summaryBOM(activeParts().map(x=>enriched(platform,x)));
  $('bom-heading').textContent='平台 '+platform+' · 原厂 BOM / 替代厂家 / 采购价格和总额';
 }
 function csvEscape(v){return '"'+String(v??'').replaceAll('"','""')+'"'}
 function exportCSV(){
- const matrix=csvExportRows(PARTS[platform].map(p=>enriched(platform,p)));
+ const matrix=csvExportRows(activeParts().map(p=>enriched(platform,p)));
  const body='\\ufeff'+matrix.map(row=>row.map(csvEscape).join(',')).join('\\r\\n');
  const url=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));
  const a=document.createElement('a');a.href=url;a.download='Transfer_Station_'+platform+'_Procurement_BOM.csv';a.click();
