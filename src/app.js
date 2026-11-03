@@ -316,10 +316,12 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   const lowerTop=jaw.fixedJawTopLocalY;
   const upperBottom=jaw.movableJawBottomLocalY;
   add(g,cub(22,4,56,mats.steel,-10,lowerTop-2,0)); // ONE lower fixed face
-  add(g,cub(22,3.5,56,mats.silver,-10,upperBottom+1.75,0));
+  add(g,cub(22,jaw.movablePlateThicknessMm,56,mats.silver,-10,
+    upperBottom+jaw.movablePlateThicknessMm/2,0));
   // Two independent threaded adjusters push the SAME moving plate.
   for(const z of jaw.screwZmm){
-    const drive=add(g,cyl(1.7,12,mats.steel,-10,-5.7,z,24));
+    const drive=add(g,cyl(1.7,jaw.screwShaftLengthMm,mats.steel,
+      -10,jaw.screwShaftCenterLocalY,z,24));
     drive.userData.plateHolderActuator=true;
     const knob=add(g,cyl(4.2,5,mats.silver,-10,2.8,z,36));
     knob.userData.plateHolderActuatorKnob=true;
