@@ -15,11 +15,12 @@ export const HOLDER_OEM={
   gcmScrewDriveCount:2
 };
 export function getCrossClampDatums({
-  supportPostZmm=-20,horizontalPostZmm=0,postRadiusMm=6,
+  supportPostZmm=-15,horizontalPostZmm=0,postRadiusMm=6,
   ringOuterRadiiMm=[12.5,13],minimumRodSurfaceGapMm=2
 }={}){
   const boreSpacingMm=Math.abs(supportPostZmm-horizontalPostZmm);
   const rodSurfaceClearanceMm=boreSpacingMm-2*postRadiusMm;
+  // The two OEM through-holes are disjoint in a candidate swivel configuration.
   if(!(rodSurfaceClearanceMm>=minimumRodSurfaceGapMm))
     throw new Error('Two solid Ø12 posts would intersect or violate visual clearance');
   if(ringOuterRadiiMm.some(r=>r<=postRadiusMm))
@@ -28,6 +29,7 @@ export function getCrossClampDatums({
     verticalBore:{axis:'Y',x:0,z:supportPostZmm},
     horizontalBore:{axis:'X',x:0,z:horizontalPostZmm},
     boreSpacingMm,rodSurfaceClearanceMm,
+    pivot:{x:11,y:11,z:supportPostZmm/2,radiusMm:4.5,lengthMm:8},
     outerDiametersMm:ringOuterRadiiMm.map(r=>2*r),
     interfaceAccepted:false,
     evidence:'Zolix PHCP-2 OEM Ø12 bores; offset is unverified assembly proxy'
