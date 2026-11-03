@@ -429,8 +429,11 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   add(g,cub(34,49,8,mats.steel,0,34,3));
   // Embedded face rails, not two disconnected steel posts.
   for(const x of [-17,17])add(g,cub(2.5,38,1.2,mats.silver,x,31,7.5));
-  // Moving V25M flange BELOW tall fixed guides (photo108).
-  add(g,cub(65,8,66,mats.dark,0,13,0));
+  // Photo108: small SIDE bridge connects the moving guide front
+  // (Z=+7) to the B05 plate side face (X=stage+28). It must NOT be
+  // the old 65x66 slab INSIDE the stationary 56x18 upright.
+  const bracket=add(g,cub(25,15,18,mats.dark,15.5,19.5,16));
+  bracket.userData.movingSideBridge=true;
   // 108.jpg: V25M micrometer is VERTICAL (+Y), distinct from T25M.
   add(g,cub(16,14,18,mats.dark,-24,24,0));
   add(g,cyl(6.5,40,mats.silver,-24,46,0));
@@ -454,7 +457,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // Photo149 has a BLACK thin plate with a long cylindrical sleeve
  // seated directly above it. No separate Ø36 PHPB-1 circular foot is
  // seen there: drawing that old flange would collide with the holder.
- addPart('B05',ax,rack.supportPlateBottomY,0,g=>{
+ addPart('B05',rack.b05CenterX,rack.supportPlateBottomY,0,g=>{
    g.userData.cantileverLink=link;
    g.userData.photo149FlatPlateOnly=true;
    add(g,cub(65,rack.supportPlateHeightMm,66,mats.black,
