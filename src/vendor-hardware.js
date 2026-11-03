@@ -3,14 +3,17 @@
 // VERIFIED. Geometry orientation and junctions are layout candidates only.
 export const OPTICAL_HARDWARE={
   B24:{
-    maker:'Zolix',model:'PHCP-2',name:'可旋转交叉接杆夹（候选）',
-    known:{postDiameterMm:12,holes:2,relativeRotationDeg:360,weightKg:0.05},
-    oemDrawing:'https://www.zolix.com.cn/en/filespath/images/20220530094452.png',
-    picturedBodiesMm:[25,26],boreAxisOffset:'unmeasured; 15mm local Z is preview only',
-    bodyKind:'two_round_swivel_clamps',confidence:'manufacturer-product-exists/photo-match-not-confirmed',
-    url:'https://www.zolix.com.cn/prodcon_371_399_467_729.html',
-    alternative:{maker:'Zolix',model:'PHCP-1',postDiameterMm:12,angleDeg:90,
-      url:'https://www.zolix.com.cn/prodcon_371_399_467_728.html'}
+    maker:'Zolix',model:'PHUC-1',name:'万向旋转双杆夹（照片149实物铭牌确认）',
+    known:{postDiameterMm:12,holes:2,relativeRotationDeg:360,
+      weightKg:0.12,lengthAmm:60,outerDiameterBmm:30,
+      boreCenterSpacingEmm:33},
+    oemDrawing:'https://www.zolix-group.com/public/storage/upload/files/MirrorMount/PHUC.pdf',
+    bodyKind:'phuc_universal_two_clamp_bodies',
+    confidence:'photo149-model-confirmed/OEM-dimensions-confirmed/assembly-angles-pending',
+    url:'https://www.zolix-group.com/product/detail/121.html',
+    alternative:{maker:'Zolix',model:'PHCP-2',postDiameterMm:12,
+      note:'Different two-part clamp; NOT the pictured PHUC-1',
+      url:'https://www.zolix.com.cn/prodcon_371_399_467_729.html'}
   },
   B25:{
     maker:'Zolix',model:'PHSP12-5',name:'不锈钢 Ø12×150 mm 接杆（候选）',
@@ -27,9 +30,9 @@ export const OPTICAL_HARDWARE={
     url:'https://www.zolix-group.com/product/specification/746.html'
   },
   B06:{
-    maker:'Daheng',model:'GCM-1302M',name:'薄板夹持器（候选）',
+    maker:'Daheng',model:'GCM-1302M',name:'薄板夹持器（照片150确认型号）',
     known:{acceptsPlateThicknessUpToMm:5,thread:'M6',modelLmm:60,weightG:105},
-    confidence:'manufacturer-product-exists/photo-match-not-confirmed',
+    confidence:'photo150-model-confirmed/OEM-plate-dimensions-confirmed/jaw-fit-pending',
     mechanism:{adjustmentScrewCount:2,movingPressurePlates:1,documentedBy:'Daheng GCM-13 product description'},
     url:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/夾持器/其他光學元件夾持器件/gcm-13系列-底片架/',
     alternative:{maker:'Daheng',model:'GCSM-680010',mountingPitchMm:[50,25],
@@ -40,9 +43,11 @@ export const OPTICAL_HARDWARE={
 export const HOLDER_CONNECTIVITY=[
  {id:'V25M-top-to-base',from:'B04',to:'B05',status:'candidate'},
  {id:'base-to-short-post',from:'B05',to:'B27',status:'candidate'},
- {id:'short-post-through-swivel',from:'B27',to:'B24',status:'candidate'},
- {id:'swivel-to-long-post',from:'B24',to:'B25',status:'candidate'},
- {id:'long-post-to-adapter',from:'B25',to:'B26',status:'candidate'},
+ {id:'support-post-to-square-clamp',from:'B27',to:'B33',status:'photo-body-model-pending'},
+ {id:'square-clamp-to-first-rod',from:'B33',to:'B25',status:'photo-body-model-pending'},
+ {id:'first-rod-to-PHUC',from:'B25',to:'B24',status:'photo-model-confirmed/joint-angle-pending'},
+ {id:'PHUC-to-second-rod',from:'B24',to:'B28',status:'photo-model-confirmed/rod-length-pending'},
+ {id:'second-rod-to-adapter',from:'B28',to:'B26',status:'candidate-attachment-pending'},
  {id:'adapter-to-plate-holder',from:'B26',to:'B06',status:'candidate'},
  {id:'plate-holder-to-slide',from:'B06',to:'B07',status:'photo-only'}
 ];
@@ -57,5 +62,7 @@ export function checkSourcedHolderPath(){
   if(!OPTICAL_HARDWARE[key]?.url)throw Error('Unsourced OEM model '+key);
  }
  return {connected:true,links:HOLDER_CONNECTIVITY.length,
-   realHardwareIdentityAccepted:false,physicalFastenersAccepted:false};
+   photoConfirmedModels:['B24:PHUC-1','B06:GCM-1302M'],
+   realHardwareIdentityAccepted:true,
+   fullAssemblyAccepted:false,physicalFastenersAccepted:false};
 }
