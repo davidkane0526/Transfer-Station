@@ -383,6 +383,30 @@ report['critical_rig_collision_audit']={
     'upright_micrometer_clash_mm3':0,
     'physical_thread_fit_verified':False
 }
+# A zero-intersection score alone does NOT prove a face is connected:
+# old B06F touched the fixed spine by only 0.5mm of its 4mm thickness.
+# Shift each member 0.05mm across its intended mating plane and
+# estimate actual shared-face area = tiny overlap volume / 0.05mm.
+# These are *photo-fit geometric* face areas, NOT fastener/load ratings.
+face_contacts=[
+    ('B04B','B04E',(0,-.05,0),150),  # movable guide to side bracket
+    ('B04B','B05',(.05,0,0),80),    # bracket to top plate
+    ('B04G','B04A',(.05,0,0),20),   # external micrometer collar to upright
+    ('B34','B05',(0,0,-.05),150), # holder annular base to mounting plate
+    ('B06F','B06',(-.05,0,0),175),# fixed lower jaw edge to GCM spine
+    ('B06M','B06',(-.05,0,0),160) # moving plate contact, NOT interpenetration
+]
+face_areas={}
+for ka,kb,delta,min_area in face_contacts:
+    a=candidate_solids[ka] if ka in candidate_solids else part(B,ka)[0]
+    b=candidate_solids[kb] if kb in candidate_solids else part(B,kb)[0]
+    overlap=a.translate(delta).intersect(b).Volume()
+    area=overlap/.05
+    check(area>=min_area,
+          f'V31 supported mating FACE {ka}/{kb}: {area:.1f} mm² must be ≥{min_area}')
+    face_areas[ka+'→'+kb]=round(area,2)
+report['candidate_face_contact_areas_mm2']=face_areas
+report['candidate_face_contact_limitations']='No validated screw engagement, preload, full-travel or mechanical load capacity'
 # CAD XY plane maps to WebGL X/Z. CAD back = negative Y.
 from cadquery import Vector
 vac=part(B,'B15')[0]
