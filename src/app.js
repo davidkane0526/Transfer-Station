@@ -181,7 +181,7 @@ function makeBoard(){
   label(g,'光学面包板 · 25 mm 网格',-140,h+10,120);
  },{explode:[0,0,0]});
 }
-function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handleSide=1,axes=1,depthHandleSide=1){
+function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handleSide=1,axes=1,depthHandleSide=1,actuatorZ=0){
  // Vendor GCM-T25M series: 1 axis = 20 mm; 2 axes (T25M2L/2C) = 33 mm.
  // The double-axis stage has orthogonal actuators and TWO coupled carriages.
  if(axes===2 && Math.abs(h-33)>0.01)throw Error('Official GCM-T25M two-axis thickness must be 33mm');
@@ -206,10 +206,10 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
    add(carriageX,cub(w*.94,h-lowerH,d*.92,mats.dark,0,lowerH+(h-lowerH)/2,0));
   }
   const side=handleSide;
-  add(g,cub(14,12,14,mats.dark,side*(w/2+6),h-9,0));
-  const xStem=add(g,cyl(6,27,mats.silver,side*(w/2+24),h-9,0));xStem.rotation.z=Math.PI/2;
-  const xDrum=add(g,cyl(9,14,mats.silver,side*(w/2+43),h-9,0));xDrum.rotation.z=Math.PI/2;
-  label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,0);
+  add(g,cub(14,12,14,mats.dark,side*(w/2+6),h-9,actuatorZ));
+  const xStem=add(g,cyl(6,27,mats.silver,side*(w/2+24),h-9,actuatorZ));xStem.rotation.z=Math.PI/2;
+  const xDrum=add(g,cyl(9,14,mats.silver,side*(w/2+43),h-9,actuatorZ));xDrum.rotation.z=Math.PI/2;
+  label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,actuatorZ);
   if(JOINTS[id])addJointHeads(g.userData.slidingTop,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g.userData.slidingTop,3,h+.5,xx,zz);
   label(g,title,0,h+11,0);
@@ -240,7 +240,7 @@ function filmB(){
  if(bPhoto94Mode){
    makeStageBlock('B03',ax,40,0,65,65,33,
       'GCM-T25M（用户照片95对照 · 2轴）',
-      false,{},1,2,1);
+      false,{},1,2,1,26); // front-offset X micrometer, as seen in user photo95
  addPart('B30',ax,73,0,g=>{
    // Photo97 footprint has a much narrower upright body than the 65mm
    // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
