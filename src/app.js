@@ -434,10 +434,18 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   // the old 65x66 slab INSIDE the stationary 56x18 upright.
   const bracket=add(g,cub(25,15,18,mats.dark,15.5,19.5,16));
   bracket.userData.movingSideBridge=true;
-  // 108.jpg: V25M micrometer is VERTICAL (+Y), distinct from T25M.
-  add(g,cub(16,14,18,mats.dark,-24,24,0));
-  add(g,cyl(6.5,40,mats.silver,-24,46,0));
-  add(g,cyl(9,17,mats.silver,-24,73,0));
+  // Photos108/149: V25M micrometer is vertical and OUTSIDE the
+  // left upright, not penetrating its solid body. Old V30 micrometer
+  // overlapped the stationary guide by ~1456 mm³ in STEP.
+  // An annular Ø13.2 guide plus a small tangent bracket supports the
+  // shaft. True coupling/thread is still a photo-fit candidate.
+  const collar=add(g,sleeve(9,6.6,10,mats.dark,-39,36,0,'y'));
+  collar.userData.realMicrometerClearanceBore=true;
+  const support=add(g,cub(5,10,4,mats.dark,-30.5,36,-2));
+  support.userData.micrometerGuideSupportCandidate=true;
+  const verticalShaft=add(g,cyl(6.5,40,mats.silver,-39,49,0));
+  verticalShaft.userData.micrometerOutsideUpright=true;
+  add(g,cyl(9,17,mats.silver,-39,77.5,0));
   addJointHeads(g,'B04',7.95,[[-25,-24],[-25,24],[25,-24],[25,24]],{headR:2.5});
   label(g,'GCM-V25M · 竖直测微头 +Y',0,89,0);
  },{explode:[-24,30,0],moveFilm:true});
@@ -583,7 +591,10 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   });
   g.userData.gcmJawDatums=jaw;
   const sideBoreY=rack.lowerRodY-rack.glassHolderOriginY;
-  const spine=add(g,frontXRodBracket(17,15,56,mats.dark,7,-10,0,
+  // Spine right-side face and the jaw/pressure plate only TOUCH.
+  // V30 fixed width=17mm penetrated B06F by 70mm³ and B06M by
+  // 490mm³; shrink from 17 to 14.5 without shifting the M6 side face.
+  const spine=add(g,frontXRodBracket(14.5,15,56,mats.dark,8.25,-10,0,
      sideBoreY,0,rack.threadStubDiameterMm/2+.06));
   spine.userData.trueM6SideHole=true;
   add(g,cub(24,5,56,mats.black,-6,-.2,0)); // shared upper screw bridge
