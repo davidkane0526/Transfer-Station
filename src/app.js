@@ -471,7 +471,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // Full housing, two rotatable barrel halves, and insertion datums are
  // not vendor-native CAD; the two orthogonal ring cutouts here are
  // presentation proxies until photo/part coordinate registration.
- addPart('B24',ax+14,link.mountY+20,0,g=>{
+ addPart('B24',ax+14,link.mountY+20-16.5,0,g=>{
    const oem=V28_OEM_DIMENSIONS.PHUC1;
    g.userData.phuc1OEM=oem;
    g.userData.photoMeasured=false;
@@ -502,7 +502,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // The second rod is visible through the other PHUC-1 opening in both
  // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
  // Keep it separate in BOM and selection. The glass coupling is unverified.
- addPart('B28',ax+14,link.mountY+20,0,g=>{
+ addPart('B28',ax+14,link.mountY+20-33,0,g=>{
    const output=add(g,cyl(6,82,mats.steel,0,0,41,48));
    output.rotation.x=Math.PI/2;
    g.userData.candidateLengthMm=82;
