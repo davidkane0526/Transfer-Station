@@ -5,6 +5,8 @@ export const OPTICAL_HARDWARE={
   B24:{
     maker:'Zolix',model:'PHCP-2',name:'可旋转交叉接杆夹（候选）',
     known:{postDiameterMm:12,holes:2,relativeRotationDeg:360,weightKg:0.05},
+    oemDrawing:'https://www.zolix.com.cn/en/filespath/images/20220530094452.png',
+    picturedBodiesMm:[25,26],boreAxisOffset:'unmeasured; 15mm local Z is preview only',
     bodyKind:'two_round_swivel_clamps',confidence:'manufacturer-product-exists/photo-match-not-confirmed',
     url:'https://www.zolix.com.cn/prodcon_371_399_467_729.html',
     alternative:{maker:'Zolix',model:'PHCP-1',postDiameterMm:12,angleDeg:90,
@@ -28,6 +30,7 @@ export const OPTICAL_HARDWARE={
     maker:'Daheng',model:'GCM-1302M',name:'薄板夹持器（候选）',
     known:{acceptsPlateThicknessUpToMm:5,thread:'M6',modelLmm:60,weightG:105},
     confidence:'manufacturer-product-exists/photo-match-not-confirmed',
+    mechanism:{adjustmentScrewCount:2,movingPressurePlates:1,documentedBy:'Daheng GCM-13 product description'},
     url:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/夾持器/其他光學元件夾持器件/gcm-13系列-底片架/',
     alternative:{maker:'Daheng',model:'GCSM-680010',mountingPitchMm:[50,25],
       note:'专用显微镜载玻片架，中央镂空；平移台直装而非横杆侧夹',
