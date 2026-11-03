@@ -114,6 +114,9 @@ assert((await page.locator('#holder-geometric-qa').getAttribute('data-drive-coun
 assert((await page.locator('#holder-geometric-qa').getAttribute('data-pressure-plate-count'))==='1',
  'Two GCM screws must drive one shared moving pressure plate');
 
+await page.locator('#btn-film-holder').click();
+await page.waitForTimeout(400);
+await page.screenshot({path:'Transfer-Station-V25-Holder-OEM-Closeup.png',fullPage:true});
 await page.locator('#btn-film-stack').click();
 await page.waitForTimeout(400);
 await page.screenshot({path:'Transfer-Station-V25-Holder-Detail-B.png',fullPage:true});
