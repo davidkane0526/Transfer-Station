@@ -33,7 +33,16 @@ try{
  await page.locator('#btn-film-stack').click();
  await page.evaluate(()=>window.scrollTo(0,0));
  await page.screenshot({path:'Transfer-Station-V29-B-Post-Sleeve-Closeup.png'});
- await page.locator('#viewer').screenshot({path:'Transfer-Station-V29-B-Film-Viewer.png'});
+ // Avoid locator.screenshot's "element stability" wait: the WebGL
+ // canvas renders continuously with OrbitControls damping. Capture the
+ // SAME viewer rectangle from the page instead, without scrolling an
+ // animating element into view for 12 seconds.
+ const viewerBox=await page.locator('#viewer').boundingBox();
+ assert(viewerBox&&viewerBox.width>300&&viewerBox.height>300,
+   'Model B close-up viewer should be sized and visible');
+ await page.screenshot({path:'Transfer-Station-V29-B-Film-Viewer.png',
+   clip:{x:viewerBox.x,y:viewerBox.y,width:viewerBox.width,height:viewerBox.height},
+   animations:'disabled',timeout:30000});
  await page.locator('#btn-home').click();
  await page.locator('#open-bom').click();
  const rows=await page.locator('#bom-body tr').allTextContents();
