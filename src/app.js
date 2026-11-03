@@ -245,32 +245,65 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // rearward 249mm return bar and second hanging post. Attachment is
  // a candidate because the actual fixture screws are unmeasured.
  const link=filmCantileverB({armX:ax,sampleX:CONFIG.B.sampleX});
+ // B05 is now only the B04 mounting foot; the hardware is decomposed
+ // into independently selectable source-identified models, with a nonstandard
+ // terminal adapter B26 still explicitly not accepted.
  addPart('B05',ax,link.mountY,0,g=>{
    g.userData.cantileverLink=link;
-   add(g,cub(47,6,45,mats.black,0,3,0)); // flush contact with B04 top at Y=135
-   add(g,cub(28,18,22,mats.dark,12,14,0));
-   const rod=add(g,cyl(6.35,link.rodLength,mats.steel,
-     link.rodCenterX,link.rodCenterY,link.rodZ));
-   rod.rotation.z=Math.PI/2;
-   // Terminal bracket seats exactly on B06 upper face (world Y=128).
-   add(g,cub(23,link.terminalHeight,22,mats.dark,
-     link.rodEndX,link.terminalCenterY,0));
+   add(g,cub(47,6,45,mats.black,0,3,0)); // seats on V25M Y=135
+   add(g,cub(26,8,26,mats.dark,14,10,0)); // under PHSP12 short post
    addJointHeads(g,'B05',5.95,[[-18,-16],[-18,16],[18,-16],[18,16]],{headR:2.6});
-   label(g,'左侧边夹直线悬臂（孔位和长度待核）',49,39,0);
+   label(g,'V25M转接底座 · 孔位待核',6,28,0);
  },{explode:[-30,55,-13],moveFilm:true});
+ // Source: Zolix PHSP12-1, actual OEM nominal Ø12×25.
+ addPart('B27',ax+14,link.mountY+14,0,g=>{
+   add(g,cyl(6,25,mats.steel,0,12.5,0,48));
+   add(g,cyl(6.5,1.1,mats.silver,0,25,0,36)); // end finish (proxy)
+   label(g,'PHSP12-1 · Ø12×25（型号候选）',0,37,0);
+ },{explode:[-25,55,-13],moveFilm:true});
+ // Source: Zolix PHCP-2 two Ø12 clamp holes, relative 360° rotation.
+ // Both rings are genuine THROUGH bores, not painted dark circles.
+ addPart('B24',ax+14,link.mountY+20,0,g=>{
+   add(g,sleeve(14,6.05,19,mats.dark,0,0,0,'y'));
+   add(g,sleeve(13,6.05,19,mats.black,0,0,0,'x'));
+   // Two separate locking screws: clamp to vertical and horizontal posts.
+   thumbKnob(g,0,0,16,'z',4.7);
+   thumbKnob(g,15,0,0,'x',4.7);
+   label(g,'Zolix PHCP-2 · Ø12双孔（候选）',7,25,0);
+ },{explode:[-23,58,-13],moveFilm:true});
+ // Zolix PHSP12-5: OEM Ø12×150, with ~10 mm hidden in mount.
+ // The label is a product reference, not a claim of photo identification.
+ addPart('B25',ax+2,link.mountY+20,0,g=>{
+   const rod=add(g,cyl(6,150,mats.steel,75,0,0,60));
+   rod.rotation.z=Math.PI/2;
+   add(g,cub(.35,10,2.1,mats.ink,148,0,0)); // subdued rod-end witness
+   label(g,'PHSP12-5 · Ø12×150（长度候选）',72,17,0);
+ },{explode:[-20,64,-13],moveFilm:true});
+ // A model-compatible terminal socket and down-link. The specific adapter
+ // is NOT yet identified; do not give it an OEM part number.
+ addPart('B26',link.clampWorldX,link.mountY+20,0,g=>{
+   add(g,sleeve(13,6.05,16,mats.black,0,0,0,'x'));
+   add(g,cub(20,21,20,mats.dark,0,-17,0));
+   thumbKnob(g,0,-2,16,'z',4.2);
+   label(g,'末端连接 · Ø12/M6仍需配准',0,23,0);
+ },{explode:[-20,65,2],moveFilm:true});
  // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
  // Place plate clamp at glass LEFT edge, away from the sample optical axis.
  // 180 degree yaw changes jaw engagement from leftward to rightward.
  addPart('B06',link.clampWorldX,121.5,0,g=>{
-  add(g,cub(34,13,21,mats.dark,0,0,0));
-  add(g,cub(16,23,32,mats.steel,19,-9,0));
-  // Narrow opposed edge jaws only enter the first 12 mm of the glass;
-  // they must not enclose the optical/sample region at x=sampleX.
-  add(g,cub(22,4,14,mats.silver,-10,-19,0));
-  add(g,cub(22,4,14,mats.silver,-10,-13.5,0));
-  add(g,cub(6,15,14,mats.dark,2,-13.5,0)); // end jaw bridge
+  // Daheng GCM-1302M plate-holder FAMILY: OEM specifies M6, L=60mm,
+  // optics <=5mm thick. L-axis and fine jaw geometry are display candidates.
+  // The black U-spine and TWO independent spring-like jaw contacts replace
+  // the previous featureless block marked CLAMP.
+  add(g,cub(20,13,60,mats.dark,10,0,0)); // 60mm nominal envelope
+  for(const z of [-8,8]){
+    add(g,cub(22,4,6,mats.silver,-10,-19,z)); // lower edge contact
+    add(g,cub(22,4,6,mats.silver,-10,-13.5,z)); // upper edge contact
+    add(g,cub(8,14,6,mats.black,3,-13.5,z)); // return jaw link
+  }
+  add(g,cub(13,15,15,mats.black,17,-12,0)); // mounting socket
   addJointHeads(g,'B06',6.35,[[-10,-6],[8,6]],{headR:2.6});
-  label(g,'玻片夹：1.5-mm 夹口（候选）',0,24,0);
+  label(g,'Daheng GCM-1302M · M6/L60（候选）',4,24,0);
  },{explode:[-20,65,5],moveFilm:true,facingYaw:Math.PI});
  addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
   add(g,cub(76,1,26,mats.glass,0,0,0));
