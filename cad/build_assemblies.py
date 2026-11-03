@@ -8,7 +8,7 @@ from cadquery import Vector
 import csv, json
 
 OUT=Path(__file__).resolve().parents[1]/'build'
-PARTS={'A':[],'B':[],'B_photo94':[]}
+PARTS={'A':[],'B':[]}
 def box(w,d,h,x,y,z):
     return cq.Workplane('XY').box(w,d,h,centered=(True,True,False)).translate((x,y,z)).val()
 def vz(r,h,x,y,z): return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,0,1))
@@ -224,80 +224,6 @@ def make_b():
     add('B','B21','MeanWell_power_supply_247x127x63p5',box(247,127,63.5,245,-195,25),'D')
     add('B','B22','LED_lamp_adapter_proxy',box(65,72,48,280,-20,35),'P')
     add('B','B23','control_auxiliary_module_proxy',box(93,58,38,305,-110,35),'P')
-def make_b_photo94():
-    """Current user-requested B full layout with 94/95/97 glass-side arm.
-
-    Preserve sample/heater/microscope/peripherals as unregistered
-    scene branches, but DO NOT borrow the obsolete 108/109 PHCP film arm.
-    No glass jaw is identified downstream of the photographed L sheet.
-    The layout is NOT a verified OEM assembly or machining plan.
-    """
-    sys='B_photo94'
-    board(sys)
-    ax=-102
-    # Photo95: an unmarked support envelope, not an OEM base SKU.
-    add(sys,'B29','unknown_65x65x20_SUPPORT_ENVELOPE_ONLY',
-        box(65,65,20,ax,0,20),'C')
-    stage(sys,'B03',ax,0,40,'+X',axes=2,depth_direction='+Y')
-    # Photo95 shows a SECOND slim horizontal pushrod on the front face.
-    # It used to penetrate the T25M 65mm casing and both solid stops.
-    # Here its axis is outside the front surface, with actual through-
-    # bores in two bearing blocks. Exact machining dimensions unverified.
-    rod_y,rod_z=38.5,63.4
-    add(sys,'B03F','photo95_front_steel_rod_unsupported_length_CANDIDATE',
-        vx(4.3,58,ax-29.5,rod_y,rod_z),'C')
-    for key,center_x,width,height in (
-        ('B03FL',ax-30,6,13),('B03FR',ax+31,10,15)):
-        bearing=box(width,14,height,center_x,38,62-height/2)
-        bearing=bearing.cut(vx(4.35,width,center_x-width/2,rod_y,rod_z))
-        add(sys,key,'photo95_support_WITH_TRUE_THROUGH_HOLE_CANDIDATE',
-            bearing,'C')
-    # VC13M top 65x65, vertical 13 mm adjust; total outer geometry
-    # is a photograph-constrained proxy, not original parametric CAD.
-    upright=(box(65,60,8,ax,0,73)
-             .fuse(box(45,16,38,ax,-8,81))
-             .fuse(box(65,65,6,ax,0,118)))
-    add(sys,'B30','GCM_VC13M_PHOTO_PROFILE_PROXY',upright,'C')
-    # Keep a visible front-mounted vertical microdrive, not a
-    # floating object through the G40 base.
-    # Outer micrometer placement remains an envelope candidate.
-    # Keep its drum completely OUTSIDE the 65mm upper flange rather
-    # than allowing it to penetrate the solid G40 mounting plane.
-    add(sys,'B30M','VC13M_vertical_micrometer_PROXY',
-        vz(4,27,ax,39.5,89),'C')
-    add(sys,'B30K','VC13M_micrometer_drum_PROXY',
-        vz(6.8,18,ax,39.5,103),'C')
-    add(sys,'B31','GCM_G40M60L_40x40x20_ENVELOPE',
-        box(40,40,20,ax,0,124),'C')
-    add(sys,'B31M','G40_right_micrometer_PROXY',
-        vx(5.5,18,ax+20,0,134),'C')
-    add(sys,'B31K','G40_right_micrometer_drum_PROXY',
-        vx(8.3,20,ax+38,0,134),'C')
-    # Photo94: ONE THIN folded L plate. CAD z is vertical, unlike the
-    # web viewer's Y-up coordinates. Two top heads are visible in
-    # the photo, but their thread/length/pitch are not identified.
-    add(sys,'B32','photo94_thin_L_top_sheet_UNMEASURED',
-        box(80,12,2.5,ax-20,13,144),'C')
-    add(sys,'B32L','photo94_thin_L_downfold_UNMEASURED',
-        box(2.5,12,72,ax-58.75,13,72),'C')
-    for n,xx in enumerate((ax-14,ax+14),1):
-        add(sys,f'B32H{n}',f'photo94_top_head_{n}_diameter_UNVERIFIED',
-            vz(3,2.2,xx,13,146.5),'C')
-    # FULL LAYOUT, separated from the photo-constrained film-arm geometry.
-    # The original B 108–123 records supply sample-stage, microscope,
-    # heater, vacuum and external subsystem proxies. These are kept in
-    # the same VIEWER and STEP layout; relative registration to B32 is
-    # NOT yet established. Their addition does not certify the missing
-    # B32-to-B07 clamp interface. No obsolete PHCP rod-arm components.
-    keep_prefixes=tuple(f'B{i:02d}' for i in range(7,24))
-    for key,name,grade,solid in list(PARTS['B']):
-        if key.startswith(keep_prefixes):
-            add(sys,key,name+'_UNREGISTERED_FULL_SYSTEM_LAYOUT',solid,'C')
-    assert any(key=='B07' for key,*_ in PARTS[sys]), 'Missing film reference'
-    assert any(key=='B09' for key,*_ in PARTS[sys]), 'Missing NFP sample stage'
-    assert any(key=='B11' for key,*_ in PARTS[sys]), 'Missing vacuum heater'
-    assert any(key=='B16' for key,*_ in PARTS[sys]), 'Missing microscope'
-
 def make_a():
     board('A')
     ax,cx=-116,78
@@ -348,7 +274,7 @@ def export(sys):
         for key,name,grade,_ in PARTS[sys]:w.writerow([key,name,grade])
     return dict(system=sys,assembly_components=len(PARTS[sys]),step_solids=len(solids),size_bytes=target.stat().st_size)
 if __name__=='__main__':
-    make_a();make_b();make_b_photo94()
-    info=[export(x) for x in ('A','B','B_photo94')]
+    make_a();make_b()
+    info=[export(x) for x in ('A','B')]
     (OUT/'verification.json').write_text(json.dumps(info,indent=2))
     print(info)
