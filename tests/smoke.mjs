@@ -38,6 +38,18 @@ assert((await page.locator('#photo-94-mechanics').getAttribute('data-folded'))==
 assert((await page.locator('#photo-94-mechanics').getAttribute('data-top-fasteners'))==='2',
  'The B photographic L sheet must show TWO actual top bolt heads');
 await page.screenshot({path:'Transfer-Station-V27-User-Photos-B.png',fullPage:true});
+await page.locator('#btn-photo95').click();
+await page.locator('#open-bom').click();
+await page.locator('#bom-query').fill('B03');
+const photoStageRow=page.locator('#bom-body tr').filter({hasText:'B03'});
+assert((await photoStageRow.count())===1,'Photo B03 part is missing from active BOM');
+await photoStageRow.click();
+assert((await page.locator('#photo-95-mechanics').getAttribute('data-shafts'))==='1',
+ 'Photo95 front silver drive shaft not built');
+assert((await page.locator('#photo-95-mechanics').getAttribute('data-front-fasteners'))==='4',
+ 'Photo95 front T25M candidate screw heads not rendered');
+await page.waitForTimeout(350);
+await page.screenshot({path:'Transfer-Station-V27-User-Photo95-T25M-B.png',fullPage:true});
 // The original B/108/109 alternate remains available for historical
 // comparison, but must not be confused with the user-specified B default.
 await page.locator('#btn-b-archive').click();
