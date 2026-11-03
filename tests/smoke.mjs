@@ -88,6 +88,28 @@ assert((await page.locator('#part-detail').textContent()).includes('直线悬臂
  'Legacy return-loop must not survive in part details');
 assert(await page.locator('#selected-fastener-count').getAttribute('data-count')==='4',
  'Missing B05 straight-arm mounting hardware');
+// B25 and B24 are now *independent* scene parts with real manufacturer
+// model references; B26 remains unnamed instead of pretending to be PHCP-2.
+await selectBOM('B24');
+assert((await page.locator('#part-detail').textContent()).includes('PHCP-2'),
+ 'The source-identified Zolix swivel post clamp must be separately selectable');
+assert(await page.locator('#selected-source-links a').count()>=1,
+ 'Zolix PHCP-2 manufacturer source not exposed');
+await selectBOM('B25');
+assert((await page.locator('#part-detail').textContent()).includes('PHSP12-5'),
+ 'The OEM Ø12 x 150mm rod has no independent 3D part');
+await selectBOM('B27');
+assert((await page.locator('#part-detail').textContent()).includes('PHSP12-1'),
+ 'Missing anchored short Ø12 optical post');
+await selectBOM('B26');
+assert((await page.locator('#part-detail').textContent()).includes('待确认'),
+ 'Nonstandard M6/Ø12 terminal adapter must remain unverified');
+await selectBOM('B06');
+assert((await page.locator('#part-detail').textContent()).includes('GCM-1302M'),
+ 'The Daheng candidate plate-holder model is missing');
+await page.locator('#btn-film-stack').click();
+await page.waitForTimeout(400);
+await page.screenshot({path:'Transfer-Station-V25-Holder-Detail-B.png',fullPage:true});
 await selectBOM('B03');
 assert((await page.locator('#part-detail').textContent()).includes('线性轴 2，线性测微头 2'),
  'Dual-axis film-side stage does not have two independent drives');
