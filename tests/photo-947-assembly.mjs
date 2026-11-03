@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {PARTS} from '../src/parts.js';
-import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison} from '../src/photo-947-assembly.js';
+import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums} from '../src/photo-947-assembly.js';
 import {STACKS,HANDLES} from '../src/photo-evidence.js';
 
 assert.equal(PHOTO_94_95_97.rig,'A','User photographs 94-97 must not be tagged as B');
@@ -10,6 +10,14 @@ assert.deepEqual(PHOTO_94_95_97.imageToParts['97'],['A15','A03']);
 assert.deepEqual(PHOTO_94_95_97.stageIds,STACKS.A.film.slice(0,4));
 assert.deepEqual(PHOTO_94_95_97.g40.nominalPlateMm,[40,40]);
 assert.equal(PHOTO_94_95_97.g40.nominalHeightMm,20);
+const upright=vc13PhotoScrewDatums();
+assert.equal(upright.drumTopLocalYmm,48);
+assert.equal(upright.clearanceToG40Mm,3);
+assert(upright.stemCenterLocalYmm+upright.stemLengthMm/2 >
+ upright.drumCenterLocalYmm-upright.drumLengthMm/2);
+assert.throws(()=>vc13PhotoScrewDatums({drumCenterLocalYmm:58}),
+ /intrudes/,'Old screenshot failure: VC13 silver knurl must never enter G40 body');
+
 assert.equal(PHOTO_94_95_97.g40.centerOfRotationHeightMm,60);
 assert.deepEqual(PHOTO_94_95_97.vc13m.topSizeMm,[65,65]);
 assert.equal(HANDLES.A15.handles,2);
