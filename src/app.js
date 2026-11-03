@@ -172,7 +172,23 @@ function phucContinuousTwoBores(outerR=15,height=60,throughR=6.05,pitch=33,mater
  geometry.setAttribute('normal',new THREE.Float32BufferAttribute(norm,3));
  geometry.computeBoundingSphere();
  const mesh=mk(geometry,material);
+ // Render-time geometric probe: rods pass through the two tunnel
+ // axes WITHOUT first striking the Ø30 barrel. The central strip
+ // must remain solid. This guards against wrong triangle winding,
+ // accidental fake-through-holes, and future mesh regressions.
+ const axialRay=(y)=>{
+   const ray=new THREE.Raycaster(
+     new THREE.Vector3(-outerR*3,y,0),new THREE.Vector3(1,0,0),
+     0,outerR*6);
+   return ray.intersectObject(mesh,false).length;
+ };
+ const openUpper=axialRay(pitch/2)===0;
+ const openLower=axialRay(-pitch/2)===0;
+ const solidCenter=axialRay(0)>0;
+ if(!openUpper||!openLower||!solidCenter)
+   throw Error('PHUC-1 3D barrel bore ray QA failed: open upper/lower and solid center required');
  mesh.userData.realSideBores=2;
+ mesh.userData.boreCenterRayCheckPassed=true;
  mesh.userData.nominalOuterDiameterMm=outerR*2;
  mesh.userData.oemBoreCenterPitchMm=pitch;
  mesh.userData.photoFitGeometry=true;
