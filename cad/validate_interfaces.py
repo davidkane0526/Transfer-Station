@@ -142,30 +142,56 @@ check(not (A/'A02D.step').exists(),
 for obsolete in ('B05A','B05B','B05C','B05E'):
     check(not (B/(obsolete+'.step')).exists(),
           f'No old fabricated rear arm/hanging rod: {obsolete}')
-cross=part(B,'B24')[0]
-short=part(B,'B27')[0]
+phuc=part(B,'B24')[0]
+support=part(B,'B27')[0]
+square=part(B,'B33')[0]
 long=part(B,'B25')[0]
+second=part(B,'B28')[0]
 terminal=part(B,'B26')[0]
 spine=part(B,'B06')[0]
-check(short.intersect(long).Volume()<1e-5,
-      'Orthogonal 12mm posts with 15mm axis distance must not penetrate')
-check(cross.intersect(short).Volume()<1e-4 and
-      cross.intersect(long).Volume()<1e-4,
-      'PHCP-2 candidate bores actually clear both Ø12 posts')
+bb=phuc.BoundingBox()
+check(abs(bb.zlen-60)<.02 and abs(bb.xlen-30)<.02 and abs(bb.ylen-30)<.02,
+      'Zolix PHUC-1 manufacturer A60 and BØ30 housing envelope')
+# Real boolean void checks: both holes must be open within the 60-mm body.
+phuc_x=-30
+upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,171.5),Vector(1,0,0))
+lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x,-15,138.5),Vector(0,1,0))
+check(phuc.intersect(upper_bore).Volume()<1e-4,'PHUC-1 upper Ø12 bore is real')
+check(phuc.intersect(lower_bore).Volume()<1e-4,'PHUC-1 lower Ø12 bore is real')
+check(abs(171.5-138.5-33)<.0001,
+      'PHUC-1 manufacturer E33 bore-centre spacing')
+check(phuc.intersect(long).Volume()<1e-4,
+      'PHUC-1 upper shell must not penetrate Ø12 first rod')
+check(phuc.intersect(second).Volume()<1e-4,
+      'PHUC-1 lower shell must not penetrate Ø12 second rod')
+# B33 is a separate, still unidentified, cross connection visible in 149.
+check(square.intersect(support).Volume()<1e-4,
+      'B33 actual Ø12 post through-bore must not contain solid steel')
+check(square.intersect(long).Volume()<1e-4,
+      'B33 actual Ø12 crossbar bore must not contain solid steel')
+check(support.intersect(long).Volume()<1e-5,
+      'Support and first rod must remain separated by 15-mm nominal depth')
 check(terminal.intersect(long).Volume()<1e-4,
-      'B26 metal adapter does not penetrate Ø12 horizontal post')
+      'B26 Ø12 socket must clear the first rod')
 check(abs(terminal.BoundingBox().zmin-spine.BoundingBox().zmax)<.02,
-      'B26 adapter bottom reaches B06 fixed spine top without floating')
+      'Unverified B26 adapter at least meets B06 fixed-spine nominal datum')
 check(long.BoundingBox().xmax<82-17,
-      'Metal holder must stop before 17-mm-radius objective keep-out')
+      'First horizontal rod stops outside optical objective radius')
 check(long.BoundingBox().xmin<-70 and long.BoundingBox().xmax>30,
-      'Candidate post is 150-mm PHSP12-5 and reaches holder')
+      'First candidate rod length spans its two clamp zones')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
 # A's transfer beam, vertical support, edge clamp contact by boundary (not true fasteners).
 a_rot=part(A,'A06A')[0].BoundingBox()
 a_stg=part(A,'A02')[0].BoundingBox()
 check(abs(a_rot.zmax-a_stg.zmin)<.05,'A02 stage rests on A06 rotary')
+a_base=part(A,'A16')[0].BoundingBox()
+a_rot_lower=part(A,'A06')[0].BoundingBox()
+a_board=part(A,'A01')[0].BoundingBox()
+check(abs(a_base.xlen-112)<.02 and abs(a_base.ylen-70)<.02 and abs(a_base.zlen-8)<.02,
+      'A photos137/161 confirmed GCM-5306M OEM base is 112x70x8mm')
+check(abs(a_base.zmin-a_board.zmax)<.02 and abs(a_rot_lower.zmin-a_base.zmax)<.02,
+      'A GCM-5306M is UNDER rotary, not counted as the rotary itself')
 beam=part(A,'A05A')[0].BoundingBox()
 ris=part(A,'A05B')[0].BoundingBox()
 clip=part(A,'A05C')[0].BoundingBox()
@@ -174,72 +200,22 @@ check(abs(ris.zmin-a_tilt.zmax)<.01,'A riser contacts tilt stage top')
 check(abs(ris.zmax-beam.zmin)<.01,'A riser contacts transfer beam')
 check(abs(clip.zmax-beam.zmin)<.01,'A edge clip contacts transfer beam')
 check(beam.xmin<=-116 and beam.xmax>=78,'A beam spans left-to-right physical supports')
-# Explicitly audit the CURRENT user-selected B94/95/97 photo branch.
-# The historical B108/109 rod branch is NOT automatically part of it.
-B94=ROOT/'build'/'platform_B_photo94'/'parts'
-photo_base=part(B94,'B29')[0].BoundingBox()
-photo_t25=part(B94,'B03')[0].BoundingBox()
-front_rod=part(B94,'B03F')[0]
-front_bb=front_rod.BoundingBox()
-check(front_bb.ymin>photo_t25.ymax+.5,
-      'Photo95 front shaft stays OUTSIDE solid T25M body')
-for bearing_id in ('B03FL','B03FR'):
-    bearing=part(B94,bearing_id)[0]
-    bb=bearing.BoundingBox()
-    check(front_rod.intersect(bearing).Volume()<1e-4,
-          bearing_id+' has a real full-length through-bore, not solid steel penetration')
-    check(min(front_bb.xmax,bb.xmax)-max(front_bb.xmin,bb.xmin)>2.0,
-          bearing_id+' supports front shaft end instead of floating')
-photo_vc=part(B94,'B30')[0].BoundingBox()
-photo_g40=part(B94,'B31')[0].BoundingBox()
-photo_sheet=part(B94,'B32')[0].BoundingBox()
-photo_downfold=part(B94,'B32L')[0].BoundingBox()
-check(abs(photo_base.zmax-photo_t25.zmin)<.02,
-      'Current B photo unknown base supports T25M')
-check(abs(part(B94,'B03A')[0].BoundingBox().zmax-photo_vc.zmin)<.02,
-      'Current B photo T25M supports VC13M')
-check(abs(photo_vc.zmax-photo_g40.zmin)<.02,
-      'Current B photo VC13M supports G40M60L')
-check(abs(photo_g40.zmax-photo_sheet.zmin)<.02,
-      'Current B photo G40 carries thin L sheet')
-check(abs(photo_sheet.zmin-photo_downfold.zmax)<.02,
-      'Current B photo L plate has ONE continuous 90-degree downfold')
-check(abs(photo_sheet.zlen-2.5)<.02 and abs(photo_downfold.zlen-72)<.02,
-      'Current B photo shows thin folded sheet, NOT thick beam')
-check(photo_sheet.xmax<82-17,
-      'No fabricated bridge connecting photo L sheet to sample optical axis')
-# A complete VIEWER/STEP layout must include the photographed system's
-# separate functional branches. A profile with only six film-arm parts is
-# an INCOMPLETE RENDER, not a full model B.
-for required in ('B07','B07A','B08','B09','B10','B11','B12','B13',
-                 'B14_1','B14_2','B14_3','B14_4','B15','B16','B17',
-                 'B18','B19','B20','B21','B22','B23'):
-    check((B94/(required+'.step')).exists(),
-          'B full-model display missing essential component '+required)
-for forbidden in ('B06','B24','B25','B26','B27'):
-    check(not (B94/(forbidden+'.step')).exists(),
-          'Do not insert old PHCP film-arm components into current B photo profile: '+forbidden)
-# B07 is only an unconnected optical-location reference until B32's jaw
-# is physically identified. No phantom steel beam may bridge the gap.
-photo_glass=part(B94,'B07')[0].BoundingBox()
-check(photo_sheet.xmax<photo_glass.xmin,
-      'Unregistered photo L sheet and glass are separate; never fabricate a rigid support')
-report['photo_profile_B_full_layout']={
-    'essential_components_present':True,
-    'photo_film_to_sample_mount_verified':False,
-    'glass_holder_connection_verified':False,
-    'status':'full_visible_layout_unregistered',
-    'missing':'B32 to B07 actual clamp and cross-photo frame registration'
-}
-check(part(B94,'B32H1')[0].BoundingBox().zmin>=photo_sheet.zmax-.02 and
-      part(B94,'B32H2')[0].BoundingBox().zmin>=photo_sheet.zmax-.02,
-      'B photo L plate has two TOP screw heads, not free floating posts')
-report['photo_profile_B']={
-  'photo_ids':['94','95','97'],
-  'status':'incomplete_missing_real_glass_grip',
-  'same_physical_rig_as_sample_side_confirmed':False,
-  'downstream_glass_clamp_confirmed':False,
-  'reason':'The entire sample/heater/microscope layout is visible, but B32 glass jaw and exact cross-branch registration remain unknown'
+# NEW PHOTO REGISTER: 94/95/97 are A, whereas B is 107-112 and
+# 145-151. The former erroneous B_photo94 assembly is not exported.
+check(not (ROOT/'build'/'platform_B_photo94').exists(),
+      'Never build a B-photo94 assembly from verified A photographs')
+for required in ('B07','B08','B09','B10','B11','B12','B14_1','B14_2',
+                 'B14_3','B14_4','B15','B16','B17','B18',
+                 'B24','B25','B26','B27','B28','B33'):
+    check((B/(required+'.step')).exists(),
+          'Corrected photo145-151 B full-system STEP missing '+required)
+report['new_dimension_evidence']={
+    'B_photo_ids':[145,146,147,148,149,150,151],
+    'A_photo_ids':[137,138,139,140,141,142,143,144,152,155,161],
+    'B_confirmed_models':['Zolix PHUC-1','Daheng GCM-1302M'],
+    'A_confirmed_base':'Daheng GCM-5306M',
+    'fabrication_ready':False,
+    'missing':'B24 swivel angle, B25/B28 post lengths, B26 threaded mate, all hole-face datums'
 }
 
 # OEM NFP-1462C manufacturer drawing: do not confuse the 4x Ø6.5
