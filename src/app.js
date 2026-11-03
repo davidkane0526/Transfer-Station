@@ -425,8 +425,24 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   // These relative heights are photo-fit only, not full OEM CAD.
   // The stationary V25M upright EXTENDS ABOVE its movable output plate.
   // Cutting the whole body to 32mm would remove the top rails seen in 149.
-  add(g,cub(56,52,18,mats.dark,0,32,-10));
-  add(g,cub(34,49,8,mats.steel,0,34,3));
+  // Align web and STEP B04A fixed guide at Y=81..133.
+  add(g,cub(56,52,18,mats.dark,0,34,-10));
+  // Photo108/149: the moving face is BLACK with small mounting holes,
+  // not an unbroken silver slab. Backing is 6mm thick; its 2mm black
+  // skin has real open geometry and exposes dark BLIND-hole bottoms.
+  // 3x4 locations are visual PHOTO PROXIES, not certified OEM pitch.
+  add(g,cub(34,49,6,mats.dark,0,32.5,2));
+  const face=shapeRect(34,49);
+  const holePattern=[];
+  for(const x of [-10,0,10])for(const yy of [-12.5,-2.5,7.5,17.5])
+    holePattern.push([x,yy,1.55]);
+  addHoles(face,holePattern);
+  const faceGeo=new THREE.ExtrudeGeometry(face,{
+    depth:2,steps:1,bevelEnabled:false,curveSegments:32
+  });
+  const blackFace=add(g,mk(faceGeo,mats.black));
+  blackFace.position.set(0,32.5,5);
+  blackFace.userData.photoFitBlindBores=12;
   // Embedded face rails, not two disconnected steel posts.
   for(const x of [-17,17])add(g,cub(2.5,38,1.2,mats.silver,x,31,7.5));
   // Photo108: small SIDE bridge connects the moving guide front
