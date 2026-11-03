@@ -39,12 +39,12 @@ export const JOINTS={
 // continues over the specimen. +Y is height, +X is toward the specimen.
 export function filmCantileverB({
  armX,sampleX,glassClampXOffset=-42,baseY=135,clampTopY=128,
- glassCenterXOffset=5,glassWidth=76,objectiveRadius=17
+ rodCenterY=20,glassCenterXOffset=5,glassWidth=76,objectiveRadius=17
 }){
  const clampWorldX=sampleX+glassClampXOffset;
  const xReach=clampWorldX-armX;
  if(!(xReach>80 && xReach<350))throw new Error('Unexpected film-side rod span');
- if(!(baseY>=clampTopY && baseY-clampTopY<40))throw new Error('Unexpected mounting height');
+ if(!(Math.abs(baseY-clampTopY)<40))throw new Error('Unexpected mounting height');
  // 22 mm jaw reaches to the right after the GCM clamp is installed yaw=180.
  const glassLeftEdgeX=sampleX+glassCenterXOffset-glassWidth/2;
  const jawEndX=clampWorldX+21;
@@ -53,7 +53,7 @@ export function filmCantileverB({
    throw new Error('Jaw fails to grip glass or crosses objective optical keep-out');
  if(!(clampWorldX+17<opticalLeftLimitX))
    throw new Error('Glass clamp body crosses objective optical keep-out');
- const rodCenterY=20,rodStartX=12,rodEndX=xReach;
+ const rodStartX=12,rodEndX=xReach;
  const rodLength=rodEndX-rodStartX;
  const oemRodLengthMm=150,hiddenInsertionMm=oemRodLengthMm-rodLength;
  if(hiddenInsertionMm<0||hiddenInsertionMm>25)throw new Error('OEM PHSP12-5 rod length is incompatible with selected span');
