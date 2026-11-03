@@ -241,6 +241,22 @@ function filmB(){
    makeStageBlock('B03',ax,40,0,65,65,33,
       'GCM-T25M（用户照片95对照 · 2轴）',
       false,{},1,2,1,26); // front-offset X micrometer, as seen in user photo95
+ // Photo95: polished push rod is visible through the front recessed opening.
+ // A pair of black front clamp/stop plates and four front body screw heads
+ // replace the earlier featureless three black cubes. Hole sizes unverified.
+ const gT25=parts.get('B03').g;
+ const frontShaft=add(gT25,cyl(4.3,47,mats.silver,-3,23.4,32.7,32));
+ frontShaft.rotation.z=Math.PI/2;
+ frontShaft.userData.photo95FrontShaft=true;
+ add(gT25,cub(6,13,10,mats.black,-30,22,33.3));
+ add(gT25,cub(10,15,11,mats.black,31,22,32.5));
+ for(const x of [-21,-8,8,21]){
+   const fastener=add(gT25,cyl(2,1.2,mats.steel,x,7.5,33.2,6));
+   fastener.rotation.x=Math.PI/2;
+   fastener.userData.fastenerProxy=true;
+   fastener.userData.photo95FrontFastener=true;
+   add(gT25,cyl(.85,.3,mats.ink,x,7.5,34.0,6)).rotation.x=Math.PI/2;
+ }
  addPart('B30',ax,73,0,g=>{
    // Photo97 footprint has a much narrower upright body than the 65mm
    // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
