@@ -118,7 +118,7 @@ def make_b():
     add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,134.5),'P')
     add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,81))
     add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,81))
-    add('B','B04B','GCMV25M_MOVING_output_flange_photo149',box(65,66,8,ax,0,97))
+    add('B','B04B','GCMV25M_MOVING_output_flange_photo149',box(65,66,8,ax,0,82))
     # Photo 108: V25M micrometer is vertical, not an x-axis knob.
     add('B','B04C','vertical_micrometer_stem',vz(6.5,40,ax-24,0,102),'P')
     add('B','B04D','vertical_micrometer_knob',vz(9,17,ax-24,0,142),'P')
@@ -127,10 +127,10 @@ def make_b():
     # a flat black 65x66mm mount followed by a distinct 50mm CYLINDRICAL
     # holder and a ~100mm steel post. Neither exact post/holder model
     # is identified from an engraved label.
-    plate_z=105;plate_h=6
+    plate_z=90;plate_h=6
     holder_z=plate_z+plate_h
     post_len=100;holder_len=50
-    upper_rod_z=190;lower_rod_z=157
+    upper_rod_z=168;lower_rod_z=135
     assert upper_rod_z-lower_rod_z==33  # PHUC-1 OEM E
     add('B','B05','photo149_V25M_flat_top_mount_PROXY',
         box(65,66,plate_h,ax,0,plate_z),'C')
@@ -155,49 +155,54 @@ def make_b():
     # Ø12 through bores, center spacing=33mm. Both physical rods
     # appear HORIZONTAL from the same photo149 side view.
     phuc_x=-30
-    phuc=vz(15,60,phuc_x,0,143.5)
+    phuc=vz(15,60,phuc_x,0,121.5)
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,upper_rod_z))
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,lower_rod_z))
-    groove=vz(15.1,1,phuc_x,0,173.5).cut(vz(13,1,phuc_x,0,173.5))
+    groove=vz(15.1,1,phuc_x,0,151.5).cut(vz(13,1,phuc_x,0,151.5))
     phuc=phuc.cut(groove)
     add('B','B24','Zolix_PHUC1_OEM_A60_B30_2X12_E33_photo149',phuc,'D')
     # Candidate first/second Ø12 rods. PHUC's 33mm pitch and the
     # TWO independently supported bars are preserved. Rod lengths
     # and end coupling remain an engineering-fit hypothesis.
-    add('B','B25','first_O12x150_PHSP12-5_LENGTH_CANDIDATE',
-        vx(6,150,ax+2,0,upper_rod_z),'C')
-    add('B','B28','second_O12x82_LENGTH_CANDIDATE',
-        vx(6,82,phuc_x,0,lower_rod_z),'C')
+    add('B','B25','first_O12x100_LENGTH_CANDIDATE',
+        vx(6,100,-115,0,upper_rod_z),'C')
+    add('B','B28','second_O12x79p5_LENGTH_CANDIDATE',
+        vx(6,79.5,-55,0,lower_rod_z),'C')
     clamp_x=cx-42
-    # B26 is still an UNIDENTIFIED adapter, included only as a
-    # mated-face proxy between rod2 socket and B06 top. No thread SKU.
-    socket=vx(13,16,clamp_x-8,0,lower_rod_z)
-    stem=box(20,20,27,clamp_x,0,119)
-    terminal=socket.fuse(stem)
-    terminal=terminal.cut(vx(6.05,16,clamp_x-8,0,lower_rod_z))
-    add('B','B26','unidentified_terminal_adapter_CANDIDATE',
-        terminal,'C')
-    # Daheng GCM-13 mechanics: TWO adjusters push ONE moving plate.
-    # 1mm glass thickness and the pressure-plate coordinates below
-    # are display candidates, not OEM CAD or certified clamp forces.
-    add('B','B06','GCM13_fixed_spine_CANDIDATE',
-        box(17,56,15,clamp_x-7,0,104),'C')
+    # Photo108/150: second Ø12 rod ends directly at the LEFT face of
+    # GCM-1302M's vertical back spine, rather than running into a
+    # fabricated Ø26 socket and 27mm hanging solid. Only a tiny Ø6
+    # END STUD (B26) is hypothesized because GCM1302M lists an M6 mount.
+    # An unverified M6 thread must NOT be treated as a proven fastener.
+    # B06 faces -X after web's 180-degree yaw, so its mating spine
+    # occupies X24.5..41.5; the candidate Ø12 bar stops at X24.5.
+    clamp_x=cx-42
+    add('B','B26','unknown_M6_direct_end_stud_INTERFACE_ONLY',
+        vx(3,10,24.5,0,lower_rod_z),'C')
+    # Shift the GCM-1302M jaw and glass to a plausible aligned height.
+    # Only the interconnection hierarchy is photographed; this 20.5mm
+    # change is a geometry fit, NOT a confirmed measured clearance.
+    jaw_shift=20.5
+    fixed_spine=box(17,56,15,clamp_x-7,0,104+jaw_shift)
+    fixed_spine=fixed_spine.cut(vx(3.06,10,24.5,0,lower_rod_z))
+    add('B','B06','GCM13_fixed_spine_with_REAL_M6_candidate_side_bore',
+        fixed_spine,'C')
     add('B','B06F','GCM13_one_fixed_jaw_CANDIDATE',
-        box(22,56,4,clamp_x+10,0,100.5),'C')
+        box(22,56,4,clamp_x+10,0,100.5+jaw_shift),'C')
     add('B','B06M','GCM13_one_moving_pressure_plate_CANDIDATE',
-        box(22,56,3.5,clamp_x+10,0,105.5),'C')
-    bridge=box(24,56,5,clamp_x+6,0,119)
+        box(22,56,3.5,clamp_x+10,0,105.5+jaw_shift),'C')
+    bridge=box(24,56,5,clamp_x+6,0,119+jaw_shift)
     for yy in (-17,17):
-        bridge=bridge.cut(vz(1.75,5,clamp_x+10,yy,119))
+        bridge=bridge.cut(vz(1.75,5,clamp_x+10,yy,119+jaw_shift))
     add('B','B06T','GCM13_bridge_with_2_bores_CANDIDATE',bridge,'C')
     for i,yy in enumerate((-17,17),1):
         add('B',f'B06S{i}',
             'GCM13_one_of_two_pressure_screws_PROXY',
-            vz(1.7,12,clamp_x+10,yy,109),'C')
+            vz(1.7,12,clamp_x+10,yy,109+jaw_shift),'C')
     add('B','B07','glass_slide_UNVERIFIED_76x26x1',
-        box(76,26,1,cx+5,0,104.5),'C')
+        box(76,26,1,cx+5,0,104.5+jaw_shift),'C')
     add('B','B07A','pdms_UNVERIFIED_transfer_tip',
-        box(20,20,1.8,cx,0,102.7),'C')
+        box(20,20,1.8,cx,0,102.7+jaw_shift),'C')
     rot('B','B08',cx,0,20,'D')
     corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
     # Manufacturer PDF (NFP-1462C) specifies four Ø6.5 clearance
