@@ -6,7 +6,7 @@ import {filmCantileverB} from '../src/assembly-qa.js';
 import {DIMENSION_PHOTOS_V28,V28_OEM_DIMENSIONS} from '../src/dimension-evidence.js';
 
 const b=new Map(PARTS.B.map(item=>[item.id,item]));
-for(const id of ['B05','B06','B24','B25','B26','B27','B28','B33']){
+for(const id of ['B05','B06','B24','B25','B26','B27','B28','B33','B34']){
  assert(b.has(id),'Unmodelled mechanical component: '+id);
  assert(PURCHASE.B[id],'Missing independent BOM line: '+id);
 }
@@ -15,7 +15,8 @@ assert.equal(path.connected,true);
 assert.equal(path.realHardwareIdentityAccepted,true,'Photo149 and 150 physically confirm two model identities');
 assert.equal(path.fullAssemblyAccepted,false,'Thread, tilt, and rod length not accepted');
 assert.equal(path.physicalFastenersAccepted,false);
-assert.equal(path.links,9);
+assert.equal(path.links,10);
+assert.equal(HOLDER_CONNECTIVITY.filter(x=>x.to==='B34').length,1);
 assert.equal(HOLDER_CONNECTIVITY.filter(x=>x.to==='B28').length,1);
 assert.equal(HOLDER_CONNECTIVITY.filter(x=>x.to==='B33').length,1);
 
@@ -38,7 +39,10 @@ const long=OPTICAL_HARDWARE.B25,short=OPTICAL_HARDWARE.B27;
 assert.equal(long.known.diameterMm,12);
 assert.equal(short.known.diameterMm,12);
 assert.equal(long.known.overallLengthMm,150,'150mm is candidate product not ruler measurement');
-assert.equal(short.known.overallLengthMm,25,'25mm is candidate product not ruler measurement');
+assert.equal(short.known.overallLengthMm,100,'photo149 requires a much taller vertical post; SKU still candidate');
+assert.equal(OPTICAL_HARDWARE.B34.known.overallHeightMm,50);
+assert.equal(b.get('B34').level,'C');
+assert(PURCHASE.B.B34.note.includes('50mm'),'Ruler-fit PHSH-2 missing');
 assert.equal(b.get('B27').level,'C');
 assert.equal(b.get('B25').level,'C');
 
@@ -61,4 +65,4 @@ assert(PURCHASE.B.B24.alternatives.some(a=>a[1].includes('Ø12.7')),
  'Must distinguish incompatible Daheng Ø12.7 from PHUC-1 Ø12');
 assert.equal(PARTS.A.find(x=>x.id==='A16').model,'GCM-5306M');
 assert(PURCHASE.A.A16,'A16 must have its own purchase line');
-console.log('Photo-confirmed PHUC-1/GCM-1302M, 9 mechanical links, correct A16 base and BOM: PASS');
+console.log('Photo149 PHUC-1/GCM1302M, long rod/black sleeve, 10 links and corrected A16: PASS');
