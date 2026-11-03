@@ -32,7 +32,7 @@ try{
  const rows=await page.locator('#bom-body tr').allTextContents();
  for(const id of ['B01','B02','B03','B04','B05','B06','B07','B08','B09',
     'B10','B11','B12','B14','B15','B16','B17','B18','B19','B20','B21',
-    'B22','B23','B24','B25','B26','B27','B28']){
+    'B22','B23','B24','B25','B26','B27','B28','B33']){
    assert(rows.some(row=>row.trim().startsWith(id)),'B BOM lost '+id);
  }
  for(const wrong of ['B29','B30','B31','B32'])
@@ -46,7 +46,15 @@ try{
  assert.equal(await page.locator('#holder-geometric-qa').getAttribute('data-hole-spacing'),'33');
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
- assert.match(await page.locator('#photo-ledger').innerText(),/A15/);
+ const evidenceA=await page.locator('#photo-ledger').innerText();
+ assert.match(evidenceA,/A15/);
+ assert.match(evidenceA,/A16/,'Photo137/161 mounting base must be in A stack');
+ await page.screenshot({path:'Transfer-Station-ModelA-5306M-Base.png'});
+ await page.locator('#open-bom').click();
+ const arows=await page.locator('#bom-body tr').allTextContents();
+ assert(arows.some(r=>r.trim().startsWith('A16')&&r.includes('GCM-5306M')),
+   'A mounting base A16 missing from BOM');
+ await page.locator('#close-bom').click();
  await page.locator('#show-b').click();
  assert.match(await page.locator('#platform-caption').innerText(),/PHUC-1/);
  assert.deepEqual(failures,[],'Browser errors: '+failures.join('; '));
