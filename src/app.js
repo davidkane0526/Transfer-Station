@@ -507,7 +507,7 @@ function platformA(){
  // not B. All geometries below are photographic silhouettes, not OEM solids.
  addPart('A03',ax,53,0,g=>{
    // Photo97 footprint has a much narrower upright body than the 65mm
-   // lower T25M. Published VC13M platform is nominal 45×45mm.
+   // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
    add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
    add(g,cub(45,38,16,mats.dark,0,27,-8)); // vertical rail housing
    add(g,cub(44,40,4,mats.black,0,27,5)); // black front face (photo97)
