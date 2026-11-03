@@ -145,11 +145,11 @@ def make_b():
     add('B','B33','photo149_UNKNOWN_square_cross_clamp',cube,'C')
     # PHOTO149/150 + OEM: PHUC-1 universal swivel clamp, NOT PHCP-2.
     # Maker A=60mm, B=Ø30mm, 2 Ø12 bores with E=33mm center pitch.
-    # This assembly's relative swivel yaw remains a candidate at 90°.
+    # Current photographic pose has parallel rod projections, not forced 90°.
     phuc_x=-30
     phuc=vz(15,60,phuc_x,0,125)
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,171.5))
-    phuc=phuc.cut(vy(6.05,32,phuc_x,-16,138.5))
+    phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,138.5))
     groove=vz(15.1,1,phuc_x,0,154.5).cut(vz(13,1,phuc_x,0,154.5))
     phuc=phuc.cut(groove)
     add('B','B24','Zolix_PHUC1_OEM_A60_B30_C12_D12_E33_photo149',phuc,'D')
@@ -158,16 +158,17 @@ def make_b():
     add('B','B25','first_O12x150_post_LENGTH_CANDIDATE',
         vx(6,150,ax+2,0,171.5),'C')
     # PHUC lower bore holds a SECOND independently selectable post.
-    # Length 82mm and yaw=90° are SCENE CANDIDATES, not maker dimensions.
+    # The photographed two rods are horizontally parallel in frame 149.
+    # 82mm output length remains a candidate; no forced 90-degree swivel.
     add('B','B28','second_O12x82_post_LENGTH_CANDIDATE',
-        vy(6,82,phuc_x,-41,138.5),'C')
+        vx(6,82,phuc_x,0,138.5),'C')
     clamp_x=cx-42
     # B26 is still an UNIDENTIFIED interface. Keep its top below the
     # first rod, its bottom touching B06 at z=119, without false threads.
-    socket=vx(13,16,clamp_x-8,0,171.5)
-    stem=box(20,20,45.5,clamp_x,0,119)
+    socket=vx(13,16,clamp_x-8,0,138.5)
+    stem=box(20,20,13,clamp_x,0,119)
     terminal=socket.fuse(stem)
-    terminal=terminal.cut(vx(6.05,16,clamp_x-8,0,171.5))
+    terminal=terminal.cut(vx(6.05,16,clamp_x-8,0,138.5))
     add('B','B26','unidentified_terminal_adapter_socket_CANDIDATE',
         terminal,'C')
     # Daheng GCM-13 mechanics: TWO adjusters push ONE moving plate.
