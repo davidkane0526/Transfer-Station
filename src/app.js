@@ -11,6 +11,7 @@ import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
+import {getCrossClampDatums,getPlateHolderJawDatums} from './holder-mechanics.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -248,28 +249,40 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // B05 is now only the B04 mounting foot; the hardware is decomposed
  // into independently selectable source-identified models, with a nonstandard
  // terminal adapter B26 still explicitly not accepted.
+ const crossDatums=getCrossClampDatums();
+ // The unverified plate adapter is separate from the SOURCE-DOCUMENTED
+ // round Zolix PHPB-1 post base (Ø36); do not use a solid cube as the bore.
  addPart('B05',ax,link.mountY,0,g=>{
    g.userData.cantileverLink=link;
-   add(g,cub(47,6,45,mats.black,0,3,0)); // seats on V25M Y=135
-   add(g,cub(26,8,26,mats.dark,14,10,0)); // under PHSP12 short post
+   add(g,cub(47,6,54,mats.black,0,3,-3));
+   // Source PHPB-1 nominal shape, flange height/center are fit candidates.
+   add(g,sleeve(18,6.05,6,mats.black,14,9,crossDatums.verticalBore.z,'y'));
    addJointHeads(g,'B05',5.95,[[-18,-16],[-18,16],[18,-16],[18,16]],{headR:2.6});
-   label(g,'V25M转接底座 · 孔位待核',6,28,0);
+   label(g,'V25M转接基板 + PHPB-1型圆形杆底座（候选）',0,29,0);
  },{explode:[-30,55,-13],moveFilm:true});
- // Source: Zolix PHSP12-1, actual OEM nominal Ø12×25.
- addPart('B27',ax+14,link.mountY+14,0,g=>{
+ // The 25-mm PHSP12-1 post seats in the PHPB Ø12 through bore and
+ // then in the lower PHCP-2 ring, without crossing the long steel post.
+ addPart('B27',ax+14,link.mountY+6,crossDatums.verticalBore.z,g=>{
    add(g,cyl(6,25,mats.steel,0,12.5,0,48));
-   add(g,cyl(6.5,1.1,mats.silver,0,25,0,36)); // end finish (proxy)
-   label(g,'PHSP12-1 · Ø12×25（型号候选）',0,37,0);
+   add(g,cyl(6,1.1,mats.silver,0,25,0,36));
+   label(g,'PHSP12-1 · Ø12×25（实物型号待核）',0,35,0);
  },{explode:[-25,55,-13],moveFilm:true});
- // Source: Zolix PHCP-2 two Ø12 clamp holes, relative 360° rotation.
- // Both rings are genuine THROUGH bores, not painted dark circles.
+ // OEM PHCP-2 has Ø25 and Ø26 nominal round clamp halves, *two*
+ // Ø12 through bores. The shafts MUST be spatially offset in this
+ // preview: photo-independent offset 16 mm is NOT a factory datum.
  addPart('B24',ax+14,link.mountY+20,0,g=>{
-   add(g,sleeve(14,6.05,19,mats.dark,0,0,0,'y'));
-   add(g,sleeve(13,6.05,19,mats.black,0,0,0,'x'));
-   // Two separate locking screws: clamp to vertical and horizontal posts.
-   thumbKnob(g,0,0,16,'z',4.7);
+   g.userData.crossClampDatums=crossDatums;
+   add(g,sleeve(12.5,6.05,16,mats.dark,0,0,
+     crossDatums.verticalBore.z,'y'));
+   add(g,sleeve(13,6.05,16,mats.black,0,0,
+     crossDatums.horizontalBore.z,'x'));
+   // A visible central pivot and two individual lock screws; geometry is
+   // indicative, not a dimensional reconstruction of the internal swivel.
+   const pin=add(g,cyl(4.5,8,mats.steel,0,0,-8,32));
+   pin.rotation.x=Math.PI/2;
+   thumbKnob(g,0,0,crossDatums.verticalBore.z-15,'z',4.7);
    thumbKnob(g,15,0,0,'x',4.7);
-   label(g,'Zolix PHCP-2 · Ø12双孔（候选）',7,25,0);
+   label(g,'PHCP-2 · Ø12双孔 / Ø25+Ø26外形',2,27,-7);
  },{explode:[-23,58,-13],moveFilm:true});
  // Zolix PHSP12-5: OEM Ø12×150, with ~10 mm hidden in mount.
  // The label is a product reference, not a claim of photo identification.
