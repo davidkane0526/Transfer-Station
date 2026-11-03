@@ -16,7 +16,7 @@ export const PHOTO_94_95_97={
       'two vertical dangling steel rods','oversized horizontal square beam']}
 };
 export function photo94BracketCandidate({
-  stageCenterX=-116,stageTopY=124,topPlateWidth=80,topPlateDepth=32,
+  stageCenterX=-116,stageTopY=124,topPlateWidth=80,topPlateDepth=12,
   verticalLegLength=72,metalThickness=2.5
 }={}){
   if(!(topPlateWidth>40&&topPlateWidth<110))throw Error('L bracket width is only a photo silhouette candidate');
@@ -27,8 +27,9 @@ export function photo94BracketCandidate({
   const centerX=(leftX+rightX)/2;
   const legCenterY=stageTopY-verticalLegLength/2;
   const verticalLegBottomY=stageTopY-verticalLegLength;
+  const sheetFrontZ=13; // photo94 black sheet lies near front edge of G40, not broad center cover
   return {leftX,rightX,centerX,topY:stageTopY,
-    topPlateWidth,topPlateDepth,metalThickness,verticalLegLength,
+    topPlateWidth,topPlateDepth,sheetFrontZ,metalThickness,verticalLegLength,
     legCenterY,verticalLegBottomY,
     topBoltWorldX:[stageCenterX-14,stageCenterX+14],
     fixedSheetCount:1,topBoltCount:2,
