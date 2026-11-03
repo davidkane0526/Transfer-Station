@@ -254,10 +254,10 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // round Zolix PHPB-1 post base (Ø36); do not use a solid cube as the bore.
  addPart('B05',ax,link.mountY,0,g=>{
    g.userData.cantileverLink=link;
-   add(g,cub(47,6,54,mats.black,0,3,-3));
+   add(g,cub(65,6,66,mats.black,0,3,0));
    // Source PHPB-1 nominal shape, flange height/center are fit candidates.
    add(g,sleeve(18,6.05,6,mats.black,14,9,crossDatums.verticalBore.z,'y'));
-   addJointHeads(g,'B05',5.95,[[-18,-16],[-18,16],[18,-16],[18,16]],{headR:2.6});
+   addJointHeads(g,'B05',5.95,[[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
    label(g,'V25M转接基板 + PHPB-1型圆形杆底座（候选）',0,29,0);
  },{explode:[-30,55,-13],moveFilm:true});
  // The 25-mm PHSP12-1 post seats in the PHPB Ø12 through bore and
@@ -278,7 +278,8 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
      crossDatums.horizontalBore.z,'x'));
    // A visible central pivot and two individual lock screws; geometry is
    // indicative, not a dimensional reconstruction of the internal swivel.
-   const pin=add(g,cyl(4.5,8,mats.steel,0,0,-8,32));
+   const pin=add(g,cyl(crossDatums.pivot.radiusMm,crossDatums.pivot.lengthMm,mats.steel,
+     crossDatums.pivot.x,crossDatums.pivot.y,crossDatums.pivot.z,32));
    pin.rotation.x=Math.PI/2;
    thumbKnob(g,0,0,crossDatums.verticalBore.z-15,'z',4.7);
    thumbKnob(g,15,0,0,'x',4.7);
