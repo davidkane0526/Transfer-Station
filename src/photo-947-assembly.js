@@ -18,6 +18,24 @@ export const PHOTO_94_95_97={
 // VC13M centre micrometer is in FRONT of the upright stage and must
 // terminate BELOW the G40M60L mounting plane. V26 displayed its drum
 // up to local Y=69, penetrating the G40 body starting at local Y=51.
+export function photo95FrontDriveDatums({
+ shaftCenterXmm=-0.5,shaftLengthMm=58,
+ leftBracketCenterXmm=-30,leftBracketWidthMm=6,
+ rightBracketCenterXmm=31,rightBracketWidthMm=10
+}={}){
+ const shaftLeftMm=shaftCenterXmm-shaftLengthMm/2;
+ const shaftRightMm=shaftCenterXmm+shaftLengthMm/2;
+ const leftBracketInsideMm=leftBracketCenterXmm+leftBracketWidthMm/2;
+ const rightBracketInsideMm=rightBracketCenterXmm-rightBracketWidthMm/2;
+ const overlapLeftMm=leftBracketInsideMm-shaftLeftMm;
+ const overlapRightMm=shaftRightMm-rightBracketInsideMm;
+ if(overlapLeftMm<1||overlapRightMm<1)
+  throw new Error('Photo95 front drive shaft has a floating unsupported end');
+ return {shaftCenterXmm,shaftLengthMm,shaftLeftMm,shaftRightMm,
+  leftBracketCenterXmm,leftBracketWidthMm,rightBracketCenterXmm,
+  rightBracketWidthMm,overlapLeftMm,overlapRightMm,
+  supportConnected:true,dimensionsVerified:false};
+}
 export function vc13PhotoScrewDatums({
   topPlaneLocalYmm=51,
   drumCenterLocalYmm=39,drumLengthMm=18,
