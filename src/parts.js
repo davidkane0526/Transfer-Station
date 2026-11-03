@@ -20,6 +20,11 @@ part("B05","film","载玻片连接基座（含直线悬臂安装面）","非标/
 // V27 user-photo comparison mode. Photos 94/95/97 were historically
 // filed as A; user now explicitly requests the visible B model to match
 // them. This is an alternative B FILM ASSEMBLY, not proof of sample-side join.
+part("B29","film","实拍95下方的未识别安装底座","型号未确认","平底安装块（非磁座确认）",
+ "约65×65×20mm，仅三维比例候选","C",
+ "照片95在T25M下方能看到黑色矩形安装块及薄浅色底部边缘，但不能从这三张照片读取GCM-420302M型号。",
+ "不沿用旧108/109磁吸底座B02的已识别型号；底部孔距/材料/固定方式待实测，也无法证明与B样品台处在同一整机。",
+ "用户本次95号近景","待询价"),
 part("B30","film","实拍纠错：GCM-VC13M竖直台","Daheng","GCM-VC13M",
  "65×65台面；竖直行程13mm（原厂规格）","P",
  "用户新上传97号照片中央铭牌VC13M与前置竖直微分头；用于B的实拍对照配置，不和B04的V25M同时显示。",
