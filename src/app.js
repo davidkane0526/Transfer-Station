@@ -14,6 +14,7 @@ import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
 import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums,photo95FrontDriveDatums} from './photo-947-assembly.js';
 import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums,getTerminalAdapterDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
+import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -52,7 +53,7 @@ microscope:{name:'显微镜 / 相机 / 物镜',color:'#a7c8f2'},
 illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
-let platform='B', bPhoto94Mode=true, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
+let platform='B', bPhoto94Mode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
     filmShift=0,filmShiftDepth=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
@@ -463,25 +464,32 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  addPart('B27',ax+14,link.mountY+9,crossDatums.verticalBore.z,g=>{
    add(g,cyl(6,25,mats.steel,0,12.5,0,48));
    add(g,cyl(6,1.1,mats.silver,0,25,0,36));
-   label(g,'PHSP12-1 · Ø12×25（实物型号待核）',0,35,0);
+   label(g,'竖向接杆 Ø12 · 当前长度仅为候选，照片149待配准',0,35,0);
  },{explode:[-25,55,-13],moveFilm:true});
- // OEM PHCP-2 has Ø25 and Ø26 nominal round clamp halves, *two*
- // Ø12 through bores. The shafts MUST be spatially offset in this
- // preview: photo-independent offset 16 mm is NOT a factory datum.
+ // Photos 149 and 150 show an actual Zolix PHUC-1, NOT the earlier
+ // PHCP-2. Manufacturer drawing: A60, BØ30, C/DØ12, bore pitch E33.
+ // Full housing, two rotatable barrel halves, and insertion datums are
+ // not vendor-native CAD; the two orthogonal ring cutouts here are
+ // presentation proxies until photo/part coordinate registration.
  addPart('B24',ax+14,link.mountY+20,0,g=>{
-   g.userData.crossClampDatums=crossDatums;
-   add(g,sleeve(12.5,6.05,16,mats.dark,0,0,
-     crossDatums.verticalBore.z,'y'));
-   add(g,sleeve(13,6.05,16,mats.black,0,0,
-     crossDatums.horizontalBore.z,'x'));
-   // A visible central pivot and two individual lock screws; geometry is
-   // indicative, not a dimensional reconstruction of the internal swivel.
-   const pin=add(g,cyl(crossDatums.pivot.radiusMm,crossDatums.pivot.lengthMm,mats.steel,
-     crossDatums.pivot.x,crossDatums.pivot.y,crossDatums.pivot.z,32));
-   pin.rotation.x=Math.PI/2;
-   thumbKnob(g,0,0,crossDatums.verticalBore.z-15,'z',4.7);
-   thumbKnob(g,15,0,0,'x',4.7);
-   label(g,'PHCP-2 · Ø12双孔 / Ø25+Ø26外形',2,27,-7);
+   const oem=V28_OEM_DIMENSIONS.PHUC1;
+   g.userData.phuc1OEM=oem;
+   g.userData.photoMeasured=false;
+   // The swivel half centers are spaced 33 mm along local vertical.
+   // The two Ø12.1 openings are genuinely hollow render meshes,
+   // rather than steel posts passing through a solid cuboid.
+   add(g,sleeve(oem.outerDiameterBmm/2,oem.boreCmm/2+.05,23,
+     mats.black,0,oem.boreCenterSpacingEmm/2,0,'x'));
+   add(g,sleeve(oem.outerDiameterBmm/2,oem.boreDmm/2+.05,23,
+     mats.dark,0,-oem.boreCenterSpacingEmm/2,0,'z'));
+   const pivot=add(g,cyl(8.5,9,mats.steel,0,0,0,40));
+   pivot.userData.candidateSwivelPivot=true;
+   // Independent upper/lower thumb screws are both photographically visible.
+   thumbKnob(g,0,31,13,'z',5);
+   thumbKnob(g,16,-16.5,0,'x',5);
+   g.userData.verifiedPhotoModel='Zolix PHUC-1';
+   g.userData.oemHoleCenterSpacingMm=oem.boreCenterSpacingEmm;
+   label(g,'PHUC-1 · 厂家 A60 / Ø30 / Ø12×2 / 中心距33mm',2,52,-7);
  },{explode:[-23,58,-13],moveFilm:true});
  // Zolix PHSP12-5: OEM Ø12×150, with ~10 mm hidden in mount.
  // The label is a product reference, not a claim of photo identification.
@@ -491,6 +499,16 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    add(g,cub(.35,10,2.1,mats.ink,148,0,0)); // subdued rod-end witness
    label(g,'PHSP12-5 · Ø12×150（长度候选）',72,17,0);
  },{explode:[-20,64,-13],moveFilm:true});
+ // The second rod is visible through the other PHUC-1 opening in both
+ // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
+ // Keep it separate in BOM and selection. The glass coupling is unverified.
+ addPart('B28',ax+14,link.mountY+20,0,g=>{
+   const output=add(g,cyl(6,82,mats.steel,0,0,41,48));
+   output.rotation.x=Math.PI/2;
+   g.userData.candidateLengthMm=82;
+   g.userData.actualPhotoLengthVerified=false;
+   label(g,'PHUC-1 第二接杆 · Ø12 / 长度及方向待照片配准',0,15,44);
+ },{explode:[-14,62,20],moveFilm:true});
  // A model-compatible terminal socket and down-link. The specific adapter
  // is NOT yet identified; do not give it an OEM part number.
  addPart('B26',link.clampWorldX,link.mountY+20,0,g=>{
@@ -841,7 +859,8 @@ function addAxis(){
 function renderPhotoLedger(){
  const host=$('photo-ledger');if(!host)return;host.replaceChildren();
  const stack=STACKS[platform];
- const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32','B07']:stack.film;
+ const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32','B07']:
+   platform==='B'?['B02','B03','B04','B05','B27','B24','B25','B28','B26','B06','B07']:stack.film;
  const sampleIds=stack.sample;
  const note=document.createElement('p');note.textContent=platform==='B'&&bPhoto94Mode?'照片94/95/97新结构：T25M→VC13M→G40M60L→L片；下方B29底座只辨认出轮廓，不能套用另一档案的磁吸底座型号。':stack.confidence;host.append(note);
  for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds})){
@@ -1072,7 +1091,7 @@ function resetScene(){
    const required=['B01','B03','B07','B08','B09','B10','B11','B12',
      'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23'];
    if(bPhoto94Mode)required.push('B29','B30','B31','B32');
-   else required.push('B02','B04','B05','B06','B24','B25','B26','B27');
+   else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28');
    const missing=required.filter(id=>!parts.has(id));
    if(missing.length)throw new Error('Model B missing required scene components: '+missing.join(', '));
  }
@@ -1089,10 +1108,10 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · 全系统布局 / 108/109玻片臂候选'):
+   '平台 B · 145–151尺寸照片修正 / PHUC-1万向杆夹'):
    '平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
-  bPhoto94Mode?'B完整布局已恢复：玻片侧照片94/95/97对应B29→B03→B30→B31→B32；样品侧B08旋转台→B09 NFP→B10/B11/B12隔热与加热；B16/B17/B18显微镜、B15真空管、B19–B23外设均显示。B07玻片为透明位置参考，B32→B07的真实夹具/连接未识别。各照片组之间的相对位置尚未完成实物配准，不得作为制造总装。':'旧108/109候选配置：B02磁座→B03双轴T25M→B04 V25M→PHCP长杆，此路径尚未根据B原始实物复核，不可据此采购。':
+  bPhoto94Mode?'历史误归类的94/95/97实际上属于平台A，不用于B的物理总装。':'平台B新尺规145–151确认：B02磁座→B03双轴T25M→B04竖直V25M→金属杆/万向杆夹 B24 PHUC-1→B06 GCM-1302M玻片夹；样品侧B08旋转台→B09 NFP→隔热/加热台。真实杆长、PHUC角度与跨支路连接仍待几何复核。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
@@ -1248,9 +1267,10 @@ function updatePhotoScope(){
  $('btn-photo947').textContent=platform==='B'&&bPhoto94Mode?'聚焦当前B的94/95/97实物对照':'查看94/95/97照片装配';
 }
 function focusPhoto947(photo='94'){
- if(platform==='B'&&!bPhoto94Mode){bPhoto94Mode=true;switchPlatform('B');}
- const isB=platform==='B'&&bPhoto94Mode;
- if(!isB&&platform!=='A')switchPlatform('A');
+ // 94/95/97 belong to platform A; the November ruler images
+ // 145–151 and 108–112 jointly establish the distinct platform B.
+ if(platform!=='A')switchPlatform('A');
+ const isB=false;
  const x=isB?CONFIG.B.armX:CONFIG.A.armX;
  // Photos94/95/97 identify one mechanical film-side arm. In the new B
  // comparison this maps to B29/B03/B30/B31/B32; archival A uses A15/A03/A04/A05.
@@ -1280,8 +1300,8 @@ function switchPlatform(next){
 }
 $('show-b').onclick=()=>switchPlatform('B');
 $('show-a').onclick=()=>switchPlatform('A');
-$('btn-b-user-photos').onclick=()=>{bPhoto94Mode=true;switchPlatform('B');};
-$('btn-b-archive').onclick=()=>{bPhoto94Mode=false;switchPlatform('B');};
+$('btn-b-user-photos').onclick=()=>{bPhoto94Mode=false;switchPlatform('B');};
+$('btn-b-archive').onclick=()=>{bPhoto94Mode=false;switchPlatform('A');};
 $('btn-photo947').onclick=()=>focusPhoto947('94');
 $('btn-photo94').onclick=()=>focusPhoto947('94');
 $('btn-photo95').onclick=()=>focusPhoto947('95');
