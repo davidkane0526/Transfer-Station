@@ -11,7 +11,7 @@ import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
-import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison} from './photo-947-assembly.js';
+import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums} from './photo-947-assembly.js';
 import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums} from './holder-mechanics.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -274,10 +274,11 @@ function filmB(){
    }
    add(g,cub(65,6,65,mats.dark,0,48,0)); // VC13M actual OEM 65×65 top, Y=104
    // VC13M vertical micrometer on face, NOT another horizontal rail.
-   add(g,cub(14,10,10,mats.black,0,15,25));
-   add(g,cyl(2.8,28,mats.steel,0,24,25,24));
-   add(g,cyl(6.8,18,mats.silver,0,39,25,48));
-   for(let y=32;y<48;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,25));
+   const micrometer=vc13PhotoScrewDatums();
+   add(g,cub(14,10,10,mats.black,0,15,micrometer.frontZmm));
+   add(g,cyl(2.8,micrometer.stemLengthMm,mats.steel,0,micrometer.stemCenterLocalYmm,micrometer.frontZmm,24));
+   add(g,cyl(6.8,micrometer.drumLengthMm,mats.silver,0,micrometer.drumCenterLocalYmm,micrometer.frontZmm,48));
+   for(let y=32;y<micrometer.drumTopLocalYmm;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,micrometer.frontZmm));
    addJointHeads(g,'B30',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
    label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
  },{explode:[-15,18,0],moveFilm:true});
@@ -646,10 +647,11 @@ function platformA(){
    }
    add(g,cub(65,6,65,mats.dark,0,48,0)); // VC13M actual OEM 65×65 top, Y=104
    // VC13M vertical micrometer on face, NOT another horizontal rail.
-   add(g,cub(14,10,10,mats.black,0,15,25));
-   add(g,cyl(2.8,28,mats.steel,0,24,25,24));
-   add(g,cyl(6.8,18,mats.silver,0,39,25,48));
-   for(let y=32;y<48;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,25));
+   const micrometer=vc13PhotoScrewDatums();
+   add(g,cub(14,10,10,mats.black,0,15,micrometer.frontZmm));
+   add(g,cyl(2.8,micrometer.stemLengthMm,mats.steel,0,micrometer.stemCenterLocalYmm,micrometer.frontZmm,24));
+   add(g,cyl(6.8,micrometer.drumLengthMm,mats.silver,0,micrometer.drumCenterLocalYmm,micrometer.frontZmm,48));
+   for(let y=32;y<micrometer.drumTopLocalYmm;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,micrometer.frontZmm));
    addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
    label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
  },{explode:[-15,18,0],moveFilm:true});
