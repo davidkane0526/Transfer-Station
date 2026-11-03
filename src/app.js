@@ -448,9 +448,9 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  const link={clampWorldX:CONFIG.B.sampleX-42,mountY:rack.supportPlateBottomY,
    loadPath:'B33→B25→PHUC-1→B28→side-M6-candidate→GCM-1302M',
    physicalAcceptance:false};
- // B05 is now only the B04 mounting foot; the hardware is decomposed
- // into independently selectable source-identified models, with a nonstandard
- // terminal adapter B26 still explicitly not accepted.
+ // B05 is a side-mounted, photo-fit carriage plate. The load path is
+ // decomposed into selected elements; B26 represents ONLY an unverified
+ // direct M6 rod-end interface, never a floating connector block.
  // Photo149 has a BLACK thin plate with a long cylindrical sleeve
  // seated directly above it. No separate Ø36 PHPB-1 circular foot is
  // seen there: drawing that old flange would collide with the holder.
@@ -461,7 +461,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
      0,rack.supportPlateHeightMm/2,0));
    addJointHeads(g,'B05',rack.supportPlateHeightMm-.05,
       [[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
-   label(g,'照片149：V25M顶部薄黑安装板 / 无额外虚构圆柱底座',0,28,0);
+   label(g,'照片108：V25M活动滑架侧板（与顶部固定导轨不同高）',0,28,0);
  },{explode:[-30,55,-13],moveFilm:true});
  // Photo149: steel post extends THROUGH a 50mm cylindrical holder
  // and THROUGH B33 square clamp with a threaded tip still exposed.
@@ -534,8 +534,8 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    g.userData.oemHoleCenterSpacingMm=oem.boreCenterSpacingEmm;
    label(g,'PHUC-1 · 厂家 A60 / Ø30 / Ø12×2 / 中心距33mm',2,52,-7);
  },{explode:[-23,58,-13],moveFilm:true});
- // Zolix PHSP12-5: OEM Ø12×150, with ~10 mm hidden in mount.
- // The label is a product reference, not a claim of photo identification.
+ // First Ø12 rod connects B33 square clamp to PHUC upper hole only;
+ // 100mm is a PHOTO FIT and not an identified PHSP part number.
  addPart('B25',rack.upperRodStartX,rack.upperRodY,0,g=>{
    const rod=add(g,cyl(6,rack.upperRodLengthMm,mats.steel,
      rack.upperRodLengthMm/2,0,0,60));
@@ -1305,10 +1305,10 @@ function updatePhotoScope(){
  $('b-photo-profile').hidden=platform!=='B';
  $('btn-b-user-photos').classList.toggle('on',platform==='B');
  $('btn-b-archive').classList.remove('on');
- $('b-profile-note').textContent='照片149新增：B34黑色圆柱套筒、B27贯穿钢杆和B33独立方夹。套筒50mm/钢杆100mm只是照片与PHSH/PHSP厂商规格的拟合候选；PHUC-1的33mm上下孔距来自原厂图纸，照片150确认GCM-1302M型号。';
+ $('b-profile-note').textContent='照片149：B34黑色套筒、B27长立杆、B33方夹及PHUC-1双横杆。照片108/150：下杆直入GCM-1302M侧边，取消虚构B26大转接座。50mm套筒、100mm立杆和玻片高度仍为候选；PHUC孔距33mm、GCM夹具型号由原厂/铭牌支持。';
  const critical=$('b-physical-audit');
  critical.hidden=platform!=='B';
- if(platform==='B')critical.textContent='照片149的黑色套筒和竖杆已恢复，B33方夹改用贯穿Ø12孔的方形外壳；B04静止导轨高于活动安装板。50mm套筒/100mm立杆仅为尺规比例候选，B26末端螺纹及跨支路配准仍未完成，禁止当作加工图。';
+ if(platform==='B')critical.textContent='V30照片108/150纠错：删去未见于实物的B26粗大末端套筒/悬吊块，下层Ø12横杆止于GCM-1302M侧面；B26只保留M6候选小端头、BOM数量0。B05为V25M侧部活动滑架安装板，真实孔位和全行程干涉尚未认证，禁止用于加工。';
  node.dataset.refRig=platform==='A'?'A-94-95-97-137-144-152-155-161':'B-107-112-145-151';
  node.textContent=platform==='A'?
   '平台 A：94/95/97、137–144、152、155、161。新增照片137/161的 GCM-5306M 是 112×70×8 mm 安装底座，不是旋转台。':
