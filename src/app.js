@@ -11,6 +11,7 @@ import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
+import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison} from './photo-947-assembly.js';
 import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums} from './holder-mechanics.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
