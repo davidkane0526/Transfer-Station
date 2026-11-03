@@ -12,7 +12,8 @@ import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
 import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums,photo95FrontDriveDatums} from './photo-947-assembly.js';
-import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums} from './holder-mechanics.js';
+import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums,getTerminalAdapterDatums} from './holder-mechanics.js';
+import {auditBPhotoProfile} from './b-physical-audit.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -222,8 +223,16 @@ function filmB(){
    // legible maker/part number. Do not borrow B02's GCM magnetic SKU
    // from unrelated archive photos 108/109 as though verified here.
    addPart('B29',ax,20,0,g=>{
-     add(g,cub(65,17.5,65,mats.black,0,8.75,0));
-     add(g,cub(65,2.5,65,mats.steel,0,18.75,0));
+     // No maker or full geometry is legible in photo95. Show only an
+     // unverified attachment envelope, not an invented solid OEM base.
+     const proxy=add(g,cub(65,20,65,new THREE.MeshStandardMaterial({
+       color:'#8a99aa',transparent:true,opacity:.16,depthWrite:false
+     }),0,10,0));
+     proxy.userData.unknownEnvelope=true;
+     const edges=new THREE.LineSegments(
+       new THREE.EdgesGeometry(new THREE.BoxGeometry(65,20,65)),
+       new THREE.LineBasicMaterial({color:0xd8a35c}));
+     edges.position.y=10;g.add(edges);
      label(g,'实拍95底座 · 规格/磁性均待识别',0,34,0);
    },{explode:[-25,0,0]});
  }else{
@@ -434,8 +443,13 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // A model-compatible terminal socket and down-link. The specific adapter
  // is NOT yet identified; do not give it an OEM part number.
  addPart('B26',link.clampWorldX,link.mountY+20,0,g=>{
+   const adapterDatums=getTerminalAdapterDatums();
+   g.userData.terminalAdapterDatums=adapterDatums;
    add(g,sleeve(13,6.05,16,mats.black,0,0,0,'x'));
-   add(g,cub(20,21,20,mats.dark,0,-17,0));
+   // Candidate stem now ENDS at B06 fixed-spine top (Y=119), instead of
+   // floating 8.5mm above it. Real joint/threads remain unidentified.
+   add(g,cub(20,adapterDatums.adapterHeightMm,20,mats.dark,
+     0,adapterDatums.adapterCenterLocalYmm,0));
    thumbKnob(g,0,-2,16,'z',4.2);
    label(g,'末端连接 · Ø12/M6仍需配准',0,23,0);
  },{explode:[-20,65,2],moveFilm:true});
@@ -991,7 +1005,7 @@ function resetScene(){
  });
  holes.forEach(h=>h.visible=showHoles);selectedLabels();
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
- $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?'平台 B · 本次94/95/97实物对照配置（编号归属待核）':'平台 B · 旧108/109候选配置（未实物验收）'):'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
+ $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?'平台 B · 94/95/97载玻片侧复原中（总装未闭合）':'平台 B · 108/109旧方案候选（未实物验收）'):'平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'本次实拍B对照配置：底层T25M两正交轴 → VC13M前置竖直测微头 → G40M60L右侧微分头 → 两螺钉固定的窄L折弯片。旧编号把照片94/95/97归档A，用户新指示用于纠正B，样品NFP与这些照片是否同一整机仍未物理确认。':'旧108/109候选配置：B02磁座→B03双轴T25M→B04 V25M→PHCP长杆，此路径尚未根据B原始实物复核，不可据此采购。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
@@ -1117,7 +1131,20 @@ function updatePhotoScope(){
  $('b-photo-profile').hidden=platform!=='B';
  $('btn-b-user-photos').classList.toggle('on',bPhoto94Mode);
  $('btn-b-archive').classList.toggle('on',!bPhoto94Mode);
- $('b-profile-note').textContent=bPhoto94Mode?'本次按用户指出的实物照片优先呈现：T25M→VC13M→G40M60L→薄L片。编号原归A，当前仅作为B玻片侧的可逆实物对照配置；B样品侧是否同一物理机台仍待确认。':'已切换旧108/109候选：GCM-V25M与PHCP/PHSP圆杆链的真实型号尚未确认，不代表当前用户实拍。';
+ $('b-profile-note').textContent=bPhoto94Mode?'用户指定的B玻片侧照片构型：T25M→VC13M→G40M60L→薄L片。照片旧档案归A并不自动推翻用户的B归属，但没有证据证明末端玻片夹和B样品侧属于同一装配。':'旧108/109为另一独立候选：GCM-V25M与PHCP/PHSP圆杆链，杆夹与连接端型号仍未核验，不能混入本次照片构型。';
+ const critical=$('b-physical-audit');
+ if(critical){
+   critical.hidden=platform!=='B';
+   if(platform==='B'&&bPhoto94Mode){
+     const bracket=photo94BracketCandidate({stageCenterX:CONFIG.B.armX,stageTopY:144});
+     const review=auditBPhotoProfile({stageCenterX:CONFIG.B.armX,sampleCenterX:CONFIG.B.sampleX,stageTopY:144,bracket});
+     critical.textContent='模型 B 未通过物理总装验收：B32 薄L片下端缺少已识别玻片夹；在当前候选坐标中薄片距样品中心至少 '+
+       review.horizontalGapMm.toFixed(1)+' mm，折边端相对候选玻片高度差 '+
+       review.tipToGlassHeightMm.toFixed(1)+' mm。B样品侧与94/95/97是否同机未确认。这是必须解决的结构缺口，不得以装饰性杆件填补。';
+   }else if(platform==='B'){
+     critical.textContent='旧版 B 仅供对照：B26端座至B06背脊的代理几何已消除悬空，但PHCP-1/PHCP-2夹具型号、末端转接螺纹和真实载玻片夹仍未实物验收。';
+   }
+ }
  node.dataset.refRig=platform==='B'&&bPhoto94Mode?'B-user-photo-overrides-archive-A':'A-archive';
  node.textContent=platform==='A'?
   '归档A：旧照片编号把94/95/97列在A。但用户最新要求用这组实拍纠正B，原归属不是比实物更高优先级的证据。':
