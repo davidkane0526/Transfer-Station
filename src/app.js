@@ -445,26 +445,17 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // B05 is now only the B04 mounting foot; the hardware is decomposed
  // into independently selectable source-identified models, with a nonstandard
  // terminal adapter B26 still explicitly not accepted.
- const crossDatums=getCrossClampDatums();
- const postBaseDatums=getPostBaseDatums();
- // The unverified plate adapter is separate from the SOURCE-DOCUMENTED
- // round Zolix PHPB-1 post base (Ø36); do not use a solid cube as the bore.
+ // Photo149 has a BLACK thin plate with a long cylindrical sleeve
+ // seated directly above it. No separate Ø36 PHPB-1 circular foot is
+ // seen there: drawing that old flange would collide with the holder.
  addPart('B05',ax,rack.supportPlateBottomY,0,g=>{
    g.userData.cantileverLink=link;
-   add(g,cub(65,6,66,mats.black,0,3,0));
-   // Source PHPB-1 nominal shape, flange height/center are fit candidates.
-   // PHPB-1 manufacturer lists M6 TH. Do NOT depict Ø12 as a
-   // full-depth mounting bore: lower M6 candidate + shallow Ø12 seat.
-   add(g,sleeve(postBaseDatums.outerDiameterMm/2,
-     postBaseDatums.mountBoreDiameterMm/2,
-     postBaseDatums.lowerThroughLengthMm,mats.black,14,7.5,
-     crossDatums.verticalBore.z,'y'));
-   add(g,sleeve(postBaseDatums.outerDiameterMm/2,
-     postBaseDatums.seatDiameterMm/2,
-     postBaseDatums.seatDepthMm,mats.dark,14,10.5,
-     crossDatums.verticalBore.z,'y'));
-   addJointHeads(g,'B05',5.95,[[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
-   label(g,'V25M转接基板 + PHPB-1型圆形杆底座（候选）',0,29,0);
+   g.userData.photo149FlatPlateOnly=true;
+   add(g,cub(65,rack.supportPlateHeightMm,66,mats.black,
+     0,rack.supportPlateHeightMm/2,0));
+   addJointHeads(g,'B05',rack.supportPlateHeightMm-.05,
+      [[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
+   label(g,'照片149：V25M顶部薄黑安装板 / 无额外虚构圆柱底座',0,28,0);
  },{explode:[-30,55,-13],moveFilm:true});
  // Photo149: steel post extends THROUGH a 50mm cylindrical holder
  // and THROUGH B33 square clamp with a threaded tip still exposed.
