@@ -520,7 +520,7 @@ function platformA(){
        add(g,cub(1.9,.45,.15,mats.ink,x,y,8.36));
      }
    }
-   add(g,cub(45,6,45,mats.dark,0,48,0)); // top Y=104, seats A04
+   add(g,cub(65,6,65,mats.dark,0,48,0)); // VC13M actual OEM 65×65 top, Y=104
    // VC13M vertical micrometer on face, NOT another horizontal rail.
    add(g,cub(14,10,10,mats.black,0,15,25));
    add(g,cyl(2.8,33,mats.steel,0,38,25,24));
