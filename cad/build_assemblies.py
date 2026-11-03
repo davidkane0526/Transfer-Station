@@ -136,30 +136,38 @@ def make_b():
     add('B','B05','post_foot_PHPB1_approx_not_verified',foot,'C')
     add('B','B27','vertical_post_O12x25_PHSP12_1_CANDIDATE',
         vz(6,25,ax+14,-15,144),'C')
-    # PHCP-2 sleeve candidate with TWO separate orthogonal Ø12.1
-    # through-bores; 15 mm offset is a preview only. It guarantees
-    # 3 mm solid-rod surface clearance, not an OEM bore-centre datum.
-    v_ring=vz(12.5,16,ax+14,-15,147)
-    h_ring=vx(13,16,ax+6,0,155)
-    cross=v_ring.fuse(h_ring)
-    # Cut both Ø12.1 bores THROUGH THE UNION, not just through
-    # the nominal 16mm sleeve widths. Otherwise each swivel half
-    # intrudes into the other passing rod (found by volume-intersection QA).
-    cross=cross.cut(vz(6.05,27,ax+14,-15,142))
-    cross=cross.cut(vx(6.05,32,ax-2,0,155))
-    add('B','B24','PHCP2_twobore_SWIVEL_CANDIDATE',cross,'C')
-    # PHSP12-5 Ø12x150mm is OEM length only; identity in user
-    # photo, actual mounting and the yaw angle remain unverified.
-    add('B','B25','horizontal_post_O12x150_CANDIDATE',
-        vx(6,150,ax+2,0,155),'C')
+    # PHOTO149: a small UNKNOWN square connector captures a vertical
+    # Ø12 post and the first horizontal Ø12 bar. Its actual maker is
+    # unrecognized. Two REAL drilled candidate bores avoid interpenetration.
+    cube=box(28,31,30,ax+14,-7.5,155)
+    cube=cube.cut(vz(6.05,30,ax+14,-15,155))
+    cube=cube.cut(vx(6.05,28,ax,0,171.5))
+    add('B','B33','photo149_UNKNOWN_square_cross_clamp',cube,'C')
+    # PHOTO149/150 + OEM: PHUC-1 universal swivel clamp, NOT PHCP-2.
+    # Maker A=60mm, B=Ø30mm, 2 Ø12 bores with E=33mm center pitch.
+    # This assembly's relative swivel yaw remains a candidate at 90°.
+    phuc_x=-30
+    phuc=vz(15,60,phuc_x,0,125)
+    phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,171.5))
+    phuc=phuc.cut(vy(6.05,32,phuc_x,-16,138.5))
+    groove=vz(15.1,1,phuc_x,0,154.5).cut(vz(13,1,phuc_x,0,154.5))
+    phuc=phuc.cut(groove)
+    add('B','B24','Zolix_PHUC1_OEM_A60_B30_C12_D12_E33_photo149',phuc,'D')
+    # The FIRST rod ties the unknown B33 connector to PHUC upper bore
+    # and continues toward B26. Its specific PHSP subtype is still unknown.
+    add('B','B25','first_O12x150_post_LENGTH_CANDIDATE',
+        vx(6,150,ax+2,0,171.5),'C')
+    # PHUC lower bore holds a SECOND independently selectable post.
+    # Length 82mm and yaw=90° are SCENE CANDIDATES, not maker dimensions.
+    add('B','B28','second_O12x82_post_LENGTH_CANDIDATE',
+        vy(6,82,phuc_x,-41,138.5),'C')
     clamp_x=cx-42
-    # Old B26 cuboid ended 8.5mm ABOVE B06; current supporting
-    # stem ends exactly at the B06 spine top, while ending 1mm
-    # BELOW the steel rod. Neither face is a verified bolted joint.
-    socket=vx(13,16,clamp_x-8,0,155)
-    stem=box(20,20,29,clamp_x,0,119)
+    # B26 is still an UNIDENTIFIED interface. Keep its top below the
+    # first rod, its bottom touching B06 at z=119, without false threads.
+    socket=vx(13,16,clamp_x-8,0,171.5)
+    stem=box(20,20,45.5,clamp_x,0,119)
     terminal=socket.fuse(stem)
-    terminal=terminal.cut(vx(6.05,16,clamp_x-8,0,155))
+    terminal=terminal.cut(vx(6.05,16,clamp_x-8,0,171.5))
     add('B','B26','unidentified_terminal_adapter_socket_CANDIDATE',
         terminal,'C')
     # Daheng GCM-13 mechanics: TWO adjusters push ONE moving plate.
