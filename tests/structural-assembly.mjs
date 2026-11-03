@@ -20,7 +20,10 @@ assert.equal(film.glassLeftEdgeX,CONFIG.B.sampleX+5-76/2);
 assert.equal(film.rodEndX,CONFIG.B.sampleX-42-CONFIG.B.armX);
 assert.equal(film.rodLength,140,'The arm must end LEFT of the optical axis');
 assert.equal(film.terminalBottomLocalY,-7,'Support reaches B06 at world Y=128');
-assert.equal(film.terminalHeight,15);
+assert.equal(film.terminalHeight,27);
+assert.equal(film.rodCenterY,20);
+assert.equal(film.oemRodLengthMm,150);
+assert.equal(film.hiddenInsertionMm,10);
 assert.equal(film.terminalBottomLocalY+135,128);
 assert.equal(film.mountY,135,'B05 base must seat onto B04 top at world Y=135');
 assert(film.rodEndX+CONFIG.B.armX<CONFIG.B.sampleX-17,
