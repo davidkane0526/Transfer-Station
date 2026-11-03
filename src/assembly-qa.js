@@ -12,6 +12,8 @@ export const JOINTS={
  B02:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'磁座至双轴台（固定孔/螺纹未配准）'},
  B03:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'双轴台顶部预留紧固件（会被上层遮挡）'},
  B04:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'竖直台安装底板'},
+ B30:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'照片97 VC13M底部法兰'},
+ B31:{count:2,kind:'mounting-head-proxy',status:'candidate',name:'照片94 G40M60L安装台面'},
  B05:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'直线悬臂底座紧固件'},
  B06:{count:2,kind:'jaw-clamp-proxy',status:'candidate',name:'玻片夹爪夹紧螺钉'},
  B08:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'旋转台上部连接参考'},
