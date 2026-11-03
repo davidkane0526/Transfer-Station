@@ -142,8 +142,11 @@ def make_b():
     v_ring=vz(12.5,16,ax+14,-15,147)
     h_ring=vx(13,16,ax+6,0,155)
     cross=v_ring.fuse(h_ring)
-    cross=cross.cut(vz(6.05,16,ax+14,-15,147))
-    cross=cross.cut(vx(6.05,16,ax+6,0,155))
+    # Cut both Ø12.1 bores THROUGH THE UNION, not just through
+    # the nominal 16mm sleeve widths. Otherwise each swivel half
+    # intrudes into the other passing rod (found by volume-intersection QA).
+    cross=cross.cut(vz(6.05,27,ax+14,-15,142))
+    cross=cross.cut(vx(6.05,32,ax-2,0,155))
     add('B','B24','PHCP2_twobore_SWIVEL_CANDIDATE',cross,'C')
     # PHSP12-5 Ø12x150mm is OEM length only; identity in user
     # photo, actual mounting and the yaw angle remain unverified.
