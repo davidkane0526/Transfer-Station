@@ -971,14 +971,16 @@ function updateDetail(part){
    ' 个正面候选螺丝头。实际轴承、导轨和孔距仍需厂家3D图纸核对。</p></div>':'';
  const selectedScenePart=parts.get(part.id)?.g;
  const xzDatums=selectedScenePart?.userData.crossClampDatums;
+ const phucOem=selectedScenePart?.userData.phuc1OEM;
  const jawDatums=selectedScenePart?.userData.gcmJawDatums;
  let realScrewAxes=0;
  selectedScenePart?.traverse(o=>{if(o.isMesh&&o.userData.plateHolderActuator)realScrewAxes++});
- const holderQAHtml=part.id==='B24'&&xzDatums?
-   '<div class="field" id="holder-geometric-qa" data-rod-clearance="'+xzDatums.rodSurfaceClearanceMm+
-   '"><b>PHCP-2 刚性孔轴检查</b><p>厂家 Ø12 × 2 通孔；当前两个接杆轴线错开 '+
-   xzDatums.boreSpacingMm+' mm，杆体表面净隙 '+xzDatums.rodSurfaceClearanceMm+
-   ' mm。此偏移是显示几何候选，不是原厂孔心坐标。</p></div>':
+ const holderQAHtml=part.id==='B24'&&phucOem?
+   '<div class="field" id="holder-geometric-qa" data-model="PHUC-1" data-hole-spacing="'+phucOem.boreCenterSpacingEmm+
+   '"><b>Zolix PHUC-1 厂家尺寸</b><p>照片149/150可确认型号。原厂尺寸：A='+
+   phucOem.lengthAmm+'、外径 B='+phucOem.outerDiameterBmm+'、两孔 Ø'+
+   phucOem.boreCmm+'、孔中心距 E='+phucOem.boreCenterSpacingEmm+
+   ' mm。当前连接姿态、杆长与内部旋转接合仍是几何候选，不能据此声称已完成原厂CAD配准。</p></div>':
    part.id==='B06'&&jawDatums?
    '<div class="field" id="holder-geometric-qa" data-drive-count="'+realScrewAxes+
    '" data-pressure-plate-count="'+jawDatums.independentMovingPlates+
@@ -1238,33 +1240,19 @@ renderer.domElement.addEventListener('pointerup',ev=>{
  if(!found)selectPart(null);
 });
 function updatePhotoScope(){
- const scope=getPhotoComparison(platform);
  const node=$('photo-scope-note');
  $('b-photo-profile').hidden=platform!=='B';
- $('btn-b-user-photos').classList.toggle('on',bPhoto94Mode);
- $('btn-b-archive').classList.toggle('on',!bPhoto94Mode);
- $('b-profile-note').textContent=bPhoto94Mode?
-   '全系统已显示。玻片侧采用94/95/97的T25M→VC13M→G40M60L→薄L片；样品侧、显微镜、加热/真空及外设仍显示为照片约束的独立子系统。跨分支位置与玻片夹接口尚未验证。':
-   '全系统已显示。载玻片侧切换为108/109的V25M与PHCP/PHSP杆夹候选；样品台、显微镜、加热/真空及外设不会被删除。';
+ $('btn-b-user-photos').classList.toggle('on',platform==='B');
+ $('btn-b-archive').classList.remove('on');
+ $('b-profile-note').textContent='B 实物照片 107–112、145–151 同属一套机构：GCM-420302M 磁座→T25M→V25M→PHUC-1 万向杆夹及两根独立接杆→GCM-1302M 玻片夹。尺寸采用原厂 PHUC-1 A60 / Ø30 / Ø12×2 / 孔距33。杆长、转角及末端啮合待测。';
  const critical=$('b-physical-audit');
- if(critical){
-   critical.hidden=platform!=='B';
-   if(platform==='B'&&bPhoto94Mode){
-     const bracket=photo94BracketCandidate({stageCenterX:CONFIG.B.armX,stageTopY:144});
-     const review=auditBPhotoProfile({stageCenterX:CONFIG.B.armX,sampleCenterX:CONFIG.B.sampleX,stageTopY:144,bracket});
-     critical.textContent='模型 B 全系统组件已恢复。照片94/95/97的B32薄L片至B07玻片缺少真实夹具连接；当前只是子系统布局，薄片距候选样品中心至少 '+
-       review.horizontalGapMm.toFixed(1)+' mm，折边端相对候选玻片高度差 '+
-       review.tipToGlassHeightMm.toFixed(1)+' mm。B样品侧与94/95/97是否同机未确认。这是必须解决的结构缺口，不得以装饰性杆件填补。';
-   }else if(platform==='B'){
-     critical.textContent='旧版 B 仅供对照：B26端座至B06背脊的代理几何已消除悬空，但PHCP-1/PHCP-2夹具型号、末端转接螺纹和真实载玻片夹仍未实物验收。';
-   }
- }
- node.dataset.refRig=platform==='B'&&bPhoto94Mode?'B-user-photo-overrides-archive-A':'A-archive';
+ critical.hidden=platform!=='B';
+ if(platform==='B')critical.textContent='实拍149/150已确认 PHUC-1 与 GCM-1302M，同框连接了 B 的杆架与样品区域。但零件轴线、支杆实际长度、玻片定位与紧固孔面尚未完成坐标配准；当前模型仍为工程候选，不可直接加工。';
+ node.dataset.refRig=platform==='A'?'A-94-95-97-137-144-152-155-161':'B-107-112-145-151';
  node.textContent=platform==='A'?
-  '归档A：旧照片编号把94/95/97列在A。但用户最新要求用这组实拍纠正B，原归属不是比实物更高优先级的证据。':
-  bPhoto94Mode?'当前B：按用户本轮提供的94/95/97实物照片建立新玻片侧对照配置。旧编号A/B发生冲突，保留来源待复核；样品侧NFP不是这三张照片可确认的部分。':
-  '当前B历史模式：108/109候选构型。照片94/95/97不能验证旧PHCP长杆，且不能被视为实物验收。';
- $('btn-photo947').textContent=platform==='B'&&bPhoto94Mode?'聚焦当前B的94/95/97实物对照':'查看94/95/97照片装配';
+  '平台 A：94/95/97、137–144、152、155、161。新增照片137/161的 GCM-5306M 是 112×70×8 mm 安装底座，不是旋转台。':
+  '平台 B：107–112、145–151，照片149确认 Zolix PHUC-1，照片150确认 GCM-1302M；不能再把平台 A 的 G40M60L/L 折片与 B 杆架混装。';
+ $('btn-photo947').textContent='查看平台 A 的 94/95/97 实物构型';
 }
 function focusPhoto947(photo='94'){
  // 94/95/97 belong to platform A; the November ruler images
