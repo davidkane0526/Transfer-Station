@@ -200,14 +200,14 @@ export function enrichParts(partMap, platform, onMesh){
        for(let x of [-24,24])for(let z of [-23,23])screwHead(g,x,66.2,z,2.8);
     });
     decoration('B05',(g)=>{
-       // One direct lateral arm between V25M and glass clamp; no auxiliary
-       // 85mm unsupported post, rear return-loop or hanging square posts.
-       // Its nominal span remains an engineering placeholder.
+       // Do not add any second terminal block: the body and the glass-side
+       // clamp are created in app.js from one constrained position datum.
+       const link=g.userData.cantileverLink;
+       if(!link)throw Error('B05 must have a mechanical end-to-end datum');
        decal(g,'FILM ARM · CANDIDATE',41,5,10,6,22.7,'front','#d5d5d5');
-       const b=box(g,23,24,22,246,3,0,graphite,1);
-       // Two screws on the accessible lateral face of the terminal clamp.
-       for(const y of [-5,5]){
-          const head=cyl(g,2.9,1.6,246,y,11.7,aluminum,24);
+       // Visible lateral candidate fasteners, in the existing terminal block.
+       for(const y of [link.terminalCenterY-3,link.terminalCenterY+3]){
+          const head=cyl(g,2.1,1.2,link.rodEndX,y,11.15,aluminum,24);
           head.rotation.x=Math.PI/2;
        }
     });
