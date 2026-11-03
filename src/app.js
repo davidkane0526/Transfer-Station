@@ -469,7 +469,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // Photo149 additionally shows a SEPARATE small square connector
  // joining the support post to the first long horizontal Ø12 rod.
  // No identifiable OEM SKU is legible; shape is a two-hole proxy.
- addPart('B33',ax+14,link.mountY+20,-7.5,g=>{
+ addPart('B33',ax+14,171.5,-7.5,g=>{
    add(g,sleeve(11,6.05,20,mats.dark,0,0,-7.5,'y'));
    add(g,sleeve(11,6.05,20,mats.black,0,0,7.5,'x'));
    thumbKnob(g,0,12,-7.5,'y',3.5);
@@ -482,7 +482,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // Full housing, two rotatable barrel halves, and insertion datums are
  // not vendor-native CAD; the two orthogonal ring cutouts here are
  // presentation proxies until photo/part coordinate registration.
- addPart('B24',-30,link.mountY+20-16.5,0,g=>{
+ addPart('B24',-30,155,0,g=>{
    const oem=V28_OEM_DIMENSIONS.PHUC1;
    g.userData.phuc1OEM=oem;
    g.userData.photoMeasured=false;
@@ -491,8 +491,10 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    // rather than steel posts passing through a solid cuboid.
    add(g,sleeve(oem.outerDiameterBmm/2,oem.boreCmm/2+.05,23,
      mats.black,0,oem.boreCenterSpacingEmm/2,0,'x'));
+   // Photo149: second Ø12 rod points horizontally in the same plane.
+   // PHUC-1 is a swivel; 90° rotation is possible but not photographed.
    add(g,sleeve(oem.outerDiameterBmm/2,oem.boreDmm/2+.05,23,
-     mats.dark,0,-oem.boreCenterSpacingEmm/2,0,'z'));
+     mats.dark,0,-oem.boreCenterSpacingEmm/2,0,'x'));
    const pivot=add(g,cyl(8.5,9,mats.steel,0,0,0,40));
    pivot.userData.candidateSwivelPivot=true;
    // Independent upper/lower thumb screws are both photographically visible.
@@ -504,7 +506,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  },{explode:[-23,58,-13],moveFilm:true});
  // Zolix PHSP12-5: OEM Ø12×150, with ~10 mm hidden in mount.
  // The label is a product reference, not a claim of photo identification.
- addPart('B25',ax+2,link.mountY+20,0,g=>{
+ addPart('B25',ax+2,171.5,0,g=>{
    const rod=add(g,cyl(6,150,mats.steel,75,0,0,60));
    rod.rotation.z=Math.PI/2;
    add(g,cub(.35,10,2.1,mats.ink,148,0,0)); // subdued rod-end witness
@@ -513,16 +515,16 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // The second rod is visible through the other PHUC-1 opening in both
  // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
  // Keep it separate in BOM and selection. The glass coupling is unverified.
- addPart('B28',-30,link.mountY+20-33,0,g=>{
-   const output=add(g,cyl(6,82,mats.steel,0,0,41,48));
-   output.rotation.x=Math.PI/2;
+ addPart('B28',-30,138.5,0,g=>{
+   const output=add(g,cyl(6,82,mats.steel,41,0,0,48));
+   output.rotation.z=Math.PI/2;
    g.userData.candidateLengthMm=82;
    g.userData.actualPhotoLengthVerified=false;
    label(g,'PHUC-1 第二接杆 · Ø12 / 长度及方向待照片配准',0,15,44);
  },{explode:[-14,62,20],moveFilm:true});
  // A model-compatible terminal socket and down-link. The specific adapter
  // is NOT yet identified; do not give it an OEM part number.
- addPart('B26',link.clampWorldX,link.mountY+20,0,g=>{
+ addPart('B26',link.clampWorldX,138.5,0,g=>{
    const adapterDatums=getTerminalAdapterDatums();
    g.userData.terminalAdapterDatums=adapterDatums;
    add(g,sleeve(13,6.05,16,mats.black,0,0,0,'x'));
