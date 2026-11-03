@@ -28,6 +28,8 @@ jobs:
           node --check src/assembly-qa.js
           node --check src/details.js
           node tests/structural-assembly.mjs
+          node --check src/vendor-hardware.js
+          node tests/vendor-hardware.mjs
           node --check src/interface-evidence.js
           node --check src/procurement.js
           node tests/interface-evidence.mjs
@@ -62,6 +64,7 @@ jobs:
             Transfer-Station-Detail-B.png
             Transfer-Station-V24-Chuck-Screw-Heads.png
             Transfer-Station-V24-Optical-Left-Grip-B.png
+            Transfer-Station-V25-Holder-Detail-B.png
             Transfer-Station-Preview-A.png
           if-no-files-found: ignore
       - name: Check whether Pages was enabled in repository settings
