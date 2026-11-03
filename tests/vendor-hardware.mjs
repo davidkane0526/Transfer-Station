@@ -38,7 +38,7 @@ assert(PURCHASE.B.B24.drawing.includes('PHUC.pdf'));
 const long=OPTICAL_HARDWARE.B25,short=OPTICAL_HARDWARE.B27;
 assert.equal(long.known.diameterMm,12);
 assert.equal(short.known.diameterMm,12);
-assert.equal(long.known.overallLengthMm,150,'150mm is candidate product not ruler measurement');
+assert.equal(long.known.overallLengthMm,100,'Photo108 upper bar must stop at PHUC and cannot have 150mm overhang');
 assert.equal(short.known.overallLengthMm,100,'photo149 requires a much taller vertical post; SKU still candidate');
 assert.equal(OPTICAL_HARDWARE.B34.known.overallHeightMm,50);
 assert.equal(b.get('B34').level,'C');
@@ -54,7 +54,8 @@ assert(b.get('B06').evidence.includes('150'));
 assert(OPTICAL_HARDWARE.B06.confidence.includes('photo150-model-confirmed'));
 assert(PURCHASE.B.B06.datasheet?.startsWith('https://'));
 assert(PURCHASE.B.B24.datasheet?.startsWith('https://'));
-assert(PURCHASE.B.B28.note.includes('82mm'),'B28 candidate length cannot masquerade as measured');
+assert(PURCHASE.B.B28.note.includes('79.5mm'),'B28 candidate length must not masquerade as measured');
+assert.equal(PURCHASE.B.B26.qty,0,'B26 is an unverified interface, not a separate purchasable block');
 
 const film=filmCantileverB({armX:CONFIG.B.armX,sampleX:CONFIG.B.sampleX});
 assert.equal(film.oemRodLengthMm,150);
