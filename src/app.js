@@ -51,7 +51,7 @@ microscope:{name:'显微镜 / 相机 / 物镜',color:'#a7c8f2'},
 illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
-let platform='B', currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
+let platform='B', bPhoto94Mode=true, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
     filmShift=0,filmShiftDepth=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
@@ -223,6 +223,103 @@ function filmB(){
     addJointHeads(g,'B02',19.95,[[-25,-25],[-25,25],[25,-25],[25,25]]);
     label(g,'GCM-420302M',0,38,0);
  },{explode:[-25,0,0]});
+ // User-specified B photo comparison, REVERSIBLE: archival evidence had
+ // numbered these 94/95/97 photographs as A, so do not infer that the
+ // NFP sample-side branch is physically attached to this photographed arm.
+ if(bPhoto94Mode){
+   makeStageBlock('B03',ax,40,0,65,65,33,
+      'GCM-T25M（用户照片95对照 · 2轴）',
+      false,{},1,2,1);
+ addPart('B30',ax,73,0,g=>{
+   // Photo97 footprint has a much narrower upright body than the 65mm
+   // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
+   add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
+   add(g,cub(45,38,16,mats.dark,0,27,-8)); // vertical rail housing
+   add(g,cub(44,40,4,mats.black,0,27,5)); // black front face (photo97)
+   for(const x of [-18,18]){
+     add(g,cub(2.2,35,2,mats.ink,x,27,8));
+     // Captured front-side retaining screw positions are approximate.
+     for(const y of [15,28,42]){
+       const h=add(g,cyl(2.1,1.3,mats.steel,x,y,7.65,12));
+       h.rotation.x=Math.PI/2;h.userData.fastenerProxy=true;
+       add(g,cub(1.9,.45,.15,mats.ink,x,y,8.36));
+     }
+   }
+   add(g,cub(65,6,65,mats.dark,0,48,0)); // VC13M actual OEM 65×65 top, Y=104
+   // VC13M vertical micrometer on face, NOT another horizontal rail.
+   add(g,cub(14,10,10,mats.black,0,15,25));
+   add(g,cyl(2.8,33,mats.steel,0,38,25,24));
+   add(g,cyl(6.8,22,mats.silver,0,58,25,48));
+   for(let y=49;y<68;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,25));
+   addJointHeads(g,'B30',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
+   label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
+ },{explode:[-15,18,0],moveFilm:true});
+ addPart('B31',ax,124,0,g=>{
+   // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
+   // Photo94 front body has a LOWER cradle, a split rocker top, two
+   // front fastener pairs, and a +X micrometer with a steel thimble.
+   add(g,cub(40,7,40,mats.black,0,3.5,0));
+   add(g,cub(40,7,37,mats.dark,0,10.5,0));
+   for(const x of [-14.1,14.1]){
+     const edge=add(g,cub(10,7,35,mats.black,x,15,0));
+     edge.rotation.z=x<0?.07:-.07;
+   }
+   add(g,cub(40,3,40,mats.dark,0,18.5,0)); // nominal top at Y=20
+   // Photo94: two upper screws in front notch and two front body screws
+   // near right-hand actuator mount. None assigned an unverified thread.
+   for(const x of [-5,5]){
+     const hanging=add(g,cyl(2,8,mats.steel,x,10,21,20));
+     hanging.userData.fastenerProxy=true;
+     add(g,cyl(3,1.5,mats.silver,x,5.3,21,28));
+   }
+   for(const [x,y] of [[-7,5.4],[7,5.4],[-9,12],[9,12]]){
+     const hd=add(g,cyl(2.6,1.4,mats.silver,x,y,21,6));hd.rotation.x=Math.PI/2;
+     hd.userData.fastenerProxy=true;
+     const inset=add(g,cyl(1.3,.2,mats.ink,x,y,22,6));inset.rotation.x=Math.PI/2;
+   }
+   add(g,cub(16,15,29,mats.black,24,8,0)); // outer end stop
+   const stem=add(g,cyl(5.5,18,mats.steel,27,10,0,40));stem.rotation.z=Math.PI/2;
+   const drum=add(g,cyl(8.3,20,mats.silver,43,10,0,48));drum.rotation.z=Math.PI/2;
+   for(let x=35;x<52;x+=3){
+     const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
+     ring.rotation.y=Math.PI/2; // ring normal along X
+   }
+   addJointHeads(g,'B31',14.9,[[-14,-14],[14,14]],{headR:2.6});
+   label(g,'GCM-G40M60L · R60 / 右侧测微（照片94）',-4,40,0);
+ },{explode:[-25,42,0],moveFilm:true});
+ const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:144});
+ addPart('B32',ax,144,0,g=>{
+   // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
+   // and not the 200mm square beam formerly rendered here.
+   const localX=aBent.centerX-ax;
+   const leftLocalX=aBent.leftX-ax+aBent.metalThickness/2;
+   add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
+       mats.black,localX,aBent.metalThickness/2,aBent.sheetFrontZ));
+   add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
+       aBent.topPlateDepth,mats.black,
+       leftLocalX,-aBent.verticalLegLength/2,aBent.sheetFrontZ));
+   // The top plate actually sits ON the G40 top, two photo-visible hex
+   // heads near stage 40mm table; threads/length still unverified.
+   for(const xx of aBent.topBoltWorldX){
+     const hex=jointHead(g,xx-ax,aBent.metalThickness,aBent.sheetFrontZ,
+       {headR:3.1,shankR:1.5,shankL:4});
+     hex.userData.photo94Fastener=true;
+     hex.material=mats.dark; // photo94 black bolt heads seated on black folded sheet
+   }
+   // The lower leg end only forms a slim return flange; the exact glass
+   // jaw and optics beyond this photo are NOT modelled here.
+   add(g,cub(13,2.5,aBent.topPlateDepth,mats.black,
+       leftLocalX+6,-aBent.verticalLegLength+1.25,aBent.sheetFrontZ));
+   g.userData.photo94BentSheet=true;
+   g.userData.verifiedPhotoBentCorner=true;
+   g.userData.photoBracketDatums=aBent;
+   label(g,'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
+      -24,17,0);
+ },{explode:[-13,65,0],moveFilm:true});
+
+   return;
+ }
+
  // 108/109: magnet B02 touches board, T25M is ON magnet and handle faces -X.
  // Photo108 sees magnetic-base branded +Z, photo109 sees T25M branded -Z.
 // T25M is yaw=180° relative to the magnetic base: the SAME X handle,
