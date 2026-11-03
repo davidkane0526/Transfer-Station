@@ -12,7 +12,7 @@ import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
 import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums,photo95FrontDriveDatums} from './photo-947-assembly.js';
-import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums,getTerminalAdapterDatums} from './holder-mechanics.js';
+import {getPlateHolderJawDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
 import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
 import {B149,auditB149} from './b-photo149-geometry.js';
@@ -429,7 +429,8 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   add(g,cub(34,49,8,mats.steel,0,34,3));
   // Embedded face rails, not two disconnected steel posts.
   for(const x of [-17,17])add(g,cub(2.5,38,1.2,mats.silver,x,31,7.5));
-  add(g,cub(65,8,66,mats.dark,0,28,0));
+  // Moving V25M flange BELOW tall fixed guides (photo108).
+  add(g,cub(65,8,66,mats.dark,0,13,0));
   // 108.jpg: V25M micrometer is VERTICAL (+Y), distinct from T25M.
   add(g,cub(16,14,18,mats.dark,-24,24,0));
   add(g,cyl(6.5,40,mats.silver,-24,46,0));
@@ -442,8 +443,8 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // a candidate because the actual fixture screws are unmeasured.
  const rack=auditB149(B149);
  const link=filmCantileverB({armX:ax,sampleX:CONFIG.B.sampleX,
-   baseY:rack.b04TopY,clampTopY:rack.glassHolderSpineTopY,
-   rodCenterY:rack.upperRodY-rack.b04TopY});
+   baseY:rack.supportPlateBottomY,clampTopY:rack.glassHolderOriginY,
+   rodCenterY:rack.upperRodY-rack.supportPlateBottomY});
  // B05 is now only the B04 mounting foot; the hardware is decomposed
  // into independently selectable source-identified models, with a nonstandard
  // terminal adapter B26 still explicitly not accepted.
@@ -532,46 +533,53 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  },{explode:[-23,58,-13],moveFilm:true});
  // Zolix PHSP12-5: OEM Ø12×150, with ~10 mm hidden in mount.
  // The label is a product reference, not a claim of photo identification.
- addPart('B25',ax+2,rack.upperRodY,0,g=>{
-   const rod=add(g,cyl(6,150,mats.steel,75,0,0,60));
+ addPart('B25',rack.upperRodStartX,rack.upperRodY,0,g=>{
+   const rod=add(g,cyl(6,rack.upperRodLengthMm,mats.steel,
+     rack.upperRodLengthMm/2,0,0,60));
    rod.rotation.z=Math.PI/2;
-   add(g,cub(.35,10,2.1,mats.ink,148,0,0)); // subdued rod-end witness
-   label(g,'PHSP12-5 · Ø12×150（长度候选）',72,17,0);
+   g.userData.photoFitNotOemLength=true;
+   label(g,'首根横杆 Ø12×100mm（拟合照片108，非型号确认）',32,17,0);
  },{explode:[-20,64,-13],moveFilm:true});
  // The second rod is visible through the other PHUC-1 opening in both
  // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
  // Keep it separate in BOM and selection. The glass coupling is unverified.
- addPart('B28',rack.phucCenterX,rack.lowerRodY,0,g=>{
-   const output=add(g,cyl(6,82,mats.steel,41,0,0,48));
+ addPart('B28',rack.lowerRodStartX,rack.lowerRodY,0,g=>{
+   const d=rack.lowerRodEndX-rack.lowerRodStartX;
+   const output=add(g,cyl(6,d,mats.steel,d/2,0,0,48));
    output.rotation.z=Math.PI/2;
-   g.userData.candidateLengthMm=82;
+   g.userData.candidateLengthMm=d;
    g.userData.actualPhotoLengthVerified=false;
-   label(g,'PHUC-1 第二接杆 · Ø12 / 长度及方向待照片配准',0,15,44);
+   label(g,'下层横杆 Ø12 · 端面抵达夹具侧壁，不穿透夹具',d/2,15,0);
  },{explode:[-14,62,20],moveFilm:true});
- // A model-compatible terminal socket and down-link. The specific adapter
- // is NOT yet identified; do not give it an OEM part number.
- addPart('B26',link.clampWorldX,rack.terminalSocketCenterY,0,g=>{
-   const adapterDatums=getTerminalAdapterDatums();
-   g.userData.terminalAdapterDatums=adapterDatums;
-   add(g,sleeve(13,6.05,16,mats.black,0,0,0,'x'));
-   // Candidate stem now ENDS at B06 fixed-spine top (Y=119), instead of
-   // floating 8.5mm above it. Real joint/threads remain unidentified.
-   add(g,cub(20,adapterDatums.adapterHeightMm,20,mats.dark,
-     0,adapterDatums.adapterCenterLocalYmm,0));
-   thumbKnob(g,0,-2,16,'z',4.2);
-   label(g,'末端连接 · Ø12/M6仍需配准',0,23,0);
+ // Photo108/150: the lower Ø12 post terminates DIRECTLY at the left
+ // side of GCM-1302M. The old large socket and vertical B26 block
+ // are absent from the actual apparatus. Small M6 end-stud is a
+ // CANDIDATE coupling, not a photo-identified separate adapter.
+ addPart('B26',rack.glassHolderSpineLeftX,rack.lowerRodY,0,g=>{
+   const stud=add(g,cyl(rack.threadStubDiameterMm/2,
+      rack.threadStubLengthMm,mats.steel,rack.threadStubLengthMm/2,0,0,32));
+   stud.rotation.z=Math.PI/2;
+   g.userData.interfaceOnly=true;
+   g.userData.photoConfirmedThread=false;
+   label(g,'B26仅是M6接口候选，非可见大型转接件',3,14,0);
  },{explode:[-20,65,2],moveFilm:true});
  // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
  // Place plate clamp at glass LEFT edge, away from the sample optical axis.
  // 180 degree yaw changes jaw engagement from leftward to rightward.
- addPart('B06',link.clampWorldX,121.5,0,g=>{
+ addPart('B06',link.clampWorldX,rack.glassHolderOriginY,0,g=>{
   // Daheng GCM-13 (1302M candidate): ONE fixed face, ONE moving pressure
   // plate actuated by TWO screws. Do not create two separate U-shaped jaws.
   // Manufacturer: L=60, M6 attachment, thickness <=5 mm. Jaw offsets below
   // are 1mm glass / 1.5mm preview values, not OEM mechanical drawing.
-  const jaw=getPlateHolderJawDatums();
+  const jaw=getPlateHolderJawDatums({
+    holderBaseWorldYmm:rack.glassHolderOriginY,
+    slideCenterWorldYmm:rack.glassCenterWorldY
+  });
   g.userData.gcmJawDatums=jaw;
-  add(g,cub(17,15,56,mats.dark,7,-10,0));  // fixed spine
+  const sideBoreY=rack.lowerRodY-rack.glassHolderOriginY;
+  const spine=add(g,frontXRodBracket(17,15,56,mats.dark,7,-10,0,
+     sideBoreY,0,rack.threadStubDiameterMm/2+.06));
+  spine.userData.trueM6SideHole=true;
   add(g,cub(24,5,56,mats.black,-6,-.2,0)); // shared upper screw bridge
   const lowerTop=jaw.fixedJawTopLocalY;
   const upperBottom=jaw.movableJawBottomLocalY;
@@ -588,15 +596,14 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
     const cap=add(g,cyl(3.7,.6,mats.ink,-10,5.2,z,36));
     cap.userData.plateHolderActuatorKnob=true;
   }
-  // Back-side cylindrical M6 adapter witness, not a verified threaded hole.
-  add(g,cyl(5,3,mats.dark,17,-11,0,32));
+  // Photo108: no bulky back-side adapter. Thread depth awaits OEM drawing.
   addJointHeads(g,'B06',2.25,[[-10,-6],[8,6]],{headR:2.6});
   label(g,'Daheng GCM-1302M · 共用活动压板 + 双调节螺杆',4,24,0);
  },{explode:[-20,65,5],moveFilm:true,facingYaw:Math.PI});
- addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
+ addPart('B07',CONFIG.B.sampleX+5,rack.glassCenterWorldY,0,g=>{
   add(g,cub(76,1,26,mats.glass,0,0,0));
   add(g,cub(20,1.8,20,mats.ceramic,-5,-1.4,0));
-  label(g,'玻片与转移膜：默认热台间距4.5mm（候选）',2,16,0);
+  label(g,'玻片/PDMS：当前悬空间隙 '+rack.glassToHeaterGapMm.toFixed(1)+'mm（候选，尚非接触位）',2,16,0);
  },{explode:[0,80,15],moveFilm:true});
 }
 function rotaryB(){
