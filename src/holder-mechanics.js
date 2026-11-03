@@ -94,3 +94,31 @@ export function getPlateHolderJawDatums({
     unknown:'GCM-1302M specific jaw outline and exact screw/plate coordinates'
   };
 }
+
+// Terminal socket B26 must have a supported candidate mating face on B06.
+// WORLD Y values match the scene's non-exploded geometry. None of these
+// distances certifies an M6 thread, bolt pattern or plate-holder make.
+export function getTerminalAdapterDatums({
+ socketCenterWorldYmm=155,
+ socketOuterRadiusMm=13,
+ adapterCenterLocalYmm=-19,
+ adapterHeightMm=34,
+ holderBaseWorldYmm=121.5,
+ fixedSpineCenterLocalYmm=-10,
+ fixedSpineHeightMm=15
+}={}){
+ const adapterBottomWorldYmm=socketCenterWorldYmm+adapterCenterLocalYmm-adapterHeightMm/2;
+ const adapterTopWorldYmm=socketCenterWorldYmm+adapterCenterLocalYmm+adapterHeightMm/2;
+ const spineTopWorldYmm=holderBaseWorldYmm+fixedSpineCenterLocalYmm+fixedSpineHeightMm/2;
+ const socketToStemOverlapMm=adapterTopWorldYmm-(socketCenterWorldYmm-socketOuterRadiusMm);
+ const gapMm=adapterBottomWorldYmm-spineTopWorldYmm;
+ if(gapMm>0.1)throw Error('B26 terminal block is disconnected from B06 fixed spine');
+ if(gapMm<-.1)throw Error('B26 terminal block penetrates B06 fixed spine');
+ if(socketToStemOverlapMm<1)throw Error('B26 stem does not engage the post socket');
+ return {
+   adapterHeightMm,adapterCenterLocalYmm,adapterBottomWorldYmm,
+   adapterTopWorldYmm,spineTopWorldYmm,socketToStemOverlapMm,
+   gapMm,physicalMatingVerified:false,
+   note:'World-Y face contact only; no known OEM adapter or proven fastener interface'
+ };
+}
