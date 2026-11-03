@@ -651,7 +651,8 @@ function resetScene(){
  updateTable();
 }
 function focus(mode){
- const target=new THREE.Vector3(platform==='B'?-15:0,128,0);
+ const sampleX=platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX;
+ const target=mode==='optical'?new THREE.Vector3(sampleX-20,125,0):new THREE.Vector3(platform==='B'?-15:0,128,0);
  const dst=mode==='top'?new THREE.Vector3(0,780,0.01):
   mode==='front'?new THREE.Vector3(0,185,760):
   mode==='rear'?new THREE.Vector3(295,250,-380):mode==='iso'?new THREE.Vector3(350,300,440):new THREE.Vector3(425,365,505);
