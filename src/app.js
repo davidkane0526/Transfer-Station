@@ -328,7 +328,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   }
   // Back-side cylindrical M6 adapter witness, not a verified threaded hole.
   add(g,cyl(5,3,mats.dark,17,-11,0,32));
-  addJointHeads(g,'B06',6.35,[[-10,-6],[8,6]],{headR:2.6});
+  addJointHeads(g,'B06',2.25,[[-10,-6],[8,6]],{headR:2.6});
   label(g,'Daheng GCM-1302M · 共用活动压板 + 双调节螺杆',4,24,0);
  },{explode:[-20,65,5],moveFilm:true,facingYaw:Math.PI});
  addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
