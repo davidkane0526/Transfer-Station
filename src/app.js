@@ -1071,7 +1071,7 @@ function updatePhotoScope(){
  $('btn-b-user-photos').classList.toggle('on',bPhoto94Mode);
  $('btn-b-archive').classList.toggle('on',!bPhoto94Mode);
  $('b-profile-note').textContent=bPhoto94Mode?'本次按用户指出的实物照片优先呈现：T25M→VC13M→G40M60L→薄L片。编号原归A，当前仅作为B玻片侧的可逆实物对照配置；B样品侧是否同一物理机台仍待确认。':'已切换旧108/109候选：GCM-V25M与PHCP/PHSP圆杆链的真实型号尚未确认，不代表当前用户实拍。';
- node.dataset.refRig='A';
+ node.dataset.refRig=platform==='B'&&bPhoto94Mode?'B-user-photo-overrides-archive-A':'A-archive';
  node.textContent=platform==='A'?
   '归档A：旧照片编号把94/95/97列在A。但用户最新要求用这组实拍纠正B，原归属不是比实物更高优先级的证据。':
   bPhoto94Mode?'当前B：按用户本轮提供的94/95/97实物照片建立新玻片侧对照配置。旧编号A/B发生冲突，保留来源待复核；样品侧NFP不是这三张照片可确认的部分。':
@@ -1083,8 +1083,9 @@ function focusPhoto947(photo='94'){
  const isB=platform==='B'&&bPhoto94Mode;
  if(!isB&&platform!=='A')switchPlatform('A');
  const x=isB?CONFIG.B.armX:CONFIG.A.armX;
- // Photo94: G40 tilt head and bent bracket; photo95: lower dual stage;
- // photo97: front central VC13 micrometer. All are the SAME A arm.
+ // Photos94/95/97 identify one mechanical film-side arm. In the new B
+ // comparison this maps to B29/B03/B30/B31/B32; archival A uses A15/A03/A04/A05.
+ // This camera choice alone does NOT verify attachment to B's sample branch.
  const dy=isB?20:0;
  const y=(photo==='94'?113:photo==='95'?48:80)+dy;
  const src=photo==='94'?new THREE.Vector3(x+30,y+43,218):
