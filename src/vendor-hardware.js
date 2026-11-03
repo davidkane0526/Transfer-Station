@@ -16,8 +16,8 @@ export const OPTICAL_HARDWARE={
       url:'https://www.zolix.com.cn/prodcon_371_399_467_729.html'}
   },
   B25:{
-    maker:'Zolix',model:'PHSP12-5',name:'不锈钢 Ø12×150 mm 接杆（候选）',
-    known:{diameterMm:12,overallLengthMm:150,middleCrossHoleOffsetMm:50,weightKg:0.15},
+    maker:'Zolix',model:'PHSP12系列（后缀未确认）',name:'第一根Ø12×100mm杆（场景拟合）',
+    known:{diameterMm:12,overallLengthMm:100,overallLengthMeasured:false},
     confidence:'manufacturer-product-exists/photo-length-not-confirmed',
     url:'https://www.zolix-group.com/product/detail/220.html',
     alternative:{maker:'Daheng',series:'GCM-0301',diameterMm:12.7,
@@ -47,15 +47,15 @@ export const OPTICAL_HARDWARE={
   }
 };
 export const HOLDER_CONNECTIVITY=[
- {id:'V25M-top-to-base',from:'B04',to:'B05',status:'candidate'},
+ {id:'V25M-side-carriage-to-base',from:'B04',to:'B05',status:'photo108-side-mount/candidate-bolting'},
  {id:'base-to-holder',from:'B05',to:'B34',status:'photo-height-fit/bolted-connection-pending'},
  {id:'holder-to-post',from:'B34',to:'B27',status:'photo-exposed-post/rod-length-candidate'},
  {id:'support-post-to-square-clamp',from:'B27',to:'B33',status:'photo-body-model-pending'},
  {id:'square-clamp-to-first-rod',from:'B33',to:'B25',status:'photo-body-model-pending'},
  {id:'first-rod-to-PHUC',from:'B25',to:'B24',status:'photo-model-confirmed/joint-angle-pending'},
  {id:'PHUC-to-second-rod',from:'B24',to:'B28',status:'photo-model-confirmed/rod-length-pending'},
- {id:'second-rod-to-adapter',from:'B28',to:'B26',status:'candidate-attachment-pending'},
- {id:'adapter-to-plate-holder',from:'B26',to:'B06',status:'candidate'},
+ {id:'second-rod-to-M6-face',from:'B28',to:'B26',status:'photo108-direct-side-contact/thread-unverified'},
+ {id:'M6-face-to-plate-holder',from:'B26',to:'B06',status:'interface-only/zero-purchase-quantity'},
  {id:'plate-holder-to-slide',from:'B06',to:'B07',status:'photo-only'}
 ];
 export function checkSourcedHolderPath(){
