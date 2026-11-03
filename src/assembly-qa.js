@@ -58,7 +58,7 @@ export function filmCantileverB({
  const terminalHeight=rodCenterY-terminalBottomLocalY;
  if(terminalHeight<=0)throw new Error('Cantilever terminal must meet top of slide clamp');
  return {rodStartX,rodEndX,rodLength,rodCenterX:(rodStartX+rodEndX)/2,
-   rodCenterY,rodZ:0,terminalBottomLocalY,terminalHeight,
+   rodCenterY,rodZ:0,oemRodLengthMm,hiddenInsertionMm,terminalBottomLocalY,terminalHeight,
    terminalCenterY:(rodCenterY+terminalBottomLocalY)/2,
    clampWorldX,glassLeftEdgeX,jawEndX,opticalLeftLimitX,
    mountY:baseY,clampTopY,
