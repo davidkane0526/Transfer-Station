@@ -11,7 +11,7 @@ import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
-import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums} from './photo-947-assembly.js';
+import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums,photo95FrontDriveDatums} from './photo-947-assembly.js';
 import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums} from './holder-mechanics.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -245,11 +245,13 @@ function filmB(){
  // A pair of black front clamp/stop plates and four front body screw heads
  // replace the earlier featureless three black cubes. Hole sizes unverified.
  const gT25=parts.get('B03').g;
- const frontShaft=add(gT25,cyl(4.3,47,mats.silver,-3,23.4,32.7,32));
+ const drive=photo95FrontDriveDatums();
+ gT25.userData.photo95DriveDatums=drive;
+ const frontShaft=add(gT25,cyl(4.3,drive.shaftLengthMm,mats.silver,drive.shaftCenterXmm,23.4,32.7,32));
  frontShaft.rotation.z=Math.PI/2;
  frontShaft.userData.photo95FrontShaft=true;
- add(gT25,cub(6,13,10,mats.black,-30,22,33.3));
- add(gT25,cub(10,15,11,mats.black,31,22,32.5));
+ add(gT25,cub(drive.leftBracketWidthMm,13,10,mats.black,drive.leftBracketCenterXmm,22,33.3));
+ add(gT25,cub(drive.rightBracketWidthMm,15,11,mats.black,drive.rightBracketCenterXmm,22,32.5));
  for(const x of [-21,-8,8,21]){
    const fastener=add(gT25,cyl(2,1.2,mats.steel,x,7.5,33.2,6));
    fastener.rotation.x=Math.PI/2;
@@ -849,9 +851,11 @@ function updateDetail(part){
      if(o.isMesh&&o.userData.photo95FrontFastener)photo95Count.frontFastener++;
    });
  }
+ const photo95Drive=parts.get('B03')?.g.userData.photo95DriveDatums;
  const photo95QAHtml=platform==='B'&&bPhoto94Mode&&part.id==='B03'?
    '<div class="field" id="photo-95-mechanics" data-shafts="'+photo95Count.frontShaft+
    '" data-front-fasteners="'+photo95Count.frontFastener+
+   '" data-ends-supported="'+(!!photo95Drive?.supportConnected)+
    '"><b>95号实拍：T25M前部驱动</b><p>正面可见银色推杆，当前建模 '+
    photo95Count.frontShaft+' 根前置推杆和 '+photo95Count.frontFastener+
    ' 个正面候选螺丝头。实际轴承、导轨和孔距仍需厂家3D图纸核对。</p></div>':'';
