@@ -979,7 +979,9 @@ function sortedBOM(rows){
 function visibleBOM(){
  const q=$('bom-query').value.trim().toLowerCase();
  const priceOnly=$('priced-only').checked;
- return sortedBOM(PARTS[platform].map(p=>enriched(platform,p)).filter(p=>
+ return sortedBOM(PARTS[platform].filter(p=>platform!=='B'||(bPhoto94Mode?
+   !['B04','B05','B06','B07','B24','B25','B26','B27'].includes(p.id):
+   !['B30','B31','B32'].includes(p.id))).map(p=>enriched(platform,p)).filter(p=>
     (!priceOnly||Boolean(p.quote?.value))&&
     (!q||[p.id,p.name,p.model,p.maker,p.category,p.note,
           ...(p.alternatives||[]).flatMap(a=>a.slice(0,2))]
@@ -1047,18 +1049,26 @@ renderer.domElement.addEventListener('pointerup',ev=>{
 function updatePhotoScope(){
  const scope=getPhotoComparison(platform);
  const node=$('photo-scope-note');
+ $('b-photo-profile').hidden=platform!=='B';
+ $('btn-b-user-photos').classList.toggle('on',bPhoto94Mode);
+ $('btn-b-archive').classList.toggle('on',!bPhoto94Mode);
+ $('b-profile-note').textContent=bPhoto94Mode?'本次按用户指出的实物照片优先呈现：T25M→VC13M→G40M60L→薄L片。编号原归A，当前仅作为B玻片侧的可逆实物对照配置；B样品侧是否同一物理机台仍待确认。':'已切换旧108/109候选：GCM-V25M与PHCP/PHSP圆杆链的真实型号尚未确认，不代表当前用户实拍。';
  node.dataset.refRig='A';
  node.textContent=platform==='A'?
-  '当前 A：实物照片94/95/97明确对应 A15 GCM-T25M、A03 GCM-VC13M、A04 GCM-G40M60L 与 A05 薄L型连接板。尚未看清的末端夹具不冒充已识别产品。':
-  '当前 B：所上传94/95/97三张照片并不是本页 B 套的零件证据。B 的 GCM-V25M、PHCP-2 等候选不得通过A照片验收；应与108/109/110等B证据分别比较。';
- $('btn-photo947').textContent=platform==='A'?'照片94/95/97对应的就是当前A装配':'切换到照片94/95/97对应的A装配';
+  '归档A：旧照片编号把94/95/97列在A。但用户最新要求用这组实拍纠正B，原归属不是比实物更高优先级的证据。':
+  bPhoto94Mode?'当前B：按用户本轮提供的94/95/97实物照片建立新玻片侧对照配置。旧编号A/B发生冲突，保留来源待复核；样品侧NFP不是这三张照片可确认的部分。':
+  '当前B历史模式：108/109候选构型。照片94/95/97不能验证旧PHCP长杆，且不能被视为实物验收。';
+ $('btn-photo947').textContent=platform==='B'&&bPhoto94Mode?'聚焦当前B的94/95/97实物对照':'查看94/95/97照片装配';
 }
 function focusPhoto947(photo='94'){
- if(platform!=='A')switchPlatform('A');
- const x=CONFIG.A.armX;
+ if(platform==='B'&&!bPhoto94Mode){bPhoto94Mode=true;switchPlatform('B');}
+ const isB=platform==='B'&&bPhoto94Mode;
+ if(!isB&&platform!=='A')switchPlatform('A');
+ const x=isB?CONFIG.B.armX:CONFIG.A.armX;
  // Photo94: G40 tilt head and bent bracket; photo95: lower dual stage;
  // photo97: front central VC13 micrometer. All are the SAME A arm.
- const y=photo==='94'?113:photo==='95'?48:80;
+ const dy=isB?20:0;
+ const y=(photo==='94'?113:photo==='95'?48:80)+dy;
  const src=photo==='94'?new THREE.Vector3(x+30,y+43,218):
    photo==='95'?new THREE.Vector3(x+48,y+40,190):
    new THREE.Vector3(x+24,y+32,200);
@@ -1082,6 +1092,8 @@ function switchPlatform(next){
 }
 $('show-b').onclick=()=>switchPlatform('B');
 $('show-a').onclick=()=>switchPlatform('A');
+$('btn-b-user-photos').onclick=()=>{bPhoto94Mode=true;switchPlatform('B');};
+$('btn-b-archive').onclick=()=>{bPhoto94Mode=false;switchPlatform('B');};
 $('btn-photo947').onclick=()=>focusPhoto947('94');
 $('btn-photo94').onclick=()=>focusPhoto947('94');
 $('btn-photo95').onclick=()=>focusPhoto947('95');
@@ -1098,8 +1110,8 @@ function focusMechanicalBranch(which){
 $('btn-film-stack').onclick=()=>focusMechanicalBranch('film');
 function focusBFilmHolder(){
  if(platform!=='B')switchPlatform('B');
- const target=new THREE.Vector3(-25,147,0);
- camera.position.set(-72,196,192);
+ const target=bPhoto94Mode?new THREE.Vector3(CONFIG.B.armX,134,0):new THREE.Vector3(-25,147,0);
+ camera.position.set(bPhoto94Mode?CONFIG.B.armX+58:-72,bPhoto94Mode?187:196,192);
  orbit.target.copy(target);
  camera.lookAt(target);orbit.update();
 }
@@ -1107,7 +1119,7 @@ $('btn-film-holder').onclick=focusBFilmHolder;
 
 // Compare the same stage from opposing sides without changing any part geometry.
 function focusBPhoto(photo){
- if(platform!=='B')switchPlatform('B');
+ if(platform!=='B'||bPhoto94Mode){bPhoto94Mode=false;switchPlatform('B');}
  const x=CONFIG.B.armX, y=85, magnetView=photo==='108';
  camera.position.set(x+(magnetView?-90:90),y+60,magnetView?245:-245);
  orbit.target.set(x,y,0);camera.lookAt(orbit.target);orbit.update();
