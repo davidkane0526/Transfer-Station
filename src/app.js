@@ -11,7 +11,7 @@ import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
 import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
-import {getCrossClampDatums,getPlateHolderJawDatums} from './holder-mechanics.js';
+import {getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums} from './holder-mechanics.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -250,19 +250,29 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // into independently selectable source-identified models, with a nonstandard
  // terminal adapter B26 still explicitly not accepted.
  const crossDatums=getCrossClampDatums();
+ const postBaseDatums=getPostBaseDatums();
  // The unverified plate adapter is separate from the SOURCE-DOCUMENTED
  // round Zolix PHPB-1 post base (Ø36); do not use a solid cube as the bore.
  addPart('B05',ax,link.mountY,0,g=>{
    g.userData.cantileverLink=link;
    add(g,cub(65,6,66,mats.black,0,3,0));
    // Source PHPB-1 nominal shape, flange height/center are fit candidates.
-   add(g,sleeve(18,6.05,6,mats.black,14,9,crossDatums.verticalBore.z,'y'));
+   // PHPB-1 manufacturer lists M6 TH. Do NOT depict Ø12 as a
+   // full-depth mounting bore: lower M6 candidate + shallow Ø12 seat.
+   add(g,sleeve(postBaseDatums.outerDiameterMm/2,
+     postBaseDatums.mountBoreDiameterMm/2,
+     postBaseDatums.lowerThroughLengthMm,mats.black,14,7.5,
+     crossDatums.verticalBore.z,'y'));
+   add(g,sleeve(postBaseDatums.outerDiameterMm/2,
+     postBaseDatums.seatDiameterMm/2,
+     postBaseDatums.seatDepthMm,mats.dark,14,10.5,
+     crossDatums.verticalBore.z,'y'));
    addJointHeads(g,'B05',5.95,[[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
    label(g,'V25M转接基板 + PHPB-1型圆形杆底座（候选）',0,29,0);
  },{explode:[-30,55,-13],moveFilm:true});
  // The 25-mm PHSP12-1 post seats in the PHPB Ø12 through bore and
  // then in the lower PHCP-2 ring, without crossing the long steel post.
- addPart('B27',ax+14,link.mountY+6,crossDatums.verticalBore.z,g=>{
+ addPart('B27',ax+14,link.mountY+9,crossDatums.verticalBore.z,g=>{
    add(g,cyl(6,25,mats.steel,0,12.5,0,48));
    add(g,cyl(6,1.1,mats.silver,0,25,0,36));
    label(g,'PHSP12-1 · Ø12×25（实物型号待核）',0,35,0);
