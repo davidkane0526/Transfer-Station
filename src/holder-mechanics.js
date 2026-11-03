@@ -63,12 +63,17 @@ export function getPlateHolderJawDatums({
   const glassBottom=slideCenterWorldYmm-slideThicknessMm/2;
   const glassTop=slideCenterWorldYmm+slideThicknessMm/2;
   const fixedJawTop=glassBottom;
-  const movableJawBottom=fixedJawTop+nominalJawGapMm;
+  // The open 1.5-mm mouth is for insertion, NOT a clamping condition.
+  // Display the pressure plate at nominal CONTACT with the 1-mm glass;
+  // actual preload, force, safe contact stresses and travel remain unknown.
+  const contactJawGapMm=slideThicknessMm;
+  const previewClosingTravelMm=nominalJawGapMm-contactJawGapMm;
+  const movableJawBottom=fixedJawTop+contactJawGapMm;
   const movablePlateThicknessMm=3.5;
   const screwShaftLengthMm=12;
-  const screwShaftCenterLocalY=-6;
-  const screwShaftBottomLocalY=screwShaftCenterLocalY-screwShaftLengthMm/2;
   const movablePlateTopLocalY=movableJawBottom+movablePlateThicknessMm-holderBaseWorldYmm;
+  const screwShaftCenterLocalY=movablePlateTopLocalY+screwShaftLengthMm/2;
+  const screwShaftBottomLocalY=screwShaftCenterLocalY-screwShaftLengthMm/2;
   if(Math.abs(screwShaftBottomLocalY-movablePlateTopLocalY)>1e-8)
     throw new Error('Adjustment screw does not contact the common moving plate');
   const screwCount=screwZmm.length;
@@ -80,6 +85,7 @@ export function getPlateHolderJawDatums({
     fixedJawTopLocalY:fixedJawTop-holderBaseWorldYmm,
     movableJawBottomLocalY:movableJawBottom-holderBaseWorldYmm,
     glassBottom,glassTop,slideThicknessMm,nominalJawGapMm,
+    contactJawGapMm,previewClosingTravelMm,mode:'nominal_contact_no_verified_clamp_force',
     jawLengthMm,jawHalfWidthZmm,screwZmm,movablePlateThicknessMm,
     screwShaftLengthMm,screwShaftCenterLocalY,screwShaftBottomLocalY,movablePlateTopLocalY,
     actuatorCount:screwCount,independentMovingPlates:1,
