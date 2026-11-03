@@ -8,7 +8,7 @@ const base={
   B03:{qty:1,category:'二维正交手动平移台',material:'黑色阳极氧化铝合金',drawing:'https://cdhoptics.ks3-cn-beijing.ksyun.com/jjwdz/1612323095702eFQBtxcrQgq7RZ9rgWIqSw.pdf',datasheet:'https://datasheets.globalspec.com/ds/daheng-new-epoch-technology/gcm-t25m2l/7960a676-cd6f-4f03-bca2-97a2b7c1f184',quote:{value:8740,currency:'TWD',date:'2026-10-31',type:'GCM-T25M2L双轴版本经销商未税参考价（型号后缀未实物确证）',source:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/平移台/gcm-t13m-gcm-t25m系列-精密平移台/'},alternatives:[['Daheng','GCM-T25M2C 另一测微头装法（NT$8,453）','https://www.anjun.com.tw/'],['Zolix','二维叠加式交叉滚柱台（须验孔距）','https://www.zolix-group.com/']],note:'原图108/97均可见两正交驱动。大恒正式GCM-901604M组装示例使用T25M2L，65×65×33mm；2L后缀仍属组合图匹配候选，不是原铭牌完全读出。'},
   B04:{qty:1,category:'手动升降台',material:'铝合金与钢导轨',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',alternatives:[['Zolix','垂直位移台同负载系列','https://www.zolix-group.com/'],['Newport','手动垂直台，同负载系列','https://www.newport.com/']],note:'GCM-V25M 25mm 行程确认；完整外形高度与螺钉长度未确认'},
   B05:{qty:1,category:'B04输出侧安装底座',material:'阳极氧化铝合金/钢（待核）',
-    alternatives:[['Daheng','GCM-AB系列直角转接件，连接孔需验证','https://www.spl-tech.cn/productinfo/3312390.html']],
+    alternatives:[['Zolix','PHPB-1 标准杆架底座：可作Ø12支撑杆的产品候选，需核对输出安装面','https://www.zolix.com.cn/prodcon_371_399_467_669.html'],['Daheng','GCM-AB系列直角转接件，连接孔需验证','https://www.spl-tech.cn/productinfo/3312390.html']],
     note:'不是标准Zolix整套支架的唯一型号。B05在本模型中仅指B04安装底座；B24交叉夹、B25接杆、B26末端转接和B27短接杆分别列项。安装孔全未验收。'},
   B24:{qty:1,category:'交叉杆夹（型号候选）',material:'黑色阳极氧化铝；锁紧结构',
     datasheet:'https://www.zolix.com.cn/prodcon_371_399_467_729.html',
