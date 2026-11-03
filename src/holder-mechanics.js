@@ -48,6 +48,13 @@ export function getPlateHolderJawDatums({
   const glassTop=slideCenterWorldYmm+slideThicknessMm/2;
   const fixedJawTop=glassBottom;
   const movableJawBottom=fixedJawTop+nominalJawGapMm;
+  const movablePlateThicknessMm=3.5;
+  const screwShaftLengthMm=12;
+  const screwShaftCenterLocalY=-6;
+  const screwShaftBottomLocalY=screwShaftCenterLocalY-screwShaftLengthMm/2;
+  const movablePlateTopLocalY=movableJawBottom+movablePlateThicknessMm-holderBaseWorldYmm;
+  if(Math.abs(screwShaftBottomLocalY-movablePlateTopLocalY)>1e-8)
+    throw new Error('Adjustment screw does not contact the common moving plate');
   const screwCount=screwZmm.length;
   if(screwCount!==HOLDER_OEM.gcmScrewDriveCount)
     throw new Error('Daheng GCM-13 must have two adjustment threads on one moving plate');
@@ -57,7 +64,8 @@ export function getPlateHolderJawDatums({
     fixedJawTopLocalY:fixedJawTop-holderBaseWorldYmm,
     movableJawBottomLocalY:movableJawBottom-holderBaseWorldYmm,
     glassBottom,glassTop,slideThicknessMm,nominalJawGapMm,
-    jawLengthMm,jawHalfWidthZmm,screwZmm,
+    jawLengthMm,jawHalfWidthZmm,screwZmm,movablePlateThicknessMm,
+    screwShaftLengthMm,screwShaftCenterLocalY,screwShaftBottomLocalY,movablePlateTopLocalY,
     actuatorCount:screwCount,independentMovingPlates:1,
     physicallyAccepted:false,
     known:'Daheng GCM-13 twin screws actuate a common middle pressure plate',
