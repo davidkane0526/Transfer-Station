@@ -4,16 +4,16 @@
 // For uncertain mounting sides, dimensions are still proxies.
 export const STACKS={
   B:{
-    film:['B02','B03','B04','B05','B06','B07'],
+    film:['B02','B03','B04','B05','B27','B33','B25','B24','B28','B26','B06','B07'],
     sample:['B08','B09','B10','B11'],
-    photo:['108.jpg','109.jpg','110.jpg','111.jpg','112.jpg'],
-    confidence:'B02底部/B03双轴T25M2L(33mm,两根水平手柄)其上/B04竖直升降台再上：照片108、109及厂家GCM-901604M组合图'
+    photo:['108.jpg','109.jpg','110.jpg','111.jpg','112.jpg','145.jpg','146.jpg','147.jpg','148.jpg','149.jpg','150.jpg','151.jpg'],
+    confidence:'B02磁座→B03双轴T25M→B04升降台→B33方夹与杆→B24 PHUC-1万向杆夹（照片149可见铭牌）→B06 GCM-1302M夹板（照片150可见型号）；B08/NFP样品台由145–148支持。杆长度与实际装配角度未验收。'
   },
   A:{
     film:['A15','A03','A04','A05'],
-    sample:['A06','A02','A07'],
-    photo:['94.jpg','95.jpg','97.jpg','100.jpg'],
-    confidence:'A15双轴T25M系列(33mm,两根水平手柄)在A03下，照片97；A02样品侧具体单/双轴后缀未证实，照片100'
+    sample:['A16','A06','A02','A07'],
+    photo:['94.jpg','95.jpg','97.jpg','100.jpg','137.jpg','138.jpg','139.jpg','140.jpg','141.jpg','142.jpg','143.jpg','144.jpg','152.jpg','155.jpg','161.jpg'],
+    confidence:'A15双轴T25M系列在A03 VC13M下，A04 G40M60L上接L薄片，照片94/95/97、137–144；A16底部GCM-5306M是112×70×8mm底座，不是旋转台，见137/161。'
   }
 };
 export const HANDLES={
