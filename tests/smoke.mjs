@@ -23,6 +23,12 @@ assert((await page.locator('#photo-ledger').textContent()).includes('B29'),
  'Photographed bottom pad must NOT borrow an unverified GCM-420302M magnetic SKU');
 assert(!(await page.locator('#photo-ledger').textContent()).includes('B02'),
  'Archive B02 must not show in the new photo variant');
+assert(!(await page.locator('#photo-ledger').textContent()).includes('B09'),
+ 'Current photo94/95/97 cannot certify the NFP sample branch as part of the same rig');
+assert(await page.locator('#sample-move').isDisabled(),
+ 'Unverified sample-side motion must not animate a fabricated B photo assembly');
+assert(await page.locator('#btn-sample-stack').isDisabled(),
+ 'Unverified sample branch must not be selectable as an assembled B-photo component');
 await page.screenshot({path:'Transfer-Station-V27-User-Photo-B-Overview.png',fullPage:true});
 await page.locator('#btn-photo94').click();
 await page.waitForTimeout(500);
@@ -31,8 +37,8 @@ await page.locator('#open-bom').click();
 const photoRows=await page.locator('#bom-body tr').allTextContents();
 assert(photoRows.some(t=>t.includes('B29'))&&photoRows.some(t=>t.includes('B32')),
  'User photo mode BOM is missing the visible bottom foot or bent L connector');
-assert(photoRows.every(t=>!/^B02\b|^B24\b/.test(t.trim())),
- 'Photo mode BOM must not count archived magnetic base or PHCP as purchase parts');
+assert(photoRows.every(t=>!/^B02\b|^B24\b|^B09\b|^B08\b/.test(t.trim())),
+ 'Photo-mode BOM must exclude archived PHCP parts AND unverified NFP sample branch');
 await page.locator('#bom-query').fill('B32');
 await page.locator('#bom-body tr').filter({hasText:'B32'}).click();
 assert((await page.locator('#photo-94-mechanics').getAttribute('data-folded'))==='true',
