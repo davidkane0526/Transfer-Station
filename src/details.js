@@ -200,23 +200,23 @@ export function enrichParts(partMap, platform, onMesh){
        for(let x of [-24,24])for(let z of [-23,23])screwHead(g,x,66.2,z,2.8);
     });
     decoration('B05',(g)=>{
-       // Do not add any second terminal block: the body and the glass-side
-       // clamp are created in app.js from one constrained position datum.
-       const link=g.userData.cantileverLink;
-       if(!link)throw Error('B05 must have a mechanical end-to-end datum');
-       decal(g,'FILM ARM · CANDIDATE',41,5,10,6,22.7,'front','#d5d5d5');
-       // Visible lateral candidate fasteners, in the existing terminal block.
-       for(const y of [link.terminalCenterY-3,link.terminalCenterY+3]){
-          const head=cyl(g,2.1,1.2,link.rodEndX,y,11.15,aluminum,24);
-          head.rotation.x=Math.PI/2;
-       }
+       // OEM hardware was decomposed into B24/B25/B27. Do not add a
+       // second terminal block at the old invalid 140mm geometry.
+       decal(g,'MOUNT · UNVERIFIED',38,5,0,6,22.7,'front','#c5ccd4');
+    });
+    decoration('B24',(g)=>{
+       // Model text is a sourced candidate, not a transcribed photo marking.
+       decal(g,'PHCP-2?',18,5,0,1,13.15,'front','#e5eaf0');
+    });
+    decoration('B26',(g)=>{
+       decal(g,'M6?',13,4,0,-19,10.3,'front','#b0beca');
     });
     decoration('B06',(g)=>{
        // Do not place decorative block into the actual 1.5-mm slide gap.
        box(g,32,1.1,13,-8,-11.0,0,graphite,.3);
        for(const x of [-16,6])screwHead(g,x,6.5,0,2.4);
        knurl(g,29,3,5,4.3,15,'y',28);
-       decal(g,'CLAMP',30,6,0,7,11.5,'front','#dce3e9');
+       decal(g,'GCM-1302M ?',34,5,3,7,30.7,'front','#dce3e9');
     });
     decoration('B08',(g)=>{
        analogScale(g,46.7,16,0);
