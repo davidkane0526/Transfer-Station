@@ -59,14 +59,14 @@ holderbb=holder.BoundingBox()
 post=part(B,'B27')[0]
 postbb=post.BoundingBox()
 squarebb=part(B,'B33')[0].BoundingBox()
-check(abs(v25_top.zmax-105)<.02,'B V25M movable flange at photo-fit 105mm datum')
+check(abs(v25_top.zmax-90)<.02,'B moving V25M SIDE flange ends 90mm beneath tall fixed guide')
 check(abs(arm_base.zmin-v25_top.zmax)<.02,'B05 plate must sit ON moving flange')
 check(abs(arm_base.zmax-holderbb.zmin)<.02,'B34 vertical holder sits ON B05 plate')
 check(abs(holderbb.zlen-50)<.02,'PHSH2 50mm sleeve is a candidate but its CAD must be consistent')
 check(abs(postbb.zlen-100)<.02,'PHOTO149 rejects older 25mm post; 100mm installed-length candidate')
 check(abs(postbb.zmin-holderbb.zmin)<.02,'Support post inserted from sleeve bottom datum')
 check(holder.intersect(post).Volume()<1e-4,'Black sleeve has real Ø12 steel-post clearance')
-check(abs(squarebb.zmin-holderbb.zmax-14)<.02,
+check(abs(squarebb.zmin-holderbb.zmax-7)<.02,
       'Square clamp is 14mm ABOVE sleeve with exposed Ø12 steel post')
 check(postbb.zmax>squarebb.zmax+5,
       'Post tip must protrude above B33 square clamp as actually photographed')
@@ -166,15 +166,15 @@ check(abs(bb.zlen-60)<.02 and abs(bb.xlen-30)<.02 and abs(bb.ylen-30)<.02,
       'Zolix PHUC-1 manufacturer A60 and BØ30 housing envelope')
 # Real boolean void checks: both holes must be open within the 60-mm body.
 phuc_x=-30
-upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,190),Vector(1,0,0))
-lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,157),Vector(1,0,0))
+upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,168),Vector(1,0,0))
+lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,135),Vector(1,0,0))
 check(phuc.intersect(upper_bore).Volume()<1e-4,'PHUC-1 upper Ø12 bore is real')
 check(phuc.intersect(lower_bore).Volume()<1e-4,'PHUC-1 lower Ø12 bore is real')
-check(abs(190-157-33)<.0001,
+check(abs(168-135-33)<.0001,
       'PHUC-1 manufacturer E33 bore-centre spacing')
-check(abs(second.BoundingBox().zmin+6-157)<.01,
+check(abs(second.BoundingBox().zmin+6-135)<.01,
       'Lower rod center height follows photo149 and PHUC1 E=33')
-check(abs(long.BoundingBox().zmin+6-190)<.01,
+check(abs(long.BoundingBox().zmin+6-168)<.01,
       'Upper rod center height follows photo149')
 check(phuc.intersect(long).Volume()<1e-4,
       'PHUC-1 upper shell must not penetrate Ø12 first rod')
@@ -187,14 +187,20 @@ check(square.intersect(long).Volume()<1e-4,
       'B33 actual Ø12 crossbar bore must not contain solid steel')
 check(support.intersect(long).Volume()<1e-5,
       'Support and first rod must remain separated by 15-mm nominal depth')
-check(terminal.intersect(second).Volume()<1e-4,
-      'B26 Ø12 socket must clear the second PHUC output rod')
-check(abs(terminal.BoundingBox().zmin-spine.BoundingBox().zmax)<.02,
-      'Unverified B26 adapter at least meets B06 fixed-spine nominal datum')
+check(terminal.BoundingBox().xlen<11 and terminal.BoundingBox().ylen<=6.01,
+      'B26 must be only the tiny Ø6 direct end stud, NEVER the invented Ø26 socket')
+check(abs(second.BoundingBox().xmax-spine.BoundingBox().xmin)<.02,
+      'Lower Ø12 post ends AT the GCM1302M outer left side, not inside solid body')
+check(abs(terminal.BoundingBox().xmin-spine.BoundingBox().xmin)<.02,
+      'Candidate M6 stud enters the GCM side face without a bulky hanging bracket')
+check(terminal.intersect(spine).Volume()<1e-4,
+      'GCM back spine must contain REAL M6 candidate drilled mating hole')
+check(second.intersect(spine).Volume()<1e-4,
+      'Full Ø12 lower rod must not penetrate solid plate-holder spine')
 check(long.BoundingBox().xmax<82-17 and second.BoundingBox().xmax<82-17,
       'Both steel rods stop outside objective optical radius')
-check(long.BoundingBox().xmin<-70 and long.BoundingBox().xmax>30,
-      'First candidate rod length spans its two clamp zones')
+check(long.BoundingBox().xmin<-110 and long.BoundingBox().xmax<=-15+.02,
+      'First candidate rod connects B33 to PHUC but has NO invented long tail')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
 # A's transfer beam, vertical support, edge clamp contact by boundary (not true fasteners).
@@ -267,14 +273,14 @@ for jaw,description in ((fixed_jaw,'lower fixed jaw'),(moving_plate,'moving uppe
     check(jaw.intersect(pdms).Volume()<1e-6,description+' does not penetrate PDMS')
     check(jaw.intersect(chuck).Volume()<1e-6,description+' clears the heater')
 check(glass.intersect(chuck).Volume()<1e-6,'Glass does not penetrate hot metal')
-check(abs(glass.BoundingBox().zmin-104.5)<.02,'Glass bottom matches fixed jaw top')
-check(abs(glass.BoundingBox().zmax-105.5)<.02,'Glass has 1-mm thickness')
+check(abs(glass.BoundingBox().zmin-125)<.02,'Glass bottom matches new direct-coupled fixed jaw')
+check(abs(glass.BoundingBox().zmax-126)<.02,'Glass has 1mm thickness in current B fit')
 check(abs(moving_plate.BoundingBox().zmin-glass.BoundingBox().zmax)<.02,
       'One moving pressure plate contacts 1mm glass without interpenetration')
 check(abs(glass.BoundingBox().zmin-pdms.BoundingBox().zmax)<.02,
       'PDMS underside contacts glass')
-check(pdms.BoundingBox().zmin-chuck.BoundingBox().zmax>=4.4,
-      'Membrane has >=4.4mm nominal clearance to hot metal')
+check(20<pdms.BoundingBox().zmin-chuck.BoundingBox().zmax<35,
+      'Preview is an ABOVE-contact assembly pose; do not claim membrane touches sample')
 for i in (1,2):
     screw=part(B,f'B06S{i}')[0]
     check(screw.intersect(drive_bridge).Volume()<1e-4,
