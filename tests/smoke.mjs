@@ -48,6 +48,8 @@ assert((await page.locator('#photo-95-mechanics').getAttribute('data-shafts'))==
  'Photo95 front silver drive shaft not built');
 assert((await page.locator('#photo-95-mechanics').getAttribute('data-front-fasteners'))==='4',
  'Photo95 front T25M candidate screw heads not rendered');
+assert((await page.locator('#photo-95-mechanics').getAttribute('data-ends-supported'))==='true',
+ 'The front polished T25M shaft floats away from one of its two mounting blocks');
 await page.waitForTimeout(350);
 await page.screenshot({path:'Transfer-Station-V27-User-Photo95-T25M-B.png',fullPage:true});
 // The original B/108/109 alternate remains available for historical
