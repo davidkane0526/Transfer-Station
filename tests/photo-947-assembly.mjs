@@ -19,6 +19,9 @@ const bracket=photo94BracketCandidate();
 assert.equal(bracket.topY,124,'A05 must sit on A04 top plane');
 assert.equal(bracket.topPlateWidth,80);
 assert.equal(bracket.metalThickness,2.5);
+assert.equal(bracket.topPlateDepth,12,'The black L strip is a narrow front-edge strap, not a broad 32mm cover');
+assert.equal(bracket.sheetFrontZ,13);
+
 assert.equal(bracket.topBoltCount,2);
 assert.equal(bracket.fixedSheetCount,1);
 assert(bracket.leftX < -136 && bracket.rightX >= -96,
