@@ -1,40 +1,71 @@
-// Photo149 ruler-calibrated B film-arm datums (scene Y is height).
-// These WORLD coordinates are a constrained *fit* to the image, not a
-// manufacturer mating drawing. PHUC bore pitch and post/holder catalog
-// lengths are kept in separate evidence classes.
-export const B149={
-  b04BaseY:73,b04TopY:105, // 32mm silhouette fit, NOT V25M factory height
-  supportPlateBottomY:105,supportPlateHeightMm:6,
+// Scene Y-up engineering-fit datums. Read 108/149/150 together.
+// PHOTO: the V25M carriage's horizontal B05 plate is SIDE-mounted
+// BELOW the top of the fixed vertical guides. It is NOT stacked on
+// the highest point of the V25M housing.
+// Exact component length/pitch must not be inferred from perspective.
+export const B149=Object.freeze({
+  b04BaseY:73,
+  b04GuideTopY:131,
+  b04MovingFlangeTopY:90,
+  supportPlateBottomY:90,
+  supportPlateHeightMm:6,
   postAxisX:-88,postAxisZ:-15,
-  postHolderBottomY:111,postHolderHeightMm:50,postHolderODmm:20,
-  supportPostBottomY:111,supportPostLengthMm:100,postDiameterMm:12,
-  squareClampCenterY:190,squareClampHeightMm:30,
-  upperRodY:190,lowerRodY:157,phucBorePitchMm:33,
-  phucCenterX:-30,phucCenterY:173.5,
+  postHolderBottomY:96,postHolderHeightMm:50,postHolderODmm:20,
+  supportPostBottomY:96,supportPostLengthMm:100,postDiameterMm:12,
+  squareClampCenterY:168,squareClampHeightMm:30,
+  upperRodY:168,lowerRodY:135,phucBorePitchMm:33,
+  phucCenterX:-30,phucCenterY:151.5,
   phucLengthMm:60,phucOuterDiameterMm:30,
-  glassHolderSpineTopY:119,terminalSocketCenterY:157
-};
+  upperRodStartX:-115,upperRodLengthMm:100,
+  lowerRodStartX:-55,lowerRodEndX:38.5,
+  glassHolderOriginY:142,glassHolderSpineLeftX:38.5,
+  glassCenterWorldY:125.5,
+  heaterTopWorldY:98.2,
+  threadStubDiameterMm:6,threadStubLengthMm:10
+});
 export function auditB149(d=B149){
  const postTopY=d.supportPostBottomY+d.supportPostLengthMm;
  const holderTopY=d.postHolderBottomY+d.postHolderHeightMm;
  const clampBottomY=d.squareClampCenterY-d.squareClampHeightMm/2;
+ const clampTopY=d.squareClampCenterY+d.squareClampHeightMm/2;
  const phucUpperY=d.phucCenterY+d.phucBorePitchMm/2;
  const phucLowerY=d.phucCenterY-d.phucBorePitchMm/2;
- if(Math.abs(d.b04TopY-d.supportPlateBottomY)>0.01)throw Error('B05 floats over V25M');
- if(Math.abs(d.supportPlateBottomY+d.supportPlateHeightMm-d.postHolderBottomY)>0.01)throw Error('Black sleeve not seated on black top plate');
- if(!(holderTopY<clampBottomY && postTopY>clampBottomY+d.squareClampHeightMm))throw Error('Vertical support post cannot cross square clamp above post holder');
- if(d.postDiameterMm!==12)throw Error('Real support post diameter must be compatible with PHSH/PHUC');
- if(Math.abs(phucUpperY-d.upperRodY)>0.01||Math.abs(phucLowerY-d.lowerRodY)>0.01)throw Error('PHUC clamp axes do not match upper and lower rods');
- if(Math.abs(d.upperRodY-d.lowerRodY-d.phucBorePitchMm)>0.01)throw Error('PHUC manufacturer 33mm pitch violated');
- if(d.phucLengthMm!==60||d.phucOuterDiameterMm!==30)throw Error('PHUC OEM envelope mismatch');
+ const glassToHeaterGapMm=d.glassCenterWorldY-.5-d.heaterTopWorldY;
+ const lowerRodLengthMm=d.lowerRodEndX-d.lowerRodStartX;
+ const upperRodEndX=d.upperRodStartX+d.upperRodLengthMm;
+ if(Math.abs(d.b04MovingFlangeTopY-d.supportPlateBottomY)>.01)
+   throw Error('B05 floats above the MOVABLE V25M side carriage');
+ if(d.b04MovingFlangeTopY>=d.b04GuideTopY)
+   throw Error('B05 must be beneath the fixed V25M guide top in actual photo108');
+ if(Math.abs(d.supportPlateBottomY+d.supportPlateHeightMm-d.postHolderBottomY)>.01)
+   throw Error('Black sleeve is not seated on the side-mounted B05 plate');
+ if(!(holderTopY<clampBottomY&&postTopY>clampTopY))
+   throw Error('Support rod must cross separate square clamp ABOVE black sleeve');
+ if(d.postDiameterMm!==12||d.threadStubDiameterMm>=d.postDiameterMm)
+   throw Error('Rod/adapter diameters must represent step-down to M6, not a second Ø12 clamp');
+ if(Math.abs(phucUpperY-d.upperRodY)>.01||Math.abs(phucLowerY-d.lowerRodY)>.01 ||
+    Math.abs(d.upperRodY-d.lowerRodY-d.phucBorePitchMm)>.01)
+   throw Error('PHUC-1 33mm hole centre pitch or rod axes mismatch');
+ if(d.phucLengthMm!==60||d.phucOuterDiameterMm!==30)
+   throw Error('PHUC OEM envelope mismatch');
+ if(!(d.upperRodStartX < d.postAxisX-12 && upperRodEndX>=d.phucCenterX+15))
+   throw Error('Upper rod must reach from B33 into PHUC-1 without unsupported extra 150mm tail');
+ if(!(d.lowerRodStartX<d.phucCenterX-15 &&
+      Math.abs(d.lowerRodEndX-d.glassHolderSpineLeftX)<.01))
+   throw Error('Lower Ø12 bar must end exactly at glass holder side face, not pass through solid GCM-1302M');
+ if(d.threadStubLengthMm<5||d.threadStubLengthMm>15)
+   throw Error('Unverified M6 end-face stub beyond candidate range');
+ if(!(glassToHeaterGapMm>4&&glassToHeaterGapMm<35))
+   throw Error('Glass-heater separation implausible for candidate dry-transfer pose');
  return Object.freeze({
-   ...d,postTopY,holderTopY,clampBottomY,
+   ...d,postTopY,holderTopY,clampBottomY,clampTopY,
    holderToSquareGapMm:clampBottomY-holderTopY,
    exposedPostAboveHolderMm:postTopY-holderTopY,
-   photoRulerVerifiedDimensions:['vertical rod reaches ABOVE square connector','upper/lower horizontal bar directions are parallel in photo149'],
-   catalogCandidates:{post:'PHSP12-4 100mm',postHolder:'PHSH-2 50mm'},
-   exactSleeveSkuConfirmed:false,exactPostSkuConfirmed:false,
-   realVerticalRegistrationAccepted:false,
-   lowerRodToGlassClampInterfaceAccepted:false
+   glassToHeaterGapMm,lowerRodLengthMm,upperRodEndX,
+   observed:['movable V25M plate below fixed guides','lower Ø12 rod directly enters GCM-1302M side, no bulky terminal bracket','two PHUC rods approximately parallel in side view'],
+   candidateManufacturerMatch:{post:'PHSP12-4 100 mm',holder:'PHSH-2 50 mm'},
+   acceptedGeometryOnly:true,
+   threadingVerified:false,
+   crossPhotoAbsoluteHeightVerified:false
  });
 }
