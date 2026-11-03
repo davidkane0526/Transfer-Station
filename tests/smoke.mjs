@@ -44,6 +44,8 @@ await page.locator('#bom-query').fill('B03');
 const photoStageRow=page.locator('#bom-body tr').filter({hasText:'B03'});
 assert((await photoStageRow.count())===1,'Photo B03 part is missing from active BOM');
 await photoStageRow.click();
+assert((await page.locator('#part-detail').textContent()).includes('当前装配在B29未识别底座之上'),
+ 'Active B03 details still describe old B02 magnetic base / B04 V25M despite switching photographic variant');
 assert((await page.locator('#photo-95-mechanics').getAttribute('data-shafts'))==='1',
  'Photo95 front silver drive shaft not built');
 assert((await page.locator('#photo-95-mechanics').getAttribute('data-front-fasteners'))==='4',
