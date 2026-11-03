@@ -317,6 +317,9 @@ await page.locator('#btn-iso').click();
 const stale=await page.locator('#viewer').evaluate(el=>(el.innerText||'').includes('NFP-1462C'));
 assert(!stale,'old platform B CSS2D part label is still visible after A switch');
 await page.locator('#open-bom').click();
+// Photo-specific part checks leave A03 in the BOM search. Clear that filter
+// before counting the complete A catalog; this is a test state issue.
+await page.locator('#bom-query').fill('');
 const aRows=await page.locator('#bom-body tr').count();
 assert(aRows>=14,'A BOM missing revised parts');
 await page.locator('#close-bom').click();
