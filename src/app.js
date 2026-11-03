@@ -305,19 +305,31 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // Place plate clamp at glass LEFT edge, away from the sample optical axis.
  // 180 degree yaw changes jaw engagement from leftward to rightward.
  addPart('B06',link.clampWorldX,121.5,0,g=>{
-  // Daheng GCM-1302M plate-holder FAMILY: OEM specifies M6, L=60mm,
-  // optics <=5mm thick. L-axis and fine jaw geometry are display candidates.
-  // The black U-spine and TWO independent spring-like jaw contacts replace
-  // the previous featureless block marked CLAMP.
-  add(g,cub(20,13,60,mats.dark,10,0,0)); // 60mm nominal envelope
-  for(const z of [-8,8]){
-    add(g,cub(22,4,6,mats.silver,-10,-19,z)); // lower edge contact
-    add(g,cub(22,4,6,mats.silver,-10,-13.5,z)); // upper edge contact
-    add(g,cub(8,14,6,mats.black,3,-13.5,z)); // return jaw link
+  // Daheng GCM-13 (1302M candidate): ONE fixed face, ONE moving pressure
+  // plate actuated by TWO screws. Do not create two separate U-shaped jaws.
+  // Manufacturer: L=60, M6 attachment, thickness <=5 mm. Jaw offsets below
+  // are 1mm glass / 1.5mm preview values, not OEM mechanical drawing.
+  const jaw=getPlateHolderJawDatums();
+  g.userData.gcmJawDatums=jaw;
+  add(g,cub(17,15,56,mats.dark,7,-10,0));  // fixed spine
+  add(g,cub(24,5,56,mats.black,-6,-.2,0)); // shared upper screw bridge
+  const lowerTop=jaw.fixedJawTopLocalY;
+  const upperBottom=jaw.movableJawBottomLocalY;
+  add(g,cub(22,4,56,mats.steel,-10,lowerTop-2,0)); // ONE lower fixed face
+  add(g,cub(22,3.5,56,mats.silver,-10,upperBottom+1.75,0));
+  // Two independent threaded adjusters push the SAME moving plate.
+  for(const z of jaw.screwZmm){
+    const drive=add(g,cyl(1.7,12,mats.steel,-10,-5.7,z,24));
+    drive.userData.plateHolderActuator=true;
+    const knob=add(g,cyl(4.2,5,mats.silver,-10,2.8,z,36));
+    knob.userData.plateHolderActuatorKnob=true;
+    const cap=add(g,cyl(3.7,.6,mats.ink,-10,5.2,z,36));
+    cap.userData.plateHolderActuatorKnob=true;
   }
-  add(g,cub(13,15,15,mats.black,17,-12,0)); // mounting socket
+  // Back-side cylindrical M6 adapter witness, not a verified threaded hole.
+  add(g,cyl(5,3,mats.dark,17,-11,0,32));
   addJointHeads(g,'B06',6.35,[[-10,-6],[8,6]],{headR:2.6});
-  label(g,'Daheng GCM-1302M · M6/L60（候选）',4,24,0);
+  label(g,'Daheng GCM-1302M · 共用活动压板 + 双调节螺杆',4,24,0);
  },{explode:[-20,65,5],moveFilm:true,facingYaw:Math.PI});
  addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
   add(g,cub(76,1,26,mats.glass,0,0,0));
