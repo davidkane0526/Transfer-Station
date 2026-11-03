@@ -275,9 +275,9 @@ function filmB(){
    add(g,cub(65,6,65,mats.dark,0,48,0)); // VC13M actual OEM 65×65 top, Y=104
    // VC13M vertical micrometer on face, NOT another horizontal rail.
    add(g,cub(14,10,10,mats.black,0,15,25));
-   add(g,cyl(2.8,33,mats.steel,0,38,25,24));
-   add(g,cyl(6.8,22,mats.silver,0,58,25,48));
-   for(let y=49;y<68;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,25));
+   add(g,cyl(2.8,28,mats.steel,0,24,25,24));
+   add(g,cyl(6.8,18,mats.silver,0,39,25,48));
+   for(let y=32;y<48;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,25));
    addJointHeads(g,'B30',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
    label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
  },{explode:[-15,18,0],moveFilm:true});
@@ -647,9 +647,9 @@ function platformA(){
    add(g,cub(65,6,65,mats.dark,0,48,0)); // VC13M actual OEM 65×65 top, Y=104
    // VC13M vertical micrometer on face, NOT another horizontal rail.
    add(g,cub(14,10,10,mats.black,0,15,25));
-   add(g,cyl(2.8,33,mats.steel,0,38,25,24));
-   add(g,cyl(6.8,22,mats.silver,0,58,25,48));
-   for(let y=49;y<68;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,25));
+   add(g,cyl(2.8,28,mats.steel,0,24,25,24));
+   add(g,cyl(6.8,18,mats.silver,0,39,25,48));
+   for(let y=32;y<48;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,25));
    addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
    label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
  },{explode:[-15,18,0],moveFilm:true});
