@@ -1347,11 +1347,17 @@ $('btn-photo95').onclick=()=>focusPhoto947('95');
 $('btn-photo97').onclick=()=>focusPhoto947('97');
 function focusMechanicalBranch(which){
  const x=which==='film'?(platform==='B'?CONFIG.B.armX:CONFIG.A.armX):(platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX);
- const y=which==='film'?85:79;
+ const fittedBFilm=which==='film'&&platform==='B';
+ // Previous camera at y=85, distance~300mm CHOPPED OFF photo149's
+ // B27 exposed top (world Y>205). Back camera up and target its
+ // whole 0–215mm physical stack, not just the T25M at the bottom.
+ const y=fittedBFilm?125:(which==='film'?85:79);
  const t=new THREE.Vector3(x,y,0);
- // A front / side oblique perspective showing installed handles and base height.
  const handSide=which==='film'&&platform==='B'?-1:1;
- camera.position.set(x+handSide*155,y+100,235);
+ const horizontal=fittedBFilm?210:155;
+ const above=fittedBFilm?135:100;
+ const depth=fittedBFilm?325:235;
+ camera.position.set(x+handSide*horizontal,y+above,depth);
  orbit.target.copy(t);camera.lookAt(t);orbit.update();
 }
 $('btn-film-stack').onclick=()=>focusMechanicalBranch('film');
