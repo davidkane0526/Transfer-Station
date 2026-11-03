@@ -1090,11 +1090,19 @@ function resetScene(){
 }
 function focus(mode){
  const sampleX=platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX;
- const target=mode==='optical'?new THREE.Vector3(sampleX-20,125,0):new THREE.Vector3(platform==='B'?-15:0,128,0);
+ // Restored B spans the stage at X=-112, sample optics at X=82,
+ // microscope at Z=-112 and separate external enclosures at X=245..305.
+ // The old close camera framed ONLY the film arm and could hide the rest.
+ const fullB=platform==='B'&&(mode==='iso'||mode==='home');
+ const target=mode==='optical'?new THREE.Vector3(sampleX-20,125,0):
+   fullB?new THREE.Vector3(45,130,-35):
+   new THREE.Vector3(platform==='B'?-15:0,128,0);
  const dst=mode==='optical'?new THREE.Vector3(sampleX-20,460,0.01):
    mode==='top'?new THREE.Vector3(0,780,0.01):
-  mode==='front'?new THREE.Vector3(0,185,760):
-  mode==='rear'?new THREE.Vector3(295,250,-380):mode==='iso'?new THREE.Vector3(350,300,440):new THREE.Vector3(425,365,505);
+   mode==='front'?new THREE.Vector3(0,185,760):
+   mode==='rear'?new THREE.Vector3(295,250,-380):
+   mode==='iso'?(fullB?new THREE.Vector3(550,400,690):new THREE.Vector3(350,300,440)):
+   fullB?new THREE.Vector3(600,430,735):new THREE.Vector3(425,365,505);
  camera.position.copy(dst);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
 
