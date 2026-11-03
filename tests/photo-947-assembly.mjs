@@ -14,6 +14,10 @@ const frontDrive=photo95FrontDriveDatums();
 assert(frontDrive.supportConnected);
 assert.equal(frontDrive.overlapLeftMm,2.5);
 assert.equal(frontDrive.overlapRightMm,2.5);
+assert(frontDrive.clearanceFromStageFrontMm>=0.5,
+ 'Photo95 shaft must not penetrate solid 65mm T25M front wall');
+assert.throws(()=>photo95FrontDriveDatums({shaftCenterFrontZmm:32.7}),
+ /penetrates/,'Original front shaft was inside the stage face');
 assert.throws(()=>photo95FrontDriveDatums({shaftLengthMm:40}),
  /floating/,'Short front rod must not hang in space between black stops');
 const upright=vc13PhotoScrewDatums();
