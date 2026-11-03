@@ -23,12 +23,18 @@ assert((await page.locator('#photo-ledger').textContent()).includes('B29'),
  'Photographed bottom pad must NOT borrow an unverified GCM-420302M magnetic SKU');
 assert(!(await page.locator('#photo-ledger').textContent()).includes('B02'),
  'Archive B02 must not show in the new photo variant');
-assert(!(await page.locator('#photo-ledger').textContent()).includes('B09'),
- 'Current photo94/95/97 cannot certify the NFP sample branch as part of the same rig');
-assert(await page.locator('#sample-move').isDisabled(),
- 'Unverified sample-side motion must not animate a fabricated B photo assembly');
-assert(await page.locator('#btn-sample-stack').isDisabled(),
- 'Unverified sample branch must not be selectable as an assembled B-photo component');
+assert((await page.locator('#photo-ledger').textContent()).includes('B09'),
+ 'Model B default must include the NFP sample-side subassembly, marked as unregistered to film-side');
+assert(await page.locator('#sample-move').isEnabled(),
+ 'Model B must not hide the sample movement when switching the film arm');
+assert(await page.locator('#btn-sample-stack').isEnabled(),
+ 'Model B must retain the sample stage navigation control');
+for(const group of ['sample','heat','microscope','vacuum','external']){
+ assert(await page.locator('#group-list input[data-group="'+group+'"]').count()===1,
+  'Default B scene is missing visible subgroup '+group);
+}
+assert((await page.locator('#platform-caption').textContent()).includes('全系统布局已恢复'),
+ 'Full-system model B must announce restored subassemblies');
 await page.screenshot({path:'Transfer-Station-V27-User-Photo-B-Overview.png',fullPage:true});
 await page.locator('#btn-photo94').click();
 await page.waitForTimeout(500);
@@ -37,8 +43,12 @@ await page.locator('#open-bom').click();
 const photoRows=await page.locator('#bom-body tr').allTextContents();
 assert(photoRows.some(t=>t.includes('B29'))&&photoRows.some(t=>t.includes('B32')),
  'User photo mode BOM is missing the visible bottom foot or bent L connector');
-assert(photoRows.every(t=>!/^B02\b|^B24\b|^B09\b|^B08\b/.test(t.trim())),
- 'Photo-mode BOM must exclude archived PHCP parts AND unverified NFP sample branch');
+assert(photoRows.every(t=>!/^B02\b|^B04\b|^B05\b|^B06\b|^B24\b|^B25\b|^B26\b|^B27\b/.test(t.trim())),
+ 'Photo-mode BOM must not include abandoned V25M/PHCP transfer-arm variant');
+for(const component of ['B07','B08','B09','B10','B11','B12','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23']){
+ assert(photoRows.some(t=>t.trim().startsWith(component)),
+  'Model B default BOM lost major required subsystem '+component);
+}
 await page.locator('#bom-query').fill('B32');
 await page.locator('#bom-body tr').filter({hasText:'B32'}).click();
 assert((await page.locator('#photo-94-mechanics').getAttribute('data-folded'))==='true',
