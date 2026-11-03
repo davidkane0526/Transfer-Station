@@ -16,8 +16,8 @@ export const OPTICAL_HARDWARE={
       url:'https://www.zolix.com.cn/prodcon_371_399_467_729.html'}
   },
   B25:{
-    maker:'Zolix',model:'PHSP12系列（后缀未确认）',name:'第一根Ø12×100mm杆（场景拟合）',
-    known:{diameterMm:12,overallLengthMm:100,overallLengthMeasured:false},
+    maker:'Zolix',model:'PHSP12系列（后缀未确认）',name:'第一根Ø12×85mm杆（场景拟合）',
+    known:{diameterMm:12,overallLengthMm:85,overallLengthMeasured:false},
     confidence:'manufacturer-product-exists/photo-length-not-confirmed',
     url:'https://www.zolix-group.com/product/detail/220.html',
     alternative:{maker:'Daheng',series:'GCM-0301',diameterMm:12.7,
