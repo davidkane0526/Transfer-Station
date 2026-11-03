@@ -1,9 +1,20 @@
 import assert from 'node:assert/strict';
-import {HOLDER_OEM,getCrossClampDatums,getPlateHolderJawDatums}
+import {HOLDER_OEM,getCrossClampDatums,getPostBaseDatums,getPlateHolderJawDatums}
  from '../src/holder-mechanics.js';
 
 assert.equal(HOLDER_OEM.clampBoreDiameterMm,12);
 assert.equal(HOLDER_OEM.postDiameterMm,12);
+const base=getPostBaseDatums();
+assert.equal(base.verifiedThroughType,'M6 TH');
+assert(base.mountBoreDiameterMm<base.seatDiameterMm,
+ 'Do not pretend PHPB-1 has a full-depth Ø12 mounting bore');
+assert.equal(base.lowerThroughLengthMm+base.seatDepthMm,base.heightMm);
+assert.equal(base.seatDepthVerified,false);
+assert.equal(base.physicalEngagementVerified,false);
+assert.throws(()=>getPostBaseDatums({mountBoreDiameterMm:12.1,seatDiameterMm:12.1}),
+ /distinguish/);
+assert.throws(()=>getPostBaseDatums({seatDepthMm:6}),/full/);
+
 assert.deepEqual(HOLDER_OEM.phcpBodyDiametersMm,[25,26]);
 const clamp=getCrossClampDatums();
 assert.equal(clamp.verticalBore.axis,'Y');
