@@ -21,7 +21,9 @@ report={'checks':[], 'scope':'candidate_proxy_geometry_only',
                        'NFP moving-face tapped hole group and effective thread depth',
                        'real clamped stack dimensions and fastener head geometry',
                        'rotary-to-NFP fixed-base bolt compatibility',
-                       '200C thermal insulation and stress certification']
+                       '200C thermal insulation and stress certification',
+                       'B94/95/97 L sheet end-to-glass jaw interface is unobserved',
+                       'B94/95/97 and B110/111 same-rig correspondence unconfirmed']
         }}
 
 def part(d,id):
@@ -48,12 +50,17 @@ check(abs(nfp.BoundingBox().zmax-76.2)<.01,'NFP top mounting datum')
 # The modeled hole depth is 10 mm. Tip at 66.7 and blind bottom at 66.2 => .5 mm.
 hole_bottom=66.2;tip=66.7
 check(tip-hole_bottom>=.5-1e-4,'candidate fastener has 0.5 mm axial blind-hole clearance')
-# B transfer arm must not float 4 mm above the V25M upper plate.
+# The old 85-mm tower was NOT the real assembly. Verify its replacement
+# by a 6-mm V25M-mounted plate, PHPB-like flange, and 25-mm short post.
 v25_top=part(B,'B04B')[0].BoundingBox()
 arm_base=part(B,'B05D')[0].BoundingBox()
-post=part(B,'B05')[0].BoundingBox()
-check(abs(arm_base.zmin-v25_top.zmax)<.02,'B post base sits directly on V25M')
-check(post.zmin<=arm_base.zmax and post.zmax>arm_base.zmax,'B vertical post is captured by base')
+post_foot=part(B,'B05')[0].BoundingBox()
+post=part(B,'B27')[0].BoundingBox()
+check(abs(v25_top.zmax-135)<.02,'B web/CAD V25M top datum is 135mm')
+check(abs(arm_base.zmin-v25_top.zmax)<.02,'B05 base sits directly on V25M')
+check(abs(post_foot.zmin-arm_base.zmax)<.02,'B post foot seats directly on B05 plate')
+check(post.zmin<=post_foot.zmax and post.zmax>post_foot.zmax,
+      'B27 25mm post enters B05 foot shallow Ø12 socket')
 # Check exposed stage stack contact datums.
 for name,bottom,top in [('B10',76.2,86.2),('B11',86.2,98.2)]:
     bb=part(B,name)[0].BoundingBox()
@@ -130,12 +137,31 @@ for sys,key,expected_bottom in [('B','B03',40),('A','A15',20)]:
 # The sample-side A02 is not proven to be a -2L; do NOT invent a second handle.
 check(not (A/'A02D.step').exists(),
       'A02 single-axis remains unresolved; no imaginary second actuator')
-# Rear bar and suspension had been floating independently.
-clampbridge=part(B,'B05E')[0]
-check(clampbridge.intersect(part(B,'B05B')[0]).Volume()>0.01,
-      'B rear bar physically overlaps hanger bridge')
-check(clampbridge.intersect(part(B,'B05C')[0]).Volume()>0.01,
-      'B suspension attaches to bar bridge')
+# Reject the V17–V22 fabricated 85mm/249mm return loop and verify
+# independent candidate sleeves/posts with distinct bores.
+for obsolete in ('B05A','B05B','B05C','B05E'):
+    check(not (B/(obsolete+'.step')).exists(),
+          f'No old fabricated rear arm/hanging rod: {obsolete}')
+cross=part(B,'B24')[0]
+short=part(B,'B27')[0]
+long=part(B,'B25')[0]
+terminal=part(B,'B26')[0]
+spine=part(B,'B06')[0]
+check(short.intersect(long).Volume()<1e-5,
+      'Orthogonal 12mm posts with 15mm axis distance must not penetrate')
+check(cross.intersect(short).Volume()<1e-4 and
+      cross.intersect(long).Volume()<1e-4,
+      'PHCP-2 candidate bores actually clear both Ø12 posts')
+check(terminal.intersect(long).Volume()<1e-4,
+      'B26 metal adapter does not penetrate Ø12 horizontal post')
+check(abs(terminal.BoundingBox().zmin-spine.BoundingBox().zmax)<.02,
+      'B26 adapter bottom reaches B06 fixed spine top without floating')
+check(long.BoundingBox().xmax<82-17,
+      'Metal holder must stop before 17-mm-radius objective keep-out')
+check(long.BoundingBox().xmin<-70 and long.BoundingBox().xmax>30,
+      'Candidate post is 150-mm PHSP12-5 and reaches holder')
+check(not (B/'B06S3.step').exists(),
+      'One shared B06 moving plate needs two screws only')
 # A's transfer beam, vertical support, edge clamp contact by boundary (not true fasteners).
 a_rot=part(A,'A06A')[0].BoundingBox()
 a_stg=part(A,'A02')[0].BoundingBox()
@@ -148,6 +174,43 @@ check(abs(ris.zmin-a_tilt.zmax)<.01,'A riser contacts tilt stage top')
 check(abs(ris.zmax-beam.zmin)<.01,'A riser contacts transfer beam')
 check(abs(clip.zmax-beam.zmin)<.01,'A edge clip contacts transfer beam')
 check(beam.xmin<=-116 and beam.xmax>=78,'A beam spans left-to-right physical supports')
+# Explicitly audit the CURRENT user-selected B94/95/97 photo branch.
+# The historical B108/109 rod branch is NOT automatically part of it.
+B94=ROOT/'build'/'platform_B_photo94'/'parts'
+photo_base=part(B94,'B29')[0].BoundingBox()
+photo_t25=part(B94,'B03')[0].BoundingBox()
+photo_vc=part(B94,'B30')[0].BoundingBox()
+photo_g40=part(B94,'B31')[0].BoundingBox()
+photo_sheet=part(B94,'B32')[0].BoundingBox()
+photo_downfold=part(B94,'B32L')[0].BoundingBox()
+check(abs(photo_base.zmax-photo_t25.zmin)<.02,
+      'Current B photo unknown base supports T25M')
+check(abs(part(B94,'B03A')[0].BoundingBox().zmax-photo_vc.zmin)<.02,
+      'Current B photo T25M supports VC13M')
+check(abs(photo_vc.zmax-photo_g40.zmin)<.02,
+      'Current B photo VC13M supports G40M60L')
+check(abs(photo_g40.zmax-photo_sheet.zmin)<.02,
+      'Current B photo G40 carries thin L sheet')
+check(abs(photo_sheet.zmin-photo_downfold.zmax)<.02,
+      'Current B photo L plate has ONE continuous 90-degree downfold')
+check(abs(photo_sheet.zlen-2.5)<.02 and abs(photo_downfold.zlen-72)<.02,
+      'Current B photo shows thin folded sheet, NOT thick beam')
+check(photo_sheet.xmax<82-17,
+      'No fabricated bridge connecting photo L sheet to sample optical axis')
+for forbidden in ('B06','B07','B24','B25','B26','B27'):
+    check(not (B94/(forbidden+'.step')).exists(),
+          'Do not insert historical PHCP hardware or fake glass clamp into current B photos: '+forbidden)
+check(part(B94,'B32H1')[0].BoundingBox().zmin>=photo_sheet.zmax-.02 and
+      part(B94,'B32H2')[0].BoundingBox().zmin>=photo_sheet.zmax-.02,
+      'B photo L plate has two TOP screw heads, not free floating posts')
+report['photo_profile_B']={
+  'photo_ids':['94','95','97'],
+  'status':'incomplete_missing_real_glass_grip',
+  'same_physical_rig_as_sample_side_confirmed':False,
+  'downstream_glass_clamp_confirmed':False,
+  'reason':'Only a folded L plate is photographically identified; no glass jaw or optical-axis reach'
+}
+
 # OEM NFP-1462C manufacturer drawing: do not confuse the 4x Ø6.5
 # counterbored clearance holes on lower mounting face with the
 # distinct 9-M6/4-M3 threaded pattern on the moving plate.
@@ -168,24 +231,35 @@ for dx in (-25,25):
           'NFP 50mm corner mounting counterbore Ø11 exists')
 check(abs(part(B,'B09A')[0].BoundingBox().zmax-76.2)<.02,
       'NFP moving top nominal 23mm above 53.2 mount datum')
-# V18: glass must be INSIDE clip opening, never penetrating either jaw.
-clip=part(B,'B06')[0]
+# B06 follows the same independent fixed/movable pressure-plate
+# arrangement as the web candidate: one shared plate, TWO pressure screws.
+fixed_jaw=part(B,'B06F')[0]
+moving_plate=part(B,'B06M')[0]
+drive_bridge=part(B,'B06T')[0]
 glass=part(B,'B07')[0]
 pdms=part(B,'B07A')[0]
 chuck=part(B,'B11')[0]
-suspension=part(B,'B05C')[0]
-check(clip.intersect(glass).Volume()<1e-6,'Glass has no volumetric overlap with clip')
-check(clip.intersect(pdms).Volume()<1e-6,'Transfer membrane does not intersect clamp')
-check(clip.intersect(chuck).Volume()<1e-6,'Clip lower jaw clears hot metal')
+for jaw,description in ((fixed_jaw,'lower fixed jaw'),(moving_plate,'moving upper pressure plate')):
+    check(jaw.intersect(glass).Volume()<1e-6,description+' does not penetrate glass')
+    check(jaw.intersect(pdms).Volume()<1e-6,description+' does not penetrate PDMS')
+    check(jaw.intersect(chuck).Volume()<1e-6,description+' clears the heater')
 check(glass.intersect(chuck).Volume()<1e-6,'Glass does not penetrate hot metal')
-check(abs(glass.BoundingBox().zmin-104.5)<.02,'Glass bottom at lower jaw top')
+check(abs(glass.BoundingBox().zmin-104.5)<.02,'Glass bottom matches fixed jaw top')
 check(abs(glass.BoundingBox().zmax-105.5)<.02,'Glass has 1-mm thickness')
-check(abs(glass.BoundingBox().zmin-pdms.BoundingBox().zmax)<.02,'PDMS underside contacts glass')
-check(pdms.BoundingBox().zmin-chuck.BoundingBox().zmax>=4.4,'Membrane has >=4.4mm no-contact clearance to hot metal')
-check(abs(suspension.BoundingBox().zmin-clip.BoundingBox().zmax)<.02,'Hanging rod reaches clip top')
-bar=part(B,'B05B')[0]
-check(bar.intersect(part(B,'B18')[0]).Volume()<1e-6,'Rear beam does not intersect objective')
-check(bar.intersect(part(B,'B16C')[0]).Volume()<1e-6,'Rear beam does not intersect microscope body')
+check(abs(moving_plate.BoundingBox().zmin-glass.BoundingBox().zmax)<.02,
+      'One moving pressure plate contacts 1mm glass without interpenetration')
+check(abs(glass.BoundingBox().zmin-pdms.BoundingBox().zmax)<.02,
+      'PDMS underside contacts glass')
+check(pdms.BoundingBox().zmin-chuck.BoundingBox().zmax>=4.4,
+      'Membrane has >=4.4mm nominal clearance to hot metal')
+for i in (1,2):
+    screw=part(B,f'B06S{i}')[0]
+    check(screw.intersect(drive_bridge).Volume()<1e-4,
+          f'B06 screw {i} passes through actual clearance bore in bridge')
+check(long.intersect(part(B,'B18')[0]).Volume()<1e-6,
+      'B25 post does not intersect objective')
+check(long.intersect(part(B,'B16C')[0]).Volume()<1e-6,
+      'B25 post does not intersect microscope body')
 # CAD XY plane maps to WebGL X/Z. CAD back = negative Y.
 from cadquery import Vector
 vac=part(B,'B15')[0]
