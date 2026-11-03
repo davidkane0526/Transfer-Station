@@ -101,7 +101,7 @@ def heater(cx=82,cy=0,z=86.2):
         add('B','B14_'+str(i),'M6x25_candidate_'+str(i),screw,'I')
 def make_b():
     board('B')
-    ax,cx=-102,82
+    ax,cx=-112,82
     mag=box(65,65,20,ax,0,20)
     for pitch,dia in [(50,5),(40,3.3),(32,2.5)]:
         mag=cut(mag,[(ax+dx,dy) for dx in (-pitch/2,pitch/2) for dy in (-pitch/2,pitch/2)],dia,10,30)
@@ -118,7 +118,12 @@ def make_b():
     add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,134.5),'P')
     add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,81))
     add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,81))
-    add('B','B04B','GCMV25M_MOVING_output_flange_photo149',box(65,66,8,ax,0,82))
+    # SIDE output: the fixed upright lies at X=ax±28, Y=-19..-1.
+    # The moving guide front face ends Y=+7. A 25x18x15 mm
+    # photo-fit bridge meets that guide at Y=+7 and touches B05
+    # at X=ax+28, without any volumetric overlap.
+    add('B','B04B','GCMV25M_SIDE_moving_bridge_photo108',
+        box(25,18,15,ax+15.5,16,85))
     # Photo 108: V25M micrometer is vertical, not an x-axis knob.
     add('B','B04C','vertical_micrometer_stem',vz(6.5,40,ax-24,0,102),'P')
     add('B','B04D','vertical_micrometer_knob',vz(9,17,ax-24,0,142),'P')
@@ -132,29 +137,30 @@ def make_b():
     post_len=100;holder_len=50
     upper_rod_z=168;lower_rod_z=135
     assert upper_rod_z-lower_rod_z==33  # PHUC-1 OEM E
-    add('B','B05','photo149_V25M_flat_top_mount_PROXY',
-        box(65,66,plate_h,ax,0,plate_z),'C')
+    add('B','B05','photo108_V25M_side_mount_plate_PROXY',
+        box(65,66,plate_h,ax+60.5,0,plate_z),'C')
+    post_x=ax+60
     # Photo149: missing black post sleeve. PHSH-2=50mm is a catalogue
     # candidate, not a photo-identified exact model. True Ø12.16 bore.
-    sleeve=vz(10,holder_len,ax+14,-15,holder_z)
-    sleeve=sleeve.cut(vz(6.08,holder_len,ax+14,-15,holder_z))
+    sleeve=vz(10,holder_len,post_x,-15,holder_z)
+    sleeve=sleeve.cut(vz(6.08,holder_len,post_x,-15,holder_z))
     add('B','B34','photo149_black_sleeve_PHSH2_50mm_candidate',sleeve,'C')
     # The old PHSP12-1 25mm post cannot pass through BOTH the ~50mm
     # sleeve and the distinct upper square clamp. Try OEM 100mm size;
     # end thread and installed insertion depth remain photo candidates.
     add('B','B27','photo149_vertical_O12x100_PHSP12-4_candidate',
-        vz(6,post_len,ax+14,-15,holder_z),'C')
+        vz(6,post_len,post_x,-15,holder_z),'C')
     # Separate, currently unidentified, little BLACK SQUARE clamp.
     # Both bores cut THROUGH the actual box so two steel rods do not
     # occupy unrelieved solid wall. X transverse vs vertical Z.
-    cube=box(28,30,30,ax+14,-7.5,upper_rod_z-15)
-    cube=cube.cut(vz(6.05,30,ax+14,-15,upper_rod_z-15))
-    cube=cube.cut(vx(6.05,28,ax,0,upper_rod_z))
+    cube=box(28,30,30,post_x,-7.5,upper_rod_z-15)
+    cube=cube.cut(vz(6.05,30,post_x,-15,upper_rod_z-15))
+    cube=cube.cut(vx(6.05,28,post_x-14,0,upper_rod_z))
     add('B','B33','photo149_unknown_square_cross_clamp_two_real_bores',cube,'C')
     # Zolix PHUC-1 OEM: 60mm long × Ø30 outer envelope, two
     # Ø12 through bores, center spacing=33mm. Both physical rods
     # appear HORIZONTAL from the same photo149 side view.
-    phuc_x=-30
+    phuc_x=-5
     phuc=vz(15,60,phuc_x,0,121.5)
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,upper_rod_z))
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,lower_rod_z))
@@ -164,10 +170,10 @@ def make_b():
     # Candidate first/second Ø12 rods. PHUC's 33mm pitch and the
     # TWO independently supported bars are preserved. Rod lengths
     # and end coupling remain an engineering-fit hypothesis.
-    add('B','B25','first_O12x100_LENGTH_CANDIDATE',
-        vx(6,100,-115,0,upper_rod_z),'C')
-    add('B','B28','second_O12x79p5_LENGTH_CANDIDATE',
-        vx(6,79.5,-55,0,lower_rod_z),'C')
+    add('B','B25','first_O12x85_LENGTH_CANDIDATE',
+        vx(6,85,-75,0,upper_rod_z),'C')
+    add('B','B28','second_O12x54p5_LENGTH_CANDIDATE',
+        vx(6,54.5,-30,0,lower_rod_z),'C')
     clamp_x=cx-42
     # Photo108/150: second Ø12 rod ends directly at the LEFT face of
     # GCM-1302M's vertical back spine, rather than running into a
