@@ -20,6 +20,10 @@ assert((await page.locator('#photo-ledger').textContent()).includes('双轴手�
 await page.locator('#btn-film-stack').click();
 await page.waitForTimeout(450);
 await page.screenshot({path:'Transfer-Station-Film-Stack-B.png',fullPage:true});
+await page.locator('#btn-optical').click();
+await page.waitForTimeout(350);
+await page.screenshot({path:'Transfer-Station-V24-Optical-Left-Grip-B.png',fullPage:true});
+await page.locator('#btn-iso').click();
 await page.locator('#translate').fill('4');
 await page.locator('#translate-depth').fill('6');
 assert((await page.locator('#translate-value').textContent()).includes('4'),'first film axis broken');
