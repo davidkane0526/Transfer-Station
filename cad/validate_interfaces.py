@@ -50,17 +50,29 @@ check(abs(nfp.BoundingBox().zmax-76.2)<.01,'NFP top mounting datum')
 # The modeled hole depth is 10 mm. Tip at 66.7 and blind bottom at 66.2 => .5 mm.
 hole_bottom=66.2;tip=66.7
 check(tip-hole_bottom>=.5-1e-4,'candidate fastener has 0.5 mm axial blind-hole clearance')
-# The old 85-mm tower was NOT the real assembly. Verify its replacement
-# by a 6-mm V25M-mounted plate, PHPB-like flange, and 25-mm short post.
+# Photo149: formerly missing PHSH-style black 50mm sleeve, long
+# vertical post passing through it and the separate upper square clamp.
 v25_top=part(B,'B04B')[0].BoundingBox()
-arm_base=part(B,'B05D')[0].BoundingBox()
-post_foot=part(B,'B05')[0].BoundingBox()
-post=part(B,'B27')[0].BoundingBox()
-check(abs(v25_top.zmax-135)<.02,'B web/CAD V25M top datum is 135mm')
-check(abs(arm_base.zmin-v25_top.zmax)<.02,'B05 base sits directly on V25M')
-check(abs(post_foot.zmin-arm_base.zmax)<.02,'B post foot seats directly on B05 plate')
-check(post.zmin<=post_foot.zmax and post.zmax>post_foot.zmax,
-      'B27 25mm post enters B05 foot shallow Ø12 socket')
+arm_base=part(B,'B05')[0].BoundingBox()
+holder=part(B,'B34')[0]
+holderbb=holder.BoundingBox()
+post=part(B,'B27')[0]
+postbb=post.BoundingBox()
+squarebb=part(B,'B33')[0].BoundingBox()
+check(abs(v25_top.zmax-105)<.02,'B V25M movable flange at photo-fit 105mm datum')
+check(abs(arm_base.zmin-v25_top.zmax)<.02,'B05 plate must sit ON moving flange')
+check(abs(arm_base.zmax-holderbb.zmin)<.02,'B34 vertical holder sits ON B05 plate')
+check(abs(holderbb.zlen-50)<.02,'PHSH2 50mm sleeve is a candidate but its CAD must be consistent')
+check(abs(postbb.zlen-100)<.02,'PHOTO149 rejects older 25mm post; 100mm installed-length candidate')
+check(abs(postbb.zmin-holderbb.zmin)<.02,'Support post inserted from sleeve bottom datum')
+check(holder.intersect(post).Volume()<1e-4,'Black sleeve has real Ø12 steel-post clearance')
+check(abs(squarebb.zmin-holderbb.zmax-14)<.02,
+      'Square clamp is 14mm ABOVE sleeve with exposed Ø12 steel post')
+check(postbb.zmax>squarebb.zmax+5,
+      'Post tip must protrude above B33 square clamp as actually photographed')
+check(not (B/'B05D.step').exists(),
+      'No double-counted V25M mounting plate or invented PHPB-1 flange')
+
 # Check exposed stage stack contact datums.
 for name,bottom,top in [('B10',76.2,86.2),('B11',86.2,98.2)]:
     bb=part(B,name)[0].BoundingBox()
@@ -154,15 +166,15 @@ check(abs(bb.zlen-60)<.02 and abs(bb.xlen-30)<.02 and abs(bb.ylen-30)<.02,
       'Zolix PHUC-1 manufacturer A60 and BØ30 housing envelope')
 # Real boolean void checks: both holes must be open within the 60-mm body.
 phuc_x=-30
-upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,171.5),Vector(1,0,0))
-lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,138.5),Vector(1,0,0))
+upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,190),Vector(1,0,0))
+lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,157),Vector(1,0,0))
 check(phuc.intersect(upper_bore).Volume()<1e-4,'PHUC-1 upper Ø12 bore is real')
 check(phuc.intersect(lower_bore).Volume()<1e-4,'PHUC-1 lower Ø12 bore is real')
-check(abs(171.5-138.5-33)<.0001,
+check(abs(190-157-33)<.0001,
       'PHUC-1 manufacturer E33 bore-centre spacing')
-check(abs(second.BoundingBox().zmin+6-138.5)<.01,
+check(abs(second.BoundingBox().zmin+6-157)<.01,
       'Lower rod center height follows photo149 and PHUC1 E=33')
-check(abs(long.BoundingBox().zmin+6-171.5)<.01,
+check(abs(long.BoundingBox().zmin+6-190)<.01,
       'Upper rod center height follows photo149')
 check(phuc.intersect(long).Volume()<1e-4,
       'PHUC-1 upper shell must not penetrate Ø12 first rod')
@@ -210,7 +222,7 @@ check(not (ROOT/'build'/'platform_B_photo94').exists(),
       'Never build a B-photo94 assembly from verified A photographs')
 for required in ('B07','B08','B09','B10','B11','B12','B14_1','B14_2',
                  'B14_3','B14_4','B15','B16','B17','B18',
-                 'B24','B25','B26','B27','B28','B33'):
+                 'B24','B25','B26','B27','B28','B33','B34'):
     check((B/(required+'.step')).exists(),
           'Corrected photo145-151 B full-system STEP missing '+required)
 report['new_dimension_evidence']={
