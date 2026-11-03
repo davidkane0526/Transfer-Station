@@ -771,7 +771,7 @@ function selectPart(id){
    const m=o.material;
    if(m&&(m.isMeshStandardMaterial||m.isMeshPhysicalMaterial)&&!m.transparent){
       o.userData.originalMat=m;
-      const highlight=m.clone();highlight.emissive=new THREE.Color('#12405b');highlight.emissiveIntensity=.42;
+      const highlight=m.clone();highlight.emissive=new THREE.Color('#222d36');highlight.emissiveIntensity=.10;
       o.material=highlight;
    }
  });
