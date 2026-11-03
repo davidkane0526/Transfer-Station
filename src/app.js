@@ -10,7 +10,7 @@ import {stageLocalTranslation} from './kinematics.js';
 import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
-import {AXES,JOINTS,filmCantileverB} from './assembly-qa.js';
+import {AXES,JOINTS} from './assembly-qa.js';
 import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrewDatums,photo95FrontDriveDatums} from './photo-947-assembly.js';
 import {getPlateHolderJawDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
@@ -442,9 +442,12 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // rearward 249mm return bar and second hanging post. Attachment is
  // a candidate because the actual fixture screws are unmeasured.
  const rack=auditB149(B149);
- const link=filmCantileverB({armX:ax,sampleX:CONFIG.B.sampleX,
-   baseY:rack.supportPlateBottomY,clampTopY:rack.glassHolderOriginY,
-   rodCenterY:rack.upperRodY-rack.supportPlateBottomY});
+ // The old V22 150mm straight cantilever/B26 hanger math is NOT
+ // the photographed PHUC+two-bar structure. Keep only the clamp's
+ // horizontal placement; derive all remaining datums from B149.
+ const link={clampWorldX:CONFIG.B.sampleX-42,mountY:rack.supportPlateBottomY,
+   loadPath:'B33→B25→PHUC-1→B28→side-M6-candidate→GCM-1302M',
+   physicalAcceptance:false};
  // B05 is now only the B04 mounting foot; the hardware is decomposed
  // into independently selectable source-identified models, with a nonstandard
  // terminal adapter B26 still explicitly not accepted.
