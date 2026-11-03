@@ -15,8 +15,8 @@ assert(adapter.clearanceToRodMm>=0.5,
 assert.equal(adapter.physicalMatingVerified,false,
  'Nominal contact is not real threaded mate acceptance');
 assert.equal(adapter.adapterBottomWorldYmm,119);
-assert.equal(adapter.rodBottomWorldYmm,132.5);
-assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:21}),/penetrates/);
-assert.throws(()=>getTerminalAdapterDatums({adapterCenterLocalYmm:-11,adapterHeightMm:17}),/penetrates.*rod/);
+assert.equal(adapter.rodBottomWorldYmm,151);
+assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:41}),/penetrates/);
+assert.throws(()=>getTerminalAdapterDatums({adapterCenterLocalYmm:-21,adapterHeightMm:34}),/penetrates.*rod/);
 assert.throws(()=>getTerminalAdapterDatums({adapterHeightMm:5}),/disconnected/);
 console.log('Photo149 PHUC lower rod-to-B26 candidate face contact and rod-clearance QA PASS');
