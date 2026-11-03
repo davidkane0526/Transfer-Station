@@ -22,7 +22,7 @@ export function photo94BracketCandidate({
   if(!(topPlateWidth>40&&topPlateWidth<110))throw Error('L bracket width is only a photo silhouette candidate');
   if(!(metalThickness>1&&metalThickness<4))throw Error('A05 should be a THIN bent sheet, not a structural 12mm bar');
   if(!(verticalLegLength>45&&verticalLegLength<110))throw Error('Unsupported photo94 long drop');
-  const leftX=stageCenterX-(topPlateWidth/2-20);
+  const leftX=stageCenterX-(topPlateWidth-20);
   const rightX=leftX+topPlateWidth;
   const centerX=(leftX+rightX)/2;
   const legCenterY=stageTopY-verticalLegLength/2;
