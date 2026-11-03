@@ -25,6 +25,8 @@ jobs:
           node --check src/kinematics.js
           node tests/kinematics.mjs
           node tests/photo-assembly.mjs
+          node --check src/photo-947-assembly.js
+          node tests/photo-947-assembly.mjs
           node --check src/assembly-qa.js
           node --check src/details.js
           node tests/structural-assembly.mjs
@@ -68,6 +70,9 @@ jobs:
             Transfer-Station-V24-Optical-Left-Grip-B.png
             Transfer-Station-V25-Holder-Detail-B.png
             Transfer-Station-V25-Holder-OEM-Closeup.png
+            Transfer-Station-V26-Photo94-G40-L-Bracket-A.png
+            Transfer-Station-V26-Photo95-T25M-A.png
+            Transfer-Station-V26-Photo97-VC13M-A.png
             Transfer-Station-Preview-A.png
           if-no-files-found: ignore
       - name: Check whether Pages was enabled in repository settings
