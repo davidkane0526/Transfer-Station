@@ -17,8 +17,20 @@ assert((await page.locator('#platform-caption').textContent()).includes('本次9
  'The B default has not changed from the incorrect old PHCP beam');
 assert((await page.locator('#photo-ledger').textContent()).includes('GCM-VC13M'));
 assert((await page.locator('#photo-ledger').textContent()).includes('GCM-G40M60L'));
+assert((await page.locator('#photo-ledger').textContent()).includes('B29'),
+ 'Photographed bottom pad must NOT borrow an unverified GCM-420302M magnetic SKU');
+assert(!(await page.locator('#photo-ledger').textContent()).includes('B02'),
+ 'Archive B02 must not show in the new photo variant');
+await page.screenshot({path:'Transfer-Station-V27-User-Photo-B-Overview.png',fullPage:true});
 await page.locator('#btn-photo94').click();
+await page.waitForTimeout(500);
+await page.screenshot({path:'Transfer-Station-V27-User-Photo94-Closeup-B.png',fullPage:true});
 await page.locator('#open-bom').click();
+const photoRows=await page.locator('#bom-body tr').allTextContents();
+assert(photoRows.some(t=>t.includes('B29'))&&photoRows.some(t=>t.includes('B32')),
+ 'User photo mode BOM is missing the visible bottom foot or bent L connector');
+assert(photoRows.every(t=>!/^B02\b|^B24\b/.test(t.trim())),
+ 'Photo mode BOM must not count archived magnetic base or PHCP as purchase parts');
 await page.locator('#bom-query').fill('B32');
 await page.locator('#bom-body tr').filter({hasText:'B32'}).click();
 assert((await page.locator('#photo-94-mechanics').getAttribute('data-folded'))==='true',
@@ -30,6 +42,13 @@ await page.screenshot({path:'Transfer-Station-V27-User-Photos-B.png',fullPage:tr
 // comparison, but must not be confused with the user-specified B default.
 await page.locator('#btn-b-archive').click();
 assert((await page.locator('#platform-caption').textContent()).includes('旧108/109候选'));
+await page.locator('#open-bom').click();
+const archiveRows=await page.locator('#bom-body tr').allTextContents();
+assert(archiveRows.some(t=>t.includes('B02'))&&archiveRows.some(t=>t.includes('B24')),
+ 'Archived B parts missing from their own BOM');
+assert(archiveRows.every(t=>!/^B29\b|^B30\b|^B31\b|^B32\b/.test(t.trim())),
+ 'Archive BOM must not count new photographed B-only parts');
+await page.locator('#close-bom').click();
 assert(!(await page.locator('#photo-ledger').textContent()).includes('B32'),
  'Archived B must not silently blend in photographic G40 hardware');
 assert(!(await page.locator('.css2d').count()),'never create floating labels outside selection');
