@@ -553,9 +553,9 @@ function platformA(){
      const inset=add(g,cyl(1.3,.2,mats.ink,x,y,22,6));inset.rotation.x=Math.PI/2;
    }
    add(g,cub(16,15,29,mats.black,24,8,0)); // outer end stop
-   const stem=add(g,cyl(5.5,30,mats.steel,34,10,0,40));stem.rotation.z=Math.PI/2;
-   const drum=add(g,cyl(8.3,26,mats.silver,60,10,0,48));drum.rotation.z=Math.PI/2;
-   for(let x=50;x<72;x+=3){
+   const stem=add(g,cyl(5.5,18,mats.steel,27,10,0,40));stem.rotation.z=Math.PI/2;
+   const drum=add(g,cyl(8.3,20,mats.silver,43,10,0,48));drum.rotation.z=Math.PI/2;
+   for(let x=35;x<52;x+=3){
      const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
      ring.rotation.y=Math.PI/2; // ring normal along X
    }
