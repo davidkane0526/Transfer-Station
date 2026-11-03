@@ -15,12 +15,21 @@ const film=filmCantileverB({
 });
 assert.equal(film.loopBack,false,'Do not draw a fabricated wraparound loop');
 assert.equal(film.verticalFreeRods,0,'No freestanding rods or faux guides');
-assert.equal(film.rodEndX,CONFIG.B.sampleX+52-CONFIG.B.armX);
-assert.equal(film.rodLength,234);
-assert.equal(film.terminalBottomLocalY,-11,'The support must meet B06 top at world Y128');
-assert.equal(film.terminalHeight,19);
-assert(film.rodCenterY+139+6.35<160,'No objective proxy strike');
-assert.equal(film.terminalBottomLocalY+139,128);
+assert.equal(film.clampWorldX,CONFIG.B.sampleX-42);
+assert.equal(film.glassLeftEdgeX,CONFIG.B.sampleX+5-76/2);
+assert.equal(film.rodEndX,CONFIG.B.sampleX-42-CONFIG.B.armX);
+assert.equal(film.rodLength,140,'The arm must end LEFT of the optical axis');
+assert.equal(film.terminalBottomLocalY,-7,'Support reaches B06 at world Y=128');
+assert.equal(film.terminalHeight,15);
+assert.equal(film.terminalBottomLocalY+135,128);
+assert.equal(film.mountY,135,'B05 base must seat onto B04 top at world Y=135');
+assert(film.rodEndX+CONFIG.B.armX<CONFIG.B.sampleX-17,
+ 'Metal rod must not cross the objective center or lens envelope');
+assert(film.jawEndX>film.glassLeftEdgeX,'Edge jaws must overlap glass edge');
+assert(film.jawEndX<film.opticalLeftLimitX,'Metal jaw must stop before optical keep-out');
+assert.equal(film.opticalAxisTraversed,false);
+assert.throws(()=>filmCantileverB({armX:CONFIG.B.armX,sampleX:CONFIG.B.sampleX,glassClampXOffset:0}),
+ /optical keep-out/,'A rod ending at the optical axis must be rejected');
 assert.equal(film.physicalJointAccepted,false,'Candidate arm height is not physical acceptance');
 assert.throws(()=>filmCantileverB({armX:1,sampleX:2}),/span/);
 const valid=new Set(Object.values(PARTS).flatMap(x=>x.map(v=>v.id)));
