@@ -894,6 +894,15 @@ function focusMechanicalBranch(which){
  orbit.target.copy(t);camera.lookAt(t);orbit.update();
 }
 $('btn-film-stack').onclick=()=>focusMechanicalBranch('film');
+function focusBFilmHolder(){
+ if(platform!=='B')switchPlatform('B');
+ const target=new THREE.Vector3(-25,147,0);
+ camera.position.set(-72,196,192);
+ orbit.target.copy(target);
+ camera.lookAt(target);orbit.update();
+}
+$('btn-film-holder').onclick=focusBFilmHolder;
+
 // Compare the same stage from opposing sides without changing any part geometry.
 function focusBPhoto(photo){
  if(platform!=='B')switchPlatform('B');
