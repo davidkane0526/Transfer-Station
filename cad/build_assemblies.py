@@ -117,7 +117,17 @@ def make_b():
     add('B','B04','GCMV25M_flange',box(65,66,8,ax,0,73),'D')
     add('B','B04L','V25M_branded_rear_face_PROXY',box(50,.6,7,ax,-33.3,134.5),'P')
     add('B','B04A','GCMV25M_upright_body_PROXY',box(56,18,52,ax,-10,81))
-    add('B','B04E','GCMV25M_moving_front_guide_PROXY',box(34,8,49,ax,3,81))
+    # Photo108/149: the V25M moving plate FRONT is dark metal,
+    # with a visible array of small mounting bores, NOT a huge
+    # featureless silver rectangle. Cut only 2mm-deep display
+    # recesses at PHOTO-FIT positions; factory tapped hole coordinates
+    # have not been verified.
+    front_guide=box(34,8,49,ax,3,81)
+    for xx in (-10,0,10):
+        for zz in (93,103,113,123):
+            front_guide=front_guide.cut(vy(1.55,2,ax+xx,5,zz))
+    add('B','B04E','GCMV25M_dark_moving_front_guide_12_BLIND_BORE_photo_proxy',
+        front_guide,'C')
     # SIDE output: the fixed upright lies at X=ax±28, Y=-19..-1.
     # The moving guide front face ends Y=+7. A 25x18x15 mm
     # photo-fit bridge meets that guide at Y=+7 and touches B05
