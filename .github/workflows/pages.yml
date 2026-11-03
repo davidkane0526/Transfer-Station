@@ -30,6 +30,8 @@ jobs:
           node tests/structural-assembly.mjs
           node --check src/vendor-hardware.js
           node tests/vendor-hardware.mjs
+          node --check src/holder-mechanics.js
+          node tests/holder-mechanics.mjs
           node --check src/interface-evidence.js
           node --check src/procurement.js
           node tests/interface-evidence.mjs
