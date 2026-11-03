@@ -501,38 +501,94 @@ function platformA(){
  makeStageBlock('A02',sx,53.2,0,65,65,20,'样品侧 GCM-T25M (+X)',true,{rotateSample:true},1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
  makeStageBlock('A15',ax,20,0,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
+ // Actual photo 97: A15 dual-axis T25M below upright GCM-VC13M;
+ // photo 94: GCM-G40M60L on VC13M, with a SINGLE THIN folded-L
+ // plate bolted to G40's movable top. These three images are platform A,
+ // not B. All geometries below are photographic silhouettes, not OEM solids.
  addPart('A03',ax,53,0,g=>{
-    add(g,cub(65,8,65,mats.dark,0,4,0));
-    // Photo 97: VC13M is a vertical face and slide, not a tall square box.
-    add(g,cub(56,36,17,mats.dark,0,26,-9));
-    add(g,cub(38,36,8,mats.steel,0,26,2));
-    for(const x of [-22,22])add(g,cub(3,34,4,mats.silver,x,26,-1));
-    add(g,cub(65,7,65,mats.dark,0,47.5,0));
-    // 97.jpg: vertically directed measuring barrel on the VC13M face.
-    add(g,cub(14,12,12,mats.dark,0,22,30));
-    add(g,cyl(5.5,35,mats.silver,0,43,31));
-    add(g,cyl(8.5,15,mats.silver,0,70,31));
-    addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
-  label(g,'GCM-VC13M / 竖直测微头',0,76,0);
+   // Photo97 footprint has a much narrower upright body than the 65mm
+   // lower T25M. Published VC13M platform is nominal 45×45mm.
+   add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
+   add(g,cub(45,38,16,mats.dark,0,27,-8)); // vertical rail housing
+   add(g,cub(44,40,4,mats.black,0,27,5)); // black front face (photo97)
+   for(const x of [-18,18]){
+     add(g,cub(2.2,35,2,mats.ink,x,27,8));
+     // Captured front-side retaining screw positions are approximate.
+     for(const y of [15,28,42]){
+       const h=add(g,cyl(2.1,1.3,mats.steel,x,y,10,12));
+       h.rotation.x=Math.PI/2;h.userData.fastenerProxy=true;
+       add(g,cub(1.9,.45,.15,mats.ink,x,y,10.8));
+     }
+   }
+   add(g,cub(45,6,45,mats.dark,0,48,0)); // top Y=104, seats A04
+   // VC13M vertical micrometer on face, NOT another horizontal rail.
+   add(g,cub(14,10,10,mats.black,0,15,25));
+   add(g,cyl(2.8,33,mats.steel,0,38,25,24));
+   add(g,cyl(6.8,22,mats.silver,0,58,25,48));
+   for(let y=49;y<68;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,25));
+   addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
+   label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
  },{explode:[-15,18,0],moveFilm:true});
  addPart('A04',ax,104,0,g=>{
-  add(g,cub(40,15,40,mats.dark,0,7.5,0));
-  const top=add(g,cub(40,5,40,mats.dark,0,17.5,0));
-  const screw=add(g,cyl(5,22,mats.silver,29,10,0));screw.rotation.z=Math.PI/2;
-  add(g,cyl(8.5,15,mats.silver,43,10,0)).rotation.z=Math.PI/2;
-  addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
-  label(g,'GCM-G40M60L / 右侧测微头',0,45,0);
+   // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
+   // Photo94 front body has a LOWER cradle, a split rocker top, two
+   // front fastener pairs, and a +X micrometer with a steel thimble.
+   add(g,cub(40,7,40,mats.black,0,3.5,0));
+   add(g,cub(40,7,37,mats.dark,0,10.5,0));
+   for(const x of [-14.1,14.1]){
+     const edge=add(g,cub(10,7,35,mats.black,x,15,0));
+     edge.rotation.z=x<0?.07:-.07;
+   }
+   add(g,cub(40,3,40,mats.dark,0,18.5,0)); // nominal top at Y=20
+   // Photo94: two upper screws in front notch and two front body screws
+   // near right-hand actuator mount. None assigned an unverified thread.
+   for(const x of [-5,5]){
+     const hanging=add(g,cyl(2,8,mats.steel,x,10,21,20));
+     hanging.userData.fastenerProxy=true;
+     add(g,cyl(3,1.5,mats.silver,x,5.3,21,28));
+   }
+   for(const [x,y] of [[-7,5.4],[7,5.4],[-9,12],[9,12]]){
+     const hd=add(g,cyl(2.6,1.4,mats.silver,x,y,21,6));hd.rotation.x=Math.PI/2;
+     hd.userData.fastenerProxy=true;
+     const inset=add(g,cyl(1.3,.2,mats.ink,x,y,22,6));inset.rotation.x=Math.PI/2;
+   }
+   add(g,cub(16,15,29,mats.black,24,8,0)); // outer end stop
+   const stem=add(g,cyl(5.5,30,mats.steel,34,10,0,40));stem.rotation.z=Math.PI/2;
+   const drum=add(g,cyl(8.3,26,mats.silver,60,10,0,48));drum.rotation.z=Math.PI/2;
+   for(let x=50;x<72;x+=3){
+     const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
+     ring.rotation.y=Math.PI/2; // ring normal along X
+   }
+   addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
+   label(g,'GCM-G40M60L · R60 / 右侧测微（照片94）',-4,40,0);
  },{explode:[-25,42,0],moveFilm:true});
- addPart('A05',sx,132,0,g=>{
-   // Candidate structural closure: vertical riser on A04 and horizontal arm
-   // from ax to sx. Photo does not prove exact rod length or mounting screws.
-   const span=sx-ax,risey=(124+153)/2-132;
-   add(g,cub(13,29,13,mats.steel,ax-sx,risey,0));
-   add(g,cub(span+20,8,12,mats.steel,(ax-sx)/2,25,0));
-   add(g,cub(12,39,12,33,1.5,0));
-   add(g,cub(52,13,20,mats.dark,-4,-8,0));
-   add(g,cub(76,1,26,mats.glass,0,-18,0));
-   label(g,'载玻片转移台 / 夹具 · 自制连接件候选',0,34,0);
+ const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:124});
+ addPart('A05',ax,124,0,g=>{
+   // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
+   // and not the 200mm square beam formerly rendered here.
+   const localX=aBent.centerX-ax;
+   const leftLocalX=aBent.leftX-ax+aBent.metalThickness/2;
+   add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
+       mats.black,localX,aBent.metalThickness/2,0));
+   add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
+       aBent.topPlateDepth,mats.black,
+       leftLocalX,-aBent.verticalLegLength/2,0));
+   // The top plate actually sits ON the G40 top, two photo-visible hex
+   // heads near stage 40mm table; threads/length still unverified.
+   for(const xx of aBent.topBoltWorldX){
+     const hex=jointHead(g,xx-ax,aBent.metalThickness,0,
+       {headR:3.1,shankR:1.5,shankL:4});
+     hex.userData.photo94Fastener=true;
+   }
+   // The lower leg end only forms a slim return flange; the exact glass
+   // jaw and optics beyond this photo are NOT modelled here.
+   add(g,cub(13,2.5,aBent.topPlateDepth,mats.black,
+       leftLocalX+6,-aBent.verticalLegLength+1.25,0));
+   g.userData.photo94BentSheet=true;
+   g.userData.verifiedPhotoBentCorner=true;
+   g.userData.photoBracketDatums=aBent;
+   label(g,'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
+      -24,17,0);
  },{explode:[-13,65,0],moveFilm:true});
  addPart('A06',sx,20,0,g=>{
   add(g,cyl(47,33.2,mats.dark,0,16.6,0));
