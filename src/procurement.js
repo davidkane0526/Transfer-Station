@@ -15,6 +15,7 @@ const base={
     quote:{value:10,currency:'USD',date:'2026-11-03',type:'PHCP-2厂商网页标价（实物型号尚未确认）',source:'https://www.zolix.com.cn/en/prodcon_371_399_461_604.html'},
     datasheet:'https://www.zolix.com.cn/prodcon_371_399_467_729.html',
     alternatives:[['Zolix','PHCP-1固定90°两Ø12孔','https://www.zolix.com.cn/prodcon_371_399_467_728.html'],
+      ['Zolix','PHUC-1万向杆架：60mm级外廓、两Ø12mm连接，不应与PHCP-2混认','https://www.zolix-group.com/product/detail/121.html'],
       ['Daheng','GCM-550101 90° Ø12.7mm，不能直接混用Ø12杆','https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學支撐件系列/支撐桿/支撐桿類配件/gcm-55系列-支桿夾/']],
     note:'卓立官网PHCP-2真实存在：两Ø12孔、外侧圆筒尺寸图约Ø25和Ø26、相对旋转360°、质量50g。两孔轴不能重叠，局部Z错开15mm只是避免接杆实体相交的显示约束，并非原厂装配尺寸。该型号与108照片的对应仍未核实，USD10为厂商网页参考标价。'},
   B25:{qty:1,category:'精磨接杆（长度候选）',material:'不锈钢',
