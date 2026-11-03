@@ -420,13 +420,15 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  addPart('B04',ax,73,0,g=>{
   add(g,cub(65,8,66,mats.dark,0,4,0));
   // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
-  // Photo149 ruler fit: V25M upper mounting flange is nearer to
-  // T25M than V27 assumed. The 32mm rack rise is a PHOTO PROXY,
-  // not the OEM product's full housing-envelope dimension.
-  add(g,cub(56,25,18,mats.dark,0,16,-10));
-  add(g,cub(34,26,8,mats.steel,0,17,3));
+  // Photo149: V25M MOVABLE output surface sits lower than its stationary
+  // upright, which continues above the horizontal sleeve mounting plate.
+  // These relative heights are photo-fit only, not full OEM CAD.
+  // The stationary V25M upright EXTENDS ABOVE its movable output plate.
+  // Cutting the whole body to 32mm would remove the top rails seen in 149.
+  add(g,cub(56,52,18,mats.dark,0,32,-10));
+  add(g,cub(34,49,8,mats.steel,0,34,3));
   // Embedded face rails, not two disconnected steel posts.
-  for(const x of [-17,17])add(g,cub(2.5,24,1.2,mats.silver,x,17,7.5));
+  for(const x of [-17,17])add(g,cub(2.5,38,1.2,mats.silver,x,31,7.5));
   add(g,cub(65,8,66,mats.dark,0,28,0));
   // 108.jpg: V25M micrometer is VERTICAL (+Y), distinct from T25M.
   add(g,cub(16,14,18,mats.dark,-24,24,0));
