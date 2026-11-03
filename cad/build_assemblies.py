@@ -214,7 +214,12 @@ def make_b():
     # and B06F by 70mm^3 in separate STEP parts.
     # A 14.5mm spine ends at X=39 where both jaws BEGIN, so they
     # share a guided side FACE rather than occupying the same metal.
-    fixed_spine=box(14.5,56,15,clamp_x-8.25,0,104+jaw_shift)
+    # Keep the fixed lower jaw mechanically supported over its FULL
+    # 4mm vertical thickness. The old spine touched only its upper
+    # 0.5mm edge: zero collision did not mean a viable joining face.
+    # Now spine Z=121..139.5, meeting both fixed/moving jaw plates
+    # by planar side contact without penetration.
+    fixed_spine=box(14.5,56,18.5,clamp_x-8.25,0,121)
     fixed_spine=fixed_spine.cut(vx(3.06,10,24.5,0,lower_rod_z))
     add('B','B06','GCM13_fixed_spine_with_REAL_M6_candidate_side_bore',
         fixed_spine,'C')
