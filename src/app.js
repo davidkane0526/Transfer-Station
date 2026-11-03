@@ -217,12 +217,23 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
 }
 function filmB(){
  const ax=CONFIG.B.armX;
- addPart('B02',ax,20,0,g=>{
-    add(g,cub(65,20,65,mats.dark,0,10,0));
-    for(const pitch of [50,40,32])for(const x of [-pitch/2,pitch/2])for(const z of [-pitch/2,pitch/2])circleGuide(g,pitch===50?3:2,20.4,x,z);
-    addJointHeads(g,'B02',19.95,[[-25,-25],[-25,25],[25,-25],[25,25]]);
-    label(g,'GCM-420302M',0,38,0);
- },{explode:[-25,0,0]});
+ if(bPhoto94Mode){
+   // Photo95 visibly shows a rectangular bottom mounting pad, but no
+   // legible maker/part number. Do not borrow B02's GCM magnetic SKU
+   // from unrelated archive photos 108/109 as though verified here.
+   addPart('B29',ax,20,0,g=>{
+     add(g,cub(65,17.5,65,mats.black,0,8.75,0));
+     add(g,cub(65,2.5,65,mats.steel,0,18.75,0));
+     label(g,'实拍95底座 · 规格/磁性均待识别',0,34,0);
+   },{explode:[-25,0,0]});
+ }else{
+   addPart('B02',ax,20,0,g=>{
+      add(g,cub(65,20,65,mats.dark,0,10,0));
+      for(const pitch of [50,40,32])for(const x of [-pitch/2,pitch/2])for(const z of [-pitch/2,pitch/2])circleGuide(g,pitch===50?3:2,20.4,x,z);
+      addJointHeads(g,'B02',19.95,[[-25,-25],[-25,25],[25,-25],[25,25]]);
+      label(g,'GCM-420302M',0,38,0);
+   },{explode:[-25,0,0]});
+ }
  // User-specified B photo comparison, REVERSIBLE: archival evidence had
  // numbered these 94/95/97 photographs as A, so do not infer that the
  // NFP sample-side branch is physically attached to this photographed arm.
@@ -745,8 +756,8 @@ function addAxis(){
 function renderPhotoLedger(){
  const host=$('photo-ledger');if(!host)return;host.replaceChildren();
  const stack=STACKS[platform];
- const filmIds=platform==='B'&&bPhoto94Mode?['B02','B03','B30','B31','B32']:stack.film;
- const note=document.createElement('p');note.textContent=stack.confidence;host.append(note);
+ const filmIds=platform==='B'&&bPhoto94Mode?['B29','B03','B30','B31','B32']:stack.film;
+ const note=document.createElement('p');note.textContent=platform==='B'&&bPhoto94Mode?'照片94/95/97新结构：T25M→VC13M→G40M60L→L片；下方B29底座只辨认出轮廓，不能套用另一档案的磁吸底座型号。':stack.confidence;host.append(note);
  for(const [side,ids] of Object.entries({film:filmIds,sample:stack.sample})){
    const heading=document.createElement('div');heading.className='key';
    heading.textContent=side==='film'?'载玻片侧（从下至上）':'样品侧（从下至上）';
