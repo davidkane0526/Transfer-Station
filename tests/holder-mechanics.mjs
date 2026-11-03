@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import {HOLDER_OEM,getCrossClampDatums,getPlateHolderJawDatums}
+ from '../src/holder-mechanics.js';
+
+assert.equal(HOLDER_OEM.clampBoreDiameterMm,12);
+assert.equal(HOLDER_OEM.postDiameterMm,12);
+assert.deepEqual(HOLDER_OEM.phcpBodyDiametersMm,[25,26]);
+const clamp=getCrossClampDatums();
+assert.equal(clamp.verticalBore.axis,'Y');
+assert.equal(clamp.horizontalBore.axis,'X');
+assert.notEqual(clamp.verticalBore.z,clamp.horizontalBore.z,
+ 'The two PHCP-2 shaft axes must not intersect at the same datum');
+assert.equal(clamp.boreSpacingMm,15);
+assert.equal(clamp.rodSurfaceClearanceMm,3);
+assert(clamp.rodSurfaceClearanceMm>=2);
+assert.deepEqual(clamp.outerDiametersMm,[25,26]);
+assert.equal(clamp.interfaceAccepted,false);
+assert.throws(()=>getCrossClampDatums({supportPostZmm:-10}),
+ /intersect|clearance/,'Two cylindrical Ø12 posts must never occupy the same volume');
+assert.throws(()=>getCrossClampDatums({supportPostZmm:0}),
+ /intersect|clearance/);
+assert.throws(()=>getCrossClampDatums({ringOuterRadiiMm:[5,13]}),/thinner/);
+const jaws=getPlateHolderJawDatums();
+assert.equal(jaws.glassBottom,104.5);
+assert.equal(jaws.glassTop,105.5);
+assert.equal(jaws.fixedJawTopLocalY,-17);
+assert.equal(jaws.movableJawBottomLocalY,-15.5);
+assert.equal(jaws.nominalJawGapMm,1.5);
+assert.equal(jaws.actuatorCount,2);
+assert.equal(jaws.independentMovingPlates,1);
+assert(jaws.fixedJawTopLocalY<jaws.movableJawBottomLocalY);
+assert(jaws.movableJawBottomLocalY+121.5>jaws.glassTop);
+assert.equal(jaws.physicallyAccepted,false);
+assert.throws(()=>getPlateHolderJawDatums({slideThicknessMm:5.1}),/exceeds/);
+assert.throws(()=>getPlateHolderJawDatums({nominalJawGapMm:.75}),/overlap/);
+assert.throws(()=>getPlateHolderJawDatums({screwZmm:[-17]}),/two adjustment/);
+assert.throws(()=>getPlateHolderJawDatums({screwZmm:[-30,17]}),/misses/);
+console.log('V25.1: Zolix offset through-bores and Daheng common pressure plate: PASS (all datum values remain candidates)');
