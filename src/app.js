@@ -784,7 +784,7 @@ function renderPhotoLedger(){
    host.append(heading);
    const list=document.createElement('div');list.className='list';
    for(const id of ids){
-     const part=PARTS[platform].find(x=>x.id===id);if(!part)continue;
+     const part=contextualPart(PARTS[platform].find(x=>x.id===id));if(!part)continue;
      const b=document.createElement('button');b.className='photo-part';
      b.textContent=id+' · '+part.model+' · '+part.name;
      const h=platform==='B'&&bPhoto94Mode&&id==='B03'?{...HANDLES.B03,direction:'+X',evidence:'用户实拍95，右向微分头；历史108/109为另一候选'}:HANDLES[id];
@@ -802,12 +802,23 @@ function renderPhotoLedger(){
 }
 // Only show/export parts that are actually present in the selected assembly.
 // Never add variant-exclusive prototypes to user-facing purchase totals.
+function contextualPart(p){
+ if(platform==='B'&&bPhoto94Mode&&p.id==='B03')return {
+   ...p,
+   name:'实拍95/97 · GCM-T25M 双轴平移台',
+   model:'GCM-T25M（2L/2C后缀未实物确认）',
+   detail:'本次实拍95可见GCM-T25M铭牌、右侧测微头和前侧银色推杆；97可见第二正交测微头。当前装配在B29未识别底座之上、B30 GCM-VC13M之下，不是旧108/109的B02磁座→B04 V25M链。',
+   interfaceNote:'实拍95不显示确切2L/2C后缀，所有前侧螺丝/支撑孔、推杆接触和B29安装螺纹仍为几何候选。',
+   evidence:'2026-11-03重新提供的实拍95/97'
+ };
+ return p;
+}
 function activeParts(){
  if(platform!=='B')return PARTS[platform];
  const hidden=bPhoto94Mode?
   new Set(['B02','B04','B05','B06','B07','B24','B25','B26','B27']):
   new Set(['B29','B30','B31','B32']);
- return PARTS.B.filter(p=>!hidden.has(p.id));
+ return PARTS.B.filter(p=>!hidden.has(p.id)).map(contextualPart);
 }
 function populateGroups(){
  const list=$('group-list');list.replaceChildren();
@@ -824,6 +835,7 @@ function populateGroups(){
  }
 }
 function updateDetail(part){
+ part=part?contextualPart(part):null;
  const el=$('part-detail');if(!part){el.className='select-placeholder';el.textContent='点击零件选中；再点空白取消。只显示被选中的零件标签，不遮挡模型。';return}
  el.className='';
  const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
@@ -929,7 +941,7 @@ function selectPart(id){
    }
  });
  updateDetail(v.part);
- $('hover-help').textContent=v.part.id+' · '+v.part.name;
+ $('hover-help').textContent=v.part.id+' · '+contextualPart(v.part).name;
  selectedLabels();updateMeasurement();
 }
 function updateTransforms(){
