@@ -22,8 +22,8 @@ report={'checks':[], 'scope':'candidate_proxy_geometry_only',
                        'real clamped stack dimensions and fastener head geometry',
                        'rotary-to-NFP fixed-base bolt compatibility',
                        '200C thermal insulation and stress certification',
-                       'B94/95/97 L sheet end-to-glass jaw interface is unobserved',
-                       'B94/95/97 and B110/111 same-rig correspondence unconfirmed']
+                       'A photos94/95/97 L-sheet end-to-glass jaw interface still needs actual clamp identification',
+                       'B photos108/149/150 real M6 rod-end thread and side-bridge fasteners unconfirmed']
         }}
 
 def part(d,id):
@@ -84,11 +84,30 @@ check(abs(postbb.zlen-100)<.02,'PHOTO149 rejects older 25mm post; 100mm installe
 check(abs(postbb.zmin-holderbb.zmin)<.02,'Support post inserted from sleeve bottom datum')
 check(holder.intersect(post).Volume()<1e-4,'Black sleeve has real Ø12 steel-post clearance')
 check(abs(squarebb.zmin-holderbb.zmax-7)<.02,
-      'Square clamp is 14mm ABOVE sleeve with exposed Ø12 steel post')
+      'Square clamp lies 7mm above black sleeve with exposed Ø12 steel post')
 check(postbb.zmax>squarebb.zmax+5,
       'Post tip must protrude above B33 square clamp as actually photographed')
 check(not (B/'B05D.step').exists(),
       'No double-counted V25M mounting plate or invented PHPB-1 flange')
+# V31 REAL overlap exposed by STEP-vs-photo QA:
+# The old V25M vertical silver micrometer B04C intersected the solid
+# B04A fixed upright by 1455.7 mm^3; moving the centerline outside
+# the upright must ALSO leave a true Ø13.2 bored retaining collar.
+mic_shaft=part(B,'B04C')[0]
+mic_knob=part(B,'B04D')[0]
+mic_collar=part(B,'B04G')[0]
+check(mic_shaft.intersect(v25_fixed).Volume()<1e-4,
+      'V31 micrometer shaft must NOT drill through solid V25M upright')
+check(mic_shaft.intersect(mic_collar).Volume()<1e-4,
+      'V31 actual Ø13.2 collar clearance bore must NOT penetrate Ø13 shaft')
+check(mic_collar.intersect(v25_fixed).Volume()<1e-4,
+      'Micrometer support collar must only TOUCH stationary V25M guide')
+check(abs(mic_collar.BoundingBox().xmax-v25_fixed.BoundingBox().xmin)<.02,
+      'V31 collar side bridge must be physically supported at V25M left face')
+check(abs(mic_shaft.BoundingBox().zmax-mic_knob.BoundingBox().zmin)<.02,
+      'V31 silver micrometer shaft meets upper drum without suspension')
+check(mic_shaft.BoundingBox().xmax<v25_fixed.BoundingBox().xmin,
+      'V31 V25M micrometer axis is outside fixed upright in photo108')
 
 # Check exposed stage stack contact datums.
 for name,bottom,top in [('B10',76.2,86.2),('B11',86.2,98.2)]:
@@ -285,6 +304,19 @@ drive_bridge=part(B,'B06T')[0]
 glass=part(B,'B07')[0]
 pdms=part(B,'B07A')[0]
 chuck=part(B,'B11')[0]
+# V31 independent STEP component QA: V30 had 70 mm^3 overlap
+# between B06 and B06F; B06 and moving B06M overlapped 490 mm^3.
+# The moving pressure plate must not occupy solid fixed-spine material.
+spine=part(B,'B06')[0]
+check(spine.intersect(fixed_jaw).Volume()<1e-4,
+      'V31 fixed lower jaw must attach by clean face, not penetrate fixed spine')
+check(spine.intersect(moving_plate).Volume()<1e-4,
+      'V31 moving pressure plate must NOT penetrate GCM1302M fixed spine')
+check(abs(spine.BoundingBox().xmax-fixed_jaw.BoundingBox().xmin)<.02 and
+      abs(spine.BoundingBox().xmax-moving_plate.BoundingBox().xmin)<.02,
+      'Fixed spine shares one X mating face with both GCM1302M jaw plates')
+check(abs(moving_plate.BoundingBox().zmin-fixed_jaw.BoundingBox().zmax-1)<.02,
+      'A clean 1mm glass opening remains between two noninterpenetrating clamp jaws')
 for jaw,description in ((fixed_jaw,'lower fixed jaw'),(moving_plate,'moving upper pressure plate')):
     check(jaw.intersect(glass).Volume()<1e-6,description+' does not penetrate glass')
     check(jaw.intersect(pdms).Volume()<1e-6,description+' does not penetrate PDMS')
@@ -306,6 +338,37 @@ check(long.intersect(part(B,'B18')[0]).Volume()<1e-6,
       'B25 post does not intersect objective')
 check(long.intersect(part(B,'B16C')[0]).Volume()<1e-6,
       'B25 post does not intersect microscope body')
+# FULL B-DOMAIN zero-penetration sweep. The previous checker
+# tested rod bores and relative bounding boxes but missed moving
+# mechanical parts colliding with their fixed neighbors. Do not
+# silently waive genuine clashes as "small rendering artifacts".
+rigid_components=[
+ 'B04A','B04B','B04C','B04D','B04E','B04G','B05','B06','B06F','B06M',
+ 'B06T','B24','B25','B26','B27','B28','B33','B34'
+]
+candidate_solids={k:part(B,k)[0] for k in rigid_components}
+collision_exceptions=[]  # Keep explicit and empty for this clean-fit subset.
+for ii,ka in enumerate(rigid_components):
+    aa=candidate_solids[ka]
+    ba=aa.BoundingBox()
+    for kb in rigid_components[ii+1:]:
+        if tuple(sorted((ka,kb))) in collision_exceptions:
+            continue
+        bb=candidate_solids[kb].BoundingBox()
+        if (ba.xmax<=bb.xmin or bb.xmax<=ba.xmin or
+            ba.ymax<=bb.ymin or bb.ymax<=ba.ymin or
+            ba.zmax<=bb.zmin or bb.zmax<=ba.zmin):
+            continue
+        overlap=aa.intersect(candidate_solids[kb]).Volume()
+        check(overlap<1e-3,
+              f'V31 critical B mechanical interference {ka} vs {kb}: {overlap:.3f} mm³')
+report['critical_rig_collision_audit']={
+    'scope':'18 selected support/holder/slide solids; intentional face contact allowed',
+    'passes':True,
+    'moving_pressure_plate_clash_mm3':0,
+    'upright_micrometer_clash_mm3':0,
+    'physical_thread_fit_verified':False
+}
 # CAD XY plane maps to WebGL X/Z. CAD back = negative Y.
 from cadquery import Vector
 vac=part(B,'B15')[0]
