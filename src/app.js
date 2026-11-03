@@ -515,9 +515,9 @@ function platformA(){
      add(g,cub(2.2,35,2,mats.ink,x,27,8));
      // Captured front-side retaining screw positions are approximate.
      for(const y of [15,28,42]){
-       const h=add(g,cyl(2.1,1.3,mats.steel,x,y,10,12));
+       const h=add(g,cyl(2.1,1.3,mats.steel,x,y,7.65,12));
        h.rotation.x=Math.PI/2;h.userData.fastenerProxy=true;
-       add(g,cub(1.9,.45,.15,mats.ink,x,y,10.8));
+       add(g,cub(1.9,.45,.15,mats.ink,x,y,8.36));
      }
    }
    add(g,cub(45,6,45,mats.dark,0,48,0)); // top Y=104, seats A04
@@ -579,6 +579,7 @@ function platformA(){
      const hex=jointHead(g,xx-ax,aBent.metalThickness,0,
        {headR:3.1,shankR:1.5,shankL:4});
      hex.userData.photo94Fastener=true;
+     hex.material=mats.dark; // photo94 black bolt heads seated on black folded sheet
    }
    // The lower leg end only forms a slim return flange; the exact glass
    // jaw and optics beyond this photo are NOT modelled here.
