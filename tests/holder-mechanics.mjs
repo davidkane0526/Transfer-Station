@@ -28,6 +28,8 @@ assert.equal(jaws.movableJawBottomLocalY,-15.5);
 assert.equal(jaws.nominalJawGapMm,1.5);
 assert.equal(jaws.actuatorCount,2);
 assert.equal(jaws.independentMovingPlates,1);
+assert.equal(jaws.screwShaftBottomLocalY,jaws.movablePlateTopLocalY,
+ 'Adjustment screws must physically contact, not float over, the common pressure plate');
 assert(jaws.fixedJawTopLocalY<jaws.movableJawBottomLocalY);
 assert(jaws.movableJawBottomLocalY+121.5>jaws.glassTop);
 assert.equal(jaws.physicallyAccepted,false);
