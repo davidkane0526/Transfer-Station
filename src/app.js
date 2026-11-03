@@ -90,6 +90,34 @@ const mk=(geometry,material,shadow=true)=>{const o=new THREE.Mesh(geometry,mater
 const cub=(w,h,d,m,x=0,y=0,z=0)=>{const o=mk(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);return o};
 const cyl=(r,h,m,x=0,y=0,z=0,segments=48)=>{const o=mk(new THREE.CylinderGeometry(r,r,h,segments),m);o.position.set(x,y,z);return o};
 const torus=(r,t,m,x=0,y=0,z=0)=>{const o=mk(new THREE.TorusGeometry(r,t,9,64),m);o.rotation.x=-Math.PI/2;o.position.set(x,y,z);return o};
+
+// Actual concentric through-hole in display mesh; unlike opaque overlapping
+// cylinders, a post is visible through the socket. Nominal Ø12 is from OEM
+// PHCP-2/PHSP12 only, while housing wall and position remain candidates.
+function sleeve(outerR,innerR,width,material,x=0,y=0,z=0,axis='x'){
+ const ring=new THREE.Shape();
+ ring.absarc(0,0,outerR,0,2*Math.PI,false);
+ const voidPath=new THREE.Path();
+ voidPath.absarc(0,0,innerR,0,2*Math.PI,true);
+ ring.holes.push(voidPath);
+ const geo=new THREE.ExtrudeGeometry(ring,{depth:width,bevelEnabled:false,curveSegments:48,steps:1});
+ geo.translate(0,0,-width/2);
+ if(axis==='x')geo.rotateY(Math.PI/2);
+ else if(axis==='y')geo.rotateX(-Math.PI/2);
+ else if(axis!=='z')throw Error('Unsupported clamp socket direction '+axis);
+ const mesh=mk(geo,material);mesh.position.set(x,y,z);return mesh;
+}
+function thumbKnob(parent,x,y,z,axis='z',r=5){
+ const screw=add(parent,cyl(2.0,9,mats.steel,x,y,z,24));
+ const knob=add(parent,cyl(r,5,mats.dark,x,y+(axis==='y'?7:0),z+(axis==='z'?7:0),36));
+ const cap=add(parent,cyl(r*.82,.8,mats.ink,
+ x,y+(axis==='y'?10:0),z+(axis==='z'?10:0),36));
+ if(axis==='x'){screw.rotation.z=Math.PI/2;knob.rotation.z=Math.PI/2;cap.rotation.z=Math.PI/2;
+  knob.position.set(x+7,y,z);cap.position.set(x+10,y,z);}
+ if(axis==='z'){screw.rotation.x=Math.PI/2;knob.rotation.x=Math.PI/2;cap.rotation.x=Math.PI/2;}
+ for(const obj of [screw,knob,cap]){obj.userData.candidateThumbscrew=true;}
+}
+
 function tube(points,r,m){const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));return mk(new THREE.TubeGeometry(curve,Math.max(24,points.length*12),r,9,false),m,false)}
 function shapeRect(w,d){const s=new THREE.Shape();s.moveTo(-w/2,-d/2);s.lineTo(w/2,-d/2);s.lineTo(w/2,d/2);s.lineTo(-w/2,d/2);s.closePath();return s}
 function addHoles(s,circles=[],innerRect=null){
