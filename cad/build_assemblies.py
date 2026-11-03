@@ -232,6 +232,19 @@ def make_b_photo94():
     add(sys,'B29','unknown_65x65x20_SUPPORT_ENVELOPE_ONLY',
         box(65,65,20,ax,0,20),'C')
     stage(sys,'B03',ax,0,40,'+X',axes=2,depth_direction='+Y')
+    # Photo95 shows a SECOND slim horizontal pushrod on the front face.
+    # It used to penetrate the T25M 65mm casing and both solid stops.
+    # Here its axis is outside the front surface, with actual through-
+    # bores in two bearing blocks. Exact machining dimensions unverified.
+    rod_y,rod_z=38.5,63.4
+    add(sys,'B03F','photo95_front_steel_rod_unsupported_length_CANDIDATE',
+        vx(4.3,58,ax-29.5,rod_y,rod_z),'C')
+    for key,center_x,width,height in (
+        ('B03FL',ax-30,6,13),('B03FR',ax+31,10,15)):
+        bearing=box(width,14,height,center_x,38,62-height/2)
+        bearing=bearing.cut(vx(4.35,width,center_x-width/2,rod_y,rod_z))
+        add(sys,key,'photo95_support_WITH_TRUE_THROUGH_HOLE_CANDIDATE',
+            bearing,'C')
     # VC13M top 65x65, vertical 13 mm adjust; total outer geometry
     # is a photograph-constrained proxy, not original parametric CAD.
     upright=(box(65,60,8,ax,0,73)
