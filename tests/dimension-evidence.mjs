@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {DIMENSION_PHOTOS_V28,V28_OEM_DIMENSIONS,validateDimensionArchive} from '../src/dimension-evidence.js';
+assert.equal(validateDimensionArchive().overlap.length,0);
+assert.equal(DIMENSION_PHOTOS_V28.B.evidence.B24.observedModel,'Zolix PHUC-1');
+assert.equal(DIMENSION_PHOTOS_V28.B.evidence.B06.observedModel,'Daheng GCM-1302M');
+assert.equal(DIMENSION_PHOTOS_V28.A.evidence.A16.observedModel,'Daheng GCM-5306M');
+assert.equal(V28_OEM_DIMENSIONS.GCM5306M.kind,'post/mounting base');
+assert.equal(V28_OEM_DIMENSIONS.PHUC1.boreCenterSpacingEmm,33);
+assert.notEqual(V28_OEM_DIMENSIONS.PHUC1.lengthAmm,V28_OEM_DIMENSIONS.PHUC1.boreCenterSpacingEmm);
+console.log('V28 physical-photo dimension and A/B provenance: PASS');
