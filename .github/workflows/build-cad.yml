@@ -19,13 +19,13 @@ jobs:
           python-version: '3.11'
       - name: Install CadQuery
         run: python -m pip install 'cadquery>=2.4,<2.8'
-      - name: Build both platforms and separate B photo-profile STEP
+      - name: Generate independent platform A and B parametric STEP assemblies
         run: python cad/build_assemblies.py
-      - name: Validate fasteners and interface contacts
+      - name: Reject mechanical interpenetrations and validate interface contacts
         run: python cad/validate_interfaces.py
       - name: Upload editable STEP models
         uses: actions/upload-artifact@v4
         with:
-          name: Transfer-Station-V27-STEP-CAD
+          name: Transfer-Station-V31-STEP-CAD
           path: build/
           retention-days: 90
