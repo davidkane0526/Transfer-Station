@@ -179,6 +179,17 @@ check(beam.xmin<=-116 and beam.xmax>=78,'A beam spans left-to-right physical sup
 B94=ROOT/'build'/'platform_B_photo94'/'parts'
 photo_base=part(B94,'B29')[0].BoundingBox()
 photo_t25=part(B94,'B03')[0].BoundingBox()
+front_rod=part(B94,'B03F')[0]
+front_bb=front_rod.BoundingBox()
+check(front_bb.ymin>photo_t25.ymax+.5,
+      'Photo95 front shaft stays OUTSIDE solid T25M body')
+for bearing_id in ('B03FL','B03FR'):
+    bearing=part(B94,bearing_id)[0]
+    bb=bearing.BoundingBox()
+    check(front_rod.intersect(bearing).Volume()<1e-4,
+          bearing_id+' has a real full-length through-bore, not solid steel penetration')
+    check(min(front_bb.xmax,bb.xmax)-max(front_bb.xmin,bb.xmin)>2.0,
+          bearing_id+' supports front shaft end instead of floating')
 photo_vc=part(B94,'B30')[0].BoundingBox()
 photo_g40=part(B94,'B31')[0].BoundingBox()
 photo_sheet=part(B94,'B32')[0].BoundingBox()
