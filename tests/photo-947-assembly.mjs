@@ -22,7 +22,7 @@ assert.equal(bracket.metalThickness,2.5);
 assert.equal(bracket.topBoltCount,2);
 assert.equal(bracket.fixedSheetCount,1);
 assert(bracket.leftX < -136 && bracket.rightX >= -96,
- 'The top L sheet must cover G40M60L's top and overhang to the left');
+ 'The top L sheet must cover G40M60L top surface and overhang left');
 assert.equal(bracket.verticalLegBottomY,52);
 assert.equal(bracket.glassGripModelConfirmed,false);
 assert.equal(bracket.loadBearingVerified,false);
