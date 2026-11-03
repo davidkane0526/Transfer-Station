@@ -104,6 +104,20 @@ check(mic_collar.intersect(v25_fixed).Volume()<1e-4,
       'Micrometer support collar must only TOUCH stationary V25M guide')
 check(abs(mic_collar.BoundingBox().xmax-v25_fixed.BoundingBox().xmin)<.02,
       'V31 collar side bridge must be physically supported at V25M left face')
+# Photo108/149 dark V25M front-moving guide: 12 shallow, non-through
+# photo-fit recesses. The old web face was a conspicuous bright solid
+# plate without any visible manufacturer hole features. A bore must
+# be actually EMPTY from the front but BLOCKED by backing material.
+for xx in (-10,0,10):
+    for zz in (93,103,113,123):
+        front_void=cq.Solid.makeCylinder(1.45,2,
+            Vector(-112+xx,5,zz),Vector(0,1,0))
+        blind_back=cq.Solid.makeCylinder(1.45,.8,
+            Vector(-112+xx,4.2,zz),Vector(0,1,0))
+        check(v25_guide.intersect(front_void).Volume()<1e-5,
+              f'V31 actual photo-fit recess open at X{xx}, Z{zz}')
+        check(v25_guide.intersect(blind_back).Volume()>3,
+              f'V31 front hole is BLIND, not accidental thru-hole: X{xx}, Z{zz}')
 check(abs(mic_shaft.BoundingBox().zmax-mic_knob.BoundingBox().zmin)<.02,
       'V31 silver micrometer shaft meets upper drum without suspension')
 check(mic_shaft.BoundingBox().xmax<v25_fixed.BoundingBox().xmin,
