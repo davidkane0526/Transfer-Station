@@ -15,6 +15,26 @@ export const PHOTO_94_95_97={
     visuallyUnsupported:['150mm Zolix cross-rod','PHCP2 round clamp on this stack',
       'two vertical dangling steel rods','oversized horizontal square beam']}
 };
+// VC13M centre micrometer is in FRONT of the upright stage and must
+// terminate BELOW the G40M60L mounting plane. V26 displayed its drum
+// up to local Y=69, penetrating the G40 body starting at local Y=51.
+export function vc13PhotoScrewDatums({
+  topPlaneLocalYmm=51,
+  drumCenterLocalYmm=39,drumLengthMm=18,
+  stemCenterLocalYmm=24,stemLengthMm=28,
+  frontZmm=25
+}={}){
+  const drumTopLocalYmm=drumCenterLocalYmm+drumLengthMm/2;
+  const stemTopLocalYmm=stemCenterLocalYmm+stemLengthMm/2;
+  const clearanceToG40Mm=topPlaneLocalYmm-drumTopLocalYmm;
+  if(clearanceToG40Mm<2)throw new Error('VC13 micrometer intrudes into G40 mounting plane');
+  if(stemTopLocalYmm<drumCenterLocalYmm-drumLengthMm/2)
+    throw new Error('Micrometer steel stem is not coupled into its drum');
+  return {topPlaneLocalYmm,drumCenterLocalYmm,drumLengthMm,
+    stemCenterLocalYmm,stemLengthMm,frontZmm,
+    drumTopLocalYmm,clearanceToG40Mm,
+    measuredFromPhoto:false,makerGeometryVerified:false};
+}
 export function photo94BracketCandidate({
   stageCenterX=-116,stageTopY=124,topPlateWidth=80,topPlateDepth=12,
   verticalLegLength=72,metalThickness=2.5
