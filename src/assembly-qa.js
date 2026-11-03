@@ -26,6 +26,7 @@ export const JOINTS={
  A06:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'A 样品旋转台安装'},
  A07:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'A 样品加热座'},
  A10:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'A 显微镜支架'},
+ A16:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'A GCM-5306M支承板四枚安装螺钉位置候选'},
  A15:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'A 载玻片双轴台'}
 };
 // A single cantilever runs laterally from the V25M output flange toward
