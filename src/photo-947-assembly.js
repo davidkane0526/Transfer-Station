@@ -6,7 +6,7 @@ export const PHOTO_94_95_97={
   sequenceBottomUp:['GCM-T25M','GCM-VC13M','GCM-G40M60L','bent L sheet bracket'],
   imageToParts:{'94':['A04','A05'],'95':['A15'],'97':['A15','A03']},
   t25m:{nominalXYmm:[65,65],twoAxisHeightMm:33,minimumVisibleMicrometerCount:2},
-  vc13m:{maker:'Daheng',model:'GCM-VC13M',topSizeMm:[45,45],verticalAxisCount:1,
+  vc13m:{maker:'Daheng',model:'GCM-VC13M',topSizeMm:[65,65],verticalAxisCount:1,
     spindleOrientation:'up along scene Y'},
   g40:{maker:'Daheng',model:'GCM-G40M60L',nominalPlateMm:[40,40],nominalHeightMm:20,
     centerOfRotationHeightMm:60,travelDeg:5,micrometers:1,micrometerDirection:'+X'},
