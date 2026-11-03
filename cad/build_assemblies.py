@@ -295,7 +295,7 @@ def make_a():
     ax,cx=-116,78
     # A photo 100 shows sample-side T25M above rotary; A photo 97 shows a
     # SECOND T25M below VC13M. Both physically exist.
-    stage('A','A02',cx,0,53.2,'+X')
+    stage('A','A02',cx,0,61.2,'+X')
     stage('A','A15',ax,0,20,'+X',axes=2,depth_direction='+Y')
     # Photo 97: vertical slide/upright carriage, not a solid block.
     vc13=(box(65,65,8,ax,0,53)
@@ -313,8 +313,13 @@ def make_a():
     add('A','A05A','slide_arm_CANDIDATE',box(215,12,8,(ax+cx)/2,0,153))
     add('A','A05B','slide_arm_vertical_support_CANDIDATE',box(13,13,29,ax,0,124))
     add('A','A05C','slide_edge_clamp_CANDIDATE',box(12,12,39,cx+33,0,114))
-    rot('A','A06',cx,0,20,'I')
-    add('A','A07','heater_proxy',box(65,65,18,cx,0,73.2))
+    # Photos137/161 show a separate Daheng GCM-5306M 8mm mounting base.
+    base=box(112,70,8,cx,0,20)
+    # Hole coordinates are NOT from a manufacturer hole map; retain
+    # the OEM outline only, pending mating bolt-face registration.
+    add('A','A16','GCM5306M_112x70x8_MOUNT_BASE',base,'D')
+    rot('A','A06',cx,0,28,'I')
+    add('A','A07','heater_proxy',box(65,65,18,cx,0,81.2))
     add('A','A10','imaging_column',vz(13,225,cx,-112,32))
     add('A','A10A','imaging_boom',box(34,125,25,cx,-50,243))
     add('A','A08','TTL200A',vz(21,85,cx,0,170),'P')
