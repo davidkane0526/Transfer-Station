@@ -205,8 +205,8 @@ export function enrichParts(partMap, platform, onMesh){
        decal(g,'MOUNT · UNVERIFIED',38,5,0,6,22.7,'front','#c5ccd4');
     });
     decoration('B24',(g)=>{
-       // Model text is a sourced candidate, not a transcribed photo marking.
-       decal(g,'PHCP-2?',18,5,0,1,13.15,'front','#e5eaf0');
+       // 149 clearly shows the actual model, not a vendor series guess.
+       decal(g,'PHUC-1',23,5,0,3.2,13.15,'front','#e5eaf0');
     });
     decoration('B26',(g)=>{
        decal(g,'M6?',13,4,0,-19,10.3,'front','#b0beca');
@@ -216,7 +216,7 @@ export function enrichParts(partMap, platform, onMesh){
        // Extra side-facing screws would create a fake third/fourth drive.
        // Keep only shallow machined rail detail and a small candidate label.
        box(g,10,.45,51,6,-5.8,0,gunmetal,.2);
-       decal(g,'GCM-1302M ?',34,5,0,2.55,30.4,'front','#dce3e9');
+       decal(g,'GCM-1302M',34,5,0,2.55,30.4,'front','#dce3e9');
     });
     decoration('B08',(g)=>{
        analogScale(g,46.7,16,0);
