@@ -21,8 +21,16 @@ export const PHOTO_94_95_97={
 export function photo95FrontDriveDatums({
  shaftCenterXmm=-0.5,shaftLengthMm=58,
  leftBracketCenterXmm=-30,leftBracketWidthMm=6,
- rightBracketCenterXmm=31,rightBracketWidthMm=10
+ rightBracketCenterXmm=31,rightBracketWidthMm=10,
+ shaftCenterFrontZmm=38.5,shaftRadiusMm=4.3,
+ stageFrontFaceZmm=32.5
 }={}){
+ // The 95 front shaft used to run straight THROUGH the 65mm
+ // plate's front face (centerZ 32.7 ± R4.3). Even the visual
+ // proxy must respect the stage's 32.5mm front envelope.
+ const clearanceFromStageFrontMm=shaftCenterFrontZmm-shaftRadiusMm-stageFrontFaceZmm;
+ if(clearanceFromStageFrontMm<0.5)
+   throw new Error('Photo95 front shaft penetrates the base stage front wall');
  const shaftLeftMm=shaftCenterXmm-shaftLengthMm/2;
  const shaftRightMm=shaftCenterXmm+shaftLengthMm/2;
  const leftBracketInsideMm=leftBracketCenterXmm+leftBracketWidthMm/2;
@@ -34,6 +42,7 @@ export function photo95FrontDriveDatums({
  return {shaftCenterXmm,shaftLengthMm,shaftLeftMm,shaftRightMm,
   leftBracketCenterXmm,leftBracketWidthMm,rightBracketCenterXmm,
   rightBracketWidthMm,overlapLeftMm,overlapRightMm,
+  shaftCenterFrontZmm,shaftRadiusMm,clearanceFromStageFrontMm,
   supportConnected:true,dimensionsVerified:false};
 }
 export function vc13PhotoScrewDatums({
