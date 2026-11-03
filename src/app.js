@@ -1091,6 +1091,10 @@ function resetScene(){
  if($('bom-query'))$('bom-query').value='';
  if($('priced-only'))$('priced-only').checked=false;
  active=null;clearMeasurement();
+ $('hover-help').textContent='点击零件显示唯一标签及尺寸；点空白取消';
+ $('axis-confidence-note').textContent=platform==='B'?
+  'B：NFP-1462C 只有一个线性X轴，B03双轴T25M对应场景X/Z；照片149确认PHUC-1的33mm孔中心距，照片150确认GCM-1302M；其余接杆长度和安装螺纹为候选。':
+  'A：照片94/95/97确认载玻片侧的T25M、VC13M、G40M60L；137/161的GCM-5306M是112×70×8mm底座而非旋转台。A02单/双轴后缀、旋转台型号及固定孔面仍需核对。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
  parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
