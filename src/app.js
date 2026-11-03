@@ -569,14 +569,14 @@ function platformA(){
    const localX=aBent.centerX-ax;
    const leftLocalX=aBent.leftX-ax+aBent.metalThickness/2;
    add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
-       mats.black,localX,aBent.metalThickness/2,0));
+       mats.black,localX,aBent.metalThickness/2,aBent.sheetFrontZ));
    add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
        aBent.topPlateDepth,mats.black,
-       leftLocalX,-aBent.verticalLegLength/2,0));
+       leftLocalX,-aBent.verticalLegLength/2,aBent.sheetFrontZ));
    // The top plate actually sits ON the G40 top, two photo-visible hex
    // heads near stage 40mm table; threads/length still unverified.
    for(const xx of aBent.topBoltWorldX){
-     const hex=jointHead(g,xx-ax,aBent.metalThickness,0,
+     const hex=jointHead(g,xx-ax,aBent.metalThickness,aBent.sheetFrontZ,
        {headR:3.1,shankR:1.5,shankL:4});
      hex.userData.photo94Fastener=true;
      hex.material=mats.dark; // photo94 black bolt heads seated on black folded sheet
@@ -584,7 +584,7 @@ function platformA(){
    // The lower leg end only forms a slim return flange; the exact glass
    // jaw and optics beyond this photo are NOT modelled here.
    add(g,cub(13,2.5,aBent.topPlateDepth,mats.black,
-       leftLocalX+6,-aBent.verticalLegLength+1.25,0));
+       leftLocalX+6,-aBent.verticalLegLength+1.25,aBent.sheetFrontZ));
    g.userData.photo94BentSheet=true;
    g.userData.verifiedPhotoBentCorner=true;
    g.userData.photoBracketDatums=aBent;
