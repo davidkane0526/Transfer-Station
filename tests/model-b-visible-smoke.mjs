@@ -95,6 +95,15 @@ try{
  assert.equal(vac.actualInletThreadVerified,false);
  assert.equal(vac.actualSplineGeometryAvailable,true,
    'Rendered TubeGeometry centerlines must be available for spline clearance checks');
+ const splineEnvelope=await page.evaluate(()=>
+   window.__modelBVacuumSplineEnvelopeProbe?.());
+ assert(splineEnvelope?.available,'Full Catmull-Rom envelope probe unavailable');
+ assert.equal(splineEnvelope.posesChecked,9231);
+ assert.equal(splineEnvelope.fullStrokeSplineGridPass,true,
+   'Actual Catmull-Rom route must clear every heater/sensor harness over the full UI grid');
+ for(const id of ['B37A','B37B','B38'])
+   assert(splineEnvelope.minimumSurfaceClearanceMm[id]>2,
+     'Full rendered spline grid clearance below 2mm for '+id);
  for(const id of ['B37A','B37B','B38'])
    assert(vac.actualSplineHarnessClearancesMm[id]>2,
      'Rendered Catmull-Rom B40 must clear '+id+' by >2mm');
