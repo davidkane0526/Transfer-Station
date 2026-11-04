@@ -387,20 +387,36 @@ def make_b():
     ]
     for key,name,radius,points in wiring:
         add('B',key,name,cable_path(points,radius),'C')
-    # Only the actual pump and photo115 LED adapter are exterior
-    # devices; place each on a distinct candidate standing footprint.
-    # PHOTO120 CLEARLY SAYS VN-50 (not W-50). Its plate also reads
-    # 220V, 230W, 53L/min, 680 mmHg, about 4kg. OEM-sized 200x110x150
-    # and G1/4 are published candidate family specifications only.
-    # Combine base/motor/head as ONE connected non-manufacturing body.
-    pump_shell=box(135,80,15,335,180,0)
+    # V41: rebuild the VN-50 silhouette from the user's photo120/123.
+    # The physical nameplate confirms VN-50 / 220V / 230W / 53L/min /
+    # 680mmHg / approx.4kg. The family brochure supplies only a
+    # candidate 200x110x150mm envelope and 142x96mm mounting pattern;
+    # it does NOT prove this unit's manufacturer or exact CAD.
+    # One fused solid: floor base, perforated motor housing, exposed
+    # rounded motor, end/fan cover, twin vertical heads, caps and tie rods.
+    pump_shell=box(200,110,8,325,180,4)
     pump_shell=pump_shell.fuse(
-        box(29,44,22,319,180,10),
-        vx(37,112,279,180,54),
-        box(48,50,50,385,180,23))
-    # Exposed nominated intake position is a candidate, NOT a
-    # proven VN-50 original port orientation. Bore pump head near
-    # its connection, don't let the solid head plug a hollow nozzle.
+        box(160,76,62,325,180,39),
+        vx(34,130,250,180,42),
+        vx(29,12,233,180,42),
+        vz(24,8,290,180,68),vz(22,56,290,180,76),
+        vz(24,8,290,180,132),
+        vz(24,8,360,180,68),vz(22,56,360,180,76),
+        vz(24,8,360,180,132),
+        box(90,44,10,325,180,140),
+        vx(2.5,150,250,140,70),
+        vx(2.5,150,250,220,70))
+    # Candidate 142x96 mounting footprint: four open Ø6.2 bores.
+    for x in (254,396):
+        for y in (132,228):
+            pump_shell=pump_shell.cut(vz(3.1,8,x,y,0))
+    # Shallow vent apertures on the upper motor face, matching the
+    # perforated appearance in photo120/123. Pitch is photo-fit only.
+    for x in (265,285,305,325,345,365,385):
+        for y in (153,180,207):
+            pump_shell=pump_shell.cut(vz(2.7,3,x,y,67))
+    # The candidate suction port is on the +X face; its real side and
+    # orientation are not established by the user's photographs.
     pump_shell=pump_shell.cut(vx(4.1,7,402.5,180,68))
     add('B','B20','photo120_VN50_pump_body_WITH_real_inlet_recess',
         pump_shell,'P')
