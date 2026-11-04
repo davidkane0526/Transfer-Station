@@ -45,10 +45,10 @@ assert(envelope.minimumClearancesMm.controller>0);
 assert(envelope.minimumClearancesMm.microscope>0);
 assert(envelope.minimumClearancesMm.harness>2,
   'Entire sampled envelope must retain >2mm hose-to-wire surface clearance');
-for(const [shift,angle] of [[-12.5,30],[12.5,30],[-12.5,-30],[12.5,-30]]){
+for(const [shift,angle] of [[-12.5,90],[12.5,90],[-12.5,-90],[12.5,-90]]){
  const edge=auditVacuumPath({sampleShiftMm:shift,sampleAngleDeg:angle});
  assert(edge.microscopeClearanceMm>0,'Extreme sample position must clear B16 post');
  assert(edge.cabinetClearanceMm>0,'Extreme sample position must clear B36');
  assert.equal(edge.passesBehindController,true);
 }
-console.log('V40 B40 rear-of-B19 route, B37/B38 separation and 1mm×1° motion-grid: PASS');
+console.log('V40 B40 rear-of-B19 route, B37/B38 separation and 0.5mm×1° full UI grid: PASS');
