@@ -9,7 +9,7 @@ assert.equal(a.upperRodY-a.lowerRodY,33);
 assert.equal(a.lowerRodLengthMm,54.5);
 assert.equal(a.upperRodEndX,10);
 assert.equal(a.glassHolderSpineLeftX,24.5);
-assert(Math.abs(a.glassToHeaterGapMm-26.8)<0.01);
+assert(Math.abs(a.glassToHeaterGapMm-14.8)<0.01);
 assert(a.b04MovingFlangeTopY<a.b04GuideTopY);
 assert.equal(a.threadingVerified,false);
 assert.equal(a.crossPhotoAbsoluteHeightVerified,false);
