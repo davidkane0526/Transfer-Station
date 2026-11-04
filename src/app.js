@@ -1286,40 +1286,40 @@ function externalB(){
   const motor=add(g,cyl(28,118,mats.dark,-10,50,0));
   motor.rotation.z=Math.PI/2;
   motor.userData.pumpMotorCore=true;
-  for(const x of [-38,20]){
+  for(const x of [-51,7]){
     const band=add(g,sleeve(46,43,4,mats.silver,x,50,0,'x'));
     band.userData.pumpHousingBand=true;
   }
-  const fan=add(g,cyl(42,12,mats.dark,-85,50,0));
+  const fan=add(g,cyl(42,12,mats.dark,-89,50,0));
   fan.rotation.z=Math.PI/2;
   fan.userData.pumpFanCover=true;
-  const fanRing=add(g,sleeve(39,31,1.6,mats.silver,-91,50,0,'x'));
+  const fanRing=add(g,sleeve(39,31,1.6,mats.silver,-95,50,0,'x'));
   fanRing.userData.pumpFanGrille=true;
   for(let i=0;i<4;i++){
-    const spoke=add(g,cub(1.2,56,1.5,mats.silver,-92,50,0));
+    const spoke=add(g,cub(1.2,56,1.5,mats.silver,-96,50,0));
     spoke.rotation.x=i*Math.PI/4;
     spoke.userData.pumpFanGrilleSpoke=true;
   }
   // Two longitudinal tie rods on the same near side, framing the label.
   for(const y of [30,70]){
-    const rod=add(g,cyl(2.5,140,mats.silver,-10,y,40));
+    const rod=add(g,cyl(2.5,140,mats.silver,-10,y,39));
     rod.rotation.z=Math.PI/2;
     rod.userData.pumpTieRodCandidate=true;
     for(const x of [-80,60]){
-      const bracket=add(g,cub(14,16,14,mats.silver,x,y,40));
+      const bracket=add(g,cub(14,16,14,mats.silver,x,y,38));
       bracket.userData.pumpRodSupport=true;
     }
   }
   // Two finned aluminium heads with a shared upper connecting pipe.
   for(const x of [-45,30]){
-    const flange=add(g,cub(48,8,48,mats.dark,x,90,0));
+    const flange=add(g,cub(48,8,48,mats.dark,x,92,0));
     flange.userData.pumpHeadFlange=true;
-    const head=add(g,cub(42,38,42,mats.pump,x,113,0));
+    const head=add(g,cub(42,38,42,mats.pump,x,115,0));
     head.userData.pumpTwinHead=true;
-    const cap=add(g,cub(44,4,44,mats.silver,x,134,0));
+    const cap=add(g,cub(44,4,44,mats.silver,x,136,0));
     cap.userData.pumpHeadCap=true;
-    for(const y of [139,142,145]){
-      const fin=add(g,cub(44,1.5,44,mats.silver,x,y,0));
+    for(const y of [138.8,140.6,142.4]){
+      const fin=add(g,cub(44,2,44,mats.silver,x,y,0));
       fin.userData.pumpHeadFin=true;
     }
   }
@@ -1329,13 +1329,13 @@ function externalB(){
   const outlet=add(g,cyl(7,14,mats.steel,-52,143,0));
   outlet.rotation.z=Math.PI/2;
   outlet.userData.pumpTopPortCandidate=true;
-  const filterBlock=add(g,cub(18,16,18,mats.copper,50,124,0));
+  const filterBlock=add(g,cub(18,16,18,mats.copper,50,133,0));
   filterBlock.userData.pumpFilterCandidate=true;
-  const filterCollar=add(g,cyl(8,4,mats.silver,50,115,0));
+  const filterCollar=add(g,cyl(8,4,mats.silver,50,123,0));
   filterCollar.userData.pumpFilterCandidate=true;
-  const filter=add(g,cyl(7,22,mats.glass,50,104,0));
+  const filter=add(g,cyl(7,22,mats.glass,50,111,0));
   filter.userData.pumpFilterCandidate=true;
-  for(const x of [-80,-75,-70,55,60,65]){
+  for(const x of [-80,-75,-20,-5,60,65]){
     for(const z of [-15,15]){
       const y=50+Math.sqrt(44*44-z*z)+.25;
       const vent=add(g,cyl(2.7,1.5,mats.ink,x,y,z,24));
@@ -1343,30 +1343,29 @@ function externalB(){
       vent.userData.pumpTopVent=true;
     }
   }
-  for(const x of [-70,-55,25,35,45,55]){
+  for(const x of [-75,-65,25,40,55,60]){
     for(const y of [40,50,60]){
-      const z=Math.sqrt(44*44-(y-50)*(y-50))+.25;
-      const vent=add(g,cyl(2.1,1.4,mats.ink,x,y,z,20));
+      const vent=add(g,cyl(2.1,3,mats.ink,x,y,44,20));
       vent.rotation.x=Math.PI/2;
       vent.userData.ventCandidate=true;
       vent.userData.pumpSideVent=true;
     }
   }
-  const nameplate=add(g,cub(48,22,1.2,mats.white,-10,50,44.3));
+  const nameplate=add(g,cub(48,22,1.2,mats.white,-10,50,44));
   nameplate.userData.pumpNameplate=true;
   for(const [y,w] of [[58,30],[54,36],[50,32],[46,28],[42,22]]){
-    const line=add(g,cub(w,1.05,.45,mats.ink,-10,y,45.05));
+    const line=add(g,cub(w,1.05,.45,mats.ink,-10,y,44.8));
     line.userData.pumpNameplateTextLine=true;
   }
-  const warning=add(g,cub(18,18,1.2,mats.white,35,70,39));
+  const warning=add(g,cub(18,18,1.2,mats.white,35,70,40));
   warning.userData.pumpWarningPlate=true;
   const warningRing=add(g,mk(new THREE.RingGeometry(4.2,5.2,32),mats.warningRed));
-  warningRing.position.set(35,70,39.75);
+  warningRing.position.set(35,70,40.75);
   warningRing.userData.pumpWarningSymbol=true;
-  const warningSlash=add(g,cub(1.4,12,.6,mats.warningRed,35,70,39.8));
+  const warningSlash=add(g,cub(1.4,12,.6,mats.warningRed,35,70,40.8));
   warningSlash.rotation.z=-Math.PI/4;
   warningSlash.userData.pumpWarningSymbol=true;
-  label(g,'VN-50 · 220 V / 230 W · 53 L/min',-10,66,45.5);
+  label(g,'VN-50 · 220 V / 230 W · 53 L/min',-10,66,45.2);
   const inlet=add(g,sleeve(9,VN50.pumpInletVisualBoreRadiusMm,
     20,mats.steel,80,68,0,'x'));
   inlet.userData.realSuctionInlet=true;
