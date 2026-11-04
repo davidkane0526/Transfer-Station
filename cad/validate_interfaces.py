@@ -620,55 +620,72 @@ check(abs(pid.BoundingBox().ymin-shellbb.ymax)<.02,
       'YUDIAN controller back face touches B36 FRONT panel, not floating')
 check(pid.intersect(cabinet).Volume()<1e-4,
       'YUDIAN face panel cannot occupy solid metal cabinet walls')
-# V41: photo120/123 pump silhouette and catalogue-family envelope.
+# V43: photo/catalog geometry checks for the cylindrical VN-50 candidate.
 pumpbb=pump.BoundingBox()
 check(abs(pumpbb.xlen-200)<.02 and abs(pumpbb.ylen-110)<.02 and
       abs(pumpbb.zlen-150)<.02,
-      'V41 VN-50 pump proxy envelope is 200x110x150mm')
+      'V43 VN-50 candidate envelope is 200x110x150mm')
 check(len(pump_solids)==1,
-      'V41 VN-50 motor housing, fan cover, tie rods and twin heads form one connected STEP solid')
+      'V43 VN-50 barrel, end covers, rails, heads and fittings form one connected STEP solid')
 pump_mount_holes=[]
 for x in (254,396):
     for y in (132,228):
         hole=vz(3.1,8.2,x,y,-.1)
         pump_mount_holes.append(pump.intersect(hole).Volume())
 check(max(pump_mount_holes)<1e-5,
-      'V41 VN-50 candidate 142x96mm mounting pattern has four open Ø6.2 bores')
-# V42: head blocks, top fittings, side rails and ventilation must be
-# geometrically present and must not cut through the pump nameplate.
+      'V43 VN-50 candidate 142x96mm mounting pattern has four open Ø6.2 bores')
+# Both head blocks, flanges and end supports must be fully present.
 for x in (290,365):
-    head=box_probe(46,48,50,x,180,81)
+    head=box_probe(42,42,38,x,180,96)
     check(abs(pump.intersect(head).Volume()-head.Volume())<1e-3,
-          f'V42 VN-50 rectangular twin head at X={x} is fully present')
+          f'V43 VN-50 finned head core at X={x} is fully present')
 for x in (250,400):
-    for y in (135,225):
-        support=box_probe(14,16,24,x,y,28)
+    for z0 in (21,61):
+        support=box_probe(14,14,18,x,218,z0)
         check(abs(pump.intersect(support).Volume()-support.Volume())<1e-3,
-              f'V42 VN-50 side-rail support at {x},{y} is fully present')
-for x in (255,325,395):
-    for y in (150,165,195,210):
-        top_vent=vz(2.7,1.5,x,y,75.45)
+              f'V43 same-side tie-rod end support at X={x}, Z={z0+9} is fully present')
+for z0 in (30,70):
+    rod=vx(2.5,140,255,219,z0)
+    check(abs(pump.intersect(rod).Volume()-rod.Volume())<1e-3,
+          f'V43 longitudinal tie rod on the same visible side at Z={z0} is present')
+# 12 top bores and 18 side bores must remain open through the curved shell.
+for x in (255,260,315,330,395,400):
+    for y in (165,195):
+        top_vent=vz(2.7,2.5,x,y,90.5)
         check(pump.intersect(top_vent).Volume()<1e-5,
-              f'V42 top ventilation bore remains open at {x},{y}')
-for x in (270,280,360,370,380,390):
-    for z in (28,42,56):
-        side_vent=vy(2.1,1.4,x,217.8,z)
+              f'V43 upper-arc ventilation bore remains open at {x},{y}')
+for x in (260,270,360,375,390,395):
+    for z in (40,50,60):
+        side_vent=vy(2.1,3,x,222.5,z)
         check(pump.intersect(side_vent).Volume()<1e-5,
-              f'V42 side ventilation bore remains open at {x},{z}')
-nameplate_test=box_probe(62,1.5,26,320,218.5,30)
+              f'V43 curved-side ventilation bore remains open at {x},{z}')
+# Eight holes are drilled through the fan cover on the left end face.
+for dy,dz in [(-24,0),(24,0),(0,-24),(0,24),
+              (-17,-17),(-17,17),(17,-17),(17,17)]:
+    fan_hole=vx(2.5,14,239,180+dy,50+dz)
+    check(pump.intersect(fan_hole).Volume()<1e-5,
+          f'V43 fan-grille aperture remains open at {dy},{dz}')
+nameplate_test=box_probe(48,1.2,22,320,224,39)
 check(abs(pump.intersect(nameplate_test).Volume()-nameplate_test.Volume())<1e-3,
-      'V42 side perforations do not cut through the nameplate footprint')
-report['V42_VN50_pump_geometry']={
+      'V43 side nameplate is physically fused to the cylindrical shell')
+warning_test=box_probe(18,1.2,18,370,220,61)
+check(abs(pump.intersect(warning_test).Volume()-warning_test.Volume())<1e-3,
+      'V43 no-lubrication warning sticker is physically fused to the shell')
+report['V43_VN50_pump_geometry']={
  'candidate_envelope_mm':[round(pumpbb.xlen,3),round(pumpbb.ylen,3),round(pumpbb.zlen,3)],
  'candidate_mounting_pitch_mm':[142,96],
  'mounting_hole_diameter_candidate_mm':6.2,
  'connected_solid_count':len(pump.Solids()),
- 'rectangular_twin_heads':2,
- 'side_tie_rods':2,
+ 'cylindrical_motor_housing':True,
+ 'same_side_tie_rods':2,
  'rod_end_supports':4,
+ 'finned_twin_heads':2,
+ 'head_cooling_fins':6,
  'top_vent_bores':12,
  'side_vent_bores':18,
- 'nameplate_kept_clear':True,
+ 'fan_grille_apertures':8,
+ 'printed_nameplate_proxy':True,
+ 'warning_sticker_proxy':True,
  'manufacturer_verified':False,
  'inlet_orientation_verified':False
 }
