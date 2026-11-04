@@ -43,6 +43,13 @@ try{
    'Rotary base footprint extends outside black board');
  assert.equal(support.originalThorlabsPartNumberConfirmed,false,
    'Photo does not confirm exact Thorlabs part number');
+ assert.equal(support.microscopeFootFourTrueThroughBores,true,
+   'V35 microscope foot has four actual candidate through-bores, not four screws on solid metal');
+ assert.equal(support.microscopeMountAudit?.candidateFootHoleCount,4);
+ assert.equal(support.microscopeMountAudit?.boardBoltPatternAligned,false,
+   'Face contact cannot pass as a valid B35 bolt hole registration');
+ assert(support.microscopeMountAudit?.maxMismatchMm>14);
+ assert.equal(support.microscopeMountAudit?.loadBearingFastenerJointAccepted,false);
  const externalToggle=page.locator('#group-list input[data-group="external"]');
  const initExternal=await page.evaluate(()=>window.__modelBViewProbe());
  assert.deepEqual(initExternal.hiddenExternalParts,[],
@@ -137,6 +144,7 @@ try{
  const boardDetail=await page.locator('#part-detail').innerText();
  assert.match(boardDetail,/Thorlabs|THORLABS/);
  assert.match(boardDetail,/145|150/);
+ assert.match(boardDetail,/B35↔B16安装孔核对/);
  await page.locator('#open-bom').click();
  await page.locator('#bom-query').fill('B36');
  // B19/B21/B23 descriptions also say "inside B36", so a
