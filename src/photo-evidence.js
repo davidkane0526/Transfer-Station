@@ -11,10 +11,10 @@ export const STACKS={
     confidence:'B02磁座→B03双轴T25M→B04升降台→B33方夹与杆→B24 PHUC-1万向杆夹（照片149可见铭牌）→B06 GCM-1302M夹板（照片150可见型号）；照片145/150显示一个银色公共面包板 B01；其上螺栓安装局部黑色Thorlabs板 B35，承载B08与B16，B35不是第二个公共底座；B08/NFP样品台由145–148支持。B35板厚和孔距、杆长度与实际装配角度未验收。照片114/117/119另显示B19面板、B21电源和B23黑色模块同属一个金属控制箱B36，实拍120确认独立真空泵 B20 型号为 VN-50（旧版W-50识别错误）；B15/B40物理负压管线从样品气孔通往泵吸入口，LED驱动B22为另一独立外设；B36机壳外形和内部孔位均未量取。'
   },
   A:{
-    film:['A17','A15','A03','A04','A05'],
+    film:['A17','A15','A03','A04L','A04','A05'],
     sample:['A01','A16','A06','A02','A07'],
     photo:['94.jpg','95.jpg','97.jpg','100.jpg','137.jpg','138.jpg','139.jpg','140.jpg','141.jpg','142.jpg','143.jpg','144.jpg','152.jpg','155.jpg','161.jpg'],
-    confidence:'用户确认A15玻片双轴T25M经A17磁座吸附在唯一A01面包板，照片未确认磁座型号/尺寸。A15在A03 VC13M下，A04 G40M60L上接L薄片，照片94/95/97、137–144；A16底部GCM-5306M是112×70×8mm底座，不是旋转台，见137/161。'
+    confidence:'用户确认A15玻片双轴T25M经A17磁座吸附在唯一A01面包板，照片未确认磁座型号/尺寸。A15在A03 VC13M下；照片94高度比例强烈指向另有一层A04L约20mm摆角台（型号仍待核），上层铭牌确认A04 G40M60L，上接L薄片，照片94/95/97、137–144；A16底部GCM-5306M是112×70×8mm底座，不是旋转台，见137/161。'
   }
 };
 export const HANDLES={
@@ -24,7 +24,8 @@ export const HANDLES={
   B09:{kind:'horizontal',direction:'+X',evidence:'110.jpg：NFP-1462C右侧的银色微分头',confidence:'photo'},
   A15:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,direction:'+X',secondaryDirection:'+Z',evidence:'95.jpg、97.jpg：VC13M下方T25M右伸微分头',confidence:'photo'},
   A03:{kind:'vertical',direction:'+Y',evidence:'97.jpg：VC13M竖直导轨正面银色测微装置',confidence:'photo'},
-  A04:{kind:'tilt',direction:'+X',evidence:'94.jpg：G40M60L右伸微分头',confidence:'photo'},
+  A04L:{kind:'tilt',direction:'+X',evidence:'94.jpg下层独立微分头向右；具体G40型号无法读出',confidence:'photo-proxy'},
+  A04:{kind:'tilt',direction:'-X',evidence:'94.jpg上层标G40M60L，另一侧向左微分头/螺纹机构方向待照片校正',confidence:'photo-candidate'},
   A06:{kind:'rotation-lock',direction:'+Z',evidence:'100.jpg：圆刻度台前侧可见锁止件',confidence:'candidate'},
   A02:{kind:'horizontal',axes:1,handles:1,thicknessMm:20,subtypeUnverified:true,direction:'+X',evidence:'100.jpg：旋转台上方T25M右侧银色微分头',confidence:'photo'}
 };
