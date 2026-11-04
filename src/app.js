@@ -1667,7 +1667,14 @@ function platformA(){
    g.userData.motionProxyNotCollisionCertified=true;
    // VC13M vertical micrometer on face, NOT another horizontal rail.
    const micrometer=vc13PhotoScrewDatums();
-   add(g,cub(14,10,10,mats.black,0,15,micrometer.frontZmm));
+   // V46: the vertical shaft must be OUTSIDE the 65mm travelling
+   // output plate. Two side rails and a true-bore annular collar
+   // hold the front drive without a solid bar passing through its shaft.
+   for(const x of [-8,8])
+     add(g,cub(3,10,38,mats.black,x,15,24));
+   const frontCollar=add(g,sleeve(9,5.7,4,mats.black,
+     0,15,micrometer.frontZmm,'y'));
+   frontCollar.userData.vc13ExternalDriveSupportCandidate=true;
    add(g,cyl(2.8,micrometer.stemLengthMm,mats.steel,0,micrometer.stemCenterLocalYmm,micrometer.frontZmm,24));
    add(g,cyl(6.8,micrometer.drumLengthMm,mats.silver,0,micrometer.drumCenterLocalYmm,micrometer.frontZmm,48));
    for(let y=32;y<micrometer.drumTopLocalYmm;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,micrometer.frontZmm));
