@@ -278,7 +278,9 @@ function makeBoard(){
  addPart(platform+'01',0,0,0,g=>{
   const {width:w,depth:d,height:h,pitch:p}=CONFIG.board;const c=[];
   for(let x=-200;x<=200;x+=p)for(let z=-125;z<=125;z+=p)c.push([x,z,2.6]);
-  const slab=plate(w,d,h,mats.board,c);add(g,slab);
+  // Photo150: left/common machine table is metallic silver; the
+  // SAMPLE has an independent black Thorlabs board B35 on top.
+  const slab=plate(w,d,h,platform==='B'?mats.silver:mats.board,c);add(g,slab);
   const grid=new THREE.GridHelper(425,17,0x586671,0x414b57);grid.position.y=h+.18;g.add(grid);grid.userData.partId=platform+'01';
   label(g,'光学面包板 · 25 mm 网格',-140,h+10,120);
  },{explode:[0,0,0]});
@@ -723,8 +725,24 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  },{explode:[0,80,15],moveFilm:true});
 }
 function rotaryB(){
- const sx=CONFIG.B.sampleX;
- addPart('B08',sx,20,0,g=>{
+ const sx=CONFIG.B.sampleX, rise=CONFIG.B.sampleBoardRiseMm;
+ // The real apparatus has TWO distinct plate layers: metallic common
+ // B01 below and a separate BLACK THORLABS hole-grid board under B08.
+ // Photos 145 and 150 show the latter's Thorlabs label and edge.
+ // 180×150×12 are layout CANDIDATES, NOT an identified SKU.
+ addPart('B35',CONFIG.B.sampleBoardCenterX,20,0,g=>{
+   const w=CONFIG.B.sampleBoardWidthMm,d=CONFIG.B.sampleBoardDepthMm;
+   add(g,cub(w,rise-2,d,mats.black,0,(rise-2)/2,0));
+   const holes=[];
+   for(let x=-75;x<=75;x+=25)for(let z=-50;z<=50;z+=25)
+      holes.push([x,z,2.8]);
+   const top=plate(w,d,2,mats.dark,holes);
+   top.position.y=rise-2;add(g,top);
+   g.userData.independentSampleBoard=true;
+   g.userData.thicknessPhotoUnverified=true;
+   label(g,'照片145/150：黑色Thorlabs孔板 · 厚度'+rise+'mm仅候选',0,rise+9,63);
+ },{explode:[0,-8,0]});
+ addPart('B08',sx,20+rise,0,g=>{
     add(g,cyl(47,23,mats.dark,0,11.5,0));
     add(g,cyl(47,10.2,mats.steel,0,28.1,0));
     add(g,torus(45,1.0,mats.ink,0,33.35,0));
@@ -734,7 +752,7 @@ function rotaryB(){
     addJointHeads(g,'B08',33.15,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.9});
     label(g,'GCM-1107M · Ø94×33.2',0,46,0);
  },{explode:[12,0,0],rotateSample:false});
- addPart('B09',sx,53.2,0,g=>{
+ addPart('B09',sx,53.2+rise,0,g=>{
    // OEM dimension drawing distinguishes 4 x clearance Ø6.5 / Ø11 counterbore
    // on fixed base from 9-M6 / 4-M3 tapped hole array on moving stage.
    // The original native CAD download is not yet incorporated.
@@ -762,11 +780,11 @@ function rotaryB(){
    label(g,'NFP 仅单轴 X / 一根测微头',-38,46,0);
    label(g,'NFP-1462C · 原厂65×65×23 · 正面安装180°候选',0,42,0);
  },{explode:[0,16,0],rotateSample:true,facingYaw:Math.PI});
- addPart('B10',sx,76.2,0,g=>{
+ addPart('B10',sx,76.2+rise,0,g=>{
    const h=plate(65,65,10,mats.white,[[-25,-25,3.4],[-25,25,3.4],[25,-25,3.4],[25,25,3.4]]);add(g,h);
    label(g,'白色无机隔热层 ≈10mm',0,22,0);
  },{explode:[-7,36,-8],rotateSample:true,translateSample:true});
- addPart('B11',sx,86.2,0,g=>{
+ addPart('B11',sx,86.2+rise,0,g=>{
    const corners=[[-25,-25,3.3],[-25,25,3.3],[25,-25,3.3],[25,25,3.3]];
    // Lower layer with real open underside ceramic pocket
    add(g,plate(65,65,5.4,mats.steel,corners,[38.6,38.6]));
@@ -780,7 +798,7 @@ function rotaryB(){
    const top=tube([[0,9.3,0],[0,12.3,0]],.72,mats.blue);add(g,top);holes.push(top);
    label(g,'单中心孔 / 底面开腔 / 4×沉孔',0,31,0);
  },{explode:[0,61,0],rotateSample:true,translateSample:true});
- addPart('B12',sx,86.5,0,g=>{
+ addPart('B12',sx,86.5+rise,0,g=>{
    add(g,cub(38,5,38,mats.ceramic,0,2.5,0));
    // Pair of heater leads exiting the BACK (-Z) of the milled chuck.
    for(const x of [10,15]){
@@ -789,22 +807,22 @@ function rotaryB(){
    }
    label(g,'加热片后侧双引线（孔位候选）',0,12,-18);
  },{explode:[38,74,12],rotateSample:true,translateSample:true});
- addPart('B13',sx,91.35,0,g=>{
+ addPart('B13',sx,91.35+rise,0,g=>{
     add(g,cyl(.6,1.2,mats.copper,6,.6,0));
     add(g,tube([[6,.6,0],[6,.6,-19.5],[6,.6,-33],[6,-3,-51]],.34,mats.blue));
  },{explode:[-17,70,0],rotateSample:true,translateSample:true});
- addPart('B14',sx,86.2,0,g=>{
+ addPart('B14',sx,86.2+rise,0,g=>{
    for(const x of [-25,25])for(const z of [-25,25]){
       screw(g,x,12.03,z,25); // head surface flush at 12.03; do not mask by blue hole guide
    }
    g.userData.fastenerProxies=4;
    label(g,'4 枚顶部齐平螺钉（仅数量、齐平已确认）',0,45,0);
  },{explode:[0,88,0],rotateSample:true,translateSample:true});
- addPart('B15',sx,95.5,0,g=>{
+ addPart('B15',sx,95.5+rise,0,g=>{
    const fitting=add(g,cyl(3,13,mats.silver,0,0,-39));fitting.rotation.x=Math.PI/2;
    add(g,tube([[0,0,-45.5],[0,1,-58],[1,-3,-70],[12,-17,-79]],1.8,mats.rubber));
  },{explode:[0,60,-20],rotateSample:true,translateSample:true});
- const substrate=cub(24,.6,24,mats.glass,0,98.5,0);substrate.position.x=sx;currentRoot.add(substrate);
+ const substrate=cub(24,.6,24,mats.glass,0,98.5+rise,0);substrate.position.x=sx;currentRoot.add(substrate);
 }
 function microscopeB(){
  const sx=CONFIG.B.sampleX,sz=CONFIG.B.scopeZ;
@@ -1264,7 +1282,7 @@ function resetScene(){
    microscopeB();
    externalB();
    // Fail fast if a scene revision silently deletes a whole subsystem.
-   const required=['B01','B03','B07','B08','B09','B10','B11','B12',
+   const required=['B01','B35','B03','B07','B08','B09','B10','B11','B12',
      'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23'];
    if(bPhoto94Mode)required.push('B29','B30','B31','B32');
    else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33','B34');
