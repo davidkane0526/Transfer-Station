@@ -294,6 +294,34 @@ aheat=part(A,'A07')[0].BoundingBox()
 amagnet=part(A,'A17')[0].BoundingBox()
 check(abs(amagnet.zmin-20)<.02 and abs(amagnet.zmax-40)<.02,
       'V38 A has one TRUE film-side magnetic mounting stand above the only breadboard')
+# V46: GCM-420302M family reference has 5-M6, 4-M4 and 4-M3
+# top holes. They are ONLY 3mm visual blind candidates for A17.
+# Do not certify the unmarked A photo's manufacturer or screw engagement.
+from cadquery import Vector as _V46Vector
+for pitch,dia,with_center in ((50,6,True),(40,4,False),(32,3,False)):
+    pts=[(-116+dx,dy) for dx in (-pitch/2,pitch/2)
+         for dy in (-pitch/2,pitch/2)]
+    if with_center:pts.append((-116,0))
+    for xx,yy in pts:
+        r=dia/2-.15
+        probe=vz(r,2.8,xx,yy,37.1)
+        backing=vz(r,.4,xx,yy,36.6)
+        check(part(A,'A17')[0].intersect(probe).Volume()<1e-4,
+              'V46 A17 candidate top hole must be OPEN for 3mm only')
+        check(part(A,'A17')[0].intersect(backing).Volume()>1,
+              'V46 A17 candidate top hole must be BLIND, not a magnet through-bore')
+a_switch=part(A,'A17L')[0]
+check(a_switch.intersect(part(A,'A17')[0]).Volume()>1,
+      'V46 A17 magnetic switch must attach to body, not float')
+report['V46_A17_magnetic_base_candidate']={
+    'original_A17_model_identified':False,
+    'manufacturer_comparison_only':'Daheng GCM-420302M',
+    'reference_nominal_dimensions_mm':[65,65,20],
+    'candidate_top_blind_hole_count':13,
+    'candidate_blind_depth_mm':3,
+    'magnet_switch_connected_to_body':True,
+    'thread_qualification_passed':False
+}
 check(abs(amagnet.zmax-a15.zmin)<.02,
       'A15 film translation stage MUST rest ON A17 magnetic stand, not naked breadboard')
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-73)<.02,
