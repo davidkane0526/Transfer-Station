@@ -618,6 +618,28 @@ check(abs(pid.BoundingBox().ymin-shellbb.ymax)<.02,
       'YUDIAN controller back face touches B36 FRONT panel, not floating')
 check(pid.intersect(cabinet).Volume()<1e-4,
       'YUDIAN face panel cannot occupy solid metal cabinet walls')
+# V41: photo120/123 pump silhouette and catalogue-family envelope.
+pumpbb=pump.BoundingBox()
+check(abs(pumpbb.xlen-200)<.02 and abs(pumpbb.ylen-110)<.02 and
+      abs(pumpbb.zlen-150)<.02,
+      'V41 VN-50 pump proxy envelope is 200x110x150mm')
+check(len(pump.Solids())==1,
+      'V41 VN-50 motor housing, fan cover, tie rods and twin heads form one connected body')
+pump_mount_holes=[]
+for x in (254,396):
+    for y in (132,228):
+        hole=vz(3.1,8.2,x,y,-.1)
+        pump_mount_holes.append(pump.intersect(hole).Volume())
+check(max(pump_mount_holes)<1e-5,
+      'V41 VN-50 candidate 142x96mm mounting pattern has four open Ø6.2 bores')
+report['V41_VN50_pump_geometry']={
+ 'candidate_envelope_mm':[round(pumpbb.xlen,3),round(pumpbb.ylen,3),round(pumpbb.zlen,3)],
+ 'candidate_mounting_pitch_mm':[142,96],
+ 'mounting_hole_diameter_candidate_mm':6.2,
+ 'connected_solid_count':len(pump.Solids()),
+ 'manufacturer_verified':False,
+ 'inlet_orientation_verified':False
+}
 for name,item in [('B20 vacuum pump',pump),('B22 LED adapter',led_driver)]:
     check(item.intersect(cabinet).Volume()<1e-4,
           name+' is an EXTERNAL accessory, not fitted inside the PSU cabinet')
