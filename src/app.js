@@ -96,10 +96,11 @@ window.__modelBSupportProbe=()=>{
    return g.children.filter(v=>v.isMesh);
  };
  const boardMeshes=getMeshes('B35'),scopeMeshes=getMeshes('B16'),rotMeshes=getMeshes('B08');
- if(boardMeshes.length<2||!scopeMeshes.length||!rotMeshes.length)
+ if(boardMeshes.length<3||!scopeMeshes.length||!rotMeshes.length)
    return {available:false};
  const boardBox=new THREE.Box3().setFromObject(boardMeshes[0]);
  boardBox.union(new THREE.Box3().setFromObject(boardMeshes[1]));
+ boardBox.union(new THREE.Box3().setFromObject(boardMeshes[2]));
  const scopeFootBox=new THREE.Box3().setFromObject(scopeMeshes[0]);
  const rotFootBox=new THREE.Box3().setFromObject(rotMeshes[0]);
  // V35: the earlier B16 was a SOLID block under four drawn screw heads.
