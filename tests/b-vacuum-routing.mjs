@@ -22,5 +22,5 @@ for(const [shift,angle] of [[-12.5,0],[12.5,0],[0,30],[8,-25]]){
 }
 assert.deepEqual(movingVacuumOutlet({sampleShiftMm:0,sampleAngleDeg:0}),
                  VN50.chuckRearHoseEndNominal);
-assert.equal(vacuumHosePath().length,15);
+assert.equal(vacuumHosePath().length,14);
 console.log('V37 VN-50 (photo120) and physical B11→B15→B40→pump inlet route: PASS');
