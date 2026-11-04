@@ -41,7 +41,7 @@ def check(ok,label):
 # Photo145/150 shows a DISTINCT black Thorlabs sample support
 # plate below the GCM rotary. Old B models rendered a single common
 # surface, losing 12mm of an independently visible physical layer.
-# 12mm and 180x150 are VIEWER CANDIDATES, not a decoded maker SKU.
+# 12mm and 250x300 are PHOTO-FIT CANDIDATES, not a decoded maker SKU.
 sample_board=part(B,'B35')[0]
 silver_board=part(B,'B01')[0]
 sample_base=part(B,'B08')[0]
@@ -55,31 +55,30 @@ check(abs(sbb.xlen-250)<.02 and abs(sbb.ylen-300)<.02 and abs(sbb.zlen-12)<.02,
 check(sample_board.intersect(silver_board).Volume()<1e-4,
       'Two independent photo-confirmed B board layers must not interpenetrate')
 microscope_foot=part(B,'B16A')[0]
- check_containment=True
- check(sample_board.intersect(microscope_foot).Volume()<1e-4,
+check(sample_board.intersect(microscope_foot).Volume()<1e-4,
       'B35 black plate and microscope foot must CONTACT, not intersect')
- micbb=microscope_foot.BoundingBox()
- check(abs(micbb.zmin-sbb.zmax)<.02,
+micbb=microscope_foot.BoundingBox()
+check(abs(micbb.zmin-sbb.zmax)<.02,
       'Microscope foot belongs on the SAME B35 top plane as sample rotary')
- check(micbb.xmin>sbb.xmin and micbb.xmax<sbb.xmax and
-       micbb.ymin>sbb.ymin and micbb.ymax<sbb.ymax,
+check(micbb.xmin>sbb.xmin and micbb.xmax<sbb.xmax and
+      micbb.ymin>sbb.ymin and micbb.ymax<sbb.ymax,
       'Microscope foot must lie FULLY within B35 black-board footprint')
- def mating_face_area_mm2(support, upper):
-     # 0.05mm overlap perturbation estimates nonzero planar support
-     # while leaving the canonical STEP assembly free of collisions.
-     return upper.translate((0,0,-.05)).intersect(support).Volume()/.05
- area_mic=mating_face_area_mm2(sample_board,microscope_foot)
- area_rot=mating_face_area_mm2(sample_board,sample_base)
- check(area_mic>3200,
+def mating_face_area_mm2(support,upper):
+    # 0.05mm overlap perturbation estimates nonzero planar support
+    # while leaving the canonical STEP assembly free of collisions.
+    return upper.translate((0,0,-.05)).intersect(support).Volume()/.05
+area_mic=mating_face_area_mm2(sample_board,microscope_foot)
+area_rot=mating_face_area_mm2(sample_board,sample_base)
+check(area_mic>3200,
       f'B35 must support microscope FOOT over substantial area, got {area_mic:.1f} mm²')
- check(area_rot>5000,
+check(area_rot>5000,
       f'B35 must support rotary FOOT over substantial area, got {area_rot:.1f} mm²')
- report['B35_dual_mount_face_areas_mm2']={
-   'microscope':round(area_mic,1),
-   'rotary':round(area_rot,1),
-   'exact_plate_dimensions_verified':False,
-   'fastener_holes_verified':False
- }
+report['B35_dual_mount_face_areas_mm2']={
+    'microscope':round(area_mic,1),
+    'rotary':round(area_rot,1),
+    'exact_plate_dimensions_verified':False,
+    'fastener_holes_verified':False
+}
 check(sample_board.intersect(part(B,'B02')[0]).Volume()<1e-4,
       'Black sample plate must not engulf the separate left-side magnet')
 # Holes are shallow photo-fit pockets: open at z30..32, closed below 30.
