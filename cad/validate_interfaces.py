@@ -290,6 +290,7 @@ a03=part(A,'A03')[0].BoundingBox()
 a03_moving=part(A,'A03T')[0]
 a03_top=a03_moving.BoundingBox()
 a04=part(A,'A04')[0].BoundingBox()
+a04_lower=part(A,'A04L')[0].BoundingBox()
 arot=part(A,'A06')[0].BoundingBox()
 a02=part(A,'A02')[0].BoundingBox()
 aheat=part(A,'A07')[0].BoundingBox()
@@ -331,8 +332,14 @@ check(abs(part(A,'A15A')[0].BoundingBox().zmax-73)<.02,
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-a03.zmin)<.02,'A film T25M directly UNDER VC13M')
 check(abs(a03.zmax-a03_top.zmin)<.02,
       'A VC13 fixed upright must meet, not overlap, independent moving plate')
-check(abs(a03_top.zmax-a04.zmin)<.02,
-      'A03T VC13 moving output plate must support G40M60L')
+check(abs(a03_top.zmax-a04_lower.zmin)<.02,
+      'V47 VC13 moving plate supports LOWER G40-class module')
+check(abs(a04_lower.zmax-a04.zmin)<.02,
+      'V47 two independent goniometers stack 20mm + 20mm without gap')
+check(abs(a04.zmax-164)<.02 and abs(a04_lower.zmax-144)<.02,
+      'V47 upper labeled G40M60L must be above lower unmarked module')
+check(abs(a04_lower.zlen-20)<.02 and abs(a04.zlen-20)<.02,
+      'V47 photo94 double-stage proxy must preserve separate 20mm heights')
 check(part(A,'A03')[0].intersect(a03_moving).Volume()<1e-4,
       'A03 stationary body and A03T moving plate must not overlap at lower pose')
 check(len(part(A,'A03'))==1,
@@ -358,8 +365,19 @@ check(part(A,'A02B')[0].BoundingBox().xmin>=a02.xmax-.02,
       'A sample T25M handle points to RIGHT +X')
 check(part(A,'A03M')[0].BoundingBox().zmax<=part(A,'A03K')[0].BoundingBox().zmin+.02,
       'A VC13M micrometer is vertically oriented')
-check(part(A,'A04M')[0].BoundingBox().xmin>=a04.xmax-.02,
-      'A tilt micrometer exits RIGHT')
+check(part(A,'A04LM')[0].BoundingBox().xmin>=a04_lower.xmax-.02,
+      'V47 lower goniometer micrometer exits RIGHT')
+check(part(A,'A04M')[0].BoundingBox().xmax<=a04.xmin+.02,
+      'V47 labeled upper G40M60L micrometer is candidate LEFT')
+report['V47_A04_photo94_two_goniometers']={
+    'independent_goniometer_envelopes':2,
+    'lower_sku_photographically_verified':False,
+    'upper_sku_label_photographically_verified':'GCM-G40M60L',
+    'lower_compare_only_sku':'GCM-G40M40L',
+    'lower_upper_nominal_heights_mm':[20,20],
+    'a05_height_restored_mm':20,
+    'true_joint_bolt_patterns_verified':False
+}
 check(abs((a15.xmin+a15.xmax)/2-(a02.xmin+a02.xmax)/2)>100,
       'Two independent A T25M instances occupy distinct film/sample positions')
 # Source-model correction: manufacturer's GCM-T25M2L has 33mm / two
@@ -444,7 +462,7 @@ a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
 check(abs(asheet_bb.xmin+164)<.02 and abs(asheet_bb.xmax+89)<.02,
       'A photo94 thin bent-L extends only near the G40, NOT to the heater')
-check(abs(asheet_bb.zmin-72)<.02 and abs(asheet_bb.zmax-146.5)<.02,
+check(abs(asheet_bb.zmin-92)<.02 and abs(asheet_bb.zmax-166.5)<.02,
       'A photo94 folded plate lower return and top plate occupy consistent levels')
 check(asheet_bb.zmin<part(A,'A04')[0].BoundingBox().zmax and
       asheet_bb.zmax>part(A,'A04')[0].BoundingBox().zmax,
@@ -485,8 +503,8 @@ check(abs(a_base.xlen-112)<.02 and abs(a_base.ylen-70)<.02 and abs(a_base.zlen-8
 check(abs(a_base.zmin-a_board.zmax)<.02 and abs(a_rot_lower.zmin-a_base.zmax)<.02,
       'A GCM-5306M is UNDER rotary, not counted as the rotary itself')
 a_tilt=part(A,'A04')[0].BoundingBox()
-check(abs(a_tilt.zmax-144)<.02,
-      'A04 raised 20mm with A15 magnet; A05 folded sheet touches top z144')
+check(abs(a_tilt.zmax-164)<.02,
+      'V47 A04 is upper of 2x20mm G40-class stack; A05 touches top z164')
 # V45 A-rig global functional registration: the current first rig is NOT
 # a complete working transfer platform, even though every listed part exists.
 a_heater=part(A,'A07')[0].BoundingBox()
@@ -495,8 +513,8 @@ a_horizontal_gap=a_heater.xmin-a_lip_tip_right-25 # two optimistic +/-12.5mm sta
 a_bracket_to_heater_z=a_heater.zmax-asheet_bb.zmin
 check(170<a_horizontal_gap<175,
       'V47 A photo94 G40-scaled sheet remains 171.5mm away under UNREGISTERED global stage origins')
-check(a_bracket_to_heater_z>27,
-      'A current folded bracket lower lip is BELOW heater top by >27mm')
+check(7<a_bracket_to_heater_z<8,
+      'V47 second goniometer raises A05 lower lip 20mm, leaving ~7.2mm candidate height error')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
 check(abs(a_scope_bb.zmin-a_board.zmax)<.02,
