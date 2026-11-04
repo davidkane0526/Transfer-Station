@@ -13,16 +13,22 @@ export const B149=Object.freeze({
   b04MovingFlangeTopY:90,
   supportPlateBottomY:90,
   supportPlateHeightMm:6,
-  postAxisX:-52,postAxisZ:-15,
+  postAxisX:-67,postAxisZ:-15,
   postHolderBottomY:96,postHolderHeightMm:50,postHolderODmm:20,
   supportPostBottomY:96,supportPostLengthMm:100,postDiameterMm:12,
   squareClampCenterY:168,squareClampHeightMm:30,
   upperRodY:168,lowerRodY:135,phucBorePitchMm:33,
-  phucCenterX:-5,phucCenterY:151.5,
+  phucCenterX:-35,phucCenterY:151.5,
   phucLengthMm:60,phucOuterDiameterMm:30,
-  upperRodStartX:-75,upperRodLengthMm:85,
-  lowerRodStartX:-30,lowerRodEndX:24.5,
-  glassHolderOriginY:142,glassHolderSpineLeftX:24.5,
+  upperRodStartX:-90,upperRodLengthMm:70,
+  lowerRodStartX:-60,lowerRodEndX:-2.5,
+  glassHolderOriginY:142,glassHolderSpineLeftX:-2.5,
+  glassHolderWorldX:13,
+  glassCenterWorldX:56,glassWidthMm:76,
+  stampOffsetFromGlassCenterX:26,stampWidthMm:20,
+  heaterCenterWorldX:82,heaterWidthMm:65,stageTravelMm:12.5,
+  glassHolderRightReachMm:21,
+  minApproachClearanceMm:2,
   glassCenterWorldY:125.5,
   heaterTopWorldY:110.2,
   threadStubDiameterMm:6,threadStubLengthMm:10
@@ -37,6 +43,15 @@ export function auditB149(d=B149){
  const glassToHeaterGapMm=d.glassCenterWorldY-.5-d.heaterTopWorldY;
  const lowerRodLengthMm=d.lowerRodEndX-d.lowerRodStartX;
  const upperRodEndX=d.upperRodStartX+d.upperRodLengthMm;
+ const glassLeftX=d.glassCenterWorldX-d.glassWidthMm/2;
+ const glassRightX=d.glassCenterWorldX+d.glassWidthMm/2;
+ const stampCenterX=d.glassCenterWorldX+d.stampOffsetFromGlassCenterX;
+ const stampRightX=stampCenterX+d.stampWidthMm/2;
+ const clampRightX=d.glassHolderWorldX+d.glassHolderRightReachMm;
+ const heaterLeftX=d.heaterCenterWorldX-d.heaterWidthMm/2;
+ const minimumHeaterLeftX=heaterLeftX-d.stageTravelMm;
+ const nominalClampClearanceMm=heaterLeftX-clampRightX;
+ const worstStageOnlyClearanceMm=minimumHeaterLeftX-clampRightX;
  // Side-mounted V25M photo108 connection must NOT occupy the
  // stationary upright's volume. Output bridge and B05 meet at X=-84;
  // upper B05 plate lies ENTIRELY to the right of fixed guide.
@@ -63,12 +78,20 @@ export function auditB149(d=B149){
    throw Error('PHUC OEM envelope mismatch');
  if(!(d.upperRodStartX < d.postAxisX-12 && Math.abs(upperRodEndX-(d.phucCenterX+15))<.01))
    throw Error('Upper rod must reach from B33 into PHUC-1 without unsupported extra 150mm tail');
- // The plate holder is yawed 180°, so its spine's OUTER left face is X24.5.
+ // The plate holder is yawed 180°; its spine must align with the end stud.
  if(!(d.lowerRodStartX<d.phucCenterX-15 &&
       Math.abs(d.lowerRodEndX-d.glassHolderSpineLeftX)<.01))
    throw Error('Lower Ø12 bar must end exactly at glass holder side face, not pass through solid GCM-1302M');
  if(d.threadStubLengthMm<5||d.threadStubLengthMm>15)
    throw Error('Unverified M6 end-face stub beyond candidate range');
+ if(!(glassLeftX<d.glassHolderWorldX+d.glassHolderRightReachMm&&
+       d.glassHolderWorldX-1<glassLeftX&&stampRightX<=glassRightX-1.5&&
+       Math.abs(stampCenterX-d.heaterCenterWorldX)<.01))
+   throw Error('Stamp must sit near the RIGHT slide edge and remain registered over heater while jaws grip left edge');
+ if(!(nominalClampClearanceMm>10&&worstStageOnlyClearanceMm>=d.minApproachClearanceMm))
+   throw Error('GCM1302M clamp footprint would enter heater during lowering or sample X stroke');
+ if(!(d.glassHolderSpineLeftX===d.glassHolderWorldX-15.5))
+   throw Error('B28 end and clamp spine must follow the same shifted film fixture');
  if(!(glassToHeaterGapMm>4&&glassToHeaterGapMm<35))
    throw Error('Glass-heater separation implausible for candidate dry-transfer pose');
  return Object.freeze({
@@ -76,10 +99,42 @@ export function auditB149(d=B149){
    holderToSquareGapMm:clampBottomY-holderTopY,
    exposedPostAboveHolderMm:postTopY-holderTopY,
    glassToHeaterGapMm,lowerRodLengthMm,upperRodEndX,
+   glassLeftX,glassRightX,stampCenterX,stampRightX,clampRightX,
+   heaterLeftX,nominalClampClearanceMm,worstStageOnlyClearanceMm,
+   verticalContactDropMm:glassToHeaterGapMm-1.8,
    observed:['movable V25M plate below fixed guides','lower Ø12 rod directly enters GCM-1302M side, no bulky terminal bracket','two PHUC rods approximately parallel in side view'],
    candidateManufacturerMatch:{post:'PHSP12-4 100 mm',holder:'PHSH-2 50 mm'},
    acceptedGeometryOnly:true,
    threadingVerified:false,
    crossPhotoAbsoluteHeightVerified:false
  });
+}
+
+
+// Conservative planar-envelope guard. Film translation and NFP travel
+// both move the assembly; rotation changes the square heater X extent.
+// No claim of a mechanically validated full-stroke digital twin.
+export function auditBLoweringPose({
+  d=B149,filmShiftX=0,sampleShiftX=0,sampleAngleDeg=0,
+  filmVerticalDropMm=0,filmDepthShiftMm=0
+}={}){
+  const q=auditB149(d),angle=sampleAngleDeg*Math.PI/180;
+  const heaterLeft=d.heaterCenterWorldX+sampleShiftX*Math.cos(angle)-
+    d.heaterWidthMm*(Math.abs(Math.cos(angle))+Math.abs(Math.sin(angle)))/2;
+  const clampRight=q.clampRightX+filmShiftX;
+  const planarGapMm=heaterLeft-clampRight;
+  const depthOverlap=Math.abs(filmDepthShiftMm)<=d.heaterWidthMm/2+28;
+  const possibleClash=depthOverlap&&planarGapMm<d.minApproachClearanceMm;
+  const dropMm=Math.max(0,filmVerticalDropMm);
+  const contactDropMm=q.glassToHeaterGapMm-1.8;
+  return Object.freeze({
+    heaterLeftX:heaterLeft,clampRightX:clampRight,
+    planarGapMm,depthOverlap,possibleClash,
+    filmVerticalDropMm:dropMm,contactDropMm,
+    safeToLower:!possibleClash&&dropMm<=contactDropMm+.001,
+    clampEntirelyOutsideHeater:!depthOverlap||planarGapMm>0,
+    stampCenterWorldX:q.stampCenterX,
+    mechanicalAcceptance:false,
+    note:'Candidate planar-envelope test only; microscope, fixture and full stroke unverified'
+  });
 }
