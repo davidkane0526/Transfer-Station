@@ -100,7 +100,10 @@ try{
  assert.match(boardDetail,/145|150/);
  await page.locator('#open-bom').click();
  await page.locator('#bom-query').fill('B36');
- const cabinet=page.locator('#bom-body tr').filter({hasText:'B36'});
+ // B19/B21/B23 descriptions also say "inside B36", so a
+ // substring text filter matches several rows. Check the row's
+ // FIRST model ID instead of erroneously counting references.
+ const cabinet=page.locator('#bom-body tr').filter({hasText:/^\s*B36\b/});
  assert.equal(await cabinet.count(),1,'Open steel control enclosure must be independent BOM item');
  await cabinet.click();
  const cabinetDetail=await page.locator('#part-detail').innerText();
