@@ -920,14 +920,14 @@ function rotaryB(){
    const corners=[[-25,-25,3.3],[-25,25,3.3],[25,-25,3.3],[25,25,3.3]];
    // Lower layer with real open underside ceramic pocket
    add(g,plate(65,65,5.4,mats.steel,corners,[38.6,38.6]));
-   add(g,plate(65,65,.1,mats.steel,corners)).position.y=5.4;
+   add(g,plate(65,65,.1,mats.steel,[...corners,[0,0,.7]])).position.y=5.4;
    const cb=corners.map(a=>[a[0],a[1],5.5]);cb.push([0,0,.7]);
    add(g,plate(65,65,6.5,mats.steel,cb)).position.y=5.5;
-   // Visual channel inside metal; confirmed route is not known
-   const ch=tube([[0,9.3,-32.5],[0,9.3,-18],[0,9.3,0]],1.4,mats.blue);
-   ch.material= new THREE.MeshStandardMaterial({color:'#4bc9e8',transparent:true,opacity:.78,depthTest:false});
-   add(g,ch);holes.push(ch);
-   const top=tube([[0,9.3,0],[0,12.3,0]],.72,mats.blue);add(g,top);holes.push(top);
+   // V36: the vacuum passage is an INTERNAL bore, not a glowing
+   // hose or a turquoise nozzle protruding through the contact face.
+   // Keep the true center Ø1.4 opening in the drilled upper plate;
+   // the unverified buried duct is represented only by evidence notes.
+   g.userData.vacuumPathInternalNotExternallyVisible=true;
    label(g,'单中心孔 / 底面开腔 / 4×沉孔',0,31,0);
  },{explode:[0,61,0],rotateSample:true,translateSample:true});
  addPart('B12',sx,86.5+rise,0,g=>{
