@@ -50,17 +50,41 @@ check(abs(sbb.zmin-bb0.zmax)<.02,
       'B35 Thorlabs black plate directly rests on silver common table')
 check(abs(sbb.zmax-sample_base.BoundingBox().zmin)<.02,
       'B08 rotary must sit ON B35 black plate, not on B01 directly')
-check(abs(sbb.xlen-180)<.02 and abs(sbb.ylen-150)<.02 and abs(sbb.zlen-12)<.02,
-      'B35 black plate proxy 180x150x12 must match its own BOM/model data')
+check(abs(sbb.xlen-250)<.02 and abs(sbb.ylen-300)<.02 and abs(sbb.zlen-12)<.02,
+      'B35 photo-fit 250x300x12 must cover both sample rotary and rear microscope foot')
 check(sample_board.intersect(silver_board).Volume()<1e-4,
       'Two independent photo-confirmed B board layers must not interpenetrate')
-check(sample_board.intersect(part(B,'B16A')[0]).Volume()<1e-4,
-      'Black sample plate must not go through nearby microscope base')
+microscope_foot=part(B,'B16A')[0]
+ check_containment=True
+ check(sample_board.intersect(microscope_foot).Volume()<1e-4,
+      'B35 black plate and microscope foot must CONTACT, not intersect')
+ micbb=microscope_foot.BoundingBox()
+ check(abs(micbb.zmin-sbb.zmax)<.02,
+      'Microscope foot belongs on the SAME B35 top plane as sample rotary')
+ check(micbb.xmin>sbb.xmin and micbb.xmax<sbb.xmax and
+       micbb.ymin>sbb.ymin and micbb.ymax<sbb.ymax,
+      'Microscope foot must lie FULLY within B35 black-board footprint')
+ def mating_face_area_mm2(support, upper):
+     # 0.05mm overlap perturbation estimates nonzero planar support
+     # while leaving the canonical STEP assembly free of collisions.
+     return upper.translate((0,0,-.05)).intersect(support).Volume()/.05
+ area_mic=mating_face_area_mm2(sample_board,microscope_foot)
+ area_rot=mating_face_area_mm2(sample_board,sample_base)
+ check(area_mic>3200,
+      f'B35 must support microscope FOOT over substantial area, got {area_mic:.1f} mm²')
+ check(area_rot>5000,
+      f'B35 must support rotary FOOT over substantial area, got {area_rot:.1f} mm²')
+ report['B35_dual_mount_face_areas_mm2']={
+   'microscope':round(area_mic,1),
+   'rotary':round(area_rot,1),
+   'exact_plate_dimensions_verified':False,
+   'fastener_holes_verified':False
+ }
 check(sample_board.intersect(part(B,'B02')[0]).Volume()<1e-4,
       'Black sample plate must not engulf the separate left-side magnet')
 # Holes are shallow photo-fit pockets: open at z30..32, closed below 30.
-for xx in (95-75,95,95+75):
-    for yy in (-50,0,50):
+for xx in (65-100,65,65+100):
+    for yy in (-125,0,125):
         opening=vz(2.6,2,xx,yy,30)
         backing=vz(2.6,.5,xx,yy,29.5)
         check(sample_board.intersect(opening).Volume()<1e-5,
