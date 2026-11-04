@@ -47,6 +47,7 @@ blue:new THREE.MeshStandardMaterial({color:'#329edc',metalness:.2,roughness:.35}
 copper:new THREE.MeshStandardMaterial({color:'#d9a66b',metalness:.54,roughness:.35}),
 rubber:new THREE.MeshStandardMaterial({color:'#444a4b',roughness:.85}),
 ink:new THREE.MeshStandardMaterial({color:'#101922',roughness:.7}),
+warningRed:new THREE.MeshStandardMaterial({color:'#b73c36',metalness:.12,roughness:.55}),
 pump:new THREE.MeshStandardMaterial({color:'#8396a7',metalness:.48,roughness:.5})
 };
 const groups={
@@ -251,21 +252,33 @@ window.__modelBVacuumProbe=()=>{
    pumpBounds.max.z-pumpBounds.min.z
  ];
  const pumpFeatures={basePlate:0,mountingFeet:0,motorHousing:0,motorCore:0,
-   fanCover:0,twinHeads:0,tieRods:0,rodSupports:0,headFlanges:0,headCaps:0,
-   topPorts:0,filters:0,vents:0,topVents:0,sideVents:0,
-   mountingFootCenters:[],nameplateCenters:[]};
+   cylindricalHousing:0,housingBands:0,fanCover:0,fanGrilles:0,fanGrilleSpokes:0,
+   twinHeads:0,tieRods:0,rodSupports:0,headFlanges:0,headCaps:0,headFins:0,
+   headBridges:0,topPorts:0,filters:0,rubberFeet:0,warningPlates:0,
+   warningSymbols:0,nameplateTextLines:0,vents:0,topVents:0,sideVents:0,
+   mountingFootCenters:[],nameplateCenters:[],tieRodCenters:[]};
  pump.traverse(o=>{
    if(o.userData.pumpBasePlate)pumpFeatures.basePlate++;
    if(o.userData.pumpMountingFoot){pumpFeatures.mountingFeet++;
      pumpFeatures.mountingFootCenters.push([o.position.x,o.position.y,o.position.z]);}
    if(o.userData.pumpNameplate){pumpFeatures.nameplateCenters.push([o.position.x,o.position.y,o.position.z]);}
+   if(o.userData.pumpTieRodCandidate){pumpFeatures.tieRods++;pumpFeatures.tieRodCenters.push([o.position.x,o.position.y,o.position.z]);}
+   if(o.userData.pumpCylindricalHousing)pumpFeatures.cylindricalHousing++;
+   if(o.userData.pumpHousingBand)pumpFeatures.housingBands++;
+   if(o.userData.pumpFanGrille)pumpFeatures.fanGrilles++;
+   if(o.userData.pumpFanGrilleSpoke)pumpFeatures.fanGrilleSpokes++;
+   if(o.userData.pumpHeadFin)pumpFeatures.headFins++;
+   if(o.userData.pumpHeadBridge)pumpFeatures.headBridges++;
+   if(o.userData.pumpRubberFoot)pumpFeatures.rubberFeet++;
+   if(o.userData.pumpWarningPlate)pumpFeatures.warningPlates++;
+   if(o.userData.pumpWarningSymbol)pumpFeatures.warningSymbols++;
+   if(o.userData.pumpNameplateTextLine)pumpFeatures.nameplateTextLines++;
    if(o.userData.pumpTopVent)pumpFeatures.topVents++;
    if(o.userData.pumpSideVent)pumpFeatures.sideVents++;
    if(o.userData.pumpMotorHousing)pumpFeatures.motorHousing++;
    if(o.userData.pumpMotorCore)pumpFeatures.motorCore++;
    if(o.userData.pumpFanCover)pumpFeatures.fanCover++;
    if(o.userData.pumpTwinHead)pumpFeatures.twinHeads++;
-   if(o.userData.pumpTieRodCandidate)pumpFeatures.tieRods++;
    if(o.userData.pumpRodSupport)pumpFeatures.rodSupports++;
    if(o.userData.pumpHeadFlange)pumpFeatures.headFlanges++;
    if(o.userData.pumpHeadCap)pumpFeatures.headCaps++;
@@ -1253,88 +1266,114 @@ function externalB(){
  // Photo120 pump and photo115 LED adapter are distinct EXTERNAL devices,
  // not modules stacked in the controller's metal housing.
  addPart('B20',335,0,180,g=>{
-  // V42: photo-fit motor casing, catalog-derived twin heads and side tie rods.
-  // Photo120/123 show a black perforated motor housing, two long
-  // metal tie rods and a twin-head upper assembly. The exact OEM
-  // manufacturer remains unverified; these are photo-fit solids.
+  // V43: user photos 120/123 and the VN-50 family side views agree on a
+  // horizontal cylindrical motor shell, not a rectangular box.
+  // Two visible tie rods sit on the SAME side, above and below the plate.
   const pumpBase=add(g,cub(200,8,110,mats.black,-10,4,0));
   pumpBase.userData.pumpBasePlate=true;
   for(const x of [-81,61])for(const z of [-48,48]){
     const foot=add(g,cub(28,12,14,mats.dark,x,10,z));
     foot.userData.pumpMountingFoot=true;
+    const pad=add(g,cyl(6,4,mats.rubber,x,5,z,24));
+    pad.userData.pumpRubberFoot=true;
     const footHole=add(g,cyl(3.1,2,mats.ink,x,16,z));
     footHole.userData.mountingHoleCandidate=true;
   }
-  // Main black motor casing and the partly exposed rounded motor body.
-  const motorHousing=add(g,cub(160,68,76,mats.dark,-10,42,0));
+  const motorHousing=add(g,cyl(44,150,mats.black,-10,50,0));
+  motorHousing.rotation.z=Math.PI/2;
   motorHousing.userData.pumpMotorHousing=true;
-  const motor=add(g,cyl(34,130,mats.black,-25,40,0));
-  motor.userData.pumpMotorCore=true;
+  motorHousing.userData.pumpCylindricalHousing=true;
+  const motor=add(g,cyl(28,118,mats.dark,-10,50,0));
   motor.rotation.z=Math.PI/2;
-  // Fan/end cover at the left end of the motor.
-  const fan=add(g,cyl(29,12,mats.black,-94,40,0));
+  motor.userData.pumpMotorCore=true;
+  for(const x of [-38,20]){
+    const band=add(g,sleeve(46,43,4,mats.silver,x,50,0,'x'));
+    band.userData.pumpHousingBand=true;
+  }
+  const fan=add(g,cyl(42,12,mats.dark,-85,50,0));
   fan.rotation.z=Math.PI/2;
   fan.userData.pumpFanCover=true;
-  // V42: two longitudinal tie rods sit OUTSIDE the motor side walls,
-  // not across the top. End brackets connect each rod to the pump frame.
-  for(const z of [-45,45]){
-    const rod=add(g,cyl(2.5,150,mats.silver,-10,40,z));
+  const fanRing=add(g,sleeve(39,31,1.6,mats.silver,-91,50,0,'x'));
+  fanRing.userData.pumpFanGrille=true;
+  for(let i=0;i<4;i++){
+    const spoke=add(g,cub(1.2,56,1.5,mats.silver,-92,50,0));
+    spoke.rotation.x=i*Math.PI/4;
+    spoke.userData.pumpFanGrilleSpoke=true;
+  }
+  // Two longitudinal tie rods on the same near side, framing the label.
+  for(const y of [30,70]){
+    const rod=add(g,cyl(2.5,140,mats.silver,-10,y,40));
     rod.rotation.z=Math.PI/2;
     rod.userData.pumpTieRodCandidate=true;
-    for(const x of [-85,65]){
-      const bracket=add(g,cub(14,24,16,mats.silver,x,40,z));
+    for(const x of [-80,60]){
+      const bracket=add(g,cub(14,16,14,mats.silver,x,y,40));
       bracket.userData.pumpRodSupport=true;
     }
   }
-  // V42 catalog-derived twin-head silhouette: rectangular cast head
-  // blocks and independent top covers, not two bare vertical cylinders.
+  // Two finned aluminium heads with a shared upper connecting pipe.
   for(const x of [-45,30]){
-    const flange=add(g,cub(52,6,54,mats.dark,x,78,0));
+    const flange=add(g,cub(48,8,48,mats.dark,x,90,0));
     flange.userData.pumpHeadFlange=true;
-    const head=add(g,cub(46,50,48,mats.pump,x,106,0));
+    const head=add(g,cub(42,38,42,mats.pump,x,113,0));
     head.userData.pumpTwinHead=true;
-    const cap=add(g,cub(48,6,50,mats.silver,x,134,0));
+    const cap=add(g,cub(44,4,44,mats.silver,x,134,0));
     cap.userData.pumpHeadCap=true;
+    for(const y of [139,142,145]){
+      const fin=add(g,cub(44,1.5,44,mats.silver,x,y,0));
+      fin.userData.pumpHeadFin=true;
+    }
   }
-  // One metal port and one translucent filter/port are inferred from
-  // VN-50 family product imagery; exact fittings remain unverified.
-  const metalPort=add(g,cyl(5.5,12,mats.steel,-45,143,0));
-  metalPort.userData.pumpTopPortCandidate=true;
-  const filterCollar=add(g,cyl(8,3,mats.copper,30,138.5,0));
+  const bridge=add(g,cyl(4.2,75,mats.silver,-7.5,142,0));
+  bridge.rotation.z=Math.PI/2;
+  bridge.userData.pumpHeadBridge=true;
+  const outlet=add(g,cyl(7,14,mats.steel,-52,143,0));
+  outlet.rotation.z=Math.PI/2;
+  outlet.userData.pumpTopPortCandidate=true;
+  const filterBlock=add(g,cub(18,16,18,mats.copper,50,124,0));
+  filterBlock.userData.pumpFilterCandidate=true;
+  const filterCollar=add(g,cyl(8,4,mats.silver,50,115,0));
   filterCollar.userData.pumpFilterCandidate=true;
-  const filter=add(g,cyl(7,13,mats.glass,30,143.5,0));
+  const filter=add(g,cyl(7,22,mats.glass,50,104,0));
   filter.userData.pumpFilterCandidate=true;
-  // Top-face perforations are restricted to exposed regions around
-  // the two head flanges; pitch is a photo-fit candidate.
-  for(const x of [-80,-10,60]){
-    for(const z of [-30,-15,15,30]){
-      const vent=add(g,cyl(2.7,1.5,mats.ink,x,76.2,z,24));
+  for(const x of [-80,-75,-70,55,60,65]){
+    for(const z of [-15,15]){
+      const y=50+Math.sqrt(44*44-z*z)+.25;
+      const vent=add(g,cyl(2.7,1.5,mats.ink,x,y,z,24));
       vent.userData.ventCandidate=true;
       vent.userData.pumpTopVent=true;
     }
   }
-  // Side perforations avoid the nameplate footprint, as in photo120.
-  for(const x of [-65,-55,25,35,45,55]){
-    for(const y of [28,42,56]){
-      const vent=add(g,cyl(2.1,1.4,mats.ink,x,y,38.5,20));
+  for(const x of [-70,-55,25,35,45,55]){
+    for(const y of [40,50,60]){
+      const z=Math.sqrt(44*44-(y-50)*(y-50))+.25;
+      const vent=add(g,cyl(2.1,1.4,mats.ink,x,y,z,20));
       vent.rotation.x=Math.PI/2;
       vent.userData.ventCandidate=true;
       vent.userData.pumpSideVent=true;
     }
   }
-  // Nameplate is a visual ID only; no OEM logo is inferred.
-  const nameplate=add(g,cub(62,26,1.5,mats.white,-15,43,38.5));
+  const nameplate=add(g,cub(48,22,1.2,mats.white,-10,50,44.3));
   nameplate.userData.pumpNameplate=true;
-  label(g,'VN-50 · 220V / 230W · 53 L/min',-15,58,40.2);
-  // Candidate suction inlet face. The nozzle side/orientation is not
-  // established by the photographs, so this remains an explicit proxy.
+  for(const [y,w] of [[58,30],[54,36],[50,32],[46,28],[42,22]]){
+    const line=add(g,cub(w,1.05,.45,mats.ink,-10,y,45.05));
+    line.userData.pumpNameplateTextLine=true;
+  }
+  const warning=add(g,cub(18,18,1.2,mats.white,35,70,39));
+  warning.userData.pumpWarningPlate=true;
+  const warningRing=add(g,mk(new THREE.RingGeometry(4.2,5.2,32),mats.warningRed));
+  warningRing.position.set(35,70,39.75);
+  warningRing.userData.pumpWarningSymbol=true;
+  const warningSlash=add(g,cub(1.4,12,.6,mats.warningRed,35,70,39.8));
+  warningSlash.rotation.z=-Math.PI/4;
+  warningSlash.userData.pumpWarningSymbol=true;
+  label(g,'VN-50 · 220 V / 230 W · 53 L/min',-10,66,45.5);
   const inlet=add(g,sleeve(9,VN50.pumpInletVisualBoreRadiusMm,
     20,mats.steel,80,68,0,'x'));
   inlet.userData.realSuctionInlet=true;
   inlet.userData.actualPortSideUnverified=true;
   g.userData.nameplateModel='VN-50';
   g.userData.pumpModelReadFromPhoto120=true;
-  g.userData.geometryRevision='V42_photo120_123_motor_and_catalog_dual_head_candidate';
+  g.userData.geometryRevision='V43_photo120_123_cylindrical_shell_same_side_rods_candidate';
   g.userData.dimensionsCandidateMm={length:200,width:110,height:150};
   label(g,'吸入口方向/接头规格待实物确认',78,91,0);
  },{explode:[0,0,0]});
