@@ -787,6 +787,29 @@ check(port_body.intersect(nozzle_void).Volume()<1e-5,
 head_void=vx(2.0,6,402.7,180,68)
 check(pump_body.intersect(head_void).Volume()<1e-5,
       'V37 VN-50 head cannot plug the suction nozzle')
+# V44: a connected visual centerline is NOT a dimensionally qualified,
+# leak-tight hose-to-pump joint. Do not silently presume a direct 7mm
+# tube fits the Ø18mm nominee pump spigot; no reducer SKU is verified.
+candidate_hose_od,candidate_hose_id=7.0,4.4
+candidate_chuck_spigot_od=6.0
+candidate_pump_spigot_od,candidate_pump_bore_id=18.0,8.2
+heater_end_stretch_percent=100*(candidate_chuck_spigot_od/candidate_hose_id-1)
+pump_end_stretch_percent=100*(candidate_pump_spigot_od/candidate_hose_id-1)
+loose_insert_diametric_gap=candidate_pump_bore_id-candidate_hose_od
+check(pump_end_stretch_percent>300 and loose_insert_diametric_gap>0,
+      'V44 unresolved nominal hose-to-VN50 diameter mismatch must remain flagged')
+report['V44_vacuum_interface_fit']={
+ 'hose_OD_ID_candidate_mm':[candidate_hose_od,candidate_hose_id],
+ 'heater_spigot_OD_candidate_mm':candidate_chuck_spigot_od,
+ 'heater_nominal_hose_expansion_pct':round(heater_end_stretch_percent,1),
+ 'pump_spigot_OD_bore_candidate_mm':[candidate_pump_spigot_od,candidate_pump_bore_id],
+ 'pump_nominal_hose_expansion_pct':round(pump_end_stretch_percent,1),
+ 'pump_loose_bore_gap_diameter_mm':round(loose_insert_diametric_gap,1),
+ 'pump_side_reducer_or_matching_fitting_verified':False,
+ 'heater_hose_stretch_and_clamp_verified':False,
+ 'vacuum_leak_test_passed':False,
+ 'only_visual_flow_centerline_continuity_confirmed':True
+}
 # Radius tests detect a fake solid hose. Use local axes at the first
 # straight segment where centerline is unambiguous.
 def vacuum_axis_probe(a,b,r=.9,trim=.15):
