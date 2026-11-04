@@ -1313,7 +1313,7 @@ function externalB(){
     rod.rotation.z=Math.PI/2;
     rod.userData.pumpTieRodCandidate=true;
     for(const x of [-80,60]){
-      const bracket=add(g,cub(14,18,14,mats.silver,x,y,38));
+      const bracket=add(g,cub(14,18,14,mats.silver,x,y,34));
       bracket.userData.pumpRodSupport=true;
     }
   }
