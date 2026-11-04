@@ -573,10 +573,11 @@ def make_a():
     # A14 therefore becomes an OPEN mechanical illustration only:
     # nominal Ø56/Ø52.2 x66 sleeve overlapping A08 over Z192..198 and reaching A09 at Z258.
     sleeve_A14=vz(28,66,cx,0,192).cut(vz(26.1,66.2,cx,0,191.9))
-    add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_60mm_CANDIDATE',
+    add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',
         sleeve_A14,'C')
+CAD_REVISION='V46'
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V44')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
     # The user's B photos distinguish the SILVER common table from the
     # independent BLACK THORLABS board below the sample stage. Preserve
     # that evidence as AP214 STEP assembly colors, not merely part names.
@@ -590,7 +591,7 @@ def export(sys):
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
         assembly.add(shape,**props)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V44.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_'+CAD_REVISION+'.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
