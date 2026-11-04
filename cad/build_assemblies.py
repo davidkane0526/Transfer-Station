@@ -406,7 +406,7 @@ def make_b():
         vz(24,8,365,180,75),vz(22,57,365,180,82.5),
         vz(24,8,365,180,139),
         box(90,44,10,327.5,180,140),
-        box(62,1.5,26,320,217.75,30),
+        box(62,1.5,26,320,218.5,30),
         vx(2.5,150,250,141.5,77),
         vx(2.5,150,250,218.5,77))
     # Candidate 142x96 mounting footprint: four open Ø6.2 bores.
@@ -416,10 +416,10 @@ def make_b():
     # Photo-fit vent apertures on the upper motor face and long side faces.
     for x in (265,285,305,325,345,365,385):
         for y in (153,180,207):
-            pump_shell=pump_shell.cut(vz(2.7,3,x,y,73))
-    for x in (265,285,305,325,345,365,385):
+            pump_shell=pump_shell.cut(vz(2.7,1.5,x,y,75.45))
+    for x in (270,290,310,330,350,370,390):
         for z in (28,42,56):
-            pump_shell=pump_shell.cut(vy(2.1,3,x,216,z))
+            pump_shell=pump_shell.cut(vy(2.1,1.4,x,217.8,z))
     # The candidate suction port is on the +X face; its real side and
     # orientation are not established by the user's photographs.
     pump_shell=pump_shell.cut(vx(4.1,7,402.5,180,68))
