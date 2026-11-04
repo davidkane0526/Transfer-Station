@@ -138,8 +138,19 @@ window.__modelBSupportProbe=()=>{
 window.__modelAKinematicProbe=()=>{
   if(platform!=='A')return {available:false};
   const vc=parts.get('A03')?.g,tilt=parts.get('A04')?.g,
-        arm=parts.get('A05')?.g,magnet=parts.get('A17')?.g;
-  if(!vc||!tilt||!arm||!magnet)return {available:false};
+        arm=parts.get('A05')?.g,magnet=parts.get('A17')?.g,
+        microscopeFoot=parts.get('A10')?.g;
+  if(!vc||!tilt||!arm||!magnet||!microscopeFoot)return {available:false};
+  microscopeFoot.updateWorldMatrix(true,true);
+  const footMesh=microscopeFoot.children.find(m=>m.isMesh);
+  const a10Bores=[[-28,-13],[-28,37],[22,-13],[22,37]];
+  const a10Open=Boolean(footMesh)&&a10Bores.every(([x,z])=>{
+    const start=microscopeFoot.localToWorld(new THREE.Vector3(x,16,z));
+    const ray=new THREE.Raycaster(start,new THREE.Vector3(0,-1,0),0,16);
+    return ray.intersectObject(footMesh,false).length===0;
+  });
+  const a10Heads=microscopeFoot.children.filter(m=>
+    m.isMesh&&m.userData.A10CandidateBoltHead).length;
   return {
     available:true,
     vStageStationaryBaseWorldY:vc.position.y,
@@ -148,6 +159,9 @@ window.__modelAKinematicProbe=()=>{
     bracketWorldBaseY:arm.position.y,
     filmDropMm:filmDrop,
     a17CandidateHoleCount:magnet.userData.candidateMountHoleMarkers?.length??0,
+    a10ActualFootBoresOpen:a10Open,
+    a10CandidateBoltHeadCount:a10Heads,
+    a10ActualManufacturerAnchorVerified:false,
     a17PhotographedSkuVerified:false,
     stageModel:'GCM-VC13M',
     knownProxyGeometryCollisionFree:false,
