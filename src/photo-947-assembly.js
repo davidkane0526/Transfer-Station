@@ -4,9 +4,9 @@ const V47_PHOTO_METRIC=inferAProxyDimensionsFromOriginalPhotos();
 // The images physically show the FIRST rig, currently named platform A.
 // All photo silhouettes are constraints, not inferred purchase-ready sheet metal.
 export const PHOTO_94_95_97={
-  rig:'A',stageIds:['A15','A03','A04','A05'],
+  rig:'A',stageIds:['A15','A03','A04L','A04','A05'],
   sequenceBottomUp:['GCM-T25M','GCM-VC13M','GCM-G40M60L','bent L sheet bracket'],
-  imageToParts:{'94':['A04','A05'],'95':['A15'],'97':['A15','A03']},
+  imageToParts:{'94':['A04L','A04','A05'],'95':['A15'],'97':['A15','A03']},
   t25m:{nominalXYmm:[65,65],twoAxisHeightMm:33,minimumVisibleMicrometerCount:2},
   vc13m:{maker:'Daheng',model:'GCM-VC13M',topSizeMm:[65,65],verticalAxisCount:1,
     spindleOrientation:'up along scene Y'},
@@ -14,6 +14,11 @@ export const PHOTO_94_95_97={
     centerOfRotationHeightMm:60,travelDeg:5,micrometers:1,micrometerDirection:'+X'},
   visibleMetalConnection:{kind:'one-piece bent L sheet',confirmedBentCorner:true,
     topFastenerHeadsVisible:2,unverifiedThickness:true,
+    likelySecondGoniometerUnderNamedG40:true,
+    lowerGoniometerModelVerified:false,
+    upperLabelModel:'GCM-G40M60L',
+    typicalLowerGoniometerComparison:'GCM-G40M40L (candidate, not identified)',
+    photo94ApproxTwoUnitStackHeightMm:40,
     visuallyUnsupported:['150mm Zolix cross-rod','PHCP2 round clamp on this stack',
       'two vertical dangling steel rods','oversized horizontal square beam']}
 };
@@ -70,7 +75,7 @@ export function vc13PhotoScrewDatums({
     measuredFromPhoto:false,makerGeometryVerified:false};
 }
 export function photo94BracketCandidate({
-  stageCenterX=-116,stageTopY=144,
+  stageCenterX=-116,stageTopY=164,
   topPlateWidth=Math.round(V47_PHOTO_METRIC.sheetTopWidthMm),topPlateDepth=12,
   leftOverhangMm=Math.round(V47_PHOTO_METRIC.sheetLeftOverhangMm),
   verticalLegLength=72,metalThickness=2.5
