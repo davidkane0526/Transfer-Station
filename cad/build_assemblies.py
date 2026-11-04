@@ -407,15 +407,15 @@ def make_b():
     pump_inlet=vx(9,20,405,180,68).cut(vx(4.1,20.2,404.9,180,68))
     add('B','B20I','VN50_INTaKE_OPEN_nozzle_candidate_position',
         pump_inlet,'C')
-    # V39: from the moving B15 outlet, pass to the LEFT of B36,
-    # continue along the cabinet's REAR exterior (behind front-panel
-    # controller B19), then around its RIGHT side to VN-50 INTAKE.
-    # Coordinates are CAD (X, depth-Y, vertical-Z), identical to the
-    # WebGL route after axis mapping. No hose segment enters B36.
+    # V40: pass LEFT of B36, behind its rear wall (B19's back side),
+    # then around the RIGHT side to the candidate VN-50 INTAKE.
+    # Keep the long rear service lane at vertical Z=70mm to separate
+    # B40 from the B37 heater pair and B38 sensor lead.
+    # CAD (X, depth-Y, vertical-Z) maps to WebGL (X, vertical-Y, depth-Z).
     hose=[
-        (94,-79,90.5),(200,-135,102),(200,-170,102),
-        (200,-275,102),(350,-275,102),(520,-275,102),
-        (520,140,102),(520,180,90),(465,180,69),(425,180,68)
+        (94,-79,90.5),(200,-135,70),(200,-170,70),
+        (200,-275,70),(350,-275,70),(520,-275,70),
+        (520,140,70),(520,180,90),(465,180,69),(425,180,68)
     ]
     add('B','B40','B11_B15_rear_to_VN50_hollow_suction_hose',
         hollow_hose(hose),'C')
@@ -478,7 +478,7 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V39')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V40')
     # The user's B photos distinguish the SILVER common table from the
     # independent BLACK THORLABS board below the sample stage. Preserve
     # that evidence as AP214 STEP assembly colors, not merely part names.
@@ -492,7 +492,7 @@ def export(sys):
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
         assembly.add(shape,**props)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V39.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V40.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
