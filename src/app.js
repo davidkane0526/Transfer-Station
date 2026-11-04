@@ -851,37 +851,63 @@ function microscopeB(){
  },{explode:[16,26,0]});
 }
 function externalB(){
- addPart('B19',265,25,-95,g=>{
-  add(g,cub(125,85,87,mats.pump,0,42.5,0));
-  add(g,cub(72,52,2,mats.dark,0,53,45));
-  add(g,cub(34,29,3,mats.ink,-18,58,47));
-  add(g,cub(15,13,4,mats.blue,-18,61,49));
-  label(g,'宇电 AI / 温控控制箱（代理）',0,110,0);
- },{explode:[45,0,-30]});
- addPart('B20',265,20,75,g=>{
+ // Photos114/117/119 show ONE SILVER METAL CONTROL ENCLOSURE:
+ // front YUDIAN PID panel B19, inside MEAN WELL SE-600-48 B21 and
+ // an unidentified vented module B23. Earlier versions rendered
+ // overlapping, floating stand-alone blocks, despite photo119
+ // unambiguously showing a common open metal housing.
+ // The enclosure 285×225×125mm, walls 3mm, and internal placements
+ // are PHOTO-FIT CANDIDATES, not measured shop or wiring dimensions.
+ const controlX=365,controlZ=-150;
+ addPart('B36',controlX,0,controlZ,g=>{
+   const w=285,d=225,h=125,t=3;
+   add(g,cub(w,t,d,mats.silver,0,t/2,0));
+   for(const x of [-w/2+t/2,w/2-t/2])
+     add(g,cub(t,h-t,d,mats.silver,x,(h+t)/2,0));
+   for(const z of [-d/2+t/2,d/2-t/2])
+     add(g,cub(w-2*t,h-t,t,mats.silver,0,(h+t)/2,z));
+   g.userData.hollowOpenTop=true;
+   g.userData.physicalManufacturerDimensionsKnown=false;
+   label(g,'照片114/119：银色电控箱，内置B21/B23；外廓/配线待核',0,h+15,0);
+ },{explode:[75,0,-65]});
+ addPart('B19',controlX,20,-28.5,g=>{
+   // Face of B19 touches the FRONT wall of B36 at Z=-37.5,
+   // rather than floating in space as a second 87mm-deep box.
+   add(g,cub(120,80,18,mats.dark,0,40,0));
+   add(g,cub(82,46,2,mats.black,0,50,9.4));
+   label(g,'YUDIAN AI · B36机箱前面板（真实开孔未核）',0,94,12);
+ },{explode:[70,10,35]});
+ addPart('B21',controlX,3,-190,g=>{
+   // Photo117 clearly identifies this SE-600-48 PSU, and photo119
+   // places it INSIDE the metal control box. Exact 247×127×63.5
+   // is the source-listed hardware envelope.
+   add(g,cub(247,63.5,127,mats.silver,0,31.75,0));
+   for(let i=0;i<18;i++)add(g,cub(3,.5,90,mats.dark,-99+i*11,64,0));
+   label(g,'MEAN WELL SE-600-48 · B36内部',0,91,0);
+ },{explode:[85,75,-50]});
+ addPart('B23',controlX,3,-77,g=>{
+   // The black perforated module in photo119 is a separate INNER
+   // component, but its function / exact SKU are unknown.
+   add(g,cub(93,38,58,mats.dark,0,19,0));
+   for(let i=-3;i<=3;i++)add(g,cub(4,2,41,mats.ink,i*10,39,0));
+   add(g,cub(48,13,10,mats.steel,0,16,32));
+   label(g,'照片119：控制箱内部黑色散热模块（型号未识别）',0,53,0);
+ },{explode:[85,65,-38]});
+ // Photo120 pump and photo115 LED adapter are distinct EXTERNAL devices,
+ // not modules stacked in the controller's metal housing.
+ addPart('B20',335,0,180,g=>{
   add(g,cub(135,15,80,mats.dark,0,7.5,0));
   add(g,cyl(37,112,mats.pump,0,54,0)).rotation.z=Math.PI/2;
   add(g,cub(48,50,50,mats.dark,50,48,0));
   const nozzle=add(g,cyl(9,20,mats.steel,80,68,0));nozzle.rotation.z=Math.PI/2;
-  label(g,'真空泵（参数来自照片，机壳代理）',0,113,0);
+  label(g,'W-50真空泵：独立外设，实际外廓/位置待核',0,113,0);
  },{explode:[55,0,35]});
- addPart('B21',245,25,-195,g=>{
-   add(g,cub(247,63.5,127,mats.silver,0,31.75,0));
-   for(let i=0;i<18;i++)add(g,cub(3,.5,90,mats.dark,-99+i*11,64,0));
-   label(g,'Mean Well SE-600-48',0,91,0);
- },{explode:[70,10,-25]});
- addPart('B22',280,35,-20,g=>{
+ addPart('B22',335,0,65,g=>{
    add(g,cub(65,48,72,mats.dark,0,24,0));
    add(g,cub(44,22,4,mats.steel,0,24,37));
    const plug=add(g,cyl(7,12,mats.steel,33,16,0));plug.rotation.z=Math.PI/2;
-   label(g,'LED LAMP ADAPTOR / 115.jpg',0,68,0);
+   label(g,'照片115：LED LAMP ADAPTOR（独立于B36机箱）',0,68,0);
  },{explode:[55,0,-20]});
- addPart('B23',305,35,-110,g=>{
-   add(g,cub(93,38,58,mats.dark,0,19,0));
-   for(let i=-3;i<=3;i++)add(g,cub(4,2,41,mats.ink,i*10,39,0));
-   add(g,cub(48,13,10,mats.steel,0,16,32));
-   label(g,'CONTROL MODULE / 119.jpg',0,53,0);
- },{explode:[50,0,-30]});
 }
 function platformA(){
  const ax=CONFIG.A.armX,sx=CONFIG.A.sampleX;
@@ -1283,7 +1309,7 @@ function resetScene(){
    externalB();
    // Fail fast if a scene revision silently deletes a whole subsystem.
    const required=['B01','B35','B03','B07','B08','B09','B10','B11','B12',
-     'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23'];
+     'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23','B36'];
    if(bPhoto94Mode)required.push('B29','B30','B31','B32');
    else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33','B34');
    const missing=required.filter(id=>!parts.has(id));
