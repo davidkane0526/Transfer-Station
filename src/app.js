@@ -749,18 +749,19 @@ function rotaryB(){
  // The real apparatus has TWO distinct plate layers: metallic common
  // B01 below and a separate BLACK THORLABS hole-grid board under B08.
  // Photos 145 and 150 show the latter's Thorlabs label and edge.
- // 180×150×12 are layout CANDIDATES, NOT an identified SKU.
+ // 250×300×12 is a PHOTO-FIT coverage candidate, NOT the
+ // identifiable 250×300×12.7mm Thorlabs MB2530/M OEM SKU.
  addPart('B35',CONFIG.B.sampleBoardCenterX,20,0,g=>{
    const w=CONFIG.B.sampleBoardWidthMm,d=CONFIG.B.sampleBoardDepthMm;
    add(g,cub(w,rise-2,d,mats.black,0,(rise-2)/2,0));
    const holes=[];
-   for(let x=-75;x<=75;x+=25)for(let z=-50;z<=50;z+=25)
+   for(let x=-100;x<=100;x+=25)for(let z=-125;z<=125;z+=25)
       holes.push([x,z,2.8]);
    const top=plate(w,d,2,mats.dark,holes);
    top.position.y=rise-2;add(g,top);
    g.userData.independentSampleBoard=true;
    g.userData.thicknessPhotoUnverified=true;
-   label(g,'照片145/150：黑色Thorlabs孔板 · 厚度'+rise+'mm仅候选',0,rise+9,63);
+   label(g,'照片145/150：B35黑色Thorlabs安装板 同时支撑旋转台和显微镜底座（尺寸候选）',0,rise+9,135);
  },{explode:[0,-8,0]});
  addPart('B08',sx,20+rise,0,g=>{
     add(g,cyl(47,23,mats.dark,0,11.5,0));
@@ -845,8 +846,12 @@ function rotaryB(){
  const substrate=cub(24,.6,24,mats.glass,0,98.5+rise,0);substrate.position.x=sx;currentRoot.add(substrate);
 }
 function microscopeB(){
- const sx=CONFIG.B.sampleX,sz=CONFIG.B.scopeZ;
- addPart('B16',sx,20,sz,g=>{
+ const sx=CONFIG.B.sampleX,sz=CONFIG.B.scopeZ,
+    rise=CONFIG.B.sampleBoardRiseMm;
+ // Photo150: microscope post FOOT occupies the BACK of B35.
+ // It MUST NOT sit directly on lower silver B01 while the
+ // adjacent sample rotary sits 12mm higher on B35.
+ addPart('B16',sx,20+rise,sz,g=>{
    add(g,cub(65,12,65,mats.dark,0,6,0));
    add(g,cyl(13,238,mats.steel,0,131,0));
    add(g,cub(80,34,34,mats.microscope,0,242,23));
@@ -857,12 +862,12 @@ function microscopeB(){
    addJointHeads(g,'B16',11.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
    label(g,'MXFMS 显微镜本体 / 支架（包络代理）',0,303,80);
  },{explode:[0,15,-42]});
- addPart('B17',sx,276,0,g=>{
+ addPart('B17',sx,276+rise,0,g=>{
    add(g,cub(47,48,48,mats.dark,0,24,0));
    add(g,cub(30,18,30,mats.steel,0,3,0));
    label(g,'SDPTOP 相机 · 型号待核',0,77,0);
  },{explode:[0,95,0]});
- addPart('B18',sx,200,0,g=>{
+ addPart('B18',sx,200+rise,0,g=>{
    add(g,cyl(17,13,mats.dark,0,6.5,0));
    add(g,cyl(12.5,38,mats.steel,0,-18.5,0));
    add(g,cyl(10,12,mats.black,0,-43.5,0));
