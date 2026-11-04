@@ -672,6 +672,9 @@ for dy,dz in [(-24,0),(24,0),(0,-24),(0,24),
     fan_hole=vx(2.5,14,239,180+dy,50+dz)
     check(pump.intersect(fan_hole).Volume()<1e-5,
           f'V43 fan-grille aperture remains open at {dy},{dz}')
+fan_ring_test=vx(39,2,239,180,50).cut(vx(31,2.2,238.9,180,50))
+check(abs(pump.intersect(fan_ring_test).Volume()-fan_ring_test.Volume())<1e-3,
+      'V43 circular fan-grille ring is present and attached to end cover')
 nameplate_test=box_probe(48,1.2,22,325,224,39)
 check(abs(pump.intersect(nameplate_test).Volume()-nameplate_test.Volume())<1e-3,
       'V43 side nameplate is physically fused to the cylindrical shell')
@@ -701,9 +704,11 @@ report['V43_VN50_pump_geometry']={
  'head_cooling_fins':6,
  'top_vent_bores':12,
  'side_vent_bores':18,
+ 'fan_grille_ring':True,
  'fan_grille_apertures':8,
  'printed_nameplate_proxy':True,
  'warning_sticker_proxy':True,
+ 'warning_symbol':True,
  'manufacturer_verified':False,
  'inlet_orientation_verified':False
 }
