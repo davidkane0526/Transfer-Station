@@ -63,7 +63,7 @@ export function vc13PhotoScrewDatums({
     measuredFromPhoto:false,makerGeometryVerified:false};
 }
 export function photo94BracketCandidate({
-  stageCenterX=-116,stageTopY=124,topPlateWidth=80,topPlateDepth=12,
+  stageCenterX=-116,stageTopY=144,topPlateWidth=80,topPlateDepth=12,
   verticalLegLength=72,metalThickness=2.5
 }={}){
   if(!(topPlateWidth>40&&topPlateWidth<110))throw Error('L bracket width is only a photo silhouette candidate');
