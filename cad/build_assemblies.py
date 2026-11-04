@@ -414,23 +414,35 @@ def make_a():
     # A photo 100 shows sample-side T25M above rotary; A photo 97 shows a
     # SECOND T25M below VC13M. Both physically exist.
     stage('A','A02',cx,0,61.2,'+X')
-    stage('A','A15',ax,0,20,'+X',axes=2,depth_direction='+Y')
+    # User-confirmed mounting relationship, maker/height candidate:
+    # A15 must rest on the actual magnetic base, not on naked board.
+    add('A','A17','FILM_MAGNET_MOUNT_STAND_OEM_UNKNOWN',
+        box(65,65,20,ax,0,20),'C')
+    stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y')
     # Photo 97: vertical slide/upright carriage, not a solid block.
-    vc13=(box(65,65,8,ax,0,53)
-          .fuse(box(56,17,43,ax,-9,61))
-          .fuse(box(65,65,7,ax,0,97)))
+    vc13=(box(65,65,8,ax,0,73)
+          .fuse(box(56,17,43,ax,-9,81))
+          .fuse(box(65,65,7,ax,0,117)))
     add('A','A03','VC13M_upright_combined_PROXY',vc13)
-    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,31,78),'P')
-    add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,31,113),'P')
-    add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,104),'D')
-    add('A','A04M','G40M60L_right_micrometer',vx(5,22,ax+20,0,114),'P')
-    add('A','A04K','G40M60L_right_knob',vx(8.5,15,ax+42,0,114),'P')
-    add('A','A05','slide',box(76,26,1,cx,0,114))
-    # A transfer beam must span from the left tilt-stage axis (ax) to
-    # the slide center (cx); earlier 151 mm proxy stopped ~46 mm short.
-    add('A','A05A','slide_arm_CANDIDATE',box(215,12,8,(ax+cx)/2,0,153))
-    add('A','A05B','slide_arm_vertical_support_CANDIDATE',box(13,13,29,ax,0,124))
-    add('A','A05C','slide_edge_clamp_CANDIDATE',box(12,12,39,cx+33,0,114))
+    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,31,98),'P')
+    add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,31,133),'P')
+    add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,124),'D')
+    add('A','A04M','G40M60L_right_micrometer',vx(5,22,ax+20,0,134),'P')
+    add('A','A04K','G40M60L_right_knob',vx(8.5,15,ax+42,0,134),'P')
+    # V38: source photo 94 shows ONE thin bent-L metal sheet on G40,
+    # NOT a fabricated 215mm solid transfer beam / invented glass clip.
+    # Match the existing Three.js A05 geometry; open glass attachment
+    # is intentionally unresolved until more real photos are available.
+    l_left=ax-60
+    add('A','A05','photo94_ONE_BENT_L_TOP_SHEET_CANDIDATE',
+        box(80,12,2.5,ax-20,13,144),'P')
+    add('A','A05A','photo94_L_DROP_LEG_CANDIDATE',
+        box(2.5,12,72,l_left+1.25,13,72),'C')
+    add('A','A05B','photo94_L_RETURN_FLANGE_CANDIDATE',
+        box(13,12,2.5,l_left+6.5,13,72),'C')
+    for i,dx in enumerate((-14,14),1):
+        add('A',f'A05S{i}','photo94_TOP_VISIBLE_SCREW_HEAD_CANDIDATE',
+            vz(3.1,2,ax+dx,13,146.5),'P')
     # Photos137/161 show a separate Daheng GCM-5306M 8mm mounting base.
     base=box(112,70,8,cx,0,20)
     # Hole coordinates are NOT from a manufacturer hole map; retain
@@ -447,7 +459,7 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V37')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V38')
     # The user's B photos distinguish the SILVER common table from the
     # independent BLACK THORLABS board below the sample stage. Preserve
     # that evidence as AP214 STEP assembly colors, not merely part names.
@@ -461,7 +473,7 @@ def export(sys):
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
         assembly.add(shape,**props)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V37.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V38.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
