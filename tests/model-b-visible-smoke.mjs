@@ -48,6 +48,13 @@ try{
    clip:{x:viewerBox.x,y:viewerBox.y,width:viewerBox.width,height:viewerBox.height},
    animations:'disabled',timeout:30000});
  await page.locator('#btn-home').click();
+ await page.locator('#btn-sample-stack').click();
+ const sampleBox=await page.locator('#viewer').boundingBox();
+ assert(sampleBox&&sampleBox.width>=300&&sampleBox.height>=300);
+ await page.screenshot({path:'Transfer-Station-V32-Black-Thorlabs-Sample-Board.png',
+   clip:{x:sampleBox.x,y:sampleBox.y,width:sampleBox.width,height:sampleBox.height},
+   animations:'disabled',timeout:30000});
+ await page.locator('#btn-home').click();
  await page.locator('#open-bom').click();
  const rows=await page.locator('#bom-body tr').allTextContents();
  for(const id of ['B01','B35','B02','B03','B04','B05','B06','B07','B08','B09',
@@ -76,6 +83,14 @@ try{
  assert.equal(await square.count(),1,'Independent square clamp cannot disappear');
  await square.click();
  assert.match(await page.locator('#part-detail').innerText(),/方形夹块|方夹/);
+ await page.locator('#open-bom').click();
+ await page.locator('#bom-query').fill('B35');
+ const board=page.locator('#bom-body tr').filter({hasText:'B35'});
+ assert.equal(await board.count(),1,'Black Thorlabs sample board must be a separate BOM item');
+ await board.click();
+ const boardDetail=await page.locator('#part-detail').innerText();
+ assert.match(boardDetail,/Thorlabs|THORLABS/);
+ assert.match(boardDetail,/145|150/);
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
  const evidenceA=await page.locator('#photo-ledger').innerText();
