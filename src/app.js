@@ -1685,7 +1685,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · V37 / VN-50真空吸附管路 / 145–151照片复原'):
+   '平台 B · V37 / VN-50真空吸附 / PHUC-1夹具 / 145–151实拍'):
    '平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
