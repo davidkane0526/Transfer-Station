@@ -11,7 +11,37 @@ export const VACUUM_DIMS=Object.freeze({
 });
 export function suctionDimension(id){
  if(id==='B15T')id='B40';
+ if(id==='B20I')id='B20';
  return VACUUM_DIMS[id]||null;
+}
+export function auditVacuumInterfaceFit(){
+ const d=VACUUM_DIMS;
+ // Model-vs-model comparisons, NOT physical measurements or elastic fit data.
+ const warmEndExpansionPct=100*(d.B15.odMm/d.B40.idMm-1);
+ const pumpEndSlipOnExpansionPct=100*(d.B20.odMm/d.B40.idMm-1);
+ const hoseToOpenBoreDiametricGapMm=d.B20.idMm-d.B40.odMm;
+ return Object.freeze({
+   status:'unverified',
+   candidateGeometryOnly:true,
+   heaterEnd:{
+     fittingOdMm:d.B15.odMm,hoseIdMm:d.B40.idMm,
+     nominalHoseExpansionPct:Number(warmEndExpansionPct.toFixed(1)),
+     directFitVerified:false,
+     materialStretchAndClampNeeded:true
+   },
+   pumpEnd:{
+     inletOdMm:d.B20.odMm,inletBoreMm:d.B20.idMm,
+     hoseIdMm:d.B40.idMm,hoseOdMm:d.B40.odMm,
+     nominalSlipOnExpansionPct:Number(pumpEndSlipOnExpansionPct.toFixed(1)),
+     openBoreDiametricGapMm:Number(hoseToOpenBoreDiametricGapMm.toFixed(1)),
+     directFitVerified:false,
+     matchingAdapterOrFittingUnresolved:true,
+     pumpInletOrientationVerified:false
+   },
+   sealedVacuumCircuitVerified:false,
+   visualCenterlineConnectionOnly:true,
+   fittingSkuVerified:false
+ });
 }
 export function auditSuctionDimensions(){
  const d=VACUUM_DIMS;
@@ -23,6 +53,8 @@ export function auditSuctionDimensions(){
    allDiameterLabelsCandidate:Object.values(d).every(x=>x.verified===false),
    hoseWallThicknessMm:(d.B40.odMm-d.B40.idMm)/2,
    pumpInletThreadConfirmed:false,
+   mechanicalAdapterConfirmed:false,
+   sealedVacuumCircuitVerified:false,
    ids:Object.keys(d)
  };
 }
