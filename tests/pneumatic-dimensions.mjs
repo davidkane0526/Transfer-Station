@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {VACUUM_DIMS,suctionDimension,auditSuctionDimensions} from '../src/pneumatic-dimensions.js';
+const d=auditSuctionDimensions();
+assert(d.allDiameterLabelsCandidate);
+assert.equal(d.hoseWallThicknessMm,1.3);
+assert.equal(d.vacuumSourceCount,1);
+assert.equal(suctionDimension('B11').odMm,1.4);
+assert.equal(suctionDimension('B15').idMm,2.84);
+assert.equal(suctionDimension('B40').idMm,4.4);
+assert.equal(suctionDimension('B15T').odMm,7);
+assert.equal(suctionDimension('B20').idMm,8.2);
+assert.equal(d.pumpInletThreadConfirmed,false);
+console.log('V38 all candidate suction diameters and single verified VN-50 photo identity: PASS');
