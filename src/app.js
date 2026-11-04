@@ -71,6 +71,8 @@ window.__modelBViewProbe=()=>{
  return {
    exists:true,visible:g.visible&&g.parent?.visible,
    meshCount:g.children.filter(o=>o.isMesh).length,
+   hiddenExternalParts:[...parts.values()].filter(v=>v.part.group==='external'&&!v.g.visible).map(v=>v.part.id),
+   visibleExternalCount:[...parts.values()].filter(v=>v.part.group==='external'&&v.g.visible).length,
    worldCenter:center.toArray(),
    projectedCenter:ndc.toArray(),
    camera:camera.position.toArray(),target:orbit.target.toArray()
