@@ -406,8 +406,8 @@ def make_b():
         vx(28,118,266,180,50),
         # Two longitudinal tie rods on the same visible side, above/below plate.
         vx(2.5,140,255,219,30),vx(2.5,140,255,219,70),
-        box(14,14,18,255,218,21),box(14,14,18,395,218,21),
-        box(14,14,18,255,218,61),box(14,14,18,395,218,61),
+        box(14,14,18,255,214,21),box(14,14,18,395,214,21),
+        box(14,14,18,255,214,61),box(14,14,18,395,214,61),
         # Two finned aluminium heads, each on a separate flange.
         box(48,48,8,290,180,88),box(42,42,38,290,180,96),
         box(44,44,4,290,180,134),
