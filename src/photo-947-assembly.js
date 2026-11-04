@@ -68,20 +68,22 @@ export function vc13PhotoScrewDatums({
     measuredFromPhoto:false,makerGeometryVerified:false};
 }
 export function photo94BracketCandidate({
-  stageCenterX=-116,stageTopY=144,topPlateWidth=80,topPlateDepth=12,
-  verticalLegLength=72,metalThickness=2.5
+  stageCenterX=-116,stageTopY=144,topPlateWidth=75,topPlateDepth=12,
+  leftOverhangMm=48,verticalLegLength=72,metalThickness=2.5
 }={}){
   if(!(topPlateWidth>40&&topPlateWidth<110))throw Error('L bracket width is only a photo silhouette candidate');
   if(!(metalThickness>1&&metalThickness<4))throw Error('A05 should be a THIN bent sheet, not a structural 12mm bar');
   if(!(verticalLegLength>45&&verticalLegLength<110))throw Error('Unsupported photo94 long drop');
-  const leftX=stageCenterX-(topPlateWidth-20);
+  if(leftOverhangMm<=0||leftOverhangMm>=topPlateWidth)throw RangeError('A05 sheet overhang invalid');
+  const leftX=stageCenterX-leftOverhangMm;
   const rightX=leftX+topPlateWidth;
   const centerX=(leftX+rightX)/2;
   const legCenterY=stageTopY-verticalLegLength/2;
   const verticalLegBottomY=stageTopY-verticalLegLength;
   const sheetFrontZ=13; // photo94 black sheet lies near front edge of G40, not broad center cover
   return {leftX,rightX,centerX,topY:stageTopY,
-    topPlateWidth,topPlateDepth,sheetFrontZ,metalThickness,verticalLegLength,
+    topPlateWidth,topPlateDepth,leftOverhangMm,sheetFrontZ,metalThickness,verticalLegLength,
+    photo94ManualG40ScaleCandidate:true,topLengthNotFromRuler:true,
     legCenterY,verticalLegBottomY,
     topBoltWorldX:[stageCenterX-14,stageCenterX+14],
     fixedSheetCount:1,topBoltCount:2,
