@@ -1076,7 +1076,10 @@ function rotaryB(){
    // V38: B35 is a bolted accessory above the only common B01.
    const anchors=[[-40,-100,3.25],[-40,100,3.25],
                   [110,-100,3.25],[110,100,3.25]];
-   add(g,plate(w,d,rise-2,mats.black,anchors));
+   // Lower 6mm remains solid; upper 4mm contains four proposed
+   // microscope tapped-core bores in addition to the B35 base anchors.
+   // Together with the 2mm top layer this gives a 6mm pilot depth.
+   add(g,plate(w,d,6,mats.black,anchors));
    const holes=[];
    for(let x=-100;x<=100;x+=25)for(let z=-125;z<=125;z+=25)
       holes.push([x,z,2.8]);
@@ -1084,7 +1087,8 @@ function rotaryB(){
    // These four need deeper recesses, unlike the cosmetic 2 mm grid.
    const microscopePilot=[ [0,-125,2.5],[50,-125,2.5],
                            [0,-75,2.5],[50,-75,2.5] ];
-   const pilotCore=plate(w,d,rise-2,mats.black,microscopePilot);
+   const core=plate(w,d,rise-8,mats.black,[...anchors,...microscopePilot]);
+   core.position.y=6;add(g,core);
    // The visible top-grid holes alone do not certify an M6 thread.
    // The prototype pilot coordinates are audited against B16 separately.
    const top=plate(w,d,2,mats.dark,
