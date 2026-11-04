@@ -10,7 +10,8 @@ for(const [name,stack] of Object.entries(STACKS)){
   }
 }
 assert.deepEqual(STACKS.B.film.slice(0,3),['B02','B03','B04']);
-assert.deepEqual(STACKS.B.sample.slice(0,2),['B08','B09']);
+assert.deepEqual(STACKS.B.sample.slice(0,3),['B35','B08','B09']);
+assert(STACKS.B.photo.includes('145.jpg')&&STACKS.B.photo.includes('150.jpg'));
 assert.deepEqual(STACKS.A.film.slice(0,3),['A15','A03','A04']);
 assert.deepEqual(STACKS.A.sample.slice(0,3),['A16','A06','A02']);
 assert(STACKS.A.photo.includes('161.jpg')&&STACKS.B.photo.includes('149.jpg'));
