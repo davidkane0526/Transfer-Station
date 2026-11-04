@@ -4,7 +4,7 @@ import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrew
 import {STACKS,HANDLES} from '../src/photo-evidence.js';
 
 assert.equal(PHOTO_94_95_97.rig,'A','User photographs 94-97 must not be tagged as B');
-assert.deepEqual(PHOTO_94_95_97.imageToParts['94'],['A04','A05']);
+assert.deepEqual(PHOTO_94_95_97.imageToParts['94'],['A04L','A04','A05']);
 assert.deepEqual(PHOTO_94_95_97.imageToParts['95'],['A15']);
 assert.deepEqual(PHOTO_94_95_97.imageToParts['97'],['A15','A03']);
 assert.deepEqual(PHOTO_94_95_97.stageIds,STACKS.A.film.slice(1,5));
@@ -35,10 +35,13 @@ assert.throws(()=>vc13PhotoScrewDatums({drumCenterLocalYmm:58}),
 assert.equal(PHOTO_94_95_97.g40.centerOfRotationHeightMm,60);
 assert.deepEqual(PHOTO_94_95_97.vc13m.topSizeMm,[65,65]);
 assert.equal(HANDLES.A15.handles,2);
-assert.equal(HANDLES.A04.direction,'+X');
+assert.equal(HANDLES.A04L.direction,'+X');
+assert.equal(HANDLES.A04.direction,'-X');
+assert.equal(PHOTO_94_95_97.visibleMetalConnection.likelySecondGoniometerUnderNamedG40,true);
+assert.equal(PHOTO_94_95_97.visibleMetalConnection.lowerGoniometerModelVerified,false);
 assert.equal(HANDLES.A03.direction,'+Y');
 const bracket=photo94BracketCandidate();
-assert.equal(bracket.topY,144,'A05 is 20mm higher after inserting magnetic A17 beneath A15');
+assert.equal(bracket.topY,164,'V47 A05 rests on two independent nominal 20mm goniometer modules');
 assert.equal(bracket.topPlateWidth,75);
 assert.equal(bracket.leftOverhangMm,48);
 assert.equal(bracket.leftX,-164);
@@ -52,13 +55,15 @@ assert.equal(bracket.topBoltCount,2);
 assert.equal(bracket.fixedSheetCount,1);
 assert(bracket.leftX < -136 && bracket.rightX >= -96,
  'The top L sheet must cover G40M60L top surface and overhang left');
-assert.equal(bracket.verticalLegBottomY,72);
+assert.equal(bracket.verticalLegBottomY,92);
 assert.equal(bracket.glassGripModelConfirmed,false);
 assert.equal(bracket.loadBearingVerified,false);
 const names=Object.fromEntries(PARTS.A.map(x=>[x.id,x]));
 for(const id of PHOTO_94_95_97.stageIds)assert(names[id],'Photo part absent: '+id);
 assert.equal(names.A03.model,'GCM-VC13M');
 assert.equal(names.A04.model,'GCM-G40M60L');
+assert.match(names.A04L.model,/GCM-G40M40L/);
+assert.match(names.A04L.interfaceNote,/未确认|待/);
 assert(names.A05.name.includes('L形薄金属'),'Do not draw a square crossbeam instead of L sheet');
 assert(names.A05.interfaceNote.includes('未'),'Do not certify unseen grip interface');
 const refA=getPhotoComparison('A'),refB=getPhotoComparison('B');
