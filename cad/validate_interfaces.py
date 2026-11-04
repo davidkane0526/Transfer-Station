@@ -644,12 +644,19 @@ for x in (250,400):
         support=box_probe(14,14,18,x,218,z0)
         check(abs(pump.intersect(support).Volume()-support.Volume())<1e-3,
               f'V43 same-side tie-rod end support at X={x}, Z={z0+9} is fully present')
+for x in (290,365):
+    bridge_post=vz(4.2,8,x,180,134)
+    check(abs(pump.intersect(bridge_post).Volume()-bridge_post.Volume())<1e-3,
+          f'V43 head-to-bridge support post at X={x} is fully present')
+bridge=vx(4.2,75,290,180,142)
+check(abs(pump.intersect(bridge).Volume()-bridge.Volume())<1e-3,
+      'V43 shared top connecting pipe is fully integrated')
 for z0 in (30,70):
     rod=vx(2.5,140,255,219,z0)
     check(abs(pump.intersect(rod).Volume()-rod.Volume())<1e-3,
           f'V43 longitudinal tie rod on the same visible side at Z={z0} is present')
 # 12 top bores and 18 side bores must remain open through the curved shell.
-for x in (255,260,315,330,395,400):
+for x in (255,260,315,330,390,395):
     for y in (165,195):
         top_vent=vz(2.7,2.5,x,y,90.5)
         check(pump.intersect(top_vent).Volume()<1e-5,
@@ -665,9 +672,13 @@ for dy,dz in [(-24,0),(24,0),(0,-24),(0,24),
     fan_hole=vx(2.5,14,239,180+dy,50+dz)
     check(pump.intersect(fan_hole).Volume()<1e-5,
           f'V43 fan-grille aperture remains open at {dy},{dz}')
-nameplate_test=box_probe(48,1.2,22,320,224,39)
+nameplate_test=box_probe(48,1.2,22,325,224,39)
 check(abs(pump.intersect(nameplate_test).Volume()-nameplate_test.Volume())<1e-3,
       'V43 side nameplate is physically fused to the cylindrical shell')
+for w,z0 in [(30,56),(36,52),(32,48),(28,44),(22,40)]:
+    printed_line=box_probe(w,.6,1.2,325,224.8,z0)
+    check(abs(pump.intersect(printed_line).Volume()-printed_line.Volume())<1e-3,
+          f'V43 printed data-plate line at Z={z0} is attached')
 warning_test=box_probe(18,1.2,18,370,220,61)
 check(abs(pump.intersect(warning_test).Volume()-warning_test.Volume())<1e-3,
       'V43 no-lubrication warning sticker is physically fused to the shell')
