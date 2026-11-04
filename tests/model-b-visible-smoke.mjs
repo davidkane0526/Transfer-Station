@@ -75,7 +75,7 @@ try{
  assert(vac?.available,'V37 pump suction tube or diagnostic not mounted');
  assert.equal(vac.nameplateModel,'VN-50','Photo120 VN-50 must replace W-50');
  assert.equal(vac.photoConfirmed,true);
- assert.equal(vac.geometryRevision,'V42_photo120_123_motor_and_catalog_dual_head_candidate');
+ assert.equal(vac.geometryRevision,'V43_photo120_123_cylindrical_shell_same_side_rods_candidate');
  assert.deepEqual(vac.pumpEnvelopeMm.map(v=>Math.round(v)),[200,150,110],
    'VN-50 candidate body must respect the 200×110×150mm family envelope');
  assert.equal(vac.pumpFeatures.basePlate,1);
@@ -84,14 +84,14 @@ try{
  assert.deepEqual(vac.pumpFeatures.mountingFootCenters,
    [[-81,10,-48],[-81,10,48],[61,10,-48],[61,10,48]],
    'Four VN-50 feet must be centered on the 142×96mm candidate pattern relative to the pump base');
- assert.deepEqual(vac.pumpFeatures.nameplateCenters,[[-15,43,38.5]],
+ assert.deepEqual(vac.pumpFeatures.nameplateCenters,[[-10,50,44]],
    'VN-50 nameplate must sit on the visible long side face');
  assert.equal(vac.pumpFeatures.rodSupports,4,
    'Two side rails must be supported at both ends');
  assert.equal(vac.pumpFeatures.headFlanges,2);
  assert.equal(vac.pumpFeatures.headCaps,2);
  assert.equal(vac.pumpFeatures.topPorts,1);
- assert.equal(vac.pumpFeatures.filters,2);
+ assert.equal(vac.pumpFeatures.filters,3);
  assert.equal(vac.pumpFeatures.topVents,12);
  assert.equal(vac.pumpFeatures.sideVents,18,
    'Side vents must remain outside the nameplate footprint');
@@ -99,7 +99,7 @@ try{
  assert.equal(vac.pumpFeatures.motorCore,1);
  assert.equal(vac.pumpFeatures.fanCover,1);
  assert.equal(vac.pumpFeatures.twinHeads,2,
-   'VN-50 family imagery must be represented by two rectangular pump heads');
+   'VN-50 family imagery must be represented by two finned pump heads');
  assert.equal(vac.pumpFeatures.tieRods,2,
    'Photo120/123 must show two longitudinal metal tie rods');
  assert(vac.pumpFeatures.vents>=20,
