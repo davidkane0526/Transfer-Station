@@ -276,8 +276,15 @@ def make_b():
     microscope_rise=12
     add('B','B16','microscope_column_PROXY',
         vz(13,240,cx,-112,32+microscope_rise))
-    add('B','B16A','microscope_base',
-        box(65,65,12,cx,-112,20+microscope_rise))
+    # V35: four TRUE through-bores for the proposed microscope foot
+    # fastener layout. 4mm diameter and 50mm pitch are CANDIDATES,
+    # not photo-verified, and the B35 photo-fit blind holes do NOT
+    # establish a working threaded anchor.
+    microscope_foot=box(65,65,12,cx,-112,20+microscope_rise)
+    foot_bores=[(cx+dx,-112+dy) for dx in (-25,25) for dy in (-25,25)]
+    microscope_foot=cut(microscope_foot,foot_bores,4,12,20+microscope_rise)
+    add('B','B16A','microscope_base_4_TRUE_O4_through_bores_CANDIDATE',
+        microscope_foot,'C')
     add('B','B16B','microscope_boom',
         box(35,132,26,cx,-52,259+microscope_rise))
     add('B','B16C','microscope_body',
@@ -354,7 +361,7 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V34')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V35')
     # The user's B photos distinguish the SILVER common table from the
     # independent BLACK THORLABS board below the sample stage. Preserve
     # that evidence as AP214 STEP assembly colors, not merely part names.
@@ -368,7 +375,7 @@ def export(sys):
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
         assembly.add(shape,**props)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V34.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V35.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
