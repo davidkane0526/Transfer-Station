@@ -79,6 +79,8 @@ try{
  assert.deepEqual(vac.pumpEnvelopeMm.map(v=>Math.round(v)),[200,150,110],
    'VN-50 candidate body must respect the 200×110×150mm family envelope');
  assert.equal(vac.pumpFeatures.basePlate,1);
+ assert.equal(vac.pumpFeatures.mountingFeet,4,
+   'VN-50 candidate mounting pattern must have four visible feet');
  assert.equal(vac.pumpFeatures.motorHousing,1);
  assert.equal(vac.pumpFeatures.motorCore,1);
  assert.equal(vac.pumpFeatures.fanCover,1);
