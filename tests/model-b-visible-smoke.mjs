@@ -85,7 +85,22 @@ try{
    [[-81,10,-48],[-81,10,48],[61,10,-48],[61,10,48]],
    'Four VN-50 feet must be centered on the 142×96mm candidate pattern relative to the pump base');
  assert.deepEqual(vac.pumpFeatures.nameplateCenters,[[-10,50,44]],
-   'VN-50 nameplate must sit on the visible long side face');
+   'VN-50 nameplate must sit on the visible curved side face');
+ assert.deepEqual(vac.pumpFeatures.tieRodCenters,[[-10,30,39],[-10,70,39]],
+   'Two tie rods must occupy different heights on the SAME visible side');
+ assert.equal(vac.pumpFeatures.cylindricalHousing,1,
+   'Photo120/123 require a horizontal cylindrical motor barrel, not a box');
+ assert.equal(vac.pumpFeatures.housingBands,2);
+ assert.equal(vac.pumpFeatures.headFins,6);
+ assert.equal(vac.pumpFeatures.headBridges,1);
+ assert.equal(vac.pumpFeatures.headBridgeSupports,2);
+ assert.equal(vac.pumpFeatures.rubberFeet,4);
+ assert.equal(vac.pumpFeatures.warningPlates,1);
+ assert.equal(vac.pumpFeatures.warningSymbols,2);
+ assert.equal(vac.pumpFeatures.nameplateTextLines,5);
+ assert.equal(vac.pumpFeatures.fanGrilles,1);
+ assert.equal(vac.pumpFeatures.fanGrilleSpokes,4);
+ assert.equal(vac.pumpFeatures.fanApertures,8);
  assert.equal(vac.pumpFeatures.rodSupports,4,
    'Two side rails must be supported at both ends');
  assert.equal(vac.pumpFeatures.headFlanges,2);
