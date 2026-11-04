@@ -682,6 +682,13 @@ for w,z0 in [(30,56),(36,52),(32,48),(28,44),(22,40)]:
 warning_test=box_probe(18,1.2,18,370,220,61)
 check(abs(pump.intersect(warning_test).Volume()-warning_test.Volume())<1e-3,
       'V43 no-lubrication warning sticker is physically fused to the shell')
+warning_ring_test=vy(5.2,.6,370,220.45,70).cut(vy(4.2,.8,370,220.35,70))
+check(abs(pump.intersect(warning_ring_test).Volume()-warning_ring_test.Volume())<1e-3,
+      'V43 warning sticker annular symbol is present and attached')
+warning_slash_test=box_probe(1.4,.6,12,370,220.8,70).rotate(
+    (370,220.8,70),(370,221.8,70),-45)
+check(abs(pump.intersect(warning_slash_test).Volume()-warning_slash_test.Volume())<1e-3,
+      'V43 warning sticker diagonal slash is present and attached')
 report['V43_VN50_pump_geometry']={
  'candidate_envelope_mm':[round(pumpbb.xlen,3),round(pumpbb.ylen,3),round(pumpbb.zlen,3)],
  'candidate_mounting_pitch_mm':[142,96],
