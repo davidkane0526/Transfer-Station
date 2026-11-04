@@ -219,11 +219,10 @@ def make_b():
     # fabricated Ø26 socket and 27mm hanging solid. Only a tiny Ø6
     # END STUD (B26) is hypothesized because GCM1302M lists an M6 mount.
     # An unverified M6 thread must NOT be treated as a proven fastener.
-    # B06 faces -X after web's 180-degree yaw, so its mating spine
-    # occupies X24.5..41.5; the candidate Ø12 bar stops at X24.5.
-    clamp_x=cx-42
+    # V36: the rod stops at the repositioned GCM1302M spine x=-2.5.
+    # This is a candidate side interface; actual M6 coupling unverified.
     add('B','B26','unknown_M6_direct_end_stud_INTERFACE_ONLY',
-        vx(3,10,24.5,0,lower_rod_z),'C')
+        vx(3,10,-2.5,0,lower_rod_z),'C')
     # Shift the GCM-1302M jaw and glass to a plausible aligned height.
     # Only the interconnection hierarchy is photographed; this 20.5mm
     # change is a geometry fit, NOT a confirmed measured clearance.
@@ -239,7 +238,7 @@ def make_b():
     # Now spine Z=121..139.5, meeting both fixed/moving jaw plates
     # by planar side contact without penetration.
     fixed_spine=box(14.5,56,18.5,clamp_x-8.25,0,121)
-    fixed_spine=fixed_spine.cut(vx(3.06,10,24.5,0,lower_rod_z))
+    fixed_spine=fixed_spine.cut(vx(3.06,10,-2.5,0,lower_rod_z))
     add('B','B06','GCM13_fixed_spine_with_REAL_M6_candidate_side_bore',
         fixed_spine,'C')
     add('B','B06F','GCM13_one_fixed_jaw_CANDIDATE',
