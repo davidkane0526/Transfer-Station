@@ -421,19 +421,19 @@ def make_b():
         box(44,44,2,365,180,139.6),
         box(44,44,2,365,180,141.4),
         # Shared upper connecting pipe, outlet silencer and filter assembly.
-        vx(4.2,75,287.5,180,142),
+        vx(4.2,75,290,180,142),
         vz(4.2,8,290,180,134),vz(4.2,8,365,180,134),
         vx(7,14,276,180,143),
         box(18,18,16,385,180,125),
         vz(8,22,385,180,100),vz(9,4,385,180,121),
         # Photo-like side nameplate and separate no-lubrication warning plate.
-        box(48,1.2,22,320,224,39),
+        box(48,1.2,22,325,224,39),
         box(18,1.2,18,370,220,61),
-        box(30,.6,1.2,320,224.8,56),
-        box(36,.6,1.2,320,224.8,52),
-        box(32,.6,1.2,320,224.8,48),
-        box(28,.6,1.2,320,224.8,44),
-        box(22,.6,1.2,320,224.8,40),
+        box(30,.6,1.2,325,224.8,56),
+        box(36,.6,1.2,325,224.8,52),
+        box(32,.6,1.2,325,224.8,48),
+        box(28,.6,1.2,325,224.8,44),
+        box(22,.6,1.2,325,224.8,40),
         # Circular fan grille ring on the left end cover.
         fan_ring)
     # Four open candidate mounting bores (142x96mm family pattern).
