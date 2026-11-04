@@ -1,15 +1,34 @@
 import assert from 'node:assert/strict';
-import {B149,auditB149} from '../src/b-photo149-geometry.js';
+import {B149,auditB149,auditBLoweringPose} from '../src/b-photo149-geometry.js';
 const a=auditB149();
 assert.equal(a.postTopY,196);
 assert.equal(a.holderTopY,146);
 assert.equal(a.holderToSquareGapMm,7);
 assert.equal(a.exposedPostAboveHolderMm,50);
 assert.equal(a.upperRodY-a.lowerRodY,33);
-assert.equal(a.lowerRodLengthMm,54.5);
-assert.equal(a.upperRodEndX,10);
-assert.equal(a.glassHolderSpineLeftX,24.5);
+assert.equal(a.lowerRodLengthMm,57.5);
+assert.equal(a.upperRodEndX,-20);
+assert.equal(a.glassHolderSpineLeftX,-2.5);
 assert(Math.abs(a.glassToHeaterGapMm-14.8)<0.01);
+assert.equal(a.glassLeftX,18);
+assert.equal(a.glassRightX,94);
+assert.equal(a.stampCenterX,82);
+assert.equal(a.stampRightX,92);
+assert.equal(a.clampRightX,34);
+assert.equal(a.nominalClampClearanceMm,15.5);
+assert.equal(a.worstStageOnlyClearanceMm,3);
+assert.equal(a.verticalContactDropMm,13);
+const contact=auditBLoweringPose({filmVerticalDropMm:13});
+assert(contact.safeToLower&&!contact.possibleClash);
+const stageLeft=auditBLoweringPose({sampleShiftX:-12.5,filmVerticalDropMm:13});
+assert(stageLeft.safeToLower&&stageLeft.planarGapMm>=3);
+const unsafe=auditBLoweringPose({filmShiftX:12.5,sampleShiftX:-12.5,filmVerticalDropMm:13});
+assert(unsafe.possibleClash&&!unsafe.safeToLower,
+  'X travel must not disable clamp/heat collision guard during lowering');
+const rotated=auditBLoweringPose({sampleAngleDeg:45,filmVerticalDropMm:13});
+assert.equal(rotated.safeToLower,false,
+  'Diagonal rotation grows square heater X-envelope and blocks unsafe lowering');
+assert.throws(()=>auditB149({...B149,stampOffsetFromGlassCenterX:-5}),/RIGHT slide edge/);
 assert(a.b04MovingFlangeTopY<a.b04GuideTopY);
 assert.equal(a.threadingVerified,false);
 assert.equal(a.crossPhotoAbsoluteHeightVerified,false);
