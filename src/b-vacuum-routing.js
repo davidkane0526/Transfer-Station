@@ -1,7 +1,8 @@
-// V37 — photo 120 pump label is VN-50, NOT the formerly guessed W-50.
-// The highlighted intake on the scene is a routing candidate, not a
-// confirmed original port orientation. Three.js: X/Y(up)/Z(back/front).
-// Units are mm. Electrical wiring stays in B36; suction must not enter it.
+// V39 — route the vacuum line around the REAR of the YUDIAN AI
+// temperature-controller panel B19 and the B36 cabinet, not over the
+// controller face or through the electrical enclosure.
+// Three.js axes: X horizontal, Y up, Z front/back. Units: mm.
+// CAD maps the same route to (X,Z,Y).
 export const VN50=Object.freeze({
   model:'VN-50',
   physicalNameplate:true,
@@ -19,11 +20,18 @@ export const VN50=Object.freeze({
   controlCabinetBox:Object.freeze({
     xmin:222.5,xmax:507.5,ymin:0,ymax:125,
     zmin:-262.5,zmax:-37.5
+  }),
+  temperatureControllerBox:Object.freeze({
+    xmin:305,xmax:425,ymin:20,ymax:100,
+    zmin:-37.5,zmax:-19.5
+  }),
+  microscopePost:Object.freeze({
+    x:82,z:-112,radiusMm:13,ymin:44,ymax:282
   })
 });
 function point(x,y,z){return {x,y,z};}
 export function movingVacuumOutlet({
-  sampleShiftMm=0, sampleAngleDeg=0
+  sampleShiftMm=0,sampleAngleDeg=0
 }={}){
   const rad=sampleAngleDeg*Math.PI/180;
   const c=Math.cos(rad),s=Math.sin(rad);
@@ -38,20 +46,19 @@ export function vacuumHosePath({
   sampleShiftMm=0,sampleAngleDeg=0
 }={}){
   const moving=movingVacuumOutlet({sampleShiftMm,sampleAngleDeg});
-  // V38: fewer broader elbows; vacuum line runs ABOVE the bundled
-  // power/sensor leads on the rear service corridor. The rest passes
-  // BEHIND/ABOVE the table, over the open cabinet (not through its
-  // solid side walls), and around the pump to its nominated INTAKE.
+  // The first span stays to the right of the B16 microscope post.
+  // The tube then passes LEFT of B36, BEHIND its rear wall, and
+  // around the cabinet's RIGHT side before approaching the pump's
+  // candidate INTAKE. It never enters the electrical enclosure.
   const path=[
     moving,
-    point(moving.x+26,Math.max(moving.y+13,104),moving.z-36),
-    point(199,136,-168),
-    point(235,145,-168),
-    point(256,146,-40),
-    point(252,132,60),
-    point(285,125,175),
-    point(342,120,226),
-    point(450,105,226),
+    point(175,102,-135),
+    point(190,102,-170),
+    point(190,102,-275),
+    point(350,102,-275),
+    point(520,102,-275),
+    point(520,102,140),
+    point(520,90,180),
     point(465,69,180),
     point(VN50.pumpIntakeCandidate.x,
           VN50.pumpIntakeCandidate.y,
@@ -59,33 +66,66 @@ export function vacuumHosePath({
   ];
   return path;
 }
+function routeSamples(points,stepMm=2){
+  const out=[];
+  for(let i=0;i<points.length-1;i++){
+    const a=points[i],b=points[i+1];
+    const length=Math.hypot(b.x-a.x,b.y-a.y,b.z-a.z);
+    const n=Math.max(1,Math.ceil(length/stepMm));
+    for(let j=0;j<=n;j++){
+      if(i&&j===0)continue;
+      const t=j/n;
+      out.push(point(a.x+(b.x-a.x)*t,
+        a.y+(b.y-a.y)*t,a.z+(b.z-a.z)*t));
+    }
+  }
+  return out;
+}
+function distanceToBox(p,b){
+  const dx=Math.max(b.xmin-p.x,0,p.x-b.xmax);
+  const dy=Math.max(b.ymin-p.y,0,p.y-b.ymax);
+  const dz=Math.max(b.zmin-p.z,0,p.z-b.zmax);
+  return Math.hypot(dx,dy,dz);
+}
 export function auditVacuumPath(options={}){
   const points=vacuumHosePath(options);
-  const {pumpIntakeCandidate:p,controlCabinetBox:b}=VN50;
+  const samples=routeSamples(points);
+  const {pumpIntakeCandidate:p,controlCabinetBox:b,
+    temperatureControllerBox:c,microscopePost:m}=VN50;
   const start=points[0],end=points.at(-1);
-  const near=(a,c,eps=.01)=>Math.abs(a-c)<eps;
+  const near=(a,v,eps=.01)=>Math.abs(a-v)<eps;
   const distinct=points.every((v,i)=>!i||Math.hypot(
     v.x-points[i-1].x,v.y-points[i-1].y,v.z-points[i-1].z)>1);
-  const segmentsCrossCabinet=false;
-  // The static cable corridor is above the open housing; the first
-  // three points remain to its left. This is only an AABB guard.
-  const corridorClear=points.every((v,i)=>{
-    if(i<=3)return v.x<b.xmin||v.y>b.ymax+VN50.outerHoseRadiusMm;
-    if(i===4||i===5)return v.y>b.ymax+VN50.outerHoseRadiusMm;
-    return v.z>b.zmax||v.y>b.ymax+VN50.outerHoseRadiusMm;
-  });
+  const cabinetClearanceMm=Math.min(...samples.map(v=>
+    distanceToBox(v,b)-VN50.outerHoseRadiusMm));
+  const controllerClearanceMm=Math.min(...samples.map(v=>
+    distanceToBox(v,c)-VN50.outerHoseRadiusMm));
+  const microscopeClearanceMm=Math.min(...samples.map(v=>
+    v.y>=m.ymin&&v.y<=m.ymax?
+      Math.hypot(v.x-m.x,v.z-m.z)-m.radiusMm-VN50.outerHoseRadiusMm:
+      Math.hypot(Math.max(m.radiusMm-Math.hypot(v.x-m.x,v.z-m.z),0),
+        v.y<m.ymin?m.ymin-v.y:v.y-m.ymax)-VN50.outerHoseRadiusMm));
+  const passesBehindController=points.some(v=>
+    v.x>c.xmin&&v.x<c.xmax&&v.z<b.zmin-VN50.outerHoseRadiusMm);
+  const segmentsCrossCabinet=cabinetClearanceMm<0;
   const verify=near(end.x,p.x)&&near(end.y,p.y)&&near(end.z,p.z)
-    &&distinct&&corridorClear&&VN50.innerBoreRadiusMm>0
+    &&distinct&&cabinetClearanceMm>0&&controllerClearanceMm>0
+    &&microscopeClearanceMm>0&&passesBehindController
+    &&VN50.innerBoreRadiusMm>0
     &&VN50.innerBoreRadiusMm<VN50.outerHoseRadiusMm;
-  if(!verify)throw Error('VN-50 candidate vacuum hose disconnects or crosses cabinet envelope');
+  if(!verify)throw Error('VN-50 rear-routed hose disconnects or collides with B16/B19/B36');
   return Object.freeze({
     pumpModel:VN50.model,
     photoConfirmedPumpModel:VN50.physicalNameplate,
     airPath:['B11 central Ø1.4 suction hole','B11 rear vacuum bore',
       'B15 bored fitting','B15T short flexible hose',
-      'B40 continuous hollow hose','B20I VN-50 suction inlet (position candidate)'],
+      'B40 rear-routed continuous hollow hose','B20I VN-50 suction inlet (position candidate)'],
     hoseWaypointCount:points.length,
-    serviceLane:'upper-rear pneumatic corridor',
+    serviceLane:'B19 controller rear / B36 cabinet rear exterior',
+    passesBehindController,
+    cabinetClearanceMm,
+    controllerClearanceMm,
+    microscopeClearanceMm,
     start,end,
     nominalSourceMatches:near(start.x,94)&&near(start.y,90.5)&&near(start.z,-79),
     inletMatches:true,
