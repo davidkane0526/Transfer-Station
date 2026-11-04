@@ -132,6 +132,29 @@ window.__modelBSupportProbe=()=>{
    microscopeMountAudit:mountAudit
  };
 };
+// V46 read-only first-rig kinematic witness: A03 fixed body does NOT
+// move; its output plate plus A04/A05 must move together by the preview
+// displacement. This is NOT a real glass-contact/collision certification.
+window.__modelAKinematicProbe=()=>{
+  if(platform!=='A')return {available:false};
+  const vc=parts.get('A03')?.g,tilt=parts.get('A04')?.g,
+        arm=parts.get('A05')?.g,magnet=parts.get('A17')?.g;
+  if(!vc||!tilt||!arm||!magnet)return {available:false};
+  return {
+    available:true,
+    vStageStationaryBaseWorldY:vc.position.y,
+    vStageMovingPlateOffsetY:vc.userData.verticalCarriage?.position.y??null,
+    g40WorldBaseY:tilt.position.y,
+    bracketWorldBaseY:arm.position.y,
+    filmDropMm:filmDrop,
+    a17CandidateHoleCount:magnet.userData.candidateMountHoleMarkers?.length??0,
+    a17PhotographedSkuVerified:false,
+    stageModel:'GCM-VC13M',
+    knownProxyGeometryCollisionFree:false,
+    glassClampedAndReachable:false,
+    globalAssemblyAudit:auditPlatformAAssembly()
+  };
+};
 // V36 read-only probes measure ACTUAL rendered Three.js meshes.
 // A pure-datum pass alone does not prove the jaw stays outside the heater.
 window.__modelBContactProbe=()=>{
