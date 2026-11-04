@@ -540,8 +540,10 @@ def make_a():
     # NOT a fabricated 215mm solid transfer beam / invented glass clip.
     # Match the existing Three.js A05 geometry; open glass attachment
     # is intentionally unresolved until more real photos are available.
-    l_left=ax-60
-    folded_sheet=box(80,12,2.5,ax-20,13,144).fuse(
+    # V47: local x-span was calibrated from the G40 40mm photo94 front
+    # projection (roughly 75mm total, 48mm left reach). NOT ruler metrology.
+    l_left=ax-48
+    folded_sheet=box(75,12,2.5,ax-10.5,13,144).fuse(
         box(2.5,12,72,l_left+1.25,13,72),
         box(13,12,2.5,l_left+6.5,13,72))
     add('A','A05','photo94_ONE_CONNECTED_BENT_L_SHEET_CANDIDATE',
