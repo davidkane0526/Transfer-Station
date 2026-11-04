@@ -1165,7 +1165,10 @@ function populateGroups(){
    const tx=document.createElement('span');tx.textContent=cfg.name;
    const count=document.createElement('span');count.className='count';count.textContent=subset.length+' 件';
    line.append(input,dot,tx,count);list.append(line);
-   if(key==='external')parts.forEach(v=>{if(v.part.group==='external')v.g.visible=false});
+   // Every checked category MUST be visible. An older optimization
+   // silently hid all external objects while leaving its checkbox ON;
+   // this made B36/B19/B21/B23 disappear despite valid STEP/BOM.
+   parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked});
  }
 }
 function updateDetail(part){
