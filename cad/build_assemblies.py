@@ -434,12 +434,11 @@ def make_a():
     # Match the existing Three.js A05 geometry; open glass attachment
     # is intentionally unresolved until more real photos are available.
     l_left=ax-60
-    add('A','A05','photo94_ONE_BENT_L_TOP_SHEET_CANDIDATE',
-        box(80,12,2.5,ax-20,13,144),'P')
-    add('A','A05A','photo94_L_DROP_LEG_CANDIDATE',
-        box(2.5,12,72,l_left+1.25,13,72),'C')
-    add('A','A05B','photo94_L_RETURN_FLANGE_CANDIDATE',
-        box(13,12,2.5,l_left+6.5,13,72),'C')
+    folded_sheet=box(80,12,2.5,ax-20,13,144).fuse(
+        box(2.5,12,72,l_left+1.25,13,72),
+        box(13,12,2.5,l_left+6.5,13,72))
+    add('A','A05','photo94_ONE_CONNECTED_BENT_L_SHEET_CANDIDATE',
+        folded_sheet,'P')
     for i,dx in enumerate((-14,14),1):
         add('A',f'A05S{i}','photo94_TOP_VISIBLE_SCREW_HEAD_CANDIDATE',
             vz(3.1,2,ax+dx,13,146.5),'P')
