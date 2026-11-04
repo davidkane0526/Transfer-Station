@@ -84,6 +84,12 @@ try{
  assert(vac.pumpCoordinateErrorMm<.01,
    'Hose does not terminate at the VN-50 suction nozzle');
  assert.equal(vac.electricityCabinetNotVacuumDestination,true);
+ assert.equal(vac.passesBehindController,true,
+   'B40 must pass behind the B19 temperature controller, not over its front');
+ assert.equal(vac.serviceLane,'B19 controller rear / B36 cabinet rear exterior');
+ assert(vac.cabinetClearanceMm>0,'B40 must clear all B36 enclosure walls');
+ assert(vac.controllerClearanceMm>0,'B40 must clear the B19 panel body');
+ assert(vac.microscopeClearanceMm>0,'B40 must clear the moving-side B16 microscope column');
  assert.equal(vac.actualInletThreadVerified,false);
  const prevRoute=vac.dynamicRoute;
  await page.locator('#sample-move').evaluate(el=>{
