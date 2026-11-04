@@ -703,7 +703,7 @@ def vacuum_axis_probe(a,b,r=.9,trim=.15):
     origin=Vector(*a)+direction*trim
     return cq.Solid.makeCylinder(r,length-2*trim,origin,direction)
 short_points=[(82,-44.5,107.5),(82,-58,108.5)]
-outer_points=[(94,-79,90.5),(120,-115,104)]
+outer_points=[(94,-79,90.5),(190,-135,102)]
 check(vacstub.intersect(vacuum_axis_probe(*short_points)).Volume()<.01,
       'V37 B15T short hose has a CONTINUOUS hollow center')
 check(suction.intersect(vacuum_axis_probe(*outer_points)).Volume()<.01,
@@ -715,12 +715,21 @@ check(suction.BoundingBox().xmax>=425-3.5,
       'V37 pump end of suction hose must reach VN-50 inlet position')
 check(suction.intersect(cabinet).Volume()<.01,
       'V37 vacuum hose cannot thread through metal electrical cabinet')
+check(suction.intersect(pid).Volume()<.01,
+      'V39 B40 must pass BEHIND B19 without intersecting the controller body')
+check(suction.BoundingBox().ymin<shellbb.ymin-10,
+      'V39 B40 must route behind the full B36 cabinet, not above its front controller')
+check(suction.BoundingBox().xmin<shellbb.xmin-10 and
+      suction.BoundingBox().xmax>shellbb.xmax+10,
+      'V39 B40 must route around both cabinet side walls before reaching the pump')
+check(suction.intersect(part(B,'B16')[0]).Volume()<.01,
+      'V39 B40 first span must clear the rear microscope column B16')
 check(suction.intersect(pump_body).Volume()<.01,
       'V37 suction hose cannot burrow through the pump motor housing')
 check(suction.intersect(part(B,'B01')[0]).Volume()<.01,
       'V37 vacuum hose must route ABOVE the optical base, not through it')
 check(not (B/'B40A.step').exists(),'No second disconnected invented suction line')
-report['V37_suction_loop']={
+report['V39_rear_routed_suction_loop']={
  'actual_pump_model_photo_120':'VN-50',
  'pump_nameplate':{'AC_V':220,'power_W':230,'flow_L_per_min':53,
                    'vacuum_mmHg':680,'weight_kg_approx':4},
@@ -731,6 +740,10 @@ report['V37_suction_loop']={
  'real_lumen_open_on_all_external_parts':True,
  'pump_has_real_open_intake_bore':True,
  'cabinet_interpenetration':False,
+ 'passes_behind_B19_controller':True,
+ 'route_around_B36_rear_and_right_side':True,
+ 'B19_body_interference':False,
+ 'B16_post_interference':False,
  'pump_electrical_connection_inferred':False,
  'hose_thread_and_material_spec_verified':False
 }
