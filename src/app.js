@@ -1079,9 +1079,11 @@ function renderPhotoLedger(){
    platform==='B'?['B02','B03','B04','B05','B34','B27','B33','B25','B24','B28','B26','B06','B07']:stack.film;
  const sampleIds=stack.sample;
  const note=document.createElement('p');note.textContent=platform==='B'&&bPhoto94Mode?'照片94/95/97新结构：T25M→VC13M→G40M60L→L片；下方B29底座只辨认出轮廓，不能套用另一档案的磁吸底座型号。':stack.confidence;host.append(note);
- for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds})){
+ for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds,external:stack.external||[]})){
+   if(!ids.length)continue;
    const heading=document.createElement('div');heading.className='key';
-   heading.textContent=side==='film'?(platform==='B'&&bPhoto94Mode?
+   heading.textContent=side==='external'?'温控控制箱及内部部件（相对位置仍为候选）':
+     side==='film'?(platform==='B'&&bPhoto94Mode?
      '载玻片侧（机构顺序 + 未连接的玻片位置参考）':'载玻片侧（从下至上）'):
      '样品侧（从下至上；与玻片侧接口待核验）';
    host.append(heading);
@@ -1099,7 +1101,7 @@ function renderPhotoLedger(){
  }
  const m=document.createElement('div');m.className='marked-note';
  m.textContent=platform==='B'&&bPhoto94Mode?'用户要求的B新照片对照配置：GCM-T25M→GCM-VC13M→GCM-G40M60L→L型薄板；此前A/B照片归档冲突未解决，不能以此证明NFP样品侧同机。':platform==='B'?
-   'B02 磁座在 B03 T25M 下方，B04为V25M。B08/B09样品侧、B16–B18显微镜及其余已知子系统均继续显示，不能因为切换玻片侧方案而删除。':
+   'B02磁座在B03之下；B35黑色Thorlabs板在B08旋转台下方；B36金属机箱包含前置B19温控器、内部B21电源及B23模块。B20真空泵/B22灯电源独立显示。各箱体尺寸为候选。':
    'A15 与 A02 为两台不同 T25M：照片97所示 A15 在 VC13M 下；照片100所示 A02 在旋转台上。';
  host.append(m);
 }
