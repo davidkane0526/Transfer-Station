@@ -411,8 +411,15 @@ window.__mountingProbe=()=>{
    const g=parts.get(id)?.g;
    if(!g)return null;
    g.updateWorldMatrix(true,true);
-   const m=g.children.find(x=>x.isMesh);
-   return m?new THREE.Box3().setFromObject(m):null;
+   const meshes=g.children.filter(x=>x.isMesh);
+   if(!meshes.length)return null;
+   const extent=new THREE.Box3().setFromObject(meshes[0]);
+   // V46 A17 splits the solid magnet into a 17mm body and a 3mm
+   // perforated top. Measuring only mesh 0 would falsely create a
+   // 3mm gap to A15, despite both bodies meeting at world Y=40.
+   if(id==='A17'&&meshes.length>=2)
+     extent.union(new THREE.Box3().setFromObject(meshes[1]));
+   return extent;
  };
  const mag=meshBox('A17'),stage=meshBox('A15');
  const board=meshBox('A01');
