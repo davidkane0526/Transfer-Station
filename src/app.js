@@ -1552,6 +1552,15 @@ function focusBPhoto(photo){
 $('btn-photo108').onclick=()=>focusBPhoto('108');
 $('btn-photo109').onclick=()=>focusBPhoto('109');
 $('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
+ $('btn-control-cabinet').onclick=()=>{
+   // The controller has a front YUDIAN panel and open-top internal
+   // SE-600-48/B23 modules. A dedicated raised viewpoint exposes
+   // both surfaces instead of treating the box as an opaque block.
+   if(platform!=='B')switchPlatform('B');
+   const target=new THREE.Vector3(365,65,-150);
+   camera.position.set(590,470,130);
+   orbit.target.copy(target);camera.lookAt(target);orbit.update();
+ };
 $('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$('btn-optical').onclick=()=>focus('optical');$('btn-front').onclick=()=>focus('front');$('btn-rear').onclick=()=>focus('rear');$('btn-iso').onclick=()=>focus('iso');
 $('explode').oninput=e=>{explosion=Number(e.target.value);$('explode-value').textContent=explosion+'%';updateTransforms()};
 $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value').textContent=filmShift.toFixed(1)+' mm';updateTransforms()};
