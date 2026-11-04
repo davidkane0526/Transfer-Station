@@ -633,11 +633,41 @@ for x in (254,396):
         pump_mount_holes.append(pump.intersect(hole).Volume())
 check(max(pump_mount_holes)<1e-5,
       'V41 VN-50 candidate 142x96mm mounting pattern has four open Ø6.2 bores')
-report['V41_VN50_pump_geometry']={
+# V42: head blocks, top fittings, side rails and ventilation must be
+# geometrically present and must not cut through the pump nameplate.
+for x in (290,365):
+    head=box(46,48,50,x,180,81)
+    check(abs(pump.intersect(head).Volume()-head.Volume())<1e-3,
+          f'V42 VN-50 rectangular twin head at X={x} is fully present')
+for x in (250,400):
+    for y in (135,225):
+        support=box(14,16,24,x,y,28)
+        check(abs(pump.intersect(support).Volume()-support.Volume())<1e-3,
+              f'V42 VN-50 side-rail support at {x},{y} is fully present')
+for x in (255,325,395):
+    for y in (150,165,195,210):
+        top_vent=vz(2.7,1.5,x,y,75.45)
+        check(pump.intersect(top_vent).Volume()<1e-5,
+              f'V42 top ventilation bore remains open at {x},{y}')
+for x in (270,280,360,370,380,390):
+    for z in (28,42,56):
+        side_vent=vy(2.1,1.4,x,217.8,z)
+        check(pump.intersect(side_vent).Volume()<1e-5,
+              f'V42 side ventilation bore remains open at {x},{z}')
+nameplate_test=box(62,1.5,26,320,218.5,30)
+check(abs(pump.intersect(nameplate_test).Volume()-nameplate_test.Volume())<1e-3,
+      'V42 side perforations do not cut through the nameplate footprint')
+report['V42_VN50_pump_geometry']={
  'candidate_envelope_mm':[round(pumpbb.xlen,3),round(pumpbb.ylen,3),round(pumpbb.zlen,3)],
  'candidate_mounting_pitch_mm':[142,96],
  'mounting_hole_diameter_candidate_mm':6.2,
  'connected_solid_count':len(pump.Solids()),
+ 'rectangular_twin_heads':2,
+ 'side_tie_rods':2,
+ 'rod_end_supports':4,
+ 'top_vent_bores':12,
+ 'side_vent_bores':18,
+ 'nameplate_kept_clear':True,
  'manufacturer_verified':False,
  'inlet_orientation_verified':False
 }
