@@ -252,7 +252,7 @@ window.__modelBVacuumProbe=()=>{
    pumpBounds.max.z-pumpBounds.min.z
  ];
  const pumpFeatures={basePlate:0,mountingFeet:0,motorHousing:0,motorCore:0,
-   cylindricalHousing:0,housingBands:0,fanCover:0,fanGrilles:0,fanGrilleSpokes:0,
+   cylindricalHousing:0,housingBands:0,fanCover:0,fanGrilles:0,
    twinHeads:0,tieRods:0,rodSupports:0,headFlanges:0,headCaps:0,headFins:0,
    headBridges:0,headBridgeSupports:0,fanApertures:0,topPorts:0,filters:0,warningPlates:0,
    warningSymbols:0,nameplateTextLines:0,vents:0,topVents:0,sideVents:0,
@@ -266,7 +266,6 @@ window.__modelBVacuumProbe=()=>{
    if(o.userData.pumpCylindricalHousing)pumpFeatures.cylindricalHousing++;
    if(o.userData.pumpHousingBand)pumpFeatures.housingBands++;
    if(o.userData.pumpFanGrille)pumpFeatures.fanGrilles++;
-   if(o.userData.pumpFanGrilleSpoke)pumpFeatures.fanGrilleSpokes++;
    if(o.userData.pumpFanAperture)pumpFeatures.fanApertures++;
    if(o.userData.pumpHeadFin)pumpFeatures.headFins++;
    if(o.userData.pumpHeadBridge)pumpFeatures.headBridges++;
@@ -1294,11 +1293,6 @@ function externalB(){
   fan.userData.pumpFanCover=true;
   const fanRing=add(g,sleeve(39,31,1.6,mats.silver,-95,50,0,'x'));
   fanRing.userData.pumpFanGrille=true;
-  for(let i=0;i<4;i++){
-    const spoke=add(g,cub(1.2,56,1.5,mats.silver,-96,50,0));
-    spoke.rotation.x=i*Math.PI/4;
-    spoke.userData.pumpFanGrilleSpoke=true;
-  }
   for(const [dy,dz] of [[-24,0],[24,0],[0,-24],[0,24],[-17,-17],[-17,17],[17,-17],[17,17]]){
     const aperture=add(g,cyl(2.5,14,mats.ink,-89,50+dz,dy,24));
     aperture.rotation.z=Math.PI/2;
