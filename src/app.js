@@ -1169,7 +1169,7 @@ function externalB(){
 // A common left feedthrough passes a paired heater lead and one
 // sensor sheath into the photo-fit cabinet, where they terminate
 // at clearly unassigned internal connection zones.
-// V37 separate pneumatic subsystem — no path through temperature
+// V39 separate pneumatic subsystem — hose passes behind B19/B36, never through the electrical enclosure
 // controller, PSU or unknown control cabinet electronics.
 // Geometrical hose is two-sided wall skin: open lumen and fixed pump
 // inlet; the actual hose diameter/G1/4 barb/thread are unverified.
