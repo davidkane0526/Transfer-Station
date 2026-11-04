@@ -373,8 +373,8 @@ check(abs(moving_plate.BoundingBox().zmin-glass.BoundingBox().zmax)<.02,
       'One moving pressure plate contacts 1mm glass without interpenetration')
 check(abs(glass.BoundingBox().zmin-pdms.BoundingBox().zmax)<.02,
       'PDMS underside contacts glass')
-check(20<pdms.BoundingBox().zmin-chuck.BoundingBox().zmax<35,
-      'Preview is an ABOVE-contact assembly pose; do not claim membrane touches sample')
+check(9<pdms.BoundingBox().zmin-chuck.BoundingBox().zmax<25,
+      'With B35 rise, film is ABOVE and not touching heater (clearance photo-fit only)')
 for i in (1,2):
     screw=part(B,f'B06S{i}')[0]
     check(screw.intersect(drive_bridge).Volume()<1e-4,
