@@ -25,7 +25,7 @@ assert(stageLeft.safeToLower&&stageLeft.planarGapMm>=3);
 const unsafe=auditBLoweringPose({filmShiftX:12.5,sampleShiftX:-12.5,filmVerticalDropMm:13});
 assert(unsafe.possibleClash&&!unsafe.safeToLower,
   'X travel must not disable clamp/heat collision guard during lowering');
-const rotated=auditBLoweringPose({sampleAngleDeg:45,filmVerticalDropMm:13});
+const rotated=auditBLoweringPose({sampleAngleDeg:45,sampleShiftX:-5,filmVerticalDropMm:13});
 assert.equal(rotated.safeToLower,false,
   'Diagonal rotation grows square heater X-envelope and blocks unsafe lowering');
 assert.throws(()=>auditB149({...B149,stampOffsetFromGlassCenterX:-5}),/RIGHT slide edge/);
