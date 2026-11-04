@@ -221,6 +221,11 @@ window.__modelBVacuumProbe=()=>{
    pumpCoordinateErrorMm:inlet.distanceTo(new THREE.Vector3(end.x,end.y,end.z)),
    twoOpenPorts:boresOpen,
    electricityCabinetNotVacuumDestination:true,
+   passesBehindController:hose.userData.audit?.passesBehindController===true,
+   serviceLane:hose.userData.audit?.serviceLane,
+   cabinetClearanceMm:hose.userData.audit?.cabinetClearanceMm,
+   controllerClearanceMm:hose.userData.audit?.controllerClearanceMm,
+   microscopeClearanceMm:hose.userData.audit?.microscopeClearanceMm,
    actualInletThreadVerified:false,
    actualInletOrientationVerified:false,
    dynamicRoute:waypoints.map(p=>[p.x,p.y,p.z])
@@ -1181,8 +1186,9 @@ function vacuumSupplyB(){
    g.userData.connectedPumpIntake='B20';
    g.userData.model='VN-50';
    g.userData.inletOrientationCandidate=true;
+   g.userData.routeBehindControllerB19=true;
    g.userData.audit=auditVacuumPath();
-   label(g,'B40真空软管 OD Ø7.0 / ID Ø4.4 mm（候选） → VN-50 INTAKE',215,167,188);
+   label(g,'B40：绕过B19温控器背侧 / B36机箱后方',350,116,-285);
  },{explode:[0,0,0]});
 }
 function refreshVacuumHoseB(){
