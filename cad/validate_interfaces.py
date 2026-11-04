@@ -639,7 +639,7 @@ for x in (290,365):
     head=box_probe(42,42,38,x,180,96)
     check(abs(pump.intersect(head).Volume()-head.Volume())<1e-3,
           f'V43 VN-50 finned head core at X={x} is fully present')
-for x in (250,400):
+for x in (255,395):
     for z0 in (21,61):
         support=box_probe(14,14,18,x,218,z0)
         check(abs(pump.intersect(support).Volume()-support.Volume())<1e-3,
