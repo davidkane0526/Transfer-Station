@@ -16,6 +16,7 @@ import {getPlateHolderJawDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
 import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
 import {B149,auditB149} from './b-photo149-geometry.js';
+import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -96,6 +97,20 @@ window.__modelBSupportProbe=()=>{
  boardBox.union(new THREE.Box3().setFromObject(boardMeshes[1]));
  const scopeFootBox=new THREE.Box3().setFromObject(scopeMeshes[0]);
  const rotFootBox=new THREE.Box3().setFromObject(rotMeshes[0]);
+ // V35: the earlier B16 was a SOLID block under four drawn screw heads.
+ // Verify the ACTUAL first foot mesh has four open clearance bores.
+ // Do not confuse this with fastening to B35's decorative 2mm recesses.
+ const mountAudit=auditB35MicroscopeFasteners({
+   boardCenterX:CONFIG.B.sampleBoardCenterX,
+   microscopeCenterX:CONFIG.B.scopeX,
+   microscopeCenterZ:CONFIG.B.scopeZ,
+   boardThicknessMm:CONFIG.B.sampleBoardRiseMm
+ });
+ const footBoresOpen=mountAudit.candidateHolePairs.every(hole=>{
+   const origin=new THREE.Vector3(hole.footWorldX,scopeFootBox.max.y+2,hole.footWorldZ);
+   const ray=new THREE.Raycaster(origin,new THREE.Vector3(0,-1,0),0,16);
+   return ray.intersectObject(scopeMeshes[0],false).length===0;
+ });
  const overlaps2D=(a,b)=>a.min.x>=b.min.x&&a.max.x<=b.max.x&&
    a.min.z>=b.min.z&&a.max.z<=b.max.z;
  return {
@@ -106,7 +121,9 @@ window.__modelBSupportProbe=()=>{
    boardTopMm:boardBox.max.y,
    microscopeFullyOnBlackBoard:overlaps2D(scopeFootBox,boardBox),
    rotaryFullyOnBlackBoard:overlaps2D(rotFootBox,boardBox),
-   originalThorlabsPartNumberConfirmed:false
+   originalThorlabsPartNumberConfirmed:false,
+   microscopeFootFourTrueThroughBores:footBoresOpen,
+   microscopeMountAudit:mountAudit
  };
 };
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
@@ -883,7 +900,13 @@ function microscopeB(){
  // It MUST NOT sit directly on lower silver B01 while the
  // adjacent sample rotary sits 12mm higher on B35.
  addPart('B16',sx,20+rise,sz,g=>{
-   add(g,cub(65,12,65,mats.dark,0,6,0));
+   // V35: four real candidate through-bores, not four bolt heads
+   // sitting on a completely unperforated SOLID foot. OEM pitch is
+   // unknown; do NOT imply the B35 blind-hole grid is a matching anchor.
+   const footHolePattern=[[-25,-25,2],[-25,25,2],[25,-25,2],[25,25,2]];
+   const foot=add(g,plate(65,65,12,mats.dark,footHolePattern));
+   foot.userData.trueCandidateMountBores=4;
+   foot.userData.boardThreadedFixingVerified=false;
    add(g,cyl(13,238,mats.steel,0,131,0));
    add(g,cub(80,34,34,mats.microscope,0,242,23));
    const boom=add(g,cub(32,26,125,mats.microscope,0,253,75));
@@ -1264,6 +1287,18 @@ function updateDetail(part){
    '"><b>GCM-13 真实夹紧机构示意</b><p>已绘制 '+realScrewAxes+
    ' 根调节螺杆驱动 1 块共用活动压板；当前夹口 '+jawDatums.nominalJawGapMm+
    ' mm 是张开口；当前压板已移动 '+jawDatums.previewClosingTravelMm+' mm，与 '+jawDatums.contactJawGapMm+' mm 厚玻片处于名义接触。夹紧力、真实行程和夹口尺寸均未经验收。</p></div>':'';
+ const b35FastenerAudit=(platform==='B'&&(part.id==='B16'||part.id==='B35'))?
+   auditB35MicroscopeFasteners({boardCenterX:CONFIG.B.sampleBoardCenterX,
+     microscopeCenterX:CONFIG.B.scopeX,microscopeCenterZ:CONFIG.B.scopeZ,
+     boardThicknessMm:CONFIG.B.sampleBoardRiseMm}):null;
+ const b35FastenerHtml=b35FastenerAudit?
+   '<div class="field" id="b35-microscope-fastener-audit" data-bolt-align="'+
+   b35FastenerAudit.boardBoltPatternAligned+'" data-mismatch-mm="'+
+   b35FastenerAudit.maxMismatchMm.toFixed(2)+'"><b>B35↔B16安装孔核对（V35）</b><p>'+
+   'B16底座已绘制4个真正贯通的Ø4mm候选孔；现有螺钉中心与B35外观浅孔网格的最近中心偏差最大约 '+
+   b35FastenerAudit.maxMismatchMm.toFixed(1)+
+   ' mm。B35仍是2mm外观浅孔而非已证实的螺纹孔。当前仅证明两块底面接触，'+
+   '固定孔原点、螺栓长度及实际啮合均未验收，禁止作为加工或安装图。</p></div>':'';
  const axis=AXES[part.id];
  const axisHtml=axis?'<div class="field"><b>独立运动轴与驱动</b><p>线性轴 '+axis.linear+
    '，线性测微头 '+axis.micrometers+'；厂商轴 '+esc(axis.makerAxes.join('/'))+
@@ -1278,7 +1313,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+axisHtml+holderQAHtml+photo94QAHtml+photo95QAHtml+
+ hardwareHtml+axisHtml+holderQAHtml+b35FastenerHtml+photo94QAHtml+photo95QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
@@ -1391,7 +1426,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · 145–151尺寸照片修正 / PHUC-1万向杆夹'):
+   '平台 B · V35 / 145–151尺寸照片修正 / PHUC-1万向杆夹'):
    '平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
