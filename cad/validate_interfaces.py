@@ -473,6 +473,30 @@ check(abs(a_scope_bb.zmin-a_board.zmax)<.02,
       'A10 microscope column must have an attached foot contacting the A01 board')
 check(a_scope_col.intersect(part(A,'A01')[0]).Volume()<1e-4,
       'A10 foot must not penetrate the common optical board')
+# V46: A10 formerly put four screw heads atop an unperforated foot.
+# Now each bolt has actual Ø5.5 clearance and the candidate common base
+# has a Ø5 recess at the same 25mm grid coordinate.
+a10_anchors=[(xx,yy) for xx in (50,100) for yy in (-125,-75)]
+for i,(xx,yy) in enumerate(a10_anchors,1):
+    clearance=vz(2.68,14,xx,yy,20)
+    check(a_scope_col.intersect(clearance).Volume()<1e-4,
+          'A10 foot must contain REAL four Ø5.5 candidate bolt-clearance bores')
+    board_hole=vz(2.4,6,xx,yy,14)
+    check(part(A,'A01')[0].intersect(board_hole).Volume()<1e-4,
+          'A10 candidate M5 bolts must align with A01 modeled 25mm hole grid')
+    screw=part(A,f'A10S{i}')[0]
+    check(len(part(A,f'A10S{i}'))==1,
+          'A10 M5 screw head/shaft must be one connected STEP solid')
+    check(abs(screw.BoundingBox().zmax-34)<.03,
+          'A10 screw head should finish flush with 14mm foot top')
+report['V46_A10_microscope_anchor_audit']={
+    'four_actual_clearance_holes_in_STEP':True,
+    'nominal_grid_registered_bolts':4,
+    'candidate_clearance_diameter_mm':5.5,
+    'base_thread_engagement_confirmed':False,
+    'real_microscope_foot_OEM_model_confirmed':False
+}
+
 a_lens=part(A,'A08')[0]
 a_optical_tube=part(A,'A14')[0]
 a_cam=part(A,'A09')[0]
