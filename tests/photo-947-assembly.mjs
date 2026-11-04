@@ -7,7 +7,8 @@ assert.equal(PHOTO_94_95_97.rig,'A','User photographs 94-97 must not be tagged a
 assert.deepEqual(PHOTO_94_95_97.imageToParts['94'],['A04','A05']);
 assert.deepEqual(PHOTO_94_95_97.imageToParts['95'],['A15']);
 assert.deepEqual(PHOTO_94_95_97.imageToParts['97'],['A15','A03']);
-assert.deepEqual(PHOTO_94_95_97.stageIds,STACKS.A.film.slice(0,4));
+assert.deepEqual(PHOTO_94_95_97.stageIds,STACKS.A.film.slice(1,5));
+assert.equal(STACKS.A.film[0],'A17','A17 is user-confirmed magnetic mounting relation, not photo94-visible model');
 assert.deepEqual(PHOTO_94_95_97.g40.nominalPlateMm,[40,40]);
 assert.equal(PHOTO_94_95_97.g40.nominalHeightMm,20);
 const frontDrive=photo95FrontDriveDatums();
@@ -34,7 +35,7 @@ assert.equal(HANDLES.A15.handles,2);
 assert.equal(HANDLES.A04.direction,'+X');
 assert.equal(HANDLES.A03.direction,'+Y');
 const bracket=photo94BracketCandidate();
-assert.equal(bracket.topY,124,'A05 must sit on A04 top plane');
+assert.equal(bracket.topY,144,'A05 is 20mm higher after inserting magnetic A17 beneath A15');
 assert.equal(bracket.topPlateWidth,80);
 assert.equal(bracket.metalThickness,2.5);
 assert.equal(bracket.topPlateDepth,12,'The black L strip is a narrow front-edge strap, not a broad 32mm cover');
@@ -44,7 +45,7 @@ assert.equal(bracket.topBoltCount,2);
 assert.equal(bracket.fixedSheetCount,1);
 assert(bracket.leftX < -136 && bracket.rightX >= -96,
  'The top L sheet must cover G40M60L top surface and overhang left');
-assert.equal(bracket.verticalLegBottomY,52);
+assert.equal(bracket.verticalLegBottomY,72);
 assert.equal(bracket.glassGripModelConfirmed,false);
 assert.equal(bracket.loadBearingVerified,false);
 const names=Object.fromEntries(PARTS.A.map(x=>[x.id,x]));
