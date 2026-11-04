@@ -675,7 +675,7 @@ center_vac=cq.Solid.makeCylinder(1.25,32.5,Vector(82,-32.5,107.5),Vector(0,1,0))
 center_top=cq.Solid.makeCylinder(.55,2.9,Vector(82,0,107.3),Vector(0,0,1))
 check(center_vac.intersect(chuck).Volume()<1e-6,'Rear vacuum bore is connected towards center')
 check(center_top.intersect(chuck).Volume()<1e-6,'One central top suction hole is unobstructed')
-# V40: physical vacuum loop (photo120 confirms VN-50, NOT W-50).
+# V37: physical vacuum loop (photo120 confirms VN-50, NOT W-50).
 # The pump/port presentation remains a candidate: do NOT claim an
 # OEM inlet side or hose thread has been measured.
 vacstub=part(B,'B15T')[0]
