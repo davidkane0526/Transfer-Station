@@ -17,6 +17,7 @@
  <p class="small" id="b-profile-note">照片149明确为 Zolix PHUC-1 万向杆夹，照片150明确为 GCM-1302M 玻片夹；B的真空加热/样品位移机构及显微镜必须一同显示。照片94/95/97属于A。</p>
  <div class="warning" id="b-physical-audit" role="status">模型 B 的玻片夹具端与样品侧连接未完成物理验收，禁止作为加工装配图。</div>
 </div>
+<div class="warning" id="a-physical-audit" role="status" hidden>平台 A 的工作位置尚未完成配准，无法确认玻片端到热台的正常接触。</div>
 <div class="control-block" id="photo-crosscheck"><div class="title">实物照片的对应关系</div>
 <p class="small" id="photo-scope-note" data-ref-rig="A">A：94/95/97、137–144、152、155、161（新增GCM-5306M底座）。B：107–112、145–151（新增PHUC-1和GCM-1302M同机确认）。两套装配不可混用。</p>
 <div class="buttons"><button id="btn-photo947">查看照片94 / 95 / 97对应的A装配</button><button id="btn-photo94">94 · G40/L片</button><button id="btn-photo95">95 · T25M</button><button id="btn-photo97">97 · VC13M</button></div>
@@ -25,8 +26,8 @@
 <div class="control-line"><label for="explode">爆炸分解</label><span id="explode-value">0%</span></div><input id="explode" type="range" min="0" max="100" step="1" value="0" style="width:100%">
 <div class="control-line"><label for="translate">玻片机构 X（场景 X）</label><span id="translate-value">0 mm</span></div><input id="translate" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
 <div class="control-line"><label for="translate-depth">玻片机构 Y（场景 Z，前后）</label><span id="translate-depth-value">0 mm</span></div><input id="translate-depth" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
-<div class="control-line"><label for="film-drop">玻片竖直下降预览（V25M 候选）</label><span id="film-drop-value">0.0 mm</span></div><input id="film-drop" type="range" min="-13" max="0" step="0.5" value="0" style="width:100%"><div class="marked-note" id="lowering-clearance">夹具必须位于加热台平面外侧，印章下降至接触位时停止</div>
-<div class="control-line"><label for="sample-move">样品 NFP 单轴 X 平移</label><span id="sample-value">0 mm</span></div><input id="sample-move" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
+<div class="control-line"><label for="film-drop" id="film-drop-label">玻片竖直下降 · V25M（13mm接触预览）</label><span id="film-drop-value">0.0 mm</span></div><input id="film-drop" type="range" min="-13" max="0" step="0.5" value="0" style="width:100%"><div class="marked-note" id="lowering-clearance">夹具必须位于加热台平面外侧，印章下降至接触位时停止</div>
+<div class="control-line"><label for="sample-move" id="sample-move-label">样品 NFP-1462C · 单轴 X平移</label><span id="sample-value">0 mm</span></div><input id="sample-move" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
 <div class="control-line"><label for="rotate-sample">样品旋转</label><span id="rotate-value">0°</span></div><input id="rotate-sample" type="range" min="-90" max="90" step="1" value="0" style="width:100%">
 </div>
 <div class="control-block"><div class="title">03 / 显示与筛选</div>
