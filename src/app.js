@@ -1647,8 +1647,8 @@ function platformA(){
    // Photo97 footprint has a much narrower upright body than the 65mm
    // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
    add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
-   add(g,cub(45,37,16,mats.dark,0,26.5,-8)); // fixed body ends at output lower-limit Y=45
-   add(g,cub(44,38,4,mats.black,0,26,5)); // guide face ends below moving plate's lower limit
+   add(g,cub(45,36,16,mats.dark,0,26,-8)); // stationary body ends at output lower-limit local Y=44
+   add(g,cub(44,36,4,mats.black,0,26,5)); // fixed guide ends at lower-limit local Y=44
    for(const x of [-18,18]){
      add(g,cub(2.2,35,2,mats.ink,x,27,8));
      // Captured front-side retaining screw positions are approximate.
@@ -1661,7 +1661,7 @@ function platformA(){
    // V46: movable VC13M output; previous slider left A03/A04/A05 immobile.
    // Mechanical collision along the actual 13mm travel remains unqualified.
    const movingVC13=new THREE.Group();g.add(movingVC13);
-   add(movingVC13,cub(65,6,65,mats.dark,0,48,0));
+   add(movingVC13,cub(65,7,65,mats.dark,0,47.5,0));
    g.userData.verticalCarriage=movingVC13;
    g.userData.nominalVerticalTravelMm=13;
    g.userData.motionProxyNotCollisionCertified=true;
