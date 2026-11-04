@@ -75,6 +75,19 @@ try{
  assert(vac?.available,'V37 pump suction tube or diagnostic not mounted');
  assert.equal(vac.nameplateModel,'VN-50','Photo120 VN-50 must replace W-50');
  assert.equal(vac.photoConfirmed,true);
+ assert.equal(vac.geometryRevision,'V41_photo120_123_twin_head_candidate');
+ assert.deepEqual(vac.pumpEnvelopeMm.map(v=>Math.round(v)),[200,150,110],
+   'VN-50 candidate body must respect the 200×110×150mm family envelope');
+ assert.equal(vac.pumpFeatures.basePlate,1);
+ assert.equal(vac.pumpFeatures.motorHousing,1);
+ assert.equal(vac.pumpFeatures.motorCore,1);
+ assert.equal(vac.pumpFeatures.fanCover,1);
+ assert.equal(vac.pumpFeatures.twinHeads,2,
+   'Photo-fit VN-50 must show two upper pump heads');
+ assert.equal(vac.pumpFeatures.tieRods,2,
+   'Photo120/123 must show the two long metal tie rods');
+ assert(vac.pumpFeatures.vents>=20,
+   'Photo120/123 perforated motor housing details are missing');
  assert.equal(vac.hosePart,'B40');
  assert.equal(vac.hoseWallMeshes,2,'Actual inner and outer hose walls required');
  assert.equal(vac.twoOpenPorts,true,
