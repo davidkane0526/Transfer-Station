@@ -442,7 +442,7 @@ check(not (B/'B06S3.step').exists(),
 # were contradicted by photos94/95/97 and are intentionally absent.
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
-check(abs(asheet_bb.xmin+176)<.02 and abs(asheet_bb.xmax+96)<.02,
+check(abs(asheet_bb.xmin+164)<.02 and abs(asheet_bb.xmax+89)<.02,
       'A photo94 thin bent-L extends only near the G40, NOT to the heater')
 check(abs(asheet_bb.zmin-72)<.02 and abs(asheet_bb.zmax-146.5)<.02,
       'A photo94 folded plate lower return and top plate occupy consistent levels')
@@ -458,6 +458,14 @@ for i,dx in enumerate((-14,14),1):
 for id in ('A05A','A05B','A05C'):
     check(not (A/(id+'.step')).exists(),
           'A old invented 215mm slide carrier, fake riser and guessed glass clip removed: '+id)
+report['V47_A_photo94_visual_scale']={
+ 'source':'photo94 approx landmarks against G40M60L 40mm OEM top size',
+ 'top_span_mm_candidate':75,
+ 'left_overhang_mm_candidate':48,
+ 'absolute_global_registration_verified':False,
+ 'ruler_photos_145_to_151_read':False,
+ 'measurement_method':'perspective-biased known-OEM planar width ratio'
+}
 report['V38_A_film_mounting']={
  'single_breadboard':'A01','film_magnetic_stand':'A17',
  'magnet_model_and_height_qualified':False,
@@ -485,8 +493,8 @@ a_heater=part(A,'A07')[0].BoundingBox()
 a_lip_tip_right=asheet_bb.xmin+13
 a_horizontal_gap=a_heater.xmin-a_lip_tip_right-25 # two optimistic +/-12.5mm stages
 a_bracket_to_heater_z=a_heater.zmax-asheet_bb.zmin
-check(a_horizontal_gap>180,
-      'A old mirrored candidate L-tip is still >180mm away after max X travel')
+check(170<a_horizontal_gap<175,
+      'V47 A photo94 G40-scaled sheet remains 171.5mm away under UNREGISTERED global stage origins')
 check(a_bracket_to_heater_z>27,
       'A current folded bracket lower lip is BELOW heater top by >27mm')
 a_scope_col=part(A,'A10')[0]
