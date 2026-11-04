@@ -287,6 +287,8 @@ nfp_body=part(B,'B09')[0].BoundingBox()
 check(nfp_right.xmin>=nfp_body.xmax-.02,'B NFP micrometer exits right +X')
 a15=part(A,'A15')[0].BoundingBox()
 a03=part(A,'A03')[0].BoundingBox()
+a03_moving=part(A,'A03T')[0]
+a03_top=a03_moving.BoundingBox()
 a04=part(A,'A04')[0].BoundingBox()
 arot=part(A,'A06')[0].BoundingBox()
 a02=part(A,'A02')[0].BoundingBox()
@@ -327,7 +329,27 @@ check(abs(amagnet.zmax-a15.zmin)<.02,
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-73)<.02,
       'A T25M2L has 33 mm verified dual-axis height above its V38 magnetic seat')
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-a03.zmin)<.02,'A film T25M directly UNDER VC13M')
-check(abs(a03.zmax-a04.zmin)<.02,'A VC13M directly UNDER G40M60L')
+check(abs(a03.zmax-a03_top.zmin)<.02,
+      'A VC13 fixed upright must meet, not overlap, independent moving plate')
+check(abs(a03_top.zmax-a04.zmin)<.02,
+      'A03T VC13 moving output plate must support G40M60L')
+check(part(A,'A03')[0].intersect(a03_moving).Volume()<1e-4,
+      'A03 stationary body and A03T moving plate must not overlap at lower pose')
+check(len(part(A,'A03'))==1,
+      'A03 bracket plus fixed carriage must be ONE connected STEP solid')
+check(part(A,'A03')[0].intersect(part(A,'A03M')[0]).Volume()<1e-4,
+      'A03 vertical micrometer shaft must pass cleanly through bored external support')
+check(part(A,'A03')[0].intersect(part(A,'A03K')[0]).Volume()<1e-4,
+      'A03 knob must clear the fixed body')
+report['V46_A03_external_drive_and_moving_plate']={
+    'micrometer_front_offset_mm':40,
+    'shaft_outer_radius_mm':5.5,
+    'support_bore_radius_mm':5.8,
+    'moving_plate_is_independent_STEP_solid':True,
+    'stationary_to_lower_plate_face_contact':True,
+    'full_13mm_motion_collision_certified':False,
+    'physical_zero_height_verified':False
+}
 check(abs(part(A,'A06A')[0].BoundingBox().zmax-a02.zmin)<.02,'A sample T25M above rotary')
 check(abs((a02.zmin+20)-aheat.zmin)<.02,'A sample heater above second T25M')
 check(part(A,'A15B')[0].BoundingBox().xmin>=a15.xmax-.02,
