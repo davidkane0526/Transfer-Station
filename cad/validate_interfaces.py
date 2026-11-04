@@ -641,7 +641,7 @@ for x in (290,365):
           f'V43 VN-50 finned head core at X={x} is fully present')
 for x in (255,395):
     for z0 in (21,61):
-        support=box_probe(14,14,18,x,218,z0)
+        support=box_probe(14,14,18,x,214,z0)
         check(abs(pump.intersect(support).Volume()-support.Volume())<1e-3,
               f'V43 same-side tie-rod end support at X={x}, Z={z0+9} is fully present')
 for x in (290,365):
