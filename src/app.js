@@ -133,7 +133,7 @@ window.__modelBSupportProbe=()=>{
  };
 };
 // V46 read-only first-rig kinematic witness: A03 fixed body does NOT
-// move; its output plate plus A04/A05 must move together by the preview
+// move; its output plate plus A04L/A04/A05 must move together by the preview
 // displacement. This is NOT a real glass-contact/collision certification.
 window.__modelAKinematicProbe=()=>{
   if(platform!=='A')return {available:false};
@@ -2115,7 +2115,7 @@ function updateTransforms(){
    $('lowering-clearance').textContent=motionAudit?
      '夹具与热台X向保守间隙：'+motionAudit.planarGapMm.toFixed(1)+' mm'+
        (motionAudit.possibleClash?'；当前平移/旋转姿态下禁用下降':'；下降检查允许接触印章'):
-     '平台 A · VC13M从候选抬升13mm位置向下运动至旧静态下限；A04/A05联动，玻片夹/整机位置未确认，禁止将其视为实物零位或安全接触';
+     '平台 A · VC13M从候选抬升13mm位置向下运动至旧静态下限；A04L/A04/A05共同随动，玻片夹/整机位置未确认，禁止将其视为实物零位或安全接触';
  }
  parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,rotateSample,facingYaw=0})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0,sx=translateSample?sampleShift:0;
@@ -2154,7 +2154,7 @@ function resetScene(){
  $('hover-help').textContent='点击零件显示唯一标签及尺寸；点空白取消';
  $('axis-confidence-note').textContent=platform==='B'?
   'B：NFP-1462C 只有一个线性X轴，B03双轴T25M对应场景X/Z；照片149确认PHUC-1的33mm孔中心距，照片150确认GCM-1302M；其余接杆长度和安装螺纹为候选。':
-  'A：照片94以G40M60L的40mm尺寸作为比例参照，A05上横板候选约75mm，左伸48mm。照片95按T25M的65mm比例估算磁座厚度约18–19mm，但照片都不含直尺；当前全局坐标不属于实测配准，不能将计算缺口视为实物测量。夹具和磁座型号未确认。';
+  'A：照片94可见两层约20mm机构，上层G40M60L型号已识别，下层A04L型号未知。以G40的40mm比例估算A05上横板长约75mm、左伸48mm；照片95底座厚约18–19mm。原图94/95无直尺，145–151尺子原图仍在不可解包ZIP中，全局配准待验。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
  parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
@@ -2203,7 +2203,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V44 / VN-50泵口待配对 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V46 / VC13M运动预览 / A05夹具未识别 / 装配基准未配准';
+   '平台 A · V47 / 双摆角台候选 / A05局部照片比例已校准 / 全局仍未配准';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
   '照片94/95/97: A载玻片侧由下至上 A15 T25M→A03 VC13M→A04L下层独立摆角台（型号待核）→A04上层G40M60L→A05折弯片。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
@@ -2370,7 +2370,7 @@ function focusPhoto947(photo='94'){
  // comparison this maps to B29/B03/B30/B31/B32; archival A uses A15/A03/A04/A05.
  // This camera choice alone does NOT verify attachment to B's sample branch.
  const dy=isB?20:0;
- const y=(photo==='94'?113:photo==='95'?48:80)+dy;
+ const y=(photo==='94'?133:photo==='95'?48:80)+dy;
  const src=photo==='94'?new THREE.Vector3(x+30,y+43,218):
    photo==='95'?new THREE.Vector3(x+48,y+40,190):
    new THREE.Vector3(x+24,y+32,200);
