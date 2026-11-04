@@ -162,6 +162,12 @@ try{
  // selectable; switching film-side profiles cannot delete it.
  assert.equal(await page.locator('#group-list input[data-group="base"]').isChecked(),true);
  await page.screenshot({path:'Transfer-Station-ModelB-Full-Assembly.png'});
+ await page.locator('#btn-rear').click();
+ await page.waitForTimeout(450);
+ const rearVac=await page.evaluate(()=>window.__modelBVacuumProbe?.());
+ assert.equal(rearVac?.passesBehindController,true,
+   'Rear view must retain the B19-backside vacuum route');
+ await page.screenshot({path:'Transfer-Station-V39-Vacuum-Rear-Route.png'});
  // The default view alone can mask small missing mechanics: explicitly
  // focus on the film arm and capture a second mandatory detail screenshot.
  await page.locator('#btn-film-stack').click();
