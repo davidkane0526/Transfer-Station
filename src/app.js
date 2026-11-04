@@ -1180,7 +1180,7 @@ function externalB(){
 // A common left feedthrough passes a paired heater lead and one
 // sensor sheath into the photo-fit cabinet, where they terminate
 // at clearly unassigned internal connection zones.
-// V39 separate pneumatic subsystem — hose passes behind B19/B36, never through the electrical enclosure
+// V40 pneumatic route: B40 passes behind B19/B36 on a lower service lane, outside the enclosure
 // controller, PSU or unknown control cabinet electronics.
 // Geometrical hose is two-sided wall skin: open lumen and fixed pump
 // inlet; the actual hose diameter/G1/4 barb/thread are unverified.
@@ -1242,7 +1242,7 @@ function heatingControlHarnessB(){
    add(g,tube([[225,87,-167],[235,75,-151],[237,49,-128],
      [252,26,-118],[265,19.7,-116]],.95,pale));
    g.userData.terminatesAtUnassignedTerminalZone=true;
-   label(g,'加热双线：后侧低位并行布线，端子/供电均未核',185,127,-116);
+   label(g,'加热双线：后侧并行线束，端子/供电均未核',185,127,-116);
  },{explode:[0,30,-40]});
  addPart('B38',0,0,0,g=>{
    const m=add(g,tube([[0,0,0],[1,0,0]],.72,sensorMat));
@@ -1274,9 +1274,9 @@ function refreshHeatingControlHarness(){
        start=source(second?16:11,98.5,-60);mid=second?1:0;
        end=new THREE.Vector3(222.5,second?87:84,second?-167:-168);rad=1.1;
      }
-     // V38 bundled electric trunk is deliberately BELOW the vacuum
-     // route. Three parallel branches, separated by 4..10mm,
-     // are fed through the existing B36 gland.
+     // V40 B40 vacuum hose uses a lower 70mm service plane. The
+     // three electric branches remain separate above it and are
+     // checked against the hose over the complete sampled motion range.
      const pts=[
        start,
        new THREE.Vector3(119,104+mid*5,-92-mid*5),
