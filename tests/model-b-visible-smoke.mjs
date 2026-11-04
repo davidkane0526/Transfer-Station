@@ -27,7 +27,13 @@ try{
  for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23','B37','B38','B39','B40'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
- const support=await page.evaluate(()=>window.__modelBSupportProbe?.());
+ const mountingB=await page.evaluate(()=>window.__mountingProbe?.());
+ assert.equal(mountingB?.singleBreadboardInScene,true,
+   'B must have one common optical table, B35 is not a second shared base');
+ assert.equal(mountingB?.commonBase,'B01');
+ assert.equal(mountingB?.B35IsAuxiliaryPlate,true);
+ assert.equal(mountingB?.B35CandidateAnchorHeads,4);
+  const support=await page.evaluate(()=>window.__modelBSupportProbe?.());
  assert(support?.available,'V34 full-system support probe missing');
  assert(Math.abs(support.boardSizeMm[0]-250)<0.1&&
         Math.abs(support.boardSizeMm[1]-12)<0.1&&
@@ -240,7 +246,15 @@ try{
  assert.match(cabinetDetail,/B21|B23/);
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
- const evidenceA=await page.locator('#photo-ledger').innerText();
+ assert.match(await page.locator('#platform-caption').innerText(),/单一面包板/);
+ const mountA=await page.evaluate(()=>window.__mountingProbe?.());
+ assert.equal(mountA?.singleBreadboardInScene,true);
+ assert.equal(mountA?.commonBase,'A01');
+ assert.equal(mountA?.A17TouchesA01,true);
+ assert.equal(mountA?.A15OnA17,true);
+ assert.equal(mountA?.A16CandidateAnchorHeads,4);
+ assert.equal(mountA?.A17OEMIdentityVerified,false);
+  const evidenceA=await page.locator('#photo-ledger').innerText();
  assert.match(evidenceA,/A15/);
  assert.match(evidenceA,/A16/,'Photo137/161 mounting base must be in A stack');
  await page.screenshot({path:'Transfer-Station-ModelA-5306M-Base.png'});
