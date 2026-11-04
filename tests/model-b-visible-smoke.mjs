@@ -386,6 +386,8 @@ try{
  const aBefore=await page.evaluate(()=>window.__modelAKinematicProbe?.());
  assert(aBefore?.available,'A viewer kinematic witness missing');
  assert.equal(aBefore.a17CandidateHoleCount,13);
+assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
+  'Photo94 requires two vertically stacked distinct 20mm goniometer modules');
  assert.equal(aBefore.a17PhotographedSkuVerified,false);
  assert.equal(aBefore.a10CandidateBoltHeadCount,4,
    'A10 cannot draw screw heads without four actual support bores');
@@ -405,6 +407,8 @@ try{
    'A03 fixed body MUST remain on A15, not move into the magnet');
  assert.equal(aAfter.vStageMovingPlateOffsetY,7,
    'A03 output descends 6mm from raised +13mm and remains above fixed upright');
+ assert.equal(aAfter.lowerGoniometerWorldBaseY,aBefore.lowerGoniometerWorldBaseY-6,
+   'Lower photo94 G40 module must descend with VC13M');
  assert.equal(aAfter.g40WorldBaseY,aBefore.g40WorldBaseY-6,
    'A04 must descend with the VC13M output');
  assert.equal(aAfter.bracketWorldBaseY,aBefore.bracketWorldBaseY-6,
