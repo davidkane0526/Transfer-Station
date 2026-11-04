@@ -27,6 +27,22 @@ try{
  for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
+ const support=await page.evaluate(()=>window.__modelBSupportProbe?.());
+ assert(support?.available,'V34 full-system support probe missing');
+ assert(Math.abs(support.boardSizeMm[0]-250)<0.1&&
+        Math.abs(support.boardSizeMm[1]-12)<0.1&&
+        Math.abs(support.boardSizeMm[2]-300)<0.1,
+   'Render B35 board must cover 250x300mm and remain 12mm photo-fit thick');
+ assert(Math.abs(support.microscopeFootBottomMm-support.boardTopMm)<0.1,
+   'Microscope foot still floats or rests on lower silver tabletop, not B35');
+ assert(Math.abs(support.rotaryFootBottomMm-support.boardTopMm)<0.1,
+   'Rotary and microscope must share the SAME black Thorlabs support plane');
+ assert.equal(support.microscopeFullyOnBlackBoard,true,
+   'Microscope base footprint extends outside black board');
+ assert.equal(support.rotaryFullyOnBlackBoard,true,
+   'Rotary base footprint extends outside black board');
+ assert.equal(support.originalThorlabsPartNumberConfirmed,false,
+   'Photo does not confirm exact Thorlabs part number');
  const externalToggle=page.locator('#group-list input[data-group="external"]');
  const initExternal=await page.evaluate(()=>window.__modelBViewProbe());
  assert.deepEqual(initExternal.hiddenExternalParts,[],
