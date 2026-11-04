@@ -248,13 +248,13 @@ export function enrichParts(partMap, platform, onMesh){
     });
     decoration('B11',(g)=>{
       // Brushed top plate / wear marks / four recessed heads.
-      for(let t=-23;t<=23;t+=5)box(g,57,.06,.17,0,12.06,t,aluminum,.02);
+      for(let t=-23;t<=23;t+=5)box(g,57,.06,.17,0,11.96,t,aluminum,.02);
       for(let x of [-25,25])for(let z of [-25,25]){
           cyl(g,5.4,.17,x,11.89,z,graphite,36);
-          cyl(g,4.9,.13,x,11.95,z,ring,36);
+          cyl(g,4.9,.10,x,11.93,z,ring,36);
       }
-      const vac=cyl(g,.8,.7,0,12.06,0,matte);
-      decal(g,'VACUUM  CHUCK',40,4,0,12.09,-23.5,'top','#596472');
+      // Actual vacuum center is an OPEN bore; never add a fake raised plug.
+      decal(g,'VACUUM  CHUCK',40,4,0,11.99,-23.5,'top','#596472');
     });
     decoration('B12',(g)=>{
       for(let x of [-15,15])box(g,5,.3,35,x,5.13,0,offwhite,.12);
