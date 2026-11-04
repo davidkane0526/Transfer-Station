@@ -538,14 +538,29 @@ def make_a():
         add('A',f'A16S{i}','A16_to_single_A01_grid_anchor_CANDIDATE',screw,'C')
     rot('A','A06',cx,0,28,'I')
     add('A','A07','heater_proxy',box(65,65,18,cx,0,81.2))
-    add('A','A10','imaging_column',vz(13,225,cx,-112,32))
+    # V45: previous STEP A10 post started at Z=32 and floated 12mm
+    # above the only A01 board top (Z=20). A single connected base
+    # and post now match the web viewer mounting arrangement.
+    microscope_a_foot=box(72,65,14,cx,-112,20)
+    microscope_a_post=vz(13,225,cx,-112,32)
+    add('A','A10','imaging_column_WITH_CONTACT_FOOT_CANDIDATE',
+        microscope_a_foot.fuse(microscope_a_post))
     add('A','A10A','imaging_boom',box(34,125,25,cx,-50,243))
-    add('A','A08','TTL200A',vz(21,85,cx,0,170),'P')
+    # TTL200-A is a nominal 28 mm lens housing, NOT an 85 mm solid.
+    # Additional optical tube is a separate unresolved A14 sleeve.
+    add('A','A08','TTL200A_nominal_28mm_housing_CANDIDATE',
+        vz(26,28,cx,0,170),'D')
     add('A','A09','Daheng_camera',box(50,44,45,cx,0,258),'P')
     add('A','A11','MWWHL4',vz(13,33,155,60,184),'P')
     add('A','A12','LEDD1B',box(60,73,104,262,-80,20),'P')
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
-    add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
+    # TTL200-A uses EXTERNAL SM2 both ends, whereas the previously
+    # listed SM1CP2 is a CAP and cannot mate to that SM2 male thread.
+    # A14 therefore becomes an OPEN mechanical illustration only:
+    # nominal Ø56/Ø52.2 x60 sleeve joining A08 top Z198 to A09 Z258.
+    sleeve_A14=vz(28,60,cx,0,198).cut(vz(26.1,60.2,cx,0,197.9))
+    add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_60mm_CANDIDATE',
+        sleeve_A14,'C')
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V44')
     # The user's B photos distinguish the SILVER common table from the
