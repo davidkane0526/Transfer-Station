@@ -1398,7 +1398,7 @@ function externalB(){
   g.userData.pumpModelReadFromPhoto120=true;
   g.userData.geometryRevision='V43_photo120_123_cylindrical_shell_same_side_rods_candidate';
   g.userData.dimensionsCandidateMm={length:200,width:110,height:150};
-  label(g,'吸入口方向/接头规格待实物确认',78,91,0);
+  label(g,'VN-50系列G1/4接口候选 · 实际吸入口待确认',78,91,0);
  },{explode:[0,0,0]});
  addPart('B22',335,0,65,g=>{
    add(g,cub(65,48,72,mats.dark,0,24,0));
@@ -1884,7 +1884,12 @@ function updateDetail(part){
    vacuumFit.pumpEnd.hoseOdMm+' mm 插入候选泵孔Ø'+
    vacuumFit.pumpEnd.inletBoreMm+' mm，名义直径间隙为'+
    vacuumFit.pumpEnd.openBoreDiametricGapMm+
-   ' mm，同样不能确认密封。必须核对真实泵端接头、变径件/转接件、卡箍及密封方式；'+
+   ' mm，同样不能确认密封。VN-50同型号族目录标称G1/4平行管螺纹，'+
+   '其标准基本大径Ø'+vacuumFit.pumpFamilyThreadReference.basicMajorDiameterMm+
+   ' mm、螺距'+vacuumFit.pumpFamilyThreadReference.pitchMm+' mm、19TPI，'+
+   '需通过端面密封或O形圈密封。该尺寸并非软管接头倒刺径，'+
+   '照片中泵口是否为这一系列、是内牙还是外牙以及口朝向均未核实。'+
+   '必须核对实物接头、变径件/转接件、卡箍及气密性；'+
    '不新增没有证据的厂商型号。</p></div>':'';
 
  const suctionHtml=suction?'<div class="field" id="suction-dimensions" '+
