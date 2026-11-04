@@ -284,6 +284,11 @@ def make_b():
     black=box(250,300,12,65,0,20)
     photo_holes=[(65+dx,dy) for dx in range(-100,101,25) for dy in range(-125,126,25)]
     black=cut(black,photo_holes,5.6,2,30)
+    # V45: four NOMINALLY registered 6 mm-deep M6 core-drill proxies,
+    # not photographed tapped holes or validated thread engagement.
+    # The remaining 25 mm grid depressions stay cosmetic and blind.
+    microscope_b35_centres=[(x,y) for x in (65,115) for y in (-125,-75)]
+    black=cut(black,microscope_b35_centres,5,6,26)
     # B35 is NOT another shared optical breadboard. It is a
     # local Thorlabs accessory panel with FOUR candidate M5 anchors
     # into the already-existing B01 grid (25mm alignment). Exact OEM
@@ -319,19 +324,27 @@ def make_b():
     # so it must be translated UP by the same 12mm support thickness.
     # Do not lift only the sample, leaving a floating microscope arm.
     microscope_rise=12
+    # V45: translate only the POST and FOOT from (82,-112) to (90,-100)
+    # to register 4 proposed 50mm-pitch M6 clearance bores to B35's
+    # 25mm candidate grid. Keep camera/objective on sample axis X=82.
+    # This remains a LAYOUT PROPOSAL, not measured OEM mounting.
+    mic_foot_x,mic_foot_y=90,-100
     add('B','B16','microscope_column_PROXY',
-        vz(13,240,cx,-112,32+microscope_rise))
-    # V35: four TRUE through-bores for the proposed microscope foot
-    # fastener layout. 4mm diameter and 50mm pitch are CANDIDATES,
-    # not photo-verified, and the B35 photo-fit blind holes do NOT
-    # establish a working threaded anchor.
-    microscope_foot=box(65,65,12,cx,-112,20+microscope_rise)
-    foot_bores=[(cx+dx,-112+dy) for dx in (-25,25) for dy in (-25,25)]
-    microscope_foot=cut(microscope_foot,foot_bores,4,12,20+microscope_rise)
-    add('B','B16A','microscope_base_4_TRUE_O4_through_bores_CANDIDATE',
+        vz(13,240,mic_foot_x,mic_foot_y,32+microscope_rise))
+    microscope_foot=box(65,65,12,mic_foot_x,mic_foot_y,20+microscope_rise)
+    foot_bores=[(mic_foot_x+dx,mic_foot_y+dy)
+                for dx in (-25,25) for dy in (-25,25)]
+    microscope_foot=cut(microscope_foot,foot_bores,6.5,12,20+microscope_rise)
+    add('B','B16A','microscope_base_4_TRUE_O6p5_CLEARANCE_CANDIDATE',
         microscope_foot,'C')
+    # Shank O6 crosses O6.5 clearance and enters the O5 nominal
+    # tapped-core proxy for 6mm. The simplified cylindrical thread
+    # engagement is NOT a collision-free representation of M6 flanks.
+    for i,(hx,hy) in enumerate(foot_bores,1):
+        screw=vz(3,18,hx,hy,26).fuse(vz(5,2.5,hx,hy,44))
+        add('B',f'B16S{i}','B16_to_B35_M6x18_thread_CANDIDATE',screw,'C')
     add('B','B16B','microscope_boom',
-        box(35,132,26,cx,-52,259+microscope_rise))
+        box(35,132,26,86,-46,259+microscope_rise))
     add('B','B16C','microscope_body',
         box(55,55,50,cx,0,224+microscope_rise))
     add('B','B16D','objective_tube_mount',
