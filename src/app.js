@@ -1673,9 +1673,11 @@ function platformA(){
   label(g,'A 套成像支架',0,267,60);
  },{explode:[0,15,-30]});
  addPart('A08',sx,170,0,g=>{
-  add(g,cyl(21,85,mats.black,0,42.5,0));
-  add(g,cyl(17,9,mats.silver,0,0,0));
-  label(g,'Thorlabs TTL200-A 管镜',0,103,0);
+  // OEM TTL200-A housing is 28mm long; 200mm is focal length.
+  // The older 85mm single filled cylinder was not a manufacturer body.
+  add(g,cyl(26,28,mats.black,0,14,0));
+  add(g,cyl(25.7,2,mats.silver,0,1,0));
+  label(g,'Thorlabs TTL200-A · 28mm壳体 / SM2外螺纹',0,41,0);
  },{explode:[0,35,0]});
  addPart('A09',sx,258,0,g=>{
   add(g,cub(50,45,44,mats.dark,0,22.5,0));
@@ -1697,10 +1699,12 @@ function platformA(){
   add(g,cub(40,15,4,mats.silver,0,16,34));
   label(g,'德力西 CDG1-1DD/25A',0,62,0);
  },{explode:[45,15,20]});
- addPart('A14',sx,248,0,g=>{
-   add(g,cyl(16,7,mats.dark,0,3.5,0));
-   add(g,cyl(14.5,2,mats.silver,0,7.7,0));
-   label(g,'SM1/SM2 光学接口待核实',0,20,0);
+ addPart('A14',sx,198,0,g=>{
+   // Separate open sleeve extends from the top of the 28mm TTL200-A
+   // nominal housing at Y=198 to the camera underside Y=258.
+   // Neither sleeve length nor camera flange is OEM-confirmed.
+   add(g,sleeve(28,26.1,60,mats.dark,0,30,0,'y'));
+   label(g,'SM2接口候选镜筒 · 长60mm为场景补位 / 相机端未认证',0,72,0);
  },{explode:[0,25,0]});
 }
 function addAxis(){
