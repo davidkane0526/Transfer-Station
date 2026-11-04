@@ -175,8 +175,10 @@ export function enrichParts(partMap, platform, onMesh){
        // The black sample-side plate is independently visible in
        // photos145/150. Only THORLABS logo and black finish are verified.
        // The exact length, hole pitch and fixing bolts remain candidates.
-       box(g,67,8,.6,0,6,75.25,matte,.2);
-       decal(g,'THORLABS',62,6,0,6,75.68,'front','#f2f5f6');
+       // Extend the true FRONT edge decal to candidate Z=+150.
+       // Keep label on the plate's front side, not floating in mid-board.
+       box(g,67,8,.6,0,6,150.25,matte,.2);
+       decal(g,'THORLABS',62,6,0,6,150.68,'front','#f2f5f6');
     });
     decoration('B02',(g)=>{
        box(g,65,1.8,65,0,20,0,graphite,.7);
