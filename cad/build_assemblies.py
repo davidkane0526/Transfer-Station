@@ -396,7 +396,7 @@ def make_b():
     band_b=vx(46,4,340,180,50).cut(vx(43,4.2,339.9,180,50))
     fan_ring=vx(39,2,239,180,50).cut(vx(31,2.2,238.9,180,50))
     warning_ring=vy(5.2,.6,370,220.45,70).cut(vy(4.2,.8,370,220.35,70))
-    warning_slash=box(1.4,.6,12,370,220.8,70).rotate(
+    warning_slash=box(1.4,.6,12,370,220.8,64).rotate(
         (370,220.8,70),(370,221.8,70),-45)
     pump_shell=pump_shell.fuse(
         # Four candidate feet on the baseplate.
