@@ -107,8 +107,8 @@ window.__modelBSupportProbe=()=>{
  // Do not confuse this with fastening to B35's decorative 2mm recesses.
  const mountAudit=auditB35MicroscopeFasteners({
    boardCenterX:CONFIG.B.sampleBoardCenterX,
-   microscopeCenterX:CONFIG.B.scopeX,
-   microscopeCenterZ:CONFIG.B.scopeZ,
+   microscopeCenterX:90,
+   microscopeCenterZ:-100,
    boardThicknessMm:CONFIG.B.sampleBoardRiseMm
  });
  const footBoresOpen=mountAudit.candidateHolePairs.every(hole=>{
