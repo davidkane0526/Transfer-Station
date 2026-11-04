@@ -1253,7 +1253,7 @@ function externalB(){
     footHole.userData.mountingHoleCandidate=true;
   }
   // Main black motor casing and the partly exposed rounded motor body.
-  const motorHousing=add(g,cub(160,62,76,mats.dark,-10,39,0));
+  const motorHousing=add(g,cub(160,68,76,mats.dark,-10,42,0));
   motorHousing.userData.pumpMotorHousing=true;
   const motor=add(g,cyl(34,130,mats.black,-25,40,0));
   motor.userData.pumpMotorCore=true;
@@ -1263,7 +1263,7 @@ function externalB(){
   fan.rotation.z=Math.PI/2;
   fan.userData.pumpFanCover=true;
   for(const z of [-40,40]){
-    const rod=add(g,cyl(2.5,150,mats.silver,-10,82,z));
+    const rod=add(g,cyl(2.5,150,mats.silver,-10,78,z));
     rod.rotation.z=Math.PI/2;
     rod.userData.pumpTieRodCandidate=true;
   }
@@ -1280,7 +1280,7 @@ function externalB(){
   // shallow visual apertures; their exact pitch/depth is not measured.
   for(const x of [-70,-50,-30,-10,10,30,50]){
     for(const z of [-27,0,27]){
-      const vent=add(g,cyl(2.7,1.5,mats.ink,x,70.2,z,24));
+      const vent=add(g,cyl(2.7,1.5,mats.ink,x,76.2,z,24));
       vent.userData.ventCandidate=true;
     }
   }
