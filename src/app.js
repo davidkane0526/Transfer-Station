@@ -1295,8 +1295,8 @@ function externalB(){
     }
   }
   // Nameplate is a visual ID only; no OEM logo is inferred.
-  add(g,cub(62,26,1.5,mats.white,-15,43,39.5));
-  label(g,'VN-50 · 220V / 230W · 53 L/min',-15,58,41);
+  add(g,cub(62,26,1.5,mats.white,-15,43,38.5));
+  label(g,'VN-50 · 220V / 230W · 53 L/min',-15,58,40.2);
   // Candidate suction inlet face. The nozzle side/orientation is not
   // established by the photographs, so this remains an explicit proxy.
   const inlet=add(g,sleeve(9,VN50.pumpInletVisualBoreRadiusMm,
