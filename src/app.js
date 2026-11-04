@@ -226,6 +226,33 @@ window.__modelBVacuumProbe=()=>{
    dynamicRoute:waypoints.map(p=>[p.x,p.y,p.z])
  };
 };
+window.__mountingProbe=()=>{
+ const q=auditBaseTopology(platform);
+ const physicalBaseParts=[...parts.values()].filter(v=>v.part?.group==='base').map(v=>v.part.id);
+ const meshBox=(id)=>{
+   const g=parts.get(id)?.g;
+   if(!g)return null;
+   g.updateWorldMatrix(true,true);
+   const m=g.children.find(x=>x.isMesh);
+   return m?new THREE.Box3().setFromObject(m):null;
+ };
+ const mag=meshBox('A17'),stage=meshBox('A15');
+ const board=meshBox('A01');
+ const a16=parts.get('A16')?.g;
+ const b35=parts.get('B35')?.g;
+ return {
+   ...q,
+   sceneBaseParts:physicalBaseParts,
+   singleBreadboardInScene:physicalBaseParts.length===1&&
+     physicalBaseParts[0]===q.commonBase,
+   A17TouchesA01:!!(mag&&board&&Math.abs(mag.min.y-board.max.y)<.1),
+   A15OnA17:!!(mag&&stage&&Math.abs(stage.min.y-mag.max.y)<.1),
+   A16CandidateAnchorHeads:a16?.children?.filter(x=>x.userData.A16CandidateAnchorHead).length||0,
+   B35CandidateAnchorHeads:b35?.children?.filter(x=>x.userData.B35CandidateAnchorHead).length||0,
+   B35IsAuxiliaryPlate:!!b35?.userData.boltedAuxiliaryPlate,
+   A17OEMIdentityVerified:false
+ };
+};
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
 function clearMeasurement(){
  if($('measurement-text'))$('measurement-text').textContent='坐标 X / Y(高度) / Z · 单位 mm';
