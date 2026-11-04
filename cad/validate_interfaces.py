@@ -18,6 +18,7 @@ report={'checks':[], 'scope':'candidate_proxy_geometry_only',
         'physical_acceptance':{
             'status':'pending',
             'missing':['B14 actual four fastener center coordinates',
+                       'B35 black Thorlabs board mounting bolts/outer dimensions are unknown',
                        'NFP moving-face tapped hole group and effective thread depth',
                        'real clamped stack dimensions and fastener head geometry',
                        'rotary-to-NFP fixed-base bolt compatibility',
@@ -37,18 +38,48 @@ def check(ok,label):
     report['checks'].append({'check':label,'passed':bool(ok)})
     if not ok: raise AssertionError(label)
 
+# Photo145/150 shows a DISTINCT black Thorlabs sample support
+# plate below the GCM rotary. Old B models rendered a single common
+# surface, losing 12mm of an independently visible physical layer.
+# 12mm and 180x150 are VIEWER CANDIDATES, not a decoded maker SKU.
+sample_board=part(B,'B35')[0]
+silver_board=part(B,'B01')[0]
+sample_base=part(B,'B08')[0]
+sbb=sample_board.BoundingBox();bb0=silver_board.BoundingBox()
+check(abs(sbb.zmin-bb0.zmax)<.02,
+      'B35 Thorlabs black plate directly rests on silver common table')
+check(abs(sbb.zmax-sample_base.BoundingBox().zmin)<.02,
+      'B08 rotary must sit ON B35 black plate, not on B01 directly')
+check(abs(sbb.xlen-180)<.02 and abs(sbb.ylen-150)<.02 and abs(sbb.zlen-12)<.02,
+      'B35 black plate proxy 180x150x12 must match its own BOM/model data')
+check(sample_board.intersect(silver_board).Volume()<1e-4,
+      'Two independent photo-confirmed B board layers must not interpenetrate')
+check(sample_board.intersect(part(B,'B16A')[0]).Volume()<1e-4,
+      'Black sample plate must not go through nearby microscope base')
+check(sample_board.intersect(part(B,'B02')[0]).Volume()<1e-4,
+      'Black sample plate must not engulf the separate left-side magnet')
+# Holes are shallow photo-fit pockets: open at z30..32, closed below 30.
+for xx in (95-75,95,95+75):
+    for yy in (-50,0,50):
+        opening=vz(2.6,2,xx,yy,30)
+        backing=vz(2.6,.5,xx,yy,29.5)
+        check(sample_board.intersect(opening).Volume()<1e-5,
+              'B35 display hole must be actually open at board TOP')
+        check(sample_board.intersect(backing).Volume()>7,
+              'B35 display hole must be BLIND: do not invent a through-fastener')
+
 # Previously this failed: separated 0.5mm screw shaft and head.
 for i in range(1,5):
     ss=part(B,'B14_'+str(i))
     check(len(ss)==1,f'B14_{i} screw is ONE connected solid')
     bb=ss[0].BoundingBox()
-    check(abs(bb.zmax-97.7)<0.03,f'B14_{i} top recessed 0.5 mm')
-    check(abs(bb.zmin-66.7)<0.03,f'B14_{i} nominal M6x25 under-head length')
+    check(abs(bb.zmax-109.7)<0.03,f'B14_{i} top recessed 0.5 mm')
+    check(abs(bb.zmin-78.7)<0.03,f'B14_{i} nominal M6x25 under-head length')
 nfp=part(B,'B09A')[0]
-check(abs(nfp.BoundingBox().zmin-64.2)<.01,'NFP carriage lower datum')
-check(abs(nfp.BoundingBox().zmax-76.2)<.01,'NFP top mounting datum')
+check(abs(nfp.BoundingBox().zmin-76.2)<.01,'NFP carriage lower datum')
+check(abs(nfp.BoundingBox().zmax-88.2)<.01,'NFP top mounting datum')
 # The modeled hole depth is 10 mm. Tip at 66.7 and blind bottom at 66.2 => .5 mm.
-hole_bottom=66.2;tip=66.7
+hole_bottom=78.2;tip=78.7
 check(tip-hole_bottom>=.5-1e-4,'candidate fastener has 0.5 mm axial blind-hole clearance')
 # Photo149: formerly missing PHSH-style black 50mm sleeve, long
 # vertical post passing through it and the separate upper square clamp.
@@ -124,7 +155,7 @@ check(mic_shaft.BoundingBox().xmax<v25_fixed.BoundingBox().xmin,
       'V31 V25M micrometer axis is outside fixed upright in photo108')
 
 # Check exposed stage stack contact datums.
-for name,bottom,top in [('B10',76.2,86.2),('B11',86.2,98.2)]:
+for name,bottom,top in [('B10',88.2,98.2),('B11',98.2,110.2)]:
     bb=part(B,name)[0].BoundingBox()
     check(abs(bb.zmin-bottom)<.02 and abs(bb.zmax-top)<.02,name+' correct stage stack datums')
 # V19 PHOTO-VERIFIED stacking and actuator directions.
@@ -276,7 +307,7 @@ check(beam.xmin<=-116 and beam.xmax>=78,'A beam spans left-to-right physical sup
 # 145-151. The former erroneous B_photo94 assembly is not exported.
 check(not (ROOT/'build'/'platform_B_photo94').exists(),
       'Never build a B-photo94 assembly from verified A photographs')
-for required in ('B07','B08','B09','B10','B11','B12','B14_1','B14_2',
+for required in ('B07','B35','B08','B09','B10','B11','B12','B14_1','B14_2',
                  'B14_3','B14_4','B15','B16','B17','B18',
                  'B24','B25','B26','B27','B28','B33','B34'):
     check((B/(required+'.step')).exists(),
@@ -302,14 +333,14 @@ check(155.5<=max(nfp_drum.BoundingBox().xmax,
 for dx in (-25,25):
  for dy in (-25,25):
     bx,by=82+dx,dy
-    small=vz(3.1,11,bx,by,53.2)
-    cb=vz(5.35,4,bx,by,60.2)
+    small=vz(3.1,11,bx,by,65.2)
+    cb=vz(5.35,4,bx,by,72.2)
     check(nfp_clearance.intersect(small).Volume()<1e-5,
           'NFP fixed base corner Ø6.5 clearance is open (not a thread)')
     check(nfp_clearance.intersect(cb).Volume()<1e-5,
           'NFP 50mm corner mounting counterbore Ø11 exists')
-check(abs(part(B,'B09A')[0].BoundingBox().zmax-76.2)<.02,
-      'NFP moving top nominal 23mm above 53.2 mount datum')
+check(abs(part(B,'B09A')[0].BoundingBox().zmax-88.2)<.02,
+      'NFP moving top nominal 23mm above 65.2 mount datum')
 # B06 follows the same independent fixed/movable pressure-plate
 # arrangement as the web candidate: one shared plate, TWO pressure screws.
 fixed_jaw=part(B,'B06F')[0]
@@ -418,11 +449,11 @@ for i in (1,2):
     check(wire.intersect(chuck).Volume()<1e-6,f'Heater wire {i} fits milled rear tunnel')
 thermo=part(B,'B13L')[0]
 check(thermo.intersect(chuck).Volume()<1e-6,'Thermocouple wire fits rear shallow roof groove')
-center_vac=cq.Solid.makeCylinder(1.25,32.5,Vector(82,-32.5,95.5),Vector(0,1,0))
-center_top=cq.Solid.makeCylinder(.55,2.9,Vector(82,0,95.3),Vector(0,0,1))
+center_vac=cq.Solid.makeCylinder(1.25,32.5,Vector(82,-32.5,107.5),Vector(0,1,0))
+center_top=cq.Solid.makeCylinder(.55,2.9,Vector(82,0,107.3),Vector(0,0,1))
 check(center_vac.intersect(chuck).Volume()<1e-6,'Rear vacuum bore is connected towards center')
 check(center_top.intersect(chuck).Volume()<1e-6,'One central top suction hole is unobstructed')
-left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,95.5),Vector(1,0,0))
+left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,107.5),Vector(1,0,0))
 check(left_probe.intersect(chuck).Volume()>1.0,'Old left-side inlet is absent from metal')
 
 # Optical tips are a conservative candidate for open clearance, not WD qualification.
