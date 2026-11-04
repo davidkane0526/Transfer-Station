@@ -137,10 +137,10 @@ window.__modelBSupportProbe=()=>{
 // displacement. This is NOT a real glass-contact/collision certification.
 window.__modelAKinematicProbe=()=>{
   if(platform!=='A')return {available:false};
-  const vc=parts.get('A03')?.g,tilt=parts.get('A04')?.g,
-        arm=parts.get('A05')?.g,magnet=parts.get('A17')?.g,
+  const vc=parts.get('A03')?.g,lowerTilt=parts.get('A04L')?.g,
+        tilt=parts.get('A04')?.g,arm=parts.get('A05')?.g,magnet=parts.get('A17')?.g,
         microscopeFoot=parts.get('A10')?.g;
-  if(!vc||!tilt||!arm||!magnet||!microscopeFoot)return {available:false};
+  if(!vc||!lowerTilt||!tilt||!arm||!magnet||!microscopeFoot)return {available:false};
   microscopeFoot.updateWorldMatrix(true,true);
   const footMesh=microscopeFoot.children.find(m=>m.isMesh);
   const a10Bores=[[-28,-13],[-28,37],[22,-13],[22,37]];
@@ -155,6 +155,7 @@ window.__modelAKinematicProbe=()=>{
     available:true,
     vStageStationaryBaseWorldY:vc.position.y,
     vStageMovingPlateOffsetY:vc.userData.verticalCarriage?.position.y??null,
+    lowerGoniometerWorldBaseY:lowerTilt.position.y,
     g40WorldBaseY:tilt.position.y,
     bracketWorldBaseY:arm.position.y,
     filmDropMm:filmDrop,
@@ -1681,7 +1682,10 @@ function platformA(){
    addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
    label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
  },{explode:[-15,18,0],moveFilm:true});
- addPart('A04',ax,124,0,g=>{
+ // Photo94 front view shows TWO approximately 20mm-tall goniometer
+ // modules, each with its own drive. Only the upper G40M60L model tag
+ // is legible. Never identify the lower as G40M40L without OEM evidence.
+ addPart('A04L',ax,124,0,g=>{
    // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
    // Photo94 front body has a LOWER cradle, a split rocker top, two
    // front fastener pairs, and a +X micrometer with a steel thimble.
@@ -1711,11 +1715,37 @@ function platformA(){
      const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
      ring.rotation.y=Math.PI/2; // ring normal along X
    }
+   addJointHeads(g,'A04L',14.9,[[-14,-14],[14,14]],{headR:2.6});
+   g.userData.lowerGoniometerSkuUnverified=true;
+   label(g,'照片94下层独立摆角机构 · 右侧测微 · 型号待核',-4,40,0);
+ },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true});
+ addPart('A04',ax,144,0,g=>{
+   // Upper G40M60L label is visually legible in photo94.
+   // Lower partner is not positively identified. G40M60L body:
+   add(g,cub(40,7,40,mats.black,0,3.5,0));
+   add(g,cub(40,7,37,mats.dark,0,10.5,0));
+   for(const x of [-14.1,14.1]){
+     const rocker=add(g,cub(10,7,35,mats.black,x,15,0));
+     rocker.rotation.z=x<0?.07:-.07;
+   }
+   add(g,cub(40,3,40,mats.dark,0,18.5,0));
+   // The upper visible drive appears leftward in the current photo
+   // projection. This axis is still a candidate until ruler/orthoview.
+   add(g,cub(16,15,29,mats.black,-24,8,0));
+   const stem=add(g,cyl(5.5,18,mats.steel,-27,10,0,40));
+   stem.rotation.z=Math.PI/2;
+   const drum=add(g,cyl(8.3,20,mats.silver,-43,10,0,48));
+   drum.rotation.z=Math.PI/2;
+   for(let x=-52;x<-35;x+=3){
+     const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
+     ring.rotation.y=Math.PI/2;
+   }
    addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
-   label(g,'GCM-G40M60L · R60 / 右侧测微（照片94）',-4,40,0);
- },{explode:[-25,42,0],moveFilm:true,moveFilmVertical:true});
- const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:144});
- addPart('A05',ax,144,0,g=>{
+   g.userData.upperConfirmedPhoto94='GCM-G40M60L';
+   label(g,'94上层：GCM-G40M60L · 40×40×20mm',-4,40,0);
+ },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true});
+ const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164});
+ addPart('A05',ax,164,0,g=>{
    // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
    // and not the 200mm square beam formerly rendered here.
    const localX=aBent.centerX-ax;
@@ -2007,7 +2037,7 @@ function updateDetail(part){
    '，三维场景轴 '+esc(axis.sceneAxes.join('/'))+'。'+
    (part.id==='B09'?'NFP 无第二根平移测微头；B08 是独立旋转轴。':'')+'</p></div>':'';
 
- const aRigAudit=(platform==='A'&&['A17','A15','A03','A04','A05','A07'].includes(part.id))?
+ const aRigAudit=(platform==='A'&&['A17','A15','A03','A04L','A04','A05','A07'].includes(part.id))?
     auditPlatformAAssembly():null;
  const aRigHtml=aRigAudit?'<div class="field" id="platform-a-unregistered-assembly" '+
    'data-accepted="false" data-gap-mm="'+aRigAudit.optimisticResidualHorizontalGapMm+'">'+
@@ -2156,7 +2186,7 @@ function resetScene(){
  }
  else {
    platformA();
-   for(const id of ['A01','A17','A15','A03','A04','A05','A16','A06','A02','A07','A10']){
+   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A16','A06','A02','A07','A10']){
      if(!parts.has(id))throw Error('Model A missing: '+id);
    }
  }
@@ -2176,7 +2206,7 @@ function resetScene(){
    '平台 A · V46 / VC13M运动预览 / A05夹具未识别 / 装配基准未配准';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
-  '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
+  '照片94/95/97: A载玻片侧由下至上 A15 T25M→A03 VC13M→A04L下层独立摆角台（型号待核）→A04上层G40M60L→A05折弯片。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
 }
