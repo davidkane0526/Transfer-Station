@@ -224,10 +224,13 @@ try{
  assert.equal(support.microscopeFootFourTrueThroughBores,true,
    'V35 microscope foot has four actual candidate through-bores, not four screws on solid metal');
  assert.equal(support.microscopeMountAudit?.candidateFootHoleCount,4);
- assert.equal(support.microscopeMountAudit?.boardBoltPatternAligned,false,
-   'Face contact cannot pass as a valid B35 bolt hole registration');
- assert(support.microscopeMountAudit?.maxMismatchMm>14);
- assert.equal(support.microscopeMountAudit?.loadBearingFastenerJointAccepted,false);
+ assert.equal(support.microscopeMountAudit?.boardBoltPatternAligned,true,
+   'New B16 four M6 candidate holes must be registered to B35 grid');
+ assert.equal(support.microscopeMountAudit?.maxMismatchMm,0);
+ assert.equal(support.microscopeMountAudit?.footBoreDiameterMm,6.5);
+ assert.equal(support.microscopeMountAudit?.boardAnchorThreadVerified,false);
+ assert.equal(support.microscopeMountAudit?.loadBearingFastenerJointAccepted,false,
+   'A nominally aligned hole layout still does not qualify the OEM load-bearing mount');
  const externalToggle=page.locator('#group-list input[data-group="external"]');
  const initExternal=await page.evaluate(()=>window.__modelBViewProbe());
  assert.deepEqual(initExternal.hiddenExternalParts,[],
@@ -338,7 +341,7 @@ try{
  const boardDetail=await page.locator('#part-detail').innerText();
  assert.match(boardDetail,/Thorlabs|THORLABS/);
  assert.match(boardDetail,/145|150/);
- assert.match(boardDetail,/B35↔B16安装孔核对/);
+ assert.match(boardDetail,/B35↔B16候选四孔配准/);
  await page.locator('#open-bom').click();
  await page.locator('#bom-query').fill('B36');
  // B19/B21/B23 descriptions also say "inside B36", so a
