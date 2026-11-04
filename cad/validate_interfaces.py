@@ -669,7 +669,7 @@ def vacuum_axis_probe(a,b,r=.9,trim=.15):
     origin=Vector(*a)+direction*trim
     return cq.Solid.makeCylinder(r,length-2*trim,origin,direction)
 short_points=[(82,-44.5,107.5),(82,-58,108.5)]
-outer_points=[(94,-79,90.5),(112,-103,97)]
+outer_points=[(94,-79,90.5),(120,-115,104)]
 check(vacstub.intersect(vacuum_axis_probe(*short_points)).Volume()<.01,
       'V37 B15T short hose has a CONTINUOUS hollow center')
 check(suction.intersect(vacuum_axis_probe(*outer_points)).Volume()<.01,
