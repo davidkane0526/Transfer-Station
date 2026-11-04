@@ -1843,16 +1843,17 @@ function updateDetail(part){
    ' mm 是张开口；当前压板已移动 '+jawDatums.previewClosingTravelMm+' mm，与 '+jawDatums.contactJawGapMm+' mm 厚玻片处于名义接触。夹紧力、真实行程和夹口尺寸均未经验收。</p></div>':'';
  const b35FastenerAudit=(platform==='B'&&(part.id==='B16'||part.id==='B35'))?
    auditB35MicroscopeFasteners({boardCenterX:CONFIG.B.sampleBoardCenterX,
-     microscopeCenterX:CONFIG.B.scopeX,microscopeCenterZ:CONFIG.B.scopeZ,
+     microscopeCenterX:90,microscopeCenterZ:-100,
      boardThicknessMm:CONFIG.B.sampleBoardRiseMm}):null;
  const b35FastenerHtml=b35FastenerAudit?
    '<div class="field" id="b35-microscope-fastener-audit" data-bolt-align="'+
    b35FastenerAudit.boardBoltPatternAligned+'" data-mismatch-mm="'+
-   b35FastenerAudit.maxMismatchMm.toFixed(2)+'"><b>B35↔B16安装孔核对（V35）</b><p>'+
-   'B16底座已绘制4个真正贯通的Ø4mm候选孔；现有螺钉中心与B35外观浅孔网格的最近中心偏差最大约 '+
-   b35FastenerAudit.maxMismatchMm.toFixed(1)+
-   ' mm。B35仍是2mm外观浅孔而非已证实的螺纹孔。当前仅证明两块底面接触，'+
-   '固定孔原点、螺栓长度及实际啮合均未验收，禁止作为加工或安装图。</p></div>':'';
+   b35FastenerAudit.maxMismatchMm.toFixed(2)+'"><b>B35↔B16候选四孔配准（V45）</b><p>'+
+   'B16底座为4个Ø6.5 mm 候选M6通孔，B35对位4个Ø5×6 mm候选螺纹底孔，'+
+   '25mm候选网格下孔中心偏差为 '+
+   b35FastenerAudit.maxMismatchMm.toFixed(1)+' mm；其余网格仅为2mm装饰盲孔。'+
+   '这只解决三维候选孔位相容问题，原机B16/B35型号、孔位原点、攻丝与螺栓有效啮合尚未验证，'+
+   '不得据此采购、钻孔或安装承重显微镜。</p></div>':'';
  // The annotation is only in the selected part's detail view, not an
  // always-on 3D label covering the clamp/stamp/optics.
  const mount=mountStatus(platform,part.id);
