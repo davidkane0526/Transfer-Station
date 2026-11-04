@@ -1157,7 +1157,7 @@ function renderPhotoLedger(){
  }
  const m=document.createElement('div');m.className='marked-note';
  m.textContent=platform==='B'&&bPhoto94Mode?'用户要求的B新照片对照配置：GCM-T25M→GCM-VC13M→GCM-G40M60L→L型薄板；此前A/B照片归档冲突未解决，不能以此证明NFP样品侧同机。':platform==='B'?
-   'B02磁座在B03之下；B35黑色Thorlabs板在B08旋转台下方；B36金属机箱包含前置B19温控器、内部B21电源及B23模块。B20真空泵/B22灯电源独立显示。各箱体尺寸为候选。':
+   'B02磁座在B03之下；B35黑色Thorlabs板同时承托B08旋转台与B16显微镜后方立柱底座；B36金属机箱包含前置B19温控器、内部B21电源及B23模块。B20真空泵/B22灯电源独立显示。各箱体尺寸为候选。':
    'A15 与 A02 为两台不同 T25M：照片97所示 A15 在 VC13M 下；照片100所示 A02 在旋转台上。';
  host.append(m);
 }
@@ -1533,7 +1533,7 @@ function updatePhotoScope(){
  node.dataset.refRig=platform==='A'?'A-94-95-97-137-144-152-155-161':'B-107-112-145-151';
  node.textContent=platform==='A'?
   '平台 A：94/95/97、137–144、152、155、161。新增照片137/161的 GCM-5306M 是 112×70×8 mm 安装底座，不是旋转台。':
-  '平台 B：照片145/150确认B35黑色Thorlabs样品底板，149确认PHUC-1，150确认GCM-1302M；照片114/117/119确认宇电面板B19与SE-600-48、黑色辅助模块同装在金属控制箱B36内。控制箱尺寸和线束仍待测。';
+  '平台 B：照片145/150确认B35黑色Thorlabs板覆盖旋转台及显微镜底座（250×300×12mm为候选），149确认PHUC-1，150确认GCM-1302M；照片114/117/119确认宇电面板B19与SE-600-48、黑色辅助模块同装在金属控制箱B36内。控制箱尺寸和线束仍待测。';
  $('btn-photo947').textContent='查看平台 A 的 94/95/97 实物构型';
 }
 function focusPhoto947(photo='94'){
