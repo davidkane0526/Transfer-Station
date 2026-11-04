@@ -413,8 +413,8 @@ def make_b():
     # Coordinates are CAD (X, depth-Y, vertical-Z), identical to the
     # WebGL route after axis mapping. No hose segment enters B36.
     hose=[
-        (94,-79,90.5),(190,-135,102),(190,-170,102),
-        (190,-275,102),(350,-275,102),(520,-275,102),
+        (94,-79,90.5),(200,-135,102),(200,-170,102),
+        (200,-275,102),(350,-275,102),(520,-275,102),
         (520,140,102),(520,180,90),(465,180,69),(425,180,68)
     ]
     add('B','B40','B11_B15_rear_to_VN50_hollow_suction_hose',
