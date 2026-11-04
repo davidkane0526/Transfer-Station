@@ -81,6 +81,13 @@ try{
  assert.equal(vac.pumpFeatures.basePlate,1);
  assert.equal(vac.pumpFeatures.mountingFeet,4,
    'VN-50 candidate mounting pattern must have four visible feet');
+ assert.deepEqual(vac.pumpFeatures.mountingFootCenters,
+   [[-81,10,-48],[-81,10,48],[61,10,-48],[61,10,48]],
+   'Four VN-50 feet must be centered on the 142×96mm candidate pattern relative to the pump base');
+ assert.deepEqual(vac.pumpFeatures.nameplateCenters,[[-15,43,38.5]],
+   'VN-50 nameplate must sit on the visible long side face');
+ assert.equal(vac.pumpFeatures.topVents,21);
+ assert.equal(vac.pumpFeatures.sideVents,21);
  assert.equal(vac.pumpFeatures.motorHousing,1);
  assert.equal(vac.pumpFeatures.motorCore,1);
  assert.equal(vac.pumpFeatures.fanCover,1);
