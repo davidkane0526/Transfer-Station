@@ -395,6 +395,9 @@ def make_b():
     band_a=vx(46,4,282,180,50).cut(vx(43,4.2,281.9,180,50))
     band_b=vx(46,4,340,180,50).cut(vx(43,4.2,339.9,180,50))
     fan_ring=vx(39,2,239,180,50).cut(vx(31,2.2,238.9,180,50))
+    warning_ring=vy(5.2,.6,370,220.45,70).cut(vy(4.2,.8,370,220.35,70))
+    warning_slash=box(1.4,.6,12,370,220.8,70).rotate(
+        (370,220.8,70),(370,221.8,70),-45)
     pump_shell=pump_shell.fuse(
         # Four candidate feet on the baseplate.
         box(28,14,12,254,132,4),box(28,14,12,254,228,4),
@@ -434,6 +437,7 @@ def make_b():
         box(32,.6,1.2,325,224.8,48),
         box(28,.6,1.2,325,224.8,44),
         box(22,.6,1.2,325,224.8,40),
+        warning_ring,warning_slash,
         # Circular fan grille ring on the left end cover.
         fan_ring)
     # Four open candidate mounting bores (142x96mm family pattern).
