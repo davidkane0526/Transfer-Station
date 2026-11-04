@@ -1263,7 +1263,7 @@ function externalB(){
   fan.rotation.z=Math.PI/2;
   fan.userData.pumpFanCover=true;
   for(const z of [-40,40]){
-    const rod=add(g,cyl(2.5,150,mats.silver,-10,78,z));
+    const rod=add(g,cyl(2.5,150,mats.silver,-10,77,z>0?38.5:-38.5));
     rod.rotation.z=Math.PI/2;
     rod.userData.pumpTieRodCandidate=true;
   }
