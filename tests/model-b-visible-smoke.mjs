@@ -24,9 +24,13 @@ try{
    assert.equal(await toggle.isChecked(),true,'B scene category hidden '+category);
  }
  const proof=await page.locator('#photo-ledger').innerText();
- for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B08','B09'])
+ for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
+ assert.match(await page.locator('#photo-ledger').innerText(),/B35/);
+ // The black sample-side Thorlabs mounting board is independently
+ // selectable; switching film-side profiles cannot delete it.
+ assert.equal(await page.locator('#group-list input[data-group="base"]').isChecked(),true);
  await page.screenshot({path:'Transfer-Station-ModelB-Full-Assembly.png'});
  // The default view alone can mask small missing mechanics: explicitly
  // focus on the film arm and capture a second mandatory detail screenshot.
@@ -46,7 +50,7 @@ try{
  await page.locator('#btn-home').click();
  await page.locator('#open-bom').click();
  const rows=await page.locator('#bom-body tr').allTextContents();
- for(const id of ['B01','B02','B03','B04','B05','B06','B07','B08','B09',
+ for(const id of ['B01','B35','B02','B03','B04','B05','B06','B07','B08','B09',
     'B10','B11','B12','B14','B15','B16','B17','B18','B19','B20','B21',
     'B22','B23','B24','B25','B26','B27','B28','B33','B34']){
    assert(rows.some(row=>row.trim().startsWith(id)),'B BOM lost '+id);
