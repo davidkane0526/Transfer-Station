@@ -1,5 +1,27 @@
-// V38: deliberately distinguish nominal MODEL diameters from physical
-// metrology. Only VN-50 nameplate items are photo-confirmed.
+// V45: separate manufacturer FAMILY thread standard from the photographed
+// specimen's unmeasured inlet, and from the legacy Ø18 visual-nozzle proxy.
+// Only VN-50 nameplate items are photo-confirmed.
+// Manufacturer source: https://www.youchengzhixin.com/blog/yczx-oil-free-piston-vacuum-pumps-clean-quiet-compact-power-delivered-on-time
+// Parallel thread reference ISO 228-1: G1/4 = 13.157mm, 19 TPI, 55deg.
+export const VN50_FAMILY_PORT=Object.freeze({
+  cataloguedModel:'VN-50',
+  claimedFamilyPort:'G1/4',
+  threadStandard:'ISO 228-1 (BSPP)',
+  threadForm:'parallel',
+  basicMajorDiameterMm:13.157,
+  pitchMm:1.337,
+  threadsPerInch:19,
+  flankAngleDeg:55,
+  requiresFaceSealOrOring:true,
+  pumpPortGenderVerified:false,
+  photographedSpecimenMatchVerified:false,
+  suctionVsExhaustPortVerified:false,
+  matingAdapterSkuVerified:false,
+  catalogMountPatternMm:[142,96],
+  alternateCatalogMountPatternMm:[110,95],
+  catalogSource:'https://www.youchengzhixin.com/blog/yczx-oil-free-piston-vacuum-pumps-clean-quiet-compact-power-delivered-on-time'
+});
+
 export const VACUUM_DIMS=Object.freeze({
  B11:{name:'中心吸附孔',nominal:'Ø1.4 mm',odMm:1.4,idMm:null,verified:false},
  B15:{name:'后侧真空接头',nominal:'OD Ø6.0 / 通孔 Ø2.84 mm；长度13 mm',
@@ -38,6 +60,11 @@ export function auditVacuumInterfaceFit(){
      matchingAdapterOrFittingUnresolved:true,
      pumpInletOrientationVerified:false
    },
+   pumpFamilyThreadReference:VN50_FAMILY_PORT,
+   measuredPumpPortDiameterMm:null,
+   measuredPumpPortPitchMm:null,
+   standardThreadNotHoseBarb:true,
+   cannotInferHoseBarbDiameterFromGQuarter:true,
    sealedVacuumCircuitVerified:false,
    visualCenterlineConnectionOnly:true,
    fittingSkuVerified:false
@@ -53,6 +80,8 @@ export function auditSuctionDimensions(){
    allDiameterLabelsCandidate:Object.values(d).every(x=>x.verified===false),
    hoseWallThicknessMm:(d.B40.odMm-d.B40.idMm)/2,
    pumpInletThreadConfirmed:false,
+   familyCatalogueThreadIdentified:VN50_FAMILY_PORT.claimedFamilyPort,
+   physicalPortMatchingNotVerified:!VN50_FAMILY_PORT.photographedSpecimenMatchVerified,
    mechanicalAdapterConfirmed:false,
    sealedVacuumCircuitVerified:false,
    ids:Object.keys(d)
