@@ -890,7 +890,9 @@ function externalB(){
    // component, but its function / exact SKU are unknown.
    add(g,cub(93,38,58,mats.dark,0,19,0));
    for(let i=-3;i<=3;i++)add(g,cub(4,2,41,mats.ink,i*10,39,0));
-   add(g,cub(48,13,10,mats.steel,0,16,32));
+   // Prevent a decorative port from punching through the actual
+   // front steel wall. Dimensions remain photo-fit candidates.
+   add(g,cub(48,13,10,mats.steel,0,16,26));
    label(g,'照片119：控制箱内部黑色散热模块（型号未识别）',0,53,0);
  },{explode:[85,65,-38]});
  // Photo120 pump and photo115 LED adapter are distinct EXTERNAL devices,
