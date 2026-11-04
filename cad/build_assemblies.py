@@ -498,8 +498,22 @@ def make_a():
     stage('A','A02',cx,0,61.2,'+X')
     # User-confirmed mounting relationship, maker/height candidate:
     # A15 must rest on the actual magnetic base, not on naked board.
-    add('A','A17','FILM_MAGNET_MOUNT_STAND_OEM_UNKNOWN',
-        box(65,65,20,ax,0,20),'C')
+    # V46: only a *candidate* GCM-420302M-style 65x65x20 magnet.
+    # OEM family shows 5xM6, 4xM4, 4xM3 on the top face. Neither
+    # this exact A17 SKU nor its top-hole origin was read in A photos.
+    mag=box(65,65,20,ax,0,20)
+    magnet_hole_families=[
+        (50,6,True),(40,4,False),(32,3,False)
+    ]
+    for pitch,dia,central in magnet_hole_families:
+        centres=[(ax+dx,dy) for dx in (-pitch/2,pitch/2)
+                 for dy in (-pitch/2,pitch/2)]
+        if central:centres.append((ax,0))
+        mag=cut(mag,centres,dia,3,37) # 3mm visual blind bores, not tapped OEM
+    add('A','A17','FILM_MAGNET_13_CANDIDATE_BLIND_HOLES_OEM_UNKNOWN',mag,'C')
+    # V46 switch shaft engages magnetic box side by 0.5mm at y=+32.5.
+    add('A','A17L','FILM_MAGNET_SWITCH_CANDIDATE',
+        vy(3.5,13,ax-24,32,30),'C')
     stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y')
     # Photo 97: vertical slide/upright carriage, not a solid block.
     vc13=(box(65,65,8,ax,0,73)
