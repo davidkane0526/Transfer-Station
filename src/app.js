@@ -18,7 +18,7 @@ import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
 import {B149,auditB149,auditBLoweringPose} from './b-photo149-geometry.js';
 import {VN50,vacuumHosePath,electricalHarnessPaths,auditVacuumPath,auditVacuumEnvelope,polylineDistance} from './b-vacuum-routing.js';
 import {auditBaseTopology,mountStatus} from './assembly-mounts.js';
-import {suctionDimension} from './pneumatic-dimensions.js';
+import {suctionDimension,auditVacuumInterfaceFit} from './pneumatic-dimensions.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -291,6 +291,7 @@ window.__modelBVacuumProbe=()=>{
  const inlet=new THREE.Vector3(90,68,0).applyMatrix4(pump.matrixWorld);
  const waypoints=hose.userData.lastRoute||vacuumHosePath();
  const first=waypoints[0],end=waypoints.at(-1);
+ const interfaceFit=auditVacuumInterfaceFit();
  const poseAudit=hose.userData.audit||auditVacuumPath();
  const envelopeAudit=hose.userData.envelopeAudit||
    (hose.userData.envelopeAudit=auditVacuumEnvelope());
@@ -341,6 +342,10 @@ window.__modelBVacuumProbe=()=>{
    sourceCoordinateErrorMm:outlet.distanceTo(new THREE.Vector3(first.x,first.y,first.z)),
    pumpCoordinateErrorMm:inlet.distanceTo(new THREE.Vector3(end.x,end.y,end.z)),
    twoOpenPorts:boresOpen,
+   sealedVacuumCircuitVerified:interfaceFit.sealedVacuumCircuitVerified,
+   directPumpHoseFitVerified:interfaceFit.pumpEnd.directFitVerified,
+   pumpSideAdapterUnresolved:interfaceFit.pumpEnd.matchingAdapterOrFittingUnresolved,
+   hoseToPumpBoreDiametricGapMm:interfaceFit.pumpEnd.openBoreDiametricGapMm,
    electricityCabinetNotVacuumDestination:true,
    passesBehindController:hose.userData.audit?.passesBehindController===true,
    serviceLane:hose.userData.audit?.serviceLane,
@@ -1839,6 +1844,25 @@ function updateDetail(part){
    '。'+(mount.verified?'固定方式可由照片或用户装配关系支持。':
        '螺纹、锚固孔位和磁座型号待核验。')+'</p></div>';
  const suction=suctionDimension(part.id);
+ const vacuumFit=(platform==='B'&&['B15','B15T','B20','B20I','B40'].includes(part.id))
+     ?auditVacuumInterfaceFit():null;
+ const vacuumFitHtml=vacuumFit?
+   '<div class="field" id="vacuum-interface-warning" data-status="unverified">'+
+   '<b>真空接口装配尚未闭合</b><p>当前仅确认候选三维管路的中心线及空腔连续，'+
+   '不代表软管与两端接头已经密封装配。热台端：接头外径Ø'+
+   vacuumFit.heaterEnd.fittingOdMm+' / 软管内径Ø'+
+   vacuumFit.heaterEnd.hoseIdMm+' mm，名义扩张'+
+   vacuumFit.heaterEnd.nominalHoseExpansionPct+
+   '%（材料允许伸长率及卡箍待核）。泵端：候选吸入口外径Ø'+
+   vacuumFit.pumpEnd.inletOdMm+' / 内孔Ø'+vacuumFit.pumpEnd.inletBoreMm+
+   ' mm；软管内径Ø'+vacuumFit.pumpEnd.hoseIdMm+
+   ' mm，不能据此认定直接套接。若将软管外径Ø'+
+   vacuumFit.pumpEnd.hoseOdMm+' mm 插入候选泵孔Ø'+
+   vacuumFit.pumpEnd.inletBoreMm+' mm，名义直径间隙为'+
+   vacuumFit.pumpEnd.openBoreDiametricGapMm+
+   ' mm，同样不能确认密封。必须核对真实泵端接头、变径件/转接件、卡箍及密封方式；'+
+   '不新增没有证据的厂商型号。</p></div>':'';
+
  const suctionHtml=suction?'<div class="field" id="suction-dimensions" '+
    'data-candidate="true"><b>吸气口 / 软管直径（mm，候选尺寸）</b><p>'+
    esc(suction.name)+'：'+esc(suction.nominal)+
@@ -1858,7 +1882,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+installHtml+suctionHtml+axisHtml+holderQAHtml+b35FastenerHtml+photo94QAHtml+photo95QAHtml+
+ hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+photo94QAHtml+photo95QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
