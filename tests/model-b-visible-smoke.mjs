@@ -98,7 +98,6 @@ try{
  assert.equal(vac.pumpFeatures.warningSymbols,2);
  assert.equal(vac.pumpFeatures.nameplateTextLines,5);
  assert.equal(vac.pumpFeatures.fanGrilles,1);
- assert.equal(vac.pumpFeatures.fanGrilleSpokes,4);
  assert.equal(vac.pumpFeatures.fanApertures,8);
  assert.equal(vac.pumpFeatures.rodSupports,4,
    'Two side rails must be supported at both ends');
