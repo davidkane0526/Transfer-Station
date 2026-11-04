@@ -64,7 +64,7 @@ def rot(sys,key,x,y,z,grade):
     add(sys,key+'A','rotary_top_9_M6_25',top,grade)
     # Operator-facing rotary lock shown in 111.jpg / 100.jpg.
     add(sys,key+'B','operator_side_rotary_lock',vy(8,30,x,y+47,z+12))
-def heater(cx=82,cy=0,z=86.2):
+def heater(cx=82,cy=0,z=98.2):
     corners=[(cx+dx,cy+dy) for dx in (-25,25) for dy in (-25,25)]
     metal=box(65,65,12,cx,cy,z)
     # Bottom milled pocket + lead side route + bead contact shallow relief.
@@ -239,25 +239,33 @@ def make_b():
         box(76,26,1,cx+5,0,104.5+jaw_shift),'C')
     add('B','B07A','pdms_UNVERIFIED_transfer_tip',
         box(20,20,1.8,cx,0,102.7+jaw_shift),'C')
-    rot('B','B08',cx,0,20,'D')
+    # Photos145/150: sample rotary is NOT directly seated on the silver
+    # table B01. A separate BLACK THORLABS perforated optical board
+    # is plainly visible under the rotary, with its own front edge
+    # and vendor plaque. Dimensions 180x150x12 are photo-fit proxies.
+    black=box(180,150,12,95,0,20)
+    photo_holes=[(95+dx,dy) for dx in range(-75,76,25) for dy in range(-50,51,25)]
+    black=cut(black,photo_holes,5.6,2,30)
+    add('B','B35','THORLABS_BLACK_SAMPLE_BREADBOARD_photo145_150_180x150x12_CANDIDATE',black,'P')
+    rot('B','B08',cx,0,32,'D')
     corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
     # Manufacturer PDF (NFP-1462C) specifies four Ø6.5 clearance
     # holes with Ø11 counterbore on fixed-stage view (50mm square).
     # They are NOT M6 tapped holes and should not be modeled as threads.
-    lo=cut(box(65,65,11,cx,0,53.2),corners,6.5,11,53.2)
-    lo=cut(lo,corners,11,4,60.2)
+    lo=cut(box(65,65,11,cx,0,65.2),corners,6.5,11,65.2)
+    lo=cut(lo,corners,11,4,72.2)
     add('B','B09','NFP1462C_lower_4clearance_O6p5_counterbore_O11',lo,'D')
     # Opposite view shows 9-M6 / 4-M3 threaded-hole arrays on the moving plate.
     # Minor diameters and 10mm/7mm hole DEPTHS are candidates, not OEM data.
-    top=box(65,65,12,cx,0,64.2)
-    top=cut(top,[(cx+dx,dy) for dx in (-25,0,25) for dy in (-25,0,25)],5,10,66.2)
-    top=cut(top,[(cx+dx,dy) for dx in (-16,16) for dy in (-16,16)],2.5,7,69.2)
+    top=box(65,65,12,cx,0,76.2)
+    top=cut(top,[(cx+dx,dy) for dx in (-25,0,25) for dy in (-25,0,25)],5,10,78.2)
+    top=cut(top,[(cx+dx,dy) for dx in (-16,16) for dy in (-16,16)],2.5,7,81.2)
     add('B','B09A','NFP1462C_upper_9M6_4M3_candidates',top,'D')
     # OEM drawing: native micrometer left. The user photo110 shows right
     # after whole-stage installation yaw=180° relative to native plan.
     # OEM overall maker dimension: 155.5..180.5 mm along drive axis.
-    add('B','B09B','NFP_micro_extended_world_RIGHT',vx(4,76,cx+33,0,64.5),'D')
-    add('B','B09C','NFP_micro_drum_world_RIGHT',vx(10,25,cx+109,0,64.5),'D')
+    add('B','B09B','NFP_micro_extended_world_RIGHT',vx(4,76,cx+33,0,76.5),'D')
+    add('B','B09C','NFP_micro_drum_world_RIGHT',vx(10,25,cx+109,0,76.5),'D')
     heater()
     add('B','B16','microscope_column_PROXY',vz(13,240,cx,-112,32))
     add('B','B16A','microscope_base',box(65,65,12,cx,-112,20))
