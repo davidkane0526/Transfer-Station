@@ -52,7 +52,7 @@ export function vacuumHosePath({
   // candidate INTAKE. It never enters the electrical enclosure.
   const path=[
     moving,
-    point(175,102,-135),
+    point(190,102,-135),
     point(190,102,-170),
     point(190,102,-275),
     point(350,102,-275),
