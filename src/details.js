@@ -295,6 +295,12 @@ export function enrichParts(partMap, platform, onMesh){
        decal(g,'MEAN WELL  SE-600-48',146,18,0,31,64,'front','#283e53');
     });
   }else {
+     decoration('A17',(g)=>{
+       // OEM maker/model remain unverified; show only a neutral
+       // magnetic-foot OFF/ON mechanism consistent with user mounting.
+       decal(g,'MAGNETIC BASE / OEM ?',58,7,0,10,33.15,'front','#dfe6ec');
+       box(g,16,7,10,-24,10,35,graphite,.8);
+     });
      for(const id of ['A02','A15']){const p=partMap.get(id);if(p)stageHardware(p,'GCM-T25M')}
      decoration('A03',(g)=>{
        knurl(g,0,70,31,8.5,15,'y',44);
