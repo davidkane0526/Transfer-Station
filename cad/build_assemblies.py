@@ -242,11 +242,14 @@ def make_b():
     # Photos145/150: sample rotary is NOT directly seated on the silver
     # table B01. A separate BLACK THORLABS perforated optical board
     # is plainly visible under the rotary, with its own front edge
-    # and vendor plaque. Dimensions 180x150x12 are photo-fit proxies.
-    black=box(180,150,12,95,0,20)
-    photo_holes=[(95+dx,dy) for dx in range(-75,76,25) for dy in range(-50,51,25)]
+    # and vendor plaque. Photo150 shows this black board ALSO runs
+    # under the rear microscope upright base, not just the rotary.
+    # 250x300x12 remains a PHOTO-FIT candidate; MB2530/M standard
+    # 250x300x12.7 cannot yet be asserted as the exact hardware.
+    black=box(250,300,12,65,0,20)
+    photo_holes=[(65+dx,dy) for dx in range(-100,101,25) for dy in range(-125,126,25)]
     black=cut(black,photo_holes,5.6,2,30)
-    add('B','B35','THORLABS_BLACK_SAMPLE_BREADBOARD_photo145_150_180x150x12_CANDIDATE',black,'P')
+    add('B','B35','THORLABS_BLACK_SAMPLE_MICROSCOPE_BREADBOARD_photo150_250x300x12_CANDIDATE',black,'P')
     rot('B','B08',cx,0,32,'D')
     corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
     # Manufacturer PDF (NFP-1462C) specifies four Ø6.5 clearance
@@ -267,14 +270,26 @@ def make_b():
     add('B','B09B','NFP_micro_extended_world_RIGHT',vx(4,76,cx+33,0,76.5),'D')
     add('B','B09C','NFP_micro_drum_world_RIGHT',vx(10,25,cx+109,0,76.5),'D')
     heater()
-    add('B','B16','microscope_column_PROXY',vz(13,240,cx,-112,32))
-    add('B','B16A','microscope_base',box(65,65,12,cx,-112,20))
-    add('B','B16B','microscope_boom',box(35,132,26,cx,-52,259))
-    add('B','B16C','microscope_body',box(55,55,50,cx,0,224))
-    add('B','B16D','objective_tube_mount',vz(17,44,cx,0,186))
-    add('B','B18','objective',vz(12.5,38,cx,0,162.0))
-    add('B','B18A','objective_tip',vz(7,12,cx,0,150.0))
-    add('B','B17','digital_camera',box(47,48,48,cx,0,276))
+    # Photo150: the rear microscope FOOT shares B35 with the rotary,
+    # so it must be translated UP by the same 12mm support thickness.
+    # Do not lift only the sample, leaving a floating microscope arm.
+    microscope_rise=12
+    add('B','B16','microscope_column_PROXY',
+        vz(13,240,cx,-112,32+microscope_rise))
+    add('B','B16A','microscope_base',
+        box(65,65,12,cx,-112,20+microscope_rise))
+    add('B','B16B','microscope_boom',
+        box(35,132,26,cx,-52,259+microscope_rise))
+    add('B','B16C','microscope_body',
+        box(55,55,50,cx,0,224+microscope_rise))
+    add('B','B16D','objective_tube_mount',
+        vz(17,44,cx,0,186+microscope_rise))
+    add('B','B18','objective',
+        vz(12.5,38,cx,0,162.0+microscope_rise))
+    add('B','B18A','objective_tip',
+        vz(7,12,cx,0,150.0+microscope_rise))
+    add('B','B17','digital_camera',
+        box(47,48,48,cx,0,276+microscope_rise))
     # Photo114 front YUDIAN PID; photo119 opened metal cabinet with
     # SE-600-48 PSU and separate BLACK vented internal module. V32
     # incorrectly overlapped these three as free-standing boxes, and
