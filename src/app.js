@@ -1581,7 +1581,13 @@ function platformA(){
        add(g,cub(1.9,.45,.15,mats.ink,x,y,8.36));
      }
    }
-   add(g,cub(65,6,65,mats.dark,0,48,0)); // VC13M actual OEM 65×65 top, Y=104
+   // V46: movable VC13M output; previous slider left A03/A04/A05 immobile.
+   // Mechanical collision along the actual 13mm travel remains unqualified.
+   const movingVC13=new THREE.Group();g.add(movingVC13);
+   add(movingVC13,cub(65,6,65,mats.dark,0,48,0));
+   g.userData.verticalCarriage=movingVC13;
+   g.userData.nominalVerticalTravelMm=13;
+   g.userData.motionProxyNotCollisionCertified=true;
    // VC13M vertical micrometer on face, NOT another horizontal rail.
    const micrometer=vc13PhotoScrewDatums();
    add(g,cub(14,10,10,mats.black,0,15,micrometer.frontZmm));
@@ -1623,7 +1629,7 @@ function platformA(){
    }
    addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
    label(g,'GCM-G40M60L · R60 / 右侧测微（照片94）',-4,40,0);
- },{explode:[-25,42,0],moveFilm:true});
+ },{explode:[-25,42,0],moveFilm:true,moveFilmVertical:true});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:144});
  addPart('A05',ax,144,0,g=>{
    // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
@@ -1652,7 +1658,7 @@ function platformA(){
    g.userData.photoBracketDatums=aBent;
    label(g,'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
       -24,17,0);
- },{explode:[-13,65,0],moveFilm:true});
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
  addPart('A06',sx,28,0,g=>{
   add(g,cyl(47,33.2,mats.dark,0,16.6,0));
   add(g,torus(44,1,mats.steel,0,33.5,0));
@@ -1979,7 +1985,7 @@ function updateTransforms(){
    $('lowering-clearance').textContent=motionAudit?
      '夹具与热台X向保守间隙：'+motionAudit.planarGapMm.toFixed(1)+' mm'+
        (motionAudit.possibleClash?'；当前平移/旋转姿态下禁用下降':'；下降检查允许接触印章'):
-     '高度下降检查仅适用于平台 B 的实拍149方案';
+     '平台 A · VC13M候选13mm下降预览已联动A04/A05；玻片夹与磁座未识别，样品接触和全行程干涉未验收';
  }
  parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,rotateSample,facingYaw=0})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0,sx=translateSample?sampleShift:0;
@@ -2059,7 +2065,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V44 / VN-50泵口待配对 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V38 / 单一面包板 / 载玻片磁吸 / 样品螺钉固定';
+   '平台 A · V46 / VC13M运动预览 / A05夹具未识别 / 装配基准未配准';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
@@ -2197,6 +2203,14 @@ function updatePhotoScope(){
  $('btn-b-user-photos').classList.toggle('on',platform==='B');
  $('btn-b-archive').classList.remove('on');
  $('b-profile-note').textContent='照片149：B34黑色套筒、B27长立杆、B33方夹及PHUC-1双横杆。照片108/150：下杆直入GCM-1302M侧边，取消虚构B26大转接座。50mm套筒、100mm立杆和玻片高度仍为候选；PHUC孔距33mm、GCM夹具型号由原厂/铭牌支持。';
+ const aCritical=$('a-physical-audit');
+ aCritical.hidden=platform!=='A';
+ if(platform==='A'){
+   const aStatus=auditPlatformAAssembly();
+   aCritical.textContent='平台A整体装配未通过：A05末端与A07候选样品台在最乐观X行程下仍有约 '+
+     aStatus.optimisticResidualHorizontalGapMm+
+     ' mm水平缺口。A05夹具、A17磁座、安装基准未验证。VC13M运动仅供演示，不能确认安全接触。';
+ }
  const critical=$('b-physical-audit');
  critical.hidden=platform!=='B';
  if(platform==='B')critical.textContent='V30已消除B05与V25M固定机架此前6048mm³的几何穿透：活动导轨通过独立侧向支承桥接B05。B26巨大转接块删除，只剩可能的M6端面连接。真实螺钉孔距、移动全行程及玻片工作距离仍未认证，禁止加工。';
@@ -2233,6 +2247,16 @@ function switchPlatform(next){
   $('sample-value').textContent='0 mm';$('rotate-value').textContent='0°';
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
+  $('film-drop-label').textContent=next==='A'?
+    '玻片竖直下降 · VC13M（13mm候选）':
+    '玻片竖直下降 · V25M（13mm接触预览）';
+  $('sample-move-label').textContent=next==='A'?
+    '样品侧 T25M · X平移（轴型/行程待核）':
+    '样品 NFP-1462C · 单轴 X平移';
+  $('film-drop').min='-13';
+  $('film-drop').max='0';
+  $('film-drop').value='0';
+  $('film-drop-value').textContent='0.0 mm';
   // Both A and B have photo-confirmed film-side T25M. Actual travel use remains candidate.
   $('translate').disabled=false;
   $('translate').title=next==='A'?'A15: 照片95/97证明存在载玻片侧 T25M':'B03: 照片108/109证明存在磁座上T25M';
