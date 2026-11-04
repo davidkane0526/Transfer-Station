@@ -24,7 +24,7 @@ try{
    assert.equal(await toggle.isChecked(),true,'B scene category hidden '+category);
  }
  const proof=await page.locator('#photo-ledger').innerText();
- for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23'])
+ for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23','B37','B38','B39'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
  const support=await page.evaluate(()=>window.__modelBSupportProbe?.());
@@ -43,6 +43,52 @@ try{
    'Rotary base footprint extends outside black board');
  assert.equal(support.originalThorlabsPartNumberConfirmed,false,
    'Photo does not confirm exact Thorlabs part number');
+ const approach=await page.evaluate(()=>window.__modelBContactProbe?.());
+ assert(approach?.available,'V36 actual-mesh contact probe missing');
+ assert(Math.abs(approach.glassX[0]-18)<.1&&Math.abs(approach.glassX[1]-94)<.1,
+   'Glass left/right boundaries must match revised edge-grip layout');
+ assert(Math.abs(approach.stampX[0]-72)<.1&&Math.abs(approach.stampX[1]-92)<.1,
+   'Stamp is not near RIGHT edge of real glass mesh');
+ assert(Math.abs(approach.stampRightInsetMm-2)<.1,'Stamp should leave 2mm glass edge margin');
+ assert(Math.abs(approach.stampCenterOffsetFromHeaterMm)<.1,
+   'PDMS stamp must align with substrate center');
+ assert(approach.clampToHeaterClearanceMm>=15,
+   'Whole clamp body, not just abstract datum, must be entirely outside heater');
+ const harness=await page.evaluate(()=>window.__modelBHeatingHarnessProbe?.());
+ assert(harness?.available,'V36 heater controller wiring probe missing');
+ assert.equal(harness.heatingLeads,2,'Heater must show TWO individually modelled leads');
+ assert.equal(harness.temperatureFeedbackLeads,1,'Independent temperature-sensor sheath is missing');
+ assert.equal(harness.realSideWallFeedthroughHole,true,
+   'Cable must not pass through undrilled B36 metal side wall');
+ assert.equal(harness.internalTerminationZoneExists,true);
+ assert.equal(harness.controllerTerminalPinoutVerified,false,
+   'Unidentified controller terminal pinout must never be marked verified');
+ // The MOVABLE glass clamp descends 13mm until the PDMS reaches the
+ // heater; the jaw must stay entirely OUTSIDE its footprint.
+ await page.locator('#film-drop').evaluate(el=>{
+   el.value='-13';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const lowered=await page.evaluate(()=>window.__modelBContactProbe?.());
+ assert(lowered?.clampFootprintOutsideHeater,
+   'Glass clamp would strike heater during vertical descent');
+ assert(Math.abs(lowered.stampToHeaterGapMm)<0.15,
+   'PDMS, not the clamp, should be the first body to meet heater at contact height');
+ // Extreme combined linear stage shifts must reset vertical approach
+ // instead of permitting a displayed jaw/chuck collision.
+ await page.locator('#translate').evaluate(el=>{
+   el.value='12.5';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='-12.5';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ assert.equal(await page.locator('#film-drop').inputValue(),'0',
+   'Unsafe combined X offsets must block the lowering preview');
+ await page.locator('#translate').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
  assert.equal(support.microscopeFootFourTrueThroughBores,true,
    'V35 microscope foot has four actual candidate through-bores, not four screws on solid metal');
  assert.equal(support.microscopeMountAudit?.candidateFootHoleCount,4);
@@ -112,7 +158,7 @@ try{
  const rows=await page.locator('#bom-body tr').allTextContents();
  for(const id of ['B01','B35','B02','B03','B04','B05','B06','B07','B08','B09',
     'B10','B11','B12','B14','B15','B16','B17','B18','B19','B20','B21',
-    'B22','B23','B24','B25','B26','B27','B28','B33','B34','B36']){
+    'B22','B23','B24','B25','B26','B27','B28','B33','B34','B36','B37','B38','B39']){
    assert(rows.some(row=>row.trim().startsWith(id)),'B BOM lost '+id);
  }
  for(const wrong of ['B29','B30','B31','B32'])
