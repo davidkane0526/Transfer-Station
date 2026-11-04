@@ -1,18 +1,22 @@
-// V35: Candidate bolt-hole correspondence for the microscope foot on B35.
-// This is NOT an OEM hole-pattern registration or a mounting approval.
-// The 2 mm recesses in the photo-fit B35 mesh are decorative blind holes,
-// not a representation of the through-tapped M6 holes on stock Thorlabs boards.
+// V45: nominal B16/B35 hole registration only, not a certified OEM joint.
+// The visible B35 board has not been positively identified as MB2530/M.
+// Guesstimated 25 mm hole coordinates can be aligned, but not passed as measurements.
 export function auditB35MicroscopeFasteners({
   boardCenterX=65,boardHalfGridX=100,boardHalfGridZ=125,boardPitchMm=25,
-  microscopeCenterX=82,microscopeCenterZ=-112,
-  footHoleOffsetMm=25,footHoleDiameterMm=4,
-  boardBlindDepthMm=2,boardThicknessMm=12
+  microscopeCenterX=90,microscopeCenterZ=-100,
+  footHoleOffsetMm=25,footHoleDiameterMm=6.5,
+  boardBlindDepthMm=2,boardThicknessMm=12,
+  proposedThreadPilotDiameterMm=5,proposedThreadPilotDepthMm=6
 }={}){
   const values=[boardCenterX,boardHalfGridX,boardHalfGridZ,boardPitchMm,
     microscopeCenterX,microscopeCenterZ,footHoleOffsetMm,footHoleDiameterMm,
-    boardBlindDepthMm,boardThicknessMm];
+    boardBlindDepthMm,boardThicknessMm,proposedThreadPilotDiameterMm,proposedThreadPilotDepthMm];
   if(values.some(v=>!Number.isFinite(v))||boardPitchMm<=0||
-     footHoleDiameterMm<=0||boardBlindDepthMm<=0||boardBlindDepthMm>=boardThicknessMm)
+    footHoleDiameterMm<=0||boardBlindDepthMm<=0||
+    boardBlindDepthMm>=boardThicknessMm||
+    proposedThreadPilotDepthMm<=boardBlindDepthMm||
+    proposedThreadPilotDepthMm>=boardThicknessMm||
+    proposedThreadPilotDiameterMm>=footHoleDiameterMm)
     throw new RangeError('Invalid B35/B16 candidate fastener datums');
   const grid=[];
   for(let dx=-boardHalfGridX;dx<=boardHalfGridX+.001;dx+=boardPitchMm)
@@ -28,7 +32,7 @@ export function auditB35MicroscopeFasteners({
         if(error<best){best=error;nearest=[gx,gz];}
       }
       fasteners.push({footWorldX:x,footWorldZ:z,
-        nearestDecorativeHole:nearest,centerMismatchMm:best});
+        nearestCandidateGridHole:nearest,centerMismatchMm:best});
     }
   const maxMismatchMm=Math.max(...fasteners.map(f=>f.centerMismatchMm));
   return Object.freeze({
@@ -37,14 +41,20 @@ export function auditB35MicroscopeFasteners({
     candidateFootHoleCount:fasteners.length,
     candidateHolePairs:fasteners,
     maxMismatchMm,
+    nominalGridRegistered:maxMismatchMm<=.25,
+    proposedM6ClearanceDiameterMm:footHoleDiameterMm,
+    proposedThreadPilotDiameterMm,proposedThreadPilotDepthMm,
+    candidateThreadPilotCount:fasteners.length,
     faceSupportEstablishedOnly:true,
-    holesAreDecorativeBlindRecesses:true,
+    holesAreDecorativeBlindRecesses:true, // remaining grid holes
     boardBlindDepthMm,boardThicknessMm,
     stockThorlabsM6ThroughTapsNotYetApplied:true,
     knownOEMBoardSku:false,
     boardAnchorThreadVerified:false,
     boardBoltPatternAligned:maxMismatchMm<=.25,
+    opticalAxisKeptAtWorldX:82,
+    microscopePostShiftFromV44Mm:{x:microscopeCenterX-82,z:microscopeCenterZ-(-112)},
     loadBearingFastenerJointAccepted:false,
-    missing:'Actual B35 SKU, hole grid origin, microscope foot clearance holes, bolt grade and full thread engagement'
+    missing:'Real B35 SKU and origin, B16 OEM foot fastener pitch, M6 tapped depth, bolt strength and thread engagement'
   });
 }
