@@ -1,8 +1,8 @@
-// V39 — route the vacuum line around the REAR of the YUDIAN AI
-// temperature-controller panel B19 and the B36 cabinet, not over the
-// controller face or through the electrical enclosure.
-// Three.js axes: X horizontal, Y up, Z front/back. Units: mm.
-// CAD maps the same route to (X,Z,Y).
+// V40 — B40 passes behind the B19 YUDIAN controller and B36 cabinet.
+// It is deliberately routed on a lower service plane to stay separated
+// from B37 heater leads and B38 temperature-feedback wiring.
+// Three.js axes: X horizontal, Y vertical, Z front/back. Units: mm.
+// CAD maps the same route to (X, depth-Y, vertical-Z).
 export const VN50=Object.freeze({
   model:'VN-50',
   physicalNameplate:true,
@@ -27,7 +27,8 @@ export const VN50=Object.freeze({
   }),
   microscopePost:Object.freeze({
     x:82,z:-112,radiusMm:13,ymin:44,ymax:282
-  })
+  }),
+  minimumHarnessSurfaceClearanceMm:2
 });
 function point(x,y,z){return {x,y,z};}
 export function movingVacuumOutlet({
@@ -42,22 +43,51 @@ export function movingVacuumOutlet({
     -(dx+sampleShiftMm)*s+dz*c
   );
 }
+// These paths mirror refreshHeatingControlHarness() in app.js exactly.
+// They are mechanical routing proxies, not verified electrical pinouts.
+export function electricalHarnessPaths({
+  sampleShiftMm=0,sampleAngleDeg=0
+}={}){
+  const rad=sampleAngleDeg*Math.PI/180;
+  const c=Math.cos(rad),s=Math.sin(rad);
+  const source=(x,y,z)=>point(
+    82+(sampleShiftMm+x)*c+z*s,
+    y,
+    -(sampleShiftMm+x)*s+z*c
+  );
+  return [
+    {id:'B37A',radiusMm:1.1,points:[
+      source(11,98.5,-60),point(119,104,-92),
+      point(174,100,-140),point(207,94,-165),
+      point(222.5,84,-168)
+    ]},
+    {id:'B37B',radiusMm:1.1,points:[
+      source(16,98.5,-60),point(119,109,-97),
+      point(174,106,-146),point(207,99,-171),
+      point(222.5,87,-167)
+    ]},
+    {id:'B38',radiusMm:.72,points:[
+      source(6,100.35,-51),point(119,104,-102),
+      point(174,106,-146),point(207,104,-171),
+      point(222.5,89,-163)
+    ]}
+  ];
+}
 export function vacuumHosePath({
   sampleShiftMm=0,sampleAngleDeg=0
 }={}){
   const moving=movingVacuumOutlet({sampleShiftMm,sampleAngleDeg});
-  // The first span stays to the right of the B16 microscope post.
-  // The tube then passes LEFT of B36, BEHIND its rear wall, and
-  // around the cabinet's RIGHT side before approaching the pump's
-  // candidate INTAKE. It never enters the electrical enclosure.
+  // The hose passes to the LEFT of B36, behind its rear wall at
+  // Z=-275 mm, then around its RIGHT side. The lower Y=70 mm service
+  // plane provides separation from B37/B38 while remaining outside B36.
   const path=[
     moving,
-    point(200,102,-135),
-    point(200,102,-170),
-    point(200,102,-275),
-    point(350,102,-275),
-    point(520,102,-275),
-    point(520,102,140),
+    point(200,70,-135),
+    point(200,70,-170),
+    point(200,70,-275),
+    point(350,70,-275),
+    point(520,70,-275),
+    point(520,70,140),
     point(520,90,180),
     point(465,69,180),
     point(VN50.pumpIntakeCandidate.x,
@@ -87,6 +117,46 @@ function distanceToBox(p,b){
   const dz=Math.max(b.zmin-p.z,0,p.z-b.zmax);
   return Math.hypot(dx,dy,dz);
 }
+function dot(a,b){return a.x*b.x+a.y*b.y+a.z*b.z;}
+function sub(a,b){return point(a.x-b.x,a.y-b.y,a.z-b.z);}
+function segmentDistance(p1,q1,p2,q2){
+  const u=sub(q1,p1),v=sub(q2,p2),w=sub(p1,p2);
+  const a=dot(u,u),b=dot(u,v),c=dot(v,v);
+  const d=dot(u,w),e=dot(v,w),D=a*c-b*b,eps=1e-12;
+  let sN,sD=D,tN,tD=D;
+  if(D<eps){sN=0;sD=1;tN=e;tD=c;}
+  else{
+    sN=b*e-c*d;tN=a*e-b*d;
+    if(sN<0){sN=0;tN=e;tD=c;}
+    else if(sN>sD){sN=sD;tN=e+b;tD=c;}
+  }
+  if(tN<0){
+    tN=0;
+    if(-d<0)sN=0;
+    else if(-d>a)sN=sD;
+    else{sN=-d;sD=a;}
+  }else if(tN>tD){
+    tN=tD;
+    if(-d+b<0)sN=0;
+    else if(-d+b>a)sN=sD;
+    else{sN=-d+b;sD=a;}
+  }
+  const sc=Math.abs(sN)<eps?0:sN/sD;
+  const tc=Math.abs(tN)<eps?0:tN/tD;
+  const delta=point(w.x+sc*u.x-tc*v.x,
+    w.y+sc*u.y-tc*v.y,w.z+sc*u.z-tc*v.z);
+  return Math.hypot(delta.x,delta.y,delta.z);
+}
+function pathDistance(a,b){
+  let minimum=Infinity;
+  for(let i=0;i<a.length-1;i++){
+    for(let j=0;j<b.length-1;j++){
+      minimum=Math.min(minimum,
+        segmentDistance(a[i],a[i+1],b[j],b[j+1]));
+    }
+  }
+  return minimum;
+}
 export function auditVacuumPath(options={}){
   const points=vacuumHosePath(options);
   const samples=routeSamples(points);
@@ -107,25 +177,42 @@ export function auditVacuumPath(options={}){
         v.y<m.ymin?m.ymin-v.y:v.y-m.ymax)-VN50.outerHoseRadiusMm));
   const passesBehindController=points.some(v=>
     v.x>c.xmin&&v.x<c.xmax&&v.z<b.zmin-VN50.outerHoseRadiusMm);
-  const segmentsCrossCabinet=cabinetClearanceMm<0;
+  const routeAroundCabinetLeft=points.some(v=>
+    v.x<b.xmin-VN50.outerHoseRadiusMm);
+  const routeAroundCabinetRight=points.some(v=>
+    v.x>b.xmax+VN50.outerHoseRadiusMm);
+  const harnessClearances=electricalHarnessPaths(options).map(h=>{
+    const centerlineMm=pathDistance(points,h.points);
+    return {id:h.id,centerlineMm,
+      surfaceMm:centerlineMm-VN50.outerHoseRadiusMm-h.radiusMm};
+  });
+  const minimumHarnessClearanceMm=Math.min(
+    ...harnessClearances.map(v=>v.surfaceMm));
   const verify=near(end.x,p.x)&&near(end.y,p.y)&&near(end.z,p.z)
     &&distinct&&cabinetClearanceMm>0&&controllerClearanceMm>0
     &&microscopeClearanceMm>0&&passesBehindController
+    &&routeAroundCabinetLeft&&routeAroundCabinetRight
+    &&minimumHarnessClearanceMm>VN50.minimumHarnessSurfaceClearanceMm
     &&VN50.innerBoreRadiusMm>0
     &&VN50.innerBoreRadiusMm<VN50.outerHoseRadiusMm;
-  if(!verify)throw Error('VN-50 rear-routed hose disconnects or collides with B16/B19/B36');
+  if(!verify)throw Error('VN-50 rear hose route collides with B16/B19/B36 or B37/B38');
   return Object.freeze({
     pumpModel:VN50.model,
     photoConfirmedPumpModel:VN50.physicalNameplate,
-    airPath:['B11 central Ø1.4 suction hole','B11 rear vacuum bore',
+    airPath:['B11 central Ø1.4 suction hole','B11 internal rear bore',
       'B15 bored fitting','B15T short flexible hose',
       'B40 rear-routed continuous hollow hose','B20I VN-50 suction inlet (position candidate)'],
     hoseWaypointCount:points.length,
-    serviceLane:'B19 controller rear / B36 cabinet rear exterior',
+    serviceLane:'B19 controller rear / B36 cabinet rear exterior · Y=70 mm',
+    routeHeightMm:70,
     passesBehindController,
+    routeAroundCabinetLeft,routeAroundCabinetRight,
     cabinetClearanceMm,
     controllerClearanceMm,
     microscopeClearanceMm,
+    harnessClearances,
+    minimumHarnessClearanceMm,
+    minimumRequiredHarnessClearanceMm:VN50.minimumHarnessSurfaceClearanceMm,
     start,end,
     nominalSourceMatches:near(start.x,94)&&near(start.y,90.5)&&near(start.z,-79),
     inletMatches:true,
@@ -133,8 +220,56 @@ export function auditVacuumPath(options={}){
     visuallyContinuous:true,
     actualHoseDiameterVerified:false,
     actualPumpIntakePositionVerified:false,
-    verifiedFullStrokeCollisionFree:false,
-    segmentsCrossCabinet,
+    fullStrokeGridPass:false,
+    continuousBetweenSamplesProven:false,
     points
+  });
+}
+function axisSamples(min,max,step){
+  const count=Math.floor((max-min)/step+1e-9);
+  const values=Array.from({length:count+1},(_,i)=>min+i*step);
+  if(values.at(-1)<max-1e-8)values.push(max);
+  return values;
+}
+export function auditVacuumEnvelope({
+  sampleShiftMinMm=-12.5,sampleShiftMaxMm=12.5,
+  sampleAngleMinDeg=-30,sampleAngleMaxDeg=30,
+  shiftStepMm=1,angleStepDeg=1
+}={}){
+  if(!(shiftStepMm>0&&angleStepDeg>0&&
+       sampleShiftMaxMm>=sampleShiftMinMm&&
+       sampleAngleMaxDeg>=sampleAngleMinDeg)){
+    throw new RangeError('Invalid sample-motion audit range or step');
+  }
+  const shifts=axisSamples(sampleShiftMinMm,sampleShiftMaxMm,shiftStepMm);
+  const angles=axisSamples(sampleAngleMinDeg,sampleAngleMaxDeg,angleStepDeg);
+  const minima={cabinet:Infinity,controller:Infinity,microscope:Infinity,harness:Infinity};
+  const worst={};
+  for(const shift of shifts)for(const angle of angles){
+    const a=auditVacuumPath({sampleShiftMm:shift,sampleAngleDeg:angle});
+    for(const [key,value] of [
+      ['cabinet',a.cabinetClearanceMm],
+      ['controller',a.controllerClearanceMm],
+      ['microscope',a.microscopeClearanceMm],
+      ['harness',a.minimumHarnessClearanceMm]
+    ]){
+      if(value<minima[key]){
+        minima[key]=value;
+        worst[key]={sampleShiftMm:shift,sampleAngleDeg:angle};
+      }
+    }
+  }
+  return Object.freeze({
+    sampleShiftRangeMm:[sampleShiftMinMm,sampleShiftMaxMm],
+    sampleAngleRangeDeg:[sampleAngleMinDeg,sampleAngleMaxDeg],
+    shiftStepMm,angleStepDeg,
+    shiftSamples:shifts.length,angleSamples:angles.length,
+    posesChecked:shifts.length*angles.length,
+    minimumClearancesMm:minima,
+    worstCasePoses:worst,
+    minimumRequiredHarnessClearanceMm:VN50.minimumHarnessSurfaceClearanceMm,
+    fullStrokeGridPass:true,
+    continuousBetweenSamplesProven:false,
+    method:'1 mm × 1° deterministic pose grid; straight-segment centerline distance with hose/wire radii subtracted'
   });
 }
