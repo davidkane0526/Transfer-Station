@@ -244,6 +244,23 @@ window.__modelBVacuumProbe=()=>{
  const ring=pump.children.find(o=>o.userData.realSuctionInlet);
  const bored=fitting.children.find(o=>o.userData.trueVacuumAxialBore);
  if(!ring||!bored)return {available:false};
+ const pumpBounds=new THREE.Box3().setFromObject(pump);
+ const pumpEnvelopeMm=[
+   pumpBounds.max.x-pumpBounds.min.x,
+   pumpBounds.max.y-pumpBounds.min.y,
+   pumpBounds.max.z-pumpBounds.min.z
+ ];
+ const pumpFeatures={basePlate:0,motorHousing:0,motorCore:0,
+   fanCover:0,twinHeads:0,tieRods:0,vents:0};
+ pump.traverse(o=>{
+   if(o.userData.pumpBasePlate)pumpFeatures.basePlate++;
+   if(o.userData.pumpMotorHousing)pumpFeatures.motorHousing++;
+   if(o.userData.pumpMotorCore)pumpFeatures.motorCore++;
+   if(o.userData.pumpFanCover)pumpFeatures.fanCover++;
+   if(o.userData.pumpTwinHead)pumpFeatures.twinHeads++;
+   if(o.userData.pumpTieRodCandidate)pumpFeatures.tieRods++;
+   if(o.userData.ventCandidate)pumpFeatures.vents++;
+ });
  const outlet=new THREE.Vector3(12,-17,-79)
    .applyMatrix4(fitting.matrixWorld);
  const inlet=new THREE.Vector3(90,68,0).applyMatrix4(pump.matrixWorld);
@@ -287,6 +304,9 @@ window.__modelBVacuumProbe=()=>{
    available:true,
    nameplateModel:pump.userData.nameplateModel,
    photoConfirmed:pump.userData.pumpModelReadFromPhoto120,
+   geometryRevision:pump.userData.geometryRevision,
+   pumpEnvelopeMm,
+   pumpFeatures,
    fromPart:'B15',toPart:'B20',hosePart:'B40',
    hoseOuterRadiusMm:VN50.outerHoseRadiusMm,
    hoseLumenRadiusMm:VN50.innerBoreRadiusMm,
@@ -1225,19 +1245,23 @@ function externalB(){
   // Photo120/123 show a black perforated motor housing, two long
   // metal tie rods and a twin-head upper assembly. The exact OEM
   // manufacturer remains unverified; these are photo-fit solids.
-  add(g,cub(200,8,110,mats.black,-10,4,0));
+  const pumpBase=add(g,cub(200,8,110,mats.black,-10,4,0));
+  pumpBase.userData.pumpBasePlate=true;
   for(const x of [-71,71])for(const z of [-48,48]){
     add(g,cub(28,12,20,mats.dark,x,10,z));
     const footHole=add(g,cyl(3.1,2,mats.ink,x,16,z));
     footHole.userData.mountingHoleCandidate=true;
   }
   // Main black motor casing and the partly exposed rounded motor body.
-  add(g,cub(160,62,76,mats.dark,-10,39,0));
+  const motorHousing=add(g,cub(160,62,76,mats.dark,-10,39,0));
+  motorHousing.userData.pumpMotorHousing=true;
   const motor=add(g,cyl(34,130,mats.black,-25,40,0));
+  motor.userData.pumpMotorCore=true;
   motor.rotation.z=Math.PI/2;
   // Fan/end cover at the left end of the motor.
   const fan=add(g,cyl(29,12,mats.black,-94,40,0));
   fan.rotation.z=Math.PI/2;
+  fan.userData.pumpFanCover=true;
   for(const z of [-40,40]){
     const rod=add(g,cyl(2.5,150,mats.silver,-10,82,z));
     rod.rotation.z=Math.PI/2;
@@ -1246,10 +1270,12 @@ function externalB(){
   // Two vertical pump heads, top caps and the common upper bridge.
   for(const x of [-45,30]){
     add(g,cyl(24,8,mats.dark,x,79,0));
-    add(g,cyl(22,56,mats.steel,x,111,0));
+    const head=add(g,cyl(22,56,mats.steel,x,111,0));
+    head.userData.pumpTwinHead=true;
     add(g,cyl(24,8,mats.silver,x,143,0));
   }
-  add(g,cub(90,10,44,mats.steel,-7.5,145,0));
+  const bridge=add(g,cub(90,10,44,mats.steel,-7.5,145,0));
+  bridge.userData.pumpHeadBridge=true;
   // Photo120 shows a perforated upper face. The dark circles are
   // shallow visual apertures; their exact pitch/depth is not measured.
   for(const x of [-70,-50,-30,-10,10,30,50]){
