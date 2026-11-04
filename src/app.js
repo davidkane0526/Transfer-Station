@@ -1248,7 +1248,7 @@ function externalB(){
   const pumpBase=add(g,cub(200,8,110,mats.black,-10,4,0));
   pumpBase.userData.pumpBasePlate=true;
   for(const x of [-71,71])for(const z of [-48,48]){
-    add(g,cub(28,12,20,mats.dark,x,10,z));
+    add(g,cub(28,12,14,mats.dark,x,10,z));
     const footHole=add(g,cyl(3.1,2,mats.ink,x,16,z));
     footHole.userData.mountingHoleCandidate=true;
   }
