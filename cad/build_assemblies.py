@@ -397,6 +397,8 @@ def make_b():
     pump_shell=box(200,110,8,325,180,0)
     pump_shell=pump_shell.fuse(
         box(160,76,68,325,180,8),
+        box(28,14,12,254,132,4),box(28,14,12,254,228,4),
+        box(28,14,12,396,132,4),box(28,14,12,396,228,4),
         vx(34,130,245,180,40),
         vx(29,12,234,180,40),
         vz(24,8,290,180,75),vz(22,57,290,180,82.5),
@@ -409,7 +411,7 @@ def make_b():
     # Candidate 142x96 mounting footprint: four open Ø6.2 bores.
     for x in (254,396):
         for y in (132,228):
-            pump_shell=pump_shell.cut(vz(3.1,8,x,y,0))
+            pump_shell=pump_shell.cut(vz(3.1,16,x,y,0))
     # Photo-fit vent apertures on the upper motor face and long side faces.
     for x in (265,285,305,325,345,365,385):
         for y in (153,180,207):
