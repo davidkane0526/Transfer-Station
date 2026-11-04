@@ -2124,7 +2124,7 @@ function resetScene(){
  $('hover-help').textContent='点击零件显示唯一标签及尺寸；点空白取消';
  $('axis-confidence-note').textContent=platform==='B'?
   'B：NFP-1462C 只有一个线性X轴，B03双轴T25M对应场景X/Z；照片149确认PHUC-1的33mm孔中心距，照片150确认GCM-1302M；其余接杆长度和安装螺纹为候选。':
-  'A：照片94/95/97确认T25M、VC13M、G40M60L；当前A05末端与A07样品台的候选X配准仍缺183.5mm且玻片夹/磁座型号未识别，整机不可标为已复原。A02单/双轴及旋转台型号仍待核。';
+  'A：照片94以G40M60L的40mm尺寸作为比例参照，A05上横板候选约75mm，左伸48mm。照片95按T25M的65mm比例估算磁座厚度约18–19mm，但照片都不含直尺；当前全局坐标不属于实测配准，不能将计算缺口视为实物测量。夹具和磁座型号未确认。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
  parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
