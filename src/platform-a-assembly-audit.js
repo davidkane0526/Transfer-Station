@@ -3,7 +3,7 @@
 // coordinates should be mistaken for a dimension observed in user photos.
 export function auditPlatformAAssembly({
   filmStageX=-116,sampleCenterX=78,sampleHeaterWidthMm=65,
-  bracketTopWidthMm=80,bracketOverhangLeftMm=60,
+  bracketTopWidthMm=75,bracketOverhangLeftMm=48,
   bracketReturnWidthMm=13,filmTravelHalfMm=12.5,sampleTravelHalfMm=12.5,
   bracketLowestYmm=72,heaterTopYmm=99.2
 }={}){
@@ -31,6 +31,9 @@ export function auditPlatformAAssembly({
   return Object.freeze({
     profile:'A_photo94_95_97_layout_candidate',
     photoConfirmedGlassClamp:false,
+    localSheetSizeManuallyCalibratedFromG40Photo94:true,
+    sourceRulerMeasurementsAvailable:false,
+    absoluteFilmSampleCoordinatesPhotoRegistered:false,
     photoConfirmedMagneticBaseSku:false,
     filmStageX,sampleCenterX,
     stageCenterGapMm:Math.abs(sampleCenterX-filmStageX),
@@ -50,6 +53,6 @@ export function auditPlatformAAssembly({
     functionalTransferAccepted:false,
     missing:['A05 lower glass jaw model & fixing thread','A17 magnetic base actual SKU, height & mounting pitch',
       'film stage/thermal stage relative origin and direction','A02 actual travel axis','A05-to-glass-to-PDMS contact height'],
-    note:'Current left-facing candidate leaves a large gap; even a hypothetical mirrored right-facing strap cannot close it. Neither side proves the photo orientation. Do not extend the arm without registered real photos.'
+    note:'A05 local length uses photo94 G40 projected size (not ruler); global stage coordinates still unregistered. Both horizontal reach gaps diagnose the provisional scene, NOT measured inter-stage distance.'
   });
 }
