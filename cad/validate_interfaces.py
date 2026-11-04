@@ -296,7 +296,7 @@ bb=phuc.BoundingBox()
 check(abs(bb.zlen-60)<.02 and abs(bb.xlen-30)<.02 and abs(bb.ylen-30)<.02,
       'Zolix PHUC-1 manufacturer A60 and BØ30 housing envelope')
 # Real boolean void checks: both holes must be open within the 60-mm body.
-phuc_x=-5
+phuc_x=-35
 upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,168),Vector(1,0,0))
 lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,135),Vector(1,0,0))
 check(phuc.intersect(upper_bore).Volume()<1e-4,'PHUC-1 upper Ø12 bore is real')
@@ -330,7 +330,7 @@ check(second.intersect(spine).Volume()<1e-4,
       'Full Ø12 lower rod must not penetrate solid plate-holder spine')
 check(long.BoundingBox().xmax<82-17 and second.BoundingBox().xmax<82-17,
       'Both steel rods stop outside objective optical radius')
-check(abs(long.BoundingBox().xmin+75)<.02 and abs(long.BoundingBox().xmax-10)<.02,
+check(abs(long.BoundingBox().xmin+90)<.02 and abs(long.BoundingBox().xmax+20)<.02,
       'First rod crosses B33→PHUC without floating or extra metal tail')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
@@ -359,7 +359,7 @@ check(not (ROOT/'build'/'platform_B_photo94').exists(),
       'Never build a B-photo94 assembly from verified A photographs')
 for required in ('B07','B35','B08','B09','B10','B11','B12','B14_1','B14_2',
                  'B14_3','B14_4','B15','B16','B17','B18',
-                 'B24','B25','B26','B27','B28','B33','B34','B36'):
+                 'B24','B25','B26','B27','B28','B33','B34','B36','B37','B37A','B38','B39'):
     check((B/(required+'.step')).exists(),
           'Corrected photo145-151 B full-system STEP missing '+required)
 report['new_dimension_evidence']={
@@ -417,6 +417,40 @@ for jaw,description in ((fixed_jaw,'lower fixed jaw'),(moving_plate,'moving uppe
     check(jaw.intersect(pdms).Volume()<1e-6,description+' does not penetrate PDMS')
     check(jaw.intersect(chuck).Volume()<1e-6,description+' clears the heater')
 check(glass.intersect(chuck).Volume()<1e-6,'Glass does not penetrate hot metal')
+# V36 stamp is at the RIGHT edge of the slide. The GCM-1302M jaw
+# remains ENTIRELY LEFT of the 65mm heating plate when moving downward,
+# including 12.5mm sample-only negative X travel. These are scene
+# coordinates and conservative zero-rotation envelopes, not full-stroke
+# manufacturer hardware qualification.
+gbox=glass.BoundingBox()
+sbox=pdms.BoundingBox()
+jaws=[part(B,key)[0].BoundingBox() for key in ('B06','B06F','B06M','B06T')]
+clamp_x_right=max(q.xmax for q in jaws)
+heat_x_left=chuck.BoundingBox().xmin
+check(abs(gbox.xmin-18)<.02 and abs(gbox.xmax-94)<.02,
+      'V36 glass extends from x18 to x94; clamp grips left edge')
+check(abs(sbox.xmin-72)<.02 and abs(sbox.xmax-92)<.02,
+      'V36 PDMS is near right glass edge and centered over heater')
+check(gbox.xmin<=min(q.xmax for q in jaws) and
+      sbox.xmax<=gbox.xmax-1.5,
+      'PDMS stays on glass and jaw engages its left portion')
+check(abs(clamp_x_right-34)<.02,
+      'V36 full solid clamp jaws right edge at x34, not inside hot stage')
+check(heat_x_left-clamp_x_right>15,
+      'V36 lowered clamp cannot collide with nominal heater')
+check(heat_x_left-12.5-clamp_x_right>=2,
+      'V36 sample-only X stroke still clears fixed clamp in downward approach')
+report['V36_film_stamp_approach']={
+    'glass_x_range_mm':[round(gbox.xmin,1),round(gbox.xmax,1)],
+    'stamp_x_range_mm':[round(sbox.xmin,1),round(sbox.xmax,1)],
+    'clamp_right_x_mm':round(clamp_x_right,1),
+    'heater_left_x_mm':round(heat_x_left,1),
+    'clearance_normal_mm':round(heat_x_left-clamp_x_right,1),
+    'clearance_sample_left12p5_mm':round(heat_x_left-12.5-clamp_x_right,1),
+    'pdms_to_heater_contact_descent_mm':13,
+    'XplusY_combinations_need_runtime_guard':True,
+    'actual_hardware_accepted':False
+}
 check(abs(glass.BoundingBox().zmin-125)<.02,'Glass bottom matches new direct-coupled fixed jaw')
 check(abs(glass.BoundingBox().zmax-126)<.02,'Glass has 1mm thickness in current B fit')
 check(abs(moving_plate.BoundingBox().zmin-glass.BoundingBox().zmax)<.02,
@@ -527,6 +561,31 @@ for name,item in [('B20 vacuum pump',pump),('B22 LED adapter',led_driver)]:
           name+' candidate floor placement must remain physically supported')
 check(pump.intersect(led_driver).Volume()<1e-4,
       'Independent photo120 vacuum pump and photo115 LED adapter must not overlap')
+# V36: there is ONE real side-wall feedthrough, and the two separate
+# heater leads and sensor cable reach the cabinet/connection region.
+port=vx(5.05,6,220,-166,86)
+check(cabinet.intersect(port).Volume()<1e-5,
+      'B36 left side wall must have a REAL open Ø10.6 cable passage')
+for name in ('B37','B37A','B38'):
+    cable=part(B,name)[0]
+    check(cable.BoundingBox().xmax>250 and cable.BoundingBox().xmin<100,
+          name+' must visually connect sample outlet to B36 interior')
+    check(cable.isValid(),name+' must remain a valid connected candidate cable')
+termination=part(B,'B39')[0]
+check(termination.intersect(cabinet).Volume()<1e-4,
+      'B39 unassigned terminal zone belongs in open housing without wall overlap')
+check(termination.intersect(psu).Volume()<1e-4 and
+      termination.intersect(inner_module).Volume()<1e-4,
+      'B39 cannot bury candidate terminal block in PSU or unknown module')
+report['V36_controller_harness']={
+    'actual_wires':['B37','B37A','B38'],
+    'through_cabinet_side_wall':True,
+    'heater_pair_leads_present':True,
+    'temperature_feedback_separate':True,
+    'electric_terminal_pinout_verified':False,
+    'SE60048_heater_supply_link_verified':False,
+    'electrical_safety_verified':False
+}
 report['control_enclosure_B36']={
     'source_photos':[114,117,119],
     'contained':['B21 SE-600-48','B23 unidentified vented module'],
