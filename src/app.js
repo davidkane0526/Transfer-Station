@@ -1340,19 +1340,20 @@ function resetScene(){
 }
 function focus(mode){
  const sampleX=platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX;
- // Restored B spans the stage at X=-112, sample optics at X=82,
- // microscope at Z=-112 and separate external enclosures at X=245..305.
- // The old close camera framed ONLY the film arm and could hide the rest.
+ // Photo119 confirms a substantial cabinet at the right of the
+ // optical rig. The B system now spans X=-215..508, Z=-263..220.
+ // Full-system camera must show the cabinet as well as film/sample
+ // rather than hiding most accessories outside the viewport.
  const fullB=platform==='B'&&(mode==='iso'||mode==='home');
  const target=mode==='optical'?new THREE.Vector3(sampleX-20,125,0):
-   fullB?new THREE.Vector3(45,130,-35):
+   fullB?new THREE.Vector3(115,135,-30):
    new THREE.Vector3(platform==='B'?-15:0,128,0);
  const dst=mode==='optical'?new THREE.Vector3(sampleX-20,460,0.01):
    mode==='top'?new THREE.Vector3(0,780,0.01):
    mode==='front'?new THREE.Vector3(0,185,760):
    mode==='rear'?new THREE.Vector3(295,250,-380):
-   mode==='iso'?(fullB?new THREE.Vector3(550,400,690):new THREE.Vector3(350,300,440)):
-   fullB?new THREE.Vector3(600,430,735):new THREE.Vector3(425,365,505);
+   mode==='iso'?(fullB?new THREE.Vector3(725,480,835):new THREE.Vector3(350,300,440)):
+   fullB?new THREE.Vector3(805,515,965):new THREE.Vector3(425,365,505);
  camera.position.copy(dst);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
 
@@ -1471,7 +1472,7 @@ function updatePhotoScope(){
  node.dataset.refRig=platform==='A'?'A-94-95-97-137-144-152-155-161':'B-107-112-145-151';
  node.textContent=platform==='A'?
   '平台 A：94/95/97、137–144、152、155、161。新增照片137/161的 GCM-5306M 是 112×70×8 mm 安装底座，不是旋转台。':
-  '平台 B：107–112、145–151，照片149确认 Zolix PHUC-1，照片150确认 GCM-1302M；不能再把平台 A 的 G40M60L/L 折片与 B 杆架混装。';
+  '平台 B：照片145/150确认B35黑色Thorlabs样品底板，149确认PHUC-1，150确认GCM-1302M；照片114/117/119确认宇电面板B19与SE-600-48、黑色辅助模块同装在金属控制箱B36内。控制箱尺寸和线束仍待测。';
  $('btn-photo947').textContent='查看平台 A 的 94/95/97 实物构型';
 }
 function focusPhoto947(photo='94'){
