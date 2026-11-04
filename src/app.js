@@ -1700,12 +1700,12 @@ function platformA(){
   add(g,cub(40,15,4,mats.silver,0,16,34));
   label(g,'德力西 CDG1-1DD/25A',0,62,0);
  },{explode:[45,15,20]});
- addPart('A14',sx,198,0,g=>{
-   // Separate open sleeve extends from the top of the 28mm TTL200-A
-   // nominal housing at Y=198 to the camera underside Y=258.
+ addPart('A14',sx,192,0,g=>{
+   // A transparent nominal SM2 seat: the open sleeve overlaps the
+   // lens housing for 6mm at Y=192..198; top reaches the camera Y=258.
    // Neither sleeve length nor camera flange is OEM-confirmed.
-   add(g,sleeve(28,26.1,60,mats.dark,0,30,0,'y'));
-   label(g,'SM2接口候选镜筒 · 长60mm为场景补位 / 相机端未认证',0,72,0);
+   add(g,sleeve(28,26.1,66,mats.dark,0,33,0,'y'));
+   label(g,'SM2接口候选镜筒 · 长66mm含6mm装配重叠 / 相机端未认证',0,80,0);
  },{explode:[0,25,0]});
 }
 function addAxis(){
