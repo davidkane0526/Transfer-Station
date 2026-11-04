@@ -24,7 +24,7 @@ export const B149=Object.freeze({
   lowerRodStartX:-30,lowerRodEndX:24.5,
   glassHolderOriginY:142,glassHolderSpineLeftX:24.5,
   glassCenterWorldY:125.5,
-  heaterTopWorldY:98.2,
+  heaterTopWorldY:110.2,
   threadStubDiameterMm:6,threadStubLengthMm:10
 });
 export function auditB149(d=B149){
