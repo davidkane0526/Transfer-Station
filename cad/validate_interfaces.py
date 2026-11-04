@@ -9,6 +9,7 @@ import json
 import cadquery as cq
 from cadquery import Vector
 def vz(r,h,x,y,z):return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,0,1))
+def vx(r,h,x,y,z):return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(1,0,0))
 
 ROOT=Path(__file__).resolve().parents[1]
 B=ROOT/'build'/'platform_B'/'parts'
