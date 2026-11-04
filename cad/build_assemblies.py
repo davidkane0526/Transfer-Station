@@ -407,11 +407,15 @@ def make_b():
     pump_inlet=vx(9,20,405,180,68).cut(vx(4.1,20.2,404.9,180,68))
     add('B','B20I','VN50_INTaKE_OPEN_nozzle_candidate_position',
         pump_inlet,'C')
+    # V39: from the moving B15 outlet, pass to the LEFT of B36,
+    # continue along the cabinet's REAR exterior (behind front-panel
+    # controller B19), then around its RIGHT side to VN-50 INTAKE.
+    # Coordinates are CAD (X, depth-Y, vertical-Z), identical to the
+    # WebGL route after axis mapping. No hose segment enters B36.
     hose=[
-        (94,-79,90.5),(120,-115,104),
-        (199,-168,136),(235,-168,145),(256,-40,146),
-        (252,60,132),(285,175,125),(342,226,120),
-        (450,226,105),(465,180,69),(425,180,68)
+        (94,-79,90.5),(190,-135,102),(190,-170,102),
+        (190,-275,102),(350,-275,102),(520,-275,102),
+        (520,140,102),(520,180,90),(465,180,69),(425,180,68)
     ]
     add('B','B40','B11_B15_rear_to_VN50_hollow_suction_hose',
         hollow_hose(hose),'C')
