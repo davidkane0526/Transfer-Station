@@ -20,6 +20,7 @@ import {VN50,vacuumHosePath,electricalHarnessPaths,auditVacuumPath,auditVacuumEn
 import {auditBaseTopology,mountStatus} from './assembly-mounts.js';
 import {suctionDimension,auditVacuumInterfaceFit} from './pneumatic-dimensions.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
+import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -1892,6 +1893,17 @@ function updateDetail(part){
    '，三维场景轴 '+esc(axis.sceneAxes.join('/'))+'。'+
    (part.id==='B09'?'NFP 无第二根平移测微头；B08 是独立旋转轴。':'')+'</p></div>':'';
 
+ const aRigAudit=(platform==='A'&&['A17','A15','A03','A04','A05','A07'].includes(part.id))?
+    auditPlatformAAssembly():null;
+ const aRigHtml=aRigAudit?'<div class="field" id="platform-a-unregistered-assembly" '+
+   'data-accepted="false" data-gap-mm="'+aRigAudit.optimisticResidualHorizontalGapMm+'">'+
+   '<b>平台A未通过整体装配配准（V45）</b><p>当前A05薄L片末端距A07热台左缘，'+
+   '即使将两侧X候选行程全部用于相向移动，仍有约 '+
+   aRigAudit.optimisticResidualHorizontalGapMm+
+   ' mm水平缺口，且折弯片下端比热台顶面低约 '+
+   aRigAudit.verticalBracketBelowHeaterTopMm+
+   ' mm。A05未识别玻片夹、A17磁座型号和真实整机相对位置均待核实。'+
+   '这是当前错误代理坐标的诊断，不是实物间距；严禁据此拉长悬臂或宣称平台A可转移。</p></div>':'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
  '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
@@ -1900,7 +1912,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+photo94QAHtml+photo95QAHtml+
+ hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+aRigHtml+photo94QAHtml+photo95QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
@@ -1988,7 +2000,7 @@ function resetScene(){
  $('hover-help').textContent='点击零件显示唯一标签及尺寸；点空白取消';
  $('axis-confidence-note').textContent=platform==='B'?
   'B：NFP-1462C 只有一个线性X轴，B03双轴T25M对应场景X/Z；照片149确认PHUC-1的33mm孔中心距，照片150确认GCM-1302M；其余接杆长度和安装螺纹为候选。':
-  'A：照片94/95/97确认载玻片侧的T25M、VC13M、G40M60L；137/161的GCM-5306M是112×70×8mm底座而非旋转台。A02单/双轴后缀、旋转台型号及固定孔面仍需核对。';
+  'A：照片94/95/97确认T25M、VC13M、G40M60L；当前A05末端与A07样品台的候选X配准仍缺183.5mm且玻片夹/磁座型号未识别，整机不可标为已复原。A02单/双轴及旋转台型号仍待核。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
  parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
