@@ -24,7 +24,7 @@ try{
    assert.equal(await toggle.isChecked(),true,'B scene category hidden '+category);
  }
  const proof=await page.locator('#photo-ledger').innerText();
- for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09'])
+ for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
  assert.match(await page.locator('#photo-ledger').innerText(),/B35/);
@@ -55,11 +55,18 @@ try{
    clip:{x:sampleBox.x,y:sampleBox.y,width:sampleBox.width,height:sampleBox.height},
    animations:'disabled',timeout:30000});
  await page.locator('#btn-home').click();
+ await page.locator('#btn-control-cabinet').click();
+ const cabinetBox=await page.locator('#viewer').boundingBox();
+ assert(cabinetBox&&cabinetBox.width>=300&&cabinetBox.height>=300);
+ await page.screenshot({path:'Transfer-Station-V33-Control-Cabinet-Interior.png',
+   clip:{x:cabinetBox.x,y:cabinetBox.y,width:cabinetBox.width,height:cabinetBox.height},
+   animations:'disabled',timeout:30000});
+ await page.locator('#btn-home').click();
  await page.locator('#open-bom').click();
  const rows=await page.locator('#bom-body tr').allTextContents();
  for(const id of ['B01','B35','B02','B03','B04','B05','B06','B07','B08','B09',
     'B10','B11','B12','B14','B15','B16','B17','B18','B19','B20','B21',
-    'B22','B23','B24','B25','B26','B27','B28','B33','B34']){
+    'B22','B23','B24','B25','B26','B27','B28','B33','B34','B36']){
    assert(rows.some(row=>row.trim().startsWith(id)),'B BOM lost '+id);
  }
  for(const wrong of ['B29','B30','B31','B32'])
@@ -91,6 +98,14 @@ try{
  const boardDetail=await page.locator('#part-detail').innerText();
  assert.match(boardDetail,/Thorlabs|THORLABS/);
  assert.match(boardDetail,/145|150/);
+ await page.locator('#open-bom').click();
+ await page.locator('#bom-query').fill('B36');
+ const cabinet=page.locator('#bom-body tr').filter({hasText:'B36'});
+ assert.equal(await cabinet.count(),1,'Open steel control enclosure must be independent BOM item');
+ await cabinet.click();
+ const cabinetDetail=await page.locator('#part-detail').innerText();
+ assert.match(cabinetDetail,/119/);
+ assert.match(cabinetDetail,/B21|B23/);
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
  const evidenceA=await page.locator('#photo-ledger').innerText();
