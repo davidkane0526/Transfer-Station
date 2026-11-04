@@ -16,6 +16,7 @@ import {getPlateHolderJawDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
 import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
 import {B149,auditB149,auditBLoweringPose} from './b-photo149-geometry.js';
+import {VN50,vacuumHosePath,auditVacuumPath} from './b-vacuum-routing.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -951,8 +952,14 @@ function rotaryB(){
    label(g,'4 枚顶部齐平螺钉（仅数量、齐平已确认）',0,45,0);
  },{explode:[0,88,0],rotateSample:true,translateSample:true});
  addPart('B15',sx,95.5+rise,0,g=>{
-   const fitting=add(g,cyl(3,13,mats.silver,0,0,-39));fitting.rotation.x=Math.PI/2;
-   add(g,tube([[0,0,-45.5],[0,1,-58],[1,-3,-70],[12,-17,-79]],1.8,mats.rubber));
+   // V37: B11's internal vacuum bore must terminate in an OPEN
+   // tubular fitting. The former solid rod plugged the air passage.
+   const fitting=add(g,sleeve(3,1.42,13,mats.silver,0,0,-39,'z'));
+   fitting.userData.trueVacuumAxialBore=true;
+   const shortHose=add(g,tube(
+     [[0,0,-45.5],[0,1,-58],[1,-3,-70],[12,-17,-79]],1.8,mats.rubber));
+   shortHose.userData.lastFlexiblePoint=[12,-17,-79];
+   g.userData.rearVacuumBoreNotBlocked=true;
  },{explode:[0,60,-20],rotateSample:true,translateSample:true});
  const substrate=cub(24,.6,24,mats.glass,0,98.5+rise,0);substrate.position.x=sx;currentRoot.add(substrate);
 }
@@ -1046,8 +1053,20 @@ function externalB(){
   add(g,cub(135,15,80,mats.dark,0,7.5,0));
   add(g,cyl(37,112,mats.pump,0,54,0)).rotation.z=Math.PI/2;
   add(g,cub(48,50,50,mats.dark,50,48,0));
-  const nozzle=add(g,cyl(9,20,mats.steel,80,68,0));nozzle.rotation.z=Math.PI/2;
-  label(g,'W-50真空泵：独立外设，实际外廓/位置待核',0,113,0);
+  // Photo120 explicitly reads VN-50, 220V, 230W, 53L/min,
+  // 680mmHg. Intake centerline is a CANDIDATE pose; make it a
+  // hollow Ø8.2 opening rather than the V36 solid nonfunctional rod.
+  const inlet=add(g,sleeve(9,VN50.pumpInletVisualBoreRadiusMm,
+    20,mats.steel,80,68,0,'x'));
+  inlet.userData.realSuctionInlet=true;
+  inlet.userData.actualPortSideUnverified=true;
+  for(const x of [-42,-30,-18,-6,6,18,30,42]){
+    const fin=add(g,cyl(39,2,mats.dark,x,54,0));fin.rotation.z=Math.PI/2;
+    fin.userData.pumpCoolingFinCandidate=true;
+  }
+  g.userData.nameplateModel='VN-50';
+  g.userData.pumpModelReadFromPhoto120=true;
+  label(g,'VN-50 · 照片120铭牌 / INTAKE吸入口（方向候选）',0,113,0);
  },{explode:[55,0,35]});
  addPart('B22',335,0,65,g=>{
    add(g,cub(65,48,72,mats.dark,0,24,0));
@@ -1063,6 +1082,44 @@ function externalB(){
 // A common left feedthrough passes a paired heater lead and one
 // sensor sheath into the photo-fit cabinet, where they terminate
 // at clearly unassigned internal connection zones.
+// V37 separate pneumatic subsystem — no path through temperature
+// controller, PSU or unknown control cabinet electronics.
+// Geometrical hose is two-sided wall skin: open lumen and fixed pump
+// inlet; the actual hose diameter/G1/4 barb/thread are unverified.
+function vacuumSupplyB(){
+ const path=vacuumHosePath();
+ addPart('B40',0,0,0,g=>{
+   const points=path.map(p=>[p.x,p.y,p.z]);
+   const outside=add(g,tube(points,VN50.outerHoseRadiusMm,mats.rubber));
+   outside.userData.dynamicVacuumHose='outer';
+   const innerMaterial=mats.ink.clone();innerMaterial.side=THREE.BackSide;
+   const inside=add(g,tube(points,VN50.innerBoreRadiusMm,innerMaterial));
+   inside.userData.dynamicVacuumHose='inner';
+   g.userData.connectedSource='B15';
+   g.userData.connectedPumpIntake='B20';
+   g.userData.model='VN-50';
+   g.userData.inletOrientationCandidate=true;
+   g.userData.audit=auditVacuumPath();
+   label(g,'真空管：B11中心孔 → B15后接头 → VN-50吸入口',215,167,188);
+ },{explode:[0,0,0]});
+}
+function refreshVacuumHoseB(){
+ if(platform!=='B')return;
+ const pipe=parts.get('B40')?.g;if(!pipe)return;
+ const route=vacuumHosePath({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
+ const pts=route.map(p=>[p.x,p.y,p.z]);
+ pipe.traverse(o=>{
+   if(!o.isMesh||!o.userData.dynamicVacuumHose)return;
+   const rad=o.userData.dynamicVacuumHose==='inner'?
+     VN50.innerBoreRadiusMm:VN50.outerHoseRadiusMm;
+   const next=tube(pts,rad,o.material);
+   o.geometry.dispose();o.geometry=next.geometry;
+ });
+ const a=auditVacuumPath({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
+ pipe.userData.audit=a;
+ pipe.userData.lastRoute=route;
+}
+
 function heatingControlHarnessB(){
  const red=new THREE.MeshStandardMaterial({color:'#bb6b4e',metalness:.26,roughness:.5});
  const pale=new THREE.MeshStandardMaterial({color:'#d0c4ab',metalness:.28,roughness:.56});
@@ -1534,7 +1591,7 @@ function updateTransforms(){
   }
  
  });
- if(platform==='B')refreshHeatingControlHarness();
+ if(platform==='B'){refreshHeatingControlHarness();refreshVacuumHoseB();}
  if(active)updateMeasurement();
 }
 function resetScene(){
@@ -1566,9 +1623,10 @@ function resetScene(){
    microscopeB();
    externalB();
    heatingControlHarnessB();
+   vacuumSupplyB();
    // Fail fast if a scene revision silently deletes a whole subsystem.
    const required=['B01','B35','B03','B07','B08','B09','B10','B11','B12',
-     'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23','B36','B37','B38','B39'];
+     'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23','B36','B37','B38','B39','B40'];
    if(bPhoto94Mode)required.push('B29','B30','B31','B32');
    else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33','B34');
    const missing=required.filter(id=>!parts.has(id));
@@ -1587,7 +1645,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · V36 / 145–151尺寸照片修正 / PHUC-1万向杆夹'):
+   '平台 B · V37 / VN-50真空吸附管路 / 145–151照片复原'):
    '平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
