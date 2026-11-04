@@ -555,10 +555,22 @@ def make_a():
     # V45: previous STEP A10 post started at Z=32 and floated 12mm
     # above the only A01 board top (Z=20). A single connected base
     # and post now match the web viewer mounting arrangement.
-    microscope_a_foot=box(72,65,14,cx,-112,20)
+    # V46: four physically pierced Ø5.5mm clearance holes in A10 FOOT
+    # and matching M5 candidate bolts into the 25mm A01 *photo-fit*
+    # board grid. Unlike the V45 foot, bolt heads are not drawn on
+    # undrilled solid metal. Foot and post centers need not coincide.
+    # OEM support SKU, thread engagement and capacity remain unverified.
+    a10_foot_center=(75,-100)
+    a10_anchors=[(xx,yy) for xx in (50,100) for yy in (-125,-75)]
+    microscope_a_foot=box(72,65,14,*a10_foot_center,20)
+    microscope_a_foot=cut(microscope_a_foot,a10_anchors,5.5,14,20)
+    microscope_a_foot=cut(microscope_a_foot,a10_anchors,9,2.5,31.5)
     microscope_a_post=vz(13,225,cx,-112,32)
-    add('A','A10','imaging_column_WITH_CONTACT_FOOT_CANDIDATE',
+    add('A','A10','imaging_column_WITH_4_M5_CANDIDATE_BORE_FOOT',
         microscope_a_foot.fuse(microscope_a_post))
+    for i,(xx,yy) in enumerate(a10_anchors,1):
+        screw=vz(2.5,17.5,xx,yy,14).fuse(vz(4.25,2.5,xx,yy,31.5))
+        add('A',f'A10S{i}','A10_M5x17p5_GRID_ANCHOR_CANDIDATE',screw,'C')
     add('A','A10A','imaging_boom',box(34,125,25,cx,-50,243))
     # TTL200-A is a nominal 28 mm lens housing, NOT an 85 mm solid.
     # Additional optical tube is a separate unresolved A14 sleeve.
