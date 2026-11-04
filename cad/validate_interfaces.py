@@ -675,7 +675,7 @@ center_vac=cq.Solid.makeCylinder(1.25,32.5,Vector(82,-32.5,107.5),Vector(0,1,0))
 center_top=cq.Solid.makeCylinder(.55,2.9,Vector(82,0,107.3),Vector(0,0,1))
 check(center_vac.intersect(chuck).Volume()<1e-6,'Rear vacuum bore is connected towards center')
 check(center_top.intersect(chuck).Volume()<1e-6,'One central top suction hole is unobstructed')
-# V37: physical vacuum loop (photo120 confirms VN-50, NOT W-50).
+# V40: physical vacuum loop (photo120 confirms VN-50, NOT W-50).
 # The pump/port presentation remains a candidate: do NOT claim an
 # OEM inlet side or hose thread has been measured.
 vacstub=part(B,'B15T')[0]
@@ -723,13 +723,23 @@ check(suction.BoundingBox().xmin<shellbb.xmin-10 and
       suction.BoundingBox().xmax>shellbb.xmax+10,
       'V39 B40 must route around both cabinet side walls before reaching the pump')
 check(suction.intersect(part(B,'B16')[0]).Volume()<.01,
-      'V39 B40 first span must clear the rear microscope column B16')
+      'V40 B40 first span must clear the rear microscope column B16')
+rear_lane_probe=cq.Solid.makeCylinder(4.5,320,Vector(200,-275,70),Vector(1,0,0))
+check(suction.intersect(rear_lane_probe).Volume()>0,
+      'V40 B40 must occupy the specified Z=70mm service lane behind B36')
+wire_clearances={}
+for name in ('B37','B37A','B38'):
+    wire=part(B,name)[0]
+    clearance=suction.distance(wire)
+    wire_clearances[name]=round(clearance,3)
+    check(clearance>2.0,
+          f'V40 B40 must keep >2mm surface clearance from {name}; got {clearance:.3f}mm')
 check(suction.intersect(pump_body).Volume()<.01,
       'V37 suction hose cannot burrow through the pump motor housing')
 check(suction.intersect(part(B,'B01')[0]).Volume()<.01,
       'V37 vacuum hose must route ABOVE the optical base, not through it')
 check(not (B/'B40A.step').exists(),'No second disconnected invented suction line')
-report['V39_rear_routed_suction_loop']={
+report['V40_rear_routed_suction_loop']={
  'actual_pump_model_photo_120':'VN-50',
  'pump_nameplate':{'AC_V':220,'power_W':230,'flow_L_per_min':53,
                    'vacuum_mmHg':680,'weight_kg_approx':4},
@@ -744,6 +754,9 @@ report['V39_rear_routed_suction_loop']={
  'route_around_B36_rear_and_right_side':True,
  'B19_body_interference':False,
  'B16_post_interference':False,
+ 'service_lane_vertical_Z_mm':70,
+ 'minimum_surface_clearance_to_electrical_harness_mm':wire_clearances,
+ 'B37_B37A_B38_separated_from_B40':all(v>2 for v in wire_clearances.values()),
  'pump_electrical_connection_inferred':False,
  'hose_thread_and_material_spec_verified':False
 }
