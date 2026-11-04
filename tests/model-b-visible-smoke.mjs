@@ -244,6 +244,20 @@ try{
  const cabinetDetail=await page.locator('#part-detail').innerText();
  assert.match(cabinetDetail,/119/);
  assert.match(cabinetDetail,/B21|B23/);
+ // V38 selected-only diameter labels: all four are explicitly
+ // candidates and MUST be available without cluttering 3D view.
+ for(const [id,pattern] of [
+   ['B11',/Ø1\.4/],['B15',/Ø2\.84/],
+   ['B40',/OD Ø7\.0 \/ ID Ø4\.4/],['B20',/Ø18\.0.*Ø8\.2/]
+ ]){
+   await page.locator('#open-bom').click();
+   await page.locator('#bom-query').fill(id);
+   const row=page.locator('#bom-body tr').filter({hasText:new RegExp('^\\s*'+id+'\\b')});
+   assert.equal(await row.count(),1,'Suction BOM ID '+id+' missing');
+   await row.click();
+   assert.equal(await page.locator('#suction-dimensions').getAttribute('data-candidate'),'true');
+   assert.match(await page.locator('#suction-dimensions').innerText(),pattern);
+ }
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
  assert.match(await page.locator('#platform-caption').innerText(),/单一面包板/);
