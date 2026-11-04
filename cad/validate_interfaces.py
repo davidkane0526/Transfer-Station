@@ -55,6 +55,33 @@ check(abs(sbb.xlen-250)<.02 and abs(sbb.ylen-300)<.02 and abs(sbb.zlen-12)<.02,
 check(sample_board.intersect(silver_board).Volume()<1e-4,
       'Two independent photo-confirmed B board layers must not interpenetrate')
 microscope_foot=part(B,'B16A')[0]
+# V35: the four depicted B16 screw axes require ACTUAL clearance
+# voids through the microscope foot, not through a SOLID steel plate.
+for dx in (-25,25):
+    for dy in (-25,25):
+        axis=vz(1.9,12,82+dx,-112+dy,32)
+        check(microscope_foot.intersect(axis).Volume()<1e-5,
+              'B16A has four real candidate Ø4 through holes for its depicted screws')
+# Critical distinction: B35 holes are 2mm decorative blind recesses,
+# not accepted tapped through-holes. The current B16 fastener centres
+# cannot even be registered with the candidate B35 display-hole grid.
+candidate_grid=[(65+x,y) for x in range(-100,101,25) for y in range(-125,126,25)]
+candidate_foot=[(82+x,-112+y) for x in (-25,25) for y in (-25,25)]
+centre_errors=[
+    min(((fx-gx)**2+(fy-gy)**2)**.5 for gx,gy in candidate_grid)
+    for fx,fy in candidate_foot
+]
+check(min(centre_errors)>10 and max(centre_errors)<15,
+      'Current synthetic B35 grid does NOT prove four aligned microscope anchors')
+report['B35_microscope_fastener_readiness']={
+    'B16A_actual_through_clearance_bores':4,
+    'candidate_bore_diameter_mm':4,
+    'max_grid_mismatch_mm':round(max(centre_errors),2),
+    'B35_grid_depth_mm':2,
+    'B35_threaded_anchors_verified':False,
+    'B16_fastener_positions_verified':False,
+    'loaded_joint_accepted':False
+}
 check(sample_board.intersect(microscope_foot).Volume()<1e-4,
       'B35 black plate and microscope foot must CONTACT, not intersect')
 micbb=microscope_foot.BoundingBox()
