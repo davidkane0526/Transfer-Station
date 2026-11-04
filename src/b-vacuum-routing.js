@@ -147,7 +147,7 @@ function segmentDistance(p1,q1,p2,q2){
     w.y+sc*u.y-tc*v.y,w.z+sc*u.z-tc*v.z);
   return Math.hypot(delta.x,delta.y,delta.z);
 }
-function pathDistance(a,b){
+export function polylineDistance(a,b){
   let minimum=Infinity;
   for(let i=0;i<a.length-1;i++){
     for(let j=0;j<b.length-1;j++){
@@ -182,7 +182,7 @@ export function auditVacuumPath(options={}){
   const routeAroundCabinetRight=points.some(v=>
     v.x>b.xmax+VN50.outerHoseRadiusMm);
   const harnessClearances=electricalHarnessPaths(options).map(h=>{
-    const centerlineMm=pathDistance(points,h.points);
+    const centerlineMm=polylineDistance(points,h.points);
     return {id:h.id,centerlineMm,
       surfaceMm:centerlineMm-VN50.outerHoseRadiusMm-h.radiusMm};
   });
