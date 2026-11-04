@@ -309,7 +309,7 @@ check(not (ROOT/'build'/'platform_B_photo94').exists(),
       'Never build a B-photo94 assembly from verified A photographs')
 for required in ('B07','B35','B08','B09','B10','B11','B12','B14_1','B14_2',
                  'B14_3','B14_4','B15','B16','B17','B18',
-                 'B24','B25','B26','B27','B28','B33','B34'):
+                 'B24','B25','B26','B27','B28','B33','B34','B36'):
     check((B/(required+'.step')).exists(),
           'Corrected photo145-151 B full-system STEP missing '+required)
 report['new_dimension_evidence']={
@@ -438,6 +438,53 @@ for ka,kb,delta,min_area in face_contacts:
     face_areas[ka+'→'+kb]=round(area,2)
 report['candidate_face_contact_areas_mm2']=face_areas
 report['candidate_face_contact_limitations']='No validated screw engagement, preload, full-travel or mechanical load capacity'
+# PHOTO114/117/119 CONTROL ENCLOSURE: prior builds used a 125mm
+# controller block and dispersed the 247mm SE-600-48 PSU / black
+# module outside it in physically colliding locations. The PSU and
+# the vented module really share one OPEN steel control housing.
+cabinet=part(B,'B36')[0]
+pid=part(B,'B19')[0]
+psu=part(B,'B21')[0]
+inner_module=part(B,'B23')[0]
+pump=part(B,'B20')[0]
+led_driver=part(B,'B22')[0]
+shellbb=cabinet.BoundingBox()
+check(abs(shellbb.xlen-285)<.02 and abs(shellbb.ylen-225)<.02 and
+      abs(shellbb.zlen-125)<.02,
+      'B36 control enclosure 285x225x125 is an explicit PHOTO-FIT candidate')
+check(cabinet.Volume()<285*225*125*0.30,
+      'Control enclosure must be HOLLOW and open, not one solid giant cuboid')
+for key,component in [('B21 SE60048',psu),('B23 black aux module',inner_module)]:
+    bb=component.BoundingBox()
+    check(bb.xmin>shellbb.xmin+3 and bb.xmax<shellbb.xmax-3 and
+          bb.ymin>shellbb.ymin+3 and bb.ymax<shellbb.ymax-3 and
+          abs(bb.zmin-(shellbb.zmin+3))<.02 and bb.zmax<shellbb.zmax,
+          key+' must be INSIDE the same photo119 open cabinet')
+    check(component.intersect(cabinet).Volume()<1e-4,
+          key+' must not penetrate real enclosure walls')
+check(psu.intersect(inner_module).Volume()<1e-4,
+      'Identified PSU and unknown B23 module require independent space inside cabinet')
+check(abs(pid.BoundingBox().ymin-shellbb.ymax)<.02,
+      'YUDIAN controller back face touches B36 FRONT panel, not floating')
+check(pid.intersect(cabinet).Volume()<1e-4,
+      'YUDIAN face panel cannot occupy solid metal cabinet walls')
+for name,item in [('B20 vacuum pump',pump),('B22 LED adapter',led_driver)]:
+    check(item.intersect(cabinet).Volume()<1e-4,
+          name+' is an EXTERNAL accessory, not fitted inside the PSU cabinet')
+    check(item.intersect(part(B,'B01')[0]).Volume()<1e-4,
+          name+' must not float interpenetrating optical table')
+    check(abs(item.BoundingBox().zmin)<.02,
+          name+' candidate floor placement must remain physically supported')
+check(pump.intersect(led_driver).Volume()<1e-4,
+      'Independent photo120 vacuum pump and photo115 LED adapter must not overlap')
+report['control_enclosure_B36']={
+    'source_photos':[114,117,119],
+    'contained':['B21 SE-600-48','B23 unidentified vented module'],
+    'front_panel':'B19 YUDIAN AI controller',
+    'separate_peripherals':['B20 vacuum pump','B22 LED adapter'],
+    'enclosure_hardware_dimensions_verified':False,
+    'wiring_and_electrical_safety_verified':False
+}
 # CAD XY plane maps to WebGL X/Z. CAD back = negative Y.
 from cadquery import Vector
 vac=part(B,'B15')[0]
