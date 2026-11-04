@@ -12,7 +12,7 @@ for(const [name,stack] of Object.entries(STACKS)){
 assert.deepEqual(STACKS.B.film.slice(0,3),['B02','B03','B04']);
 assert.deepEqual(STACKS.B.sample.slice(0,4),['B01','B35','B08','B09']);
 assert(STACKS.B.photo.includes('145.jpg')&&STACKS.B.photo.includes('150.jpg'));
-assert.deepEqual(STACKS.A.film.slice(0,4),['A17','A15','A03','A04']);
+assert.deepEqual(STACKS.A.film.slice(0,6),['A17','A15','A03','A04L','A04','A05']);
 assert.deepEqual(STACKS.A.sample.slice(0,4),['A01','A16','A06','A02']);
 assert(STACKS.A.photo.includes('161.jpg')&&STACKS.B.photo.includes('149.jpg'));
 assert(STACKS.B.film.includes('B24')&&STACKS.B.film.includes('B28')&&STACKS.B.film.includes('B33'));
@@ -38,7 +38,7 @@ assert.equal(PARTS.A.filter(p=>p.id==='A02'||p.id==='A15').length,2,
 assert(PARTS.A.find(p=>p.id==='A02').group==='sample');
 assert(PARTS.A.find(p=>p.id==='A15').group==='film');
 const expected={B03:'-X',B04:'+Y',B08:'+Z',B09:'+X',
- A02:'+X',A15:'+X',A03:'+Y',A04:'+X'};
+ A02:'+X',A15:'+X',A03:'+Y',A04L:'+X',A04:'-X'};
 for(const [id,dir]of Object.entries(expected))
  assert.equal(HANDLES[id].direction,dir,'Wrong actuator direction '+id);
 assert.equal(OEM_DRAWING_CONSTRAINTS.twoAxisT25M.heightMm,33);
