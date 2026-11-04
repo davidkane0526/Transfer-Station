@@ -441,7 +441,7 @@ def make_b():
         for y in (132,228):
             pump_shell=pump_shell.cut(vz(3.1,16,x,y,0))
     # 12 bores on exposed upper arcs, away from both pump heads.
-    for x in (255,260,315,330,395,400):
+    for x in (255,260,315,330,390,395):
         for y in (165,195):
             pump_shell=pump_shell.cut(vz(2.7,2.5,x,y,90.5))
     # 18 side bores above/below the nameplate; rods occupy z=30 and z=70.
