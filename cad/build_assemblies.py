@@ -516,12 +516,18 @@ def make_a():
         vy(3.5,13,ax-24,32,30),'C')
     stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y')
     # Photo 97: vertical slide/upright carriage, not a solid block.
+    # V46: relocate the VC13 vertical drive beyond the ±32.5mm
+    # moving platform envelope. The front bracket spans the stationary
+    # upright to y=40 and has a TRUE bored hole for the vertical shaft.
+    front_drive_bracket=box(14,43,8,ax,19.5,96).cut(
+        vz(5.8,8,ax,40,96))
     vc13=(box(65,65,8,ax,0,73)
           .fuse(box(56,17,43,ax,-9,81))
-          .fuse(box(65,65,7,ax,0,117)))
-    add('A','A03','VC13M_upright_combined_PROXY',vc13)
-    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,31,98),'P')
-    add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,31,133),'P')
+          .fuse(box(65,65,7,ax,0,117))
+          .fuse(front_drive_bracket))
+    add('A','A03','VC13M_upright_with_front_drive_support_CANDIDATE',vc13)
+    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,40,98),'P')
+    add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,40,133),'P')
     add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,124),'D')
     add('A','A04M','G40M60L_right_micrometer',vx(5,22,ax+20,0,134),'P')
     add('A','A04K','G40M60L_right_knob',vx(8.5,15,ax+42,0,134),'P')
