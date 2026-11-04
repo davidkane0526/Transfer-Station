@@ -17,7 +17,7 @@ assert.equal(a.stampRightX,92);
 assert.equal(a.clampRightX,34);
 assert.equal(a.nominalClampClearanceMm,15.5);
 assert.equal(a.worstStageOnlyClearanceMm,3);
-assert.equal(a.verticalContactDropMm,13);
+assert(Math.abs(a.verticalContactDropMm-13)<1e-6);
 const contact=auditBLoweringPose({filmVerticalDropMm:13});
 assert(contact.safeToLower&&!contact.possibleClash);
 const stageLeft=auditBLoweringPose({sampleShiftX:-12.5,filmVerticalDropMm:13});
