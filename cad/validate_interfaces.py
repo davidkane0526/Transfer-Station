@@ -245,8 +245,13 @@ a04=part(A,'A04')[0].BoundingBox()
 arot=part(A,'A06')[0].BoundingBox()
 a02=part(A,'A02')[0].BoundingBox()
 aheat=part(A,'A07')[0].BoundingBox()
-check(abs(a15.zmin-20)<.02,'A film T25M at bottom level 20')
-check(abs(part(A,'A15A')[0].BoundingBox().zmax-53)<.02,'A T25M2L 33 mm overall manufacturer height')
+amagnet=part(A,'A17')[0].BoundingBox()
+check(abs(amagnet.zmin-20)<.02 and abs(amagnet.zmax-40)<.02,
+      'V38 A has one TRUE film-side magnetic mounting stand above the only breadboard')
+check(abs(amagnet.zmax-a15.zmin)<.02,
+      'A15 film translation stage MUST rest ON A17 magnetic stand, not naked breadboard')
+check(abs(part(A,'A15A')[0].BoundingBox().zmax-73)<.02,
+      'A T25M2L has 33 mm verified dual-axis height above its V38 magnetic seat')
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-a03.zmin)<.02,'A film T25M directly UNDER VC13M')
 check(abs(a03.zmax-a04.zmin)<.02,'A VC13M directly UNDER G40M60L')
 check(abs(part(A,'A06A')[0].BoundingBox().zmax-a02.zmin)<.02,'A sample T25M above rotary')
@@ -263,7 +268,7 @@ check(abs((a15.xmin+a15.xmax)/2-(a02.xmin+a02.xmax)/2)>100,
       'Two independent A T25M instances occupy distinct film/sample positions')
 # Source-model correction: manufacturer's GCM-T25M2L has 33mm / two
 # perpendicular micrometers, not 20mm / one head. Photo 97 and 108 confirm.
-for sys,key,expected_bottom in [('B','B03',40),('A','A15',20)]:
+for sys,key,expected_bottom in [('B','B03',40),('A','A15',40)]:
     base=part(B if sys=='B' else A,key)[0].BoundingBox()
     top=part(B if sys=='B' else A,key+'A')[0].BoundingBox()
     middle=part(B if sys=='B' else A,key+'M')[0].BoundingBox()
@@ -336,7 +341,35 @@ check(abs(long.BoundingBox().xmin+90)<.02 and abs(long.BoundingBox().xmax+20)<.0
       'First rod crosses B33→PHUC without floating or extra metal tail')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
-# A's transfer beam, vertical support, edge clamp contact by boundary (not true fasteners).
+# V38 A film side photo94: ONE connected bent-L sheet and two visible
+# screw heads. Old A05A 215mm fabricated span and A05C glass jaw
+# were contradicted by photos94/95/97 and are intentionally absent.
+a_sheet=part(A,'A05')[0]
+asheet_bb=a_sheet.BoundingBox()
+check(abs(asheet_bb.xmin+176)<.02 and abs(asheet_bb.xmax+96)<.02,
+      'A photo94 thin bent-L extends only near the G40, NOT to the heater')
+check(abs(asheet_bb.zmin-72)<.02 and abs(asheet_bb.zmax-146.5)<.02,
+      'A photo94 folded plate lower return and top plate occupy consistent levels')
+check(asheet_bb.zmin<part(A,'A04')[0].BoundingBox().zmax and
+      asheet_bb.zmax>part(A,'A04')[0].BoundingBox().zmax,
+      'A photo94 folded bracket touches top of G40 without fabricated long arm')
+for i,dx in enumerate((-14,14),1):
+    head=part(A,f'A05S{i}')[0]
+    check(abs(head.BoundingBox().zmin-asheet_bb.zmax)<.02,
+          'A photo94 two bolt heads sit on the folded plate')
+    check(abs((head.BoundingBox().xmin+head.BoundingBox().xmax)/2-(-116+dx))<.02,
+          'A photo94 candidate bolt pair aligned over G40')
+for id in ('A05A','A05B','A05C'):
+    check(not (A/(id+'.step')).exists(),
+          'A old invented 215mm slide carrier, fake riser and guessed glass clip removed: '+id)
+report['V38_A_film_mounting']={
+ 'single_breadboard':'A01','film_magnetic_stand':'A17',
+ 'magnet_model_and_height_qualified':False,
+ 'A15_height_after_magnet_mm':40,
+ 'G40_to_folded_sheet_bolt_pair':2,
+ 'photo94_fabricated_long_beam_removed':True,
+ 'film_glass_grip_vendor_model_known':False
+}
 a_rot=part(A,'A06A')[0].BoundingBox()
 a_stg=part(A,'A02')[0].BoundingBox()
 check(abs(a_rot.zmax-a_stg.zmin)<.05,'A02 stage rests on A06 rotary')
@@ -347,14 +380,9 @@ check(abs(a_base.xlen-112)<.02 and abs(a_base.ylen-70)<.02 and abs(a_base.zlen-8
       'A photos137/161 confirmed GCM-5306M OEM base is 112x70x8mm')
 check(abs(a_base.zmin-a_board.zmax)<.02 and abs(a_rot_lower.zmin-a_base.zmax)<.02,
       'A GCM-5306M is UNDER rotary, not counted as the rotary itself')
-beam=part(A,'A05A')[0].BoundingBox()
-ris=part(A,'A05B')[0].BoundingBox()
-clip=part(A,'A05C')[0].BoundingBox()
 a_tilt=part(A,'A04')[0].BoundingBox()
-check(abs(ris.zmin-a_tilt.zmax)<.01,'A riser contacts tilt stage top')
-check(abs(ris.zmax-beam.zmin)<.01,'A riser contacts transfer beam')
-check(abs(clip.zmax-beam.zmin)<.01,'A edge clip contacts transfer beam')
-check(beam.xmin<=-116 and beam.xmax>=78,'A beam spans left-to-right physical supports')
+check(abs(a_tilt.zmax-144)<.02,
+      'A04 raised 20mm with A15 magnet; A05 folded sheet touches top z144')
 # NEW PHOTO REGISTER: 94/95/97 are A, whereas B is 107-112 and
 # 145-151. The former erroneous B_photo94 assembly is not exported.
 check(not (ROOT/'build'/'platform_B_photo94').exists(),
