@@ -38,20 +38,18 @@ export function vacuumHosePath({
   sampleShiftMm=0,sampleAngleDeg=0
 }={}){
   const moving=movingVacuumOutlet({sampleShiftMm,sampleAngleDeg});
-  // Flexible starter with two moving control knots. The rest passes
+  // V38: fewer broader elbows; vacuum line runs ABOVE the bundled
+  // power/sensor leads on the rear service corridor. The rest passes
   // BEHIND/ABOVE the table, over the open cabinet (not through its
   // solid side walls), and around the pump to its nominated INTAKE.
   const path=[
     moving,
-    point(moving.x+18,Math.max(moving.y+7,97),moving.z-24),
-    point(156,104,-135),
+    point(moving.x+26,Math.max(moving.y+13,104),moving.z-36),
     point(199,136,-168),
     point(235,145,-168),
     point(256,146,-40),
-    point(252,128,60),
-    point(272,95,155),
-    point(275,120,170),
-    point(298,123,216),
+    point(252,132,60),
+    point(285,125,175),
     point(342,120,226),
     point(450,105,226),
     point(465,69,180),
@@ -87,6 +85,7 @@ export function auditVacuumPath(options={}){
       'B15 bored fitting','B15T short flexible hose',
       'B40 continuous hollow hose','B20I VN-50 suction inlet (position candidate)'],
     hoseWaypointCount:points.length,
+    serviceLane:'upper-rear pneumatic corridor',
     start,end,
     nominalSourceMatches:near(start.x,94)&&near(start.y,90.5)&&near(start.z,-79),
     inletMatches:true,
