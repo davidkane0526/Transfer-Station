@@ -101,6 +101,7 @@ try{
  assert.equal(splineEnvelope.posesChecked,9231);
  assert.equal(splineEnvelope.fullStrokeSplineGridPass,true,
    'Actual Catmull-Rom route must clear every heater/sensor harness over the full UI grid');
+ console.log('V40 full Catmull-Rom clearance grid:',JSON.stringify(splineEnvelope));
  for(const id of ['B37A','B37B','B38'])
    assert(splineEnvelope.minimumSurfaceClearanceMm[id]>2,
      'Full rendered spline grid clearance below 2mm for '+id);
