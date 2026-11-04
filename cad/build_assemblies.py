@@ -387,13 +387,13 @@ def make_b():
     ]
     for key,name,radius,points in wiring:
         add('B',key,name,cable_path(points,radius),'C')
-    # V41: rebuild the VN-50 silhouette from the user's photo120/123.
+    # V42: rebuild the VN-50 silhouette from photo120/123 and VN-50 family imagery.
     # The physical nameplate confirms VN-50 / 220V / 230W / 53L/min /
     # 680mmHg / approx.4kg. The family brochure supplies only a
     # candidate 200x110x150mm envelope and 142x96mm mounting pattern;
     # it does NOT prove this unit's manufacturer or exact CAD.
     # One fused solid: floor base, perforated motor housing, exposed
-    # rounded motor, end/fan cover, twin vertical heads, caps and tie rods.
+    # motor core, fan cover, side tie rods, rectangular twin heads and fittings.
     pump_shell=box(200,110,8,325,180,0)
     pump_shell=pump_shell.fuse(
         box(160,76,68,325,180,8),
@@ -401,23 +401,29 @@ def make_b():
         box(28,14,12,396,132,4),box(28,14,12,396,228,4),
         vx(34,130,245,180,40),
         vx(29,12,235,180,40),
-        vz(24,8,290,180,75),vz(22,57,290,180,82.5),
-        vz(24,8,290,180,139),
-        vz(24,8,365,180,75),vz(22,57,365,180,82.5),
-        vz(24,8,365,180,139),
-        box(90,44,10,327.5,180,140),
-        box(62,1.5,26,320,218.5,30),
-        vx(2.5,150,250,141.5,77),
-        vx(2.5,150,250,218.5,77))
+        # Side tie rods and their four end support blocks.
+        vx(2.5,150,250,135,40),vx(2.5,150,250,225,40),
+        box(14,16,24,250,135,28),box(14,16,24,250,225,28),
+        box(14,16,24,400,135,28),box(14,16,24,400,225,28),
+        # Two independent rectangular head flanges, cast blocks and caps.
+        box(52,54,6,290,180,75),box(46,48,50,290,180,81),
+        box(48,50,6,290,180,131),
+        box(52,54,6,365,180,75),box(46,48,50,365,180,81),
+        box(48,50,6,365,180,131),
+        # Metal outlet fitting and translucent filter canister candidates.
+        vz(5.5,12,290,180,137),
+        vz(8,3,365,180,137),vz(7,13,365,180,137),
+        box(62,1.5,26,320,218.5,30))
     # Candidate 142x96 mounting footprint: four open Ø6.2 bores.
     for x in (254,396):
         for y in (132,228):
             pump_shell=pump_shell.cut(vz(3.1,16,x,y,0))
-    # Photo-fit vent apertures on the upper motor face and long side faces.
-    for x in (265,285,305,325,345,365,385):
-        for y in (153,180,207):
+    # Top-face perforations remain only in exposed zones around both heads.
+    for x in (255,325,395):
+        for y in (150,165,195,210):
             pump_shell=pump_shell.cut(vz(2.7,1.5,x,y,75.45))
-    for x in (270,290,310,330,350,370,390):
+    # Side perforations are kept clear of the nameplate footprint.
+    for x in (270,280,360,370,380,390):
         for z in (28,42,56):
             pump_shell=pump_shell.cut(vy(2.1,1.4,x,217.8,z))
     # The candidate suction port is on the +X face; its real side and
@@ -499,7 +505,7 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V41')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V42')
     # The user's B photos distinguish the SILVER common table from the
     # independent BLACK THORLABS board below the sample stage. Preserve
     # that evidence as AP214 STEP assembly colors, not merely part names.
@@ -513,7 +519,7 @@ def export(sys):
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
         assembly.add(shape,**props)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V41.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V42.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
