@@ -8,7 +8,7 @@ export function auditPlatformAAssembly({
   bracketTopWidthMm=Math.round(V47_A_LOCAL_SHEET.sheetTopWidthMm),
   bracketOverhangLeftMm=Math.round(V47_A_LOCAL_SHEET.sheetLeftOverhangMm),
   bracketReturnWidthMm=13,filmTravelHalfMm=12.5,sampleTravelHalfMm=12.5,
-  bracketLowestYmm=72,heaterTopYmm=99.2
+  bracketLowestYmm=92,heaterTopYmm=99.2
 }={}){
   const numbers=[filmStageX,sampleCenterX,sampleHeaterWidthMm,
     bracketTopWidthMm,bracketOverhangLeftMm,bracketReturnWidthMm,
@@ -35,6 +35,8 @@ export function auditPlatformAAssembly({
     profile:'A_photo94_95_97_layout_candidate',
     photoConfirmedGlassClamp:false,
     localSheetSizeManuallyCalibratedFromG40Photo94:true,
+    secondTwentyMmGoniometerCandidateAdded:true,
+    secondGoniometerActualSkuVerified:false,
     sourceRulerMeasurementsAvailable:false,
     absoluteFilmSampleCoordinatesPhotoRegistered:false,
     photoConfirmedMagneticBaseSku:false,
