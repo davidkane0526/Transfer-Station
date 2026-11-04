@@ -27,6 +27,19 @@ try{
  for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
+ const externalToggle=page.locator('#group-list input[data-group="external"]');
+ const initExternal=await page.evaluate(()=>window.__modelBViewProbe());
+ assert.deepEqual(initExternal.hiddenExternalParts,[],
+    'Checked external-category checkbox MUST NOT silently hide B36/B19/B21/B23');
+ assert(initExternal.visibleExternalCount>=6);
+ await externalToggle.uncheck();
+ const disabledExternal=await page.evaluate(()=>window.__modelBViewProbe());
+ assert.equal(disabledExternal.visibleExternalCount,0,
+    'Turning external group OFF should hide all external scene meshes');
+ await externalToggle.check();
+ const restoredExternal=await page.evaluate(()=>window.__modelBViewProbe());
+ assert.deepEqual(restoredExternal.hiddenExternalParts,[],
+    'Turning external group ON must restore all B36 external assemblies');
  assert.match(await page.locator('#photo-ledger').innerText(),/B35/);
  // The black sample-side Thorlabs mounting board is independently
  // selectable; switching film-side profiles cannot delete it.
