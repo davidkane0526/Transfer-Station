@@ -184,6 +184,46 @@ window.__modelBHeatingHarnessProbe=()=>{
    controllerTerminalPinoutVerified:false
  };
 };
+window.__modelBVacuumProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const pump=parts.get('B20')?.g;
+ const hose=parts.get('B40')?.g;
+ const fitting=parts.get('B15')?.g;
+ if(!pump||!hose||!fitting)return {available:false};
+ pump.updateWorldMatrix(true,true);
+ fitting.updateWorldMatrix(true,true);
+ const ring=pump.children.find(o=>o.userData.realSuctionInlet);
+ const bored=fitting.children.find(o=>o.userData.trueVacuumAxialBore);
+ if(!ring||!bored)return {available:false};
+ const outlet=new THREE.Vector3(12,-17,-79)
+   .applyMatrix4(fitting.matrixWorld);
+ const inlet=new THREE.Vector3(90,68,0).applyMatrix4(pump.matrixWorld);
+ const waypoints=hose.userData.lastRoute||vacuumHosePath();
+ const first=waypoints[0],end=waypoints.at(-1);
+ const inletRay=new THREE.Raycaster(
+   new THREE.Vector3(446,68,180),new THREE.Vector3(-1,0,0),0,43);
+ const fittingRay=new THREE.Raycaster(
+   new THREE.Vector3(82,107.5,-50),new THREE.Vector3(0,0,1),0,19);
+ const boresOpen=inletRay.intersectObject(ring,false).length===0&&
+   fittingRay.intersectObject(bored,false).length===0;
+ const activeHoseMeshes=hose.children.filter(o=>o.isMesh&&o.userData.dynamicVacuumHose);
+ return {
+   available:true,
+   nameplateModel:pump.userData.nameplateModel,
+   photoConfirmed:pump.userData.pumpModelReadFromPhoto120,
+   fromPart:'B15',toPart:'B20',hosePart:'B40',
+   hoseOuterRadiusMm:VN50.outerHoseRadiusMm,
+   hoseLumenRadiusMm:VN50.innerBoreRadiusMm,
+   hoseWallMeshes:activeHoseMeshes.length,
+   sourceCoordinateErrorMm:outlet.distanceTo(new THREE.Vector3(first.x,first.y,first.z)),
+   pumpCoordinateErrorMm:inlet.distanceTo(new THREE.Vector3(end.x,end.y,end.z)),
+   twoOpenPorts:boresOpen,
+   electricityCabinetNotVacuumDestination:true,
+   actualInletThreadVerified:false,
+   actualInletOrientationVerified:false,
+   dynamicRoute:waypoints.map(p=>[p.x,p.y,p.z])
+ };
+};
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
 function clearMeasurement(){
  if($('measurement-text'))$('measurement-text').textContent='坐标 X / Y(高度) / Z · 单位 mm';
