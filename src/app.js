@@ -254,7 +254,7 @@ window.__modelBVacuumProbe=()=>{
  const pumpFeatures={basePlate:0,mountingFeet:0,motorHousing:0,motorCore:0,
    cylindricalHousing:0,housingBands:0,fanCover:0,fanGrilles:0,fanGrilleSpokes:0,
    twinHeads:0,tieRods:0,rodSupports:0,headFlanges:0,headCaps:0,headFins:0,
-   headBridges:0,headBridgeSupports:0,fanApertures:0,topPorts:0,filters:0,rubberFeet:0,warningPlates:0,
+   headBridges:0,headBridgeSupports:0,fanApertures:0,topPorts:0,filters:0,warningPlates:0,
    warningSymbols:0,nameplateTextLines:0,vents:0,topVents:0,sideVents:0,
    mountingFootCenters:[],nameplateCenters:[],tieRodCenters:[]};
  pump.traverse(o=>{
@@ -271,7 +271,6 @@ window.__modelBVacuumProbe=()=>{
    if(o.userData.pumpHeadFin)pumpFeatures.headFins++;
    if(o.userData.pumpHeadBridge)pumpFeatures.headBridges++;
    if(o.userData.pumpHeadBridgeSupport)pumpFeatures.headBridgeSupports++;
-   if(o.userData.pumpRubberFoot)pumpFeatures.rubberFeet++;
    if(o.userData.pumpWarningPlate)pumpFeatures.warningPlates++;
    if(o.userData.pumpWarningSymbol)pumpFeatures.warningSymbols++;
    if(o.userData.pumpNameplateTextLine)pumpFeatures.nameplateTextLines++;
@@ -1276,8 +1275,6 @@ function externalB(){
   for(const x of [-81,61])for(const z of [-48,48]){
     const foot=add(g,cub(28,12,14,mats.dark,x,10,z));
     foot.userData.pumpMountingFoot=true;
-    const pad=add(g,cyl(6,4,mats.rubber,x,5,z,24));
-    pad.userData.pumpRubberFoot=true;
     const footHole=add(g,cyl(3.1,2,mats.ink,x,16,z));
     footHole.userData.mountingHoleCandidate=true;
   }
