@@ -38,8 +38,8 @@ for(const c of nominal.harnessClearances)assert(c.surfaceMm>2,c.id+' harness cle
 const envelope=auditVacuumEnvelope();
 assert.equal(envelope.fullStrokeGridPass,true);
 assert.equal(envelope.continuousBetweenSamplesProven,false);
-assert.equal(envelope.posesChecked,1586,
-  'Full motion envelope must be sampled at 1mm × 1° over ±12.5mm and ±30°');
+assert.equal(envelope.posesChecked,9231,
+  'Full motion envelope must be sampled at 0.5mm × 1° over the UI ranges ±12.5mm and ±90°');
 assert(envelope.minimumClearancesMm.cabinet>0);
 assert(envelope.minimumClearancesMm.controller>0);
 assert(envelope.minimumClearancesMm.microscope>0);
