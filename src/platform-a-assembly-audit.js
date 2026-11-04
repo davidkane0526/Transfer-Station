@@ -19,8 +19,14 @@ export function auditPlatformAAssembly({
   const farthestRightReturnX=leftTipX+bracketReturnWidthMm;
   const heaterLeftX=sampleCenterX-sampleHeaterWidthMm/2;
   // Best-case shift uses both stages toward one another.
+  const combinedTravelMm=filmTravelHalfMm+sampleTravelHalfMm;
   const remainingHorizontalGapMm=heaterLeftX-
-    (farthestRightReturnX+filmTravelHalfMm+sampleTravelHalfMm);
+    (farthestRightReturnX+combinedTravelMm);
+  // Sensitivity-only scenario: mirror the narrow L sheet around A15 X.
+  // This is NOT a photographed orientation change nor a CAD repair.
+  const mirrorTipLeftX=2*filmStageX-farthestRightReturnX;
+  const mirrorTipRightX=2*filmStageX-leftTipX;
+  const mirroredGapMm=heaterLeftX-(mirrorTipRightX+combinedTravelMm);
   const heightErrorMm=heaterTopYmm-bracketLowestYmm;
   return Object.freeze({
     profile:'A_photo94_95_97_layout_candidate',
@@ -32,12 +38,18 @@ export function auditPlatformAAssembly({
     bracketReturnRightEdgeX:farthestRightReturnX,
     heaterLeftX,
     optimisticResidualHorizontalGapMm:Number(remainingHorizontalGapMm.toFixed(1)),
+    mirroredReturnLeftX:mirrorTipLeftX,
+    mirroredReturnRightX:mirrorTipRightX,
+    mirroredOrientationResidualGapMm:Number(mirroredGapMm.toFixed(1)),
+    bestOfTwoOrientationsResidualGapMm:Number(Math.min(remainingHorizontalGapMm,mirroredGapMm).toFixed(1)),
+    orientationFlipAloneCannotResolveReach:mirroredGapMm>0&&remainingHorizontalGapMm>0,
+    orientationMeasuredFromPhoto:false,
     verticalBracketBelowHeaterTopMm:Number(heightErrorMm.toFixed(1)),
     nominalApproachEnvelopeRegistered:remainingHorizontalGapMm<=0,
     clampMechanicalInterfaceClosed:false,
     functionalTransferAccepted:false,
     missing:['A05 lower glass jaw model & fixing thread','A17 magnetic base actual SKU, height & mounting pitch',
       'film stage/thermal stage relative origin and direction','A02 actual travel axis','A05-to-glass-to-PDMS contact height'],
-    note:'The CURRENT nominal assembly places the folded tip away from, and below, the sample. Do not mirror or stretch the arm without new photographic datum.'
+    note:'Current left-facing candidate leaves a large gap; even a hypothetical mirrored right-facing strap cannot close it. Neither side proves the photo orientation. Do not extend the arm without registered real photos.'
   });
 }
