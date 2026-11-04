@@ -557,8 +557,8 @@ def make_a():
     # TTL200-A uses EXTERNAL SM2 both ends, whereas the previously
     # listed SM1CP2 is a CAP and cannot mate to that SM2 male thread.
     # A14 therefore becomes an OPEN mechanical illustration only:
-    # nominal Ø56/Ø52.2 x60 sleeve joining A08 top Z198 to A09 Z258.
-    sleeve_A14=vz(28,60,cx,0,198).cut(vz(26.1,60.2,cx,0,197.9))
+    # nominal Ø56/Ø52.2 x66 sleeve overlapping A08 over Z192..198 and reaching A09 at Z258.
+    sleeve_A14=vz(28,66,cx,0,192).cut(vz(26.1,66.2,cx,0,191.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_60mm_CANDIDATE',
         sleeve_A14,'C')
 def export(sys):
