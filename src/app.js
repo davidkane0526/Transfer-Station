@@ -15,7 +15,7 @@ import {PHOTO_94_95_97,photo94BracketCandidate,getPhotoComparison,vc13PhotoScrew
 import {getPlateHolderJawDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
 import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
-import {B149,auditB149} from './b-photo149-geometry.js';
+import {B149,auditB149,auditBLoweringPose} from './b-photo149-geometry.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -56,7 +56,7 @@ illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
 let platform='B', bPhoto94Mode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
-    filmShift=0,filmShiftDepth=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
+    filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
 // Read-only diagnostic used by the real-browser assembly smoke test.
@@ -572,6 +572,9 @@ function filmB(){
 makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw:Math.PI*HANDLES.B03.installationYawDeg/180},1,2,-1);
  addPart('B04',ax,73,0,g=>{
   add(g,cub(65,8,66,mats.dark,0,4,0));
+  // Vertical stage stationary frame vs movable side carriage
+  const movingCarriage=new THREE.Group();g.add(movingCarriage);
+  g.userData.verticalCarriage=movingCarriage;
   // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
   // Photo149: V25M MOVABLE output surface sits lower than its stationary
   // upright, which continues above the horizontal sleeve mounting plate.
@@ -584,7 +587,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   // not an unbroken silver slab. Backing is 6mm thick; its 2mm black
   // skin has real open geometry and exposes dark BLIND-hole bottoms.
   // 3x4 locations are visual PHOTO PROXIES, not certified OEM pitch.
-  add(g,cub(34,49,6,mats.dark,0,32.5,2));
+  add(movingCarriage,cub(34,49,6,mats.dark,0,32.5,2));
   const face=shapeRect(34,49);
   const holePattern=[];
   for(const x of [-10,0,10])for(const yy of [-12.5,-2.5,7.5,17.5])
@@ -593,15 +596,15 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   const faceGeo=new THREE.ExtrudeGeometry(face,{
     depth:2,steps:1,bevelEnabled:false,curveSegments:32
   });
-  const blackFace=add(g,mk(faceGeo,mats.black));
+  const blackFace=add(movingCarriage,mk(faceGeo,mats.black));
   blackFace.position.set(0,32.5,5);
   blackFace.userData.photoFitBlindBores=12;
   // Embedded face rails, not two disconnected steel posts.
-  for(const x of [-17,17])add(g,cub(2.5,38,1.2,mats.silver,x,31,7.5));
+  for(const x of [-17,17])add(movingCarriage,cub(2.5,38,1.2,mats.silver,x,31,7.5));
   // Photo108: small SIDE bridge connects the moving guide front
   // (Z=+7) to the B05 plate side face (X=stage+28). It must NOT be
   // the old 65x66 slab INSIDE the stationary 56x18 upright.
-  const bracket=add(g,cub(25,15,18,mats.dark,15.5,19.5,16));
+  const bracket=add(movingCarriage,cub(25,15,18,mats.dark,15.5,19.5,16));
   bracket.userData.movingSideBridge=true;
   // Photos108/149: V25M micrometer is vertical and OUTSIDE the
   // left upright, not penetrating its solid body. Old V30 micrometer
@@ -625,7 +628,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
  // The old V22 150mm straight cantilever/B26 hanger math is NOT
  // the photographed PHUC+two-bar structure. Keep only the clamp's
  // horizontal placement; derive all remaining datums from B149.
- const link={clampWorldX:CONFIG.B.sampleX-42,mountY:rack.supportPlateBottomY,
+ const link={clampWorldX:rack.glassHolderWorldX,mountY:rack.supportPlateBottomY,
    loadPath:'B33→B25→PHUC-1→B28→side-M6-candidate→GCM-1302M',
    physicalAcceptance:false};
  // B05 is a side-mounted, photo-fit carriage plate. The load path is
@@ -642,7 +645,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    addJointHeads(g,'B05',rack.supportPlateHeightMm-.05,
       [[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
    label(g,'V30照片108：活动导轨侧装B05安装板，避开固定V25M机架',0,28,0);
- },{explode:[-30,55,-13],moveFilm:true});
+ },{explode:[-30,55,-13],moveFilm:true,moveFilmVertical:true});
  // Photo149: steel post extends THROUGH a 50mm cylindrical holder
  // and THROUGH B33 square clamp with a threaded tip still exposed.
  // Previous 25mm rod was physically incapable of supporting B33.
@@ -653,7 +656,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    // Small M6-like terminal witness, not a verified thread pitch.
    add(g,cyl(3,3,mats.silver,0,rack.supportPostLengthMm+1.5,0,32));
    label(g,'竖向接杆 Ø12×100 mm（PHSP12-4 尺规候选）',0,114,0);
- },{explode:[-25,55,-13],moveFilm:true});
+ },{explode:[-25,55,-13],moveFilm:true,moveFilmVertical:true});
  // Photo149: missing BLACK sleeve: ~4-5 cm tall; Zolix PHSH-2 50mm
  // is a series-length CANDIDATE, no photo-visible SKU.
  addPart('B34',rack.postAxisX,rack.postHolderBottomY,rack.postAxisZ,g=>{
@@ -664,7 +667,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    g.userData.photo149HolderDatums=rack;
    g.userData.modelConfirmed=false;
    label(g,'黑色立杆套筒 · PHSH-2 50mm仅候选',0,65,0);
- },{explode:[-23,55,-13],moveFilm:true});
+ },{explode:[-23,55,-13],moveFilm:true,moveFilmVertical:true});
  // Photo149 additionally shows a SEPARATE small square connector
  // joining the support post to the first long horizontal Ø12 rod.
  // No identifiable OEM SKU is legible; shape is a two-hole proxy.
@@ -686,7 +689,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    g.userData.squareBodyEnvelopeMm=[28,30,30];
    g.userData.separateRealThroughBores=2;
    label(g,'照片149：独立方夹 · 真Ø12立杆孔/横杆孔（型号待核）',0,27,0);
- },{explode:[-19,54,-12],moveFilm:true});
+ },{explode:[-19,54,-12],moveFilm:true,moveFilmVertical:true});
  // Photos 149 and 150 show an actual Zolix PHUC-1, NOT the earlier
  // PHCP-2. Manufacturer drawing: A60, BØ30, C/DØ12, bore pitch E33.
  // Full housing, two rotatable barrel halves, and insertion datums are
@@ -713,7 +716,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    g.userData.verifiedPhotoModel='Zolix PHUC-1';
    g.userData.oemHoleCenterSpacingMm=oem.boreCenterSpacingEmm;
    label(g,'PHUC-1 · 厂家 A60 / Ø30 / Ø12×2 / 中心距33mm',2,52,-7);
- },{explode:[-23,58,-13],moveFilm:true});
+ },{explode:[-23,58,-13],moveFilm:true,moveFilmVertical:true});
  // First Ø12 rod connects B33 square clamp to PHUC upper hole only;
  // 100mm is a PHOTO FIT and not an identified PHSP part number.
  addPart('B25',rack.upperRodStartX,rack.upperRodY,0,g=>{
@@ -722,7 +725,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    rod.rotation.z=Math.PI/2;
    g.userData.photoFitNotOemLength=true;
    label(g,'首根横杆 Ø12×'+rack.upperRodLengthMm+'mm（照片空间拟合，非型号确认）',32,17,0);
- },{explode:[-20,64,-13],moveFilm:true});
+ },{explode:[-20,64,-13],moveFilm:true,moveFilmVertical:true});
  // The second rod is visible through the other PHUC-1 opening in both
  // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
  // Keep it separate in BOM and selection. The glass coupling is unverified.
@@ -733,7 +736,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    g.userData.candidateLengthMm=d;
    g.userData.actualPhotoLengthVerified=false;
    label(g,'下层横杆 Ø12 · 端面抵达夹具侧壁，不穿透夹具',d/2,15,0);
- },{explode:[-14,62,20],moveFilm:true});
+ },{explode:[-14,62,20],moveFilm:true,moveFilmVertical:true});
  // Photo108/150: the lower Ø12 post terminates DIRECTLY at the left
  // side of GCM-1302M. The old large socket and vertical B26 block
  // are absent from the actual apparatus. Small M6 end-stud is a
@@ -745,7 +748,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    g.userData.interfaceOnly=true;
    g.userData.photoConfirmedThread=false;
    label(g,'B26仅是M6接口候选，非可见大型转接件',3,14,0);
- },{explode:[-20,65,2],moveFilm:true});
+ },{explode:[-20,65,2],moveFilm:true,moveFilmVertical:true});
  // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
  // Place plate clamp at glass LEFT edge, away from the sample optical axis.
  // 180 degree yaw changes jaw engagement from leftward to rightward.
@@ -785,12 +788,15 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   // Photo108: no bulky back-side adapter. Thread depth awaits OEM drawing.
   addJointHeads(g,'B06',2.25,[[-10,-6],[8,6]],{headR:2.6});
   label(g,'Daheng GCM-1302M · 共用活动压板 + 双调节螺杆',4,24,0);
- },{explode:[-20,65,5],moveFilm:true,facingYaw:Math.PI});
- addPart('B07',CONFIG.B.sampleX+5,rack.glassCenterWorldY,0,g=>{
-  add(g,cub(76,1,26,mats.glass,0,0,0));
-  add(g,cub(20,1.8,20,mats.ceramic,-5,-1.4,0));
-  label(g,'玻片/PDMS：当前悬空间隙 '+rack.glassToHeaterGapMm.toFixed(1)+'mm（候选，尚非接触位）',2,16,0);
- },{explode:[0,80,15],moveFilm:true});
+ },{explode:[-20,65,5],moveFilm:true,moveFilmVertical:true,facingYaw:Math.PI});
+ addPart('B07',rack.glassCenterWorldX,rack.glassCenterWorldY,0,g=>{
+  const sheet=add(g,cub(76,1,26,mats.glass,0,0,0));
+  sheet.userData.glassRightEdgeWorldX=rack.glassRightX;
+  const stamp=add(g,cub(20,1.8,20,mats.ceramic,
+    rack.stampOffsetFromGlassCenterX,-1.4,0));
+  stamp.userData.rightEdgeStamp=true;
+  label(g,'右侧印章对准样品中心；夹具完全位于热台左侧；初始悬空'+rack.glassToHeaterGapMm.toFixed(1)+'mm',8,16,0);
+ },{explode:[0,80,15],moveFilm:true,moveFilmVertical:true});
 }
 function rotaryB(){
  const sx=CONFIG.B.sampleX, rise=CONFIG.B.sampleBoardRiseMm;
@@ -1358,13 +1364,28 @@ function selectPart(id){
 }
 function updateTransforms(){
  const e=explosion/100,angle=sampleAngle*Math.PI/180;
- parts.forEach(({g,base,part,explode,moveFilm,translateSample,rotateSample,facingYaw=0})=>{
+ const motionAudit=platform==='B'&&!bPhoto94Mode?
+   auditBLoweringPose({filmShiftX:filmShift,sampleShiftX:sampleShift,
+     sampleAngleDeg:sampleAngle,filmVerticalDropMm:filmDrop,filmDepthShiftMm:filmShiftDepth}):null;
+ if(motionAudit?.possibleClash&&filmDrop>0){
+   filmDrop=0;
+   if($('film-drop'))$('film-drop').value='0';
+   if($('film-drop-value'))$('film-drop-value').textContent='0.0 mm';
+ }
+ if($('lowering-clearance')){
+   $('lowering-clearance').textContent=motionAudit?
+     '夹具与热台X向保守间隙：'+motionAudit.planarGapMm.toFixed(1)+' mm'+
+       (motionAudit.possibleClash?'；当前平移/旋转姿态下禁用下降':'；下降检查允许接触印章'):
+     '高度下降检查仅适用于平台 B 的实拍149方案';
+ }
+ parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,rotateSample,facingYaw=0})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0,sx=translateSample?sampleShift:0;
   // Translation in a rotating stage's LOCAL X basis, then rotation about Y.
   const travel=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
   const dx=travel.x,dz=travel.z;
-  g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e,base.z+off[2]*e+dz+fz);
+  g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e-(moveFilmVertical?filmDrop:0),base.z+off[2]*e+dz+fz);
   g.rotation.y=(rotateSample?angle:0)+facingYaw;
+  if(g.userData.verticalCarriage)g.userData.verticalCarriage.position.y=-filmDrop;
   if(g.userData.slidingX){
     // A physical X carriage carries a SECOND, nested depth carriage.
     // B03 has a yaw-180 installation; local negative X maps to world +X.
@@ -1375,6 +1396,7 @@ function updateTransforms(){
   }
  
  });
+ if(platform==='B')refreshHeatingControlHarness();
  if(active)updateMeasurement();
 }
 function resetScene(){
@@ -1405,9 +1427,10 @@ function resetScene(){
    rotaryB();
    microscopeB();
    externalB();
+   heatingControlHarnessB();
    // Fail fast if a scene revision silently deletes a whole subsystem.
    const required=['B01','B35','B03','B07','B08','B09','B10','B11','B12',
-     'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23','B36'];
+     'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23','B36','B37','B38','B39'];
    if(bPhoto94Mode)required.push('B29','B30','B31','B32');
    else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33','B34');
    const missing=required.filter(id=>!parts.has(id));
@@ -1426,7 +1449,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · V35 / 145–151尺寸照片修正 / PHUC-1万向杆夹'):
+   '平台 B · V36 / 145–151尺寸照片修正 / PHUC-1万向杆夹'):
    '平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
@@ -1592,7 +1615,7 @@ function focusPhoto947(photo='94'){
 function switchPlatform(next){
   clearCadFeatureCandidates();
   platform=next;
-  explosion=0;filmShift=0;filmShiftDepth=0;sampleShift=0;sampleAngle=0;
+  explosion=0;filmShift=0;filmShiftDepth=0;filmDrop=0;sampleShift=0;sampleAngle=0;
   for(const [id,value] of [['explode','0'],['translate','0'],['translate-depth','0'],['sample-move','0'],['rotate-sample','0']])$(id).value=value;
   $('explode-value').textContent='0%';$('translate-value').textContent='0 mm';$('translate-depth-value').textContent='0 mm';
   $('sample-value').textContent='0 mm';$('rotate-value').textContent='0°';
@@ -1659,6 +1682,8 @@ $('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$(
 $('explode').oninput=e=>{explosion=Number(e.target.value);$('explode-value').textContent=explosion+'%';updateTransforms()};
 $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value').textContent=filmShift.toFixed(1)+' mm';updateTransforms()};
 $('translate-depth').oninput=e=>{filmShiftDepth=Number(e.target.value);$('translate-depth-value').textContent=filmShiftDepth.toFixed(1)+' mm';updateTransforms()};
+$('film-drop').oninput=e=>{filmDrop=Math.max(0,-Number(e.target.value));
+ $('film-drop-value').textContent=(-filmDrop).toFixed(1)+' mm';updateTransforms()};
 $('sample-move').oninput=e=>{sampleShift=Number(e.target.value);$('sample-value').textContent=sampleShift.toFixed(1)+' mm';updateTransforms()};
 $('rotate-sample').oninput=e=>{sampleAngle=Number(e.target.value);$('rotate-value').textContent=sampleAngle+'°';updateTransforms()};
 function proxyReplaced(o){
