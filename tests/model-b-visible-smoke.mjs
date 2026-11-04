@@ -31,7 +31,7 @@ try{
  const initExternal=await page.evaluate(()=>window.__modelBViewProbe());
  assert.deepEqual(initExternal.hiddenExternalParts,[],
     'Checked external-category checkbox MUST NOT silently hide B36/B19/B21/B23');
- assert(initExternal.visibleExternalCount>=6);
+ assert(initExternal.visibleExternalCount>=5,'B36 cabinet plus four associated external components required');
  await externalToggle.uncheck();
  const disabledExternal=await page.evaluate(()=>window.__modelBViewProbe());
  assert.equal(disabledExternal.visibleExternalCount,0,
