@@ -272,12 +272,15 @@ export function enrichParts(partMap, platform, onMesh){
        decal(g,'10×/0.15  WD10.8',22,4,0,2,12.6,'front','#36414b');
     });
     decoration('B19',(g)=>{
-       decal(g,'YUDIAN  AI',75,12,0,79,44,'front','#d7dde5');
-       box(g,70,50,4,0,53,43.5,graphite,2);
-       box(g,55,14,4,0,61,46,matte,.5);
-       decal(g,'19.3    PV',54,11,0,62,48.1,'front','#eb5362');
-       decal(g,'0.0     SV',54,10,0,46,48.1,'front','#73d580');
-       for(let x of [-25,-12,12,25])box(g,7,5,2,x,32,46,gunmetal,.5);
+       // Yudian AI front panel physically mounts ON the B36 enclosure,
+       // photo114. Previous V32 decals were still floating ~35mm in
+       // front of the slim controller because B19 used to be a box.
+       decal(g,'YUDIAN  AI',75,10,0,75,11.1,'front','#d7dde5');
+       box(g,70,48,3,0,53,10.2,graphite,2);
+       box(g,55,14,3,0,61,11.4,matte,.5);
+       decal(g,'19.3    PV',54,11,0,62,13.2,'front','#eb5362');
+       decal(g,'0.0     SV',54,10,0,46,13.2,'front','#73d580');
+       for(let x of [-25,-12,12,25])box(g,7,5,2,x,32,11.6,gunmetal,.5);
     });
     decoration('B20',(g)=>{
        box(g,40,8,64,0,15,0,graphite,.6);
