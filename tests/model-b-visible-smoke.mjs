@@ -121,6 +121,11 @@ try{
  assert.equal(vac.hoseWallMeshes,2,'Actual inner and outer hose walls required');
  assert.equal(vac.twoOpenPorts,true,
    'Both the pump suction inlet and B15 fitting must be REALLY bored');
+ assert.equal(vac.sealedVacuumCircuitVerified,false,
+   'Open geometric bores do not establish real vacuum-tight seals');
+ assert.equal(vac.directPumpHoseFitVerified,false);
+ assert.equal(vac.pumpSideAdapterUnresolved,true);
+ assert.equal(vac.hoseToPumpBoreDiametricGapMm,1.2);
  assert(vac.sourceCoordinateErrorMm<.01,
    'First long-hose node not coupled to moving B15 short hose outlet');
  assert(vac.pumpCoordinateErrorMm<.01,
@@ -358,6 +363,13 @@ try{
    await row.click();
    assert.equal(await page.locator('#suction-dimensions').getAttribute('data-candidate'),'true');
    assert.match(await page.locator('#suction-dimensions').innerText(),pattern);
+   if(id==='B40'||id==='B20'){
+     assert.equal(await page.locator('#vacuum-interface-warning').getAttribute('data-status'),'unverified');
+     const fitNote=await page.locator('#vacuum-interface-warning').innerText();
+     assert.match(fitNote,/软管内径Ø4\.4/);
+     assert.match(fitNote,/不能据此认定直接套接/);
+     assert.match(fitNote,/1\.2 mm/);
+   }
  }
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
