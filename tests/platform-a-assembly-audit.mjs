@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {auditPlatformAAssembly} from '../src/platform-a-assembly-audit.js';
+const a=auditPlatformAAssembly();
+assert.equal(a.photoConfirmedGlassClamp,false);
+assert.equal(a.photoConfirmedMagneticBaseSku,false);
+assert.equal(a.stageCenterGapMm,194);
+assert.equal(a.bracketLeftTipX,-176);
+assert.equal(a.bracketReturnRightEdgeX,-163);
+assert.equal(a.heaterLeftX,45.5);
+assert.equal(a.optimisticResidualHorizontalGapMm,183.5);
+assert.equal(a.verticalBracketBelowHeaterTopMm,27.2);
+assert.equal(a.nominalApproachEnvelopeRegistered,false);
+assert.equal(a.clampMechanicalInterfaceClosed,false);
+assert.equal(a.functionalTransferAccepted,false);
+assert(a.missing.length>=5);
+assert.throws(()=>auditPlatformAAssembly({bracketOverhangLeftMm:-1}),/Invalid/);
+const correctedTestFixture=auditPlatformAAssembly({filmStageX:160,bracketOverhangLeftMm:60});
+assert(correctedTestFixture.nominalApproachEnvelopeRegistered,
+  'Auditor should recognize overlapping possible X envelopes without certifying real glass grip');
+assert.equal(correctedTestFixture.functionalTransferAccepted,false);
+console.log('V45 A rig 183.5mm unreachable glass endpoint + unknown magnetic/clamp models: PASS');
