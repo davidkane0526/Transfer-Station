@@ -429,6 +429,46 @@ check(abs(a_base.zmin-a_board.zmax)<.02 and abs(a_rot_lower.zmin-a_base.zmax)<.0
 a_tilt=part(A,'A04')[0].BoundingBox()
 check(abs(a_tilt.zmax-144)<.02,
       'A04 raised 20mm with A15 magnet; A05 folded sheet touches top z144')
+# V45 A-rig global functional registration: the current first rig is NOT
+# a complete working transfer platform, even though every listed part exists.
+a_heater=part(A,'A07')[0].BoundingBox()
+a_lip_tip_right=asheet_bb.xmin+13
+a_horizontal_gap=a_heater.xmin-a_lip_tip_right-25 # two optimistic +/-12.5mm stages
+a_bracket_to_heater_z=a_heater.zmax-asheet_bb.zmin
+check(a_horizontal_gap>180,
+      'A old mirrored candidate L-tip is still >180mm away after max X travel')
+check(a_bracket_to_heater_z>27,
+      'A current folded bracket lower lip is BELOW heater top by >27mm')
+a_scope_col=part(A,'A10')[0]
+a_scope_bb=a_scope_col.BoundingBox()
+check(abs(a_scope_bb.zmin-a_board.zmax)<.02,
+      'A10 microscope column must have an attached foot contacting the A01 board')
+check(a_scope_col.intersect(part(A,'A01')[0]).Volume()<1e-4,
+      'A10 foot must not penetrate the common optical board')
+a_lens=part(A,'A08')[0]
+a_optical_tube=part(A,'A14')[0]
+a_cam=part(A,'A09')[0]
+check(abs(a_lens.BoundingBox().zlen-28)<.02,
+      'TTL200-A 28mm mechanical housing must not be 85mm CAD proxy')
+check(abs(a_optical_tube.BoundingBox().zmin-192)<.02 and
+      abs(a_optical_tube.BoundingBox().zmax-258)<.02,
+      'A14 open SM2 candidate must overlap lens 6mm and reach camera underside')
+check(a_optical_tube.intersect(a_lens).Volume()<1e-3,
+      'SM2 candidate tube must NOT become a solid plug through the lens')
+check(abs(a_cam.BoundingBox().zmin-a_optical_tube.BoundingBox().zmax)<.02,
+      'A camera candidate underside must touch SM2 sleeve envelope')
+report['V45_A_global_assembly_readiness']={
+  'A05_tip_to_A07_heater_after_optimistic_X_travel_mm':round(a_horizontal_gap,1),
+  'A05_lowest_point_below_heater_top_mm':round(a_bracket_to_heater_z,1),
+  'A10_microscope_foot_contacts_A01':True,
+  'A08_TTL200A_real_housing_length_mm':28,
+  'A14_candidate_SM2_sleeve_length_mm':66,
+  'A14_insert_overlap_mm':6,
+  'A17_actual_magnetic_model_verified':False,
+  'A05_actual_glass_grip_model_verified':False,
+  'A14_camera_mounting_thread_verified':False,
+  'functional_transfer_accepted':False
+}
 # NEW PHOTO REGISTER: 94/95/97 are A, whereas B is 107-112 and
 # 145-151. The former erroneous B_photo94 assembly is not exported.
 check(not (ROOT/'build'/'platform_B_photo94').exists(),
