@@ -275,11 +275,31 @@ def make_b():
     add('B','B18','objective',vz(12.5,38,cx,0,162.0))
     add('B','B18A','objective_tip',vz(7,12,cx,0,150.0))
     add('B','B17','digital_camera',box(47,48,48,cx,0,276))
-    add('B','B19','temperature_box',box(125,87,85,265,-95,25))
-    add('B','B20','vacuum_pump',box(135,80,65,265,75,20))
-    add('B','B21','MeanWell_power_supply_247x127x63p5',box(247,127,63.5,245,-195,25),'D')
-    add('B','B22','LED_lamp_adapter_proxy',box(65,72,48,280,-20,35),'P')
-    add('B','B23','control_auxiliary_module_proxy',box(93,58,38,305,-110,35),'P')
+    # Photo114 front YUDIAN PID; photo119 opened metal cabinet with
+    # SE-600-48 PSU and separate BLACK vented internal module. V32
+    # incorrectly overlapped these three as free-standing boxes, and
+    # its proxy B19 was smaller than the OEM 247mm-long power supply.
+    # This hollow enclosure remains a PHOTO-FIT candidate. Real wall
+    # thickness, fastener locations and electrical safety are unknown.
+    control_x,control_y=365,-150
+    shell=box(285,225,125,control_x,control_y,0)
+    shell=shell.cut(box(279,219,126,control_x,control_y,3))
+    add('B','B36','PHOTO119_OPEN_STEEL_CONTROL_HOUSING_285x225x125_CANDIDATE',
+        shell,'C')
+    # B19 is ONLY a front-mounted panel controller. Its back face
+    # meets B36's outer front wall at world Y=-37.5, without overlap.
+    add('B','B19','YUDIAN_AI_PID_photo114_front_panel_CANDIDATE',
+        box(120,18,80,365,-28.5,20),'P')
+    add('B','B21','MeanWell_SE60048_photo117_INSIDE_B36',
+        box(247,127,63.5,365,-190,3),'D')
+    add('B','B23','photo119_BLACK_VENTED_INTERNAL_MODULE_CANDIDATE',
+        box(93,58,38,365,-77,3),'C')
+    # Only the actual pump and photo115 LED adapter are exterior
+    # devices; place each on a distinct candidate standing footprint.
+    add('B','B20','photo120_external_W50_vacuum_pump_CANDIDATE',
+        box(135,80,65,335,180,0),'P')
+    add('B','B22','photo115_external_LED_adapter_CANDIDATE',
+        box(65,72,48,335,65,0),'P')
 def make_a():
     board('A')
     ax,cx=-116,78
