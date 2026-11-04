@@ -23,6 +23,9 @@ assert.throws(()=>photo95FrontDriveDatums({shaftLengthMm:40}),
  /floating/,'Short front rod must not hang in space between black stops');
 const upright=vc13PhotoScrewDatums();
 assert.equal(upright.drumTopLocalYmm,48);
+assert.equal(upright.frontZmm,40);
+assert.throws(()=>vc13PhotoScrewDatums({frontZmm:25}),/intersects/,
+ 'Old VC13 front drive would penetrate the moving plate sweep');
 assert.equal(upright.clearanceToG40Mm,3);
 assert(upright.stemCenterLocalYmm+upright.stemLengthMm/2 >
  upright.drumCenterLocalYmm-upright.drumLengthMm/2);
