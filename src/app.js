@@ -971,7 +971,7 @@ function rotaryB(){
    // Keep the true center Ø1.4 opening in the drilled upper plate;
    // the unverified buried duct is represented only by evidence notes.
    g.userData.vacuumPathInternalNotExternallyVisible=true;
-   label(g,'单中心孔 / 底面开腔 / 4×沉孔',0,31,0);
+   label(g,'单中心吸附孔 Ø1.4 mm（候选）/ 底面开腔 / 四沉孔',0,31,0);
  },{explode:[0,61,0],rotateSample:true,translateSample:true});
  addPart('B12',sx,86.5+rise,0,g=>{
    add(g,cub(38,5,38,mats.ceramic,0,2.5,0));
@@ -1002,6 +1002,7 @@ function rotaryB(){
      [[0,0,-45.5],[0,1,-58],[1,-3,-70],[12,-17,-79]],1.8,mats.rubber));
    shortHose.userData.lastFlexiblePoint=[12,-17,-79];
    g.userData.rearVacuumBoreNotBlocked=true;
+   label(g,'B15接头：OD Ø6.0 / 孔径 Ø2.84 / 长13 mm（均为候选）',4,12,-48);
  },{explode:[0,60,-20],rotateSample:true,translateSample:true});
  const substrate=cub(24,.6,24,mats.glass,0,98.5+rise,0);substrate.position.x=sx;currentRoot.add(substrate);
 }
@@ -1108,7 +1109,7 @@ function externalB(){
   }
   g.userData.nameplateModel='VN-50';
   g.userData.pumpModelReadFromPhoto120=true;
-  label(g,'VN-50 · 照片120铭牌 / INTAKE吸入口（方向候选）',0,113,0);
+  label(g,'VN-50 · INTAKE吸气口 OD Ø18.0 / 内孔 Ø8.2（候选）',0,113,0);
  },{explode:[55,0,35]});
  addPart('B22',335,0,65,g=>{
    add(g,cub(65,48,72,mats.dark,0,24,0));
@@ -1142,7 +1143,7 @@ function vacuumSupplyB(){
    g.userData.model='VN-50';
    g.userData.inletOrientationCandidate=true;
    g.userData.audit=auditVacuumPath();
-   label(g,'真空管：B11中心孔 → B15后接头 → VN-50吸入口',215,167,188);
+   label(g,'B40真空软管 OD Ø7.0 / ID Ø4.4 mm（候选） → VN-50 INTAKE',215,167,188);
  },{explode:[0,0,0]});
 }
 function refreshVacuumHoseB(){
@@ -1185,7 +1186,7 @@ function heatingControlHarnessB(){
    add(g,tube([[225,87,-167],[235,75,-151],[237,49,-128],
      [252,26,-118],[265,19.7,-116]],.95,pale));
    g.userData.terminatesAtUnassignedTerminalZone=true;
-   label(g,'加热器双引线→控制箱B36：线序/供电关系未确认',185,127,-116);
+   label(g,'加热双线：后侧低位并行布线，端子/供电均未核',185,127,-116);
  },{explode:[0,30,-40]});
  addPart('B38',0,0,0,g=>{
    const m=add(g,tube([[0,0,0],[1,0,0]],.72,sensorMat));
@@ -1193,7 +1194,7 @@ function heatingControlHarnessB(){
    add(g,tube([[225,89,-163],[235,103,-150],[265,108,-120],
      [310,100,-83],[349,78,-43]],.72,sensorMat));
    g.userData.backPanelTerminalsNotConfirmed=true;
-   label(g,'测温探头→宇电温控器背面附近（端子未验证）',250,145,-140);
+   label(g,'测温反馈线：与加热功率线分支，输入端子未核',250,145,-140);
  },{explode:[0,40,-30]});
 }
 function refreshHeatingControlHarness(){
@@ -1211,18 +1212,20 @@ function refreshHeatingControlHarness(){
      if(!o.isMesh||!o.userData.dynamicHarnessLead)return;
      let start,mid,end,rad;
      if(o.userData.dynamicHarnessLead==='temperature'){
-       start=source(6,100.35,-51);mid=0;end=new THREE.Vector3(222.5,89,-163);rad=.72;
+       start=source(6,100.35,-51);mid=2;end=new THREE.Vector3(222.5,89,-163);rad=.72;
      }else{
        const second=o.userData.dynamicHarnessLead==='heaterB';
        start=source(second?16:11,98.5,-60);mid=second?1:0;
        end=new THREE.Vector3(222.5,second?87:84,second?-167:-168);rad=1.1;
      }
+     // V38 bundled electric trunk is deliberately BELOW the vacuum
+     // route. Three parallel branches, separated by 4..10mm,
+     // are fed through the existing B36 gland.
      const pts=[
        start,
-       start.clone().add(new THREE.Vector3(15,7,-14)),
-       new THREE.Vector3(145,104+mid*3,-88-mid*6),
-       new THREE.Vector3(183,101+mid*2,-122-mid*4),
-       new THREE.Vector3(211,94+mid*2,-158-mid*3),
+       new THREE.Vector3(119,104+mid*5,-92-mid*5),
+       new THREE.Vector3(174,100+mid*6,-140-mid*6),
+       new THREE.Vector3(207,94+mid*5,-165-mid*6),
        end
      ];
      // The duct is flexible: its first knot follows sample X/yaw.
