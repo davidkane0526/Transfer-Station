@@ -320,7 +320,19 @@ def make_a():
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V32')
-    for key,name,grade,shape in PARTS[sys]: assembly.add(shape,name=key+'__'+name)
+    # The user's B photos distinguish the SILVER common table from the
+    # independent BLACK THORLABS board below the sample stage. Preserve
+    # that evidence as AP214 STEP assembly colors, not merely part names.
+    # Other components retain neutral default STEP color until their
+    # manufacturer finishes/geometry are verified.
+    evidence_colors={
+      'B01':cq.Color(0.73,0.76,0.79),
+      'B35':cq.Color(0.10,0.12,0.15)
+    }
+    for key,name,grade,shape in PARTS[sys]:
+        props={'name':key+'__'+name}
+        if key in evidence_colors: props['color']=evidence_colors[key]
+        assembly.add(shape,**props)
     target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V32.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
