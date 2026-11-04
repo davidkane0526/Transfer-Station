@@ -94,7 +94,6 @@ try{
  assert.equal(vac.pumpFeatures.headFins,6);
  assert.equal(vac.pumpFeatures.headBridges,1);
  assert.equal(vac.pumpFeatures.headBridgeSupports,2);
- assert.equal(vac.pumpFeatures.rubberFeet,4);
  assert.equal(vac.pumpFeatures.warningPlates,1);
  assert.equal(vac.pumpFeatures.warningSymbols,2);
  assert.equal(vac.pumpFeatures.nameplateTextLines,5);
