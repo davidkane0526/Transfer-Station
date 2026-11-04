@@ -1554,7 +1554,9 @@ function platformA(){
    // V46: compare with Daheng GCM-420302M OEM family silhouette:
    // 65x65x20mm with a side magnetic switch and top 5-M6/4-M4/4-M3.
    // This is an UNVERIFIED A-side SKU comparison; not a declaration of ID.
-   const block=add(g,cub(65,20,65,mats.dark,0,10,0));
+   // 17mm solid magnetic body plus 3mm upper plate with 13 real
+   // candidate blind openings; no fake through-bore into the magnet.
+   const block=add(g,cub(65,17,65,mats.dark,0,8.5,0));
    block.userData.magneticBaseEnvelopeCandidate=true;
    const holeFamilies=[
      {pitch:50,r:3,kind:'M6',includeCenter:true},
@@ -1562,17 +1564,20 @@ function platformA(){
      {pitch:32,r:1.5,kind:'M3',includeCenter:false}
    ];
    const marks=[];
+   const topBores=[];
    for(const family of holeFamilies){
      const coords=[...[-1,1].flatMap(x=>[-1,1].map(z=>
        [x*family.pitch/2,z*family.pitch/2]))];
      if(family.includeCenter)coords.push([0,0]);
      for(const [x,z] of coords){
-       // Surface shadow marker: actual A17 holes are unmeasured.
-       const circle=add(g,cyl(family.r,.36,mats.ink,x,19.98,z,24));
-       circle.userData.magneticHoleCandidate=family.kind;
+       // Candidate OEM hole locations, NOT photographed A17 holes.
+       topBores.push([x,z,family.r]);
        marks.push({x,z,type:family.kind});
      }
    }
+   const top=plate(65,65,3,mats.dark,topBores);
+   top.position.y=17;add(g,top);
+   top.userData.candidateBlindHoleCount=marks.length;
    // Photo/OEM candidate OFF/ON switch on front-right side; alignment
    // to the actual A photos remains unconfirmed.
    const boss=add(g,cyl(6.5,2,mats.black,-24,10,33.5,32));
