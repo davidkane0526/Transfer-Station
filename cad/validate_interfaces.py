@@ -92,29 +92,37 @@ check(abs(sbb.xlen-250)<.02 and abs(sbb.ylen-300)<.02 and abs(sbb.zlen-12)<.02,
 check(sample_board.intersect(silver_board).Volume()<1e-4,
       'Two independent photo-confirmed B board layers must not interpenetrate')
 microscope_foot=part(B,'B16A')[0]
-# V35: the four depicted B16 screw axes require ACTUAL clearance
-# voids through the microscope foot, not through a SOLID steel plate.
-for dx in (-25,25):
-    for dy in (-25,25):
-        axis=vz(1.9,12,82+dx,-112+dy,32)
-        check(microscope_foot.intersect(axis).Volume()<1e-5,
-              'B16A has four real candidate Ø4 through holes for its depicted screws')
-# Critical distinction: B35 holes are 2mm decorative blind recesses,
-# not accepted tapped through-holes. The current B16 fastener centres
-# cannot even be registered with the candidate B35 display-hole grid.
+# V45: correct an impossible Ø4-for-M6 bolt fit, and register four
+# PROPOSED hole centres to the photo-fit 25mm B35 grid. No OEM claim.
 candidate_grid=[(65+x,y) for x in range(-100,101,25) for y in range(-125,126,25)]
-candidate_foot=[(82+x,-112+y) for x in (-25,25) for y in (-25,25)]
+candidate_foot=[(90+x,-100+y) for x in (-25,25) for y in (-25,25)]
+for i,(x,y) in enumerate(candidate_foot,1):
+    axis=vz(3.20,12,x,y,32)
+    check(microscope_foot.intersect(axis).Volume()<1e-5,
+          'B16A must have four real Ø6.5 candidate M6 clearance holes')
+    core=vz(2.45,6,x,y,26)
+    check(sample_board.intersect(core).Volume()<1e-5,
+          'B35 proposed Ø5 tapped-core hole must be 6mm deep')
+    backing=vz(2.45,.5,x,y,25.5)
+    check(sample_board.intersect(backing).Volume()>5,
+          'B35 M6 tapped-core proposal MUST remain blind, not through')
+    screw=part(B,f'B16S{i}')[0]
+    check(len(screw)==1,
+          'B16M6 screw proxy must have connected shank and head')
 centre_errors=[
     min(((fx-gx)**2+(fy-gy)**2)**.5 for gx,gy in candidate_grid)
     for fx,fy in candidate_foot
 ]
-check(min(centre_errors)>10 and max(centre_errors)<15,
-      'Current synthetic B35 grid does NOT prove four aligned microscope anchors')
+check(max(centre_errors)<.01,
+      'V45 proposed B16/M6 centre coordinates must align to B35 nominal grid')
 report['B35_microscope_fastener_readiness']={
     'B16A_actual_through_clearance_bores':4,
-    'candidate_bore_diameter_mm':4,
+    'candidate_bore_diameter_mm':6.5,
     'max_grid_mismatch_mm':round(max(centre_errors),2),
-    'B35_grid_depth_mm':2,
+    'B35_other_grid_blind_recess_depth_mm':2,
+    'proposed_tapped_core_diameter_mm':5,
+    'proposed_tapped_core_depth_mm':6,
+    'candidate_bolt_count':4,
     'B35_threaded_anchors_verified':False,
     'B16_fastener_positions_verified':False,
     'loaded_joint_accepted':False
