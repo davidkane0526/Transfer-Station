@@ -376,7 +376,37 @@ try{
  }
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/单一面包板/);
+ assert.match(await page.locator('#platform-caption').innerText(),/VC13M运动预览/);
+ assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/183\.5/);
+ assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
+ assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
+ // A03 VC13M must move only its output plate; A04/A05 follow the
+ // output, while A03 body and magnet remain fixed to their base.
+ const aBefore=await page.evaluate(()=>window.__modelAKinematicProbe?.());
+ assert(aBefore?.available,'A viewer kinematic witness missing');
+ assert.equal(aBefore.a17CandidateHoleCount,13);
+ assert.equal(aBefore.a17PhotographedSkuVerified,false);
+ assert.equal(aBefore.vStageMovingPlateOffsetY,0);
+ assert.equal(aBefore.knownProxyGeometryCollisionFree,false);
+ await page.locator('#film-drop').evaluate(el=>{
+   el.value='-6';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const aAfter=await page.evaluate(()=>window.__modelAKinematicProbe?.());
+ assert.equal(aAfter.filmDropMm,6);
+ assert.equal(aAfter.vStageStationaryBaseWorldY,aBefore.vStageStationaryBaseWorldY,
+   'A03 fixed body MUST remain on A15, not move into the magnet');
+ assert.equal(aAfter.vStageMovingPlateOffsetY,-6,
+   'A03 actual moving platform must descend with the VC13M control');
+ assert.equal(aAfter.g40WorldBaseY,aBefore.g40WorldBaseY-6,
+   'A04 must descend with the VC13M output');
+ assert.equal(aAfter.bracketWorldBaseY,aBefore.bracketWorldBaseY-6,
+   'A05 cannot be left floating above its moving support');
+ assert.equal(aAfter.glassClampedAndReachable,false,
+   'Functional transfer must remain explicitly unverified');
+ await page.locator('#film-drop').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
  const mountA=await page.evaluate(()=>window.__mountingProbe?.());
  assert.equal(mountA?.singleBreadboardInScene,true);
  assert.equal(mountA?.commonBase,'A01');
