@@ -284,7 +284,17 @@ def make_b():
     black=box(250,300,12,65,0,20)
     photo_holes=[(65+dx,dy) for dx in range(-100,101,25) for dy in range(-125,126,25)]
     black=cut(black,photo_holes,5.6,2,30)
-    add('B','B35','THORLABS_BLACK_SAMPLE_MICROSCOPE_BREADBOARD_photo150_250x300x12_CANDIDATE',black,'P')
+    # B35 is NOT another shared optical breadboard. It is a
+    # local Thorlabs accessory panel with FOUR candidate M5 anchors
+    # into the already-existing B01 grid (25mm alignment). Exact OEM
+    # mount centres, thread engagement and safety are unverified.
+    bolts=[(x,y) for x in (25,175) for y in (-100,100)]
+    black=cut(black,bolts,6.5,12,20)
+    black=cut(black,bolts,9,3,29)
+    add('B','B35','THORLABS_BLACK_BOLTED_AUXILIARY_PANEL_NOT_SECOND_BASE',black,'P')
+    for i,(x,y) in enumerate(bolts,1):
+        screw=vz(2.5,21,x,y,11).fuse(vz(4.25,2.6,x,y,29.4))
+        add('B',f'B35S{i}','ONE_M5_BASEGRID_ALIGNED_ANCHOR_CANDIDATE',screw,'C')
     rot('B','B08',cx,0,32,'D')
     corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
     # Manufacturer PDF (NFP-1462C) specifies four Ø6.5 clearance
@@ -443,9 +453,16 @@ def make_a():
             vz(3.1,2,ax+dx,13,146.5),'P')
     # Photos137/161 show a separate Daheng GCM-5306M 8mm mounting base.
     base=box(112,70,8,cx,0,20)
-    # Hole coordinates are NOT from a manufacturer hole map; retain
-    # the OEM outline only, pending mating bolt-face registration.
-    add('A','A16','GCM5306M_112x70x8_MOUNT_BASE',base,'D')
+    # Real Ø6.5 clearance holes, four grid-aligned M5 candidate bolts.
+    # The 112x70x8 OEM outline is genuine; this bolt pattern is NOT
+    # asserted to be the manufacturer's hole map.
+    abolt=[(x,y) for x in (50,100) for y in (-25,25)]
+    base=cut(base,abolt,6.5,8,20)
+    base=cut(base,abolt,9,2.5,25.5)
+    add('A','A16','GCM5306M_112x70x8_BASE_TRUE_CLEARANCE_BORE_CANDIDATE',base,'D')
+    for i,(x,y) in enumerate(abolt,1):
+        screw=vz(2.5,16,x,y,12).fuse(vz(4.25,2.5,x,y,25.5))
+        add('A',f'A16S{i}','A16_to_single_A01_grid_anchor_CANDIDATE',screw,'C')
     rot('A','A06',cx,0,28,'I')
     add('A','A07','heater_proxy',box(65,65,18,cx,0,81.2))
     add('A','A10','imaging_column',vz(13,225,cx,-112,32))
