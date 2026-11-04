@@ -1310,7 +1310,7 @@ function externalB(){
     const rod=add(g,cyl(2.5,140,mats.silver,-10,y,39));
     rod.rotation.z=Math.PI/2;
     rod.userData.pumpTieRodCandidate=true;
-    for(const x of [-80,60]){
+    for(const x of [-85,65]){
       const bracket=add(g,cub(14,16,14,mats.silver,x,y,38));
       bracket.userData.pumpRodSupport=true;
     }
