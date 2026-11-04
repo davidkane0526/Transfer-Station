@@ -40,6 +40,8 @@ jobs:
           node tests/dimension-evidence.mjs
           node --check src/b-photo149-geometry.js
           node tests/b-photo149-geometry.mjs
+          node --check src/b-vacuum-routing.js
+          node tests/b-vacuum-routing.mjs
           node --check src/b35-fastener-audit.js
           node tests/b35-fastener-audit.mjs
           node --check src/b-physical-audit.js
