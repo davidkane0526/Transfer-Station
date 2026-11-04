@@ -1080,6 +1080,13 @@ function rotaryB(){
    const holes=[];
    for(let x=-100;x<=100;x+=25)for(let z=-125;z<=125;z+=25)
       holes.push([x,z,2.8]);
+   // Candidate B16 pilot holes register at x=65/115, z=-125/-75.
+   // These four need deeper recesses, unlike the cosmetic 2 mm grid.
+   const microscopePilot=[ [0,-125,2.5],[50,-125,2.5],
+                           [0,-75,2.5],[50,-75,2.5] ];
+   const pilotCore=plate(w,d,rise-2,mats.black,microscopePilot);
+   // The visible top-grid holes alone do not certify an M6 thread.
+   // The prototype pilot coordinates are audited against B16 separately.
    const top=plate(w,d,2,mats.dark,
      [...holes,...anchors.map(([x,z])=>[x,z,4.5])]);
    top.position.y=rise-2;add(g,top);
@@ -1190,22 +1197,28 @@ function microscopeB(){
  // Photo150: microscope post FOOT occupies the BACK of B35.
  // It MUST NOT sit directly on lower silver B01 while the
  // adjacent sample rotary sits 12mm higher on B35.
- addPart('B16',sx,20+rise,sz,g=>{
-   // V35: four real candidate through-bores, not four bolt heads
-   // sitting on a completely unperforated SOLID foot. OEM pitch is
-   // unknown; do NOT imply the B35 blind-hole grid is a matching anchor.
-   const footHolePattern=[[-25,-25,2],[-25,25,2],[25,-25,2],[25,25,2]];
+ addPart('B16',90,20+rise,-100,g=>{
+   // V45 four Ø6.5 M6 clearance candidates at world (65/115,-125/-75).
+   // B35's matching 25mm grid is still NOT an identified OEM thread.
+   const footHolePattern=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
    const foot=add(g,plate(65,65,12,mats.dark,footHolePattern));
    foot.userData.trueCandidateMountBores=4;
    foot.userData.boardThreadedFixingVerified=false;
    add(g,cyl(13,238,mats.steel,0,131,0));
-   add(g,cub(80,34,34,mats.microscope,0,242,23));
-   const boom=add(g,cub(32,26,125,mats.microscope,0,253,75));
-   add(g,cub(55,50,55,mats.microscope,0,229,112));
-   add(g,cyl(17,44,mats.dark,0,188,112));
-   const knob=add(g,cyl(15,13,mats.dark,45,225,108));knob.rotation.z=Math.PI/2;
-   addJointHeads(g,'B16',11.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
-   label(g,'MXFMS 显微镜本体 / 支架（包络代理）',0,303,80);
+   add(g,cub(80,34,34,mats.microscope,-4,242,23));
+   const boom=add(g,cub(32,26,125,mats.microscope,-4,253,75));
+   add(g,cub(55,50,55,mats.microscope,-8,229,100));
+   add(g,cyl(17,44,mats.dark,-8,188,100));
+   const knob=add(g,cyl(15,13,mats.dark,37,225,96));knob.rotation.z=Math.PI/2;
+   for(const x of [-25,25])for(const z of [-25,25]){
+     const shank=add(g,cyl(3,18,mats.steel,x,3,z));
+     shank.userData.B16CandidateM6Shank=true;
+     const head=add(g,cyl(5,2.5,mats.silver,x,13.25,z));
+     head.userData.B16CandidateFastenerHead=true;
+   }
+   g.userData.nominalFastenerGridAligned=true;
+   g.userData.realThreadEngagementVerified=false;
+   label(g,'B16: 四孔与B35候选网格配准 / 原机孔位待测',-8,303,68);
  },{explode:[0,15,-42]});
  addPart('B17',sx,276+rise,0,g=>{
    add(g,cub(47,48,48,mats.dark,0,24,0));
