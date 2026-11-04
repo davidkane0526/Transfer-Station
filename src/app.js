@@ -1969,10 +1969,12 @@ function updateDetail(part){
     auditPlatformAAssembly():null;
  const aRigHtml=aRigAudit?'<div class="field" id="platform-a-unregistered-assembly" '+
    'data-accepted="false" data-gap-mm="'+aRigAudit.optimisticResidualHorizontalGapMm+'">'+
-   '<b>平台A未通过整体装配配准（V45）</b><p>当前A05薄L片末端距A07热台左缘，'+
+   '<b>平台A未通过整体装配配准（V46）</b><p>当前A05薄L片末端距A07热台左缘，'+
    '即使将两侧X候选行程全部用于相向移动，仍有约 '+
    aRigAudit.optimisticResidualHorizontalGapMm+
-   ' mm水平缺口，且折弯片下端比热台顶面低约 '+
+    ' mm水平缺口；即便做未经实物支持的方向翻转，仍缺约 '+
+   aRigAudit.mirroredOrientationResidualGapMm+
+   ' mm。旧静态下限的折弯片下端比热台顶面低约 '+
    aRigAudit.verticalBracketBelowHeaterTopMm+
    ' mm。A05未识别玻片夹、A17磁座型号和真实整机相对位置均待核实。'+
    '这是当前错误代理坐标的诊断，不是实物间距；严禁据此拉长悬臂或宣称平台A可转移。</p></div>':'';
@@ -2273,7 +2275,9 @@ function updatePhotoScope(){
    const aStatus=auditPlatformAAssembly();
    aCritical.textContent='平台A整体装配未通过：A05末端与A07候选样品台在最乐观X行程下仍有约 '+
      aStatus.optimisticResidualHorizontalGapMm+
-     ' mm水平缺口。A05夹具、A17磁座、安装基准未验证。VC13M运动仅供演示，不能确认安全接触。';
+     ' mm水平缺口；单纯镜像翻转后仍缺约 '+
+     aStatus.mirroredOrientationResidualGapMm+
+     ' mm。A05夹具、A17磁座、安装基准未验证。VC13M运动仅供演示，不能确认安全接触。';
  }
  const critical=$('b-physical-audit');
  critical.hidden=platform!=='B';
