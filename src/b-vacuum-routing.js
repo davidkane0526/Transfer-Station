@@ -233,8 +233,8 @@ function axisSamples(min,max,step){
 }
 export function auditVacuumEnvelope({
   sampleShiftMinMm=-12.5,sampleShiftMaxMm=12.5,
-  sampleAngleMinDeg=-30,sampleAngleMaxDeg=30,
-  shiftStepMm=1,angleStepDeg=1
+  sampleAngleMinDeg=-90,sampleAngleMaxDeg=90,
+  shiftStepMm=.5,angleStepDeg=1
 }={}){
   if(!(shiftStepMm>0&&angleStepDeg>0&&
        sampleShiftMaxMm>=sampleShiftMinMm&&
@@ -270,6 +270,6 @@ export function auditVacuumEnvelope({
     minimumRequiredHarnessClearanceMm:VN50.minimumHarnessSurfaceClearanceMm,
     fullStrokeGridPass:true,
     continuousBetweenSamplesProven:false,
-    method:'1 mm × 1° deterministic pose grid; straight-segment centerline distance with hose/wire radii subtracted'
+    method:'0.5 mm × 1° deterministic UI-slider pose grid; straight-segment centerline distance with hose/wire radii subtracted'
   });
 }
