@@ -78,6 +78,37 @@ window.__modelBViewProbe=()=>{
    camera:camera.position.toArray(),target:orbit.target.toArray()
  };
 };
+// Browser-only, read-only mechanical validation of the ACTUAL rendered
+// meshes, not just a BOM flag. Photos145/150 place the microscope foot
+// and the sample rotary on the SAME black Thorlabs board B35.
+window.__modelBSupportProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const getMeshes=(id)=>{
+   const g=parts.get(id)?.g;
+   if(!g)return [];
+   g.updateWorldMatrix(true,true);
+   return g.children.filter(v=>v.isMesh);
+ };
+ const boardMeshes=getMeshes('B35'),scopeMeshes=getMeshes('B16'),rotMeshes=getMeshes('B08');
+ if(boardMeshes.length<2||!scopeMeshes.length||!rotMeshes.length)
+   return {available:false};
+ const boardBox=new THREE.Box3().setFromObject(boardMeshes[0]);
+ boardBox.union(new THREE.Box3().setFromObject(boardMeshes[1]));
+ const scopeFootBox=new THREE.Box3().setFromObject(scopeMeshes[0]);
+ const rotFootBox=new THREE.Box3().setFromObject(rotMeshes[0]);
+ const overlaps2D=(a,b)=>a.min.x>=b.min.x&&a.max.x<=b.max.x&&
+   a.min.z>=b.min.z&&a.max.z<=b.max.z;
+ return {
+   available:true,
+   boardSizeMm:boardBox.getSize(new THREE.Vector3()).toArray(),
+   microscopeFootBottomMm:scopeFootBox.min.y,
+   rotaryFootBottomMm:rotFootBox.min.y,
+   boardTopMm:boardBox.max.y,
+   microscopeFullyOnBlackBoard:overlaps2D(scopeFootBox,boardBox),
+   rotaryFullyOnBlackBoard:overlaps2D(rotFootBox,boardBox),
+   originalThorlabsPartNumberConfirmed:false
+ };
+};
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
 function clearMeasurement(){
  if($('measurement-text'))$('measurement-text').textContent='坐标 X / Y(高度) / Z · 单位 mm';
