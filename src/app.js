@@ -1300,6 +1300,11 @@ function externalB(){
     spoke.rotation.x=i*Math.PI/4;
     spoke.userData.pumpFanGrilleSpoke=true;
   }
+  for(const [dy,dz] of [[-24,0],[24,0],[0,-24],[0,24],[-17,-17],[-17,17],[17,-17],[17,17]]){
+    const aperture=add(g,cyl(2.5,1.5,mats.ink,-95.5,50+dz,dy,24));
+    aperture.rotation.z=Math.PI/2;
+    aperture.userData.pumpFanAperture=true;
+  }
   // Two longitudinal tie rods on the same near side, framing the label.
   for(const y of [30,70]){
     const rod=add(g,cyl(2.5,140,mats.silver,-10,y,39));
