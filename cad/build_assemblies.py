@@ -615,7 +615,7 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,192).cut(vz(26.1,66.2,cx,0,191.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',
         sleeve_A14,'C')
-CAD_REVISION='V46'
+CAD_REVISION='V47'
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
     # The user's B photos distinguish the SILVER common table from the
