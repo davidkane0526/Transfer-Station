@@ -1253,7 +1253,7 @@ function externalB(){
  // Photo120 pump and photo115 LED adapter are distinct EXTERNAL devices,
  // not modules stacked in the controller's metal housing.
  addPart('B20',335,0,180,g=>{
-  // V41: replace the previous single ribbed-cylinder placeholder.
+  // V42: photo-fit motor casing, catalog-derived twin heads and side tie rods.
   // Photo120/123 show a black perforated motor housing, two long
   // metal tie rods and a twin-head upper assembly. The exact OEM
   // manufacturer remains unverified; these are photo-fit solids.
@@ -1956,7 +1956,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · V41 / VN-50泵体重建 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
+   '平台 B · V42 / VN-50泵体重建 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
    '平台 A · V38 / 单一面包板 / 载玻片磁吸 / 样品螺钉固定';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
