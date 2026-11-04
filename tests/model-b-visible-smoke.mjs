@@ -170,8 +170,8 @@ try{
  assert.equal(rearVac?.passesBehindController,true,
    'Rear view must retain the B19-backside vacuum route');
  assert.equal(rearVac?.fullStrokeGridPass,true,
-   'B40 must pass the complete 1mm × 1° sample-motion grid');
- assert.equal(rearVac?.envelopePosesChecked,1586);
+   'B40 must pass the complete 0.5mm × 1° UI-slider motion grid');
+ assert.equal(rearVac?.envelopePosesChecked,9231);
  assert(rearVac?.minimumHarnessClearanceMm>2,
    'B40 must remain separated from the heater and sensor wiring');
  assert(rearVac?.envelopeMinimumClearancesMm?.harness>2,
