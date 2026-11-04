@@ -1773,10 +1773,10 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · V37 / VN-50真空吸附 / PHUC-1夹具 / 145–151实拍'):
+   '平台 B · V39 / B19背后真空管路 / PHUC-1夹具 / 145–151实拍'):
    '平台 A · V38 / 单一面包板 / 载玻片磁吸 / 样品螺钉固定';
  $('stack-note').textContent=platform==='B'?
-  bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
+  bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40真空软管从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
  focus('iso');
  updateTable();
@@ -1788,12 +1788,15 @@ function focus(mode){
  // Full-system camera must show the cabinet as well as film/sample
  // rather than hiding most accessories outside the viewport.
  const fullB=platform==='B'&&(mode==='iso'||mode==='home');
+ const rearB=platform==='B'&&mode==='rear';
  const target=mode==='optical'?new THREE.Vector3(sampleX-20,125,0):
+   rearB?new THREE.Vector3(365,105,-155):
    fullB?new THREE.Vector3(115,135,-30):
    new THREE.Vector3(platform==='B'?-15:0,128,0);
  const dst=mode==='optical'?new THREE.Vector3(sampleX-20,460,0.01):
    mode==='top'?new THREE.Vector3(0,780,0.01):
    mode==='front'?new THREE.Vector3(0,185,760):
+   rearB?new THREE.Vector3(700,270,-620):
    mode==='rear'?new THREE.Vector3(295,250,-380):
    mode==='iso'?(fullB?new THREE.Vector3(725,480,835):new THREE.Vector3(350,300,440)):
    fullB?new THREE.Vector3(805,515,965):new THREE.Vector3(425,365,505);
