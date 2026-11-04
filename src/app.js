@@ -947,8 +947,11 @@ function externalB(){
  addPart('B36',controlX,0,controlZ,g=>{
    const w=285,d=225,h=125,t=3;
    add(g,cub(w,t,d,mats.silver,0,t/2,0));
-   for(const x of [-w/2+t/2,w/2-t/2])
-     add(g,cub(t,h-t,d,mats.silver,x,(h+t)/2,0));
+   // LEFT feedthrough has a REAL clearance opening for the three
+   // heater/thermocouple visual leads (port location remains candidate).
+   add(g,frontXRodBracket(t,h-t,d,mats.silver,
+     -w/2+t/2,(h+t)/2,0,86,-16,5.3));
+   add(g,cub(t,h-t,d,mats.silver,w/2-t/2,(h+t)/2,0));
    for(const z of [-d/2+t/2,d/2-t/2])
      add(g,cub(w-2*t,h-t,t,mats.silver,0,(h+t)/2,z));
    g.userData.hollowOpenTop=true;
@@ -996,6 +999,84 @@ function externalB(){
    label(g,'照片115：LED LAMP ADAPTOR（独立于B36机箱）',0,68,0);
  },{explode:[55,0,-20]});
 }
+
+// V36 heating harness: connectivity is VISUAL/MECHANICAL only.
+// Photo119 shows visible braided cables; actual AI terminal pinout,
+// heater supply route, PSU relationship and safety are not verified.
+// A common left feedthrough passes a paired heater lead and one
+// sensor sheath into the photo-fit cabinet, where they terminate
+// at clearly unassigned internal connection zones.
+function heatingControlHarnessB(){
+ const red=new THREE.MeshStandardMaterial({color:'#bb6b4e',metalness:.26,roughness:.5});
+ const pale=new THREE.MeshStandardMaterial({color:'#d0c4ab',metalness:.28,roughness:.56});
+ const sensorMat=new THREE.MeshStandardMaterial({color:'#929a9e',metalness:.6,roughness:.35});
+ addPart('B39',265,3,-116,g=>{
+   add(g,cub(36,16,12,mats.dark,0,8,0));
+   for(const x of [-10,0,10])add(g,cyl(2,1.2,mats.silver,x,16.6,0));
+   g.userData.electricalFunctionUnverified=true;
+   label(g,'箱内端子区域（照片119，端子功能和线序未核）',0,31,0);
+ },{explode:[80,40,-35]});
+ addPart('B37',0,0,0,g=>{
+   for(const [role,mat,r] of [['heaterA',red,1.1],['heaterB',pale,1.1]]){
+     const m=add(g,tube([[0,0,0],[1,0,0]],r,mat));
+     m.userData.dynamicHarnessLead=role;
+   }
+   // Both leads pass through the SAME bore in the cabinet's left wall.
+   const gland=add(g,sleeve(6.6,5.05,6,mats.black,222.5,86,-166,'x'));
+   gland.userData.feedthroughPortCandidate=true;
+   add(g,tube([[225,84,-168],[235,72,-154],[237,44,-125],
+     [251,25,-117],[255,19.7,-116]],.95,red));
+   add(g,tube([[225,87,-167],[235,75,-151],[237,49,-128],
+     [252,26,-118],[265,19.7,-116]],.95,pale));
+   g.userData.terminatesAtUnassignedTerminalZone=true;
+   label(g,'加热器双引线→控制箱B36：线序/供电关系未确认',185,127,-116);
+ },{explode:[0,30,-40]});
+ addPart('B38',0,0,0,g=>{
+   const m=add(g,tube([[0,0,0],[1,0,0]],.72,sensorMat));
+   m.userData.dynamicHarnessLead='temperature';
+   add(g,tube([[225,89,-163],[235,103,-150],[265,108,-120],
+     [310,100,-83],[349,78,-43]],.72,sensorMat));
+   g.userData.backPanelTerminalsNotConfirmed=true;
+   label(g,'测温探头→宇电温控器背面附近（端子未验证）',250,145,-140);
+ },{explode:[0,40,-30]});
+}
+function refreshHeatingControlHarness(){
+ if(platform!=='B')return;
+ const angle=sampleAngle*Math.PI/180;
+ const ca=Math.cos(angle),sa=Math.sin(angle);
+ const travel=stageLocalTranslation(sampleShift,angle);
+ const source=(x,y,z)=>new THREE.Vector3(
+   CONFIG.B.sampleX+travel.x+x*ca+z*sa,
+   y,-x*sa+z*ca+travel.z);
+ const gland=new THREE.Vector3(222.5,86,-166);
+ for(const id of ['B37','B38']){
+   const g=parts.get(id)?.g;if(!g)continue;
+   g.traverse(o=>{
+     if(!o.isMesh||!o.userData.dynamicHarnessLead)return;
+     let start,mid,end,rad;
+     if(o.userData.dynamicHarnessLead==='temperature'){
+       start=source(6,100.35,-51);mid=0;end=new THREE.Vector3(222.5,89,-163);rad=.72;
+     }else{
+       const second=o.userData.dynamicHarnessLead==='heaterB';
+       start=source(second?16:11,98.5,-60);mid=second?1:0;
+       end=new THREE.Vector3(222.5,second?87:84,second?-167:-168);rad=1.1;
+     }
+     const pts=[
+       start,
+       start.clone().add(new THREE.Vector3(15,7,-14)),
+       new THREE.Vector3(145,104+mid*3,-88-mid*6),
+       new THREE.Vector3(183,101+mid*2,-122-mid*4),
+       new THREE.Vector3(211,94+mid*2,-158-mid*3),
+       end
+     ];
+     // The duct is flexible: its first knot follows sample X/yaw.
+     const curve=new THREE.CatmullRomCurve3(pts);
+     const next=new THREE.TubeGeometry(curve,80,rad,10,false);
+     o.geometry.dispose();o.geometry=next;
+   });
+ }
+}
+
 function platformA(){
  const ax=CONFIG.A.armX,sx=CONFIG.A.sampleX;
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
