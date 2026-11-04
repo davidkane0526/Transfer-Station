@@ -533,9 +533,23 @@ def make_a():
         box(65,65,7,ax,0,117),'C')
     add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,40,98),'P')
     add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,40,133),'P')
-    add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,124),'D')
-    add('A','A04M','G40M60L_right_micrometer',vx(5,22,ax+20,0,134),'P')
-    add('A','A04K','G40M60L_right_knob',vx(8.5,15,ax+42,0,134),'P')
+    # Photo94: 40mm-wide front silhouette has TWO ~20mm thick
+    # independent sections. Upper is visibly marked GCM-G40M60L.
+    # Lower has its own rightward micrometer; G40M40L is a manufacturer
+    # pairing comparison ONLY, not yet readable from the user photo.
+    # The older one-piece A04 envelope was 20mm too short.
+    add('A','A04L','LOWER_G40_GONIOMETER_SKU_UNKNOWN_20mm_PHOTO_CANDIDATE',
+        box(40,40,20,ax,0,124),'C')
+    add('A','A04LM','LOWER_G40_right_micrometer_CANDIDATE',
+        vx(5,22,ax+20,0,134),'C')
+    add('A','A04LK','LOWER_G40_right_knob_CANDIDATE',
+        vx(8.5,15,ax+42,0,134),'C')
+    add('A','A04','UPPER_G40M60L_LABEL_PHOTO94_40x40x20',
+        box(40,40,20,ax,0,144),'P')
+    add('A','A04M','UPPER_G40M60L_left_micrometer_ORIENTATION_CANDIDATE',
+        vx(5,22,ax-42,0,154),'C')
+    add('A','A04K','UPPER_G40M60L_left_knob_ORIENTATION_CANDIDATE',
+        vx(8.5,15,ax-57,0,154),'C')
     # V38: source photo 94 shows ONE thin bent-L metal sheet on G40,
     # NOT a fabricated 215mm solid transfer beam / invented glass clip.
     # Match the existing Three.js A05 geometry; open glass attachment
@@ -543,14 +557,15 @@ def make_a():
     # V47: local x-span was calibrated from the G40 40mm photo94 front
     # projection (roughly 75mm total, 48mm left reach). NOT ruler metrology.
     l_left=ax-48
-    folded_sheet=box(75,12,2.5,ax-10.5,13,144).fuse(
-        box(2.5,12,72,l_left+1.25,13,72),
-        box(13,12,2.5,l_left+6.5,13,72))
+    # Second physical G40 layer lifts the folded plate by 20mm.
+    folded_sheet=box(75,12,2.5,ax-10.5,13,164).fuse(
+        box(2.5,12,72,l_left+1.25,13,92),
+        box(13,12,2.5,l_left+6.5,13,92))
     add('A','A05','photo94_ONE_CONNECTED_BENT_L_SHEET_CANDIDATE',
         folded_sheet,'P')
     for i,dx in enumerate((-14,14),1):
         add('A',f'A05S{i}','photo94_TOP_VISIBLE_SCREW_HEAD_CANDIDATE',
-            vz(3.1,2,ax+dx,13,146.5),'P')
+            vz(3.1,2,ax+dx,13,166.5),'P')
     # Photos137/161 show a separate Daheng GCM-5306M 8mm mounting base.
     base=box(112,70,8,cx,0,20)
     # Real Ø6.5 clearance holes, four grid-aligned M5 candidate bolts.
