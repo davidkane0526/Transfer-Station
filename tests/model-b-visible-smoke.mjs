@@ -394,6 +394,7 @@ try{
  assert.equal(aBefore.a10ActualManufacturerAnchorVerified,false);
  assert.equal(aBefore.vStageMovingPlateOffsetY,13,
    'A initial viewer pose starts from proposed raised +13mm, not static STEP bottom');
+ await page.screenshot({path:'Transfer-Station-V46-A-VC13M-Raised.png'});
  assert.equal(aBefore.knownProxyGeometryCollisionFree,false);
  await page.locator('#film-drop').evaluate(el=>{
    el.value='-6';el.dispatchEvent(new Event('input',{bubbles:true}));
@@ -410,6 +411,7 @@ try{
    'A05 cannot be left floating above its moving support');
  assert.equal(aAfter.glassClampedAndReachable,false,
    'Functional transfer must remain explicitly unverified');
+ await page.screenshot({path:'Transfer-Station-V46-A-VC13M-Lowered.png'});
  await page.locator('#film-drop').evaluate(el=>{
    el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
