@@ -1626,8 +1626,8 @@ function platformA(){
    // Photo97 footprint has a much narrower upright body than the 65mm
    // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
    add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
-   add(g,cub(45,38,16,mats.dark,0,27,-8)); // vertical rail housing
-   add(g,cub(44,40,4,mats.black,0,27,5)); // black front face (photo97)
+   add(g,cub(45,37,16,mats.dark,0,26.5,-8)); // fixed body ends at output lower-limit Y=45
+   add(g,cub(44,38,4,mats.black,0,26,5)); // guide face ends below moving plate's lower limit
    for(const x of [-18,18]){
      add(g,cub(2.2,35,2,mats.ink,x,27,8));
      // Captured front-side retaining screw positions are approximate.
@@ -2041,16 +2041,24 @@ function updateTransforms(){
    $('lowering-clearance').textContent=motionAudit?
      '夹具与热台X向保守间隙：'+motionAudit.planarGapMm.toFixed(1)+' mm'+
        (motionAudit.possibleClash?'；当前平移/旋转姿态下禁用下降':'；下降检查允许接触印章'):
-     '平台 A · VC13M候选13mm下降预览已联动A04/A05；玻片夹与磁座未识别，样品接触和全行程干涉未验收';
+     '平台 A · VC13M从候选抬升13mm位置向下运动至旧静态下限；A04/A05联动，玻片夹/整机位置未确认，禁止将其视为实物零位或安全接触';
  }
  parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,rotateSample,facingYaw=0})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0,sx=translateSample?sampleShift:0;
   // Translation in a rotating stage's LOCAL X basis, then rotation about Y.
   const travel=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
   const dx=travel.x,dz=travel.z;
-  g.position.set(base.x+off[0]*e+fx+dx,base.y+off[1]*e-(moveFilmVertical?filmDrop:0),base.z+off[2]*e+dz+fz);
+  // Platform A default pose is a CANDIDATE 13mm-Raised VC13M output.
+  // Downward preview approaches the original static STEP lower-limit
+  // without forcing the output plate through the stationary upright.
+  const aLift=platform==='A'?13:0;
+  g.position.set(base.x+off[0]*e+fx+dx,
+    base.y+off[1]*e+(moveFilmVertical?aLift-filmDrop:0),
+    base.z+off[2]*e+dz+fz);
   g.rotation.y=(rotateSample?angle:0)+facingYaw;
-  if(g.userData.verticalCarriage)g.userData.verticalCarriage.position.y=-filmDrop;
+  if(g.userData.verticalCarriage)
+    g.userData.verticalCarriage.position.y=
+      (platform==='A'&&part.id==='A03'?aLift:0)-filmDrop;
   if(g.userData.slidingX){
     // A physical X carriage carries a SECOND, nested depth carriage.
     // B03 has a yaw-180 installation; local negative X maps to world +X.
