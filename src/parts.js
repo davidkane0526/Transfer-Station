@@ -2,7 +2,7 @@
 // I=interface inference, C=candidate/proxy. Never treat C as manufacturing data.
 export const CONFIG={
   board:{width:430,depth:300,height:20,pitch:25,holeDiameter:5,level:"I",note:"430×300×20 与 Ø5 深孔为候选；25 mm 网格由照片推断，孔不代表完整 M6 螺纹"},
-  B:{sampleX:82,armX:-112,scopeX:82,scopeZ:-112},
+  B:{sampleX:82,armX:-112,scopeX:82,scopeZ:-112,sampleBoardRiseMm:12,sampleBoardCenterX:95,sampleBoardWidthMm:180,sampleBoardDepthMm:150},
   A:{sampleX:78,armX:-116,scopeX:78,scopeZ:-110},
   chuck:{width:65,depth:65,height:12,heaterWidth:38,heaterDepth:38,heaterHeight:5,pocketWidth:38.6,pocketDepth:38.6,pocketHeight:5.4,insulation:10,fastenerPitch:50,fastenerCount:4,vacuumHoleDiameter:1.4,fastener:"M6×25 (candidate)"},
   nfp:{width:65,depth:65,height:23,topM6Pitch:25,topM3Pitch:32,bottomPitch:50},
@@ -12,7 +12,8 @@ export const CONFIG={
 const part=(id,group,name,maker,model,dims,level,detail,interfaceNote,evidence,price="询价")=>({id,group,name,maker,model,dims,level,detail,interfaceNote,evidence,price});
 export const PARTS={
 B:[
-part("B01","base","光学面包板","未知","照片孔阵列","430×300×20；25 网格 (外形候选)","I","承载显微镜、载玻片臂和样品台的共同安装基准。","可视化圆孔直径 5，螺纹/孔深未确认。","108、109","询价"),
+part("B01","base","底层银色光学台面","未知","底部银色孔阵列","430×300×20；25 网格 (外形候选)","I","平台 B 的银色公共安装台面。照片150样品侧另有黑色 Thorlabs 薄型光学板B35，不得把黑板吞并为同一个均匀底座。","银色面板尺寸和孔系均为代理。","108、145、150","询价"),
+part("B35","base","样品侧独立黑色光学安装板","Thorlabs（实拍标志）","型号未识别：黑色Thorlabs孔阵列板","180×150×12 mm 均为装配比例候选","P","照片145底部可见 THORLABS 标志和黑色带孔板；照片150明确显示黑色板位于右侧旋转台下方，与左侧银色工作台具有独立边界。","黑色板外形、厚度、实际孔距、螺纹标准、在公共台面的锚固孔均未实测；12mm仅为当前高度候选，禁止当作官方图纸。","145、146、150","询价"),
 part("B02","film","磁性底座","Daheng","GCM-420302M","65×65×20；M6@50、M4@40、M3@32","D","载玻片转移臂底层基座。","顶面孔距来自厂家产品系列图；具体锁紧结构未还原。","108、112","NT$1,783 (历史未税参考)"),
 part("B03","film","X–Y 双轴平移台（两根手柄）","Daheng","GCM-T25M（2L/2C双轴后缀待核）","65×65×33；X/Y各±12.5","P","原图108可见两根正交水平测微头，109可见T25M铭牌；机械X/Y轴对应网页坐标X/Z（Y为高度）。B03在B02磁座之上、B04 V25M之下。","原厂GCM-901604M组合图含T25M2L+V25M。2L后缀属于照片与组合图匹配候选；原装旋转角与机械螺孔仍待核实。","108、109；大恒GCM-901604M尺寸图","参考NT$8,740（2L版本）"),
 part("B04","film","Z 升降台","Daheng","GCM-V25M","台面 65×66；行程 25","D","B套位于双轴T25M之上的竖直移动台，银色测微头沿世界Y高度向上；原先脱离主滑块的两根悬空立杆已由贴合导向面替代。","接合面与紧固件尚无完整厂家原生CAD。","109","询价"),
