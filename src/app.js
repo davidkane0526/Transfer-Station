@@ -58,6 +58,24 @@ let platform='B', bPhoto94Mode=false, currentRoot=new THREE.Group(), parts=new M
     filmShift=0,filmShiftDepth=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
+// Read-only diagnostic used by the real-browser assembly smoke test.
+// Coordinate projection detects "component in BOM but outside viewport".
+window.__modelBViewProbe=()=>{
+ const g=parts.get('B36')?.g;
+ if(!g)return {exists:false};
+ camera.updateMatrixWorld(true);g.updateWorldMatrix(true,true);
+ const center=new THREE.Vector3();
+ g.getWorldPosition(center);
+ center.y+=62.5;
+ const ndc=center.clone().project(camera);
+ return {
+   exists:true,visible:g.visible&&g.parent?.visible,
+   meshCount:g.children.filter(o=>o.isMesh).length,
+   worldCenter:center.toArray(),
+   projectedCenter:ndc.toArray(),
+   camera:camera.position.toArray(),target:orbit.target.toArray()
+ };
+};
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
 function clearMeasurement(){
  if($('measurement-text'))$('measurement-text').textContent='坐标 X / Y(高度) / Z · 单位 mm';
