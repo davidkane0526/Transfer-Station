@@ -852,7 +852,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
   const stamp=add(g,cub(20,1.8,20,mats.ceramic,
     rack.stampOffsetFromGlassCenterX,-1.4,0));
   stamp.userData.rightEdgeStamp=true;
-  label(g,'右侧印章对准样品中心；夹具完全位于热台左侧；初始悬空'+rack.glassToHeaterGapMm.toFixed(1)+'mm',8,16,0);
+  label(g,'右侧印章对准样品中心；夹具完全位于热台左侧；玻片悬空'+rack.glassToHeaterGapMm.toFixed(1)+'mm / PDMS悬空'+rack.verticalContactDropMm.toFixed(1)+'mm',8,16,0);
  },{explode:[0,80,15],moveFilm:true,moveFilmVertical:true});
 }
 function rotaryB(){
