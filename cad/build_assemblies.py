@@ -394,27 +394,30 @@ def make_b():
     # it does NOT prove this unit's manufacturer or exact CAD.
     # One fused solid: floor base, perforated motor housing, exposed
     # rounded motor, end/fan cover, twin vertical heads, caps and tie rods.
-    pump_shell=box(200,110,8,325,180,4)
+    pump_shell=box(200,110,8,325,180,0)
     pump_shell=pump_shell.fuse(
-        box(160,76,62,325,180,39),
-        vx(34,130,250,180,42),
-        vx(29,12,233,180,42),
-        vz(24,8,290,180,68),vz(22,56,290,180,76),
-        vz(24,8,290,180,132),
-        vz(24,8,360,180,68),vz(22,56,360,180,76),
-        vz(24,8,360,180,132),
-        box(90,44,10,325,180,140),
-        vx(2.5,150,250,140,70),
-        vx(2.5,150,250,220,70))
+        box(160,76,68,325,180,8),
+        vx(34,130,245,180,40),
+        vx(29,12,234,180,40),
+        vz(24,8,290,180,75),vz(22,57,290,180,82.5),
+        vz(24,8,290,180,139),
+        vz(24,8,365,180,75),vz(22,57,365,180,82.5),
+        vz(24,8,365,180,139),
+        box(90,44,10,327.5,180,140),
+        vx(2.5,150,250,140,78),
+        vx(2.5,150,250,220,78))
     # Candidate 142x96 mounting footprint: four open Ø6.2 bores.
     for x in (254,396):
         for y in (132,228):
             pump_shell=pump_shell.cut(vz(3.1,8,x,y,0))
-    # Shallow vent apertures on the upper motor face, matching the
-    # perforated appearance in photo120/123. Pitch is photo-fit only.
+    # Photo-fit vent apertures on the upper motor face and long side faces.
     for x in (265,285,305,325,345,365,385):
         for y in (153,180,207):
-            pump_shell=pump_shell.cut(vz(2.7,3,x,y,67))
+            pump_shell=pump_shell.cut(vz(2.7,3,x,y,73))
+    for x in (270,290,310,330,350,370,390):
+        for z in (28,42,56):
+            pump_shell=pump_shell.cut(vy(2.1,3,x,216,z))
+            pump_shell=pump_shell.cut(vy(2.1,3,x,139,z))
     # The candidate suction port is on the +X face; its real side and
     # orientation are not established by the user's photographs.
     pump_shell=pump_shell.cut(vx(4.1,7,402.5,180,68))
