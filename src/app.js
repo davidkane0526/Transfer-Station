@@ -907,12 +907,24 @@ function rotaryB(){
  // identifiable 250×300×12.7mm Thorlabs MB2530/M OEM SKU.
  addPart('B35',CONFIG.B.sampleBoardCenterX,20,0,g=>{
    const w=CONFIG.B.sampleBoardWidthMm,d=CONFIG.B.sampleBoardDepthMm;
-   add(g,cub(w,rise-2,d,mats.black,0,(rise-2)/2,0));
+   // V38: B35 is a bolted accessory above the only common B01.
+   const anchors=[[-40,-100,3.25],[-40,100,3.25],
+                  [110,-100,3.25],[110,100,3.25]];
+   add(g,plate(w,d,rise-2,mats.black,anchors));
    const holes=[];
    for(let x=-100;x<=100;x+=25)for(let z=-125;z<=125;z+=25)
       holes.push([x,z,2.8]);
-   const top=plate(w,d,2,mats.dark,holes);
+   const top=plate(w,d,2,mats.dark,
+     [...holes,...anchors.map(([x,z])=>[x,z,4.5])]);
    top.position.y=rise-2;add(g,top);
+   for(const [x,z] of anchors){
+     const shaft=add(g,cyl(2.5,21,mats.silver,x,1.5,z));
+     shaft.userData.B35CandidateAnchor=true;
+     const head=add(g,cyl(4.25,2.4,mats.steel,x,rise-1.2,z));
+     head.userData.B35CandidateAnchorHead=true;
+   }
+   g.userData.boltedAuxiliaryPlate=true;
+   g.userData.candidateGridAlignedBolts=4;
    g.userData.independentSampleBoard=true;
    g.userData.thicknessPhotoUnverified=true;
    label(g,'照片145/150：B35黑色Thorlabs安装板 同时支撑旋转台和显微镜底座（尺寸候选）',0,rise+9,135);
@@ -1244,8 +1256,17 @@ function platformA(){
  // below the A rotary. It is a BASE, not an additional rotary axis.
  addPart('A16',sx,20,0,g=>{
    const p=V28_OEM_DIMENSIONS.GCM5306M;
-   add(g,cub(p.lengthMm,p.thicknessMm,p.widthMm,mats.black,0,4,0));
-   addJointHeads(g,'A16',8-0.2,[[-43,-24],[-43,24],[43,-24],[43,24]],{headR:3});
+   // A16 outline OEM-known; these four anchor centers are candidates.
+   const anchors=[[-28,-25,3.25],[-28,25,3.25],
+                  [22,-25,3.25],[22,25,3.25]];
+   add(g,plate(p.lengthMm,p.widthMm,p.thicknessMm,mats.black,anchors));
+   for(const [x,z] of anchors){
+     const shaft=add(g,cyl(2.5,16,mats.steel,x,0,z));
+     shaft.userData.A16CandidateAnchor=true;
+     const head=add(g,cyl(4.25,2.5,mats.silver,x,6.75,z));
+     head.userData.A16CandidateAnchorHead=true;
+   }
+   g.userData.fourCandidateThreadedAnchors=true;
    label(g,'GCM-5306M 安装底座 · 112×70×8 mm（非旋转台）',0,24,0);
  },{explode:[0,-6,0]});
  // V38: the A FILM-side is magnetically mounted to ONE A01
