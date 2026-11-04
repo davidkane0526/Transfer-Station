@@ -67,7 +67,7 @@ CAD验证另使用STEP实体距离检查B40与B37、B37A、B38之间的最小距
 | 检查项 | 最小表面间距 |
 |---|---:|
 | 网页运动网格：B40–B37A | 5.966mm |
-| 网页运动网格：B40–B37B | 7.608mm |
+| 网页运动网格：B40–B37B | 6.655mm |
 | 网页运动网格：B40–B38 | 7.391mm |
 | 网页运动网格：B40–B16显微镜立柱 | 5.087mm |
 | 网页运动网格：B40–B36机箱 | 9.000mm |
@@ -85,7 +85,7 @@ STEP名义装配的实体距离检查结果：
 
 ## 6. 自动检查
 
-- `src/b-vacuum-routing.js`：动态B40路径、B37/B38对应线束路径、线段间距和1586姿态运动网格。
+- `src/b-vacuum-routing.js`：动态B40路径、B37/B38对应线束路径、线段间距和9231姿态UI滑块运动网格。
 - `tests/b-vacuum-routing.mjs`：Node单元测试。
 - `tests/model-b-visible-smoke.mjs`：真实浏览器场景探针及后侧视角截图。
 - `cad/build_assemblies.py`：STEP中B40路径与网页端采用同一组名义节点。
