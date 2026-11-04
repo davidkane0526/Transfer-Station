@@ -86,7 +86,9 @@ try{
  assert.equal(vac.electricityCabinetNotVacuumDestination,true);
  assert.equal(vac.passesBehindController,true,
    'B40 must pass behind the B19 temperature controller, not over its front');
- assert.equal(vac.serviceLane,'B19 controller rear / B36 cabinet rear exterior');
+ assert.equal(vac.serviceLane,'B19 controller rear / B36 cabinet rear exterior · Y=70 mm');
+ assert(vac.minimumHarnessClearanceMm>2);
+ assert(vac.harnessClearancesMm.B37A>2&&vac.harnessClearancesMm.B37B>2&&vac.harnessClearancesMm.B38>2);
  assert(vac.cabinetClearanceMm>0,'B40 must clear all B36 enclosure walls');
  assert(vac.controllerClearanceMm>0,'B40 must clear the B19 panel body');
  assert(vac.microscopeClearanceMm>0,'B40 must clear the moving-side B16 microscope column');
