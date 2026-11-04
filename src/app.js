@@ -250,10 +250,11 @@ window.__modelBVacuumProbe=()=>{
    pumpBounds.max.y-pumpBounds.min.y,
    pumpBounds.max.z-pumpBounds.min.z
  ];
- const pumpFeatures={basePlate:0,motorHousing:0,motorCore:0,
+ const pumpFeatures={basePlate:0,mountingFeet:0,motorHousing:0,motorCore:0,
    fanCover:0,twinHeads:0,tieRods:0,vents:0};
  pump.traverse(o=>{
    if(o.userData.pumpBasePlate)pumpFeatures.basePlate++;
+   if(o.userData.pumpMountingFoot)pumpFeatures.mountingFeet++;
    if(o.userData.pumpMotorHousing)pumpFeatures.motorHousing++;
    if(o.userData.pumpMotorCore)pumpFeatures.motorCore++;
    if(o.userData.pumpFanCover)pumpFeatures.fanCover++;
@@ -1248,7 +1249,8 @@ function externalB(){
   const pumpBase=add(g,cub(200,8,110,mats.black,-10,4,0));
   pumpBase.userData.pumpBasePlate=true;
   for(const x of [-71,71])for(const z of [-48,48]){
-    add(g,cub(28,12,14,mats.dark,x,10,z));
+    const foot=add(g,cub(28,12,14,mats.dark,x,10,z));
+    foot.userData.pumpMountingFoot=true;
     const footHole=add(g,cyl(3.1,2,mats.ink,x,16,z));
     footHole.userData.mountingHoleCandidate=true;
   }
