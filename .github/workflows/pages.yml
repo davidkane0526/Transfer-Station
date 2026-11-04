@@ -48,6 +48,8 @@ jobs:
           node tests/pneumatic-dimensions.mjs
           node --check src/b35-fastener-audit.js
           node tests/b35-fastener-audit.mjs
+          node --check src/platform-a-assembly-audit.js
+          node tests/platform-a-assembly-audit.mjs
           node --check src/b-physical-audit.js
           node tests/b-profile-audit.mjs
           node --check src/interface-evidence.js
@@ -83,6 +85,8 @@ jobs:
             Transfer-Station-V29-B-Post-Sleeve-Closeup.png
             Transfer-Station-V29-B-Film-Viewer.png
             Transfer-Station-ModelA-5306M-Base.png
+            Transfer-Station-V46-A-VC13M-Raised.png
+            Transfer-Station-V46-A-VC13M-Lowered.png
             Transfer-Station-Preview-B.png
             Transfer-Station-V27-User-Photo-B-Overview.png
             Transfer-Station-V27-User-Photo94-Closeup-B.png
