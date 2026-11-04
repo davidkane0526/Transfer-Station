@@ -1303,7 +1303,7 @@ function externalB(){
     spoke.userData.pumpFanGrilleSpoke=true;
   }
   for(const [dy,dz] of [[-24,0],[24,0],[0,-24],[0,24],[-17,-17],[-17,17],[17,-17],[17,17]]){
-    const aperture=add(g,cyl(2.5,1.5,mats.ink,-95.5,50+dz,dy,24));
+    const aperture=add(g,cyl(2.5,14,mats.ink,-89,50+dz,dy,24));
     aperture.rotation.z=Math.PI/2;
     aperture.userData.pumpFanAperture=true;
   }
@@ -1362,8 +1362,8 @@ function externalB(){
   }
   const nameplate=add(g,cub(48,22,1.2,mats.white,-10,50,44));
   nameplate.userData.pumpNameplate=true;
-  for(const [y,w] of [[58,30],[54,36],[50,32],[46,28],[42,22]]){
-    const line=add(g,cub(w,1.05,.45,mats.ink,-10,y,44.8));
+  for(const [y,w] of [[56,30],[52,36],[48,32],[44,28],[40,22]]){
+    const line=add(g,cub(w,1.2,.6,mats.ink,-10,y,44.8));
     line.userData.pumpNameplateTextLine=true;
   }
   const warning=add(g,cub(18,18,1.2,mats.white,35,70,40));
