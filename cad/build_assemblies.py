@@ -17,6 +17,23 @@ def vy(r,h,x,y,z): return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,1,0))
 def cut(s,coords,diam,h,z):
     for x,y in coords:s=s.cut(vz(diam/2,h,x,y,z))
     return s
+def cable_path(points, radius):
+    """One continuous candidate 3-D cable as swept straight chords and rounded bends.
+    Geometry is for enclosure routing ONLY; no electrical circuit claim.
+    """
+    segments=[]
+    for a,b in zip(points[:-1],points[1:]):
+        dx,dy,dz=(b[i]-a[i] for i in range(3))
+        length=(dx*dx+dy*dy+dz*dz)**.5
+        assert length>1e-4
+        segments.append(cq.Solid.makeCylinder(radius,length,Vector(*a),
+                          Vector(dx/length,dy/length,dz/length)))
+    for point in points[1:-1]:
+        segments.append(cq.Solid.makeSphere(radius,Vector(*point)))
+    combined=segments[0].fuse(*segments[1:])
+    assert combined.isValid()
+    return combined
+
 def add(sys,key,name,solid,grade='C'):
     assert solid.isValid(),(sys,key)
     PARTS[sys].append((key,name,grade,solid))
@@ -159,7 +176,9 @@ def make_b():
     assert upper_rod_z-lower_rod_z==33  # PHUC-1 OEM E
     add('B','B05','photo108_V25M_side_mount_plate_PROXY',
         box(65,66,plate_h,ax+60.5,0,plate_z),'C')
-    post_x=ax+60
+    # V36 shifts the clamp and glass left while keeping the PDMS over sample.
+    # The square bracket is still supported by the SAME B05 plate.
+    post_x=ax+45
     # Photo149: missing black post sleeve. PHSH-2=50mm is a catalogue
     # candidate, not a photo-identified exact model. True Ø12.16 bore.
     sleeve=vz(10,holder_len,post_x,-15,holder_z)
@@ -180,7 +199,7 @@ def make_b():
     # Zolix PHUC-1 OEM: 60mm long × Ø30 outer envelope, two
     # Ø12 through bores, center spacing=33mm. Both physical rods
     # appear HORIZONTAL from the same photo149 side view.
-    phuc_x=-5
+    phuc_x=-35
     phuc=vz(15,60,phuc_x,0,121.5)
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,upper_rod_z))
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,lower_rod_z))
@@ -190,11 +209,11 @@ def make_b():
     # Candidate first/second Ø12 rods. PHUC's 33mm pitch and the
     # TWO independently supported bars are preserved. Rod lengths
     # and end coupling remain an engineering-fit hypothesis.
-    add('B','B25','first_O12x85_LENGTH_CANDIDATE',
-        vx(6,85,-75,0,upper_rod_z),'C')
-    add('B','B28','second_O12x54p5_LENGTH_CANDIDATE',
-        vx(6,54.5,-30,0,lower_rod_z),'C')
-    clamp_x=cx-42
+    add('B','B25','first_O12x70_LENGTH_CANDIDATE',
+        vx(6,70,-90,0,upper_rod_z),'C')
+    add('B','B28','second_O12x57p5_LENGTH_CANDIDATE',
+        vx(6,57.5,-60,0,lower_rod_z),'C')
+    clamp_x=cx-69
     # Photo108/150: second Ø12 rod ends directly at the LEFT face of
     # GCM-1302M's vertical back spine, rather than running into a
     # fabricated Ø26 socket and 27mm hanging solid. Only a tiny Ø6
@@ -236,7 +255,7 @@ def make_b():
             'GCM13_one_of_two_pressure_screws_PROXY',
             vz(1.7,12,clamp_x+10,yy,109+jaw_shift),'C')
     add('B','B07','glass_slide_UNVERIFIED_76x26x1',
-        box(76,26,1,cx+5,0,104.5+jaw_shift),'C')
+        box(76,26,1,cx-26,0,104.5+jaw_shift),'C')
     add('B','B07A','pdms_UNVERIFIED_transfer_tip',
         box(20,20,1.8,cx,0,102.7+jaw_shift),'C')
     # Photos145/150: sample rotary is NOT directly seated on the silver
@@ -306,6 +325,9 @@ def make_b():
     control_x,control_y=365,-150
     shell=box(285,225,125,control_x,control_y,0)
     shell=shell.cut(box(279,219,126,control_x,control_y,3))
+    # One real Ø10.6 feedthrough in the LEFT wall: the three shown
+    # external wires cannot visually pass through an unperforated wall.
+    shell=shell.cut(vx(5.3,6,220,-166,86))
     add('B','B36','PHOTO119_OPEN_STEEL_CONTROL_HOUSING_285x225x125_CANDIDATE',
         shell,'C')
     # B19 is ONLY a front-mounted panel controller. Its back face
@@ -316,6 +338,29 @@ def make_b():
         box(247,127,63.5,365,-190,3),'D')
     add('B','B23','photo119_BLACK_VENTED_INTERNAL_MODULE_CANDIDATE',
         box(93,58,38,365,-77,3),'C')
+    # The 36x12x16 block is a visual termination zone, not a verified
+    # terminal device or wiring diagram; photo119 only shows cable ends.
+    add('B','B39','photo119_UNASSIGNED_terminal_zone_CANDIDATE',
+        box(36,12,16,265,-116,3),'C')
+    wiring=[
+      ('B37','heater_A_unverified_power_lead',1.1,
+       [(93,-60,98.5),(112,-76,102),(145,-88,104),
+        (183,-122,101),(211,-158,94),(222.5,-168,84),
+        (225,-168,84),(235,-154,72),(237,-125,44),
+        (251,-117,25),(255,-116,19.7)]),
+      ('B37A','heater_B_unverified_power_lead',1.1,
+       [(98,-60,98.5),(119,-78,105),(145,-94,107),
+        (183,-126,103),(211,-161,96),(222.5,-167,87),
+        (225,-167,87),(235,-151,75),(237,-128,49),
+        (252,-118,26),(265,-116,19.7)]),
+      ('B38','temperature_feedback_unverified_pinout',.72,
+       [(88,-51,100.35),(109,-65,107),(145,-88,104),
+        (183,-122,101),(211,-158,95),(222.5,-163,89),
+        (225,-163,89),(235,-150,103),(265,-120,108),
+        (310,-83,100),(349,-43,78)])
+    ]
+    for key,name,radius,points in wiring:
+        add('B',key,name,cable_path(points,radius),'C')
     # Only the actual pump and photo115 LED adapter are exterior
     # devices; place each on a distinct candidate standing footprint.
     add('B','B20','photo120_external_W50_vacuum_pump_CANDIDATE',
@@ -361,7 +406,7 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V35')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V36')
     # The user's B photos distinguish the SILVER common table from the
     # independent BLACK THORLABS board below the sample stage. Preserve
     # that evidence as AP214 STEP assembly colors, not merely part names.
@@ -375,7 +420,7 @@ def export(sys):
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
         assembly.add(shape,**props)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V35.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V36.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
