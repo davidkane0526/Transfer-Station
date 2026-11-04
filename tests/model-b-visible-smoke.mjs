@@ -56,6 +56,16 @@ try{
    animations:'disabled',timeout:30000});
  await page.locator('#btn-home').click();
  await page.locator('#btn-control-cabinet').click();
+ await page.waitForTimeout(850); // OrbitControls damping + WebGL frame settle
+ const cabinetProbe=await page.evaluate(()=>window.__modelBViewProbe());
+ console.log('B36 CAD-visible camera projection:',JSON.stringify(cabinetProbe));
+ assert(cabinetProbe.exists&&cabinetProbe.visible&&cabinetProbe.meshCount>=5,
+   'Photo119 metal cabinet must be actual visible multi-mesh 3D scene assembly');
+ assert(Math.abs(cabinetProbe.projectedCenter[0])<.7 &&
+        Math.abs(cabinetProbe.projectedCenter[1])<.7 &&
+        cabinetProbe.projectedCenter[2]<1,
+   'B36 center must be in the central field of view of control-cabinet focus');
+ await page.evaluate(()=>window.scrollTo(0,0));
  const cabinetBox=await page.locator('#viewer').boundingBox();
  assert(cabinetBox&&cabinetBox.width>=300&&cabinetBox.height>=300);
  await page.screenshot({path:'Transfer-Station-V33-Control-Cabinet-Interior.png',
