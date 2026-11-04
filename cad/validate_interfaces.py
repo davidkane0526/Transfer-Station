@@ -156,6 +156,9 @@ check(sample_board.intersect(part(B,'B02')[0]).Volume()<1e-4,
 # Holes are shallow photo-fit pockets: open at z30..32, closed below 30.
 for xx in (65-100,65,65+100):
     for yy in (-125,0,125):
+        if (xx,yy) in {(65,-125),(65,-75),(115,-125),(115,-75)}:
+            # These four have separately tested deeper V45 blind pilot bores.
+            continue
         opening=vz(2.6,2,xx,yy,30)
         backing=vz(2.6,.5,xx,yy,29.5)
         check(sample_board.intersect(opening).Volume()<1e-5,
