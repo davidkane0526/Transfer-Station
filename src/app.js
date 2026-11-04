@@ -254,7 +254,7 @@ window.__modelBVacuumProbe=()=>{
  const pumpFeatures={basePlate:0,mountingFeet:0,motorHousing:0,motorCore:0,
    cylindricalHousing:0,housingBands:0,fanCover:0,fanGrilles:0,fanGrilleSpokes:0,
    twinHeads:0,tieRods:0,rodSupports:0,headFlanges:0,headCaps:0,headFins:0,
-   headBridges:0,topPorts:0,filters:0,rubberFeet:0,warningPlates:0,
+   headBridges:0,headBridgeSupports:0,fanApertures:0,topPorts:0,filters:0,rubberFeet:0,warningPlates:0,
    warningSymbols:0,nameplateTextLines:0,vents:0,topVents:0,sideVents:0,
    mountingFootCenters:[],nameplateCenters:[],tieRodCenters:[]};
  pump.traverse(o=>{
@@ -267,8 +267,10 @@ window.__modelBVacuumProbe=()=>{
    if(o.userData.pumpHousingBand)pumpFeatures.housingBands++;
    if(o.userData.pumpFanGrille)pumpFeatures.fanGrilles++;
    if(o.userData.pumpFanGrilleSpoke)pumpFeatures.fanGrilleSpokes++;
+   if(o.userData.pumpFanAperture)pumpFeatures.fanApertures++;
    if(o.userData.pumpHeadFin)pumpFeatures.headFins++;
    if(o.userData.pumpHeadBridge)pumpFeatures.headBridges++;
+   if(o.userData.pumpHeadBridgeSupport)pumpFeatures.headBridgeSupports++;
    if(o.userData.pumpRubberFoot)pumpFeatures.rubberFeet++;
    if(o.userData.pumpWarningPlate)pumpFeatures.warningPlates++;
    if(o.userData.pumpWarningSymbol)pumpFeatures.warningSymbols++;
