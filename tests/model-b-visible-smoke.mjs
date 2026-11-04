@@ -167,7 +167,17 @@ try{
  const rearVac=await page.evaluate(()=>window.__modelBVacuumProbe?.());
  assert.equal(rearVac?.passesBehindController,true,
    'Rear view must retain the B19-backside vacuum route');
- await page.screenshot({path:'Transfer-Station-V39-Vacuum-Rear-Route.png'});
+ assert.equal(rearVac?.fullStrokeGridPass,true,
+   'B40 must pass the complete 1mm × 1° sample-motion grid');
+ assert.equal(rearVac?.envelopePosesChecked,1586);
+ assert(rearVac?.minimumHarnessClearanceMm>2,
+   'B40 must remain separated from the heater and sensor wiring');
+ assert(rearVac?.envelopeMinimumClearancesMm?.harness>2,
+   'Full sampled motion envelope must preserve hose-to-wire clearance');
+ for(const id of ['B37A','B37B','B38'])
+   assert(rearVac?.harnessClearancesMm?.[id]>2,
+     'B40 nominal route must clear '+id);
+ await page.screenshot({path:'Transfer-Station-V40-Vacuum-Rear-Route.png'});
  // The default view alone can mask small missing mechanics: explicitly
  // focus on the film arm and capture a second mandatory detail screenshot.
  await page.locator('#btn-film-stack').click();
