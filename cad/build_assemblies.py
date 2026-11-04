@@ -34,6 +34,15 @@ def cable_path(points, radius):
     assert combined.isValid()
     return combined
 
+def hollow_hose(points,outer_r=3.5,inner_r=2.2):
+    """Actual annular candidate hose. Both ends are left OPEN,
+    allowing visual and CAD void tests. This is a geometric proxy,
+    NOT validation of real hose material or pump-port thread."""
+    assert outer_r>inner_r>0
+    shell=cable_path(points,outer_r).cut(cable_path(points,inner_r))
+    assert shell.isValid(), 'Pipe wall with true continuous lumen must be valid'
+    return shell
+
 def add(sys,key,name,solid,grade='C'):
     assert solid.isValid(),(sys,key)
     PARTS[sys].append((key,name,grade,solid))
@@ -102,8 +111,16 @@ def heater(cx=82,cy=0,z=98.2):
     ins=cut(box(65,65,10,cx,cy,z-10),corners,6.8,10,z-10)
     add('B','B10','insulator_10mm_CANDIDATE',ins,'U')
     add('B','B13','thermocouple_bead_CANDIDATE',vz(.4,.8,cx+6,cy,z+5.35))
-    add('B','B15','rear_vacuum_fitting_PROXY',vy(2.4,12,cx,cy-44.5,z+9.3))
-    add('B','B15T','rear_vacuum_hose_PROXY',vy(1.8,30,cx,cy-74.5,z+9.3))
+    # V37: actual B11 rear horizontal bore meets an ANNULAR B15
+    # fitting. The V36 solid cylinder would seal the outlet shut.
+    fitting=vy(2.4,12,cx,cy-44.5,z+9.3)
+    fitting=fitting.cut(vy(1.42,12.2,cx,cy-44.6,z+9.3))
+    add('B','B15','rear_vacuum_fitting_OPEN_AXIAL_BORE',fitting,'C')
+    # Rear stub follows browser B15 to exactly the same datum as B40.
+    stub=[(82,-44.5,107.5),(82,-58,108.5),
+          (83,-70,104.5),(94,-79,90.5)]
+    add('B','B15T','vacuum_short_flexible_hollow_stub_CANDIDATE',
+        hollow_hose(stub),'C')
     for n,xx in enumerate((10,15),1):
         add('B',f'B12L{n}',f'rear_heater_wire_{n}_PROXY',vy(.55,40.5,cx+xx,cy-59.5,z+2.5))
     add('B','B13L','rear_thermocouple_wire_PROXY',vy(.34,59.5,cx+6,cy-59.5,z+5.85))
@@ -362,8 +379,32 @@ def make_b():
         add('B',key,name,cable_path(points,radius),'C')
     # Only the actual pump and photo115 LED adapter are exterior
     # devices; place each on a distinct candidate standing footprint.
-    add('B','B20','photo120_external_W50_vacuum_pump_CANDIDATE',
-        box(135,80,65,335,180,0),'P')
+    # PHOTO120 CLEARLY SAYS VN-50 (not W-50). Its plate also reads
+    # 220V, 230W, 53L/min, 680 mmHg, about 4kg. OEM-sized 200x110x150
+    # and G1/4 are published candidate family specifications only.
+    # Combine base/motor/head as ONE connected non-manufacturing body.
+    pump_shell=box(135,80,15,335,180,0)
+    pump_shell=pump_shell.fuse(
+        box(29,44,22,319,180,10),
+        vx(37,112,279,180,54),
+        box(48,50,50,385,180,23))
+    # Exposed nominated intake position is a candidate, NOT a
+    # proven VN-50 original port orientation. Bore pump head near
+    # its connection, don't let the solid head plug a hollow nozzle.
+    pump_shell=pump_shell.cut(vx(4.1,7,402.5,180,68))
+    add('B','B20','photo120_VN50_pump_body_WITH_real_inlet_recess',
+        pump_shell,'P')
+    pump_inlet=vx(9,20,405,180,68).cut(vx(4.1,20.2,404.9,180,68))
+    add('B','B20I','VN50_INTaKE_OPEN_nozzle_candidate_position',
+        pump_inlet,'C')
+    hose=[
+        (94,-79,90.5),(112,-103,97),(156,-135,104),
+        (199,-168,136),(235,-168,145),(256,-40,146),
+        (252,60,128),(272,155,95),(342,226,88),
+        (450,226,84),(465,180,69),(425,180,68)
+    ]
+    add('B','B40','B11_B15_rear_to_VN50_hollow_suction_hose',
+        hollow_hose(hose),'C')
     add('B','B22','photo115_external_LED_adapter_CANDIDATE',
         box(65,72,48,335,65,0),'P')
 def make_a():
@@ -405,7 +446,7 @@ def make_a():
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     add('A','A14','SM1_threaded_adapter_PROXY',vz(16,7,cx,0,248),'I')
 def export(sys):
-    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V36')
+    assembly=cq.Assembly(name='Transfer_Station_'+sys+'_V37')
     # The user's B photos distinguish the SILVER common table from the
     # independent BLACK THORLABS board below the sample stage. Preserve
     # that evidence as AP214 STEP assembly colors, not merely part names.
@@ -419,7 +460,7 @@ def export(sys):
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
         assembly.add(shape,**props)
-    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V36.step')
+    target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_V37.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
     assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
