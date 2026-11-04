@@ -387,6 +387,11 @@ try{
  assert(aBefore?.available,'A viewer kinematic witness missing');
  assert.equal(aBefore.a17CandidateHoleCount,13);
  assert.equal(aBefore.a17PhotographedSkuVerified,false);
+ assert.equal(aBefore.a10CandidateBoltHeadCount,4,
+   'A10 cannot draw screw heads without four actual support bores');
+ assert.equal(aBefore.a10ActualFootBoresOpen,true,
+   'A10 foot mesh still blocks the nominal four screw axes');
+ assert.equal(aBefore.a10ActualManufacturerAnchorVerified,false);
  assert.equal(aBefore.vStageMovingPlateOffsetY,13,
    'A initial viewer pose starts from proposed raised +13mm, not static STEP bottom');
  assert.equal(aBefore.knownProxyGeometryCollisionFree,false);
