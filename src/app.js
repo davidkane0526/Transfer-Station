@@ -126,6 +126,63 @@ window.__modelBSupportProbe=()=>{
    microscopeMountAudit:mountAudit
  };
 };
+// V36 read-only probes measure ACTUAL rendered Three.js meshes.
+// A pure-datum pass alone does not prove the jaw stays outside the heater.
+window.__modelBContactProbe=()=>{
+ if(platform!=='B'||bPhoto94Mode)return {available:false};
+ const g=id=>parts.get(id)?.g;
+ const meshBox=m=>{
+   if(!m?.isMesh)return null;m.updateWorldMatrix(true,false);
+   return new THREE.Box3().setFromObject(m);
+ };
+ const fullBox=id=>{
+   const part=g(id);if(!part)return null;
+   part.updateWorldMatrix(true,true);
+   const b=new THREE.Box3();
+   part.traverse(o=>{if(o.isMesh&&o.visible)b.union(new THREE.Box3().setFromObject(o));});
+   return b.isEmpty()?null:b;
+ };
+ const glass=meshBox(g('B07')?.children.find(o=>o.isMesh));
+ const stamp=meshBox(g('B07')?.children.filter(o=>o.isMesh)[1]);
+ const holder=fullBox('B06'),chuck=fullBox('B11');
+ if(!glass||!stamp||!holder||!chuck)return {available:false};
+ return {
+   available:true,
+   glassX:[glass.min.x,glass.max.x],
+   stampX:[stamp.min.x,stamp.max.x],
+   stampRightInsetMm:glass.max.x-stamp.max.x,
+   stampCenterOffsetFromHeaterMm:(stamp.min.x+stamp.max.x)/2-CONFIG.B.sampleX,
+   clampRightMm:holder.max.x,
+   chuckLeftMm:chuck.min.x,
+   clampToHeaterClearanceMm:chuck.min.x-holder.max.x,
+   stampBottomMm:stamp.min.y,
+   chuckTopMm:chuck.max.y,
+   stampToHeaterGapMm:stamp.min.y-chuck.max.y,
+   clampFootprintOutsideHeater:holder.max.x<chuck.min.x
+ };
+};
+window.__modelBHeatingHarnessProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const heat=parts.get('B37')?.g,sensor=parts.get('B38')?.g,box=parts.get('B36')?.g;
+ if(!heat||!sensor||!box)return {available:false};
+ const activePaths=group=>{
+   let n=0;group.traverse(o=>{if(o.isMesh&&o.userData.dynamicHarnessLead)n++});return n;
+ };
+ box.updateWorldMatrix(true,true);
+ const leftWall=box.children[1];
+ const ray=new THREE.Raycaster(
+   new THREE.Vector3(215,86,-166),new THREE.Vector3(1,0,0),0,17);
+ const holeFree=leftWall?.isMesh&&ray.intersectObject(leftWall,false).length===0;
+ return {
+   available:true,
+   heatingLeads:activePaths(heat),
+   temperatureFeedbackLeads:activePaths(sensor),
+   realSideWallFeedthroughHole:!!holeFree,
+   internalTerminationZoneExists:!!parts.get('B39'),
+   heaterSupplyTopologyVerified:false,
+   controllerTerminalPinoutVerified:false
+ };
+};
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
 function clearMeasurement(){
  if($('measurement-text'))$('measurement-text').textContent='坐标 X / Y(高度) / Z · 单位 mm';
