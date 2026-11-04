@@ -1327,6 +1327,8 @@ function externalB(){
       const fin=add(g,cub(44,2,44,mats.silver,x,y,0));
       fin.userData.pumpHeadFin=true;
     }
+    const bridgeSupport=add(g,cyl(4.2,8,mats.steel,x,138,0));
+    bridgeSupport.userData.pumpHeadBridgeSupport=true;
   }
   const bridge=add(g,cyl(4.2,75,mats.silver,-7.5,142,0));
   bridge.rotation.z=Math.PI/2;
