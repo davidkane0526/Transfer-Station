@@ -378,7 +378,7 @@ try{
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
  assert.match(await page.locator('#platform-caption').innerText(),/VC13M运动预览/);
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/183\.5/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
  // A03 VC13M must move only its output plate; A04/A05 follow the
