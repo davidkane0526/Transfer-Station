@@ -521,11 +521,16 @@ def make_a():
     # upright to y=40 and has a TRUE bored hole for the vertical shaft.
     front_drive_bracket=box(14,43,8,ax,19.5,96).cut(
         vz(5.8,8,ax,40,96))
+    # Fixed rails end at Z117. The photo-fit moving output A03T
+    # touches their upper face at its lowest proposed static pose,
+    # but is NOT fused to the stationary upright. This is necessary
+    # for motion-aware STEP assembly and future travel collision tests.
     vc13=(box(65,65,8,ax,0,73)
-          .fuse(box(56,17,43,ax,-9,81))
-          .fuse(box(65,65,7,ax,0,117))
+          .fuse(box(56,17,36,ax,-9,81))
           .fuse(front_drive_bracket))
-    add('A','A03','VC13M_upright_with_front_drive_support_CANDIDATE',vc13)
+    add('A','A03','VC13M_FIXED_UPRIGHT_front_support_CANDIDATE',vc13)
+    add('A','A03T','VC13M_MOVING_OUTPUT_65x65x7_STATIC_LOWER_POSE_CANDIDATE',
+        box(65,65,7,ax,0,117),'C')
     add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,40,98),'P')
     add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,40,133),'P')
     add('A','A04','G40M60L_ENVELOPE',box(40,40,20,ax,0,124),'D')
