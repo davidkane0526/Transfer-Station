@@ -1729,11 +1729,25 @@ function platformA(){
   label(g,'A 套样品加热座（形状候选）',0,38,0);
  },{explode:[0,26,0],translateSample:true,rotateSample:true});
  addPart('A10',sx,20,-112,g=>{
-    add(g,cub(72,14,65,mats.dark,0,7,0));
+    // Four TRUE Ø5.5mm candidate mounting bores in an offset foot.
+    // Centers world X50/100, Z-125/-75 match the candidate A01 grid.
+    // This is not the identified OEM microscope post mount.
+    const offsets=[[-28,-13,2.75],[-28,37,2.75],
+                   [22,-13,2.75],[22,37,2.75]];
+    const foot=plate(72,65,14,mats.dark,
+      offsets.map(([x,z,r])=>[x+3,z-12,r]));
+    foot.position.set(-3,0,12);add(g,foot);
+    for(const [x,z] of offsets){
+      const shaft=add(g,cyl(2.5,17.5,mats.steel,x,2.75,z));
+      shaft.userData.A10CandidateBoltShaft=true;
+      const head=add(g,cyl(4.25,2.5,mats.silver,x,12.75,z));
+      head.userData.A10CandidateBoltHead=true;
+    }
     add(g,cyl(13,225,mats.steel,0,126,0));
     add(g,cub(34,25,127,mats.dark,0,234,65));
-    addJointHeads(g,'A10',13.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
-  label(g,'A 套成像支架',0,267,60);
+    g.userData.fourTrueCandidateFootBores=true;
+    g.userData.actualOEMFasteningVerified=false;
+    label(g,'A10显微镜支架 · 底脚四孔及螺钉均为候选',0,267,60);
  },{explode:[0,15,-30]});
  addPart('A08',sx,170,0,g=>{
   // OEM TTL200-A housing is 28mm long; 200mm is focal length.
