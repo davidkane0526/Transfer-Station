@@ -17,6 +17,8 @@ import {auditBPhotoProfile} from './b-physical-audit.js';
 import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
 import {B149,auditB149,auditBLoweringPose} from './b-photo149-geometry.js';
 import {VN50,vacuumHosePath,auditVacuumPath} from './b-vacuum-routing.js';
+import {auditBaseTopology,mountStatus} from './assembly-mounts.js';
+import {suctionDimension} from './pneumatic-dimensions.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -1243,15 +1245,26 @@ function platformA(){
    addJointHeads(g,'A16',8-0.2,[[-43,-24],[-43,24],[43,-24],[43,24]],{headR:3});
    label(g,'GCM-5306M 安装底座 · 112×70×8 mm（非旋转台）',0,24,0);
  },{explode:[0,-6,0]});
+ // V38: the A FILM-side is magnetically mounted to ONE A01
+ // optical breadboard. This magnetic stand is inferred from the user's
+ // assembly rule; photos have NOT confirmed its exact maker or height.
+ addPart('A17',ax,20,0,g=>{
+   add(g,cub(65,20,65,mats.dark,0,10,0));
+   const lever=add(g,cyl(3.5,13,mats.silver,-28,10,36));
+   lever.rotation.x=Math.PI/2;
+   g.userData.magneticFixture=true;
+   g.userData.brandAndHolePatternNotVerified=true;
+   label(g,'A：载玻片侧磁吸固定座（型号/高度候选）',0,32,0);
+ },{explode:[-10,0,0]});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (+X)',true,{rotateSample:true},1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
- makeStageBlock('A15',ax,20,0,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
+ makeStageBlock('A15',ax,40,0,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
  // Actual photo 97: A15 dual-axis T25M below upright GCM-VC13M;
  // photo 94: GCM-G40M60L on VC13M, with a SINGLE THIN folded-L
  // plate bolted to G40's movable top. These three images are platform A,
  // not B. All geometries below are photographic silhouettes, not OEM solids.
- addPart('A03',ax,53,0,g=>{
+ addPart('A03',ax,73,0,g=>{
    // Photo97 footprint has a much narrower upright body than the 65mm
    // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
    add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
@@ -1276,7 +1289,7 @@ function platformA(){
    addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
    label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
  },{explode:[-15,18,0],moveFilm:true});
- addPart('A04',ax,104,0,g=>{
+ addPart('A04',ax,124,0,g=>{
    // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
    // Photo94 front body has a LOWER cradle, a split rocker top, two
    // front fastener pairs, and a +X micrometer with a steel thimble.
@@ -1309,8 +1322,8 @@ function platformA(){
    addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
    label(g,'GCM-G40M60L · R60 / 右侧测微（照片94）',-4,40,0);
  },{explode:[-25,42,0],moveFilm:true});
- const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:124});
- addPart('A05',ax,124,0,g=>{
+ const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:144});
+ addPart('A05',ax,144,0,g=>{
    // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
    // and not the 200mm square beam formerly rendered here.
    const localX=aBent.centerX-ax;
@@ -1422,7 +1435,7 @@ function renderPhotoLedger(){
  const m=document.createElement('div');m.className='marked-note';
  m.textContent=platform==='B'&&bPhoto94Mode?'用户要求的B新照片对照配置：GCM-T25M→GCM-VC13M→GCM-G40M60L→L型薄板；此前A/B照片归档冲突未解决，不能以此证明NFP样品侧同机。':platform==='B'?
    'B02磁座在B03之下；B35黑色Thorlabs板同时承托B08旋转台与B16显微镜后方立柱底座；B36金属机箱包含前置B19温控器、内部B21电源及B23模块。B20真空泵/B22灯电源独立显示。各箱体尺寸为候选。':
-   'A15 与 A02 为两台不同 T25M：照片97所示 A15 在 VC13M 下；照片100所示 A02 在旋转台上。';
+   'A17磁座在A15双轴T25M之下（用户固定方式确认，型号候选）；A16底部安装座螺钉固定在唯一A01光学面包板，A02为另一台独立T25M。';
  host.append(m);
 }
 // Only show/export parts that are actually present in the selected assembly.
@@ -1540,6 +1553,19 @@ function updateDetail(part){
    b35FastenerAudit.maxMismatchMm.toFixed(1)+
    ' mm。B35仍是2mm外观浅孔而非已证实的螺纹孔。当前仅证明两块底面接触，'+
    '固定孔原点、螺栓长度及实际啮合均未验收，禁止作为加工或安装图。</p></div>':'';
+ // The annotation is only in the selected part's detail view, not an
+ // always-on 3D label covering the clamp/stamp/optics.
+ const mount=mountStatus(platform,part.id);
+ const installHtml='<div class="field" id="mounting-method" data-kind="'+
+   esc(mount.kind)+'"><b>固定到面包板的方式</b><p>'+esc(mount.text)+
+   '。'+(mount.verified?'固定方式可由照片或用户装配关系支持。':
+       '螺纹、锚固孔位和磁座型号待核验。')+'</p></div>';
+ const suction=suctionDimension(part.id);
+ const suctionHtml=suction?'<div class="field" id="suction-dimensions" '+
+   'data-candidate="true"><b>吸气口 / 软管直径（mm，候选尺寸）</b><p>'+
+   esc(suction.name)+'：'+esc(suction.nominal)+
+   (suction.threadCandidate?'；泵端螺纹参考 '+esc(suction.threadCandidate):'')+
+   '。以上尺寸来自当前三维候选模型，非实物量取；实际装配需测量内径、螺纹和密封件。</p></div>':'';
  const axis=AXES[part.id];
  const axisHtml=axis?'<div class="field"><b>独立运动轴与驱动</b><p>线性轴 '+axis.linear+
    '，线性测微头 '+axis.micrometers+'；厂商轴 '+esc(axis.makerAxes.join('/'))+
@@ -1554,7 +1580,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+axisHtml+holderQAHtml+b35FastenerHtml+photo94QAHtml+photo95QAHtml+
+ hardwareHtml+installHtml+suctionHtml+axisHtml+holderQAHtml+b35FastenerHtml+photo94QAHtml+photo95QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
@@ -1672,7 +1698,12 @@ function resetScene(){
    const missing=required.filter(id=>!parts.has(id));
    if(missing.length)throw new Error('Model B missing required scene components: '+missing.join(', '));
  }
- else platformA();
+ else {
+   platformA();
+   for(const id of ['A01','A17','A15','A03','A04','A05','A16','A06','A02','A07','A10']){
+     if(!parts.has(id))throw Error('Model A missing: '+id);
+   }
+ }
  addAxis();axisObjects.forEach(a=>a.visible=showAxes);
  // Add detailed photo-informed finish, engraved markings, micrometer scales,
  // and a realistic multi-objective imaging head. All remain proxy geometries.
@@ -1686,7 +1717,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V37 / VN-50真空吸附 / PHUC-1夹具 / 145–151实拍'):
-   '平台 A · Daheng 成像相机 / TTL200-A / 多轴调整';
+   '平台 A · V38 / 单一面包板 / 载玻片磁吸 / 样品螺钉固定';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
   '照片95/97: A载玻片侧由下至上独立 A15 T25M（右手柄）→ A03 VC13M（竖直测微头）→ A04 G40M60L（右手柄）。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
