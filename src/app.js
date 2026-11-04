@@ -251,10 +251,15 @@ window.__modelBVacuumProbe=()=>{
    pumpBounds.max.z-pumpBounds.min.z
  ];
  const pumpFeatures={basePlate:0,mountingFeet:0,motorHousing:0,motorCore:0,
-   fanCover:0,twinHeads:0,tieRods:0,vents:0};
+   fanCover:0,twinHeads:0,tieRods:0,vents:0,topVents:0,sideVents:0,
+   mountingFootCenters:[],nameplateCenters:[]};
  pump.traverse(o=>{
    if(o.userData.pumpBasePlate)pumpFeatures.basePlate++;
-   if(o.userData.pumpMountingFoot)pumpFeatures.mountingFeet++;
+   if(o.userData.pumpMountingFoot){pumpFeatures.mountingFeet++;
+     pumpFeatures.mountingFootCenters.push([o.position.x,o.position.y,o.position.z]);}
+   if(o.userData.pumpNameplate){pumpFeatures.nameplateCenters.push([o.position.x,o.position.y,o.position.z]);}
+   if(o.userData.pumpTopVent)pumpFeatures.topVents++;
+   if(o.userData.pumpSideVent)pumpFeatures.sideVents++;
    if(o.userData.pumpMotorHousing)pumpFeatures.motorHousing++;
    if(o.userData.pumpMotorCore)pumpFeatures.motorCore++;
    if(o.userData.pumpFanCover)pumpFeatures.fanCover++;
@@ -1248,7 +1253,7 @@ function externalB(){
   // manufacturer remains unverified; these are photo-fit solids.
   const pumpBase=add(g,cub(200,8,110,mats.black,-10,4,0));
   pumpBase.userData.pumpBasePlate=true;
-  for(const x of [-71,71])for(const z of [-48,48]){
+  for(const x of [-81,61])for(const z of [-48,48]){
     const foot=add(g,cub(28,12,14,mats.dark,x,10,z));
     foot.userData.pumpMountingFoot=true;
     const footHole=add(g,cyl(3.1,2,mats.ink,x,16,z));
@@ -1284,6 +1289,7 @@ function externalB(){
     for(const z of [-27,0,27]){
       const vent=add(g,cyl(2.7,1.5,mats.ink,x,76.2,z,24));
       vent.userData.ventCandidate=true;
+      vent.userData.pumpTopVent=true;
     }
   }
   // Small side ventilation marks on the visible long face.
@@ -1292,10 +1298,12 @@ function externalB(){
       const vent=add(g,cyl(2.1,1.4,mats.ink,x,y,38.5,20));
       vent.rotation.x=Math.PI/2;
       vent.userData.ventCandidate=true;
+      vent.userData.pumpSideVent=true;
     }
   }
   // Nameplate is a visual ID only; no OEM logo is inferred.
-  add(g,cub(62,26,1.5,mats.white,-15,43,38.5));
+  const nameplate=add(g,cub(62,26,1.5,mats.white,-15,43,38.5));
+  nameplate.userData.pumpNameplate=true;
   label(g,'VN-50 · 220V / 230W · 53 L/min',-15,58,40.2);
   // Candidate suction inlet face. The nozzle side/orientation is not
   // established by the photographs, so this remains an explicit proxy.
