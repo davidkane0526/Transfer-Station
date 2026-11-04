@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {VACUUM_DIMS,suctionDimension,auditSuctionDimensions} from '../src/pneumatic-dimensions.js';
 const d=auditSuctionDimensions();
 assert(d.allDiameterLabelsCandidate);
-assert.equal(d.hoseWallThicknessMm,1.3);
+assert(Math.abs(d.hoseWallThicknessMm-1.3)<1e-9);
 assert.equal(d.vacuumSourceCount,1);
 assert.equal(suctionDimension('B11').odMm,1.4);
 assert.equal(suctionDimension('B15').idMm,2.84);
