@@ -24,7 +24,7 @@ try{
    assert.equal(await toggle.isChecked(),true,'B scene category hidden '+category);
  }
  const proof=await page.locator('#photo-ledger').innerText();
- for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23','B37','B38','B39'])
+ for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23','B37','B38','B39','B40'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
  const support=await page.evaluate(()=>window.__modelBSupportProbe?.());
@@ -63,6 +63,42 @@ try{
  assert.equal(harness.internalTerminationZoneExists,true);
  assert.equal(harness.controllerTerminalPinoutVerified,false,
    'Unidentified controller terminal pinout must never be marked verified');
+ // V37: real photo120 is VN-50, not W-50. The suction path connects
+ // the B11/B15 rear bore to the open pump INTAKE, never to B36.
+ const vac=await page.evaluate(()=>window.__modelBVacuumProbe?.());
+ assert(vac?.available,'V37 pump suction tube or diagnostic not mounted');
+ assert.equal(vac.nameplateModel,'VN-50','Photo120 VN-50 must replace W-50');
+ assert.equal(vac.photoConfirmed,true);
+ assert.equal(vac.hosePart,'B40');
+ assert.equal(vac.hoseWallMeshes,2,'Actual inner and outer hose walls required');
+ assert.equal(vac.twoOpenPorts,true,
+   'Both the pump suction inlet and B15 fitting must be REALLY bored');
+ assert(vac.sourceCoordinateErrorMm<.01,
+   'First long-hose node not coupled to moving B15 short hose outlet');
+ assert(vac.pumpCoordinateErrorMm<.01,
+   'Hose does not terminate at the VN-50 suction nozzle');
+ assert.equal(vac.electricityCabinetNotVacuumDestination,true);
+ assert.equal(vac.actualInletThreadVerified,false);
+ const prevRoute=vac.dynamicRoute;
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='6';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='20';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const shiftedVac=await page.evaluate(()=>window.__modelBVacuumProbe?.());
+ assert(shiftedVac?.sourceCoordinateErrorMm<.01,
+   'Vacuum hose first knot must move together with rotated sample');
+ assert(shiftedVac?.pumpCoordinateErrorMm<.01,
+   'VN-50 pump end must remain fixed through sample motion');
+ assert.notDeepEqual(shiftedVac.dynamicRoute[0],prevRoute[0]);
+ assert.deepEqual(shiftedVac.dynamicRoute.at(-1),prevRoute.at(-1));
+ await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
  // The MOVABLE glass clamp descends 13mm until the PDMS reaches the
  // heater; the jaw must stay entirely OUTSIDE its footprint.
  await page.locator('#film-drop').evaluate(el=>{
@@ -158,7 +194,7 @@ try{
  const rows=await page.locator('#bom-body tr').allTextContents();
  for(const id of ['B01','B35','B02','B03','B04','B05','B06','B07','B08','B09',
     'B10','B11','B12','B14','B15','B16','B17','B18','B19','B20','B21',
-    'B22','B23','B24','B25','B26','B27','B28','B33','B34','B36','B37','B38','B39']){
+    'B22','B23','B24','B25','B26','B27','B28','B33','B34','B36','B37','B38','B39','B40']){
    assert(rows.some(row=>row.trim().startsWith(id)),'B BOM lost '+id);
  }
  for(const wrong of ['B29','B30','B31','B32'])
