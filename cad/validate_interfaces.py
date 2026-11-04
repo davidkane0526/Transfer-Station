@@ -596,7 +596,8 @@ cabinet=part(B,'B36')[0]
 pid=part(B,'B19')[0]
 psu=part(B,'B21')[0]
 inner_module=part(B,'B23')[0]
-pump=part(B,'B20')[0]
+pump_solids=part(B,'B20')
+pump=pump_solids[0]
 led_driver=part(B,'B22')[0]
 shellbb=cabinet.BoundingBox()
 check(abs(shellbb.xlen-285)<.02 and abs(shellbb.ylen-225)<.02 and
@@ -623,8 +624,8 @@ pumpbb=pump.BoundingBox()
 check(abs(pumpbb.xlen-200)<.02 and abs(pumpbb.ylen-110)<.02 and
       abs(pumpbb.zlen-150)<.02,
       'V41 VN-50 pump proxy envelope is 200x110x150mm')
-check(len(pump.Solids())==1,
-      'V41 VN-50 motor housing, fan cover, tie rods and twin heads form one connected body')
+check(len(pump_solids)==1,
+      'V41 VN-50 motor housing, fan cover, tie rods and twin heads form one connected STEP solid')
 pump_mount_holes=[]
 for x in (254,396):
     for y in (132,228):
