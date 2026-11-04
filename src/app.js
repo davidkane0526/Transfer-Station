@@ -16,7 +16,7 @@ import {getPlateHolderJawDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
 import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
 import {B149,auditB149,auditBLoweringPose} from './b-photo149-geometry.js';
-import {VN50,vacuumHosePath,auditVacuumPath,auditVacuumEnvelope} from './b-vacuum-routing.js';
+import {VN50,vacuumHosePath,auditVacuumPath,auditVacuumEnvelope,polylineDistance} from './b-vacuum-routing.js';
 import {auditBaseTopology,mountStatus} from './assembly-mounts.js';
 import {suctionDimension} from './pneumatic-dimensions.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
@@ -212,6 +212,30 @@ window.__modelBVacuumProbe=()=>{
  const boresOpen=inletRay.intersectObject(ring,false).length===0&&
    fittingRay.intersectObject(bored,false).length===0;
  const activeHoseMeshes=hose.children.filter(o=>o.isMesh&&o.userData.dynamicVacuumHose);
+ const outerHose=activeHoseMeshes.find(o=>o.userData.dynamicVacuumHose==='outer');
+ const curvePoints=mesh=>{
+   const curve=mesh?.geometry?.parameters?.path;
+   if(!curve?.getPointAt)return [];
+   mesh.updateWorldMatrix(true,false);
+   return Array.from({length:161},(_,i)=>
+     curve.getPointAt(i/160).clone().applyMatrix4(mesh.matrixWorld));
+ };
+ const hoseCurve=curvePoints(outerHose);
+ const splineClearance=(groupId,role,radius)=>{
+   const group=parts.get(groupId)?.g;if(!group)return null;
+   let mesh=null;group.traverse(o=>{
+     if(o.isMesh&&o.userData.dynamicHarnessLead===role)mesh=o;
+   });
+   const wireCurve=curvePoints(mesh);
+   if(hoseCurve.length<2||wireCurve.length<2)return null;
+   return polylineDistance(hoseCurve,wireCurve)-
+     VN50.outerHoseRadiusMm-radius;
+ };
+ const actualSplineHarnessClearancesMm={
+   B37A:splineClearance('B37','heaterA',1.1),
+   B37B:splineClearance('B37','heaterB',1.1),
+   B38:splineClearance('B38','temperature',.72)
+ };
  return {
    available:true,
    nameplateModel:pump.userData.nameplateModel,
@@ -220,6 +244,8 @@ window.__modelBVacuumProbe=()=>{
    hoseOuterRadiusMm:VN50.outerHoseRadiusMm,
    hoseLumenRadiusMm:VN50.innerBoreRadiusMm,
    hoseWallMeshes:activeHoseMeshes.length,
+   actualSplineGeometryAvailable:Object.values(actualSplineHarnessClearancesMm).every(Number.isFinite),
+   actualSplineHarnessClearancesMm,
    sourceCoordinateErrorMm:outlet.distanceTo(new THREE.Vector3(first.x,first.y,first.z)),
    pumpCoordinateErrorMm:inlet.distanceTo(new THREE.Vector3(end.x,end.y,end.z)),
    twoOpenPorts:boresOpen,
