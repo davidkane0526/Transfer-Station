@@ -11,6 +11,7 @@ from cadquery import Vector
 def vz(r,h,x,y,z):return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,0,1))
 def vx(r,h,x,y,z):return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(1,0,0))
 def vy(r,h,x,y,z):return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,1,0))
+def bx(w,d,h,x,y,z):return cq.Workplane('XY').box(w,d,h,centered=(True,True,False)).translate((x,y,z)).val()
 
 ROOT=Path(__file__).resolve().parents[1]
 B=ROOT/'build'/'platform_B'/'parts'
@@ -636,12 +637,12 @@ check(max(pump_mount_holes)<1e-5,
 # V42: head blocks, top fittings, side rails and ventilation must be
 # geometrically present and must not cut through the pump nameplate.
 for x in (290,365):
-    head=box(46,48,50,x,180,81)
+    head=bx(46,48,50,x,180,81)
     check(abs(pump.intersect(head).Volume()-head.Volume())<1e-3,
           f'V42 VN-50 rectangular twin head at X={x} is fully present')
 for x in (250,400):
     for y in (135,225):
-        support=box(14,16,24,x,y,28)
+        support=bx(14,16,24,x,y,28)
         check(abs(pump.intersect(support).Volume()-support.Volume())<1e-3,
               f'V42 VN-50 side-rail support at {x},{y} is fully present')
 for x in (255,325,395):
@@ -654,7 +655,7 @@ for x in (270,280,360,370,380,390):
         side_vent=vy(2.1,1.4,x,217.8,z)
         check(pump.intersect(side_vent).Volume()<1e-5,
               f'V42 side ventilation bore remains open at {x},{z}')
-nameplate_test=box(62,1.5,26,320,218.5,30)
+nameplate_test=bx(62,1.5,26,320,218.5,30)
 check(abs(pump.intersect(nameplate_test).Volume()-nameplate_test.Volume())<1e-3,
       'V42 side perforations do not cut through the nameplate footprint')
 report['V42_VN50_pump_geometry']={
