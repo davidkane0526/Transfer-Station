@@ -22,5 +22,16 @@ for(const [shift,angle] of [[-12.5,0],[12.5,0],[0,30],[8,-25]]){
 }
 assert.deepEqual(movingVacuumOutlet({sampleShiftMm:0,sampleAngleDeg:0}),
                  VN50.chuckRearHoseEndNominal);
-assert.equal(vacuumHosePath().length,11);
-console.log('V37 VN-50 (photo120) and physical B11→B15→B40→pump inlet route: PASS');
+assert.equal(vacuumHosePath().length,10);
+assert.equal(nominal.passesBehindController,true);
+assert(nominal.cabinetClearanceMm>0,'Hose must clear the complete B36 enclosure');
+assert(nominal.controllerClearanceMm>0,'Hose must clear B19 controller body');
+assert(nominal.microscopeClearanceMm>0,'Moving hose must clear B16 microscope column');
+assert.equal(nominal.serviceLane,'B19 controller rear / B36 cabinet rear exterior');
+for(const [shift,angle] of [[-12.5,30],[12.5,30],[-12.5,-30],[12.5,-30]]){
+ const edge=auditVacuumPath({sampleShiftMm:shift,sampleAngleDeg:angle});
+ assert(edge.microscopeClearanceMm>0,'Extreme sample position must clear B16 post');
+ assert(edge.cabinetClearanceMm>0,'Extreme sample position must clear B36');
+ assert.equal(edge.passesBehindController,true);
+}
+console.log('V39 B15→B40 rear-of-B19 / behind-B36 route to VN-50: PASS');
