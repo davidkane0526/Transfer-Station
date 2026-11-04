@@ -1221,24 +1221,66 @@ function externalB(){
  // Photo120 pump and photo115 LED adapter are distinct EXTERNAL devices,
  // not modules stacked in the controller's metal housing.
  addPart('B20',335,0,180,g=>{
-  add(g,cub(135,15,80,mats.dark,0,7.5,0));
-  add(g,cyl(37,112,mats.pump,0,54,0)).rotation.z=Math.PI/2;
-  add(g,cub(48,50,50,mats.dark,50,48,0));
-  // Photo120 explicitly reads VN-50, 220V, 230W, 53L/min,
-  // 680mmHg. Intake centerline is a CANDIDATE pose; make it a
-  // hollow Ø8.2 opening rather than the V36 solid nonfunctional rod.
+  // V41: replace the previous single ribbed-cylinder placeholder.
+  // Photo120/123 show a black perforated motor housing, two long
+  // metal tie rods and a twin-head upper assembly. The exact OEM
+  // manufacturer remains unverified; these are photo-fit solids.
+  add(g,cub(200,8,110,mats.black,-10,4,0));
+  for(const x of [-71,71])for(const z of [-48,48]){
+    add(g,cub(28,12,20,mats.dark,x,10,z));
+    const footHole=add(g,cyl(3.1,2,mats.ink,x,16,z));
+    footHole.userData.mountingHoleCandidate=true;
+  }
+  // Main black motor casing and the partly exposed rounded motor body.
+  add(g,cub(160,62,76,mats.dark,-10,39,0));
+  const motor=add(g,cyl(34,130,mats.black,-25,40,0));
+  motor.rotation.z=Math.PI/2;
+  // Fan/end cover at the left end of the motor.
+  const fan=add(g,cyl(29,12,mats.black,-94,40,0));
+  fan.rotation.z=Math.PI/2;
+  for(const z of [-40,40]){
+    const rod=add(g,cyl(2.5,150,mats.silver,-10,82,z));
+    rod.rotation.z=Math.PI/2;
+    rod.userData.pumpTieRodCandidate=true;
+  }
+  // Two vertical pump heads, top caps and the common upper bridge.
+  for(const x of [-45,30]){
+    add(g,cyl(24,8,mats.dark,x,79,0));
+    add(g,cyl(22,56,mats.steel,x,111,0));
+    add(g,cyl(24,8,mats.silver,x,143,0));
+  }
+  add(g,cub(90,10,44,mats.steel,-7.5,145,0));
+  // Photo120 shows a perforated upper face. The dark circles are
+  // shallow visual apertures; their exact pitch/depth is not measured.
+  for(const x of [-70,-50,-30,-10,10,30,50]){
+    for(const z of [-27,0,27]){
+      const vent=add(g,cyl(2.7,1.5,mats.ink,x,70.2,z,24));
+      vent.userData.ventCandidate=true;
+    }
+  }
+  // Small side ventilation marks on the visible long face.
+  for(const x of [-65,-45,-25,-5,15,35,55]){
+    for(const y of [28,42,56]){
+      const vent=add(g,cyl(2.1,1.4,mats.ink,x,y,38.5,20));
+      vent.rotation.x=Math.PI/2;
+      vent.userData.ventCandidate=true;
+    }
+  }
+  // Nameplate is a visual ID only; no OEM logo is inferred.
+  add(g,cub(62,26,1.5,mats.white,-15,43,39.5));
+  label(g,'VN-50 · 220V / 230W · 53 L/min',-15,58,41);
+  // Candidate suction inlet face. The nozzle side/orientation is not
+  // established by the photographs, so this remains an explicit proxy.
   const inlet=add(g,sleeve(9,VN50.pumpInletVisualBoreRadiusMm,
     20,mats.steel,80,68,0,'x'));
   inlet.userData.realSuctionInlet=true;
   inlet.userData.actualPortSideUnverified=true;
-  for(const x of [-42,-30,-18,-6,6,18,30,42]){
-    const fin=add(g,cyl(39,2,mats.dark,x,54,0));fin.rotation.z=Math.PI/2;
-    fin.userData.pumpCoolingFinCandidate=true;
-  }
   g.userData.nameplateModel='VN-50';
   g.userData.pumpModelReadFromPhoto120=true;
-  label(g,'VN-50 · INTAKE吸气口 OD Ø18.0 / 内孔 Ø8.2（候选）',0,113,0);
- },{explode:[55,0,35]});
+  g.userData.geometryRevision='V41_photo120_123_twin_head_candidate';
+  g.userData.dimensionsCandidateMm={length:200,width:110,height:150};
+  label(g,'吸入口方向/接头规格待实物确认',78,91,0);
+ },{explode:[0,0,0]});
  addPart('B22',335,0,65,g=>{
    add(g,cub(65,48,72,mats.dark,0,24,0));
    add(g,cub(44,22,4,mats.steel,0,24,37));
