@@ -93,6 +93,31 @@ try{
  assert(vac.controllerClearanceMm>0,'B40 must clear the B19 panel body');
  assert(vac.microscopeClearanceMm>0,'B40 must clear the moving-side B16 microscope column');
  assert.equal(vac.actualInletThreadVerified,false);
+ assert.equal(vac.actualSplineGeometryAvailable,true,
+   'Rendered TubeGeometry centerlines must be available for spline clearance checks');
+ for(const id of ['B37A','B37B','B38'])
+   assert(vac.actualSplineHarnessClearancesMm[id]>2,
+     'Rendered Catmull-Rom B40 must clear '+id+' by >2mm');
+ for(const [shift,angle] of [[-12.5,-90],[-12.5,90],[12.5,-90],[12.5,90]]){
+   await page.locator('#sample-move').evaluate((el,v)=>{
+     el.value=String(v);el.dispatchEvent(new Event('input',{bubbles:true}));
+   },shift);
+   await page.locator('#rotate-sample').evaluate((el,v)=>{
+     el.value=String(v);el.dispatchEvent(new Event('input',{bubbles:true}));
+   },angle);
+   const corner=await page.evaluate(()=>window.__modelBVacuumProbe?.());
+   assert(corner?.actualSplineGeometryAvailable,
+     'Rendered hose/wire curves must remain available at the motion corner');
+   for(const id of ['B37A','B37B','B38'])
+     assert(corner.actualSplineHarnessClearancesMm[id]>2,
+       'Rendered Catmull-Rom hose collides with '+id+' at shift='+shift+', angle='+angle);
+ }
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
  const prevRoute=vac.dynamicRoute;
  await page.locator('#sample-move').evaluate(el=>{
    el.value='6';el.dispatchEvent(new Event('input',{bubbles:true}));
