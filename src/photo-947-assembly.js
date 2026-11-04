@@ -60,7 +60,7 @@ export function vc13PhotoScrewDatums({
   // V46: previous +Z25 shaft passed through the large moving 65mm
   // top platform at full downward travel. Put its nominal Ø13.6
   // drum outside +Z32.5 top boundary with 0.7mm candidate margin.
-  if(frontZmm-drumLengthMm*0-6.8<=32.5)
+  if(frontZmm-6.8<=32.5)
     throw new Error('VC13 front drum intersects movable top footprint');
   return {topPlaneLocalYmm,drumCenterLocalYmm,drumLengthMm,
     stemCenterLocalYmm,stemLengthMm,frontZmm,
