@@ -360,7 +360,7 @@ check(not (ROOT/'build'/'platform_B_photo94').exists(),
       'Never build a B-photo94 assembly from verified A photographs')
 for required in ('B07','B35','B08','B09','B10','B11','B12','B14_1','B14_2',
                  'B14_3','B14_4','B15','B16','B17','B18',
-                 'B24','B25','B26','B27','B28','B33','B34','B36','B37','B37A','B38','B39'):
+                 'B24','B25','B26','B27','B28','B33','B34','B36','B37','B37A','B38','B39','B20I','B40'):
     check((B/(required+'.step')).exists(),
           'Corrected photo145-151 B full-system STEP missing '+required)
 report['new_dimension_evidence']={
@@ -612,6 +612,65 @@ center_vac=cq.Solid.makeCylinder(1.25,32.5,Vector(82,-32.5,107.5),Vector(0,1,0))
 center_top=cq.Solid.makeCylinder(.55,2.9,Vector(82,0,107.3),Vector(0,0,1))
 check(center_vac.intersect(chuck).Volume()<1e-6,'Rear vacuum bore is connected towards center')
 check(center_top.intersect(chuck).Volume()<1e-6,'One central top suction hole is unobstructed')
+# V37: physical vacuum loop (photo120 confirms VN-50, NOT W-50).
+# The pump/port presentation remains a candidate: do NOT claim an
+# OEM inlet side or hose thread has been measured.
+vacstub=part(B,'B15T')[0]
+suction=part(B,'B40')[0]
+port_body=part(B,'B20I')[0]
+pump_body=part(B,'B20')[0]
+# Actual annular B15 fitting and B20I suction port. A solid plug
+# in either location must fail this test.
+fitting_void=vy(1.15,11.8,82,-44.4,107.5)
+check(vac.intersect(fitting_void).Volume()<1e-5,
+      'V37 rear vacuum connector has a genuinely OPEN axial bore')
+nozzle_void=vx(2.0,20.0,405,180,68)
+check(port_body.intersect(nozzle_void).Volume()<1e-5,
+      'V37 VN-50 nominated suction tube has a real open axial lumen')
+head_void=vx(2.0,6,402.7,180,68)
+check(pump_body.intersect(head_void).Volume()<1e-5,
+      'V37 VN-50 head cannot plug the suction nozzle')
+# Radius tests detect a fake solid hose. Use local axes at the first
+# straight segment where centerline is unambiguous.
+def vacuum_axis_probe(a,b,r=.9,trim=.15):
+    from math import sqrt
+    v=Vector(b[0]-a[0],b[1]-a[1],b[2]-a[2])
+    length=v.Length
+    direction=v.normalized()
+    origin=Vector(*a)+direction*trim
+    return cq.Solid.makeCylinder(r,length-2*trim,origin,direction)
+short_points=[(82,-44.5,107.5),(82,-58,108.5)]
+outer_points=[(94,-79,90.5),(112,-103,97)]
+check(vacstub.intersect(vacuum_axis_probe(*short_points)).Volume()<.01,
+      'V37 B15T short hose has a CONTINUOUS hollow center')
+check(suction.intersect(vacuum_axis_probe(*outer_points)).Volume()<.01,
+      'V37 B40 long hose has a CONTINUOUS hollow center')
+check(vacstub.BoundingBox().xmax>=94-3.5 and
+      suction.BoundingBox().xmin<=94+3.5,
+      'V37 short and long hose envelopes must share outlet region')
+check(suction.BoundingBox().xmax>=425-3.5,
+      'V37 pump end of suction hose must reach VN-50 inlet position')
+check(suction.intersect(cabinet).Volume()<.01,
+      'V37 vacuum hose cannot thread through metal electrical cabinet')
+check(suction.intersect(pump_body).Volume()<.01,
+      'V37 suction hose cannot burrow through the pump motor housing')
+check(suction.intersect(part(B,'B01')[0]).Volume()<.01,
+      'V37 vacuum hose must route ABOVE the optical base, not through it')
+check(not (B/'B40A.step').exists(),'No second disconnected invented suction line')
+report['V37_suction_loop']={
+ 'actual_pump_model_photo_120':'VN-50',
+ 'pump_nameplate':{'AC_V':220,'power_W':230,'flow_L_per_min':53,
+                   'vacuum_mmHg':680,'weight_kg_approx':4},
+ 'verified_photo_brand':False,
+ 'actual_intake_orientation_verified':False,
+ 'air_path':['B11 top bore','B11 internal rear channel','B15 bored fitting',
+             'B15T hollow hose stub','B40 hollow hose','B20I open pump inlet'],
+ 'real_lumen_open_on_all_external_parts':True,
+ 'pump_has_real_open_intake_bore':True,
+ 'cabinet_interpenetration':False,
+ 'pump_electrical_connection_inferred':False,
+ 'hose_thread_and_material_spec_verified':False
+}
 left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,107.5),Vector(1,0,0))
 check(left_probe.intersect(chuck).Volume()>1.0,'Old left-side inlet is absent from metal')
 
