@@ -1,3 +1,5 @@
+import {inferAProxyDimensionsFromOriginalPhotos} from './a-photo-scale-calibration.js';
+const V47_PHOTO_METRIC=inferAProxyDimensionsFromOriginalPhotos();
 // Photo-grounded assembly evidence for image_94, image_95 and image_97.
 // The images physically show the FIRST rig, currently named platform A.
 // All photo silhouettes are constraints, not inferred purchase-ready sheet metal.
@@ -68,8 +70,10 @@ export function vc13PhotoScrewDatums({
     measuredFromPhoto:false,makerGeometryVerified:false};
 }
 export function photo94BracketCandidate({
-  stageCenterX=-116,stageTopY=144,topPlateWidth=75,topPlateDepth=12,
-  leftOverhangMm=48,verticalLegLength=72,metalThickness=2.5
+  stageCenterX=-116,stageTopY=144,
+  topPlateWidth=Math.round(V47_PHOTO_METRIC.sheetTopWidthMm),topPlateDepth=12,
+  leftOverhangMm=Math.round(V47_PHOTO_METRIC.sheetLeftOverhangMm),
+  verticalLegLength=72,metalThickness=2.5
 }={}){
   if(!(topPlateWidth>40&&topPlateWidth<110))throw Error('L bracket width is only a photo silhouette candidate');
   if(!(metalThickness>1&&metalThickness<4))throw Error('A05 should be a THIN bent sheet, not a structural 12mm bar');
