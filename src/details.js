@@ -171,6 +171,13 @@ export function enrichParts(partMap, platform, onMesh){
   function decoration(id,fn){const p=partMap.get(id);if(p)fn(p.g,p)}
   decoration(platform+'01',(g)=>boardHardware(g));
   if(platform==='B'){
+    decoration('B35',(g)=>{
+       // The black sample-side plate is independently visible in
+       // photos145/150. Only THORLABS logo and black finish are verified.
+       // The exact length, hole pitch and fixing bolts remain candidates.
+       box(g,67,8,.6,0,6,75.25,matte,.2);
+       decal(g,'THORLABS',62,6,0,6,75.68,'front','#f2f5f6');
+    });
     decoration('B02',(g)=>{
        box(g,65,1.8,65,0,20,0,graphite,.7);
        decal(g,'GCM-420302M',52,9,0,9.5,33.3,'front','#f1f4f5');
@@ -185,7 +192,9 @@ export function enrichParts(partMap, platform, onMesh){
     decoration('B04',(g)=>{
        // Do not recreate the two apparent floating steel rods on the
        // V25M front/side. A single integrated flush face cover remains.
-       box(g,1.2,36,34,-28.3,31,0,gunmetal,.3);
+       // Do not bury a separate opaque plate in the stationary body.
+       // A narrow side cover sits externally, with no floating rails.
+       box(g,1.2,36,34,-28.8,31,0,gunmetal,.3);
        // Screw heads are normal to the -X side cover, not the front Z face.
        for(const z of [-16,16])for(const y of [15,47]){
          const head=cyl(g,2.1,1.1,-29.3,y,z,aluminum,24);
@@ -195,9 +204,11 @@ export function enrichParts(partMap, platform, onMesh){
        }
        // V25M branded flange is visible from the SAME rear view as T25M (109).
        decal(g,'GCM-V25M',50,9,0,60,-33.5,'back','#ebedf2');
-       // 108.jpg: this knob is the VERTICAL Z-axis adjuster, not another +X.
-       knurl(g,-24,73,0,8.5,16,'y',44);
-       for(let x of [-24,24])for(let z of [-23,23])screwHead(g,x,66.2,z,2.8);
+       // The single V25M micrometer at local X=-39 is already
+       // explicitly modeled in app.js. The previous decorative knurl
+       // at X=-24 made an unconnected SECOND vertical micrometer.
+       // Similarly 4 old heads at Y66.2/Z±23 floated ABOVE the
+       // stationary guide (Y60 top) and are intentionally deleted.
     });
     decoration('B05',(g)=>{
        // OEM hardware was decomposed into B24/B25/B27. Do not add a
@@ -208,9 +219,8 @@ export function enrichParts(partMap, platform, onMesh){
        // 149 clearly shows the actual model, not a vendor series guess.
        decal(g,'PHUC-1',23,5,0,3.2,13.15,'front','#e5eaf0');
     });
-    decoration('B26',(g)=>{
-       decal(g,'M6?',13,4,0,-19,10.3,'front','#b0beca');
-    });
+    // B26 is ONLY a tiny unverified M6 interface at the rod end.
+    // No separate visible sticker, adapter or floating bracket.
     decoration('B06',(g)=>{
        // Geometry and actual two Y-axis adjustment screws live in app.js.
        // Extra side-facing screws would create a fake third/fourth drive.
