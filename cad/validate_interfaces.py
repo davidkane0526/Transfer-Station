@@ -40,6 +40,40 @@ def check(ok,label):
     report['checks'].append({'check':label,'passed':bool(ok)})
     if not ok: raise AssertionError(label)
 
+# V38: one COMMON optical breadboard per photographed apparatus.
+# B35 is a BOLTED local subpanel and A16 is a BOLTED rotary adapter,
+# not a second shared base. Both rigs remain physically DISTINCT.
+from math import isclose
+for system,board_dir in (('A',A),('B',B)):
+    common=part(board_dir,system+'01')[0]
+    check(abs(common.BoundingBox().zmin)<.02 and abs(common.BoundingBox().zmax-20)<.02,
+          system+' has exactly one lower shared optical breadboard')
+for system,aux,anchors,head_z in (
+    ('A','A16',[(x,y) for x in (50,100) for y in (-25,25)],25.5),
+    ('B','B35',[(x,y) for x in (25,175) for y in (-100,100)],29)):
+    parent=A if system=='A' else B
+    board_solid=part(parent,system+'01')[0]
+    support=part(parent,aux)[0]
+    for i,(x,y) in enumerate(anchors,1):
+        foot_hole=vz(3.1,8,x,y,20 if system=='A' else 20)
+        check(support.intersect(foot_hole).Volume()<1e-5,
+              f'{aux} actual candidate through clearance hole at {x},{y}')
+        receiver=vz(2.4,10,x,y,10)
+        check(board_solid.intersect(receiver).Volume()<1e-5,
+              f'{aux} candidate base anchor aligns with EXISTING board blind grid')
+        bolt=part(parent,f'{aux}S{i}')[0]
+        check(bolt.isValid(),f'{aux}S{i} is a valid manufactured-proxy fastener')
+        check(support.intersect(bolt).Volume()<1e-4,
+              f'{aux}S{i} real mounting bores clear the installed screw')
+        check(board_solid.intersect(bolt).Volume()<1e-4,
+              f'{aux}S{i} does not drill through base outside blind hole')
+    report['V38_'+aux+'_anchors']={
+        'bolted_to_one_common_breadboard':system+'01',
+        'candidate_anchor_count':4,
+        'base_grid_aligned':True,
+        'factory_hole_map_verified':False,
+        'screw_size_and_engagement_verified':False
+    }
 # Photo145/150 shows a DISTINCT black Thorlabs sample support
 # plate below the GCM rotary. Old B models rendered a single common
 # surface, losing 12mm of an independently visible physical layer.
