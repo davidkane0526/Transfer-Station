@@ -387,7 +387,8 @@ try{
  assert(aBefore?.available,'A viewer kinematic witness missing');
  assert.equal(aBefore.a17CandidateHoleCount,13);
  assert.equal(aBefore.a17PhotographedSkuVerified,false);
- assert.equal(aBefore.vStageMovingPlateOffsetY,0);
+ assert.equal(aBefore.vStageMovingPlateOffsetY,13,
+   'A initial viewer pose starts from proposed raised +13mm, not static STEP bottom');
  assert.equal(aBefore.knownProxyGeometryCollisionFree,false);
  await page.locator('#film-drop').evaluate(el=>{
    el.value='-6';el.dispatchEvent(new Event('input',{bubbles:true}));
@@ -396,8 +397,8 @@ try{
  assert.equal(aAfter.filmDropMm,6);
  assert.equal(aAfter.vStageStationaryBaseWorldY,aBefore.vStageStationaryBaseWorldY,
    'A03 fixed body MUST remain on A15, not move into the magnet');
- assert.equal(aAfter.vStageMovingPlateOffsetY,-6,
-   'A03 actual moving platform must descend with the VC13M control');
+ assert.equal(aAfter.vStageMovingPlateOffsetY,7,
+   'A03 output descends 6mm from raised +13mm and remains above fixed upright');
  assert.equal(aAfter.g40WorldBaseY,aBefore.g40WorldBaseY-6,
    'A04 must descend with the VC13M output');
  assert.equal(aAfter.bracketWorldBaseY,aBefore.bracketWorldBaseY-6,
