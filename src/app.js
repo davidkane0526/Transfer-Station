@@ -16,7 +16,7 @@ import {getPlateHolderJawDatums} from './holder-mechanics.js';
 import {auditBPhotoProfile} from './b-physical-audit.js';
 import {V28_OEM_DIMENSIONS,DIMENSION_PHOTOS_V28} from './dimension-evidence.js';
 import {B149,auditB149,auditBLoweringPose} from './b-photo149-geometry.js';
-import {VN50,vacuumHosePath,auditVacuumPath,auditVacuumEnvelope,polylineDistance} from './b-vacuum-routing.js';
+import {VN50,vacuumHosePath,electricalHarnessPaths,auditVacuumPath,auditVacuumEnvelope,polylineDistance} from './b-vacuum-routing.js';
 import {auditBaseTopology,mountStatus} from './assembly-mounts.js';
 import {suctionDimension} from './pneumatic-dimensions.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
@@ -184,6 +184,53 @@ window.__modelBHeatingHarnessProbe=()=>{
    internalTerminationZoneExists:!!parts.get('B39'),
    heaterSupplyTopologyVerified:false,
    controllerTerminalPinoutVerified:false
+ };
+};
+window.__modelBVacuumSplineEnvelopeProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const shifts=Array.from({length:51},(_,i)=>-12.5+i*.5);
+ const angles=Array.from({length:181},(_,i)=>-90+i);
+ const sampleCurve=(points,segments)=>{
+   const curve=new THREE.CatmullRomCurve3(points.map(p=>
+     new THREE.Vector3(p.x,p.y,p.z)));
+   return Array.from({length:segments+1},(_,i)=>{
+     const p=curve.getPointAt(i/segments);
+     return {x:p.x,y:p.y,z:p.z};
+   });
+ };
+ const minima={B37A:Infinity,B37B:Infinity,B38:Infinity};
+ const worst={};
+ const hoseRadius=VN50.outerHoseRadiusMm;
+ let posesChecked=0;
+ for(const sampleShiftMm of shifts)for(const sampleAngleDeg of angles){
+   const options={sampleShiftMm,sampleAngleDeg};
+   const hose=sampleCurve(vacuumHosePath(options),48);
+   const wires=electricalHarnessPaths(options);
+   for(const wire of wires){
+     const centerline=polylineDistance(hose,sampleCurve(wire.points,32));
+     const surface=centerline-hoseRadius-wire.radiusMm;
+     if(surface<minima[wire.id]){
+       minima[wire.id]=surface;
+       worst[wire.id]={sampleShiftMm,sampleAngleDeg};
+     }
+   }
+   posesChecked++;
+ }
+ return {
+   available:true,
+   posesChecked,
+   sampleShiftRangeMm:[-12.5,12.5],
+   sampleAngleRangeDeg:[-90,90],
+   shiftStepMm:.5,
+   angleStepDeg:1,
+   curveType:'THREE.CatmullRomCurve3 centripetal; getPointAt arc-length sampling',
+   hoseCurveSegments:48,
+   harnessCurveSegments:32,
+   minimumSurfaceClearanceMm:minima,
+   worstCasePoses:worst,
+   requiredSurfaceClearanceMm:VN50.minimumHarnessSurfaceClearanceMm,
+   fullStrokeSplineGridPass:Object.values(minima).every(v=>
+     v>VN50.minimumHarnessSurfaceClearanceMm)
  };
 };
 window.__modelBVacuumProbe=()=>{
