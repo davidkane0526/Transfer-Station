@@ -42,6 +42,10 @@ jobs:
           node tests/b-photo149-geometry.mjs
           node --check src/b-vacuum-routing.js
           node tests/b-vacuum-routing.mjs
+          node --check src/assembly-mounts.js
+          node tests/assembly-mounts.mjs
+          node --check src/pneumatic-dimensions.js
+          node tests/pneumatic-dimensions.mjs
           node --check src/b35-fastener-audit.js
           node tests/b35-fastener-audit.mjs
           node --check src/b-physical-audit.js
