@@ -431,9 +431,11 @@ check(abs(gbox.xmin-18)<.02 and abs(gbox.xmax-94)<.02,
       'V36 glass extends from x18 to x94; clamp grips left edge')
 check(abs(sbox.xmin-72)<.02 and abs(sbox.xmax-92)<.02,
       'V36 PDMS is near right glass edge and centered over heater')
-check(gbox.xmin<=min(q.xmax for q in jaws) and
+check(gbox.xmin<=part(B,'B06F')[0].BoundingBox().xmax and
+      gbox.xmin>=part(B,'B06F')[0].BoundingBox().xmin and
+      gbox.xmin<=part(B,'B06M')[0].BoundingBox().xmax and
       sbox.xmax<=gbox.xmax-1.5,
-      'PDMS stays on glass and jaw engages its left portion')
+      'PDMS stays on glass and both actual jaw faces overlap its left portion')
 check(abs(clamp_x_right-34)<.02,
       'V36 full solid clamp jaws right edge at x34, not inside hot stage')
 check(heat_x_left-clamp_x_right>15,
