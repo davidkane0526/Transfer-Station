@@ -89,6 +89,8 @@ export function vacuumHosePath({
   const path=[
     moving,
     point(moving.x,70,moving.z),
+    point(moving.x,70,moving.z+30),
+    point(200,70,moving.z+30),
     point(200,70,-135),
     point(200,70,-170),
     point(200,70,-275),
