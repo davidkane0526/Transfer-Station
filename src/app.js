@@ -1332,6 +1332,9 @@ function rotaryB(){
      for(const [x,y,r] of lowerSide)addSideBore(g,x,y,r,'lower');
      for(const [x,y,r] of upperSide)addSideBore(slidingTop,x,y,r,'upper');
      g.userData.sideHoleRowsCandidate={fixedLower:4,movingUpper:3};
+     g.userData.nfpPhotoSideHoleCount=7;
+     g.userData.nfpPhotoSideHoleRows={lower:4,upper:3};
+     g.userData.NFPUpperPhotoSideHoleRowHeightMm=17.5;
    }else{
      g.userData.sideHoleRowsCandidate=null;
      g.userData.sideHolePatternAssigned=false;
