@@ -172,6 +172,8 @@ window.__modelAKinematicProbe=()=>{
     sampleTopAboveBoardMm:silverSample.userData.rulerSampleTopAboveBoardMm??null,
     sampleLayersMm:silverSample.userData.layerProxies??null,
     sampleRotaryDiameterMm:rotarySample.userData.photo48CandidateRotaryDiameterMm??null,
+    sampleRotaryRightAngularMicrometerCount:rotarySample.userData.rightAngularMicrometerCount??0,
+    sampleRotaryShortFrontLockCount:rotarySample.userData.shortFrontLockCount??0,
     sampleRulerWithinTolerance:auditV48RulerRegistration().sampleTopWithinVisibleRulerRange,
     samplePhotoRulerSource:V48_RULER_EVIDENCE.A.sampleTopHeightAboveBreadboardMm.photos,
     stageModel:'GCM-VC13M',
