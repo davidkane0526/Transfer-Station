@@ -24,6 +24,10 @@ assert.equal(e.A.sampleAssembly.basePhoto,'17 (upside-down GCM-5306M label), 18'
 assert.equal(e.A.sampleAssembly.rotationDiameterManufacturerVerified,false);
 assert.deepEqual(e.A.sampleAssembly.nominalLayerThicknessMm,[9,7,12]);
 assert.equal(HANDLES.A02.direction,'-X');
+assert.equal(HANDLES.A06.micrometerDirection,'+X');
+assert.equal(HANDLES.A06.direction,'+Z');
+assert.equal(e.A.sampleAssembly.angularMicrometerOnRight,true);
+assert.equal(e.A.sampleAssembly.shortRotationLockAtFront,true);
 assert.equal(STACKS.A.sample[1],'A16');
 const A=Object.fromEntries(PARTS.A.map(p=>[p.id,p]));
 const B=Object.fromEntries(PARTS.B.map(p=>[p.id,p]));
