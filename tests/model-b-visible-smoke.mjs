@@ -554,7 +554,28 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V57.*A05C.*A05G.*A17/);
+ assert.match(await page.locator('#platform-caption').innerText(),/V58.*A17/,
+  'The initial platform A view must identify the unverified working hypothesis');
+ assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
+ assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
+ const aDefault=await page.evaluate(()=>window.__platformAWorkingPoseProbe?.());
+ assert.equal(aDefault.mode,'candidate');
+ assert.equal(aDefault.actualStagePosePhotoRegistered,false);
+ assert.equal(aDefault.A05CClampSkuVerified,false);
+ assert.equal(aDefault.footprintGapMm,36.25);
+ assert.equal(aDefault.stampCenterX,78);
+ assert.equal(aDefault.stampCenterZ,0);
+ assert.equal(aDefault.initialVerticalStampGapMm,13);
+ assert.equal(aDefault.clampHeaterClearanceMm,26);
+ const aContactBefore=await page.evaluate(()=>window.__modelAContactProbe?.());
+ assert.equal(aContactBefore?.available,true);
+ assert.equal(aContactBefore.clampOutsideHeater,true);
+ assert.equal(aContactBefore.stampFullyInsideChipXY,true);
+ assert.equal(aContactBefore.stampRightInsetMm,4);
+ assert.equal(aContactBefore.sampleChipTopWorldYmm,110.6);
+ assert.equal(aContactBefore.pdmsToChipGapMm,13);
+ assert.equal(aContactBefore.clampFastenerProxyCount,2);
+ assert.equal(aContactBefore.dimensionsForFabricationValidated,false);
  const aComplete=await page.evaluate(()=>window.__platformACompletenessProbe?.());
  assert.equal(aComplete?.available,true,
    'Platform A must model A05C clamp and A05G glass as separate scene components');
@@ -583,7 +604,8 @@ try{
  assert.deepEqual(photoA?.embedded,[],
    'Photo94 raw file is not bundled; a stock photo cannot be substituted');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/工程几何假设/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/36.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
  // A03 VC13M must move only its output plate; A04/A05 follow the
@@ -641,9 +663,53 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aAfter.glassClampedAndReachable,false,
    'Functional transfer must remain explicitly unverified');
  // V55 fast structural QA: omit nonessential Transfer-Station-V46-A-VC13M-Lowered.png screenshot.
+ // Verify actual (not merely analytical) PDMS-to-chip contact at full
+ // VC13M travel. The glass carrier must stay off the heater.
+ await page.locator('#film-drop').evaluate(el=>{
+   el.value='-13';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const fullA=await page.evaluate(()=>window.__modelAContactProbe?.());
+ assert.equal(fullA.pdmsToChipGapMm,0,
+   'V58 at -13mm PDMS must touch the A07 sample chip surface exactly');
+ assert.equal(fullA.clampOutsideHeater,true);
+ assert.equal(fullA.stampFullyInsideChipXY,true);
+ await page.screenshot({path:'Transfer-Station-V58-A-Candidate-Transfer-Contact.png'});
  await page.locator('#film-drop').evaluate(el=>{
    el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
+ // The A06 rotary stage creates an enlarged heater-envelope footprint.
+ // A hazardous offset combination must reset the vertical descent.
+ await page.locator('#translate').evaluate(el=>{
+   el.value='12.5';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='-12.5';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='45';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const unsafeA=await page.evaluate(()=>window.__platformAWorkingPoseProbe?.());
+ assert.equal(unsafeA.candidateCanLower,false);
+ await page.locator('#film-drop').evaluate(el=>{
+   el.value='-5';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ assert.equal((await page.evaluate(()=>window.__modelAKinematicProbe?.())).filmDropMm,0,
+   'Unsafe A tilt/translation must reset a downward VC13 request');
+ for(const id of ['translate','sample-move','rotate-sample']){
+   await page.locator('#'+id).evaluate(el=>{
+     el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+   });
+ }
+ // Show the historical photo94 left-fold configuration separately.
+ await page.locator('#btn-a-photo-pose').evaluate(el=>el.click());
+ const aPhoto=await page.evaluate(()=>window.__platformACompletenessProbe?.());
+ assert.equal(aPhoto.aPose,'photo94');
+ assert.equal(aPhoto.sheetHandedness,'left');
+ assert.equal(aPhoto.sheetLegLengthMm,72);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
+ assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
+ await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
+ assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'candidate');
  const mountA=await page.evaluate(()=>window.__mountingProbe?.());
  assert.equal(mountA?.singleBreadboardInScene,true);
  assert.equal(mountA?.commonBase,'A01');
