@@ -18,6 +18,18 @@ try{
  assert.match(await page.locator('#photo-scope-note').innerText(),/PHUC-1/);
  const rect=await page.locator('#viewer canvas').boundingBox();
  assert(rect&&rect.width>=400&&rect.height>=400);
+ // Capture a reviewable model BEFORE the long mechanical test suite.
+ // Even a later failed assertion must not erase all visual evidence.
+ await page.screenshot({path:'Transfer-Station-ModelB-Full-Assembly.png'});
+ await page.locator('#btn-sample-stack').evaluate(el=>el.click());
+ await page.waitForTimeout(300);
+ const earlySampleBox=await page.locator('#viewer').boundingBox();
+ assert(earlySampleBox&&earlySampleBox.width>=300&&earlySampleBox.height>=300);
+ await page.screenshot({path:'Transfer-Station-V55-B-Crossed-Sample-XY.png',
+   clip:{x:earlySampleBox.x,y:earlySampleBox.y,
+     width:earlySampleBox.width,height:earlySampleBox.height},
+   animations:'disabled',timeout:30000});
+ await page.locator('#btn-home').evaluate(el=>el.click());
  for(const category of ['base','film','sample','heat','microscope','vacuum','external']){
    const toggle=page.locator('#group-list input[data-group="'+category+'"]');
    assert.equal(await toggle.count(),1,'B scene missing '+category);
