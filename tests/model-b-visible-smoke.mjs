@@ -245,6 +245,15 @@ try{
  assert.equal(support.microscopeFootFourTrueThroughBores,true,
    'V35 microscope foot has four actual candidate through-bores, not four screws on solid metal');
  assert.equal(support.microscopeMountAudit?.candidateFootHoleCount,4);
+ assert.equal(support.microscopeMountAudit?.mountingCounterboreCount,4);
+ assert.equal(support.microscopeMountAudit?.centralFifthCounterbore,false,
+   'MB2530/M 250x300mm must not gain the central fifth counterbore');
+ assert.equal(support.B16MountingScrewHeads,4,
+   'B16 custom foot must show four candidate M6x20 mounting screws');
+ assert.equal(support.NFPMicrometerOverallLengthCandidateMm,177.5,
+   'NFP right-facing micrometer assembly must remain within the OEM overall-length envelope');
+ assert.equal(support.NFPUpperPhotoSideHoleRowHeightMm,17.5,
+   'NFP upper side-hole row must match the CAD/STEP z datum');
  assert.equal(support.microscopeMountAudit?.boardBoltPatternAligned,true,
    'New B16 four M6 candidate holes must be registered to B35 grid');
  assert.equal(support.microscopeMountAudit?.maxMismatchMm,0);

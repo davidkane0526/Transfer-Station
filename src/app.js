@@ -132,6 +132,8 @@ window.__modelBSupportProbe=()=>{
    originalThorlabsPartNumberConfirmed:false,
    microscopeFootFourTrueThroughBores:footBoresOpen,
    B16MountingScrewHeads:scopeMeshes.filter(m=>m.userData.B16MountingScrewHead).length,
+   NFPMicrometerOverallLengthCandidateMm:parts.get('B09')?.g?.userData?.NFPMicrometerOverallLengthCandidateMm??null,
+   NFPUpperPhotoSideHoleRowHeightMm:parts.get('B09')?.g?.userData?.nfpPhotoUpperSideRowHeightMm??null,
    microscopeMountAudit:mountAudit
  };
 };
@@ -1279,7 +1281,7 @@ function rotaryB(){
      bottom.userData.NFPPhoto25SideBoreBottom=true;
    };
    const nfpLowerSide=[[-18,7,1.6],[-4,7,2.0],[11,7,2.6],[22,7,1.6]];
-   const nfpUpperSide=[[-22,18,1.8],[-8,18,1.8],[12,18,2.8]];
+   const nfpUpperSide=[[-22,17.5,1.8],[-8,17.5,1.8],[12,17.5,2.8]];
    for(const [x,y,r] of nfpLowerSide)addNfpPhotoBore(g,x,y,r,'lower');
    for(const [x,y,r] of nfpUpperSide)addNfpPhotoBore(slidingTop,x,y,r,'upper');
    g.userData.nfpPhotoSideHoleCount=7;
