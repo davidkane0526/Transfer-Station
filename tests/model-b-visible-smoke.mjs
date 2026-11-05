@@ -279,7 +279,7 @@ try{
  assert(depthVac.sourceCoordinateErrorMm<.01,
    'B41 second axis moved the fitting but detached the first B40 hose waypoint');
  assert(depthVac.pumpCoordinateErrorMm<.01);
- assert(Math.abs(depthVac.dynamicRoute[0].z-vac.dynamicRoute[0].z-7)<.01,
+ assert(Math.abs(depthVac.dynamicRoute[0][2]-vac.dynamicRoute[0][2]-7)<.01,
    'B41 fore/aft travel must shift the first hose node by the same distance');
  await page.locator('#sample-move-depth').evaluate(el=>{
    el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
