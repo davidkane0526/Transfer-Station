@@ -210,7 +210,7 @@ def heater(cx=82,cy=0,z=98.2):
     fitting=fitting.cut(vy(1.42,12.2,cx,cy-44.6,z+9.3))
     add('B','B15','rear_vacuum_fitting_OPEN_AXIAL_BORE',fitting,'C')
     # Rear stub follows browser B15 to exactly the same datum as B40.
-    stub=[(82,-44.5,107.5),(82,-58,108.5),
+    stub=[(82,-44.5,130.5),(82,-58,131.5),
           (83,-70,104.5),(94,-79,90.5)]
     add('B','B15T','vacuum_short_flexible_hollow_stub_CANDIDATE',
         hollow_hose(stub),'C')
