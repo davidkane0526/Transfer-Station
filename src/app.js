@@ -119,6 +119,7 @@ window.__modelBActuatorProbe=()=>{
      depthCarriageLocalMm:root.userData.slidingDepth?.position.z??null,
      singleCarriageLocalMm:root.userData.slidingTop?.position.x??null,
      sideHoleRowsCandidate:root.userData.sideHoleRowsCandidate??null,
+     nfpPhotoSideHoleCount:root.userData.nfpPhotoSideHoleCount??0,
      B41TopFourM6MountPatternCandidate:Boolean(root.userData.B41TopFourM6MountPatternCandidate),
      worldPosition:origin.toArray()
    };
