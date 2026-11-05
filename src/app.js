@@ -1323,6 +1323,7 @@ function rotaryB(){
    const addSideBore=(parent,x,y,r,row)=>{
      const rim=add(parent,sleeve(r+.45,r,.6,mats.silver,x,y,-32.2,'z'));
      rim.userData.sampleStageSideBore={row,diameterMm:2*r,photoFit:true};
+     rim.userData.NFPPhoto25SideBore={row,diameterMm:2*r,photoFit:true};
      const bottom=add(parent,cyl(r,.2,mats.black,x,y,-31.3,24));
      bottom.rotation.x=Math.PI/2;
      bottom.userData.sampleStageSideBoreBottom=true;
