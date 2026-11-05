@@ -376,7 +376,7 @@ try{
  }
  await page.locator('#btn-b-archive').click();
  assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/VC13M运动预览/);
+ assert.match(await page.locator('#platform-caption').innerText(),/V48.*尺规约9cm/);
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
  assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
@@ -389,6 +389,13 @@ try{
 assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
   'Photo94 requires two vertically stacked distinct 20mm goniometer modules');
  assert.equal(aBefore.a17PhotographedSkuVerified,false);
+ assert.equal(aBefore.bMagnetPhotographedSkuVerified,true);
+ assert.equal(aBefore.bMagnetSkuMustNotBeAttributedToA,true);
+ assert.deepEqual(aBefore.sampleLayersMm,[9,7,12]);
+ assert.equal(aBefore.sampleRotaryDiameterMm,66);
+ assert.equal(aBefore.sampleTopAboveBoardMm,89.2);
+ assert.equal(aBefore.sampleRulerWithinTolerance,true);
+ assert.deepEqual(aBefore.samplePhotoRulerSource,['17','18']);
  assert.equal(aBefore.a10CandidateBoltHeadCount,4,
    'A10 cannot draw screw heads without four actual support bores');
  assert.equal(aBefore.a10ActualFootBoresOpen,true,
