@@ -211,7 +211,7 @@ def heater(cx=82,cy=0,z=98.2):
     add('B','B15','rear_vacuum_fitting_OPEN_AXIAL_BORE',fitting,'C')
     # Rear stub follows browser B15 to exactly the same datum as B40.
     stub=[(82,-44.5,130.5),(82,-58,131.5),
-          (83,-70,104.5),(94,-79,90.5)]
+          (83,-70,127.5),(94,-79,113.5)]
     add('B','B15T','vacuum_short_flexible_hollow_stub_CANDIDATE',
         hollow_hose(stub),'C')
     for n,xx in enumerate((10,15),1):
@@ -501,18 +501,18 @@ def make_b():
         box(36,12,16,265,-116,3),'C')
     wiring=[
       ('B37','heater_A_unverified_power_lead',1.1,
-       [(93,-60,98.5),(119,-92,104),(174,-140,100),
-        (207,-165,94),(222.5,-168,84),
+       [(93,-60,121.5),(119,-92,135),(174,-140,130),
+        (207,-165,120),(222.5,-168,84),
         (225,-168,84),(235,-154,72),(237,-125,44),
         (251,-117,25),(255,-116,19.7)]),
       ('B37A','heater_B_unverified_power_lead',1.1,
-       [(98,-60,98.5),(119,-97,109),(174,-146,106),
-        (207,-171,99),(222.5,-167,87),
+       [(98,-60,121.5),(119,-97,140),(174,-146,136),
+        (207,-171,126),(222.5,-167,87),
         (225,-167,87),(235,-151,75),(237,-128,49),
         (252,-118,26),(265,-116,19.7)]),
       ('B38','temperature_feedback_unverified_pinout',.72,
-       [(88,-51,100.35),(119,-102,114),(174,-152,112),
-        (207,-177,104),(222.5,-163,89),
+       [(88,-51,123.35),(119,-102,138),(174,-146,136),
+        (207,-171,130),(222.5,-163,89),
         (225,-163,89),(235,-150,103),(265,-120,108),
         (310,-83,100),(349,-43,78)])
     ]
@@ -604,7 +604,9 @@ def make_b():
     # B40 from the B37 heater pair and B38 sensor lead.
     # CAD (X, depth-Y, vertical-Z) maps to WebGL (X, vertical-Y, depth-Z).
     hose=[
-        (94,-79,90.5),(200,-135,70),(200,-170,70),
+        (94,-79,113.5),
+        (94,-79,70),(94,-49,70),(200,-49,70),
+        (200,-135,70),(200,-170,70),
         (200,-275,70),(350,-275,70),(520,-275,70),
         (520,140,70),(520,180,90),(465,180,69),(409.2,180,68)
     ]
@@ -761,7 +763,7 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,192).cut(vz(26.1,66.2,cx,0,191.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',
         sleeve_A14,'C')
-CAD_REVISION='V51'
+CAD_REVISION='V56'
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
     # The user's B photos distinguish the SILVER common table from the
