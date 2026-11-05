@@ -2184,8 +2184,8 @@ function platformA(){
    // glass edge, not through the 1mm glass. Count, thread and tightening
    // geometry cannot be inferred from photo94 and are not OEM-confirmed.
    for(const zOffset of [-9,9]){
-     const driver=add(g,cyl(1.4,6,mats.steel,
-       bracketLegLocalX+7,glassCenterY+3.5,aBent.sheetFrontZ+zOffset));
+     const driver=add(g,cyl(1.4,8,mats.steel,
+       bracketLegLocalX+7,glassCenterY+3,aBent.sheetFrontZ+zOffset));
      driver.userData.A05CUnverifiedClampingScrew=true;
      const cap=add(g,cyl(2.8,2,mats.silver,
        bracketLegLocalX+7,glassCenterY+7,aBent.sheetFrontZ+zOffset));
