@@ -87,6 +87,40 @@ window.__modelBViewProbe=()=>{
    camera:camera.position.toArray(),target:orbit.target.toArray()
  };
 };
+// V54: inspect actual rendered actuator meshes and independent carriage motion.
+// The result is derived from visible handle meshes and live group transforms,
+// not from BOM labels or photo-evidence metadata alone.
+window.__modelBActuatorProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const inspect=(id)=>{
+   const root=parts.get(id)?.g;
+   if(!root)return {available:false};
+   root.updateWorldMatrix(true,true);
+   const origin=new THREE.Vector3();root.getWorldPosition(origin);
+   const handles=[];
+   root.traverse(o=>{
+     const meta=o.userData.stageActuatorHandle;
+     if(!meta)return;
+     const p=new THREE.Vector3();o.getWorldPosition(p);
+     const rel=p.sub(origin);
+     const axis=Math.abs(rel.x)>=Math.abs(rel.z)?'X':'Z';
+     const direction=axis==='X'?(rel.x>=0?'+X':'-X'):(rel.z>=0?'+Z':'-Z');
+     handles.push({kind:meta.kind,axis,direction});
+   });
+   return {
+     available:true,
+     handles,
+     linearHandleCount:handles.filter(h=>h.kind==='linear').length,
+     rotaryLockHandleCount:handles.filter(h=>h.kind==='rotary-lock').length,
+     axes:[...new Set(handles.filter(h=>h.kind==='linear').map(h=>h.axis))].sort(),
+     directions:handles.map(h=>h.direction).sort(),
+     xCarriageLocalMm:root.userData.slidingX?.position.x??null,
+     depthCarriageLocalMm:root.userData.slidingDepth?.position.z??null,
+     singleCarriageLocalMm:root.userData.slidingTop?.position.x??null
+   };
+ };
+ return {available:true,B03:inspect('B03'),B08:inspect('B08'),B09:inspect('B09')};
+};
 // Browser-only, read-only mechanical validation of the ACTUAL rendered
 // meshes, not just a BOM flag. Photos145/150 place the microscope foot
 // and the sample rotary on the SAME black Thorlabs board B35.
@@ -777,6 +811,8 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
    add(g,cub(14,11,14,mats.dark,0,lowerH*.5,supportZ));
    const yStem=add(g,cyl(6,27,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+23)));yStem.rotation.x=Math.PI/2;
    const yDrum=add(g,cyl(9,14,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+39)));yDrum.rotation.x=Math.PI/2;
+   yDrum.userData.stageActuatorHandle={kind:'linear',localAxis:'depth'};
+   yStem.userData.stageActuatorStem={kind:'linear',localAxis:'depth'};
    label(g,'机构Y / 场景Z：前后微调',0,lowerH+5,depthHandleSide*(d/2+55));
   }else{
    g.userData.slidingTop=carriageX;
@@ -786,6 +822,8 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
   add(g,cub(14,12,14,mats.dark,side*(w/2+6),h-9,actuatorZ));
   const xStem=add(g,cyl(6,27,mats.silver,side*(w/2+24),h-9,actuatorZ));xStem.rotation.z=Math.PI/2;
   const xDrum=add(g,cyl(9,14,mats.silver,side*(w/2+43),h-9,actuatorZ));xDrum.rotation.z=Math.PI/2;
+  xDrum.userData.stageActuatorHandle={kind:'linear',localAxis:'X'};
+  xStem.userData.stageActuatorStem={kind:'linear',localAxis:'X'};
   label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,actuatorZ);
   if(JOINTS[id]&&id!=='A15')addJointHeads(g.userData.slidingTop,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g.userData.slidingTop,3,h+.5,xx,zz);
@@ -1258,6 +1296,7 @@ function rotaryB(){
     for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(g,2.6,33.5,x,z);
     // 111.jpg rotary silver lock handle faces the operator (+Z), not +X.
     const knob=add(g,cyl(6,31,mats.silver,0,12,57));knob.rotation.x=Math.PI/2;
+    knob.userData.stageActuatorHandle={kind:'rotary-lock',localAxis:'Z'};
     addJointHeads(g,'B08',33.15,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.9});
     label(g,'GCM-1107M · Ø94×33.2',0,46,0);
  },{explode:[12,0,0],rotateSample:false});
@@ -1303,6 +1342,8 @@ function rotaryB(){
    const spindle=add(g,cyl(3.6,82.5,mats.silver,-89.25,12,0));spindle.rotation.z=Math.PI/2;
    const collar=add(g,sleeve(9,3.8,23,mats.steel,-119,12,0,'x'));
    const drum=add(g,sleeve(11,9.2,28,mats.silver,-131,12,0,'x'));
+   drum.userData.stageActuatorHandle={kind:'linear',localAxis:'X'};
+   spindle.userData.stageActuatorStem={kind:'linear',localAxis:'X'};
    g.userData.NFPMicrometerOverallLengthCandidateMm=177.5;
    for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
    for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
