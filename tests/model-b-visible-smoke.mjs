@@ -41,15 +41,47 @@ try{
    'B03 crossed actuators must be perpendicular in the rendered scene');
  assert.deepEqual(actuators.B03.directions,['+Z','-X'],
    'B03 handles must face front (+Z) and left (-X) after the 180-degree installation');
- assert.equal(actuators.B08.rotaryLockHandleCount,1,
-   'B08 GCM-1107M must retain its separate forward rotary-lock rod');
- assert.deepEqual(actuators.B08.directions,['+Z'],
-   'B08 rotary-lock rod must face the operator (+Z)');
+ assert.equal(actuators.B08.linearHandleCount,0,
+   'B08 GCM-1107M is rotation-only and has NO external operating handle');
+ assert.equal(actuators.B08.rotaryLockHandleCount,0,
+   'B08 must not contain a fabricated rotary lock/drive rod');
+ assert.equal(actuators.B08.handles.length,0,
+   'B08 rendered rotary body must have no protruding actuator');
+ assert.equal(actuators.B41.linearHandleCount,1,
+   'B41 lower crossed stage must render its own independent front micrometer');
+ assert.deepEqual(actuators.B41.axes,['Z']);
+ assert.deepEqual(actuators.B41.directions,['+Z'],
+   'B41 second linear micrometer must face the operator/front (+Z)');
  assert.equal(actuators.B09.linearHandleCount,1,
-   'B09 NFP-1462C is a single-axis stage with one micrometer');
+   'B09 NFP-1462C is a single-axis upper stage with one micrometer');
  assert.deepEqual(actuators.B09.axes,['X']);
  assert.deepEqual(actuators.B09.directions,['+X'],
    'B09 NFP micrometer must face right (+X)');
+ assert(Math.abs(actuators.B09.worldPosition[1]-actuators.B41.worldPosition[1]-23)<.05,
+   'B09 upper single-axis stage must sit directly on B41 lower stage');
+ assert(Math.abs(actuators.B10.worldPosition[1]-actuators.B09.worldPosition[1]-23)<.05,
+   'The insulation/heater stack must be above the B09 moving top, not at the old single-stage height');
+ // Exercise the two independent sample axes and their carried upper stack.
+ await page.locator('#sample-move').evaluate(el=>{el.value='5';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ let sampleX=await page.evaluate(()=>window.__modelBActuatorProbe?.());
+ assert(Math.abs(sampleX.B09.singleCarriageLocalMm+5)<.05,
+   'B09 X control must move the upper NFP carriage');
+ assert(Math.abs(sampleX.B41.singleCarriageLocalMm)<.05,
+   'B09 X control must not move the lower B41 carriage');
+ assert(Math.abs(sampleX.B10.worldPosition[0]-actuators.B10.worldPosition[0]-5)<.05,
+   'B09 X carriage must carry the heater stack');
+ await page.locator('#sample-move').evaluate(el=>{el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ await page.locator('#sample-move-depth').evaluate(el=>{el.value='4';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ const sampleZ=await page.evaluate(()=>window.__modelBActuatorProbe?.());
+ assert(Math.abs(sampleZ.B41.singleCarriageLocalMm+4)<.05,
+   'B41 front/back control must move its own lower carriage');
+ assert(Math.abs(sampleZ.B09.worldPosition[2]-actuators.B09.worldPosition[2]-4)<.05,
+   'B41 Z carriage must carry the upper B09 stage');
+ assert(Math.abs(sampleZ.B10.worldPosition[2]-actuators.B10.worldPosition[2]-4)<.05,
+   'B41 Z carriage must carry the heater/insulator stack');
+ assert(Math.abs(sampleZ.B09.singleCarriageLocalMm)<.05,
+   'B41 Z control must not move the independent B09 X carriage');
+ await page.locator('#sample-move-depth').evaluate(el=>{el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));});
  // Exercise the two B03 carriages independently, then together.
  await page.locator('#translate').evaluate(el=>{el.value='5';el.dispatchEvent(new Event('input',{bubbles:true}));});
  const xOnly=await page.evaluate(()=>window.__modelBActuatorProbe?.());
