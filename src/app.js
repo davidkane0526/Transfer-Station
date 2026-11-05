@@ -1914,6 +1914,7 @@ function refreshHeatingControlHarness(){
 
 function platformA(){
  const ax=activeAFilmX(),sx=CONFIG.A.sampleX;
+ const az=aWorkingPoseMode?A_WORKING_LAYOUT.filmStageZ:0;
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
  // not the separate left transfer-arm adjustment stage.
  // New photos137/161 show the factory-marked GCM-5306M 8mm mount
@@ -1936,7 +1937,7 @@ function platformA(){
  // V38: the A FILM-side is magnetically mounted to ONE A01
  // optical breadboard. This magnetic stand is inferred from the user's
  // assembly rule; photos have NOT confirmed its exact maker or height.
- addPart('A17',ax,20,0,g=>{
+ addPart('A17',ax,20,az,g=>{
     // A17 top/underside are not legible in the A-photo evidence.
     // Keep a neutral blank top-interface proxy; do NOT copy B02/GCM-420302M holes.
     add(g,cub(65,10,65,mats.dark,0,5,0));
@@ -1976,12 +1977,12 @@ function platformA(){
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
- makeStageBlock('A15',ax,40,0,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
+ makeStageBlock('A15',ax,40,az,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
  // Actual photo 97: A15 dual-axis T25M below upright GCM-VC13M;
  // photo 94: GCM-G40M60L on VC13M, with a SINGLE THIN folded-L
  // plate bolted to G40's movable top. These three images are platform A,
  // not B. All geometries below are photographic silhouettes, not OEM solids.
- addPart('A03',ax,73,0,g=>{
+ addPart('A03',ax,73,az,g=>{
    // Photo97 footprint has a much narrower upright body than the 65mm
    // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
    add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
@@ -2022,7 +2023,7 @@ function platformA(){
  // Photo94 front view shows TWO approximately 20mm-tall goniometer
  // modules, each with its own drive. Only the upper G40M60L model tag
  // is legible. Never identify the lower as G40M40L without OEM evidence.
- addPart('A04L',ax,124,0,g=>{
+ addPart('A04L',ax,124,az,g=>{
    // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
    // Photo94 front body has a LOWER cradle, a split rocker top, two
    // front fastener pairs, and a +X micrometer with a steel thimble.
@@ -2056,7 +2057,7 @@ function platformA(){
    g.userData.lowerGoniometerSkuUnverified=true;
    label(g,'照片94下层独立摆角机构 · 右侧测微 · 型号待核',-4,40,0);
  },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true});
- addPart('A04',ax,144,0,g=>{
+ addPart('A04',ax,144,az,g=>{
    // Upper G40M60L label is visually legible in photo94.
    // Lower partner is not positively identified. G40M60L body:
    add(g,cub(40,7,40,mats.black,0,3.5,0));
@@ -2084,7 +2085,7 @@ function platformA(){
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
    handedness:aWorkingPoseMode?'right':'left',
    verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72});
- addPart('A05',ax,164,0,g=>{
+ addPart('A05',ax,164,az,g=>{
    // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
    // and not the 200mm square beam formerly rendered here.
    const localX=aBent.centerX-ax;
@@ -2120,7 +2121,7 @@ function platformA(){
  const glassLeftX=bracketLegLocalX+10;
  const glassCenterX=glassLeftX+38;
  const glassCenterY=-aBent.verticalLegLength+1.0;
- addPart('A05C',ax,164,0,g=>{
+ addPart('A05C',ax,164,az,g=>{
    // Connection tab touches A05's bent leg; the actual clamp
    // mechanism, jaw aperture and bolt holes are NOT photo-verified.
    const bracketTie=add(g,cub(2.5,14,10,mats.black,
@@ -2152,7 +2153,7 @@ function platformA(){
    label(g,'A05C · 玻片夹连接示意（实物夹具型号、孔位未确认）',
      bracketLegLocalX+5,18,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
- addPart('A05G',ax,164,0,g=>{
+ addPart('A05G',ax,164,az,g=>{
    // Typical 76x26x1mm glass slide extends to the RIGHT of the
    // external holder. Put the PDMS stamp near its right edge so the
    // jaw can remain outside the heater envelope in an eventual
