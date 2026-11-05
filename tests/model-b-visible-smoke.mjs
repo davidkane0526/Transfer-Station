@@ -576,8 +576,8 @@ try{
  assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 94/);
  assert.match(await page.locator('#photo-evidence-gallery').innerText(),/原图未入库/);
  assert.match(await page.locator('#part-detail').innerText(),/夹持器|玻片夹/);
- // Clear the user's intentionally persistent filter before full-inventory tests.
- await page.locator('#bom-query').fill('');
+ // Clear the user's intentionally persistent filter even while the BOM drawer is closed.
+ await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  const photoA=await page.evaluate(()=>window.__photoEvidenceProbe?.('A05C'));
  assert(photoA?.ids.includes('94'));
  assert.deepEqual(photoA?.embedded,[],
