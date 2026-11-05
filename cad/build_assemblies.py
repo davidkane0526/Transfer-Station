@@ -630,7 +630,10 @@ def make_b():
         box(65,72,48,335,65,0),'P')
 def make_a():
     board('A')
-    ax,cx=-116,78
+    ax,cx=-46.75,78
+    # V58 CAD exports ONLY the labelled working-layout candidate.
+    # The original photographed left-return arm remains in the web viewer.
+    # This X position, mirrored fold and 52.1mm leg are NOT OEM dimensions.
     # A photo 100 shows sample-side T25M above rotary; A photo 97 shows a
     # SECOND T25M below VC13M. Both physically exist.
     stage('A','A02',cx,0,61.2,'-X')
@@ -692,44 +695,46 @@ def make_a():
     # NOT a fabricated 215mm solid transfer beam / invented glass clip.
     # Match the existing Three.js A05 geometry; open glass attachment
     # is intentionally unresolved until more real photos are available.
-    # V47: local x-span was calibrated from the G40 40mm photo94 front
-    # projection (roughly 75mm total, 48mm left reach). NOT ruler metrology.
-    l_left=ax-48
-    # Second physical G40 layer lifts the folded plate by 20mm.
-    folded_sheet=box(75,12,2.5,ax-10.5,13,164).fuse(
-        box(2.5,12,72,l_left+1.25,13,92),
-        box(13,12,2.5,l_left+6.5,13,92))
-    add('A','A05','photo94_ONE_CONNECTED_BENT_L_SHEET_CANDIDATE',
-        folded_sheet,'P')
+    # V58 geometric WORKING hypothesis: do not confuse with
+    # photo94's confirmed LEFT-return L sheet. The current candidate
+    # mirrors the folded edge to the RIGHT; a 52.1mm vertical leg
+    # brings PDMS to the upper surface of the 1.4mm sample chip
+    # after VC13M's 13mm travel. Neither length nor orientation is
+    # measured on the user's rig; absolute coordinates are provisional.
+    leg_len=52.1
+    leg_bottom=164-leg_len
+    bracket_leg_x=ax+48-1.25
+    sheet=box(75,12,2.5,ax+10.5,0,164).fuse(
+        box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),
+        box(13,12,2.5,bracket_leg_x+6,0,leg_bottom))
+    add('A','A05','WORKING_HYPOTHESIS_mirrored_right_75mm_L_sheet_NOT_photo_orientation',
+        sheet,'C')
     for i,dx in enumerate((-14,14),1):
-        add('A',f'A05S{i}','photo94_TOP_VISIBLE_SCREW_HEAD_CANDIDATE',
-            vz(3.1,2,ax+dx,13,166.5),'P')
-    # V57: A05C is NOT the old discredited 215mm carrier.
-    # The neutral, LOCAL 21mm glass-jaw proxy restores the missing
-    # A05 -> A05C -> A05G attachment chain. We make no OEM or screw
-    # pattern claims; the whole first-rig cross-branch registration
-    # against the heater remains unresolved.
-    bracket_leg_x=l_left+1.25
+        add('A',f'A05S{i}','two_candidate_sheet_top_fastener_heads',
+            vz(3.1,2,ax+dx,0,166.5),'C')
+    # Three independent jaw/glass members and an 8x8mm PDMS stamp.
+    # The screws are MODEL PROXIES placed OUTSIDE the glass perimeter.
     glass_left=bracket_leg_x+10
     glass_center_x=glass_left+38
-    glass_center_z=93
-    tie=box(2.5,10,14,bracket_leg_x,13,92)
-    clamp_carrier=box(21,27,3,bracket_leg_x+9,13,89.5)
-    lower_jaw=box(10,27,1.2,bracket_leg_x+15,13,91.3)
-    clamp_body=tie.fuse(clamp_carrier,lower_jaw)
-    add('A','A05C','A05C_unidentified_clamp_BRACKET_TIE_AND_LOWER_JAW_SCENE_PROXY',
-        clamp_body,'C')
-    # The upper jaw is a separately movable candidate component;
-    # unknown tightening screw, travel and mounting threads remain
-    # explicitly unmanufacturable.
-    add('A','A05CU','A05C_upper_jaw_NO_VERIFIED_DRIVE_or_SCREWS',
-        box(10,27,1.2,bracket_leg_x+15,13,93.5),'C')
-    add('A','A05G','A05G_glass_76x26x1_STANDARD_CANDIDATE',
-        box(76,26,1,glass_center_x,13,92.5),'C')
-    # The glass carries a separate PDMS stamp, 4mm from its RIGHT
-    # end. It is below, not inside, the glass.
-    add('A','A05GP','PDMS_stamp_8x8x1p8_right_edge_CANDIDATE',
-        box(8,8,1.8,glass_left+68,13,90.7),'C')
+    glass_bottom=leg_bottom+.5
+    glass_center_z=glass_bottom+.5
+    tie=box(2.5,10,14,bracket_leg_x,0,leg_bottom)
+    carrier=box(21,27,3,bracket_leg_x+9,0,glass_bottom-3)
+    lower_jaw=box(10,27,1.2,bracket_leg_x+15,0,glass_bottom-1.2)
+    add('A','A05C','clamp_bracket_tie_plus_carrier_and_lower_jaw_UNVERIFIED',
+        tie.fuse(carrier,lower_jaw),'C')
+    add('A','A05CU','candidate_separate_upper_compression_jaw',
+        box(10,27,1.2,bracket_leg_x+15,0,glass_bottom+1),'C')
+    for i,zoffset in enumerate((-9,9),1):
+        # A provisional Ø2.8 shaft and Ø5.6 head; no specified thread.
+        shank=vz(1.4,8,bracket_leg_x+7,zoffset,glass_center_z-1)
+        head=vz(2.8,2,bracket_leg_x+7,zoffset,glass_center_z+6)
+        add('A',f'A05CS{i}','candidate_jaw_clamping_fastener_NOT_OEM',
+            shank.fuse(head),'C')
+    add('A','A05G','standard_76x26x1mm_glass_POSITION_CANDIDATE',
+        box(76,26,1,glass_center_x,0,glass_bottom),'C')
+    add('A','A05GP','PDMS_8x8x1p8_right_edge_center_over_sample_PROXY',
+        box(8,8,1.8,glass_left+68,0,glass_bottom-1.8),'C')
     # Photos137/161 show a separate Daheng GCM-5306M 8mm mounting base.
     base=box(112,70,8,cx,0,20)
     # Real Ø6.5 clearance holes, four grid-aligned M5 candidate bolts.
@@ -768,6 +773,10 @@ def make_a():
         # Heads only: do not claim unknown buried screw threads.
         add('A',f'A07S{i}','silver_top_four_VISIBLE_HEAD_only_CANDIDATE',
             vz(2.9,1.8,xx,yy,106.8),'C')
+    # V58: viewer always contains this 28x28x1.4mm sample-chip proxy;
+    # prior STEP omitted it and would falsely put the PDMS into metal.
+    add('A','A07W','sample_chip_28x28x1p4_THICKNESS_UNVERIFIED',
+        box(28,28,1.4,cx,0,109.2),'C')
     # V45: previous STEP A10 post started at Z=32 and floated 12mm
     # above the only A01 board top (Z=20). A single connected base
     # and post now match the web viewer mounting arrangement.
@@ -803,7 +812,7 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,192).cut(vz(26.1,66.2,cx,0,191.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',
         sleeve_A14,'C')
-CAD_REVISION='V57'
+CAD_REVISION='V58'
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
     # The user's B photos distinguish the SILVER common table from the
