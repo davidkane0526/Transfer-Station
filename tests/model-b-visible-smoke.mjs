@@ -75,7 +75,7 @@ try{
  assert.deepEqual(photoB?.ids,['147']);
  assert.deepEqual(photoB?.embedded,['147'],
    'Real photo 147 must be committed as an image asset, not a dangling photo number');
- const photoFile=await page.request.get('/assets/photos/147.jpg');
+ const photoFile=await page.request.get('http://127.0.0.1:8765/assets/photos/147.jpg');
  assert.equal(photoFile.status(),200);
  assert.match(photoFile.headers()['content-type']||'',/image\/jpeg/);
  assert.equal(actuators.B41.sideHoleRowsCandidate,null,
