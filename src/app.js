@@ -135,6 +135,32 @@ window.__modelBSupportProbe=()=>{
    microscopeMountAudit:mountAudit
  };
 };
+// V50: B-specific MXFMS optical assembly audit. It deliberately uses
+// photos108/110/113/116 and manufacturer MXFMS data, never A photos41/71/72.
+window.__modelBOpticsProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const roots={scope:parts.get('B16')?.g,camera:parts.get('B17')?.g,
+              nosepiece:parts.get('B18')?.g};
+ if(!roots.scope||!roots.camera||!roots.nosepiece)return {available:false};
+ const collect=(root,flag)=>{
+   const found=[];root.traverse(o=>{if(o.userData[flag])found.push(o)});return found;
+ };
+ const post=collect(roots.scope,'MXFMSPost')[0];
+ const coarse=collect(roots.scope,'MXFMSFocusKnob').filter(o=>o.userData.MXFMSFocusKnob==='coarse');
+ const fine=collect(roots.scope,'MXFMSFocusKnob').filter(o=>o.userData.MXFMSFocusKnob==='fine');
+ return {
+   available:true,
+   postDiameterMm:post?.userData.MXFMSPost.diameterMm??null,
+   postHeightMm:post?.userData.MXFMSPost.heightMm??null,
+   coarseFocusKnobs:coarse.length,
+   fineFocusKnobs:fine.length,
+   cameraAdapterSections:collect(roots.camera,'cameraAdapterSection').length,
+   fiveHoleNosepiece:collect(roots.nosepiece,'MXFMSFiveHoleNosepiece').length===1,
+   objectivePorts:collect(roots.nosepiece,'nosepieceObjectivePort').length,
+   installedObjectives:collect(roots.nosepiece,'objectiveBarrel').length,
+   objectiveLabels:collect(roots.nosepiece,'objectiveBarrel').map(o=>o.userData.objectiveLabel)
+ };
+};
 // V46 read-only first-rig kinematic witness: A03 fixed body does NOT
 // move; its output plate plus A04L/A04/A05 must move together by the preview
 // displacement. This is NOT a real glass-contact/collision certification.
