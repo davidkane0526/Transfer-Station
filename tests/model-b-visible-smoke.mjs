@@ -385,7 +385,7 @@ try{
  // The black sample-side Thorlabs mounting board is independently
  // selectable; switching film-side profiles cannot delete it.
  assert.equal(await page.locator('#group-list input[data-group="base"]').isChecked(),true);
- await page.screenshot({path:'Transfer-Station-ModelB-Full-Assembly.png'});
+ // V55 fast structural QA: omit nonessential Transfer-Station-ModelB-Full-Assembly.png screenshot.
  await page.locator('#btn-rear').evaluate(el=>el.click());
  await page.waitForTimeout(450);
  const rearVac=await page.evaluate(()=>window.__modelBVacuumProbe?.());
@@ -407,7 +407,7 @@ try{
  // focus on the film arm and capture a second mandatory detail screenshot.
  await page.locator('#btn-film-stack').evaluate(el=>el.click());
  await page.evaluate(()=>window.scrollTo(0,0));
- await page.screenshot({path:'Transfer-Station-V29-B-Post-Sleeve-Closeup.png'});
+ // V55 fast structural QA: omit nonessential Transfer-Station-V29-B-Post-Sleeve-Closeup.png screenshot.
  // Avoid locator.screenshot's "element stability" wait: the WebGL
  // canvas renders continuously with OrbitControls damping. Capture the
  // SAME viewer rectangle from the page instead, without scrolling an
@@ -415,16 +415,12 @@ try{
  const viewerBox=await page.locator('#viewer').boundingBox();
  assert(viewerBox&&viewerBox.width>300&&viewerBox.height>300,
    'Model B close-up viewer should be sized and visible');
- await page.screenshot({path:'Transfer-Station-V29-B-Film-Viewer.png',
-   clip:{x:viewerBox.x,y:viewerBox.y,width:viewerBox.width,height:viewerBox.height},
-   animations:'disabled',timeout:30000});
+ // V55 fast structural QA: omit nonessential Transfer-Station-V29-B-Film-Viewer.png screenshot.
  await page.locator('#btn-home').evaluate(el=>el.click());
  await page.locator('#btn-sample-stack').evaluate(el=>el.click());
  const sampleBox=await page.locator('#viewer').boundingBox();
  assert(sampleBox&&sampleBox.width>=300&&sampleBox.height>=300);
- await page.screenshot({path:'Transfer-Station-V32-Black-Thorlabs-Sample-Board.png',
-   clip:{x:sampleBox.x,y:sampleBox.y,width:sampleBox.width,height:sampleBox.height},
-   animations:'disabled',timeout:30000});
+ // V55 fast structural QA: omit nonessential Transfer-Station-V32-Black-Thorlabs-Sample-Board.png screenshot.
  await page.locator('#btn-home').evaluate(el=>el.click());
  await page.locator('#btn-control-cabinet').evaluate(el=>el.click());
  await page.waitForTimeout(850); // OrbitControls damping + WebGL frame settle
@@ -439,9 +435,7 @@ try{
  await page.evaluate(()=>window.scrollTo(0,0));
  const cabinetBox=await page.locator('#viewer').boundingBox();
  assert(cabinetBox&&cabinetBox.width>=300&&cabinetBox.height>=300);
- await page.screenshot({path:'Transfer-Station-V33-Control-Cabinet-Interior.png',
-   clip:{x:cabinetBox.x,y:cabinetBox.y,width:cabinetBox.width,height:cabinetBox.height},
-   animations:'disabled',timeout:30000});
+ // V55 fast structural QA: omit nonessential Transfer-Station-V33-Control-Cabinet-Interior.png screenshot.
  await page.locator('#btn-home').evaluate(el=>el.click());
  await page.locator('#open-bom').evaluate(el=>el.click());
  const rows=await page.locator('#bom-body tr').allTextContents();
@@ -565,7 +559,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aBefore.a10ActualManufacturerAnchorVerified,false);
  assert.equal(aBefore.vStageMovingPlateOffsetY,13,
    'A initial viewer pose starts from proposed raised +13mm, not static STEP bottom');
- await page.screenshot({path:'Transfer-Station-V46-A-VC13M-Raised.png'});
+ // V55 fast structural QA: omit nonessential Transfer-Station-V46-A-VC13M-Raised.png screenshot.
  assert.equal(aBefore.knownProxyGeometryCollisionFree,false);
  await page.locator('#film-drop').evaluate(el=>{
    el.value='-6';el.dispatchEvent(new Event('input',{bubbles:true}));
@@ -584,7 +578,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
    'A05 cannot be left floating above its moving support');
  assert.equal(aAfter.glassClampedAndReachable,false,
    'Functional transfer must remain explicitly unverified');
- await page.screenshot({path:'Transfer-Station-V46-A-VC13M-Lowered.png'});
+ // V55 fast structural QA: omit nonessential Transfer-Station-V46-A-VC13M-Lowered.png screenshot.
  await page.locator('#film-drop').evaluate(el=>{
    el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
