@@ -2,7 +2,7 @@
 // The original photo94 left-return configuration remains separately selectable
 // in the browser. This is NEVER a measured global stage registration.
 export const A_WORKING_LAYOUT=Object.freeze({
-  filmStageX:-46.75, sampleCenterX:78,
+  filmStageX:-46.75, filmStageZ:-13, sampleCenterX:78,
   lBracketHandedness:'right',
   lBracketOverhangMm:48, lLegLengthMm:52.1,
   glassLengthMm:76, glassWidthMm:26, glassThicknessMm:1,
@@ -26,7 +26,7 @@ export function auditAWorkingLayout({
   const glassLeftX=legX+10;
   const glassRightX=glassLeftX+d.glassLengthMm;
   const stampCenterX=glassRightX-d.stampRightMarginMm-d.pdmsLengthMm/2;
-  const stampCenterZ=13+filmDepthShiftMm;
+  const stampCenterZ=d.filmStageZ+13+filmDepthShiftMm;
   const sampleWorldX=d.sampleCenterX+sampleShiftMm*c;
   const sampleWorldZ=-sampleShiftMm*s;
   const heaterHalfEnvelopeX=d.heaterFootprintMm/2*(Math.abs(c)+Math.abs(s));
@@ -54,7 +54,7 @@ export function auditAWorkingLayout({
     rawPhoto94LeftBendPreservedInOtherView:true,
     actualStagePosePhotoRegistered:false,
     A17SkuVerified:false,A05CClampSkuVerified:false,
-    filmStageX:d.filmStageX,sampleStageX:d.sampleCenterX,
+    filmStageX:d.filmStageX,filmStageZ:d.filmStageZ,sampleStageX:d.sampleCenterX,
     handedness:d.lBracketHandedness,
     bracketVerticalLegMm:d.lLegLengthMm,
     stampCenterX:Number(stampCenterX.toFixed(2)),
