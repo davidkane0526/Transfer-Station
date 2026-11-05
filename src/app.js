@@ -1637,7 +1637,7 @@ function platformA(){
    label(g,'A17磁座候选 · 对照GCM-420302M · 厂商/孔距未实物确认',0,32,0);
  },{explode:[-10,0,0]});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
- makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (+X)',true,{rotateSample:true},1);
+ makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
  makeStageBlock('A15',ax,40,0,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
  // Actual photo 97: A15 dual-axis T25M below upright GCM-VC13M;
@@ -2229,7 +2229,7 @@ function resetScene(){
    '平台 A · V47 / 双摆角台候选 / A05局部照片比例已校准 / 全局仍未配准';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
-  '照片94/95/97: A载玻片侧由下至上 A15 T25M→A03 VC13M→A04L下层独立摆角台（型号待核）→A04上层G40M60L→A05折弯片。照片100: A样品侧 A06旋转台→另一台 A02 T25M（右手柄）→样品加热块。两个T25M不可合并。';
+  '照片94/95/97: A膜侧 A15 T25M→A03 VC13M→A04L下层独立摆角台→A04上层G40M60L→A05折弯片。新实拍17–24: A样品侧GCM-5306M非旋转底座→A06Ø66候选旋转台（右侧角度调节）→A02 T25M（左侧银色直线测微头）→A07三层金属/中间层样品台；B照片29–31的PHUC-1及磁座铭牌不属于A。';
  focus('iso');
  updateTable();
 }
