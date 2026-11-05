@@ -135,10 +135,19 @@ def nfp_single_axis(sys,key,cx,cy,z0,yaw_deg=0,model_confirmed=False):
     moving_lower=box(65,65,2,cx,cy,z0+11)
     add(sys,key+'M','single_axis_stage_moving_carriage_lower_2mm',place(moving_lower),'P')
     moving_top=box(65,65,10,cx,cy,z0+13)
-    m6=[(cx+x,cy+y) for x in (-25,0,25) for y in (-25,0,25)]
-    m3=[(cx+x,cy+y) for x in (-16,16) for y in (-16,16)]
-    moving_top=cut(moving_top,m6,5,10,z0+13)
-    moving_top=cut(moving_top,m3,2.5,10,z0+13)
+    if model_confirmed:
+        m6=[(cx+x,cy+y) for x in (-25,0,25) for y in (-25,0,25)]
+        m3=[(cx+x,cy+y) for x in (-16,16) for y in (-16,16)]
+        moving_top=cut(moving_top,m6,5,10,z0+13)
+        moving_top=cut(moving_top,m3,2.5,10,z0+13)
+        top_pattern='9 M6 + 4 M3 OEM pattern'
+    else:
+        # Only the four corner mating holes required by the upper B09
+        # fixed-base pattern are represented. B41's complete top pattern
+        # is not inferred from the similar-looking shell.
+        corner_m6=[(cx+x,cy+y) for x in (-25,25) for y in (-25,25)]
+        moving_top=cut(moving_top,corner_m6,4.9,10,z0+13)
+        top_pattern='4 M6 corner mounting holes (candidate; full pattern unknown)'
     for xoff,radius in upper_side:
         moving_top=moving_top.cut(vy(radius,2.5,cx+xoff,cy+30,z0+17.5))
     add(sys,key+'A','single_axis_stage_moving_top_9M6_4M3_10mm',
@@ -165,7 +174,7 @@ def nfp_single_axis(sys,key,cx,cy,z0,yaw_deg=0,model_confirmed=False):
             'model_confirmed':model_confirmed,
             'envelope_candidate_mm':[65,65,23],
             'fixed_hole_pitch_mm':50,
-            'moving_top_pattern':'9 M6 + 4 M3 candidates',
+            'moving_top_pattern':top_pattern,
             'micrometer_length_candidate_mm':177.5}
 
 def heater(cx=82,cy=0,z=98.2):
