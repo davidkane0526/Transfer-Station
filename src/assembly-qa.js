@@ -3,8 +3,9 @@
 // axes correspond to scene X and scene Z, NOT scene Y (height).
 export const AXES={
  B03:{makerAxes:['X','Y'],sceneAxes:['X','Z'],linear:2,micrometers:2,verified:'photo-and-maker-drawing'},
+ B41:{makerAxes:[],sceneAxes:['Z'],linear:1,micrometers:1,verified:'photo-proxy-exact-SKU-unknown'},
  B09:{makerAxes:['X'],sceneAxes:['X'],linear:1,micrometers:1,verified:'OEM-official'},
- B08:{makerAxes:['theta'],sceneAxes:['yaw'],linear:0,micrometers:0,verified:'maker-and-photo'},
+ B08:{makerAxes:['theta'],sceneAxes:['yaw'],linear:0,micrometers:0,verified:'user-photo-correction-no-handle'},
  A15:{makerAxes:['X','Y'],sceneAxes:['X','Z'],linear:2,micrometers:2,verified:'photo-and-maker-drawing'},
  A02:{makerAxes:['X'],sceneAxes:['X'],linear:1,micrometers:1,verified:'proxy-only-subtype-unknown'}
 };
@@ -16,8 +17,9 @@ export const JOINTS={
  B31:{count:2,kind:'mounting-head-proxy',status:'candidate',name:'照片94 G40M60L安装台面'},
  B05:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'直线悬臂底座紧固件'},
  B06:{count:2,kind:'jaw-clamp-proxy',status:'candidate',name:'玻片夹爪夹紧螺钉'},
- B08:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'旋转台上部连接参考'},
- B09:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'NFP 底座到旋转台（固定侧）'},
+ B08:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'旋转台到下层B41的固定连接（旋转台无手柄）'},
+ B41:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'下层正交Z轴台固定底座到B08旋转台'},
+ B09:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'上层NFP固定底座到B41移动台'},
  B14:{count:4,kind:'flush-cap-head',status:'count-and-flush-user-confirmed',name:'金属块顶面四枚齐平螺钉；型号和孔距未知'},
  B16:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'显微镜底座四角紧固件'},
  A02:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'样品平移台顶面候选连接'},
