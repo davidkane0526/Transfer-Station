@@ -63,18 +63,18 @@ export function electricalHarnessPaths({
   );
   return [
     {id:'B37A',radiusMm:1.1,points:[
-      source(11,98.5,-60),point(119,104,-92),
-      point(174,100,-140),point(207,94,-165),
+      source(11,98.5,-60),point(119,135,-92),
+      point(174,130,-140),point(207,120,-165),
       point(222.5,84,-168)
     ]},
     {id:'B37B',radiusMm:1.1,points:[
-      source(16,98.5,-60),point(119,109,-97),
-      point(174,106,-146),point(207,99,-171),
+      source(16,98.5,-60),point(119,140,-97),
+      point(174,136,-146),point(207,126,-171),
       point(222.5,87,-167)
     ]},
     {id:'B38',radiusMm:.72,points:[
-      source(6,100.35,-51),point(119,104,-102),
-      point(174,106,-146),point(207,104,-171),
+      source(6,100.35,-51),point(119,138,-102),
+      point(174,136,-146),point(207,130,-171),
       point(222.5,89,-163)
     ]}
   ];
@@ -88,6 +88,7 @@ export function vacuumHosePath({
   // plane provides separation from B37/B38 while remaining outside B36.
   const path=[
     moving,
+    point(moving.x,70,moving.z),
     point(200,70,-135),
     point(200,70,-170),
     point(200,70,-275),
