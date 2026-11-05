@@ -320,7 +320,7 @@ for xx,yy in [(-141,-25),(-141,25),(-91,-25),(-91,25)]:
 centre=vz(2.85,2.8,-116,0,37.1)
 check(a17_body.intersect(centre).Volume()>1,
       'V49 A17 must NOT inherit the B GCM-420302M central M6 hole')
-slot_probe=box_probe(24,.5,3.5,-116,33.25,25.9)
+slot_probe=box_probe(24,.5,3.5,-116,33.25,24.05)
 check(a17_panel.intersect(slot_probe).Volume()<1e-4,
       'V49 A17 front panel has a REAL horizontal through-slot')
 check(abs(a17_panel.BoundingBox().ymin-a17_body.BoundingBox().ymax)<.02,
