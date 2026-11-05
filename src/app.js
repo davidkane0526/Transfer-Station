@@ -1399,7 +1399,6 @@ function microscopeB(){
    upper.userData.cameraAdapterSection=true;
    const camera=add(g,cub(47,48,48,mats.dark,0,24,0));
    camera.userData.SDPTOPCamera=true;
-   add(g,cub(30,18,30,mats.steel,0,3,0));
    g.userData.cameraAdapterSections=2;
    label(g,'SDPTOP Digital Microscope Camera · CTV/中继筒接口待核',0,77,0);
  },{explode:[0,95,0]});
