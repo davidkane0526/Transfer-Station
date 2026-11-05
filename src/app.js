@@ -118,6 +118,8 @@ window.__modelBActuatorProbe=()=>{
      xCarriageLocalMm:root.userData.slidingX?.position.x??null,
      depthCarriageLocalMm:root.userData.slidingDepth?.position.z??null,
      singleCarriageLocalMm:root.userData.slidingTop?.position.x??null,
+     sideHoleRowsCandidate:root.userData.sideHoleRowsCandidate??null,
+     B41TopFourM6MountPatternCandidate:Boolean(root.userData.B41TopFourM6MountPatternCandidate),
      worldPosition:origin.toArray()
    };
  };
