@@ -417,7 +417,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V51.*A17.*A05/);
+ assert.match(await page.locator('#platform-caption').innerText(),/V52.*A17.*A05/);
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
  assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
