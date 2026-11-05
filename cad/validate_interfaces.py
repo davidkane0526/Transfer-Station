@@ -673,15 +673,15 @@ check(abs(bb.zlen-60)<.02 and abs(bb.xlen-30)<.02 and abs(bb.ylen-30)<.02,
       'Zolix PHUC-1 manufacturer A60 and BØ30 housing envelope')
 # Real boolean void checks: both holes must be open within the 60-mm body.
 phuc_x=-35
-upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,168),Vector(1,0,0))
-lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,135),Vector(1,0,0))
+upper_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,191),Vector(1,0,0))
+lower_bore=cq.Solid.makeCylinder(5.8,30,Vector(phuc_x-15,0,158),Vector(1,0,0))
 check(phuc.intersect(upper_bore).Volume()<1e-4,'PHUC-1 upper Ø12 bore is real')
 check(phuc.intersect(lower_bore).Volume()<1e-4,'PHUC-1 lower Ø12 bore is real')
-check(abs(168-135-33)<.0001,
+check(abs(191-158-33)<.0001,
       'PHUC-1 manufacturer E33 bore-centre spacing')
-check(abs(second.BoundingBox().zmin+6-135)<.01,
+check(abs(second.BoundingBox().zmin+6-158)<.01,
       'Lower rod center height follows photo149 and PHUC1 E=33')
-check(abs(long.BoundingBox().zmin+6-168)<.01,
+check(abs(long.BoundingBox().zmin+6-191)<.01,
       'Upper rod center height follows photo149')
 check(phuc.intersect(long).Volume()<1e-4,
       'PHUC-1 upper shell must not penetrate Ø12 first rod')
