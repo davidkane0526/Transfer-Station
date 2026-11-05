@@ -103,12 +103,11 @@ window.__modelBSupportProbe=()=>{
    return {available:false};
  const boardBox=new THREE.Box3().setFromObject(boardMeshes[0]);
  boardBox.union(new THREE.Box3().setFromObject(boardMeshes[1]));
- boardBox.union(new THREE.Box3().setFromObject(boardMeshes[2]));
+
  const scopeFootBox=new THREE.Box3().setFromObject(scopeMeshes[0]);
  const rotFootBox=new THREE.Box3().setFromObject(rotMeshes[0]);
- // V35: the earlier B16 was a SOLID block under four drawn screw heads.
- // Verify the ACTUAL first foot mesh has four open clearance bores.
- // Do not confuse this with fastening to B35's decorative 2mm recesses.
+  // V51: B16 foot bores are registered against the 12.5mm-phase B35 M6 grid.
+  // B35's first two meshes are the board layers; following children are fasteners.
  const mountAudit=auditB35MicroscopeFasteners({
    boardCenterX:CONFIG.B.sampleBoardCenterX,
    microscopeCenterX:87.5,
