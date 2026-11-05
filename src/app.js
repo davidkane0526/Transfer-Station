@@ -2354,7 +2354,8 @@ function updateDetail(part){
    aRigAudit.optimisticResidualHorizontalGapMm+
     ' mm水平缺口；即便做未经实物支持的方向翻转，仍缺约 '+
    aRigAudit.mirroredOrientationResidualGapMm+
-   ' mm。旧静态下限的折弯片下端比热台顶面低约 '+
+   ' mm。按目前A16 112mm原厂外形、A17 65mm候选宽度和单套430mm面包板边界，纯几何上允许的膜侧X中心候选区间约为 '+aRigAudit.tentativeFilmStageXInterval.join('～')+
+   ' mm（并非照片测量或实际安装建议），不能将当前不相交的装配误判为可工作。旧静态下限的折弯片下端比热台顶面低约 '+
    aRigAudit.verticalBracketBelowHeaterTopMm+
    ' mm。A05未识别玻片夹、A17磁座型号和真实整机相对位置均待核实。'+
    '这是当前错误代理坐标的诊断，不是实物间距；严禁据此拉长悬臂或宣称平台A可转移。</p></div>':'';
@@ -2658,7 +2659,7 @@ function updatePhotoScope(){
  $('b-photo-profile').hidden=platform!=='B';
  $('btn-b-user-photos').classList.toggle('on',platform==='B');
  $('btn-b-archive').classList.remove('on');
- $('b-profile-note').textContent='照片149：B34黑色套筒、B27长立杆、B33方夹及PHUC-1双横杆。照片108/150：下杆直入GCM-1302M侧边，取消虚构B26大转接座。50mm套筒、100mm立杆和玻片高度仍为候选；PHUC孔距33mm、GCM夹具型号由原厂/铭牌支持。';
+ $('b-profile-note').textContent='照片149：B34黑色套筒、B27长立杆、B33方夹及PHUC-1双横杆。照片108/150：下杆直入GCM-1302M侧边，取消虚构B26大转接座。50mm套筒、Ø12×112mm场景拟合立杆及玻片高度仍为候选；PHUC孔距33mm、GCM夹具型号由原厂/铭牌支持。';
  const aCritical=$('a-physical-audit');
  aCritical.hidden=platform!=='A';
  if(platform==='A'){
@@ -2667,7 +2668,8 @@ function updatePhotoScope(){
      aStatus.optimisticResidualHorizontalGapMm+
      ' mm水平缺口；单纯镜像翻转后仍缺约 '+
      aStatus.mirroredOrientationResidualGapMm+
-     ' mm。A05夹具、A17磁座、安装基准未验证。VC13M运动仅供演示，不能确认安全接触。';
+     ' mm。按当前底座/板边界候选，膜侧中心X若在 '+aStatus.tentativeFilmStageXInterval.join('～')+
+     ' mm范围内，水平运动包络才可能相交；这是几何推导，不是实物尺图测得的坐标，也未检验完整夹具。A05C夹具、A17磁座及真实三轴配准仍未核验。VC13M运动仅供演示，不能确认安全接触。';
  }
  const critical=$('b-physical-audit');
  critical.hidden=platform!=='B';
