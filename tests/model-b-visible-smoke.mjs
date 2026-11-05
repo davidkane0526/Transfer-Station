@@ -69,6 +69,12 @@ try{
  assert.equal(actuators.B41.stageBoundaryMarkerCount,0);
  assert.equal(actuators.B09.stageBoundaryMarkerCount,1,
    'Both photographed stages must have a visible demarcation at the B41/B09 mating face');
+ assert.deepEqual(actuators.B41.modelOnlyAxisAnnotations,['lower-Y'],
+   'The lower Y stage needs its own visible photo-review axis marker');
+ assert.deepEqual(actuators.B09.modelOnlyAxisAnnotations,['upper-X'],
+   'The upper NFP X stage needs its own distinct marker');
+ assert.match(await page.locator('#axis-confidence-note').innerText(),/非实物铭牌/,
+   'Viewer must disclose that X/Y visual axis labels are not factory markings');
  assert.equal(actuators.B41.fixedBaseHeightMm+actuators.B41.movingStageHeightMm,23);
  assert.equal(actuators.B09.fixedBaseHeightMm+actuators.B09.movingStageHeightMm,23);
  const photoB=await page.evaluate(()=>window.__photoEvidenceProbe?.('B41'));
