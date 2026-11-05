@@ -1648,8 +1648,8 @@ function platformA(){
    g.userData.photo23TopCounterboreCount=0;
    // Build the thin plate as four separate rails so the horizontal slot
    // is genuinely open; the dark magnet body is visible through it.
-   add(g,cub(42,2,1.5,mats.silver,0,9,33.25));
-   add(g,cub(42,9.8,1.5,mats.silver,0,-1.1,33.25));
+   add(g,cub(42,10,1.5,mats.silver,0,13,33.25));
+   add(g,cub(42,1.8,1.5,mats.silver,0,2.9,33.25));
    add(g,cub(8,4.2,1.5,mats.silver,-17,5.9,33.25));
    add(g,cub(8,4.2,1.5,mats.silver,17,5.9,33.25));
    g.userData.A17Photo22SlottedSidePanel=true;
