@@ -1289,9 +1289,13 @@ function rotaryB(){
    // 110.jpg it points RIGHT due to stage installation at 180° about Y.
    // Maker dimension drawing indicates overall length 155.5--180.5mm.
    add(g,cub(24,15,30,mats.steel,-45,12,0));
-   const spindle=add(g,cyl(3.6,74,mats.silver,-85,12,0));spindle.rotation.z=Math.PI/2;
-   const collar=add(g,cyl(9,23,mats.steel,-119,12,0));collar.rotation.z=Math.PI/2;
-   const drum=add(g,cyl(11,28,mats.silver,-131,12,0));drum.rotation.z=Math.PI/2;
+   // Hollow face port, 82.5mm spindle, nested collar and drum match the
+   // right-facing photo installation and the 155.5–180.5mm OEM envelope.
+   add(g,sleeve(4.1,3.8,1,mats.ink,-57,12,0,'x'));
+   const spindle=add(g,cyl(3.6,82.5,mats.silver,-89.25,12,0));spindle.rotation.z=Math.PI/2;
+   const collar=add(g,sleeve(9,3.8,23,mats.steel,-119,12,0,'x'));
+   const drum=add(g,sleeve(11,9.2,28,mats.silver,-131,12,0,'x'));
+   g.userData.NFPMicrometerOverallLengthCandidateMm=177.5;
    for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
    for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
    for(const x of [-25,25])for(const z of [-25,25])circleGuide(g,5.5,11.3,x,z);

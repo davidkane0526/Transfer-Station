@@ -164,6 +164,9 @@ report['B09_NFP1462C']={
     'moving_top_pattern':'9 M6 + 4 M3 candidate tapped holes',
     'photo_side_holes':{'fixed_lower':4,'moving_upper':3},
     'micrometer_direction':'+X',
+    'micrometer_overall_length_oem_range_mm':[155.5,180.5],
+    'micrometer_overall_length_candidate_mm':177.5,
+    'micrometer_housing_shaft_collar_drum_clearance_checked':True,
     'single_axis_only':True,
     'manufacturer_model_confirmed':True
 }

@@ -344,14 +344,20 @@ def make_b():
     add('B','B09A','NFP1462C_moving_top_9M6_4M3_10mm',nfp_slide_top,'D')
     # OEM micrometer points +X after the photographed 180-degree install.
     nfp_mic_z=nfp_z+12
-    add('B','B09B','NFP1462C_micrometer_housing_photo_proxy',
-        box(24,30,15,cx+45,0,nfp_mic_z),'P')
-    add('B','B09C','NFP1462C_micrometer_spindle_O7p2x74',
-        vx(3.6,74,cx+85,0,nfp_mic_z),'P')
-    add('B','B09D','NFP1462C_micrometer_collar_O18x23',
-        vx(9,23,cx+119,0,nfp_mic_z),'P')
-    add('B','B09E','NFP1462C_micrometer_drum_O22x28',
-        vx(11,28,cx+131,0,nfp_mic_z),'P')
+    # Photo110 installation reverses the OEM micrometer direction to +X.
+    # Housing has a blind Ø8 bore; the Ø7.2 shaft enters 9mm and extends
+    # 82.5mm to the right. Collar and drum are nested hollow sleeves.
+    nfp_housing=box(24,30,15,cx+45,0,nfp_mic_z)
+    nfp_housing=nfp_housing.cut(vx(4,9,cx+48,0,nfp_mic_z))
+    add('B','B09B','NFP1462C_micrometer_housing_24x30x15_blind_O8',nfp_housing,'P')
+    add('B','B09C','NFP1462C_micrometer_spindle_O7p2x82p5',
+        vx(3.6,82.5,cx+48,0,nfp_mic_z),'P')
+    nfp_collar=vx(9,23,cx+107.5,0,nfp_mic_z).cut(
+        vx(3.8,23,cx+107.5,0,nfp_mic_z))
+    add('B','B09D','NFP1462C_micrometer_collar_O18x23_bore_O7p6',nfp_collar,'P')
+    nfp_drum=vx(11,28,cx+117,0,nfp_mic_z).cut(
+        vx(9.2,28,cx+117,0,nfp_mic_z))
+    add('B','B09E','NFP1462C_micrometer_drum_O22x28_bore_O18p4',nfp_drum,'P')
     # B10/B11/B12/B13/B14 heater and vacuum-block stack sits directly
     # above the 23mm NFP-1462C stage; B14 M6x25 screws engage the
     # four corner M6 positions in the NFP moving top.
