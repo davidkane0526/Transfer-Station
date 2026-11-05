@@ -1286,6 +1286,7 @@ function rotaryB(){
    for(const [x,y,r] of nfpUpperSide)addNfpPhotoBore(slidingTop,x,y,r,'upper');
    g.userData.nfpPhotoSideHoleCount=7;
    g.userData.nfpPhotoSideHoleRows={lower:4,upper:3};
+   g.userData.nfpPhotoUpperSideRowHeightMm=17.5;
    g.userData.nfpPhotoSideHoleThreadsVerified=false;
    // NFP official local-coordinate micrometer is LEFT. In the actual photo
    // 110.jpg it points RIGHT due to stage installation at 180° about Y.
