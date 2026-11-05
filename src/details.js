@@ -120,7 +120,6 @@ export function enrichParts(partMap, platform, onMesh){
       // Unidentified lower 65mm-class linear stage: preserve its own
       // forward-facing micrometer after the 90-degree crossed install.
       // No manufacturer logo or exact NFP model is asserted.
-      for(let x of [-26,-15,16,27])screwHead(g,x,11.5,-33,2.7,'back');
       knurl(g,-131,12,0,10.5,27,'x',48);
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
