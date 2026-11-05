@@ -365,18 +365,49 @@ def make_b():
     for i,(hx,hy) in enumerate(foot_bores,1):
         screw=vz(3,18,hx,hy,26).fuse(vz(5,2.5,hx,hy,44))
         add('B',f'B16S{i}','B16_to_B35_M6x18_thread_CANDIDATE',screw,'C')
-    add('B','B16B','microscope_boom',
-        box(35,132,26,86,-46,259+microscope_rise))
-    add('B','B16C','microscope_body',
-        box(55,55,50,cx,0,224+microscope_rise))
+    # Photo41/71/72: cylindrical black support boom, not a pale block.
+    boom=vy(14,132,86,-112,285)
+    boom=boom.fuse(vy(17,8,86,-110,285),vy(17,8,86,12,285)).clean()
+    add('B','B16B','microscope_round_support_boom_and_end_collars',boom,'P')
+    # The head is dark and carries a stepped side optical tube to +X.
+    head=box(55,55,50,cx,0,224+microscope_rise)
+    side_tube=vx(18,12,cx+24,0,261)
+    side_tube=side_tube.fuse(
+        vx(14,58,cx+35,0,261),
+        vx(16,9,cx+91,0,261),
+        vx(12,14,cx+99,0,261)).clean()
+    head=head.fuse(side_tube).clean()
+    add('B','B16C','black_microscope_head_with_stepped_side_optical_tube',head,'P')
     add('B','B16D','objective_tube_mount',
         vz(17,44,cx,0,186+microscope_rise))
-    add('B','B18','objective',
-        vz(12.5,38,cx,0,162.0+microscope_rise))
-    add('B','B18A','objective_tip',
-        vz(7,12,cx,0,150.0+microscope_rise))
-    add('B','B17','digital_camera',
-        box(47,48,48,cx,0,276+microscope_rise))
+    # Camera is separated from the head by the stepped vertical tube.
+    # A cable arch is a visible photo-fit, not a verified electrical lead route.
+    camera=box(47,48,48,cx,0,350+microscope_rise)
+    lens_sections=[
+        vz(15,16,cx,0,274+microscope_rise),
+        vz(13,22,cx,0,290+microscope_rise),
+        vz(12,24,cx,0,312+microscope_rise),
+        vz(16,8,cx,0,336+microscope_rise),
+        vz(15,6,cx,0,344+microscope_rise)
+    ]
+    cable=cable_path([(cx+18,0,409),(cx+33,10,426),(cx+48,4,430),
+                      (cx+50,-15,416),(cx+34,-25,394),(cx+16,-18,380)],1.8)
+    camera=camera.fuse(*lens_sections,cable).clean()
+    add('B','B17','digital_camera_stepped_vertical_optical_tube_and_cable_loop',camera,'P')
+    # Three-objective nosepiece, reconstructed from the visible rotating turret.
+    turret=vz(28,13,cx,0,212)
+    barrels=[
+        vz(8.5,38.2,cx,0,174),
+        vz(7,34.2,cx-18,0,178),
+        vz(7.5,36.2,cx+9,15.6,176)
+    ]
+    tips=[
+        vz(6.6,2.2,cx,0,172),
+        vz(5.5,2.2,cx-18,0,176),
+        vz(5.8,2.2,cx+9,15.6,174)
+    ]
+    nosepiece=turret.fuse(*barrels,*tips).clean()
+    add('B','B18','three_objective_rotating_nosepiece_and_objectives',nosepiece,'P')
     # Photo114 front YUDIAN PID; photo119 opened metal cabinet with
     # SE-600-48 PSU and separate BLACK vented internal module. V32
     # incorrectly overlapped these three as free-standing boxes, and
