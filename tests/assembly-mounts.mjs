@@ -11,6 +11,9 @@ for(const side of ['A','B']){
 }
 assert.equal(mountStatus('B','B35').kind,'accessory');
 assert.equal(mountStatus('B','B08').kind,'bolted');
+assert.equal(mountStatus('B','B41').kind,'bolted',
+ 'The lower orthogonal sample stage B41 must not be omitted from mounting topology');
+assert.equal(mountStatus('B','B09').kind,'bolted');
 assert.equal(mountStatus('B','B16').kind,'bolted');
 assert.equal(mountStatus('B','B20').kind,'separate');
 assert.equal(mountStatus('A','A16').kind,'bolted');
