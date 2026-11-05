@@ -1632,10 +1632,10 @@ function platformA(){
  // optical breadboard. This magnetic stand is inferred from the user's
  // assembly rule; photos have NOT confirmed its exact maker or height.
  addPart('A17',ax,20,0,g=>{
-   // V49 photo22-24: do NOT copy B02/GCM-420302M's 13-hole OEM pattern.
-   // A17 maker/SKU remains unreadable. Photo23 shows four large corner
-   // counterbores; photo22/24 show a FRONT slotted silver side plate,
-   // a central knurled control and two lower fasteners.
+   // V49 photo22/24: A17 has a front slotted silver side plate,
+   // a central knurled control and two lower fasteners. The four
+   // counterbores in photo23 belong to A15's upper T25M carriage,
+   // not to this magnetic base. A17 maker/SKU remains unreadable.
    const body=add(g,cub(65,20,65,mats.dark,0,10,0));
    body.userData.photo22A17MagneticBaseEnvelopeCandidate=true;
    // The four counterbores in photo23 are on A15's upper T25M plate,
@@ -1663,9 +1663,9 @@ function platformA(){
    g.userData.oemComparisonSku=null;
    g.userData.photo22SideSlotCount=1;
    g.userData.photo22FrontKnobCount=1;
-   g.userData.photo23TopCounterboreCount=4;
+   g.userData.photo23TopCounterboreCount=0;
    g.userData.candidateMountHoleMarkers=[];
-   label(g,'A17磁吸底座候选 · 实拍四角孔/侧滑槽/旋钮 · 型号未知',0,32,0);
+   label(g,'A17磁吸底座候选 · 实拍侧滑槽/旋钮/双螺钉 · 型号未知',0,32,0);
  },{explode:[-10,0,0]});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
