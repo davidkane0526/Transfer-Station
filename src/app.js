@@ -192,6 +192,20 @@ window.__modelAKinematicProbe=()=>{
 };
 // V36 read-only probes measure ACTUAL rendered Three.js meshes.
 // A pure-datum pass alone does not prove the jaw stays outside the heater.
+window.__modelBNfpSideHoleProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const root=parts.get('B09')?.g;if(!root)return {available:false};
+ const bores=[];
+ root.traverse(o=>{if(o.userData.NFPPhoto25SideBore)bores.push(o.userData.NFPPhoto25SideBore)});
+ return {
+   available:true,sideHoleCount:bores.length,
+   lowerRowCount:bores.filter(x=>x.row==='lower').length,
+   upperRowCount:bores.filter(x=>x.row==='upper').length,
+   candidateDiametersMm:bores.map(x=>x.diameterMm),
+   exactHoleCoordinatesMeasured:false,threadSizesVerified:false,
+   sourcePhotos:['25','26']
+ };
+};
 window.__modelBContactProbe=()=>{
  if(platform!=='B'||bPhoto94Mode)return {available:false};
  const g=id=>parts.get(id)?.g;
@@ -1213,6 +1227,23 @@ function rotaryB(){
    ];
    const lower=plate(65,65,2,mats.steel);lower.position.y=11;add(slidingTop,lower);
    const drilled=plate(65,65,10,mats.steel,tapped);drilled.position.y=13;add(slidingTop,drilled);
+   // Photos25/26: NFP body side shows a lower 4-hole row on the fixed
+   // base and an upper 3-hole row on the moving plate. Diameters/threads
+   // are visual candidates only; keep the upper row coupled to the slider.
+   const addNfpPhotoBore=(parent,x,y,r,row)=>{
+     const rim=add(parent,sleeve(r+.45,r,.6,mats.silver,x,y,-32.2,'z'));
+     rim.userData.NFPPhoto25SideBore={row,diameterMm:2*r};
+     const bottom=add(parent,cyl(r,.2,mats.black,x,y,-31.3,24));
+     bottom.rotation.x=Math.PI/2;
+     bottom.userData.NFPPhoto25SideBoreBottom=true;
+   };
+   const nfpLowerSide=[[-18,7,1.6],[-4,7,2.0],[11,7,2.6],[22,7,1.6]];
+   const nfpUpperSide=[[-22,18,1.8],[-8,18,1.8],[12,18,2.8]];
+   for(const [x,y,r] of nfpLowerSide)addNfpPhotoBore(g,x,y,r,'lower');
+   for(const [x,y,r] of nfpUpperSide)addNfpPhotoBore(slidingTop,x,y,r,'upper');
+   g.userData.nfpPhotoSideHoleCount=7;
+   g.userData.nfpPhotoSideHoleRows={lower:4,upper:3};
+   g.userData.nfpPhotoSideHoleThreadsVerified=false;
    // NFP official local-coordinate micrometer is LEFT. In the actual photo
    // 110.jpg it points RIGHT due to stage installation at 180° about Y.
    // Maker dimension drawing indicates overall length 155.5--180.5mm.
