@@ -502,22 +502,27 @@ def make_a():
     stage('A','A02',cx,0,61.2,'-X')
     # User-confirmed mounting relationship, maker/height candidate:
     # A15 must rest on the actual magnetic base, not on naked board.
-    # V46: only a *candidate* GCM-420302M-style 65x65x20 magnet.
-    # OEM family shows 5xM6, 4xM4, 4xM3 on the top face. Neither
-    # this exact A17 SKU nor its top-hole origin was read in A photos.
+    # V49 A17: photos22-24 show four large top corner counterbores,
+    # a thin silver front panel with a true horizontal slot, two lower
+    # panel screws and one central knurled control. Manufacturer/function
+    # remain unknown. Never copy B02/GCM-420302M's 13-hole OEM pattern.
     mag=box(65,65,20,ax,0,20)
-    magnet_hole_families=[
-        (50,6,True),(40,4,False),(32,3,False)
-    ]
-    for pitch,dia,central in magnet_hole_families:
-        centres=[(ax+dx,dy) for dx in (-pitch/2,pitch/2)
-                 for dy in (-pitch/2,pitch/2)]
-        if central:centres.append((ax,0))
-        mag=cut(mag,centres,dia,3,37) # 3mm visual blind bores, not tapped OEM
-    add('A','A17','FILM_MAGNET_13_CANDIDATE_BLIND_HOLES_OEM_UNKNOWN',mag,'C')
-    # V46 switch shaft engages magnetic box side by 0.5mm at y=+32.5.
-    add('A','A17L','FILM_MAGNET_SWITCH_CANDIDATE',
-        vy(3.5,13,ax-24,32,30),'C')
+    a17_corners=[(ax+dx,dy) for dx in (-25,25) for dy in (-25,25)]
+    mag=cut(mag,a17_corners,6,3,37)
+    # The front control shaft passes through a small candidate bore in
+    # the magnet body and the open slot in the separate side panel.
+    mag=mag.cut(vy(2.1,13,ax,19.5,28))
+    add('A','A17','FILM_MAGNET_UNMARKED_65x65x20_PHOTO_CANDIDATE',mag,'C')
+    a17_panel=box(42,1.5,16,ax,33.25,22).cut(
+        box(26,1.6,4.2,ax,33.25,28))
+    add('A','A17P','FILM_MAGNET_FRONT_SLOTTED_PANEL_PHOTO22',a17_panel,'P')
+    for i,xx in enumerate((ax-13,ax+13),1):
+        add('A',f'A17S{i}','FILM_MAGNET_PANEL_LOWER_SCREW_HEAD_CANDIDATE',
+            vy(2.2,1.5,xx,32.5,22.5),'C')
+    a17_control=vy(1.8,14.5,ax,19.5,28).fuse(
+        vy(5.2,9,ax,34,28))
+    add('A','A17L','FILM_MAGNET_FRONT_SLOTTED_CONTROL_KNOB_UNKNOWN_FUNCTION',
+        a17_control,'C')
     stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y')
     # Photo 97: vertical slide/upright carriage, not a solid block.
     # V46: relocate the VC13 vertical drive beyond the ±32.5mm
