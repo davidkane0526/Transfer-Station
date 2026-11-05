@@ -1636,9 +1636,9 @@ function platformA(){
      screwHead.rotation.x=Math.PI/2;
      screwHead.userData.A17Photo22PanelFastenerCandidate=true;
    }
-   const shaft=add(g,cyl(1.8,13,mats.steel,0,9,39.5));
+   const shaft=add(g,cyl(1.8,14,mats.steel,0,9,38.5));
    shaft.rotation.x=Math.PI/2;
-   const knob=add(g,cyl(5.2,9,mats.silver,0,9,50.5,40));
+   const knob=add(g,cyl(5.2,9,mats.silver,0,9,50,40));
    knob.rotation.x=Math.PI/2;
    knob.userData.A17FrontSlottedControlKnob=true;
    g.userData.magneticFixture=true;
