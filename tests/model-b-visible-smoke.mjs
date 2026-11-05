@@ -375,7 +375,18 @@ try{
    }
  }
  await page.locator('#btn-b-archive').click();
- assert.match(await page.locator('#platform-caption').innerText(),/平台 A/);
+ await page.waitForTimeout(100);
+ const switchState=await page.evaluate(()=>({
+   ...window.__activePlatformProbe?.(),
+   caption:document.querySelector('#platform-caption')?.textContent,
+   archiveButtonHandler:typeof document.querySelector('#btn-b-archive')?.onclick,
+   bProfileHidden:document.querySelector('#b-photo-profile')?.hidden,
+   aAuditHidden:document.querySelector('#a-physical-audit')?.hidden
+ }));
+ console.log('V48 platform switch diagnostic:',JSON.stringify(switchState));
+ assert.deepEqual(fatal,[],'Browser runtime error while switching from B to A: '+fatal.join(' | '));
+ assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
+ assert.match(switchState.caption,/平台 A/);
  assert.match(await page.locator('#platform-caption').innerText(),/V48.*尺规约9cm/);
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
  assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
