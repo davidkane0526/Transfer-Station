@@ -370,13 +370,13 @@ def make_b():
         add('B',f'B16S{i}','B16_to_B35_M6x18_thread_CANDIDATE',screw,'C')
     # Main column-to-head arm and forward boom, mapped to the Three.js datums.
     add('B','B16G','MXFMS_column_to_head_support_arm',
-        box(80,34,34,86,-77,262+microscope_rise),'P')
+        box(80,34,34,86,-77,245+microscope_rise),'P')
     add('B','B16B','MXFMS_forward_head_support_boom',
-        box(32,125,26,86,-25,273+microscope_rise),'P')
+        box(32,125,26,86,-25,260+microscope_rise),'P')
     # MXFMS coaxial coarse/fine focusing wheels on both sides of the body.
     # Their diameters are visual candidates; maker data gives travel/precision,
     # not the handwheel diameters.
-    body=box(55,55,50,cx,0,249+microscope_rise)
+    body=box(55,55,50,cx,0,224+microscope_rise)
     add('B','B16C','MXFMS_microscope_body_with_focus_carriage',body,'P')
     right_focus=vx(5,12,cx+27.5,-4,257).fuse(
         vx(28,9,cx+39.5,-4,257),vx(15,4,cx+48.5,-4,257)).clean()
@@ -389,7 +389,7 @@ def make_b():
     add('B','B16D','MXFMS_five_position_nosepiece_support_tube',
         vz(8,44,cx-18,0,186+microscope_rise),'P')
     # SDPTOP camera plus two stepped CTV/relay adapter sections.
-    camera=box(47,48,48,cx,0,300+microscope_rise)
+    camera=box(47,48,48,cx,0,276+microscope_rise)
     camera=camera.fuse(vz(12,18,cx,0,270),vz(9,10,cx,0,260)).clean()
     add('B','B17','SDPTOP_digital_camera_with_CTV_relay_adapter',camera,'P')
     # MXFMS five-hole inward nosepiece: central hub bore plus five
