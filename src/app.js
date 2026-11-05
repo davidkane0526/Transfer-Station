@@ -1624,11 +1624,13 @@ function platformA(){
    const top=plate(65,65,3,mats.dark,cornerBores);
    top.position.y=17;add(g,top);
    top.userData.photo23FourCornerCounterboresCandidate=true;
-   const sidePanel=add(g,cub(42,16,1.5,mats.silver,0,9,33.25));
-   sidePanel.userData.A17Photo22SlottedSidePanel=true;
-   // Dark slot is a real visible opening proxy in the thin panel, not a
-   // decorative rod. The screw/control function remains unidentified.
-   add(g,cub(26,4.2,1.7,mats.black,0,9,33.25));
+   // Build the thin plate as four separate rails so the horizontal slot
+   // is genuinely open; the dark magnet body is visible through it.
+   add(g,cub(42,5.9,1.5,mats.silver,0,14.05,33.25));
+   add(g,cub(42,5.9,1.5,mats.silver,0,3.95,33.25));
+   add(g,cub(8,4.2,1.5,mats.silver,-17,9,33.25));
+   add(g,cub(8,4.2,1.5,mats.silver,17,9,33.25));
+   g.userData.A17Photo22SlottedSidePanel=true;
    for(const x of [-13,13]){
      const screwHead=add(g,cyl(2.2,1.5,mats.silver,x,2.5,34.0,24));
      screwHead.rotation.x=Math.PI/2;
