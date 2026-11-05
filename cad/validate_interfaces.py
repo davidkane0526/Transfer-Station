@@ -443,7 +443,7 @@ check(len(part(B,'B08B'))==0,'B rotary table has no external handle')
 nfp_right=part(B,'B09B')[0].BoundingBox()
 b41_drive=part(B,'B41B')[0].BoundingBox()
 b41_body_box=part(B,'B41')[0].BoundingBox()
-check(b41_drive.BoundingBox().ymin>=b41_body_box.BoundingBox().ymax-.02,
+check(b41_drive.ymin>=b41_body_box.ymax-.02,
       'B41 second linear micrometer exits toward the front (+Y)')
 nfp_body=part(B,'B09')[0].BoundingBox()
 check(nfp_right.xmin>=nfp_body.xmax-.02,'B NFP micrometer exits right +X')
