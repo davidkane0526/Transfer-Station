@@ -29,7 +29,7 @@ assert.equal(depthOnly.z,VN50.chuckRearHoseEndNominal.z+5);
 const depthTurned=movingVacuumOutlet({sampleDepthShiftMm:5,sampleAngleDeg:90});
 assert(Math.abs(depthTurned.x-movingVacuumOutlet({sampleAngleDeg:90}).x-5)<1e-8,
   'A 90-degree B08 rotation must transform B41 depth travel into scene X');
-assert.equal(vacuumHosePath().length,11);
+assert.equal(vacuumHosePath().length,13);
 assert.equal(nominal.passesBehindController,true);
 assert(nominal.cabinetClearanceMm>0,'Hose must clear the complete B36 enclosure');
 assert(nominal.controllerClearanceMm>0,'Hose must clear B19 controller body');
