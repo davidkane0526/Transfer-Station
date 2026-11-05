@@ -165,6 +165,10 @@ window.__modelAKinematicProbe=()=>{
     bracketWorldBaseY:arm.position.y,
     filmDropMm:filmDrop,
     a17CandidateHoleCount:magnet.userData.candidateMountHoleMarkers?.length??0,
+    a17SideSlotCount:magnet.userData.photo22SideSlotCount??0,
+    a17FrontKnobCount:magnet.userData.photo22FrontKnobCount??0,
+    a17TopCounterboreCount:magnet.userData.photo23TopCounterboreCount??0,
+    a17OemComparisonSku:magnet.userData.oemComparisonSku??null,
     a10ActualFootBoresOpen:a10Open,
     a10CandidateBoltHeadCount:a10Heads,
     a10ActualManufacturerAnchorVerified:false,
@@ -1610,45 +1614,39 @@ function platformA(){
  // optical breadboard. This magnetic stand is inferred from the user's
  // assembly rule; photos have NOT confirmed its exact maker or height.
  addPart('A17',ax,20,0,g=>{
-   // V46: compare with Daheng GCM-420302M OEM family silhouette:
-   // 65x65x20mm with a side magnetic switch and top 5-M6/4-M4/4-M3.
-   // This is an UNVERIFIED A-side SKU comparison; not a declaration of ID.
-   // 17mm solid magnetic body plus 3mm upper plate with 13 real
-   // candidate blind openings; no fake through-bore into the magnet.
-   const block=add(g,cub(65,17,65,mats.dark,0,8.5,0));
-   block.userData.magneticBaseEnvelopeCandidate=true;
-   const holeFamilies=[
-     {pitch:50,r:3,kind:'M6',includeCenter:true},
-     {pitch:40,r:2,kind:'M4',includeCenter:false},
-     {pitch:32,r:1.5,kind:'M3',includeCenter:false}
-   ];
-   const marks=[];
-   const topBores=[];
-   for(const family of holeFamilies){
-     const coords=[...[-1,1].flatMap(x=>[-1,1].map(z=>
-       [x*family.pitch/2,z*family.pitch/2]))];
-     if(family.includeCenter)coords.push([0,0]);
-     for(const [x,z] of coords){
-       // Candidate OEM hole locations, NOT photographed A17 holes.
-       topBores.push([x,z,family.r]);
-       marks.push({x,z,type:family.kind});
-     }
-   }
-   const top=plate(65,65,3,mats.dark,topBores);
+   // V49 photo22-24: do NOT copy B02/GCM-420302M's 13-hole OEM pattern.
+   // A17 maker/SKU remains unreadable. Photo23 shows four large corner
+   // counterbores; photo22/24 show a FRONT slotted silver side plate,
+   // a central knurled control and two lower fasteners.
+   const body=add(g,cub(65,17,65,mats.dark,0,8.5,0));
+   body.userData.photo22A17MagneticBaseEnvelopeCandidate=true;
+   const cornerBores=[[-25,-25,3.1],[-25,25,3.1],[25,-25,3.1],[25,25,3.1]];
+   const top=plate(65,65,3,mats.dark,cornerBores);
    top.position.y=17;add(g,top);
-   top.userData.candidateBlindHoleCount=marks.length;
-   // Photo/OEM candidate OFF/ON switch on front-right side; alignment
-   // to the actual A photos remains unconfirmed.
-   const boss=add(g,cyl(6.5,2,mats.black,-24,10,33.5,32));
-   boss.rotation.x=Math.PI/2;
-   const lever=add(g,cyl(3.5,13,mats.silver,-24,10,37,24));
-   lever.rotation.x=Math.PI/2;
-   lever.userData.magnetSwitchCandidate=true;
+   top.userData.photo23FourCornerCounterboresCandidate=true;
+   const sidePanel=add(g,cub(42,16,1.5,mats.silver,0,9,33.25));
+   sidePanel.userData.A17Photo22SlottedSidePanel=true;
+   // Dark slot is a real visible opening proxy in the thin panel, not a
+   // decorative rod. The screw/control function remains unidentified.
+   add(g,cub(26,4.2,1.7,mats.black,0,9,33.25));
+   for(const x of [-13,13]){
+     const screwHead=add(g,cyl(2.2,1.5,mats.silver,x,2.5,34.0,24));
+     screwHead.rotation.x=Math.PI/2;
+     screwHead.userData.A17Photo22PanelFastenerCandidate=true;
+   }
+   const shaft=add(g,cyl(1.8,13,mats.steel,0,9,39.5));
+   shaft.rotation.x=Math.PI/2;
+   const knob=add(g,cyl(5.2,9,mats.silver,0,9,50.5,40));
+   knob.rotation.x=Math.PI/2;
+   knob.userData.A17FrontSlottedControlKnob=true;
    g.userData.magneticFixture=true;
    g.userData.brandAndHolePatternNotVerified=true;
-   g.userData.oemComparisonSku='GCM-420302M (unverified)';
-   g.userData.candidateMountHoleMarkers=marks;
-   label(g,'A17磁座候选 · 对照GCM-420302M · 厂商/孔距未实物确认',0,32,0);
+   g.userData.oemComparisonSku=null;
+   g.userData.photo22SideSlotCount=1;
+   g.userData.photo22FrontKnobCount=1;
+   g.userData.photo23TopCounterboreCount=4;
+   g.userData.candidateMountHoleMarkers=cornerBores;
+   label(g,'A17磁吸底座候选 · 实拍四角孔/侧滑槽/旋钮 · 型号未知',0,32,0);
  },{explode:[-10,0,0]});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
