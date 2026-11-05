@@ -393,6 +393,8 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aBefore.bMagnetSkuMustNotBeAttributedToA,true);
  assert.deepEqual(aBefore.sampleLayersMm,[9,7,12]);
  assert.equal(aBefore.sampleRotaryDiameterMm,66);
+ assert.equal(aBefore.sampleRotaryRightAngularMicrometerCount,1);
+ assert.equal(aBefore.sampleRotaryShortFrontLockCount,1);
  assert.equal(aBefore.sampleTopAboveBoardMm,89.2);
  assert.equal(aBefore.sampleRulerWithinTolerance,true);
  assert.deepEqual(aBefore.samplePhotoRulerSource,['17','18']);
