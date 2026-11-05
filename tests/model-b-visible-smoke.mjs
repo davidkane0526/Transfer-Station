@@ -461,6 +461,21 @@ try{
  for(const wrong of ['B29','B30','B31','B32'])
    assert(!rows.some(row=>row.trim().startsWith(wrong)),
       'A 94/95/97 film arm wrongly merged into B '+wrong);
+ await page.locator('#bom-query').fill('B41');
+ const b41PhotoRow=page.locator('#bom-body tr').filter({hasText:/^\s*B41\b/});
+ assert.equal(await b41PhotoRow.count(),1,'B41 lower crossed stage must have a BOM row');
+ assert.equal(await b41PhotoRow.locator('td.bom-photo-cell img').count(),1,
+   'B41 BOM must display the real photograph, not just an evidence label');
+ assert.match(await b41PhotoRow.locator('td.bom-photo-cell img').getAttribute('src'),/147\.jpg$/);
+ await b41PhotoRow.locator('.bom-photo-tile').evaluate(el=>el.click());
+ assert.equal(await page.locator('#source-photo-lightbox[open]').count(),1,
+   'Clicking the BOM photo must open the original image overlay');
+ await page.locator('.photo-lightbox-close').evaluate(el=>el.click());
+ await b41PhotoRow.evaluate(el=>el.click());
+ assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 147/);
+ assert.equal(await page.locator('#photo-evidence-gallery img').count(),1,
+   'Selecting the B41 stage via BOM must display its photographed evidence');
+ await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B24');
  const phuc=page.locator('#bom-body tr').filter({hasText:'B24'});
  assert.equal(await phuc.count(),1);
@@ -545,6 +560,16 @@ try{
  assert.equal(aComplete.stampAtRightEdge,true);
  assert.equal(aComplete.clampRelativeToHeaterNotRegistered,true,
    'The provisional film holder must never be mislabelled as a registered physical transfer pose');
+ await page.locator('#open-bom').evaluate(el=>el.click());
+ await page.locator('#bom-query').fill('A05C');
+ const aClampRow=page.locator('#bom-body tr').filter({hasText:/^\s*A05C\b/});
+ assert.equal(await aClampRow.count(),1,'A05C clamp needs a separate BOM row');
+ assert.match(await aClampRow.locator('.bom-photo-tile').innerText(),/未入库/,
+   'Photo94 may be referenced but must not be falsely shown as an embedded original');
+ await aClampRow.evaluate(el=>el.click());
+ assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 94/);
+ assert.match(await page.locator('#photo-evidence-gallery').innerText(),/原图未入库/);
+ assert.match(await page.locator('#part-detail').innerText(),/夹持器|玻片夹/);
  const photoA=await page.evaluate(()=>window.__photoEvidenceProbe?.('A05C'));
  assert(photoA?.ids.includes('94'));
  assert.deepEqual(photoA?.embedded,[],
