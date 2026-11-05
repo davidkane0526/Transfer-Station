@@ -1339,16 +1339,21 @@ function rotaryB(){
    g.userData.sideHoleThreadsVerified=false;
    add(g,cub(24,15,30,mats.steel,-45,12,0));
    add(g,sleeve(4.1,3.8,1,mats.ink,-57,12,0,'x'));
-   const spindle=add(g,cyl(3.6,82.5,mats.silver,-89.25,12,0));spindle.rotation.z=Math.PI/2;
-   add(g,sleeve(9,3.8,23,mats.steel,-119,12,0,'x'));
-   const drum=add(g,sleeve(11,9.2,28,mats.silver,-131,12,0,'x'));
+   const spindleLength=modelConfirmed?82.5:40;
+   const spindleCenter=modelConfirmed?-89.25:-68;
+   const collarLength=modelConfirmed?23:18;
+   const collarCenter=modelConfirmed?-119:-79;
+   const drumCenter=modelConfirmed?-131:-88.5;
+   const spindle=add(g,cyl(3.6,spindleLength,mats.silver,spindleCenter,12,0));spindle.rotation.z=Math.PI/2;
+   add(g,sleeve(9,3.8,collarLength,mats.steel,collarCenter,12,0,'x'));
+   const drum=add(g,sleeve(11,9.2,28,mats.silver,drumCenter,12,0,'x'));
    drum.userData.stageActuatorHandle={kind:'linear',localAxis:'X'};
    spindle.userData.stageActuatorStem={kind:'linear',localAxis:'X'};
    g.userData.axisDirection=facingYaw===Math.PI/2?'+Z':'+X';
    g.userData.oemModelConfirmed=modelConfirmed;
    g.userData.envelopeCandidateMm=[65,65,23];
    if(modelConfirmed)g.userData.NFPMicrometerOverallLengthCandidateMm=177.5;
-   else g.userData.micrometerLengthVisualCandidateMm=177.5;
+   else g.userData.micrometerLengthVisualCandidateMm=135;
    if(modelConfirmed){
      for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
      for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
