@@ -319,13 +319,23 @@ def make_b():
     # They are NOT M6 tapped holes and should not be modeled as threads.
     lo=cut(box(65,65,11,cx,0,65.2),corners,6.5,11,65.2)
     lo=cut(lo,corners,11,4,72.2)
-    add('B','B09','NFP1462C_lower_4clearance_O6p5_counterbore_O11',lo,'D')
+    # Photos25/26: four lower-row blind side openings on the fixed body.
+    # Their diameter/threads are NOT in the readable OEM drawing and
+    # remain photo-fit proxies; drill 2.5mm inward from the +Y face.
+    nfp_lower_side=[(-18,72.2,1.6),(-4,72.2,2.0),(11,72.2,2.6),(22,72.2,1.6)]
+    for dx,zz,rr in nfp_lower_side:
+        lo=lo.cut(vy(rr,2.5,cx+dx,30,zz))
+    add('B','B09','NFP1462C_lower_4clearance_O6p5_counterbore_O11_photo_side_bores',lo,'D')
     # Opposite view shows 9-M6 / 4-M3 threaded-hole arrays on the moving plate.
     # Minor diameters and 10mm/7mm hole DEPTHS are candidates, not OEM data.
     top=box(65,65,12,cx,0,76.2)
     top=cut(top,[(cx+dx,dy) for dx in (-25,0,25) for dy in (-25,0,25)],5,10,78.2)
     top=cut(top,[(cx+dx,dy) for dx in (-16,16) for dy in (-16,16)],2.5,7,81.2)
-    add('B','B09A','NFP1462C_upper_9M6_4M3_candidates',top,'D')
+    # Photos25/26: three upper-row side openings on the moving plate.
+    nfp_upper_side=[(-22,82.7,1.8),(-8,82.7,1.8),(12,82.7,2.8)]
+    for dx,zz,rr in nfp_upper_side:
+        top=top.cut(vy(rr,2.5,cx+dx,30,zz))
+    add('B','B09A','NFP1462C_upper_9M6_4M3_candidates_photo_side_bores',top,'D')
     # OEM drawing: native micrometer left. The user photo110 shows right
     # after whole-stage installation yaw=180° relative to native plan.
     # OEM overall maker dimension: 155.5..180.5 mm along drive axis.
