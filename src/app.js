@@ -2382,7 +2382,8 @@ function updateTransforms(){
  const e=explosion/100,angle=sampleAngle*Math.PI/180;
  const motionAudit=platform==='B'&&!bPhoto94Mode?
    auditBLoweringPose({filmShiftX:filmShift,sampleShiftX:sampleShift,
-     sampleAngleDeg:sampleAngle,filmVerticalDropMm:filmDrop,filmDepthShiftMm:filmShiftDepth}):null;
+     sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle,
+     filmVerticalDropMm:filmDrop,filmDepthShiftMm:filmShiftDepth}):null;
  if(motionAudit?.possibleClash&&filmDrop>0){
    filmDrop=0;
    if($('film-drop'))$('film-drop').value='0';
