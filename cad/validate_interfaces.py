@@ -288,8 +288,10 @@ for i in range(1,5):
     bb=ss[0].BoundingBox()
     check(abs(bb.zmax-109.7)<0.03,f'B14_{i} top recessed 0.5 mm')
     check(abs(bb.zmin-78.7)<0.03,f'B14_{i} nominal M6x25 under-head length')
+nfp_lower=part(B,'B09M')[0]
 nfp=part(B,'B09A')[0]
-check(abs(nfp.BoundingBox().zmin-76.2)<.01,'NFP carriage lower datum')
+check(abs(nfp_lower.BoundingBox().zmin-76.2)<.01,'NFP carriage lower datum')
+check(abs(nfp.BoundingBox().zmin-78.2)<.01,'NFP moving top plate lower datum')
 check(abs(nfp.BoundingBox().zmax-88.2)<.01,'NFP top mounting datum')
 # The modeled hole depth is 10 mm. Tip at 66.7 and blind bottom at 66.2 => .5 mm.
 hole_bottom=78.2;tip=78.7
