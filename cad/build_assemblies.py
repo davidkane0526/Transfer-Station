@@ -515,20 +515,19 @@ def make_a():
     # panel screws and one central knurled control. Manufacturer/function
     # remain unknown. Never copy B02/GCM-420302M's 13-hole OEM pattern.
     mag=box(65,65,20,ax,0,20)
-    a17_corners=[(ax+dx,dy) for dx in (-25,25) for dy in (-25,25)]
-    mag=cut(mag,a17_corners,6,3,37)
-    # The front control shaft passes through a small candidate bore in
-    # the magnet body and the open slot in the separate side panel.
-    mag=mag.cut(vy(2.1,13,ax,19.5,28))
+    # Photo23's four corner counterbores are on A15's upper T25M
+    # carriage (photo23), not on this lower A17 magnetic base.
+    # A17 remains a solid top face; only its front control bore is cut.
+    mag=mag.cut(vy(2.1,13,ax,19.5,25.9))
     add('A','A17','FILM_MAGNET_UNMARKED_65x65x20_PHOTO_CANDIDATE',mag,'C')
     a17_panel=box(42,1.5,16,ax,33.25,22).cut(
         box(26,1.6,4.2,ax,33.25,25.9))
     add('A','A17P','FILM_MAGNET_FRONT_SLOTTED_PANEL_PHOTO22',a17_panel,'P')
     for i,xx in enumerate((ax-13,ax+13),1):
         add('A',f'A17S{i}','FILM_MAGNET_PANEL_LOWER_SCREW_HEAD_CANDIDATE',
-            vy(2.2,1.5,xx,32.5,22.5),'C')
-    a17_control=vy(1.8,14.5,ax,19.5,28).fuse(
-        vy(5.2,9,ax,34,28))
+            vy(2.2,1.5,xx,33.25,22.5),'C')
+    a17_control=vy(1.8,14.5,ax,19.5,25.9).fuse(
+        vy(5.2,9,ax,34,25.9))
     add('A','A17L','FILM_MAGNET_FRONT_SLOTTED_CONTROL_KNOB_UNKNOWN_FUNCTION',
         a17_control,'C')
     stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y',photo_top_bores=True)
