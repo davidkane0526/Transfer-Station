@@ -127,7 +127,7 @@ export function enrichParts(partMap, platform, onMesh){
       knurl(g,-88.5,12,0,10.5,27,'x',48);
       // The lower Y stage faces a different direction. Put the
       // photo-review-only badge on its exposed near face (local -X).
-      const yAxisTag=decal(g,'下层 Y · B41',26,4.8,-33.6,18,16,'left','#e7f2fb','#334a5d');
+      const yAxisTag=decal(g,'Y轴 · B41',21,5.0,-33.6,17,20,'left','#edf7ff','#334a5d');
       yAxisTag.userData.modelOnlyAxisAnnotation='lower-Y';
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
