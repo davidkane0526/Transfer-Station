@@ -520,8 +520,8 @@ report['V51_A17_photo22_24_geometry']={
 # OEM drawing; validate only the seven photo-fit blind recesses.
 nfp_lower=part(B,'B09')[0]
 nfp_upper=part(B,'B09A')[0]
-nfp_lower_side=[(-18,72.2,1.6),(-4,72.2,2.0),(11,72.2,2.6),(22,72.2,1.6)]
-nfp_upper_side=[(-22,82.7,1.8),(-8,82.7,1.8),(12,82.7,2.8)]
+nfp_lower_side=[(-18,95.2,1.6),(-4,95.2,2.0),(11,95.2,2.6),(22,95.2,1.6)]
+nfp_upper_side=[(-22,105.7,1.8),(-8,105.7,1.8),(12,105.7,2.8)]
 for dx,zz,rr in nfp_lower_side:
     open_probe=vy(rr,2.4,82+dx,30.05,zz)
     backing=vy(rr,.5,82+dx,29.5,zz)
