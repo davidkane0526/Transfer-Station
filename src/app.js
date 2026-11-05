@@ -1326,9 +1326,14 @@ function rotaryB(){
    };
    const lowerSide=[[-18,7,1.6],[-4,7,2.0],[11,7,2.6],[22,7,1.6]];
    const upperSide=[[-22,17.5,1.8],[-8,17.5,1.8],[12,17.5,2.8]];
-   for(const [x,y,r] of lowerSide)addSideBore(g,x,y,r,'lower');
-   for(const [x,y,r] of upperSide)addSideBore(slidingTop,x,y,r,'upper');
-   g.userData.sideHoleRowsCandidate={fixedLower:4,movingUpper:3};
+   if(modelConfirmed){
+     for(const [x,y,r] of lowerSide)addSideBore(g,x,y,r,'lower');
+     for(const [x,y,r] of upperSide)addSideBore(slidingTop,x,y,r,'upper');
+     g.userData.sideHoleRowsCandidate={fixedLower:4,movingUpper:3};
+   }else{
+     g.userData.sideHoleRowsCandidate=null;
+     g.userData.sideHolePatternAssigned=false;
+   }
    g.userData.sideHoleThreadsVerified=false;
    add(g,cub(24,15,30,mats.steel,-45,12,0));
    add(g,sleeve(4.1,3.8,1,mats.ink,-57,12,0,'x'));
