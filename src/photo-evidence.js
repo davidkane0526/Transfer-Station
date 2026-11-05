@@ -5,10 +5,10 @@
 export const STACKS={
   B:{
     film:['B02','B03','B04','B05','B34','B27','B33','B25','B24','B28','B26','B06','B07'],
-    sample:['B01','B35','B08','B09','B10','B11'],
+    sample:['B01','B35','B08','B41','B09','B10','B11'],
     external:['B36','B19','B21','B23','B22','B37','B38','B39','B15','B40','B20'],
     photo:['25.jpg','26.jpg','27.jpg','28.jpg','29.jpg','30.jpg','31.jpg','108.jpg','109.jpg','110.jpg','111.jpg','112.jpg','145.jpg','146.jpg','147.jpg','148.jpg','149.jpg','150.jpg','151.jpg'],
-    confidence:'B02磁座→B03双轴T25M→B04升降台→B33方夹与杆→B24 PHUC-1万向杆夹（照片149可见铭牌）→B06 GCM-1302M夹板（照片150可见型号）；照片25–28进一步确认B09 NFP-1462C样品侧尺寸与侧面固定下层4孔、活动上层3孔，孔径/螺纹仍未知；照片29–31确认B02铭牌GCM-420302M及PHUC-1双杆夹持。照片145/150显示一个银色公共面包板 B01；其上螺栓安装局部黑色Thorlabs板 B35，承载B08与B16，B35不是第二个公共底座；B08/NFP样品台由145–148支持。B35板厚和孔距、杆长度与实际装配角度未验收。照片114/117/119另显示B19面板、B21电源和B23黑色模块同属一个金属控制箱B36，实拍120确认独立真空泵 B20 型号为 VN-50（旧版W-50识别错误）；B15/B40物理负压管线从样品气孔通往泵吸入口，LED驱动B22为另一独立外设；B36机壳外形和内部孔位均未量取。'
+    confidence:'B02磁座→B03双轴T25M→B04升降台→B33方夹与杆→B24 PHUC-1万向杆夹（照片149可见铭牌）→B06 GCM-1302M夹板（照片150可见型号）；样品侧从下至上为B08无外伸手柄旋转台、B41前向单轴平移台、B09右向单轴NFP-1462C、B10隔热层和B11真空加热台。用户2026-11-05带尺照片147直接证明B08与B09之间还有一整级平移台，两个线性轴相互正交；B41精确型号及孔系待核，不擅自沿用NFP-1462C型号。照片25–28确认上层B09 NFP-1462C尺寸与侧面固定下层4孔、活动上层3孔，孔径/螺纹仍未知；照片29–31确认B02铭牌GCM-420302M及PHUC-1双杆夹持。照片145/150显示一个银色公共面包板 B01；其上螺栓安装局部黑色Thorlabs板 B35，承载B08与B16，B35不是第二个公共底座。B35板厚和孔距、杆长度与实际装配角度未验收。照片114/117/119另显示B19面板、B21电源和B23黑色模块同属一个金属控制箱B36，实拍120确认独立真空泵 B20 型号为 VN-50（旧版W-50识别错误）；B15/B40物理负压管线从样品气孔通往泵吸入口，LED驱动B22为另一独立外设；B36机壳外形和内部孔位均未量取.
   },
   A:{
     film:['A17','A15','A03','A04L','A04','A05'],
@@ -20,8 +20,9 @@ export const STACKS={
 export const HANDLES={
   B03:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,direction:'-X',secondaryDirection:'+Z',localDirection:'+X',installationYawDeg:180,brandedFace:'-Z',evidence:'108.jpg磁座铭牌面见手柄在左；109.jpg从相反的T25M铭牌面看手柄在右，是同一根手柄',confidence:'photo'},
   B04:{kind:'vertical',direction:'+Y',evidence:'108.jpg：移动臂侧面竖直银色测微头',confidence:'photo'},
-  B08:{kind:'rotation-lock',direction:'+Z',evidence:'111.jpg：刻度旋转台朝向观察者的银色调节杆',confidence:'photo'},
-  B09:{kind:'horizontal',direction:'+X',evidence:'110.jpg：NFP-1462C右侧的银色微分头',confidence:'photo'},
+  B08:{kind:'rotation-only',handles:0,evidence:'用户2026-11-05根据实物照片明确纠正：GCM-1107M旋转台没有外伸操作手柄',confidence:'user-correction'},
+  B41:{kind:'horizontal',axes:1,handles:1,direction:'+Z',evidence:'用户照片147：旋转台上方、NFP-1462C下方存在独立的前向测微头；型号未确认',confidence:'photo'},
+  B09:{kind:'horizontal',axes:1,handles:1,direction:'+X',evidence:'110.jpg及147号带尺照片：上层NFP-1462C右侧银色测微头',confidence:'photo'},
   A15:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,direction:'+X',secondaryDirection:'+Z',evidence:'95.jpg、97.jpg：VC13M下方T25M右伸微分头',confidence:'photo'},
   A03:{kind:'vertical',direction:'+Y',evidence:'97.jpg：VC13M竖直导轨正面银色测微装置',confidence:'photo'},
   A04L:{kind:'tilt',direction:'+X',evidence:'94.jpg下层独立微分头向右；具体G40型号无法读出',confidence:'photo-proxy'},
