@@ -371,6 +371,16 @@ check(87<(aheat.zmax-20)<93,
       'V48 ruler: silver sample top must stand approx 9cm above breadboard')
 check(abs(arot.xlen-66)<.02 and abs(arot.ylen-66)<.02,
       'V48 A only: candidate rotary Ø66 mm, NOT disproportional Ø94')
+a06_right_stem=part(A,'A06C')[0].BoundingBox()
+a06_right_knob=part(A,'A06D')[0].BoundingBox()
+a06_front_lock=part(A,'A06B')[0].BoundingBox()
+check(abs(a06_right_stem.xmin-(78+33))<.02 and
+      abs(a06_right_stem.xmax-a06_right_knob.xmin)<.02,
+      'V48 A06 right angular micrometer stem must meet drum without gap')
+check(abs(a06_front_lock.ymin-33)<.02,
+      'V48 front short A06 lock must independently attach to circular rim')
+check(a06_right_knob.xmin>arot.xmax,
+      'V48 A06 angular drum must stand outside rotary, not through its metal body')
 for i in range(1,5):
     head=part(A,f'A07S{i}')[0]
     check(abs(head.BoundingBox().zmax-108.6)<.02,
@@ -383,6 +393,8 @@ report['V48_A_sample_height_ruler']={
     'A07_layers_mm':[9,7,12],
     'A07_middle_layer_material_identified':False,
     'A06_rotary_diameter_candidate_mm':66,
+    'A06_right_angular_micrometer_count':1,
+    'A06_front_lock_count':1,
     'A06_actual_rotation_sku_identified':False,
     'A07_top_4_blind_screw_head_locations_qualified':False
 }
