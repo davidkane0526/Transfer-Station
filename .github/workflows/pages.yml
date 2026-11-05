@@ -26,6 +26,9 @@ jobs:
           node --check src/kinematics.js
           node tests/kinematics.mjs
           node tests/photo-assembly.mjs
+          node --check src/photo-library.js
+          node --check src/photo-gallery.js
+          node tests/photo-library.mjs
           node --check src/photo-947-assembly.js
           node --check tests/photo-947-assembly.mjs
           node tests/photo-947-assembly.mjs
@@ -134,6 +137,7 @@ jobs:
           path: |
             index.html
             src/
+            assets/
             docs/
             cad/
             tests/
