@@ -925,12 +925,14 @@ report['V36_film_stamp_approach']={
     'XplusY_combinations_need_runtime_guard':True,
     'actual_hardware_accepted':False
 }
-check(abs(glass.BoundingBox().zmin-125)<.02,'Glass bottom matches new direct-coupled fixed jaw')
-check(abs(glass.BoundingBox().zmax-126)<.02,'Glass has 1mm thickness in current B fit')
+check(abs(glass.BoundingBox().zmin-148)<.02,'Glass bottom matches new direct-coupled fixed jaw')
+check(abs(glass.BoundingBox().zmax-149)<.02,'Glass has 1mm thickness in current B fit')
 check(abs(moving_plate.BoundingBox().zmin-glass.BoundingBox().zmax)<.02,
       'One moving pressure plate contacts 1mm glass without interpenetration')
 check(abs(glass.BoundingBox().zmin-pdms.BoundingBox().zmax)<.02,
       'PDMS underside contacts glass')
+check(pdms.intersect(chuck).Volume()<1e-6,
+      'PDMS stamp remains above the raised heater until its 13mm approach stroke')
 check(9<pdms.BoundingBox().zmin-chuck.BoundingBox().zmax<25,
       'With B35 rise, film is ABOVE and not touching heater (clearance photo-fit only)')
 for i in (1,2):
