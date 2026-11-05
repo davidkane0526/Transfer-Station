@@ -3,7 +3,7 @@
 // axes correspond to scene X and scene Z, NOT scene Y (height).
 export const AXES={
  B03:{makerAxes:['X','Y'],sceneAxes:['X','Z'],linear:2,micrometers:2,verified:'photo-and-maker-drawing'},
- B41:{makerAxes:[],sceneAxes:['Z'],linear:1,micrometers:1,verified:'photo-proxy-exact-SKU-unknown'},
+ B41:{makerAxes:[],physicalAxes:['Y'],sceneAxes:['Z'],linear:1,micrometers:1,verified:'photo-proxy-exact-SKU-unknown'},
  B09:{makerAxes:['X'],sceneAxes:['X'],linear:1,micrometers:1,verified:'OEM-official'},
  B08:{makerAxes:['theta'],sceneAxes:['yaw'],linear:0,micrometers:0,verified:'user-photo-correction-no-handle'},
  A15:{makerAxes:['X','Y'],sceneAxes:['X','Z'],linear:2,micrometers:2,verified:'photo-and-maker-drawing'},
