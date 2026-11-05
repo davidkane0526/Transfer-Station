@@ -1794,9 +1794,10 @@ function platformA(){
  // optical breadboard. This magnetic stand is inferred from the user's
  // assembly rule; photos have NOT confirmed its exact maker or height.
  addPart('A17',ax,20,0,g=>{
-    // Independent A-photo visual candidate for GCM-420302M; no A17 nameplate confirmation.
+    // A17 top/underside are not legible in the A-photo evidence.
+    // Keep a neutral blank top-interface proxy; do NOT copy B02/GCM-420302M holes.
     add(g,cub(65,10,65,mats.dark,0,5,0));
-    const top=add(g,plate(65,65,10,mats.dark,GCM42_TOP_HOLES));
+    const top=add(g,plate(65,65,10,mats.dark,[]));
     top.position.y=10;
     // The front slotted panel sits on the body face. Do not add a false
     // solid front extension that would obstruct the front row of top holes.
@@ -1817,16 +1818,17 @@ function platformA(){
     knob.userData.A17FrontSlottedControlKnob=true;
     g.userData.magneticFixture=true;
     g.userData.brandAndHolePatternNotVerified=true;
-    g.userData.oemComparisonSku='GCM-420302M (visual candidate only)';
-    g.userData.oemModelCandidate='GCM-420302M';
-    g.userData.oemVisualMatchConfidence='high_visual_match_only';
+    g.userData.oemComparisonSku=null;
+    g.userData.oemModelCandidate=null;
+    g.userData.oemVisualMatchConfidence='unidentified';
+    g.userData.topInterfaceModelled=false;
     g.userData.oemIdentityVerified=false;
-    g.userData.candidateTopHolePattern={M6:5,M4:4,M3:4,total:13};
+    g.userData.candidateTopHolePattern=null;
     g.userData.photo22SideSlotCount=1;
     g.userData.photo22FrontKnobCount=1;
-    g.userData.candidateMountHoleMarkers=GCM42_TOP_HOLES.map(([x,z,r])=>({x,z,r}));
+    g.userData.candidateMountHoleMarkers=[];
     g.userData.topCornerCounterbores=0;
-    label(g,'A17 · GCM-420302M外观候选（铭牌未确认）',0,32,0);
+    label(g,'A17 · 磁吸底座（型号/顶部孔系未知）',0,32,0);
   },{explode:[-10,0,0]});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
@@ -2104,7 +2106,7 @@ function renderPhotoLedger(){
  const m=document.createElement('div');m.className='marked-note';
  m.textContent=platform==='B'&&bPhoto94Mode?'用户要求的B新照片对照配置：GCM-T25M→GCM-VC13M→GCM-G40M60L→L型薄板；此前A/B照片归档冲突未解决，不能以此证明NFP样品侧同机。':platform==='B'?
    'B02为GCM-420302M磁座；B35按Thorlabs MB2530/M候选孔相位重建120个M6贯通孔。B35中心X=75mm，四角安装孔与B01候选25mm网格对齐；B16脚座中心87.5/-112.5mm，四孔与B35网格零误差配准。板厚仍按照片拟合12mm，官方候选12.7mm，SKU和B01螺纹未确认。B36金属机箱包含前置B19温控器、内部B21电源及B23模块。B20真空泵/B22灯电源独立显示。':
-   'A17磁座在A15双轴T25M之下（用户固定方式确认，型号候选）；A16底部安装座螺钉固定在唯一A01光学面包板，A02为另一台独立T25M。';
+   'A17磁吸底座位于A15双轴T25M下方（用户确认固定关系，型号及顶部孔系未知）；A16底座螺钉固定于A01，A02为另一台独立T25M。';
  host.append(m);
 }
 // Only show/export parts that are actually present in the selected assembly.
@@ -2432,10 +2434,10 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V51 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V51 / A17磁座GCM-420302M外观候选 / A05夹具待核 / 全局未配准';
+   '平台 A · V52 / A17磁座型号与孔系未知 / A05夹具待核 / 全局未配准';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B的B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
-  '照片94/95/97: A膜侧 A15 T25M→A03 VC13M→A04L下层独立摆角台→A04上层G40M60L→A05折弯片。新实拍17–24: A样品侧GCM-5306M非旋转底座→A06Ø66候选旋转台（右侧角度调节）→A02 T25M（左侧银色直线测微头）→A07三层金属/中间层样品台；B照片29–31的PHUC-1及磁座铭牌不属于A。';
+  '照片94/95/97: A膜侧 A15 T25M→A03 VC13M→A04L下层独立摆角台→A04上层G40M60L→A05折弯片。新实拍17–24: A样品侧GCM-5306M非旋转底座→A06Ø66候选旋转台（右侧角度调节）→A02 T25M（左侧银色直线测微头）→A07三层样品台；A17型号/孔系仍未知，B照片29–31的PHUC-1及GCM-420302M铭牌不属于A。';
  focus('iso');
  updateTable();
 }

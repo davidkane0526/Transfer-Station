@@ -571,17 +571,12 @@ def make_a():
     stage('A','A02',cx,0,61.2,'-X')
     # User-confirmed mounting relationship, maker/height candidate:
     # A15 must rest on the actual magnetic base, not on naked board.
-    # V51 A17: photos22/24 show front slot, central knurled control and
-    # two lower panel screws. Photo23's four top counterbores belong to A15,
-    # not A17. GCM-420302M is an independent visual candidate only.
+    # V52 A17: A photos22/24 show only the front slot, central knurled
+    # control and two panel screws. Top/underside hole pattern is not visible.
+    # Leave a neutral blank top-interface proxy; do not copy B02/GCM-420302M holes.
     mag=box(65,65,20,ax,0,20)
-    # A17 independently resembles GCM-420302M; candidate catalogue pattern only.
-    for pitch,dia in [(50,5),(40,3.3),(32,2.5)]:
-        pts=[(ax+dx,dy) for dx in (-pitch/2,pitch/2) for dy in (-pitch/2,pitch/2)]
-        mag=cut(mag,pts,dia,10,30)
-    mag=cut(mag,[(ax,0)],5,10,30)
     mag=mag.cut(vy(2.1,13,ax,19.5,25.9))
-    add('A','A17','A17_GCM420302M_VISUAL_CANDIDATE_NOT_CONFIRMED',mag,'C')
+    add('A','A17','A17_UNKNOWN_MAGNETIC_BASE_PHOTO22_FRONT_FEATURES_ONLY',mag,'C')
     a17_panel=box(42,1.5,16,ax,33.25,22).cut(
         box(26,1.6,4.2,ax,33.25,23.8))
     add('A','A17P','FILM_MAGNET_FRONT_SLOTTED_PANEL_PHOTO22',a17_panel,'P')

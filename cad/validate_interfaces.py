@@ -422,25 +422,21 @@ aheat=part(A,'A07')[0].BoundingBox()
 amagnet=part(A,'A17')[0].BoundingBox()
 check(abs(amagnet.zmin-20)<.02 and abs(amagnet.zmax-40)<.02,
       'V38 A has one TRUE film-side magnetic mounting stand above the only breadboard')
-# V51: A17 is an independent visual match candidate to the GCM-420302M family.
-# The exact A17 SKU and hole pattern are not confirmed from its own nameplate.
+# V52: A17 top/underside hole pattern is not visible in the A evidence.
+# The body top is deliberately a neutral blank proxy, not a claim that the
+# physical base has no holes. Never transfer B02/GCM-420302M's 13-hole pattern.
 a17_body=part(A,'A17')[0]
 a17_panel=part(A,'A17P')[0]
 a17_control=part(A,'A17L')[0]
 check(abs(a17_body.BoundingBox().zmin-20)<.02 and
       abs(a17_body.BoundingBox().zmax-40)<.02,
-      'V51 A17 remains a 65x65x20mm magnetic-base envelope candidate')
-a17_pattern=[(dx,dy,5.0,'M6') for dx in (-25,25) for dy in (-25,25)]
-a17_pattern += [(dx,dy,3.3,'M4') for dx in (-20,20) for dy in (-20,20)]
-a17_pattern += [(dx,dy,2.5,'M3') for dx in (-16,16) for dy in (-16,16)]
-a17_pattern += [(0,0,5.0,'M6')]
-for dx,dy,dia,thread in a17_pattern:
-    top_probe=vz(dia/2,10,-116+dx,dy,30)
-    backing=vz(dia/2,.5,-116+dx,dy,29.5)
-    check(a17_body.intersect(top_probe).Volume()<1e-4,
-          f'V51 A17 candidate GCM-42 {thread} top hole is open')
-    check(a17_body.intersect(backing).Volume()>1e-4,
-          f'V51 A17 candidate GCM-42 {thread} hole remains blind at 10mm')
+      'V52 A17 remains a 65x65x20mm magnetic-base envelope candidate')
+for dx,dy in [(0,0),(-25,-25),(-25,25),(25,-25),(25,25),
+              (-20,-20),(-20,20),(20,-20),(20,20),
+              (-16,-16),(-16,16),(16,-16),(16,16)]:
+    unobserved_hole_probe=vz(1.2,8,-116+dx,dy,32)
+    check(a17_body.intersect(unobserved_hole_probe).Volume()>1,
+          'V52 A17 neutral top proxy must not fabricate an unobserved GCM-42 hole')
 a15_top=part(A,'A15A')[0]
 for xx,yy in [(-141,-25),(-141,25),(-91,-25),(-91,25)]:
     bore=vz(2.85,2.8,xx,yy,70.1)
@@ -464,11 +460,13 @@ for i in (1,2):
           'V51 A17 side-panel lower screw head contacts the plate')
 report['V51_A17_photo22_24_geometry']={
     'manufacturer_model_verified':False,
-    'visual_model_candidate':'GCM-420302M',
+    'visual_model_candidate':None,
     'independent_A_photo_visual_match':True,
     'envelope_mm':[65,65,20],
-    'candidate_top_hole_pattern':{'M6':5,'M4':4,'M3':4,'total':13},
+    'top_interface_modelled':False,
+    'candidate_top_hole_pattern':None,
     'candidate_hole_pattern_measured_on_A17':False,
+    'B02_GCM420302M_hole_pattern_transferred_to_A17':False,
     'A17_top_corner_counterbores':0,
     'A15_top_corner_counterbores':4,
     'front_slotted_panel_count':1,

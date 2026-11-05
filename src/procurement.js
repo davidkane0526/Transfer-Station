@@ -105,7 +105,7 @@ const A={
  A05:{qty:1,category:'L形薄金属折弯连接片',material:'黑色薄金属板（牌号/厚度待测）',alternatives:[['本地CNC加工商','按照片94和实物尺寸测绘加工','']],note:'A05是照片94可见的L形折弯连接片，不是玻片夹具，也不是玻片耗材。板厚、折边和下端连接未实测。'},
  A05C:{qty:1,category:'独立玻片夹持器候选',material:'铝合金本体/钢紧固件',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',alternatives:[['Daheng','GCM-1302M（M6、L60mm）功能/外形候选',''],['Daheng','GCM-1311M（M6、L52mm）功能/外形候选','']],note:'A平台照片未见可读夹具铭牌，GCM-1302M/1311M仅作为GCM-13系列比对候选。不得把B06已确认的GCM-1302M身份直接移植到A05C；未确认前不作为已安装几何或采购定型。'},
  A05G:{qty:1,category:'玻璃载玻片耗材（尺寸候选）',material:'玻璃',alternatives:[['Fisher Scientific','76×26×1mm标准显微载玻片（尺寸候选）','https://www.fishersci.com/'],['VWR','标准显微载玻片（需按实物尺寸选）','https://www.vwr.com/']],note:'与A05折弯片、A05C夹具分别列项。76×26×1mm为标准尺寸候选，尚未由A平台实物尺图确认。'},
- A17:{qty:1,category:'磁性底座（外观候选）',material:'钢/铝合金组合（待核）',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',alternatives:[['Daheng','GCM-420302M（照片22/24外观候选，未确认铭牌）','']],note:'A17前面板、滑槽、中央旋钮与大恒GCM-420302M目录外观相似，故列为高可信度候选；A17铭牌未读清，不能认定SKU。13孔型仅按厂家目录作为可撤销候选，采购前须核对实物孔位/螺纹和磁性开关。'},
+ A17:{qty:1,category:'磁吸固定座（A照片可见特征，型号未识别）',material:'未知，需实物确认',note:'照片22/24仅确认前侧滑槽、中央滚花旋钮及两颗面板螺钉；A17没有可读铭牌，顶面/底面孔系未见。不得把B02/GCM-420302M的13孔型、磁吸开关或承载参数套用到A17。外廓65×65×20mm仅为模型候选，采购前需补拍A17正面、顶面、底面及铭牌。'},
  A06:{qty:1,category:'手动旋转台',material:'黑色阳极氧化铝',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',alternatives:[['Daheng','GCM-11同系列按接口选型','https://www.daheng-optics.com/']],note:'照片100 旋转刻度台与上部 GCM-T25M 直接叠放；不能确认旋转台型号'},
  A16:{qty:1,category:'精密安装底座',material:'金属',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',
     alternatives:[['Daheng','GCM-5306M原厂同型号安装底座','https://www.anjun.com.tw/']],
