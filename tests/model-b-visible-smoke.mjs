@@ -49,6 +49,20 @@ try{
    'Rotary base footprint extends outside black board');
  assert.equal(support.originalThorlabsPartNumberConfirmed,false,
    'Photo does not confirm exact Thorlabs part number');
+ const optics=await page.evaluate(()=>window.__modelBOpticsProbe?.());
+ assert(optics?.available,'V50 B-specific MXFMS optics probe missing');
+ assert.equal(optics.postDiameterMm,32,'MXFMS post diameter must use the manufacturer 32mm dimension');
+ assert.equal(optics.postHeightMm,280,'MXFMS post height must use the manufacturer 280mm dimension');
+ assert.equal(optics.coarseFocusKnobs,2,'Both coaxial coarse focus wheels must be visible');
+ assert.equal(optics.fineFocusKnobs,2,'Both coaxial fine focus wheels must be visible');
+ assert.equal(optics.cameraAdapterSections,2,'SDPTOP camera relay adapter stack is incomplete');
+ assert.equal(optics.fiveHoleNosepiece,true,'MXFMS five-hole inward nosepiece is missing');
+ assert.equal(optics.objectivePorts,5,'All five nosepiece positions must be represented');
+ assert.equal(optics.installedObjectives,2,'Only the two photo-identified objective barrels should be installed');
+ assert(optics.objectiveLabels.some(x=>x==='10x / 0.15 / DIC / WD10.8'),
+   'Photo110 10x/0.15/DIC/WD10.8 objective marking missing');
+ assert(optics.objectiveLabels.some(x=>x==='OptoSigma · model unknown'),
+   'Separate OptoSigma objective must not be merged with the 10x objective');
  const nfpSide=await page.evaluate(()=>window.__modelBNfpSideHoleProbe?.());
  assert(nfpSide?.available,'V49 NFP photo25/26 side-hole probe missing');
  assert.equal(nfpSide.sideHoleCount,7,'NFP side face must show the photographed 3+4 hole rows');
