@@ -118,7 +118,7 @@ for fixed,lower,top,key in ((b41_fixed,b41_moving_lower,b41_moving_top,'B41'),
     check(fixed.intersect(lower).Volume()<1e-4 and lower.intersect(top).Volume()<1e-4,
           key+' fixed/carriage/top layers meet without interpenetration')
 # B08 is a rotation-only stage: the real unit has no external operating handle.
-check(len(part(B,'B08B'))==0,'B08 GCM-1107M must not contain a fabricated external handle')
+check(not (B/'B08B.step').exists(),'B08 GCM-1107M must not contain a fabricated external handle')
 # GCM-1107M nine-hole 25mm candidate pattern.
 for dx in (-25,0,25):
     for dy in (-25,0,25):
@@ -440,7 +440,7 @@ v25_knob=part(B,'B04D')[0].BoundingBox()
 check(v25_stem.zmax<=v25_knob.zmin+.02 and
       v25_knob.zmax>v25_stem.zmax,'B V25M micrometer stands vertically +Z')
 brot=part(B,'B08')[0].BoundingBox()
-check(len(part(B,'B08B'))==0,'B rotary table has no external handle')
+check(not (B/'B08B.step').exists(),'B rotary table has no external handle')
 nfp_right=part(B,'B09B')[0].BoundingBox()
 b41_drive=part(B,'B41B')[0].BoundingBox()
 b41_body_box=part(B,'B41')[0].BoundingBox()
