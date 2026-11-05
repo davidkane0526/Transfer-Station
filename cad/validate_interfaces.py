@@ -846,7 +846,7 @@ report['new_dimension_evidence']={
 # distinct 9-M6/4-M3 threaded pattern on the moving plate.
 nfp_clearance=part(B,'B09')[0]
 nfp_drive=part(B,'B09B')[0]
-nfp_drum=part(B,'B09C')[0]
+nfp_drum=part(B,'B09E')[0]
 check(155.5<=max(nfp_drum.BoundingBox().xmax,
     nfp_drive.BoundingBox().xmax)-nfp_clearance.BoundingBox().xmin<=180.5,
       'NFP micrometer + body fit OEM 155.5--180.5 overall length')
