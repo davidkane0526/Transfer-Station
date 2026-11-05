@@ -1913,7 +1913,7 @@ function refreshHeatingControlHarness(){
 }
 
 function platformA(){
- const ax=CONFIG.A.armX,sx=CONFIG.A.sampleX;
+ const ax=activeAFilmX(),sx=CONFIG.A.sampleX;
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
  // not the separate left transfer-arm adjustment stage.
  // New photos137/161 show the factory-marked GCM-5306M 8mm mount
@@ -2081,12 +2081,14 @@ function platformA(){
    g.userData.upperConfirmedPhoto94='GCM-G40M60L';
    label(g,'94上层：GCM-G40M60L · 40×40×20mm',-4,40,0);
  },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true});
- const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164});
+ const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
+   handedness:aWorkingPoseMode?'right':'left',
+   verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72});
  addPart('A05',ax,164,0,g=>{
    // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
    // and not the 200mm square beam formerly rendered here.
    const localX=aBent.centerX-ax;
-   const leftLocalX=aBent.leftX-ax+aBent.metalThickness/2;
+   const leftLocalX=aBent.legX-ax+(aWorkingPoseMode?-aBent.metalThickness/2:aBent.metalThickness/2);
    add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
        mats.black,localX,aBent.metalThickness/2,aBent.sheetFrontZ));
    add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
@@ -2107,14 +2109,14 @@ function platformA(){
    g.userData.photo94BentSheet=true;
    g.userData.verifiedPhotoBentCorner=true;
    g.userData.photoBracketDatums=aBent;
-   label(g,'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
+   label(g,aWorkingPoseMode?'A05 右折边仅作操作位置候选 · 不是94号实物朝向':'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
       -24,17,0);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
  // V57: A05 previously ended at an unsupported metal flange, leaving
  // the glass and a possible holder entirely absent from the 3D scene.
  // These are explicit PROXY subassemblies, not identified purchased parts.
  // Both share A05's film translation and VC13M vertical motion.
- const bracketLegLocalX=aBent.leftX-ax+aBent.metalThickness/2;
+ const bracketLegLocalX=aBent.legX-ax+(aWorkingPoseMode?-aBent.metalThickness/2:aBent.metalThickness/2);
  const glassLeftX=bracketLegLocalX+10;
  const glassCenterX=glassLeftX+38;
  const glassCenterY=-aBent.verticalLegLength+1.0;
@@ -2153,7 +2155,7 @@ function platformA(){
    g.userData.clampLeftOutsideHeaterCandidate=true;
    g.userData.glassToHolderPhysicallyVerified=false;
    g.userData.unregisteredGlobalPose=true;
-   label(g,'A05G · 76×26×1mm玻片候选 / 右端印章 / A07全局未配准',
+   label(g,aWorkingPoseMode?'A05G · 玻片右侧印章落于热台上方（几何候选；未实物配准）':'A05G · 76×26×1mm玻片候选 / 右端印章 / A07全局未配准',
      glassCenterX,15,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
  addPart('A06',sx,28,0,g=>{
