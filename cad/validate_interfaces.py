@@ -188,6 +188,7 @@ report['B41_lower_orthogonal_stage']={
     'envelope_candidate_mm':[65,65,23],
     'fixed_moving_stack_mm':[11,2,10],
     'micrometer_direction':'+Y (front)',
+    'micrometer_overall_length_candidate_mm':135.0,
     'orthogonal_to_B09_X':True,
     'exact_SKU_confirmed':False,
     'mounting_hole_pattern_verified':False
