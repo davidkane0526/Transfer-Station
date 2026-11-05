@@ -2133,6 +2133,19 @@ function platformA(){
    const lowerJaw=add(g,cub(10,1.2,27,mats.dark,
      bracketLegLocalX+15,glassCenterY-1.1,aBent.sheetFrontZ));
    for(const m of [carrier,upperJaw,lowerJaw])m.userData.A05CClampingProxy=true;
+   // Two independent compression fastener PROXIES on the OUTSIDE of the
+   // glass edge, not through the 1mm glass. Count, thread and tightening
+   // geometry cannot be inferred from photo94 and are not OEM-confirmed.
+   for(const zOffset of [-9,9]){
+     const driver=add(g,cyl(1.4,6,mats.steel,
+       bracketLegLocalX+7,glassCenterY+3.5,aBent.sheetFrontZ+zOffset));
+     driver.userData.A05CUnverifiedClampingScrew=true;
+     const cap=add(g,cyl(2.8,2,mats.silver,
+       bracketLegLocalX+7,glassCenterY+7,aBent.sheetFrontZ+zOffset));
+     cap.userData.A05CUnverifiedClampingScrewHead=true;
+   }
+   g.userData.clampingScrewProxyCount=2;
+   g.userData.clampingScrewThreadVerified=false;
    g.userData.unverifiedClampMechanism=true;
    g.userData.jawGapCandidateMm=1;
    g.userData.actualClampOEM=false;
