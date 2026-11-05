@@ -1774,17 +1774,40 @@ function platformA(){
       -24,17,0);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
  addPart('A06',sx,28,0,g=>{
-  add(g,cyl(47,33.2,mats.dark,0,16.6,0));
-  add(g,torus(44,1,mats.steel,0,33.5,0));
-  const lock=add(g,cyl(6,28,mats.steel,0,12,59));lock.rotation.x=Math.PI/2;
-  addJointHeads(g,'A06',33.15,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
-  label(g,'A 套旋转台：前侧锁止杆候选',0,54,0);
+  // Photos17/18/20: rotary cylinder does not exceed the 65mm upper
+  // square plate. V47 Ø94 was geometrically disproportionate.
+  // Candidate Ø66mm; actual vendor/SKU is still unreadable.
+  add(g,cyl(33,33.2,mats.dark,0,16.6,0));
+  add(g,torus(31,1,mats.steel,0,33.5,0));
+  const lock=add(g,cyl(5,28,mats.steel,0,12,45));
+  lock.rotation.x=Math.PI/2;
+  addJointHeads(g,'A06',33.15,[[-16,-16],[-16,16],[16,-16],[16,16]],{headR:2.5});
+  g.userData.photo48CandidateRotaryDiameterMm=66;
+  g.userData.rotaryManufacturerSkuConfirmed=false;
+  label(g,'A06旋转台 · Ø66mm照片候选（型号未确认）',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,81.2,0,g=>{
-  add(g,cub(65,18,65,mats.steel,0,9,0));
-  add(g,cub(28,1.4,28,mats.glass,0,19.1,0));
-  addJointHeads(g,'A07',17.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.9});
-  label(g,'A 套样品加热座（形状候选）',0,38,0);
+  // Original photos17–21 and a steel ruler show the silver top at
+  // approximately 87–93mm above the BOARD TOP. Prior V47 single
+  // cuboid left it only 79.2mm above the board and erased two seams.
+  // Three stacked physical silhouettes: 9 dark + 7 gold + 12 silver.
+  add(g,cub(65,9,65,mats.dark,0,4.5,0));
+  add(g,cub(65,7,65,mats.copper,0,12.5,0));
+  add(g,cub(65,9.5,65,mats.steel,0,20.75,0));
+  const headHoles=[[-25,-25,3.25],[-25,25,3.25],
+                   [25,-25,3.25],[25,25,3.25]];
+  const top=plate(65,65,2.5,mats.steel,headHoles);
+  top.position.y=25.5;add(g,top);
+  for(const [x,z] of headHoles){
+    const head=add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24));
+    head.userData.A07VisibleHeadCandidate=true;
+  }
+  add(g,cub(28,1.4,28,mats.glass,0,28.7,0));
+  g.userData.rulerSampleTopAboveBoardMm=89.2;
+  g.userData.layerProxies=[9,7,12];
+  g.userData.intermediateMaterialUnknown=true;
+  g.userData.vendorHolePatternUnverified=true;
+  label(g,'A07样品台 · 实拍三层 / 顶面高于面包板约89mm',0,40,0);
  },{explode:[0,26,0],translateSample:true,rotateSample:true});
  addPart('A10',sx,20,-112,g=>{
     // Four TRUE Ø5.5mm candidate mounting bores in an offset foot.
