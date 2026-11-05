@@ -52,7 +52,7 @@ for system,board_dir in (('A',A),('B',B)):
           system+' has exactly one lower shared optical breadboard')
 for system,aux,anchors,head_z in (
     ('A','A16',[(x,y) for x in (50,100) for y in (-25,25)],25.5),
-    ('B','B35',[(x,y) for x in (25,175) for y in (-100,100)],29)):
+    ('B','B35',[(x,y) for x in (-25,175) for y in (-125,125)],30.25)):
     parent=A if system=='A' else B
     board_solid=part(parent,system+'01')[0]
     support=part(parent,aux)[0]

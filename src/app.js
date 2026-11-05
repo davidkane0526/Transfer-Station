@@ -99,7 +99,7 @@ window.__modelBSupportProbe=()=>{
    return g.children.filter(v=>v.isMesh);
  };
  const boardMeshes=getMeshes('B35'),scopeMeshes=getMeshes('B16'),rotMeshes=getMeshes('B08');
- if(boardMeshes.length<3||!scopeMeshes.length||!rotMeshes.length)
+ if(boardMeshes.length<2||!scopeMeshes.length||!rotMeshes.length)
    return {available:false};
  const boardBox=new THREE.Box3().setFromObject(boardMeshes[0]);
  boardBox.union(new THREE.Box3().setFromObject(boardMeshes[1]));
@@ -497,9 +497,9 @@ window.__mountingProbe=()=>{
    B35CandidateAnchorHeads:b35?.children?.filter(x=>x.userData.B35CandidateAnchorHead).length||0,
    B35IsAuxiliaryPlate:!!b35?.userData.boltedAuxiliaryPlate,
    A17OEMIdentityVerified:false,
-    A17ModelCandidate:mag?.userData.oemModelCandidate||null,
-    A17VisualMatchConfidence:mag?.userData.oemVisualMatchConfidence||null,
-    A17CandidateTopHoleCount:mag?.userData.candidateMountHoleMarkers?.length||0
+    A17ModelCandidate:parts.get('A17')?.g?.userData?.oemModelCandidate||null,
+    A17VisualMatchConfidence:parts.get('A17')?.g?.userData?.oemVisualMatchConfidence||null,
+    A17CandidateTopHoleCount:parts.get('A17')?.g?.userData?.candidateMountHoleMarkers?.length||0
  };
 };
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
