@@ -351,13 +351,16 @@ def make_b():
     # 25mm candidate grid. Keep camera/objective on sample axis X=82.
     # This remains a LAYOUT PROPOSAL, not measured OEM mounting.
     mic_foot_x,mic_foot_y=90,-100
-    add('B','B16','microscope_column_PROXY',
-        vz(13,240,mic_foot_x,mic_foot_y,32+microscope_rise))
+    # Photo116 identifies SDPTOP MXFMS. Manufacturer data specifies
+    # a Ø32 x 280mm post; the actual B35 adapter foot is a custom
+    # installation proxy, not the standard 320x260x16mm B5 base.
+    add('B','B16','MXFMS_column_O32x280_OEM_dimension_candidate',
+        vz(16,280,mic_foot_x,mic_foot_y,32+microscope_rise),'D')
     microscope_foot=box(65,65,12,mic_foot_x,mic_foot_y,20+microscope_rise)
     foot_bores=[(mic_foot_x+dx,mic_foot_y+dy)
                 for dx in (-25,25) for dy in (-25,25)]
     microscope_foot=cut(microscope_foot,foot_bores,6.5,12,20+microscope_rise)
-    add('B','B16A','microscope_base_4_TRUE_O6p5_CLEARANCE_CANDIDATE',
+    add('B','B16A','microscope_B35_custom_mount_foot_O6p5_candidate',
         microscope_foot,'C')
     # Shank O6 crosses O6.5 clearance and enters the O5 nominal
     # tapped-core proxy for 6mm. The simplified cylindrical thread
@@ -365,18 +368,57 @@ def make_b():
     for i,(hx,hy) in enumerate(foot_bores,1):
         screw=vz(3,18,hx,hy,26).fuse(vz(5,2.5,hx,hy,44))
         add('B',f'B16S{i}','B16_to_B35_M6x18_thread_CANDIDATE',screw,'C')
-        add('B','B16B','microscope_boom',
-        box(35,132,26,86,-46,259+microscope_rise))
-    add('B','B16C','microscope_body',
-        box(55,55,50,cx,0,224+microscope_rise))
-    add('B','B16D','objective_tube_mount',
-        vz(17,44,cx,0,186+microscope_rise))
-    add('B','B18','objective',
-        vz(12.5,38,cx,0,162.0+microscope_rise))
-    add('B','B18A','objective_tip',
-        vz(7,12,cx,0,150.0+microscope_rise))
-    add('B','B17','digital_camera',
-        box(47,48,48,cx,0,276+microscope_rise))
+    # Main column-to-head arm and forward boom, mapped to the Three.js datums.
+    add('B','B16G','MXFMS_column_to_head_support_arm',
+        box(80,34,34,86,-77,262+microscope_rise),'P')
+    add('B','B16B','MXFMS_forward_head_support_boom',
+        box(32,125,26,86,-25,273+microscope_rise),'P')
+    # MXFMS coaxial coarse/fine focusing wheels on both sides of the body.
+    # Their diameters are visual candidates; maker data gives travel/precision,
+    # not the handwheel diameters.
+    body=box(55,55,50,cx,0,249+microscope_rise)
+    add('B','B16C','MXFMS_microscope_body_with_focus_carriage',body,'P')
+    right_focus=vx(5,12,cx+27.5,-4,257).fuse(
+        vx(28,9,cx+39.5,-4,257),vx(15,4,cx+48.5,-4,257)).clean()
+    left_focus=vx(5,12,cx-39.5,-4,257).fuse(
+        vx(28,9,cx-48.5,-4,257),vx(15,4,cx-52.5,-4,257)).clean()
+    add('B','B16E','MXFMS_right_coaxial_coarse_fine_focus',right_focus,'P')
+    add('B','B16F','MXFMS_left_coaxial_coarse_fine_focus',left_focus,'P')
+    # Five-position inward nosepiece support sits on an offset hub.
+    # The 18mm port radius is a photo-fit, not an OEM dimension.
+    add('B','B16D','MXFMS_five_position_nosepiece_support_tube',
+        vz(8,44,cx-18,0,186+microscope_rise),'P')
+    # SDPTOP camera plus two stepped CTV/relay adapter sections.
+    camera=box(47,48,48,cx,0,300+microscope_rise)
+    camera=camera.fuse(vz(12,18,cx,0,270),vz(9,10,cx,0,260)).clean()
+    add('B','B17','SDPTOP_digital_camera_with_CTV_relay_adapter',camera,'P')
+    # MXFMS five-hole inward nosepiece: central hub bore plus five
+    # objective ports. Two photo110 objective types are represented.
+    import math
+    turret_cx=cx-18
+    ports=[(turret_cx+18*math.cos(i*2*math.pi/5),
+            18*math.sin(i*2*math.pi/5)) for i in range(5)]
+    nosepiece=vz(28,13,turret_cx,0,212)
+    nosepiece=nosepiece.cut(vz(8.5,13,turret_cx,0,212))
+    for px,py in ports:
+        nosepiece=nosepiece.cut(vz(8.5,13,px,py,212))
+    hub=vz(8.5,13,turret_cx,0,212).cut(vz(8,13,turret_cx,0,212))
+    nosepiece=nosepiece.fuse(hub)
+    for px,py in ports:
+        lip=vz(8.5,13,px,py,212).cut(vz(8,13,px,py,212))
+        nosepiece=nosepiece.fuse(lip)
+    add('B','B18','MXFMS_five_hole_inward_nosepiece',nosepiece.clean(),'P')
+    # Photo110: 10x / 0.15 / DIC / WD10.8 objective.
+    objective_10x=vz(8,38,cx,0,174)
+    objective_10x=objective_10x.fuse(
+        vz(9.5,3,cx,0,209),vz(6.5,12,cx,0,162)).clean()
+    add('B','B18A','10x_015_DIC_WD10p8_objective_candidate',objective_10x,'P')
+    # Separate OptoSigma marking; exact model, NA and working distance unknown.
+    opto_x,opto_y=ports[1]
+    objective_opto=vz(7.5,36,opto_x,opto_y,176)
+    objective_opto=objective_opto.fuse(
+        vz(8.8,3,opto_x,opto_y,209),vz(5.8,12,opto_x,opto_y,164)).clean()
+    add('B','B18B','OptoSigma_objective_model_unknown',objective_opto,'P')
 # Photo114 front YUDIAN PID; photo119 opened metal cabinet with
     # SE-600-48 PSU and separate BLACK vented internal module. V32
     # incorrectly overlapped these three as free-standing boxes, and
