@@ -141,7 +141,7 @@ for xoff,radius in [(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]:
     check(nfp_fixed.intersect(probe).Volume()<1e-5,
           'B09 NFP fixed-base lower photo side bore is open')
 for xoff,radius in [(-22,1.8),(-8,1.8),(12,2.8)]:
-    probe=vy(radius,.6,82+xoff,32.2,nfp_z+18)
+    probe=vy(radius,.6,82+xoff,32.2,nfp_z+17.5)
     check(nfp_moving_top.intersect(probe).Volume()<1e-5,
           'B09 NFP moving-top upper photo side bore is open')
 for key in ('B09B','B09C','B09D','B09E'):
