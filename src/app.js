@@ -94,6 +94,24 @@ window.__modelBViewProbe=()=>{
 // The result is derived from visible handle meshes and live group transforms,
 // not from BOM labels or photo-evidence metadata alone.
 window.__photoEvidenceProbe=(partId,rig=platform)=>photoEvidenceProbe(rig,partId);
+window.__platformACompletenessProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const clamp=parts.get('A05C')?.g,slide=parts.get('A05G')?.g,bracket=parts.get('A05')?.g;
+ if(!clamp||!slide||!bracket)return {available:false};
+ const stamp=slide.children.find(o=>o.userData.A05GStampRightMarginMm!==undefined);
+ const glass=slide.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
+ return {
+  available:true,
+  separateClampAndGlassParts:clamp!==slide,
+  clampProxyUnverified:Boolean(clamp.userData.unverifiedClampMechanism),
+  actualClampOEMConfirmed:Boolean(clamp.userData.actualClampOEM),
+  glassSizeMm:glass?.userData.candidateStandardSlide??null,
+  stampRightMarginMm:stamp?.userData.A05GStampRightMarginMm??null,
+  stampAtRightEdge:Boolean(slide.userData.stampAtRightGlassEdge),
+  clampRelativeToHeaterNotRegistered:Boolean(slide.userData.unregisteredGlobalPose),
+  clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y
+ };
+};
 window.__modelBActuatorProbe=()=>{
  if(platform!=='B')return {available:false};
  const inspect=(id)=>{
