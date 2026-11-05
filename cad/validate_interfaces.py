@@ -6,6 +6,7 @@ The actual NFP thread depth MUST be measured or supported by its vendor drawing.
 """
 from pathlib import Path
 import json
+import math
 import cadquery as cq
 from cadquery import Vector
 def vz(r,h,x,y,z):return cq.Solid.makeCylinder(r,h,Vector(x,y,z),Vector(0,0,1))
