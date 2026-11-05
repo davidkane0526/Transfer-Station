@@ -496,7 +496,10 @@ window.__mountingProbe=()=>{
    A16CandidateAnchorHeads:a16?.children?.filter(x=>x.userData.A16CandidateAnchorHead).length||0,
    B35CandidateAnchorHeads:b35?.children?.filter(x=>x.userData.B35CandidateAnchorHead).length||0,
    B35IsAuxiliaryPlate:!!b35?.userData.boltedAuxiliaryPlate,
-   A17OEMIdentityVerified:false
+   A17OEMIdentityVerified:false,
+    A17ModelCandidate:mag?.userData.oemModelCandidate||null,
+    A17VisualMatchConfidence:mag?.userData.oemVisualMatchConfidence||null,
+    A17CandidateTopHoleCount:mag?.userData.candidateMountHoleMarkers?.length||0
  };
 };
 const dimensionMaterial=new THREE.LineBasicMaterial({color:'#7ec8f4',transparent:true,opacity:.95});
@@ -698,6 +701,11 @@ function jointHead(g,x,topY,z,{headR=3.1,shankR=1.6,shankL=4.8}={}){
  for(const o of [shaft,head,socket]){o.userData.fastenerProxy=true;o.userData.verifiedFastener=false;}
  return head;
 }
+const GCM42_TOP_HOLES=[
+  [-25,-25,2.5],[-25,25,2.5],[25,-25,2.5],[25,25,2.5],[0,0,2.5],
+  [-20,-20,1.65],[-20,20,1.65],[20,-20,1.65],[20,20,1.65],
+  [-16,-16,1.25],[-16,16,1.25],[16,-16,1.25],[16,16,1.25]
+];
 function addJointHeads(g,id,topY,locations,{headR=3.1}={}){
  const spec=JOINTS[id];
  if(!spec||locations.length!==spec.count)throw Error('Fastener display count mismatch '+id);
@@ -797,11 +805,14 @@ function filmB(){
    },{explode:[-25,0,0]});
  }else{
    addPart('B02',ax,20,0,g=>{
-      add(g,cub(65,20,65,mats.dark,0,10,0));
-      for(const pitch of [50,40,32])for(const x of [-pitch/2,pitch/2])for(const z of [-pitch/2,pitch/2])circleGuide(g,pitch===50?3:2,20.4,x,z);
+      add(g,cub(65,10,65,mats.dark,0,5,0));
+      const top=add(g,plate(65,65,10,mats.dark,GCM42_TOP_HOLES));
+      top.position.y=10;
       addJointHeads(g,'B02',19.95,[[-25,-25],[-25,25],[25,-25],[25,25]]);
-      label(g,'GCM-420302M',0,38,0);
-   },{explode:[-25,0,0]});
+      g.userData.oemModel='GCM-420302M';
+      g.userData.oemTopHolePattern={M6:5,M4:4,M3:4,total:13};
+      label(g,'GCM-420302M · 5-M6（含中心）/4-M4/4-M3',0,38,0);
+    },{explode:[-25,0,0]});
  }
  // User-specified B photo comparison, REVERSIBLE: archival evidence had
  // numbered these 94/95/97 photographs as A, so do not infer that the
@@ -1765,46 +1776,40 @@ function platformA(){
  // optical breadboard. This magnetic stand is inferred from the user's
  // assembly rule; photos have NOT confirmed its exact maker or height.
  addPart('A17',ax,20,0,g=>{
-   // V49 photo22/24: A17 has a front slotted silver side plate,
-   // a central knurled control and two lower fasteners. The four
-   // counterbores in photo23 belong to A15's upper T25M carriage,
-   // not to this magnetic base. A17 maker/SKU remains unreadable.
-   // CAD datum: body is Z20–40mm; its +front face has a 13mm-deep
-   // blind bore at Z25.9 for the slotted-panel control shaft.
-   add(g,cub(65,20,52,mats.dark,0,10,-6.5));
-   const faceShape=shapeRect(65,20);addHoles(faceShape,[[0,-4.1,2.1]]);
-   const faceGeo=new THREE.ExtrudeGeometry(faceShape,{depth:13,bevelEnabled:false,curveSegments:20,steps:1});
-   faceGeo.translate(0,10,19.5);add(g,mk(faceGeo,mats.dark));
-   g.userData.photo22A17MagneticBaseEnvelopeCandidate=true;
-   // The four counterbores in photo23 are on A15's upper T25M plate,
-   // not on this lower A17 magnetic stand.
-   g.userData.photo23TopCounterboreCount=0;
-   // Build the thin plate as four separate rails so the horizontal slot
-   // is genuinely open; the dark magnet body is visible through it.
-   add(g,cub(42,10,1.5,mats.silver,0,13,33.25));
-   add(g,cub(42,1.8,1.5,mats.silver,0,2.9,33.25));
-   add(g,cub(8,4.2,1.5,mats.silver,-17,5.9,33.25));
-   add(g,cub(8,4.2,1.5,mats.silver,17,5.9,33.25));
-   g.userData.A17Photo22SlottedSidePanel=true;
-   for(const x of [-17,17]){
-     const screwHead=add(g,cyl(2.2,1.5,mats.silver,x,2.5,34.0,24));
-     screwHead.rotation.x=Math.PI/2;
-     screwHead.userData.A17Photo22PanelFastenerCandidate=true;
-   }
-   const shaft=add(g,cyl(1.8,14.5,mats.steel,0,5.9,26.75));
-   shaft.rotation.x=Math.PI/2;
-   const knob=add(g,cyl(5.2,9,mats.silver,0,5.9,38.5,40));
-   knob.rotation.x=Math.PI/2;
-   knob.userData.A17FrontSlottedControlKnob=true;
-   g.userData.magneticFixture=true;
-   g.userData.brandAndHolePatternNotVerified=true;
-   g.userData.oemComparisonSku=null;
-   g.userData.photo22SideSlotCount=1;
-   g.userData.photo22FrontKnobCount=1;
-   g.userData.photo23TopCounterboreCount=0;
-   g.userData.candidateMountHoleMarkers=[];
-   label(g,'A17磁吸底座候选 · 实拍侧滑槽/旋钮/双螺钉 · 型号未知',0,32,0);
- },{explode:[-10,0,0]});
+    // Independent A-photo visual candidate for GCM-420302M; no A17 nameplate confirmation.
+    add(g,cub(65,10,65,mats.dark,0,5,0));
+    const top=add(g,plate(65,65,10,mats.dark,GCM42_TOP_HOLES));
+    top.position.y=10;
+    // The front slotted panel sits on the body face. Do not add a false
+    // solid front extension that would obstruct the front row of top holes.
+    add(g,cub(42,10,1.5,mats.silver,0,13,33.25));
+    add(g,cub(42,1.8,1.5,mats.silver,0,2.9,33.25));
+    add(g,cub(8,4.2,1.5,mats.silver,-17,5.9,33.25));
+    add(g,cub(8,4.2,1.5,mats.silver,17,5.9,33.25));
+    g.userData.A17Photo22SlottedSidePanel=true;
+    for(const x of [-17,17]){
+      const screwHead=add(g,cyl(2.2,1.5,mats.silver,x,2.5,34.0,24));
+      screwHead.rotation.x=Math.PI/2;
+      screwHead.userData.A17Photo22PanelFastenerCandidate=true;
+    }
+    const shaft=add(g,cyl(1.8,8.75,mats.steel,0,5.9,36.875));
+    shaft.rotation.x=Math.PI/2;
+    const knob=add(g,cyl(5.2,9,mats.silver,0,5.9,38.5,40));
+    knob.rotation.x=Math.PI/2;
+    knob.userData.A17FrontSlottedControlKnob=true;
+    g.userData.magneticFixture=true;
+    g.userData.brandAndHolePatternNotVerified=true;
+    g.userData.oemComparisonSku='GCM-420302M (visual candidate only)';
+    g.userData.oemModelCandidate='GCM-420302M';
+    g.userData.oemVisualMatchConfidence='high_visual_match_only';
+    g.userData.oemIdentityVerified=false;
+    g.userData.candidateTopHolePattern={M6:5,M4:4,M3:4,total:13};
+    g.userData.photo22SideSlotCount=1;
+    g.userData.photo22FrontKnobCount=1;
+    g.userData.candidateMountHoleMarkers=GCM42_TOP_HOLES.map(([x,z,r])=>({x,z,r}));
+    g.userData.topCornerCounterbores=0;
+    label(g,'A17 · GCM-420302M外观候选（铭牌未确认）',0,32,0);
+  },{explode:[-10,0,0]});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
@@ -2409,7 +2414,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V51 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V48 / A样品台尺规约9cm / 两层摆角台候选 / 全局未配准';
+   '平台 A · V51 / A17磁座GCM-420302M外观候选 / A05夹具待核 / 全局未配准';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B的B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
   '照片94/95/97: A膜侧 A15 T25M→A03 VC13M→A04L下层独立摆角台→A04上层G40M60L→A05折弯片。新实拍17–24: A样品侧GCM-5306M非旋转底座→A06Ø66候选旋转台（右侧角度调节）→A02 T25M（左侧银色直线测微头）→A07三层金属/中间层样品台；B照片29–31的PHUC-1及磁座铭牌不属于A。';

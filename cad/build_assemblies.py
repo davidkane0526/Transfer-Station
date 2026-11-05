@@ -152,6 +152,7 @@ def make_b():
     for pitch,dia in [(50,5),(40,3.3),(32,2.5)]:
         mag=cut(mag,[(ax+dx,dy) for dx in (-pitch/2,pitch/2) for dy in (-pitch/2,pitch/2)],dia,10,30)
     mag=cut(mag,[(ax,0)],5,10,30)
+    mag=cut(mag,[(ax,0)],5,10,30)
     add('B','B02','GCM420302M_magnet_LOWEST',mag,'D')
     # The OFF/ON lever and front sticker identify the magnetic base at the bottom.
     add('B','B02L','magnet_OFF_ON_lever',vy(3,12,ax-23,32.5,27),'P')
@@ -524,9 +525,11 @@ def make_a():
     # panel screws and one central knurled control. Manufacturer/function
     # remain unknown. Never copy B02/GCM-420302M's 13-hole OEM pattern.
     mag=box(65,65,20,ax,0,20)
-    # Photo23's four corner counterbores are on A15's upper T25M
-    # carriage (photo23), not on this lower A17 magnetic base.
-    # A17 remains a solid top face; only its front control bore is cut.
+    # A17 independently resembles GCM-420302M; candidate catalogue pattern only.
+    for pitch,dia in [(50,5),(40,3.3),(32,2.5)]:
+        pts=[(ax+dx,dy) for dx in (-pitch/2,pitch/2) for dy in (-pitch/2,pitch/2)]
+        mag=cut(mag,pts,dia,10,30)
+    mag=cut(mag,[(ax,0)],5,10,30)
     mag=mag.cut(vy(2.1,13,ax,19.5,25.9))
     add('A','A17','FILM_MAGNET_UNMARKED_65x65x20_PHOTO_CANDIDATE',mag,'C')
     a17_panel=box(42,1.5,16,ax,33.25,22).cut(

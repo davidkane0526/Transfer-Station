@@ -185,6 +185,18 @@ report['B35_dual_mount_face_areas_mm2']={
 }
 check(sample_board.intersect(part(B,'B02')[0]).Volume()<1e-4,
       'Black sample plate must not engulf the separate left-side magnet')
+# B02 is the label-confirmed GCM-420302M; verify its 13-hole catalogue pattern.
+b02_body=part(B,'B02')[0]
+gcm42_holes=[(dx,dy,5.0,'M6') for dx in (-25,25) for dy in (-25,25)]
+gcm42_holes += [(dx,dy,3.3,'M4') for dx in (-20,20) for dy in (-20,20)]
+gcm42_holes += [(dx,dy,2.5,'M3') for dx in (-16,16) for dy in (-16,16)]
+gcm42_holes += [(0,0,5.0,'M6')]
+for dx,dy,dia,thread in gcm42_holes:
+    probe=vz(dia/2,10,-112+dx,dy,30)
+    check(b02_body.intersect(probe).Volume()<1e-4,
+          f'B02 GCM-420302M {thread} catalogue hole is open')
+report['B02_GCM420302M_top_pattern']={'M6':5,'M4':4,'M3':4,'total':13,'central_M6_present':True}
+
 # Previously this failed: separated 0.5mm screw shaft and head.
 for i in range(1,5):
     ss=part(B,'B14_'+str(i))
@@ -316,53 +328,60 @@ aheat=part(A,'A07')[0].BoundingBox()
 amagnet=part(A,'A17')[0].BoundingBox()
 check(abs(amagnet.zmin-20)<.02 and abs(amagnet.zmax-40)<.02,
       'V38 A has one TRUE film-side magnetic mounting stand above the only breadboard')
-# V49: A17 photo22-24 evidence. The four corner counterbores are a
-# photo-fit candidate only; no B02/GCM-420302M 13-hole pattern is copied.
+# V51: A17 is an independent visual match candidate to the GCM-420302M family.
+# The exact A17 SKU and hole pattern are not confirmed from its own nameplate.
 a17_body=part(A,'A17')[0]
 a17_panel=part(A,'A17P')[0]
 a17_control=part(A,'A17L')[0]
 check(abs(a17_body.BoundingBox().zmin-20)<.02 and
       abs(a17_body.BoundingBox().zmax-40)<.02,
-      'V49 A17 remains one 65x65x20mm magnetic-base envelope candidate')
-for xx,yy in [(-141,-25),(-141,25),(-91,-25),(-91,25)]:
-    top_probe=vz(2.85,2.8,xx,yy,37.1)
-    check(a17_body.intersect(top_probe).Volume()>1,
-          'V49 A17 top face remains solid; photo23 corner holes belong to A15')
+      'V51 A17 remains a 65x65x20mm magnetic-base envelope candidate')
+a17_pattern=[(dx,dy,5.0,'M6') for dx in (-25,25) for dy in (-25,25)]
+a17_pattern += [(dx,dy,3.3,'M4') for dx in (-20,20) for dy in (-20,20)]
+a17_pattern += [(dx,dy,2.5,'M3') for dx in (-16,16) for dy in (-16,16)]
+a17_pattern += [(0,0,5.0,'M6')]
+for dx,dy,dia,thread in a17_pattern:
+    top_probe=vz(dia/2,10,-116+dx,dy,30)
+    backing=vz(dia/2,.5,-116+dx,dy,29.5)
+    check(a17_body.intersect(top_probe).Volume()<1e-4,
+          f'V51 A17 candidate GCM-42 {thread} top hole is open')
+    check(a17_body.intersect(backing).Volume()>1e-4,
+          f'V51 A17 candidate GCM-42 {thread} hole remains blind at 10mm')
 a15_top=part(A,'A15A')[0]
 for xx,yy in [(-141,-25),(-141,25),(-91,-25),(-91,25)]:
     bore=vz(2.85,2.8,xx,yy,70.1)
     backing=vz(2.85,.4,xx,yy,69.6)
     check(a15_top.intersect(bore).Volume()<1e-4,
-          'V49 A15 photo23 top counterbore is open for 3mm candidate depth')
+          'V51 A15 photo23 top counterbore is open for 3mm candidate depth')
     check(a15_top.intersect(backing).Volume()>1,
-          'V49 A15 top counterbore remains blind, not through the stage')
-centre=vz(2.85,2.8,-116,0,37.1)
-check(a17_body.intersect(centre).Volume()>1,
-      'V49 A17 must NOT inherit the B GCM-420302M central M6 hole')
+          'V51 A15 top counterbore remains blind, not through the stage')
 slot_probe=box_probe(24,.5,3.5,-116,33.25,24.05)
 check(a17_panel.intersect(slot_probe).Volume()<1e-4,
-      'V49 A17 front panel has a REAL horizontal through-slot')
+      'V51 A17 front panel has a REAL horizontal through-slot')
 check(abs(a17_panel.BoundingBox().ymin-a17_body.BoundingBox().ymax)<.02,
-      'V49 A17 slotted panel sits on the +Y body face')
+      'V51 A17 slotted panel sits on the +Y body face')
 check(a17_body.intersect(a17_control).Volume()<1e-4,
-      'V49 A17 central control shaft clears its candidate body bore')
+      'V51 A17 central control shaft clears its candidate body bore')
 check(a17_panel.intersect(a17_control).Volume()<1e-4,
-      'V49 A17 control shaft passes through the panel slot without collision')
+      'V51 A17 control shaft passes through the panel slot without collision')
 for i in (1,2):
     panel_screw=part(A,f'A17S{i}')[0]
     check(panel_screw.intersect(a17_panel).Volume()>0,
-          'V49 A17 side-panel lower screw head contacts the plate')
-report['V49_A17_photo22_24_geometry']={
+          'V51 A17 side-panel lower screw head contacts the plate')
+report['V51_A17_photo22_24_geometry']={
     'manufacturer_model_verified':False,
+    'visual_model_candidate':'GCM-420302M',
+    'independent_A_photo_visual_match':True,
     'envelope_mm':[65,65,20],
+    'candidate_top_hole_pattern':{'M6':5,'M4':4,'M3':4,'total':13},
+    'candidate_hole_pattern_measured_on_A17':False,
     'A17_top_corner_counterbores':0,
     'A15_top_corner_counterbores':4,
-    'top_hole_pattern_measured':False,
     'front_slotted_panel_count':1,
     'slot_is_open':True,
     'central_control_knob_count':1,
     'control_function_identified':False,
-    'B_GCM420302M_hole_pattern_copied':False,
+    'B_GCM420302M_nameplate_transferred_to_A':False,
     'magnetic_load_verified':False
 }
 # V49: photos25/26 show two side-hole rows on the B09 NFP-1462C body.
