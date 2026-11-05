@@ -1349,7 +1349,7 @@ function microscopeB(){
    }
    // Turret support is offset from the active objective optical axis.
    // Its exact offset is a photo-fit candidate; the 32mm MXFMS post is OEM.
-   const mount=add(g,cyl(17,44,mats.dark,-26,188,100));
+   const mount=add(g,cyl(8,44,mats.dark,-26,188,100));
    mount.userData.MXFMSNosepieceMount=true;
    for(const x of [-25,25])for(const z of [-25,25]){
      const shank=add(g,cyl(3,18,mats.steel,x,3,z));
@@ -1388,7 +1388,7 @@ function microscopeB(){
    const turretShape=new THREE.Shape();
    turretShape.absarc(-18,0,28,0,2*Math.PI,false);
    const centreBore=new THREE.Path();
-   centreBore.absarc(-18,0,17.5,0,2*Math.PI,true);
+   centreBore.absarc(-18,0,8.5,0,2*Math.PI,true);
    turretShape.holes.push(centreBore);
    for(const p of ports){
      const hole=new THREE.Path();
@@ -1401,7 +1401,7 @@ function microscopeB(){
    turretGeo.rotateX(-Math.PI/2);
    const turret=add(g,mk(turretGeo,mats.dark));
    turret.userData.MXFMSFiveHoleNosepiece=true;
-   const hub=add(g,sleeve(17.5,17,13,mats.dark,-18,6.5,0,'y'));
+   const hub=add(g,sleeve(8.5,8,13,mats.dark,-18,6.5,0,'y'));
    hub.userData.nosepieceCentralHub=true;
    for(const p of ports){
      const ring=add(g,sleeve(8.5,8,13,mats.dark,p.x,6.5,p.z,'y'));
