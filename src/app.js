@@ -390,7 +390,7 @@ window.__modelBVacuumProbe=()=>{
  });
  const outlet=new THREE.Vector3(12,-17,-79)
    .applyMatrix4(fitting.matrixWorld);
- const inlet=new THREE.Vector3(90,68,0).applyMatrix4(pump.matrixWorld);
+ const inlet=new THREE.Vector3(74.2,68,0).applyMatrix4(pump.matrixWorld);
  const waypoints=hose.userData.lastRoute||vacuumHosePath();
  const first=waypoints[0],end=waypoints.at(-1);
  const interfaceFit=auditVacuumInterfaceFit();

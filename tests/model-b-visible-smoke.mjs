@@ -154,7 +154,7 @@ try{
  assert(vac.sourceCoordinateErrorMm<.01,
    'First long-hose node not coupled to moving B15 short hose outlet');
  assert(vac.pumpCoordinateErrorMm<.01,
-   'Hose does not terminate at the VN-50 suction nozzle');
+   'Hose endpoint must meet the VN-50 G1/4 family thread datum');
  assert.equal(vac.electricityCabinetNotVacuumDestination,true);
  assert.equal(vac.passesBehindController,true,
    'B40 must pass behind the B19 temperature controller, not over its front');
