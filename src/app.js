@@ -1636,26 +1636,31 @@ function platformA(){
    // a central knurled control and two lower fasteners. The four
    // counterbores in photo23 belong to A15's upper T25M carriage,
    // not to this magnetic base. A17 maker/SKU remains unreadable.
-   const body=add(g,cub(65,20,65,mats.dark,0,10,0));
-   body.userData.photo22A17MagneticBaseEnvelopeCandidate=true;
+   // CAD datum: body is Z20–40mm; its +front face has a 13mm-deep
+   // blind bore at Z25.9 for the slotted-panel control shaft.
+   add(g,cub(65,20,52,mats.dark,0,10,-6.5));
+   const faceShape=shapeRect(65,20);addHoles(faceShape,[[0,-4.1,2.1]]);
+   const faceGeo=new THREE.ExtrudeGeometry(faceShape,{depth:13,bevelEnabled:false,curveSegments:20,steps:1});
+   faceGeo.translate(0,10,19.5);add(g,mk(faceGeo,mats.dark));
+   g.userData.photo22A17MagneticBaseEnvelopeCandidate=true;
    // The four counterbores in photo23 are on A15's upper T25M plate,
    // not on this lower A17 magnetic stand.
    g.userData.photo23TopCounterboreCount=0;
    // Build the thin plate as four separate rails so the horizontal slot
    // is genuinely open; the dark magnet body is visible through it.
-   add(g,cub(42,5.9,1.5,mats.silver,0,14.05,33.25));
-   add(g,cub(42,5.9,1.5,mats.silver,0,3.95,33.25));
-   add(g,cub(8,4.2,1.5,mats.silver,-17,9,33.25));
-   add(g,cub(8,4.2,1.5,mats.silver,17,9,33.25));
+   add(g,cub(42,2,1.5,mats.silver,0,9,33.25));
+   add(g,cub(42,9.8,1.5,mats.silver,0,-1.1,33.25));
+   add(g,cub(8,4.2,1.5,mats.silver,-17,5.9,33.25));
+   add(g,cub(8,4.2,1.5,mats.silver,17,5.9,33.25));
    g.userData.A17Photo22SlottedSidePanel=true;
-   for(const x of [-13,13]){
+   for(const x of [-17,17]){
      const screwHead=add(g,cyl(2.2,1.5,mats.silver,x,2.5,34.0,24));
      screwHead.rotation.x=Math.PI/2;
      screwHead.userData.A17Photo22PanelFastenerCandidate=true;
    }
-   const shaft=add(g,cyl(1.8,14,mats.steel,0,9,38.5));
+   const shaft=add(g,cyl(1.8,14.5,mats.steel,0,5.9,26.75));
    shaft.rotation.x=Math.PI/2;
-   const knob=add(g,cyl(5.2,9,mats.silver,0,9,50,40));
+   const knob=add(g,cyl(5.2,9,mats.silver,0,5.9,38.5,40));
    knob.rotation.x=Math.PI/2;
    knob.userData.A17FrontSlottedControlKnob=true;
    g.userData.magneticFixture=true;
