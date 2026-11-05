@@ -119,6 +119,44 @@ window.__platformACompletenessProbe=()=>{
   clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y
  };
 };
+window.__modelAContactProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const child=(id,tag)=>parts.get(id)?.g.children.find(o=>o.isMesh&&o.userData[tag]);
+ const slide=child('A05G','candidateStandardSlide');
+ const stamp=child('A05G','A05GStampRightMarginMm');
+ const sample=child('A07','A07SampleChipProxy');
+ const clamp=parts.get('A05C')?.g;
+ const heater=parts.get('A07')?.g.children.find(o=>o.isMesh);
+ const magnet=parts.get('A17')?.g.children.find(o=>o.isMesh);
+ const sampleFoot=parts.get('A16')?.g.children.find(o=>o.isMesh);
+ if(!slide||!stamp||!sample||!clamp||!heater||!magnet||!sampleFoot)
+   return {available:false};
+ const bounds=o=>{o.updateWorldMatrix(true,true);return new THREE.Box3().setFromObject(o);};
+ const glass=bounds(slide),pdms=bounds(stamp),chip=bounds(sample);
+ const heaterBox=bounds(heater),jaw=bounds(clamp);
+ const magnetBox=bounds(magnet),sampleFootBox=bounds(sampleFoot);
+ const overlapX=(a,b)=>a.min.x<=b.max.x&&b.min.x<=a.max.x;
+ const overlapZ=(a,b)=>a.min.z<=b.max.z&&b.min.z<=a.max.z;
+ const allInside=(inner,outer)=>inner.min.x>=outer.min.x-.01&&
+   inner.max.x<=outer.max.x+.01&&inner.min.z>=outer.min.z-.01&&
+   inner.max.z<=outer.max.z+.01;
+ const clearance=heaterBox.min.x-jaw.max.x;
+ return {
+   available:true,mode:aWorkingPoseMode?'candidate':'photo94',
+   A17ToA16XFootprintGapMm:Number((sampleFootBox.min.x-magnetBox.max.x).toFixed(3)),
+   clampToHeaterEdgeMm:Number(clearance.toFixed(3)),
+   clampOutsideHeater:clearance>0,
+   sampleChipTopWorldYmm:Number(chip.max.y.toFixed(3)),
+   pdmsBottomWorldYmm:Number(pdms.min.y.toFixed(3)),
+   pdmsToChipGapMm:Number((pdms.min.y-chip.max.y).toFixed(3)),
+   stampRightInsetMm:Number((glass.max.x-pdms.max.x).toFixed(3)),
+   stampFullyInsideChipXY:allInside(pdms,chip),
+   glassAndChipOverlapXY:overlapX(glass,chip)&&overlapZ(glass,chip),
+   clampFastenerProxyCount:clamp.userData.clampingScrewProxyCount??0,
+   allComponentsPhotoConfirmed:false,
+   dimensionsForFabricationValidated:false
+ };
+};
 window.__modelBActuatorProbe=()=>{
  if(platform!=='B')return {available:false};
  const inspect=(id)=>{
@@ -2215,7 +2253,9 @@ function platformA(){
     const head=add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24));
     head.userData.A07VisibleHeadCandidate=true;
   }
-  add(g,cub(28,1.4,28,mats.glass,0,28.7,0));
+  const sampleChip=add(g,cub(28,1.4,28,mats.glass,0,28.7,0));
+  sampleChip.userData.A07SampleChipProxy=true;
+  sampleChip.userData.A07SampleChipThicknessUnverified=true;
   g.userData.rulerSampleTopAboveBoardMm=89.2;
   g.userData.layerProxies=[9,7,12];
   g.userData.intermediateMaterialUnknown=true;
