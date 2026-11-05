@@ -351,6 +351,10 @@ def make_b():
         vx(9,23,cx+119,0,nfp_mic_z),'P')
     add('B','B09E','NFP1462C_micrometer_drum_O22x28',
         vx(11,28,cx+131,0,nfp_mic_z),'P')
+    # B10/B11/B12/B13/B14 heater and vacuum-block stack sits directly
+    # above the 23mm NFP-1462C stage; B14 M6x25 screws engage the
+    # four corner M6 positions in the NFP moving top.
+    heater(cx=cx,cy=0,z=98.2)
     # Photo116 identifies SDPTOP MXFMS. Manufacturer data specifies
     # a Ø32 x 280mm post; the actual B35 adapter foot is a custom
     # installation proxy, not the standard 320x260x16mm B5 base.
