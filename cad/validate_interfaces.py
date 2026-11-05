@@ -473,18 +473,18 @@ check(abs(a17_body.BoundingBox().zmin-20)<.02 and
 for dx,dy in [(0,0),(-25,-25),(-25,25),(25,-25),(25,25),
               (-20,-20),(-20,20),(20,-20),(20,20),
               (-16,-16),(-16,16),(16,-16),(16,16)]:
-    unobserved_hole_probe=vz(1.2,8,-116+dx,dy,32)
+    unobserved_hole_probe=vz(1.2,8,-46.75+dx,dy,32)
     check(a17_body.intersect(unobserved_hole_probe).Volume()>1,
           'V52 A17 neutral top proxy must not fabricate an unobserved GCM-42 hole')
 a15_top=part(A,'A15A')[0]
-for xx,yy in [(-141,-25),(-141,25),(-91,-25),(-91,25)]:
+for xx,yy in [(-71.75,-25),(-71.75,25),(-21.75,-25),(-21.75,25)]:
     bore=vz(2.85,2.8,xx,yy,70.1)
     backing=vz(2.85,.4,xx,yy,69.6)
     check(a15_top.intersect(bore).Volume()<1e-4,
           'V51 A15 photo23 top counterbore is open for 3mm candidate depth')
     check(a15_top.intersect(backing).Volume()>1,
           'V51 A15 top counterbore remains blind, not through the stage')
-slot_probe=box_probe(24,.5,3.5,-116,33.25,24.05)
+slot_probe=box_probe(24,.5,3.5,-46.75,33.25,24.05)
 check(a17_panel.intersect(slot_probe).Volume()<1e-4,
       'V51 A17 front panel has a REAL horizontal through-slot')
 check(abs(a17_panel.BoundingBox().ymin-a17_body.BoundingBox().ymax)<.02,
@@ -710,64 +710,94 @@ check(abs(long.BoundingBox().xmin+90)<.02 and abs(long.BoundingBox().xmax+20)<.0
       'First rod crosses B33→PHUC without floating or extra metal tail')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
-# V57: retain the photo94-confirmed SHORT connected L sheet and
-# its two visible screw heads. Only the old 215mm imaginary beam and
-# false spacer remain rejected. A05C is now a SHORT, explicitly
-# unverified scene clamp with a separate upper jaw and glass, NOT an
-# identified OEM product. Never infer physical transfer readiness.
+# V58: the editable STEP is the clearly labelled UNVERIFIED working
+# hypothesis (photo94 left-fold is preserved separately in the viewer).
+# Validate REAL solid contact and zero penetration for the glass/stamp,
+# rather than the V57 false positive that accepted a 171.5mm scene gap.
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
-check(abs(asheet_bb.xmin+164)<.02 and abs(asheet_bb.xmax+89)<.02,
-      'A photo94 thin bent-L extends only near the G40, NOT to the heater')
-check(abs(asheet_bb.zmin-92)<.02 and abs(asheet_bb.zmax-166.5)<.02,
-      'A photo94 folded plate lower return and top plate occupy consistent levels')
-check(asheet_bb.zmin<part(A,'A04')[0].BoundingBox().zmax and
-      asheet_bb.zmax>part(A,'A04')[0].BoundingBox().zmax,
-      'A photo94 folded bracket touches top of G40 without fabricated long arm')
+check(abs(asheet_bb.xmin+73.75)<.02 and abs(asheet_bb.xmax-1.25)<.02,
+      'V58 mirrored 75mm sheet fits A05 right-fold hypothesis, NOT photo94')
+check(abs(asheet_bb.zmin-111.9)<.02 and abs(asheet_bb.zmax-166.5)<.02,
+      'V58 52.1mm unverified leg joins G40 top and target glass position')
+check(a_sheet.distance(part(A,'A04')[0])<.05,
+      'V58 sheet rests on independent upper G40 stage')
 for i,dx in enumerate((-14,14),1):
     head=part(A,f'A05S{i}')[0]
     check(abs(head.BoundingBox().zmin-asheet_bb.zmax)<.02,
-          'A photo94 two bolt heads sit on the folded plate')
-    check(abs((head.BoundingBox().xmin+head.BoundingBox().xmax)/2-(-116+dx))<.02,
-          'A photo94 candidate bolt pair aligned over G40')
+          'V58 both sheet screw HEADS contact top plate')
+    center=(head.BoundingBox().xmin+head.BoundingBox().xmax)/2
+    check(abs(center-(-46.75+dx))<.02,'V58 G40 head pair follows moved film unit')
 for id in ('A05A','A05B'):
     check(not (A/(id+'.step')).exists(),
-          'Discredited 215mm transfer beam/spacer must remain absent: '+id)
+          'Discredited 215mm transfer beam/spacer remains absent: '+id)
 a_clamp=part(A,'A05C')[0]
 a_upper_jaw=part(A,'A05CU')[0]
 a_slide=part(A,'A05G')[0]
 a_pdms=part(A,'A05GP')[0]
+a_chip=part(A,'A07W')[0]
 check(len(part(A,'A05C'))==1,
-      'A05C bracket tie and lower jaw must be a connected solid')
+      'A05C bracket tie, carrier and lower jaw form a connected solid')
 check(a_sheet.distance(a_clamp)<.05,
-      'A05C local clamp must touch the end of the A05 L bracket')
+      'A05C local clamp must contact the end of the folded A05 sheet')
 check(a_clamp.distance(a_slide)<.05,
-      'A05C lower jaw must touch, not penetrate, the candidate glass')
+      'A05C lower glass jaw must touch the glass without floating')
 check(a_upper_jaw.distance(a_slide)<.05,
-      'A05C upper jaw must touch, not penetrate, the glass upper face')
+      'A05C upper jaw must touch the glass without floating')
 check(a_pdms.distance(a_slide)<.05,
-      'A05GP PDMS must contact glass underside, not float below it')
+      'A05GP PDMS must contact glass underside')
 check(a_clamp.intersect(a_slide).Volume()<.0001 and
       a_upper_jaw.intersect(a_slide).Volume()<.0001 and
       a_pdms.intersect(a_slide).Volume()<.0001,
-      'A05 clamp/PDMS must avoid physical penetration into the glass')
+      'A05 clamp/PDMS must not penetrate the candidate glass')
 check(abs(a_slide.BoundingBox().xlen-76)<.02 and
       abs(a_slide.BoundingBox().ylen-26)<.02 and
       abs(a_slide.BoundingBox().zlen-1)<.02,
-      'A05G nominal glass is a distinct 76x26x1mm candidate')
+      'A05G candidate glass is 76x26x1mm')
 check(abs(a_slide.BoundingBox().xmax-a_pdms.BoundingBox().xmax-4)<.02,
-      'A05GP stamp must be 4mm from the right-hand glass edge')
-a_heater=part(A,'A07')[0]
-check(a_slide.distance(a_heater)>30,
-      'A05G is still globally UNREGISTERED to A07; a valid-looking clamp is not a complete transfer station')
-report['V57_A05C_A05G_candidate_chain']={
-    'part_chain':['A05','A05C','A05CU','A05G','A05GP'],
+      'V58 PDMS right edge must be 4mm inset from glass right edge')
+check(abs(a_chip.BoundingBox().zmax-110.6)<.02,
+      'V58 A07W sample-chip top is 110.6mm, not 109.2mm bare metal')
+check(abs(a_pdms.BoundingBox().zmin-a_chip.BoundingBox().zmax)<.02,
+      'V58 static LOWER pose: PDMS reaches CHIP TOP, not naked hotplate')
+check(a_pdms.distance(a_chip)<.05 and
+      a_pdms.intersect(a_chip).Volume()<.0001,
+      'V58 PDMS contacts A07W chip without floating/interpenetration')
+check(a_pdms.intersect(part(A,'A07')[0]).Volume()<.0001,
+      'V58 PDMS must not enter underlying silver heater plate')
+for i in (1,2):
+    screw=part(A,f'A05CS{i}')[0]
+    check(screw.isValid() and a_clamp.distance(screw)<.05,
+          'V58 A05C candidate clamping screws must touch their carrier')
+    check(screw.intersect(a_slide).Volume()<.0001,
+          'V58 candidate fasteners must remain outside glass footprint')
+a17_bb=part(A,'A17')[0].BoundingBox()
+a16_bb=part(A,'A16')[0].BoundingBox()
+a_base_gap=a16_bb.xmin-a17_bb.xmax
+check(abs(a_base_gap-36.25)<.02,
+      'V58 sample A16 and film A17 bases need a 36.25mm footprint gap')
+check(abs((a_pdms.BoundingBox().xmin+a_pdms.BoundingBox().xmax)/2-78)<.02 and
+      abs((a_pdms.BoundingBox().ymin+a_pdms.BoundingBox().ymax)/2)<.02,
+      'V58 PDMS stamp must be centered above sample-chip XY')
+check(abs(a_chip.BoundingBox().xlen-28)<.02 and
+      abs(a_chip.BoundingBox().ylen-28)<.02 and
+      abs(a_chip.BoundingBox().zlen-1.4)<.02,
+      'V58 sample chip geometry matches browser 28x28x1.4mm proxy')
+report['V58_A_working_geometry_only']={
+    'part_chain':['A17','A15','A03','A04L','A04','A05','A05C',
+                  'A05CU','A05CS1','A05CS2','A05G','A05GP'],
+    'A17_A16_footprint_gap_mm':round(a_base_gap,2),
+    'film_center_x_mm':-46.75,'working_film_bent_sheet_handedness':'right',
+    'photo94_original_handedness':'left',
+    'a05_leg_height_candidate_mm':52.1,
     'glass_size_candidate_mm':[76,26,1],
     'pdms_size_candidate_mm':[8,8,1.8],
     'pdms_right_margin_mm':4,
-    'photo94_confirms_A05_bent_sheet_only':True,
-    'clamp_oem_sku_confirmed':False,
-    'clamp_to_heater_global_pose_registered':False,
+    'sample_chip_top_mm':110.6,
+    'static_lowered_PDMS_contact_with_chip':True,
+    'full_13mm_motion_collision_certified':False,
+    'actual_photo_pose_registered':False,
+    'A17_and_A05C_OEM_identified':False,
     'clamp_screw_pattern_verified':False,
     'made_for_machining_or_procurement':False
 }
@@ -800,16 +830,18 @@ check(abs(a_base.zmin-a_board.zmax)<.02 and abs(a_rot_lower.zmin-a_base.zmax)<.0
 a_tilt=part(A,'A04')[0].BoundingBox()
 check(abs(a_tilt.zmax-164)<.02,
       'V47 A04 is upper of 2x20mm G40-class stack; A05 touches top z164')
-# V45 A-rig global functional registration: the current first rig is NOT
-# a complete working transfer platform, even though every listed part exists.
+# V58: printed STEP is the *UNVERIFIED* candidate lower-contact pose.
+# Photo94 left-fold geometry is NOT overwritten: see viewer photo94 mode.
+# Do not pretend that fitting two candidate solids validates the actual rig.
 a_heater=part(A,'A07')[0].BoundingBox()
-a_lip_tip_right=asheet_bb.xmin+13
-a_horizontal_gap=a_heater.xmin-a_lip_tip_right-25 # two optimistic +/-12.5mm stages
-a_bracket_to_heater_z=a_heater.zmax-asheet_bb.zmin
-check(170<a_horizontal_gap<175,
-      'V47 A photo94 G40-scaled sheet remains 171.5mm away under UNREGISTERED global stage origins')
-check(17<a_bracket_to_heater_z<18,
-      'V48 photo-layer sample top raises 10mm to 89.2mm above board; lip gap ~17.2mm in UNREGISTERED scene')
+check(abs(a_heater.zmax-109.2)<.02,
+      'Sample silver support top remains 109.2mm above datum')
+check(abs(a_chip.BoundingBox().zmax-a_pdms.BoundingBox().zmin)<.02,
+      'PDMS interface is on sample chip, not 1.4mm inside the heater')
+check(a_clamp.BoundingBox().xmax<a_heater.xmin,
+      'A05C fixed clamp must remain outside A07 heater X footprint')
+check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-26)<.03,
+      'A05C nominal clamp clearance must remain 26mm in candidate pose')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
 check(abs(a_scope_bb.zmin-a_board.zmax)<.02,
@@ -852,9 +884,11 @@ check(a_optical_tube.intersect(a_lens).Volume()<1e-3,
       'SM2 candidate tube must NOT become a solid plug through the lens')
 check(abs(a_cam.BoundingBox().zmin-a_optical_tube.BoundingBox().zmax)<.02,
       'A camera candidate underside must touch SM2 sleeve envelope')
-report['V45_A_global_assembly_readiness']={
-  'A05_tip_to_A07_heater_after_optimistic_X_travel_mm':round(a_horizontal_gap,1),
-  'A05_lowest_point_below_heater_top_mm':round(a_bracket_to_heater_z,1),
+report['V58_A_global_candidate_readiness']={
+  'clamp_to_heater_nominal_edge_clearance_mm':round(a_heater.xmin-a_clamp.BoundingBox().xmax,2),
+  'A17_A16_footprint_gap_mm':round(a_base_gap,2),
+  'sample_chip_PDMS_touch_at_lower_static_pose':True,
+  'photo94_original_orientation_preserved_in_viewer':True,
   'A10_microscope_foot_contacts_A01':True,
   'A08_TTL200A_real_housing_length_mm':28,
   'A14_candidate_SM2_sleeve_length_mm':66,
