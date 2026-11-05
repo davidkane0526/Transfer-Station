@@ -28,6 +28,15 @@ assert(unsafe.possibleClash&&!unsafe.safeToLower,
 const rotated=auditBLoweringPose({sampleAngleDeg:45,sampleShiftX:-5,filmVerticalDropMm:13});
 assert.equal(rotated.safeToLower,false,
   'Diagonal rotation grows square heater X-envelope and blocks unsafe lowering');
+const depthShift=auditBLoweringPose({sampleDepthShiftMm:100,filmVerticalDropMm:13});
+assert.equal(depthShift.depthOverlap,false,
+  'A large second-axis displacement must be included in clamp/heater depth overlap');
+const crossedRotated=auditBLoweringPose({
+  sampleAngleDeg:90,sampleDepthShiftMm:5,filmVerticalDropMm:13
+});
+assert(Math.abs(crossedRotated.sampleWorldX-5)<1e-8);
+assert(Math.abs(crossedRotated.sampleWorldZ)<1e-8,
+  'At 90 degrees the lower Z stage must rotate into world X for the collision audit');
 assert.throws(()=>auditB149({...B149,stampOffsetFromGlassCenterX:-5}),/RIGHT slide edge/);
 assert(a.b04MovingFlangeTopY<a.b04GuideTopY);
 assert.equal(a.threadingVerified,false);
