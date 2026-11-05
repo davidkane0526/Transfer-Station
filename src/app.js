@@ -6,7 +6,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js';
 import {enrichParts} from './details.js';
 import {enriched,pricedSummary,csvExportRows} from './procurement.js';
-import {stageLocalTranslation} from './kinematics.js';
+import {stageLocalTranslation,stageLocalDepthTranslation} from './kinematics.js';
 import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
 import {STACKS,HANDLES,MAGNET_PLACEMENT} from './photo-evidence.js';
@@ -62,9 +62,10 @@ illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
 let platform='B', bPhoto94Mode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
-    filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
+    filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleShiftDepth=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 // Read-only platform state for automated browser QA.
 window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',partCount:parts.size});
+let sampleSubstrate=null;
 let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
 // Read-only diagnostic used by the real-browser assembly smoke test.
@@ -116,10 +117,11 @@ window.__modelBActuatorProbe=()=>{
      directions:handles.map(h=>h.direction).sort(),
      xCarriageLocalMm:root.userData.slidingX?.position.x??null,
      depthCarriageLocalMm:root.userData.slidingDepth?.position.z??null,
-     singleCarriageLocalMm:root.userData.slidingTop?.position.x??null
+     singleCarriageLocalMm:root.userData.slidingTop?.position.x??null,
+     worldPosition:origin.toArray()
    };
  };
- return {available:true,B03:inspect('B03'),B08:inspect('B08'),B09:inspect('B09')};
+ return {available:true,B03:inspect('B03'),B08:inspect('B08'),B41:inspect('B41'),B09:inspect('B09')};
 };
 // Browser-only, read-only mechanical validation of the ACTUAL rendered
 // meshes, not just a BOM flag. Photos145/150 place the microscope foot
@@ -1294,16 +1296,15 @@ function rotaryB(){
     add(g,cyl(47,10.2,mats.steel,0,28.1,0));
     add(g,torus(45,1.0,mats.ink,0,33.35,0));
     for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(g,2.6,33.5,x,z);
-    // 111.jpg rotary silver lock handle faces the operator (+Z), not +X.
-    const knob=add(g,cyl(6,31,mats.silver,0,12,57));knob.rotation.x=Math.PI/2;
-    knob.userData.stageActuatorHandle={kind:'rotary-lock',localAxis:'Z'};
+    // User-confirmed GCM-1107M has NO external operating handle.
     addJointHeads(g,'B08',33.15,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.9});
-    label(g,'GCM-1107M · Ø94×33.2',0,46,0);
+    label(g,'GCM-1107M · Ø94×33.2 · 无外伸手柄',0,46,0);
  },{explode:[12,0,0],rotateSample:false});
- addPart('B09',sx,53.2+rise,0,g=>{
-   // OEM dimension drawing distinguishes 4 x clearance Ø6.5 / Ø11 counterbore
-   // on fixed base from 9-M6 / 4-M3 tapped hole array on moving stage.
-   // The original native CAD download is not yet incorporated.
+ // B09 is the upper OEM-identified NFP-1462C. B41 is the lower
+ // orthogonal single-axis stage visible in ruler photo147; its exact SKU
+ // remains unverified and is not silently assigned the NFP model.
+ const addSampleLinearStage=(id,baseY,facingYaw,title,modelConfirmed)=>{
+  addPart(id,sx,baseY,0,g=>{
    const mounting=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
    add(g,plate(65,65,6,mats.steel,mounting));
    add(g,plate(65,65,5,mats.steel,mounting.map(p=>[p[0],p[1],5.5]))).position.y=6;
@@ -1314,49 +1315,51 @@ function rotaryB(){
    ];
    const lower=plate(65,65,2,mats.steel);lower.position.y=11;add(slidingTop,lower);
    const drilled=plate(65,65,10,mats.steel,tapped);drilled.position.y=13;add(slidingTop,drilled);
-   // Photos25/26: NFP body side shows a lower 4-hole row on the fixed
-   // base and an upper 3-hole row on the moving plate. Diameters/threads
-   // are visual candidates only; keep the upper row coupled to the slider.
-   const addNfpPhotoBore=(parent,x,y,r,row)=>{
+   // 3+4 side-hole rows are retained as photo-fit geometry. For B41
+   // their exact count, diameter and thread are not claimed as OEM data.
+   const addSideBore=(parent,x,y,r,row)=>{
      const rim=add(parent,sleeve(r+.45,r,.6,mats.silver,x,y,-32.2,'z'));
-     rim.userData.NFPPhoto25SideBore={row,diameterMm:2*r};
+     rim.userData.sampleStageSideBore={row,diameterMm:2*r,photoFit:true};
      const bottom=add(parent,cyl(r,.2,mats.black,x,y,-31.3,24));
      bottom.rotation.x=Math.PI/2;
-     bottom.userData.NFPPhoto25SideBoreBottom=true;
+     bottom.userData.sampleStageSideBoreBottom=true;
    };
-   const nfpLowerSide=[[-18,7,1.6],[-4,7,2.0],[11,7,2.6],[22,7,1.6]];
-   const nfpUpperSide=[[-22,17.5,1.8],[-8,17.5,1.8],[12,17.5,2.8]];
-   for(const [x,y,r] of nfpLowerSide)addNfpPhotoBore(g,x,y,r,'lower');
-   for(const [x,y,r] of nfpUpperSide)addNfpPhotoBore(slidingTop,x,y,r,'upper');
-   g.userData.nfpPhotoSideHoleCount=7;
-   g.userData.nfpPhotoSideHoleRows={lower:4,upper:3};
-   g.userData.NFPUpperPhotoSideHoleRowHeightMm=17.5;
-   g.userData.nfpPhotoSideHoleThreadsVerified=false;
-   // NFP official local-coordinate micrometer is LEFT. In the actual photo
-   // 110.jpg it points RIGHT due to stage installation at 180° about Y.
-   // Maker dimension drawing indicates overall length 155.5--180.5mm.
+   const lowerSide=[[-18,7,1.6],[-4,7,2.0],[11,7,2.6],[22,7,1.6]];
+   const upperSide=[[-22,17.5,1.8],[-8,17.5,1.8],[12,17.5,2.8]];
+   for(const [x,y,r] of lowerSide)addSideBore(g,x,y,r,'lower');
+   for(const [x,y,r] of upperSide)addSideBore(slidingTop,x,y,r,'upper');
+   g.userData.sideHoleRowsCandidate={fixedLower:4,movingUpper:3};
+   g.userData.sideHoleThreadsVerified=false;
    add(g,cub(24,15,30,mats.steel,-45,12,0));
-   // Hollow face port, 82.5mm spindle, nested collar and drum match the
-   // right-facing photo installation and the 155.5–180.5mm OEM envelope.
    add(g,sleeve(4.1,3.8,1,mats.ink,-57,12,0,'x'));
    const spindle=add(g,cyl(3.6,82.5,mats.silver,-89.25,12,0));spindle.rotation.z=Math.PI/2;
-   const collar=add(g,sleeve(9,3.8,23,mats.steel,-119,12,0,'x'));
+   add(g,sleeve(9,3.8,23,mats.steel,-119,12,0,'x'));
    const drum=add(g,sleeve(11,9.2,28,mats.silver,-131,12,0,'x'));
    drum.userData.stageActuatorHandle={kind:'linear',localAxis:'X'};
    spindle.userData.stageActuatorStem={kind:'linear',localAxis:'X'};
-   g.userData.NFPMicrometerOverallLengthCandidateMm=177.5;
+   g.userData.axisDirection=facingYaw===Math.PI/2?'+Z':'+X';
+   g.userData.oemModelConfirmed=modelConfirmed;
+   g.userData.envelopeCandidateMm=[65,65,23];
+   if(modelConfirmed)g.userData.NFPMicrometerOverallLengthCandidateMm=177.5;
+   else g.userData.micrometerLengthVisualCandidateMm=177.5;
    for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
    for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
    for(const x of [-25,25])for(const z of [-25,25])circleGuide(g,5.5,11.3,x,z);
-   addJointHeads(g,'B09',10.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:4.2});
-   label(g,'NFP 仅单轴 X / 一根测微头',-38,46,0);
-   label(g,'NFP-1462C · 原厂65×65×23 · 正面安装180°候选',0,42,0);
- },{explode:[0,16,0],rotateSample:true,facingYaw:Math.PI});
- addPart('B10',sx,76.2+rise,0,g=>{
+   addJointHeads(g,id,10.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:4.2});
+   label(g,modelConfirmed?'NFP 仅单轴 X / 一根测微头':'第二级正交单轴台 · 前向测微头（型号待核）',-38,46,0);
+   label(g,title,0,42,0);
+  },{explode:[0,16,0],rotateSample:true,facingYaw,
+      ...(id==='B09'?{translateSampleDepth:true}:{})});
+ };
+ addSampleLinearStage('B41',53.2+rise,Math.PI/2,
+   '第二级单轴平移台 · 65×65×23mm候选 · 前向安装90°',false);
+ addSampleLinearStage('B09',76.2+rise,Math.PI,
+   'Zolix NFP-1462C · 原厂65×65×23 · 右向X轴',true);
+ addPart('B10',sx,99.2+rise,0,g=>{
    const h=plate(65,65,10,mats.white,[[-25,-25,3.4],[-25,25,3.4],[25,-25,3.4],[25,25,3.4]]);add(g,h);
    label(g,'白色无机隔热层 ≈10mm',0,22,0);
  },{explode:[-7,36,-8],rotateSample:true,translateSample:true});
- addPart('B11',sx,86.2+rise,0,g=>{
+ addPart('B11',sx,109.2+rise,0,g=>{
    const corners=[[-25,-25,3.3],[-25,25,3.3],[25,-25,3.3],[25,25,3.3]];
    // Lower layer with real open underside ceramic pocket
    add(g,plate(65,65,5.4,mats.steel,corners,[38.6,38.6]));
@@ -1370,7 +1373,7 @@ function rotaryB(){
    g.userData.vacuumPathInternalNotExternallyVisible=true;
    label(g,'单中心吸附孔 Ø1.4 mm（候选）/ 底面开腔 / 四沉孔',0,31,0);
  },{explode:[0,61,0],rotateSample:true,translateSample:true});
- addPart('B12',sx,86.5+rise,0,g=>{
+ addPart('B12',sx,109.5+rise,0,g=>{
    add(g,cub(38,5,38,mats.ceramic,0,2.5,0));
    // Pair of heater leads exiting the BACK (-Z) of the milled chuck.
    for(const x of [10,15]){
@@ -1379,18 +1382,18 @@ function rotaryB(){
    }
    label(g,'加热片后侧双引线（孔位候选）',0,12,-18);
  },{explode:[38,74,12],rotateSample:true,translateSample:true});
- addPart('B13',sx,91.35+rise,0,g=>{
+ addPart('B13',sx,114.35+rise,0,g=>{
     add(g,cyl(.6,1.2,mats.copper,6,.6,0));
     add(g,tube([[6,.6,0],[6,.6,-19.5],[6,.6,-33],[6,-3,-51]],.34,mats.blue));
  },{explode:[-17,70,0],rotateSample:true,translateSample:true});
- addPart('B14',sx,86.2+rise,0,g=>{
+ addPart('B14',sx,109.2+rise,0,g=>{
    for(const x of [-25,25])for(const z of [-25,25]){
       screw(g,x,12.03,z,25); // head surface flush at 12.03; do not mask by blue hole guide
    }
    g.userData.fastenerProxies=4;
    label(g,'4 枚顶部齐平螺钉（仅数量、齐平已确认）',0,45,0);
  },{explode:[0,88,0],rotateSample:true,translateSample:true});
- addPart('B15',sx,95.5+rise,0,g=>{
+ addPart('B15',sx,118.5+rise,0,g=>{
    // V37: B11's internal vacuum bore must terminate in an OPEN
    // tubular fitting. The former solid rod plugged the air passage.
    const fitting=add(g,sleeve(3,1.42,13,mats.silver,0,0,-39,'z'));
@@ -1401,7 +1404,7 @@ function rotaryB(){
    g.userData.rearVacuumBoreNotBlocked=true;
    label(g,'B15接头：OD Ø6.0 / 孔径 Ø2.84 / 长13 mm（均为候选）',4,12,-48);
  },{explode:[0,60,-20],rotateSample:true,translateSample:true});
- const substrate=cub(24,.6,24,mats.glass,0,98.5+rise,0);substrate.position.x=sx;currentRoot.add(substrate);
+ const substrate=cub(24,.6,24,mats.glass,0,121.5+rise,0);currentRoot.add(substrate);sampleSubstrate=substrate;
 }
 function microscopeB(){
  const sx=CONFIG.B.sampleX,sz=CONFIG.B.scopeZ,
