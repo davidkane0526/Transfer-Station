@@ -214,9 +214,23 @@ def heater(cx=82,cy=0,z=98.2):
           (83,-70,127.5),(94,-79,113.5)]
     add('B','B15T','vacuum_short_flexible_hollow_stub_CANDIDATE',
         hollow_hose(stub),'C')
+    # Follow the actual flexible lead trajectories shown in the
+    # interactive B12/B13 subassemblies, including their LOWERED
+    # free tails. Previous straight cylinders stopped 2–4 mm ABOVE
+    # the real cable starts, despite passing broad bounding-box tests.
     for n,xx in enumerate((10,15),1):
-        add('B',f'B12L{n}',f'rear_heater_wire_{n}_PROXY',vy(.55,40.5,cx+xx,cy-59.5,z+2.5))
-    add('B','B13L','rear_thermocouple_wire_PROXY',vy(.34,59.5,cx+6,cy-59.5,z+5.85))
+        tail=[(cx+xx,cy-19,z+2.8),
+              (cx+xx,cy-32.5,z+2.8),
+              (cx+xx,cy-48,z+2.8),
+              (cx+xx+1,cy-60,z+0.3)]
+        add('B',f'B12L{n}',f'rear_heater_wire_{n}_PHOTO_FIT',
+            cable_path(tail,.55),'C')
+    thermocouple=[(cx+6,cy,z+5.75),
+                  (cx+6,cy-19.5,z+5.75),
+                  (cx+6,cy-33,z+5.75),
+                  (cx+6,cy-51,z+2.15)]
+    add('B','B13L','rear_thermocouple_wire_PHOTO_FIT',
+        cable_path(thermocouple,.34),'C')
     for i,(x,y) in enumerate(corners,1):
         # M6×25 length is specified *under the head*. Head sits 0.5 mm below the
         # top plane in a 6.5 mm counterbore. Join shaft/head with zero axial gap.
@@ -501,17 +515,17 @@ def make_b():
         box(36,12,16,265,-116,3),'C')
     wiring=[
       ('B37','heater_A_unverified_power_lead',1.1,
-       [(92,-59.5,123.7),(119,-92,135),(174,-140,130),
+       [(93,-60,121.5),(119,-92,135),(174,-140,130),
         (207,-165,120),(222.5,-168,84),
         (225,-168,84),(235,-154,72),(237,-125,44),
         (251,-117,25),(255,-116,19.7)]),
       ('B37A','heater_B_unverified_power_lead',1.1,
-       [(97,-59.5,123.7),(119,-97,140),(174,-146,136),
+       [(98,-60,121.5),(119,-97,140),(174,-146,136),
         (207,-171,126),(222.5,-167,87),
         (225,-167,87),(235,-151,75),(237,-128,49),
         (252,-118,26),(265,-116,19.7)]),
       ('B38','temperature_feedback_unverified_pinout',.72,
-       [(88,-59.5,127.05),(119,-102,138),(174,-146,136),
+       [(88,-51,123.35),(119,-102,138),(174,-146,136),
         (207,-171,130),(222.5,-163,89),
         (225,-163,89),(235,-150,103),(265,-120,108),
         (310,-83,100),(349,-43,78)])
