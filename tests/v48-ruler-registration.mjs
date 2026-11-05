@@ -31,8 +31,8 @@ assert.equal(A.A16.model,'GCM-5306M');
 assert.equal(B.B02.model,'GCM-420302M');
 assert.notEqual(A.A17.model,'GCM-420302M',
   'The clear label belongs to B photo31, NOT A film magnetic mount');
-assert.match(A.A07.spec,/28mm|9\+7\+12mm/);
-assert.match(A.A06.spec,/Ø66/);
+assert.match(A.A07.dims,/28mm|9\+7\+12mm/);
+assert.match(A.A06.dims,/Ø66/);
 assert.throws(()=>auditV48RulerRegistration({sampleTopMm:-1}),/positive/);
 assert.equal(auditV48RulerRegistration({sampleTopMm:2}).sampleTopWithinVisibleRulerRange,false);
 console.log('V48 cross-rig photo identity, 89.2mm ruler sample top and true 3-layer model: PASS');
