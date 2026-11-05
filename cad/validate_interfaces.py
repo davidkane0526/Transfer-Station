@@ -370,7 +370,7 @@ check(v25_bridge.BoundingBox().zmin<arm_base.zmax and
       'Side bridge and B05 plate share nonzero mounting-face vertical span')
 check(abs(arm_base.zmax-holderbb.zmin)<.02,'B34 holder sits ON B05 plate')
 check(abs(holderbb.zlen-50)<.02,'PHSH2 50mm sleeve is a candidate but its CAD must be consistent')
-check(abs(postbb.zlen-100)<.02,'PHOTO149 rejects older 25mm post; 100mm installed-length candidate')
+check(abs(postbb.zlen-112)<.02,'V55 raised clamp stack requires 112mm scene-fit post; exact SKU unverified')
 check(abs(postbb.zmin-holderbb.zmin)<.02,'Support post inserted from sleeve bottom datum')
 check(holder.intersect(post).Volume()<1e-4,'Black sleeve has real Ø12 steel-post clearance')
 check(abs(squarebb.zmin-holderbb.zmax-7)<.02,
