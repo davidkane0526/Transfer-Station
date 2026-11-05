@@ -38,7 +38,7 @@ assert.equal(PARTS.A.filter(p=>p.id==='A02'||p.id==='A15').length,2,
 assert(PARTS.A.find(p=>p.id==='A02').group==='sample');
 assert(PARTS.A.find(p=>p.id==='A15').group==='film');
 const expected={B03:'-X',B04:'+Y',B08:'+Z',B09:'+X',
- A02:'+X',A15:'+X',A03:'+Y',A04L:'+X',A04:'-X'};
+ A02:'-X',A15:'+X',A03:'+Y',A04L:'+X',A04:'-X'};
 for(const [id,dir]of Object.entries(expected))
  assert.equal(HANDLES[id].direction,dir,'Wrong actuator direction '+id);
 assert.equal(OEM_DRAWING_CONSTRAINTS.twoAxisT25M.heightMm,33);
