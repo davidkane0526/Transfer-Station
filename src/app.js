@@ -1358,7 +1358,7 @@ function rotaryB(){
  addPart('B10',sx,99.2+rise,0,g=>{
    const h=plate(65,65,10,mats.white,[[-25,-25,3.4],[-25,25,3.4],[25,-25,3.4],[25,25,3.4]]);add(g,h);
    label(g,'白色无机隔热层 ≈10mm',0,22,0);
- },{explode:[-7,36,-8],rotateSample:true,translateSample:true});
+ },{explode:[-7,36,-8],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B11',sx,109.2+rise,0,g=>{
    const corners=[[-25,-25,3.3],[-25,25,3.3],[25,-25,3.3],[25,25,3.3]];
    // Lower layer with real open underside ceramic pocket
@@ -1372,7 +1372,7 @@ function rotaryB(){
    // the unverified buried duct is represented only by evidence notes.
    g.userData.vacuumPathInternalNotExternallyVisible=true;
    label(g,'单中心吸附孔 Ø1.4 mm（候选）/ 底面开腔 / 四沉孔',0,31,0);
- },{explode:[0,61,0],rotateSample:true,translateSample:true});
+ },{explode:[0,61,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B12',sx,109.5+rise,0,g=>{
    add(g,cub(38,5,38,mats.ceramic,0,2.5,0));
    // Pair of heater leads exiting the BACK (-Z) of the milled chuck.
@@ -1381,18 +1381,18 @@ function rotaryB(){
       add(g,tube([[x,2.5,-19],[x,2.5,-32.5],[x,2.5,-48],[x+1,0,-60]],.55,mats.copper));
    }
    label(g,'加热片后侧双引线（孔位候选）',0,12,-18);
- },{explode:[38,74,12],rotateSample:true,translateSample:true});
+ },{explode:[38,74,12],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B13',sx,114.35+rise,0,g=>{
     add(g,cyl(.6,1.2,mats.copper,6,.6,0));
     add(g,tube([[6,.6,0],[6,.6,-19.5],[6,.6,-33],[6,-3,-51]],.34,mats.blue));
- },{explode:[-17,70,0],rotateSample:true,translateSample:true});
+ },{explode:[-17,70,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B14',sx,109.2+rise,0,g=>{
    for(const x of [-25,25])for(const z of [-25,25]){
       screw(g,x,12.03,z,25); // head surface flush at 12.03; do not mask by blue hole guide
    }
    g.userData.fastenerProxies=4;
    label(g,'4 枚顶部齐平螺钉（仅数量、齐平已确认）',0,45,0);
- },{explode:[0,88,0],rotateSample:true,translateSample:true});
+ },{explode:[0,88,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B15',sx,118.5+rise,0,g=>{
    // V37: B11's internal vacuum bore must terminate in an OPEN
    // tubular fitting. The former solid rod plugged the air passage.
@@ -1403,7 +1403,7 @@ function rotaryB(){
    shortHose.userData.lastFlexiblePoint=[12,-17,-79];
    g.userData.rearVacuumBoreNotBlocked=true;
    label(g,'B15接头：OD Ø6.0 / 孔径 Ø2.84 / 长13 mm（均为候选）',4,12,-48);
- },{explode:[0,60,-20],rotateSample:true,translateSample:true});
+ },{explode:[0,60,-20],rotateSample:true,translateSample:true,translateSampleDepth:true});
  const substrate=cub(24,.6,24,mats.glass,0,121.5+rise,0);currentRoot.add(substrate);sampleSubstrate=substrate;
 }
 function microscopeB(){
