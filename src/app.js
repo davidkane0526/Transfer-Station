@@ -133,7 +133,7 @@ window.__modelBSupportProbe=()=>{
    microscopeFootFourTrueThroughBores:footBoresOpen,
    B16MountingScrewHeads:scopeMeshes.filter(m=>m.userData.B16MountingScrewHead).length,
    NFPMicrometerOverallLengthCandidateMm:parts.get('B09')?.g?.userData?.NFPMicrometerOverallLengthCandidateMm??null,
-   NFPUpperPhotoSideHoleRowHeightMm:parts.get('B09')?.g?.userData?.nfpPhotoUpperSideRowHeightMm??null,
+   NFPUpperPhotoSideHoleRowHeightMm:parts.get('B09')?.g?.userData?.NFPUpperPhotoSideHoleRowHeightMm??null,
    microscopeMountAudit:mountAudit
  };
 };
@@ -1286,7 +1286,7 @@ function rotaryB(){
    for(const [x,y,r] of nfpUpperSide)addNfpPhotoBore(slidingTop,x,y,r,'upper');
    g.userData.nfpPhotoSideHoleCount=7;
    g.userData.nfpPhotoSideHoleRows={lower:4,upper:3};
-   g.userData.nfpPhotoUpperSideRowHeightMm=17.5;
+   g.userData.NFPUpperPhotoSideHoleRowHeightMm=17.5;
    g.userData.nfpPhotoSideHoleThreadsVerified=false;
    // NFP official local-coordinate micrometer is LEFT. In the actual photo
    // 110.jpg it points RIGHT due to stage installation at 180° about Y.
