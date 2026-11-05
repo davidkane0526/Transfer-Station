@@ -1,3 +1,4 @@
+import {mountPhotoEvidence,mountPhotoBOMCell,photoEvidenceProbe} from './photo-gallery.js';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {CSS2DRenderer,CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
@@ -38,6 +39,7 @@ const floor=new THREE.Mesh(new THREE.PlaneGeometry(2000,2000),new THREE.MeshStan
 const mats={
 board:new THREE.MeshStandardMaterial({color:'#353d45',metalness:.78,roughness:.43}),
 steel:new THREE.MeshStandardMaterial({color:'#a9bccc',metalness:.75,roughness:.29}),
+lowerStage:new THREE.MeshStandardMaterial({color:'#7d8d9c',metalness:.77,roughness:.37}),
 silver:new THREE.MeshStandardMaterial({color:'#b7c2c9',metalness:.8,roughness:.3}),
 dark:new THREE.MeshStandardMaterial({color:'#313d4b',metalness:.65,roughness:.39}),
 black:new THREE.MeshStandardMaterial({color:'#1a242e',metalness:.35,roughness:.48}),
@@ -91,6 +93,7 @@ window.__modelBViewProbe=()=>{
 // V54: inspect actual rendered actuator meshes and independent carriage motion.
 // The result is derived from visible handle meshes and live group transforms,
 // not from BOM labels or photo-evidence metadata alone.
+window.__photoEvidenceProbe=(partId,rig=platform)=>photoEvidenceProbe(rig,partId);
 window.__modelBActuatorProbe=()=>{
  if(platform!=='B')return {available:false};
  const inspect=(id)=>{
@@ -121,6 +124,10 @@ window.__modelBActuatorProbe=()=>{
      sideHoleRowsCandidate:root.userData.sideHoleRowsCandidate??null,
      nfpPhotoSideHoleCount:root.userData.nfpPhotoSideHoleCount??0,
      B41TopFourM6MountPatternCandidate:Boolean(root.userData.B41TopFourM6MountPatternCandidate),
+     stageBoundaryMarkerCount:root.userData.stageBoundaryMarkerCount??0,
+     fixedBaseHeightMm:root.userData.fixedBaseHeightMm??null,
+     movingStageHeightMm:root.userData.movingStageHeightMm??null,
+     stageRole:root.userData.stageRole??null,
      worldPosition:origin.toArray()
    };
  };
@@ -1313,15 +1320,35 @@ function rotaryB(){
  const addSampleLinearStage=(id,baseY,facingYaw,title,modelConfirmed)=>{
   addPart(id,sx,baseY,0,g=>{
    const mounting=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
-   add(g,plate(65,65,6,mats.steel,mounting));
-   add(g,plate(65,65,5,mats.steel,mounting.map(p=>[p[0],p[1],5.5]))).position.y=6;
+   const stageBodyMaterial=modelConfirmed?mats.steel:mats.lowerStage;
+   add(g,plate(65,65,6,stageBodyMaterial,mounting));
+   add(g,plate(65,65,5,stageBodyMaterial,mounting.map(p=>[p[0],p[1],5.5]))).position.y=6;
+   // Expose the *real two-stage boundary* at local y=0 of the
+   // upper NFP. This thin dark witness follows the mating face and
+   // does NOT introduce a fictitious vertical gap or support block.
+   if(modelConfirmed){
+     const jointLine=add(g,cub(65.7,.72,65.7,mats.ink,0,.36,0));
+     jointLine.userData.stageXYBoundary=true;
+     jointLine.userData.between='B41/B09';
+     g.userData.stageBoundaryMarkerCount=1;
+   }else{
+     g.userData.stageBoundaryMarkerCount=0;
+   }
+   for(const z of [-31.9,31.9]){
+     const rail=add(g,cub(63,1.0,1.3,mats.dark,0,11.0,z));
+     rail.userData.realCrossedStageCarriageSeam=true;
+   }
    const slidingTop=new THREE.Group();g.add(slidingTop);g.userData.slidingTop=slidingTop;
    const tapped=modelConfirmed?[
      ...[-25,0,25].flatMap(x=>[-25,0,25].map(z=>[x,z,2.5])),
      ...[-16,16].flatMap(x=>[-16,16].map(z=>[x,z,1.25]))
    ]:[[-25,-25,2.45],[-25,25,2.45],[25,-25,2.45],[25,25,2.45]];
-   const lower=plate(65,65,2,mats.steel);lower.position.y=11;add(slidingTop,lower);
-   const drilled=plate(65,65,10,mats.steel,tapped);drilled.position.y=13;add(slidingTop,drilled);
+   const lower=plate(65,65,2,stageBodyMaterial);lower.position.y=11;add(slidingTop,lower);
+   const drilled=plate(65,65,10,stageBodyMaterial,tapped);drilled.position.y=13;add(slidingTop,drilled);
+   g.userData.fixedBaseHeightMm=11;
+   g.userData.movingStageHeightMm=12;
+   g.userData.stageBodyHeightMm=23;
+   g.userData.stageRole=modelConfirmed?'upper-X':'lower-Y';
    // 3+4 side-hole rows are retained as photo-fit geometry. For B41
    // their exact count, diameter and thread are not claimed as OEM data.
    const addSideBore=(parent,x,y,r,row)=>{
@@ -2380,7 +2407,9 @@ function updateDetail(part){
  const linkBox=$('selected-source-links');
  for(const [name,url] of refs){if(!url?.startsWith('https://'))continue;
     const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=name;linkBox.append(a);}
-
+ // Selection from either the 3D meshes or BOM must show the corresponding
+ // ACTUAL photo thumbnails, and clearly mark unavailable originals.
+ mountPhotoEvidence(el,platform,part.id);
 }
 function selectPart(id){
  if(active&&active.g)active.g.traverse(o=>{
@@ -2390,11 +2419,16 @@ function selectPart(id){
    }
  });
  const v=id?parts.get(id):null;
+ const metadata=id?activeParts().find(p=>p.id===id):null;
  active=v||null;
  $('restore-cad').disabled=!Boolean(v?.g?.userData.vendorImport);
  if(!v){
-   updateDetail(null);selectedLabels();clearMeasurement();
-   $('hover-help').textContent='点击零件查看尺寸、来源和供应商；点击空白取消';
+   // A05C/A05G are BOM-only provisional components; selecting them
+   // must show their evidence instead of opening an empty detail pane.
+   updateDetail(metadata??null);selectedLabels();clearMeasurement();
+   $('hover-help').textContent=metadata?
+     id+' · 当前仅有BOM或待验证装配，查看实物照片与接口清单':
+     '点击零件查看尺寸、来源和供应商；点击空白取消';
    return;
  }
  v.g.traverse(o=>{
@@ -2624,7 +2658,8 @@ function updateTable(){
   drawing.append(buildLink('原厂图纸',part.drawing));
   if(part.cad)drawing.append(' · ',buildLink('CAD',part.cad));
   if(part.datasheet)drawing.append(' · ',buildLink('产品页',part.datasheet));
-  cell(part.evidence||'未指定');
+  const photoCell=cell();
+  mountPhotoBOMCell(photoCell,platform,part.id);
   tr.onclick=(ev)=>{
     if(ev.target.closest('a'))return;
     selectPart(part.id);$('bom-drawer').classList.remove('open');
