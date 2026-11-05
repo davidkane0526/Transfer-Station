@@ -22,6 +22,7 @@ export const JOINTS={
  B16:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'显微镜底座四角紧固件'},
  A02:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'样品平移台顶面候选连接'},
  A03:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'竖直台安装法兰'},
+ A04L:{count:2,kind:'mounting-head-proxy',status:'candidate',name:'A照片94下层独立摆角台安装'},
  A04:{count:2,kind:'mounting-head-proxy',status:'candidate',name:'摆角台安装'},
  A06:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'A 样品旋转台安装'},
  A07:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'A 样品加热座'},
