@@ -160,14 +160,18 @@ def nfp_single_axis(sys,key,cx,cy,z0,yaw_deg=0,model_confirmed=False):
     housing=housing.cut(vx(4,9,cx+48,cy,z0+12))
     add(sys,key+'B','single_axis_micrometer_housing_24x30x15_blind_O8',
         place(housing),'P')
-    add(sys,key+'C','single_axis_micrometer_spindle_O7p2x82p5',
-        place(vx(3.6,82.5,cx+48,cy,z0+12)),'P')
-    collar=vx(9,23,cx+107.5,cy,z0+12).cut(
-        vx(3.8,23,cx+107.5,cy,z0+12))
-    add(sys,key+'D','single_axis_micrometer_collar_O18x23_bore_O7p6',
+    spindle_len=82.5 if model_confirmed else 40.0
+    collar_len=23.0 if model_confirmed else 18.0
+    collar_center=cx+(107.5 if model_confirmed else 79.0)
+    drum_center=cx+(117.0 if model_confirmed else 88.5)
+    add(sys,key+'C','single_axis_micrometer_spindle_O7p2_'+str(spindle_len),
+        place(vx(3.6,spindle_len,cx+48+spindle_len/2,cy,z0+12)),'P')
+    collar=vx(9,collar_len,collar_center,cy,z0+12).cut(
+        vx(3.8,collar_len,collar_center,cy,z0+12))
+    add(sys,key+'D','single_axis_micrometer_collar_candidate_'+str(collar_len),
         place(collar),'P')
-    drum=vx(11,28,cx+117,cy,z0+12).cut(
-        vx(9.2,28,cx+117,cy,z0+12))
+    drum=vx(11,28,drum_center,cy,z0+12).cut(
+        vx(9.2,28,drum_center,cy,z0+12))
     add(sys,key+'E','single_axis_micrometer_drum_O22x28_bore_O18p4',
         place(drum),'P')
     report_name='B09_NFP1462C' if key=='B09' else 'B41_lower_orthogonal_stage'
@@ -177,7 +181,7 @@ def nfp_single_axis(sys,key,cx,cy,z0,yaw_deg=0,model_confirmed=False):
             'envelope_candidate_mm':[65,65,23],
             'fixed_hole_pitch_mm':50,
             'moving_top_pattern':top_pattern,
-            'micrometer_length_candidate_mm':177.5}
+            'micrometer_length_candidate_mm':177.5 if model_confirmed else 135.0}
 
 def heater(cx=82,cy=0,z=98.2):
     corners=[(cx+dx,cy+dy) for dx in (-25,25) for dy in (-25,25)]
