@@ -83,7 +83,7 @@ def stage(sys,key,x,y,z,direction='+X',axes=1,depth_direction='+Y'):
         else:
             add(sys,key+'D','Y_micrometer_stem',vy(6,40,x,y-72.5,z+5.5),'D')
             add(sys,key+'E','Y_micrometer_knob',vy(9,14,x,y-86.5,z+5.5),'D')
-def rot(sys,key,x,y,z,grade,radius=47):
+def rot(sys,key,x,y,z,grade,radius=47,lock_radius=8):
     # B uses its historical Ø94 candidate. A photo17/20/21/23 ruler
     # silhouette is distinctly narrower than the 65mm top-plate.
     # V48 only A uses Ø66 candidate, bounded [55,75]mm; SKU unknown.
@@ -93,7 +93,7 @@ def rot(sys,key,x,y,z,grade,radius=47):
     top=cut(top,[(x+dx,y+dy) for dx in (-pitch,0,pitch) for dy in (-pitch,0,pitch)],5,8,z+25.2)
     add(sys,key+'A','rotary_top_nine_candidate_bores',top,grade)
     # Operator-facing side lock, actual rod profile unmeasured.
-    add(sys,key+'B','operator_side_rotary_lock',vy(8,30,x,y+radius,z+12))
+    add(sys,key+'B','operator_side_rotary_lock',vy(lock_radius,30,x,y+radius,z+12))
 def heater(cx=82,cy=0,z=98.2):
     corners=[(cx+dx,cy+dy) for dx in (-25,25) for dy in (-25,25)]
     metal=box(65,65,12,cx,cy,z)
@@ -582,7 +582,14 @@ def make_a():
     for i,(x,y) in enumerate(abolt,1):
         screw=vz(2.5,16,x,y,12).fuse(vz(4.25,2.5,x,y,25.5))
         add('A',f'A16S{i}','A16_to_single_A01_grid_anchor_CANDIDATE',screw,'C')
-    rot('A','A06',cx,0,28,'I',radius=33)
+    rot('A','A06',cx,0,28,'I',radius=33,lock_radius=4.5)
+    # Photo17/18/20/21: RIGHT side of A06 has a LONG horizontal
+    # silver angular micrometer, in addition to the SHORT front lock.
+    # Do not mislabel either of these as A02's left linear micrometer.
+    add('A','A06C','rotation_right_fine_adjust_stem_36mm_CANDIDATE',
+        vx(5.5,36,cx+33,0,42),'C')
+    add('A','A06D','rotation_right_fine_adjust_knob_25mm_CANDIDATE',
+        vx(9,25,cx+69,0,42),'C')
     # V48 photos17/18 show the 65mm silver top at ~90mm ABOVE THE
     # 20mm-thick board TOP, not 90mm absolute from model origin.
     # Photos17–21 show three distinct vertical bands. Material of the
