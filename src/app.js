@@ -1316,18 +1316,41 @@ function microscopeB(){
  // It MUST NOT sit directly on lower silver B01 while the
  // adjacent sample rotary sits 12mm higher on B35.
  addPart('B16',90,20+rise,-100,g=>{
-   // V45 four Ø6.5 M6 clearance candidates at world (65/115,-125/-75).
-   // B35's matching 25mm grid is still NOT an identified OEM thread.
+   // B-specific evidence: photos108/116 identify the SDPTOP MXFMS;
+   // the 65x65 foot remains the photographed installation adapter,
+   // NOT the manufacturer's separate 320x260 B5 base.
    const footHolePattern=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
    const foot=add(g,plate(65,65,12,mats.dark,footHolePattern));
    foot.userData.trueCandidateMountBores=4;
    foot.userData.boardThreadedFixingVerified=false;
-   add(g,cyl(13,238,mats.steel,0,131,0));
+   // MXFMS maker specification: Ø32 x 280mm post. The custom foot,
+   // post-to-board anchors and exact installed height remain candidates.
+   const post=add(g,cyl(16,280,mats.steel,0,152,0));
+   post.userData.MXFMSPost={diameterMm:32,heightMm:280,manufacturerDimension:true};
+   add(g,sleeve(18.5,16.2,26,mats.dark,0,242,0,'y'));
    add(g,cub(80,34,34,mats.microscope,-4,242,23));
    const boom=add(g,cub(32,26,125,mats.microscope,-4,253,75));
-   add(g,cub(55,50,55,mats.microscope,-8,229,100));
-   add(g,cyl(17,44,mats.dark,-8,188,100));
-   const knob=add(g,cyl(15,13,mats.dark,37,225,96));knob.rotation.z=Math.PI/2;
+   boom.userData.MXFMSBoomProxy=true;
+   const body=add(g,cub(55,50,55,mats.microscope,-8,229,100));
+   body.userData.MXFMSBody=true;
+   // MXFMS coaxial coarse/fine focus. Paired controls on both sides;
+   // knob diameters are visual proxies, not measured OEM dimensions.
+   for(const side of [-1,1]){
+     const shaftX=side===1?25.5:-41.5;
+     const coarseX=side===1?36:-52;
+     const fineX=side===1?42.5:-58.5;
+     const rot=side*Math.PI/2;
+     const shaft=add(g,cyl(5,12,mats.dark,shaftX,225,96));shaft.rotation.z=rot;
+     shaft.userData.MXFMSFocusShaft=true;
+     const coarse=add(g,cyl(28,9,mats.dark,coarseX,225,96));coarse.rotation.z=rot;
+     coarse.userData.MXFMSFocusKnob='coarse';
+     const fine=add(g,cyl(15,4,mats.silver,fineX,225,96));fine.rotation.z=rot;
+     fine.userData.MXFMSFocusKnob='fine';
+   }
+   // Turret support is offset from the active objective optical axis.
+   // Its exact offset is a photo-fit candidate; the 32mm MXFMS post is OEM.
+   const mount=add(g,cyl(17,44,mats.dark,-26,188,100));
+   mount.userData.MXFMSNosepieceMount=true;
    for(const x of [-25,25])for(const z of [-25,25]){
      const shank=add(g,cyl(3,18,mats.steel,x,3,z));
      shank.userData.B16CandidateM6Shank=true;
@@ -1336,19 +1359,72 @@ function microscopeB(){
    }
    g.userData.nominalFastenerGridAligned=true;
    g.userData.realThreadEngagementVerified=false;
-   label(g,'B16: 四孔与B35候选网格配准 / 原机孔位待测',-8,303,68);
+   g.userData.MXFMS={model:'MXFMS',manufacturer:'SUNNY / SDPTOP',
+     postDiameterMm:32,postHeightMm:280,coarseTravelMm:32,
+     fineAdjustmentPrecisionMm:0.002,head:'30deg trinocular'};
+   label(g,'SDPTOP MXFMS · Ø32立柱 · 粗/微同轴调焦（安装底座为候选）',-8,303,68);
  },{explode:[0,15,-42]});
  addPart('B17',sx,276+rise,0,g=>{
-   add(g,cub(47,48,48,mats.dark,0,24,0));
+   // Photo113 identifies the SDPTOP digital microscope camera.
+   // CTV/relay tube geometry is a generic adjustable adapter proxy.
+   const lower=add(g,cyl(9,10,mats.dark,0,-23,0));
+   lower.userData.cameraAdapterSection=true;
+   const upper=add(g,cyl(12,18,mats.steel,0,-9,0));
+   upper.userData.cameraAdapterSection=true;
+   const camera=add(g,cub(47,48,48,mats.dark,0,24,0));
+   camera.userData.SDPTOPCamera=true;
    add(g,cub(30,18,30,mats.steel,0,3,0));
-   label(g,'SDPTOP 相机 · 型号待核',0,77,0);
+   g.userData.cameraAdapterSections=2;
+   label(g,'SDPTOP Digital Microscope Camera · CTV/中继筒接口待核',0,77,0);
  },{explode:[0,95,0]});
  addPart('B18',sx,200+rise,0,g=>{
-   add(g,cyl(17,13,mats.dark,0,6.5,0));
-   add(g,cyl(12.5,38,mats.steel,0,-18.5,0));
-   add(g,cyl(10,12,mats.black,0,-43.5,0));
-   add(g,cyl(7,2,mats.glass,0,-50,0));
-   label(g,'OptoSigma 物镜（型号待确认）',0,24,0);
+   // Photo108/video show the objective changer; OEM MXFMS data specifies
+   // a five-hole inward nosepiece. Port pitch and exact rotation datum
+   // are not measured, so this is a visual/photo-fit reconstruction.
+   const ports=Array.from({length:5},(_,i)=>{
+     const a=i*2*Math.PI/5;
+     return {x:-18+18*Math.cos(a),z:18*Math.sin(a)};
+   });
+   const turretShape=new THREE.Shape();
+   turretShape.absarc(-18,0,28,0,2*Math.PI,false);
+   const centreBore=new THREE.Path();
+   centreBore.absarc(-18,0,17.5,0,2*Math.PI,true);
+   turretShape.holes.push(centreBore);
+   for(const p of ports){
+     const hole=new THREE.Path();
+     hole.absarc(p.x,-p.z,8.5,0,2*Math.PI,true);
+     turretShape.holes.push(hole);
+   }
+   const turretGeo=new THREE.ExtrudeGeometry(turretShape,{
+     depth:13,bevelEnabled:false,curveSegments:48,steps:1
+   });
+   turretGeo.rotateX(-Math.PI/2);
+   const turret=add(g,mk(turretGeo,mats.dark));
+   turret.userData.MXFMSFiveHoleNosepiece=true;
+   const hub=add(g,sleeve(17.5,17,13,mats.dark,-18,6.5,0,'y'));
+   hub.userData.nosepieceCentralHub=true;
+   for(const p of ports){
+     const ring=add(g,sleeve(8.5,8,13,mats.dark,p.x,6.5,p.z,'y'));
+     ring.userData.nosepieceObjectivePort=true;
+   }
+   // Photo110: one 10x / 0.15 / DIC / WD10.8 objective and a separate
+   // OptoSigma-branded objective are visible; the latter's model is unknown.
+   const tenX=add(g,cyl(8,38,mats.steel,0,-18.5,0));
+   tenX.userData.objectiveBarrel=true;
+   tenX.userData.objectiveLabel='10x / 0.15 / DIC / WD10.8';
+   add(g,cyl(9.5,3,mats.dark,0,-1,0));
+   add(g,cyl(6.5,12,mats.black,0,-43.5,0));
+   add(g,cyl(5.2,1.2,mats.glass,0,-50,0));
+   const opto=ports[1];
+   const optoBarrel=add(g,cyl(7.5,36,mats.steel,opto.x,-18,opto.z));
+   optoBarrel.userData.objectiveBarrel=true;
+   optoBarrel.userData.objectiveLabel='OptoSigma · model unknown';
+   add(g,cyl(8.8,3,mats.dark,opto.x,-1.5,opto.z));
+   add(g,cyl(5.8,12,mats.black,opto.x,-42,opto.z));
+   add(g,cyl(4.5,1.2,mats.glass,opto.x,-48.6,opto.z));
+   g.userData.MXFMSObjectivePorts=5;
+   g.userData.installedObjectiveCount=2;
+   label(g,'MXFMS 五孔内倾转换器 · 10×/0.15/DIC/WD10.8 + OptoSigma',-18,27,0);
  },{explode:[16,26,0]});
 }function externalB(){
  // Photos114/117/119 show ONE SILVER METAL CONTROL ENCLOSURE:
