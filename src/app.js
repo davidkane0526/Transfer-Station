@@ -1337,40 +1337,18 @@ function microscopeB(){
  // It MUST NOT sit directly on lower silver B01 while the
  // adjacent sample rotary sits 12mm higher on B35.
  addPart('B16',90,20+rise,-100,g=>{
-   // V45 four Ø6.5 clearance candidates at world (65/115,-125/-75).
-   // B35's corresponding blind pilots remain unverified M6 threads.
+   // V45 four Ø6.5 M6 clearance candidates at world (65/115,-125/-75).
+   // B35's matching 25mm grid is still NOT an identified OEM thread.
    const footHolePattern=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
    const foot=add(g,plate(65,65,12,mats.dark,footHolePattern));
    foot.userData.trueCandidateMountBores=4;
    foot.userData.boardThreadedFixingVerified=false;
    add(g,cyl(13,238,mats.steel,0,131,0));
-   add(g,cyl(17,7,mats.dark,0,246,0));
-   // Photo41/71/72: the long support member is a black round tube,
-   // not the previous pale rectangular beam. Its axis runs front/back
-   // between the rear post and the optical head.
-   const boom=add(g,cyl(14,132,mats.black,-4,253,54));
-   boom.rotation.x=Math.PI/2;boom.userData.microscopeSupportBoom=true;
-   for(const z of [-6,116]){
-     const collar=add(g,cyl(17,8,mats.dark,-4,253,z));
-     collar.rotation.x=Math.PI/2;collar.userData.microscopeBoomCollar=true;
-   }
-   add(g,cub(80,34,34,mats.black,-4,242,23));
-   const head=add(g,cub(55,50,55,mats.black,-8,229,100));
-   head.userData.microscopeHousingMaterial='black';
-   // Photo41/71/72: right-facing side optical tube with stepped
-   // collars and a narrower terminal sleeve. Dimensions are photo-fit.
-   const sideParts=[
-     [18,12,22,mats.dark],[14,58,56,mats.black],
-     [16,9,87.5,mats.dark],[12,14,98,mats.black]
-   ];
-   for(const [r,len,x,material] of sideParts){
-     const barrel=add(g,cyl(r,len,material,x,229,100));
-     barrel.rotation.z=Math.PI/2;barrel.userData.microscopeSideTube=true;
-   }
-   const focus=add(g,cyl(15,13,mats.dark,37,225,96));focus.rotation.z=Math.PI/2;
-   const focusCap=add(g,cyl(10,2,mats.silver,44,225,96));focusCap.rotation.z=Math.PI/2;
-   const objectiveMount=add(g,cyl(17,44,mats.black,-8,188,100));
-   objectiveMount.userData.microscopeObjectiveMount=true;
+   add(g,cub(80,34,34,mats.microscope,-4,242,23));
+   const boom=add(g,cub(32,26,125,mats.microscope,-4,253,75));
+   add(g,cub(55,50,55,mats.microscope,-8,229,100));
+   add(g,cyl(17,44,mats.dark,-8,188,100));
+   const knob=add(g,cyl(15,13,mats.dark,37,225,96));knob.rotation.z=Math.PI/2;
    for(const x of [-25,25])for(const z of [-25,25]){
      const shank=add(g,cyl(3,18,mats.steel,x,3,z));
      shank.userData.B16CandidateM6Shank=true;
@@ -1379,54 +1357,21 @@ function microscopeB(){
    }
    g.userData.nominalFastenerGridAligned=true;
    g.userData.realThreadEngagementVerified=false;
-   label(g,'B16 显微镜支架 / 黑色圆形横臂 / 侧向镜筒（尺寸候选）',-8,303,68);
+   label(g,'B16: 四孔与B35候选网格配准 / 原机孔位待测',-8,303,68);
  },{explode:[0,15,-42]});
- addPart('B17',sx,350+rise,0,g=>{
-   // Photo41/71/72: stepped vertical optical tube between the head
-   // and the camera, with a cable loop over the camera housing.
-   const tubeSections=[
-     [15,16,-68,mats.black],[13,22,-49,mats.dark],
-     [12,24,-26,mats.black],[16,8,-10,mats.dark],[15,6,-3,mats.black]
-   ];
-   for(const [r,h,y,material] of tubeSections){
-     const section=add(g,cyl(r,h,material,0,y,0));
-     section.userData.cameraLensTubeSegment=true;
-   }
-   const camera=add(g,cub(47,48,48,mats.black,0,24,0));
-   camera.userData.cameraHousing=true;
-   add(g,cub(28,18,1,mats.dark,0,24,24.5));
-   add(g,cyl(2.2,7,mats.silver,12,47,-6));
-   const cable=add(g,tube([[18,47,0],[33,64,10],[48,68,4],
-      [50,54,-15],[34,32,-25],[16,18,-18]],1.8,mats.rubber));
-   cable.userData.cameraCableLoop=true;
-   g.userData.cameraTubeSegments=5;
-   g.userData.cameraCableLoop=true;
-   label(g,'数字相机 / 分段镜筒 / 顶部线缆（相机型号待核）',0,82,0);
+ addPart('B17',sx,276+rise,0,g=>{
+   add(g,cub(47,48,48,mats.dark,0,24,0));
+   add(g,cub(30,18,30,mats.steel,0,3,0));
+   label(g,'SDPTOP 相机 · 型号待核',0,77,0);
  },{explode:[0,95,0]});
  addPart('B18',sx,200+rise,0,g=>{
-   // Photo41/71: one nosepiece carries three visible objective barrels.
-   const turret=add(g,cyl(28,13,mats.black,0,6.5,0));
-   turret.userData.objectiveTurret=true;
-   add(g,torus(24,1,mats.dark,0,.5,0));
-   const objectives=[
-     {x:0,z:0,r:8.5,h:38},
-     {x:-18,z:0,r:7,h:34},
-     {x:9,z:15.6,r:7.5,h:36}
-   ];
-   for(const o of objectives){
-     const barrel=add(g,cyl(o.r,o.h,mats.black,o.x,-o.h/2,o.z));
-     barrel.userData.objectiveBarrel=true;
-     const collar=add(g,cyl(o.r+1.4,3.5,mats.dark,o.x,-1.2,o.z));
-     collar.userData.objectiveCollar=true;
-     const tip=add(g,cyl(o.r*.78,2,mats.steel,o.x,-o.h-1,o.z));
-     tip.userData.objectiveTip=true;
-     add(g,cyl(o.r*.55,.6,mats.glass,o.x,-o.h-2.2,o.z));
-   }
-   g.userData.objectiveCount=3;
-   label(g,'三物镜转换座 · Olympus 镜身标识可见（具体倍率待核）',0,27,0);
+   add(g,cyl(17,13,mats.dark,0,6.5,0));
+   add(g,cyl(12.5,38,mats.steel,0,-18.5,0));
+   add(g,cyl(10,12,mats.black,0,-43.5,0));
+   add(g,cyl(7,2,mats.glass,0,-50,0));
+   label(g,'OptoSigma 物镜（型号待确认）',0,24,0);
  },{explode:[16,26,0]});
-}
-function externalB(){
+}function externalB(){
  // Photos114/117/119 show ONE SILVER METAL CONTROL ENCLOSURE:
  // front YUDIAN PID panel B19, inside MEAN WELL SE-600-48 B21 and
  // an unidentified vented module B23. Earlier versions rendered
