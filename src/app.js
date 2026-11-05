@@ -121,7 +121,7 @@ window.__modelBActuatorProbe=()=>{
      worldPosition:origin.toArray()
    };
  };
- return {available:true,B03:inspect('B03'),B08:inspect('B08'),B41:inspect('B41'),B09:inspect('B09')};
+ return {available:true,B03:inspect('B03'),B08:inspect('B08'),B41:inspect('B41'),B09:inspect('B09'),B10:inspect('B10')};
 };
 // Browser-only, read-only mechanical validation of the ACTUAL rendered
 // meshes, not just a BOM flag. Photos145/150 place the microscope foot
