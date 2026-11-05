@@ -128,7 +128,7 @@ window.__modelAContactProbe=()=>{
  const child=(id,tag)=>parts.get(id)?.g.children.find(o=>o.isMesh&&o.userData[tag]);
  const slide=child('A05G','candidateStandardSlide');
  const stamp=child('A05G','A05GStampRightMarginMm');
- const sample=child('A07','A07SampleChipProxy');
+ const sample=child('A07W','A07SampleChipProxy');
  const clamp=parts.get('A05C')?.g;
  const heater=parts.get('A07')?.g.children.find(o=>o.isMesh);
  const magnet=parts.get('A17')?.g.children.find(o=>o.isMesh);
@@ -2261,15 +2261,19 @@ function platformA(){
     const head=add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24));
     head.userData.A07VisibleHeadCandidate=true;
   }
-  const sampleChip=add(g,cub(28,1.4,28,mats.glass,0,28.7,0));
-  sampleChip.userData.A07SampleChipProxy=true;
-  sampleChip.userData.A07SampleChipThicknessUnverified=true;
   g.userData.rulerSampleTopAboveBoardMm=89.2;
   g.userData.layerProxies=[9,7,12];
   g.userData.intermediateMaterialUnknown=true;
   g.userData.vendorHolePatternUnverified=true;
   label(g,'A07样品台 · 实拍三层 / 顶面高于面包板约89mm',0,40,0);
  },{explode:[0,26,0],translateSample:true,rotateSample:true});
+ addPart('A07W',sx,109.2,0,g=>{
+    const sampleChip=add(g,cub(28,1.4,28,mats.glass,0,.7,0));
+    sampleChip.userData.A07SampleChipProxy=true;
+    sampleChip.userData.A07SampleChipThicknessUnverified=true;
+    g.userData.sampleMaterialAndThicknessUnverified=true;
+    label(g,'A07W · 独立样品片28×28×1.4mm几何候选，非厂家尺寸',0,14,0);
+ },{explode:[0,45,0],translateSample:true,rotateSample:true});
  addPart('A10',sx,20,-112,g=>{
     // Four TRUE Ø5.5mm candidate mounting bores in an offset foot.
     // Centers world X50/100, Z-125/-75 match the candidate A01 grid.
@@ -2712,7 +2716,7 @@ function resetScene(){
  }
  else {
    platformA();
-   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A07','A10']){
+   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A07','A07W','A10']){
      if(!parts.has(id))throw Error('Model A missing: '+id);
    }
  }
