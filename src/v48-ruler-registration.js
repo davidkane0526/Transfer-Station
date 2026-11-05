@@ -50,7 +50,8 @@ export const V48_RULER_EVIDENCE=Object.freeze({
       photoOf420302MNameplateInThisGroup:false,
       A17:Object.freeze({
         sideSlotVisible:true,frontKnurledControlVisible:true,
-        lowerPanelFastenersVisible:2,topCornerCounterboresVisible:4,
+        lowerPanelFastenersVisible:2,topCornerCounterboresVisible:0,
+        photo23TopCornerCounterboresOnA15:true,
         exactSlotDimensionsMeasured:false,controlFunctionIdentified:false,
         magneticSwitchIdentified:false,manufacturerSkuVerified:false,
         comparisonToB_GCM420302MAllowed:false
