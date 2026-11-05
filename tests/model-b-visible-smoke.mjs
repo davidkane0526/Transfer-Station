@@ -566,7 +566,7 @@ try{
  assert.equal(aDefault.stampCenterX,78);
  assert.equal(aDefault.stampCenterZ,0);
  assert.equal(aDefault.initialVerticalStampGapMm,13);
- assert.equal(aDefault.clampHeaterClearanceMm,26);
+ assert.equal(aDefault.clampHeaterClearanceMm,25.5);
  const aContactBefore=await page.evaluate(()=>window.__modelAContactProbe?.());
  assert.equal(aContactBefore?.available,true);
  assert.equal(aContactBefore.clampOutsideHeater,true);
