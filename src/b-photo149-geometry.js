@@ -115,20 +115,24 @@ export function auditB149(d=B149){
 // both move the assembly; rotation changes the square heater X extent.
 // No claim of a mechanically validated full-stroke digital twin.
 export function auditBLoweringPose({
-  d=B149,filmShiftX=0,sampleShiftX=0,sampleAngleDeg=0,
+  d=B149,filmShiftX=0,sampleShiftX=0,sampleDepthShiftMm=0,sampleAngleDeg=0,
   filmVerticalDropMm=0,filmDepthShiftMm=0
 }={}){
   const q=auditB149(d),angle=sampleAngleDeg*Math.PI/180;
-  const heaterLeft=d.heaterCenterWorldX+sampleShiftX*Math.cos(angle)-
+  const sampleWorldX=sampleShiftX*Math.cos(angle)+sampleDepthShiftMm*Math.sin(angle);
+  const sampleWorldZ=-sampleShiftX*Math.sin(angle)+sampleDepthShiftMm*Math.cos(angle);
+  const heaterLeft=d.heaterCenterWorldX+sampleWorldX-
     d.heaterWidthMm*(Math.abs(Math.cos(angle))+Math.abs(Math.sin(angle)))/2;
   const clampRight=q.clampRightX+filmShiftX;
   const planarGapMm=heaterLeft-clampRight;
-  const depthOverlap=Math.abs(filmDepthShiftMm)<=d.heaterWidthMm/2+28;
+  const relativeDepthShiftMm=sampleWorldZ-filmDepthShiftMm;
+  const depthOverlap=Math.abs(relativeDepthShiftMm)<=d.heaterWidthMm/2+28;
   const possibleClash=depthOverlap&&planarGapMm<d.minApproachClearanceMm;
   const dropMm=Math.max(0,filmVerticalDropMm);
   const contactDropMm=q.glassToHeaterGapMm-1.8;
   return Object.freeze({
     heaterLeftX:heaterLeft,clampRightX:clampRight,
+    sampleWorldX,sampleWorldZ,relativeDepthShiftMm,
     planarGapMm,depthOverlap,possibleClash,
     filmVerticalDropMm:dropMm,contactDropMm,
     safeToLower:!possibleClash&&dropMm<=contactDropMm+.001,
