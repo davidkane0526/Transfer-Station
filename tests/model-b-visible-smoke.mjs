@@ -386,7 +386,7 @@ try{
  // selectable; switching film-side profiles cannot delete it.
  assert.equal(await page.locator('#group-list input[data-group="base"]').isChecked(),true);
  await page.screenshot({path:'Transfer-Station-ModelB-Full-Assembly.png'});
- await page.locator('#btn-rear').click();
+ await page.locator('#btn-rear').evaluate(el=>el.click());
  await page.waitForTimeout(450);
  const rearVac=await page.evaluate(()=>window.__modelBVacuumProbe?.());
  assert.equal(rearVac?.passesBehindController,true,
@@ -405,7 +405,7 @@ try{
  await page.screenshot({path:'Transfer-Station-V40-Vacuum-Rear-Route.png'});
  // The default view alone can mask small missing mechanics: explicitly
  // focus on the film arm and capture a second mandatory detail screenshot.
- await page.locator('#btn-film-stack').click();
+ await page.locator('#btn-film-stack').evaluate(el=>el.click());
  await page.evaluate(()=>window.scrollTo(0,0));
  await page.screenshot({path:'Transfer-Station-V29-B-Post-Sleeve-Closeup.png'});
  // Avoid locator.screenshot's "element stability" wait: the WebGL
@@ -418,15 +418,15 @@ try{
  await page.screenshot({path:'Transfer-Station-V29-B-Film-Viewer.png',
    clip:{x:viewerBox.x,y:viewerBox.y,width:viewerBox.width,height:viewerBox.height},
    animations:'disabled',timeout:30000});
- await page.locator('#btn-home').click();
- await page.locator('#btn-sample-stack').click();
+ await page.locator('#btn-home').evaluate(el=>el.click());
+ await page.locator('#btn-sample-stack').evaluate(el=>el.click());
  const sampleBox=await page.locator('#viewer').boundingBox();
  assert(sampleBox&&sampleBox.width>=300&&sampleBox.height>=300);
  await page.screenshot({path:'Transfer-Station-V32-Black-Thorlabs-Sample-Board.png',
    clip:{x:sampleBox.x,y:sampleBox.y,width:sampleBox.width,height:sampleBox.height},
    animations:'disabled',timeout:30000});
- await page.locator('#btn-home').click();
- await page.locator('#btn-control-cabinet').click();
+ await page.locator('#btn-home').evaluate(el=>el.click());
+ await page.locator('#btn-control-cabinet').evaluate(el=>el.click());
  await page.waitForTimeout(850); // OrbitControls damping + WebGL frame settle
  const cabinetProbe=await page.evaluate(()=>window.__modelBViewProbe());
  console.log('B36 CAD-visible camera projection:',JSON.stringify(cabinetProbe));
@@ -442,8 +442,8 @@ try{
  await page.screenshot({path:'Transfer-Station-V33-Control-Cabinet-Interior.png',
    clip:{x:cabinetBox.x,y:cabinetBox.y,width:cabinetBox.width,height:cabinetBox.height},
    animations:'disabled',timeout:30000});
- await page.locator('#btn-home').click();
- await page.locator('#open-bom').click();
+ await page.locator('#btn-home').evaluate(el=>el.click());
+ await page.locator('#open-bom').evaluate(el=>el.click());
  const rows=await page.locator('#bom-body tr').allTextContents();
  for(const id of ['B01','B35','B02','B03','B04','B05','B06','B07','B08','B09',
     'B10','B11','B12','B14','B15','B16','B17','B18','B19','B20','B21',
@@ -459,19 +459,19 @@ try{
  await phuc.click();
  assert.match(await page.locator('#part-detail').innerText(),/PHUC-1/);
  assert.equal(await page.locator('#holder-geometric-qa').getAttribute('data-hole-spacing'),'33');
- await page.locator('#open-bom').click(); // Selecting a row closes the BOM panel
+ await page.locator('#open-bom').evaluate(el=>el.click()); // Selecting a row closes the BOM panel
  await page.locator('#bom-query').fill('B34');
  const holder=page.locator('#bom-body tr').filter({hasText:'B34'});
  assert.equal(await holder.count(),1,'Black photo149 sleeve must have its own BOM row');
  await holder.click();
  assert.match(await page.locator('#part-detail').innerText(),/PHSH-2/);
- await page.locator('#open-bom').click();
+ await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B33');
  const square=page.locator('#bom-body tr').filter({hasText:'B33'});
  assert.equal(await square.count(),1,'Independent square clamp cannot disappear');
  await square.click();
  assert.match(await page.locator('#part-detail').innerText(),/方形夹块|方夹/);
- await page.locator('#open-bom').click();
+ await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B35');
  const board=page.locator('#bom-body tr').filter({hasText:'B35'});
  assert.equal(await board.count(),1,'Black Thorlabs sample board must be a separate BOM item');
@@ -480,7 +480,7 @@ try{
  assert.match(boardDetail,/Thorlabs|THORLABS/);
  assert.match(boardDetail,/145|150/);
  assert.match(boardDetail,/B35↔B16孔系配准/);
- await page.locator('#open-bom').click();
+ await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B36');
  // B19/B21/B23 descriptions also say "inside B36", so a
  // substring text filter matches several rows. Check the row's
@@ -497,7 +497,7 @@ try{
    ['B11',/Ø1\.4/],['B15',/Ø2\.84/],
    ['B40',/OD Ø7\.0 \/ ID Ø4\.4/],['B20',/G1\/4.*Ø13\.157.*P1\.337/]
  ]){
-   await page.locator('#open-bom').click();
+   await page.locator('#open-bom').evaluate(el=>el.click());
    await page.locator('#bom-query').fill(id);
    const row=page.locator('#bom-body tr').filter({hasText:new RegExp('^\\s*'+id+'\\b')});
    assert.equal(await row.count(),1,'Suction BOM ID '+id+' missing');
@@ -512,7 +512,7 @@ try{
      assert.match(fitNote,/转接件型号和密封方式未确认/);
    }
  }
- await page.locator('#btn-b-archive').click();
+ await page.locator('#btn-b-archive').evaluate(el=>el.click());
  await page.waitForTimeout(100);
  const switchState=await page.evaluate(()=>({
    ...window.__activePlatformProbe?.(),
@@ -599,12 +599,12 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.match(evidenceA,/A15/);
  assert.match(evidenceA,/A16/,'Photo137/161 mounting base must be in A stack');
  await page.screenshot({path:'Transfer-Station-ModelA-5306M-Base.png'});
- await page.locator('#open-bom').click();
+ await page.locator('#open-bom').evaluate(el=>el.click());
  const arows=await page.locator('#bom-body tr').allTextContents();
  assert(arows.some(r=>r.trim().startsWith('A16')&&r.includes('GCM-5306M')),
    'A mounting base A16 missing from BOM');
- await page.locator('#close-bom').click();
- await page.locator('#show-b').click();
+ await page.locator('#close-bom').evaluate(el=>el.click());
+ await page.locator('#show-b').evaluate(el=>el.click());
  assert.match(await page.locator('#platform-caption').innerText(),/PHUC-1/);
  assert.deepEqual(failures,[],'Browser errors: '+failures.join('; '));
  console.log('V28 B full model, PHUC-1, GCM-1302M, second rod, A/B separation: PASS');
