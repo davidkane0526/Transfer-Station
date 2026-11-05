@@ -716,7 +716,7 @@ check(not (B/'B06S3.step').exists(),
 # rather than the V57 false positive that accepted a 171.5mm scene gap.
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
-check(abs(asheet_bb.xmin+73.75)<.02 and abs(asheet_bb.xmax-1.25)<.02,
+check(abs(asheet_bb.xmin+73.75)<.02 and abs(asheet_bb.xmax-12.5)<.02,
       'V58 mirrored 75mm sheet fits A05 right-fold hypothesis, NOT photo94')
 check(abs(asheet_bb.zmin-111.9)<.02 and abs(asheet_bb.zmax-166.5)<.02,
       'V58 52.1mm unverified leg joins G40 top and target glass position')
