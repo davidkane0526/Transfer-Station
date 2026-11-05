@@ -447,7 +447,12 @@ window.__modelBVacuumProbe=()=>{
    sealedVacuumCircuitVerified:interfaceFit.sealedVacuumCircuitVerified,
    directPumpHoseFitVerified:interfaceFit.pumpEnd.directFitVerified,
    pumpSideAdapterUnresolved:interfaceFit.pumpEnd.matchingAdapterOrFittingUnresolved,
-   hoseToPumpBoreDiametricGapMm:interfaceFit.pumpEnd.openBoreDiametricGapMm,
+   hoseToPumpBoreDiametricGapMm:null,
+   pumpPortThreadCandidate:interfaceFit.pumpEnd.threadCandidate,
+   pumpPortMajorDiameterMm:interfaceFit.pumpEnd.threadMajorDiameterMm,
+   pumpPortPitchMm:interfaceFit.pumpEnd.pitchMm,
+   pumpPortFemaleTapDrillCandidateMm:interfaceFit.pumpEnd.femaleTapDrillCandidateMm,
+   pumpPortGenderVerified:interfaceFit.pumpEnd.portGenderVerified,
    electricityCabinetNotVacuumDestination:true,
    passesBehindController:hose.userData.audit?.passesBehindController===true,
    serviceLane:hose.userData.audit?.serviceLane,
@@ -1633,15 +1638,20 @@ function microscopeB(){
   warningSlash.rotation.z=-Math.PI/4;
   warningSlash.userData.pumpWarningSymbol=true;
   label(g,'VN-50 · 220 V / 230 W · 53 L/min',-10,66,45.2);
-  const inlet=add(g,sleeve(9,VN50.pumpInletVisualBoreRadiusMm,
-    20,mats.steel,80,68,0,'x'));
-  inlet.userData.realSuctionInlet=true;
+  // G1/4 family thread-datum ring only: not a nozzle or mating adapter.
+  // Ø13.157 major diameter and Ø11.8 female tap-drill are catalogue references;
+  // actual thread gender, port position and seal are not verified on this specimen.
+  const inlet=add(g,sleeve(6.5785,5.9,1.2,mats.silver,73.6,68,0,'x'));
+  inlet.userData.G1QuarterThreadReference=true;
+  inlet.userData.threadMajorDiameterMm=13.157;
+  inlet.userData.femaleTapDrillCandidateMm=11.8;
+  inlet.userData.threadProfileModelled=false;
   inlet.userData.actualPortSideUnverified=true;
   g.userData.nameplateModel='VN-50';
   g.userData.pumpModelReadFromPhoto120=true;
-  g.userData.geometryRevision='V43_photo120_123_cylindrical_shell_same_side_rods_candidate';
+  g.userData.geometryRevision='V53_VN50_G14_thread_datum_not_a_hose_spigot';
   g.userData.dimensionsCandidateMm={length:200,width:110,height:150};
-  label(g,'VN-50系列G1/4接口候选 · 实际吸入口待确认',78,91,0);
+  label(g,'G1/4接口基准环 · Ø13.157 / P1.337 · 内外牙待实测',74,91,0);
  },{explode:[0,0,0]});
  addPart('B22',335,0,65,g=>{
    add(g,cub(65,48,72,mats.dark,0,24,0));
@@ -2237,25 +2247,17 @@ function updateDetail(part){
      ?auditVacuumInterfaceFit():null;
  const vacuumFitHtml=vacuumFit?
    '<div class="field" id="vacuum-interface-warning" data-status="unverified">'+
-   '<b>真空接口装配尚未闭合</b><p>当前仅确认候选三维管路的中心线及空腔连续，'+
-   '不代表软管与两端接头已经密封装配。热台端：接头外径Ø'+
-   vacuumFit.heaterEnd.fittingOdMm+' / 软管内径Ø'+
+   '<b>真空接口装配尚未闭合</b><p>当前只确认了候选管路中心线及中空结构，不能据此认定软管与泵口已经机械连接或气密。热台端：B15接头外径Ø'+
+   vacuumFit.heaterEnd.fittingOdMm+' / B40软管内径Ø'+
    vacuumFit.heaterEnd.hoseIdMm+' mm，名义扩张'+
    vacuumFit.heaterEnd.nominalHoseExpansionPct+
-   '%（材料允许伸长率及卡箍待核）。泵端：候选吸入口外径Ø'+
-   vacuumFit.pumpEnd.inletOdMm+' / 内孔Ø'+vacuumFit.pumpEnd.inletBoreMm+
-   ' mm；软管内径Ø'+vacuumFit.pumpEnd.hoseIdMm+
-   ' mm，不能据此认定直接套接。若将软管外径Ø'+
-   vacuumFit.pumpEnd.hoseOdMm+' mm 插入候选泵孔Ø'+
-   vacuumFit.pumpEnd.inletBoreMm+' mm，名义直径间隙为'+
-   vacuumFit.pumpEnd.openBoreDiametricGapMm+
-   ' mm，同样不能确认密封。VN-50同型号族目录标称G1/4平行管螺纹，'+
-   '其标准基本大径Ø'+vacuumFit.pumpFamilyThreadReference.basicMajorDiameterMm+
-   ' mm、螺距'+vacuumFit.pumpFamilyThreadReference.pitchMm+' mm、19TPI，'+
-   '需通过端面密封或O形圈密封。该尺寸并非软管接头倒刺径，'+
-   '照片中泵口是否为这一系列、是内牙还是外牙以及口朝向均未核实。'+
-   '必须核对实物接头、变径件/转接件、卡箍及气密性；'+
-   '不新增没有证据的厂商型号。</p></div>':'';
+   '%，仍需确认软管材料、卡箍和耐温。泵端：VN-50同型号族目录标注G1/4；若按ISO 228-1 BSPP，其基本大径Ø'+
+   vacuumFit.pumpEnd.threadMajorDiameterMm+' mm、螺距'+
+   vacuumFit.pumpEnd.pitchMm+' mm（19TPI、55°）。若实物为内牙，Ø'+
+   vacuumFit.pumpEnd.femaleTapDrillCandidateMm+
+   ' mm仅是攻丝底孔候选，不是成品螺纹内径。相关系列安装说明提到在进气口安装PC接头并在螺纹处缠PTFE带，与G1/4平行牙通常采用端面垫片/O形圈的密封方式需要核对，不能排除变体或锥管牙。当前实物泵口内外牙、牙型、位置和密封座均未量取。B40软管OD Ø'+
+   vacuumFit.pumpEnd.hoseOdMm+' / ID Ø'+vacuumFit.pumpEnd.hoseIdMm+
+   ' mm，必须另配与实际软管外径匹配的G1/4转接件；不能把G1/4螺纹直径当作软管倒刺直径。转接件型号和密封方式未确认。</p></div>':'';
 
  const suctionHtml=suction?'<div class="field" id="suction-dimensions" '+
    'data-candidate="true"><b>吸气口 / 软管直径（mm，候选尺寸）</b><p>'+

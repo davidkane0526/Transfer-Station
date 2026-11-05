@@ -146,7 +146,11 @@ try{
    'Open geometric bores do not establish real vacuum-tight seals');
  assert.equal(vac.directPumpHoseFitVerified,false);
  assert.equal(vac.pumpSideAdapterUnresolved,true);
- assert.equal(vac.hoseToPumpBoreDiametricGapMm,1.2);
+ assert.equal(vac.hoseToPumpBoreDiametricGapMm,null);
+ assert.equal(vac.pumpPortThreadCandidate,'G1/4');
+ assert.equal(vac.pumpPortMajorDiameterMm,13.157);
+ assert.equal(vac.pumpPortFemaleTapDrillCandidateMm,11.8);
+ assert.equal(vac.pumpPortGenderVerified,false);
  assert(vac.sourceCoordinateErrorMm<.01,
    'First long-hose node not coupled to moving B15 short hose outlet');
  assert(vac.pumpCoordinateErrorMm<.01,

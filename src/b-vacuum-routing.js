@@ -13,11 +13,16 @@ export const VN50=Object.freeze({
     mountingLengthMm:142,mountingWidthMm:96,weightKg:4.45},
   oemBrandUnverified:true,
   inletPositionUnverified:true,
-  pumpIntakeCandidate:Object.freeze({x:425,y:68,z:180}),
+  pumpIntakeCandidate:Object.freeze({x:409.2,y:68,z:180}),
   chuckRearHoseEndNominal:Object.freeze({x:94,y:90.5,z:-79}),
   innerBoreRadiusMm:2.2,
   outerHoseRadiusMm:3.5,
-  pumpInletVisualBoreRadiusMm:4.1,
+  pumpPortMajorDiameterMm:13.157,
+  pumpPortPitchMm:1.337,
+  pumpPortFemaleTapDrillCandidateMm:11.8,
+  pumpPortGenderCandidate:'female (family manual hint only)',
+  pumpPortGenderVerified:false,
+  pumpPortPositionVerified:false,
   controlCabinetBox:Object.freeze({
     xmin:222.5,xmax:507.5,ymin:0,ymax:125,
     zmin:-262.5,zmax:-37.5

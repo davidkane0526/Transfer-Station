@@ -1148,31 +1148,37 @@ pump_body=part(B,'B20')[0]
 fitting_void=vy(1.15,11.8,82,-44.4,107.5)
 check(vac.intersect(fitting_void).Volume()<1e-5,
       'V37 rear vacuum connector has a genuinely OPEN axial bore')
-nozzle_void=vx(2.0,20.0,405,180,68)
-check(port_body.intersect(nozzle_void).Volume()<1e-5,
-      'V37 VN-50 nominated suction tube has a real open axial lumen')
-head_void=vx(2.0,6,402.7,180,68)
-check(pump_body.intersect(head_void).Volume()<1e-5,
-      'V37 VN-50 head cannot plug the suction nozzle')
-# V44: a connected visual centerline is NOT a dimensionally qualified,
-# leak-tight hose-to-pump joint. Do not silently presume a direct 7mm
-# tube fits the Ø18mm nominee pump spigot; no reducer SKU is verified.
+# V53: B20I is a G1/4 thread-diameter datum ring, not a hose spigot.
+port_ring_bore=vx(5.8,1.0,408,180,68)
+check(port_body.intersect(port_ring_bore).Volume()<1e-5,
+      'V53 G1/4 reference ring retains an open centre')
+pump_thread_bore=vx(5.9,8,400,180,68)
+check(pump_body.intersect(pump_thread_bore).Volume()<1e-5,
+      'V53 VN-50 shell has an open Ø11.8 female-thread tap-drill candidate port')
+# V53: catalogue G1/4 is a threaded port reference, not an Ø18 hose spigot.
+# G1/4 BSPP basic major diameter 13.157mm / pitch 1.337mm / 19TPI.
+# The related family manual's PTFE-tape instruction means the exact port
+# thread form/seal must be measured before selecting a fitting.
 candidate_hose_od,candidate_hose_id=7.0,4.4
 candidate_chuck_spigot_od=6.0
-candidate_pump_spigot_od,candidate_pump_bore_id=18.0,8.2
+candidate_pump_thread_major_dia=13.157
+candidate_pump_female_tap_drill=11.8
 heater_end_stretch_percent=100*(candidate_chuck_spigot_od/candidate_hose_id-1)
-pump_end_stretch_percent=100*(candidate_pump_spigot_od/candidate_hose_id-1)
-loose_insert_diametric_gap=candidate_pump_bore_id-candidate_hose_od
-check(pump_end_stretch_percent>300 and loose_insert_diametric_gap>0,
-      'V44 unresolved nominal hose-to-VN50 diameter mismatch must remain flagged')
-report['V44_vacuum_interface_fit']={
+check(candidate_pump_thread_major_dia==13.157 and candidate_pump_female_tap_drill==11.8,
+      'V53 VN-50 G1/4 family thread datum must be retained')
+report['V53_vacuum_interface_fit']={
  'hose_OD_ID_candidate_mm':[candidate_hose_od,candidate_hose_id],
  'heater_spigot_OD_candidate_mm':candidate_chuck_spigot_od,
  'heater_nominal_hose_expansion_pct':round(heater_end_stretch_percent,1),
- 'pump_spigot_OD_bore_candidate_mm':[candidate_pump_spigot_od,candidate_pump_bore_id],
- 'pump_nominal_hose_expansion_pct':round(pump_end_stretch_percent,1),
- 'pump_loose_bore_gap_diameter_mm':round(loose_insert_diametric_gap,1),
- 'pump_side_reducer_or_matching_fitting_verified':False,
+ 'pump_thread_candidate':'G1/4 BSPP (family catalogue only)',
+ 'pump_thread_major_diameter_mm':candidate_pump_thread_major_dia,
+ 'pump_thread_pitch_mm':1.337,
+ 'pump_thread_tpi':19,
+ 'pump_female_tap_drill_candidate_mm':candidate_pump_female_tap_drill,
+ 'pump_port_gender_verified':False,
+ 'pump_port_position_verified':False,
+ 'pump_port_sealing_method_verified':False,
+ 'hose_to_pump_adapter_sku_verified':False,
  'heater_hose_stretch_and_clamp_verified':False,
  'vacuum_leak_test_passed':False,
  'only_visual_flow_centerline_continuity_confirmed':True
@@ -1195,7 +1201,7 @@ check(suction.intersect(vacuum_axis_probe(*outer_points)).Volume()<.01,
 check(vacstub.BoundingBox().xmax>=94-3.5 and
       suction.BoundingBox().xmin<=94+3.5,
       'V37 short and long hose envelopes must share outlet region')
-check(suction.BoundingBox().xmax>=425-3.5,
+check(suction.BoundingBox().xmax>=409.2-3.5,
       'V37 pump end of suction hose must reach VN-50 inlet position')
 check(suction.intersect(cabinet).Volume()<.01,
       'V37 vacuum hose cannot thread through metal electrical cabinet')

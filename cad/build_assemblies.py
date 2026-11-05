@@ -543,12 +543,16 @@ def make_b():
                   (-17,-17),(-17,17),(17,-17),(17,17)]:
         pump_shell=pump_shell.cut(vx(2.5,14,239,180+dy,50+dz))
     # The +X suction nozzle remains a separate candidate interface.
-    pump_shell=pump_shell.cut(vx(4.1,7,402.5,180,68))
+    pump_shell=pump_shell.cut(vx(5.9,8,400,180,68))
     add('B','B20','photo120_VN50_cylindrical_motor_twin_head_pump_candidate',
         pump_shell,'P')
-    pump_inlet=vx(9,20,405,180,68).cut(vx(4.1,20.2,404.9,180,68))
-    add('B','B20I','VN50_INTaKE_OPEN_nozzle_candidate_position',
-        pump_inlet,'C')
+    # Thin annular datum ring records the VN-50 family G1/4 major diameter.
+    # Ø11.8 is a female-thread tap-drill candidate only; no helical thread,
+    # port gender, sealing seat or hose adapter is claimed as verified.
+    pump_port_datum=vx(6.5785,1.2,408,180,68).cut(
+        vx(5.9,1.4,407.9,180,68))
+    add('B','B20I','VN50_G1_4_THREAD_REFERENCE_RING_NOT_THREADED_OR_VERIFIED',
+        pump_port_datum,'C')
     # V40: pass LEFT of B36, behind its rear wall (B19's back side),
     # then around the RIGHT side to the candidate VN-50 INTAKE.
     # Keep the long rear service lane at vertical Z=70mm to separate
@@ -557,7 +561,7 @@ def make_b():
     hose=[
         (94,-79,90.5),(200,-135,70),(200,-170,70),
         (200,-275,70),(350,-275,70),(520,-275,70),
-        (520,140,70),(520,180,90),(465,180,69),(425,180,68)
+        (520,140,70),(520,180,90),(465,180,69),(409.2,180,68)
     ]
     add('B','B40','B11_B15_rear_to_VN50_hollow_suction_hose',
         hollow_hose(hose),'C')

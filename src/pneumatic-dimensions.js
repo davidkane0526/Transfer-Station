@@ -1,5 +1,4 @@
-// V45: separate manufacturer FAMILY thread standard from the photographed
-// specimen's unmeasured inlet, and from the legacy Ø18 visual-nozzle proxy.
+// V53: model the VN-50 family G1/4 thread reference, not the legacy Ø18/Ø8.2 spigot proxy.
 // Only VN-50 nameplate items are photo-confirmed.
 // Manufacturer source: https://www.youchengzhixin.com/blog/yczx-oil-free-piston-vacuum-pumps-clean-quiet-compact-power-delivered-on-time
 // Parallel thread reference ISO 228-1: G1/4 = 13.157mm, 19 TPI, 55deg.
@@ -13,6 +12,10 @@ export const VN50_FAMILY_PORT=Object.freeze({
   threadsPerInch:19,
   flankAngleDeg:55,
   requiresFaceSealOrOring:true,
+  femaleTapDrillCandidateMm:11.8,
+  portGenderCandidate:'female (installation-manual hint only)',
+  manualSealInstruction:'A related family manual mentions PTFE tape on fitting threads; confirm whether the specimen is BSPP G1/4 or a tapered variant before ordering',
+  possibleThreadVariant:'R1/4 cannot be excluded until pitch, taper and port seat are measured',
   pumpPortGenderVerified:false,
   photographedSpecimenMatchVerified:false,
   suctionVsExhaustPortVerified:false,
@@ -38,10 +41,8 @@ export function suctionDimension(id){
 }
 export function auditVacuumInterfaceFit(){
  const d=VACUUM_DIMS;
- // Model-vs-model comparisons, NOT physical measurements or elastic fit data.
+ // The heater-side values are still candidate geometry, not a measured hose fit.
  const warmEndExpansionPct=100*(d.B15.odMm/d.B40.idMm-1);
- const pumpEndSlipOnExpansionPct=100*(d.B20.odMm/d.B40.idMm-1);
- const hoseToOpenBoreDiametricGapMm=d.B20.idMm-d.B40.odMm;
  return Object.freeze({
    status:'unverified',
    candidateGeometryOnly:true,
@@ -52,13 +53,21 @@ export function auditVacuumInterfaceFit(){
      materialStretchAndClampNeeded:true
    },
    pumpEnd:{
-     inletOdMm:d.B20.odMm,inletBoreMm:d.B20.idMm,
+     threadCandidate:VN50_FAMILY_PORT.claimedFamilyPort,
+     threadStandard:VN50_FAMILY_PORT.threadStandard,
+     threadMajorDiameterMm:VN50_FAMILY_PORT.basicMajorDiameterMm,
+     pitchMm:VN50_FAMILY_PORT.pitchMm,
+     threadsPerInch:VN50_FAMILY_PORT.threadsPerInch,
+     femaleTapDrillCandidateMm:VN50_FAMILY_PORT.femaleTapDrillCandidateMm,
+     portGenderCandidate:VN50_FAMILY_PORT.portGenderCandidate,
+     portGenderVerified:VN50_FAMILY_PORT.pumpPortGenderVerified,
+     portPositionVerified:VN50_FAMILY_PORT.suctionVsExhaustPortVerified,
      hoseIdMm:d.B40.idMm,hoseOdMm:d.B40.odMm,
-     nominalSlipOnExpansionPct:Number(pumpEndSlipOnExpansionPct.toFixed(1)),
-     openBoreDiametricGapMm:Number(hoseToOpenBoreDiametricGapMm.toFixed(1)),
      directFitVerified:false,
      matchingAdapterOrFittingUnresolved:true,
-     pumpInletOrientationVerified:false
+     adapterRequirement:'G1/4-compatible male fitting to a hose outlet selected from the measured tube OD; fitting SKU and sealing method unresolved',
+     directHoseInsertionIntoThreadPortIsNotAValidJoint:true,
+     openBoreDiametricGapMm:null
    },
    pumpFamilyThreadReference:VN50_FAMILY_PORT,
    measuredPumpPortDiameterMm:null,
@@ -73,7 +82,7 @@ export function auditVacuumInterfaceFit(){
 export function auditSuctionDimensions(){
  const d=VACUUM_DIMS;
  if(d.B15.idMm<=0||d.B40.idMm<=0||d.B40.idMm>=d.B40.odMm||
-    d.B20.idMm>=d.B20.odMm)throw Error('Invalid suction geometry');
+    d.B20.threadMajorDiameterMm!==13.157||d.B20.pitchMm!==1.337)throw Error('Invalid suction geometry or VN-50 thread datum');
  return {
    vacuumSourceCount:1,
    knownSuctionPortCount:1,
@@ -81,6 +90,9 @@ export function auditSuctionDimensions(){
    hoseWallThicknessMm:(d.B40.odMm-d.B40.idMm)/2,
    pumpInletThreadConfirmed:false,
    familyCatalogueThreadIdentified:VN50_FAMILY_PORT.claimedFamilyPort,
+   pumpPortMajorDiameterMm:VN50_FAMILY_PORT.basicMajorDiameterMm,
+   pumpPortPitchMm:VN50_FAMILY_PORT.pitchMm,
+   pumpPortFemaleTapDrillCandidateMm:VN50_FAMILY_PORT.femaleTapDrillCandidateMm,
    physicalPortMatchingNotVerified:!VN50_FAMILY_PORT.photographedSpecimenMatchVerified,
    mechanicalAdapterConfirmed:false,
    sealedVacuumCircuitVerified:false,
