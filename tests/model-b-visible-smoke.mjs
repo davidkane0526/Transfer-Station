@@ -49,6 +49,13 @@ try{
    'Rotary base footprint extends outside black board');
  assert.equal(support.originalThorlabsPartNumberConfirmed,false,
    'Photo does not confirm exact Thorlabs part number');
+ const nfpSide=await page.evaluate(()=>window.__modelBNfpSideHoleProbe?.());
+ assert(nfpSide?.available,'V49 NFP photo25/26 side-hole probe missing');
+ assert.equal(nfpSide.sideHoleCount,7,'NFP side face must show the photographed 3+4 hole rows');
+ assert.equal(nfpSide.upperRowCount,3,'Three upper holes belong to the moving carriage');
+ assert.equal(nfpSide.lowerRowCount,4,'Four lower holes belong to the fixed stage body');
+ assert.equal(nfpSide.exactHoleCoordinatesMeasured,false);
+ assert.equal(nfpSide.threadSizesVerified,false);
  const approach=await page.evaluate(()=>window.__modelBContactProbe?.());
  assert(approach?.available,'V36 actual-mesh contact probe missing');
  assert(Math.abs(approach.glassX[0]-18)<.1&&Math.abs(approach.glassX[1]-94)<.1,
