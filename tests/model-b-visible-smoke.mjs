@@ -33,6 +33,36 @@ try{
  assert.equal(mountingB?.commonBase,'B01');
  assert.equal(mountingB?.B35IsAuxiliaryPlate,true);
  assert.equal(mountingB?.B35CandidateAnchorHeads,4);
+ const actuators=await page.evaluate(()=>window.__modelBActuatorProbe?.());
+ assert(actuators?.available,'V54 rendered B actuator probe missing');
+ assert.equal(actuators.B03.linearHandleCount,2,
+   'B03 GCM-T25M2L must render TWO independent micrometer drums');
+ assert.deepEqual(actuators.B03.axes,['X','Z'],
+   'B03 crossed actuators must be perpendicular in the rendered scene');
+ assert.deepEqual(actuators.B03.directions,['+Z','-X'],
+   'B03 handles must face front (+Z) and left (-X) after the 180-degree installation');
+ assert.equal(actuators.B08.rotaryLockHandleCount,1,
+   'B08 GCM-1107M must retain its separate forward rotary-lock rod');
+ assert.deepEqual(actuators.B08.directions,['+Z'],
+   'B08 rotary-lock rod must face the operator (+Z)');
+ assert.equal(actuators.B09.linearHandleCount,1,
+   'B09 NFP-1462C is a single-axis stage with one micrometer');
+ assert.deepEqual(actuators.B09.axes,['X']);
+ assert.deepEqual(actuators.B09.directions,['+X'],
+   'B09 NFP micrometer must face right (+X)');
+ // Exercise the two B03 carriages independently, then together.
+ await page.locator('#translate').evaluate(el=>{el.value='5';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ const xOnly=await page.evaluate(()=>window.__modelBActuatorProbe?.());
+ assert(Math.abs(xOnly.B03.xCarriageLocalMm+5)<.05);
+ assert(Math.abs(xOnly.B03.depthCarriageLocalMm)<.05,
+   'B03 X movement must not move the perpendicular carriage');
+ await page.locator('#translate-depth').evaluate(el=>{el.value='4';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ const xyMoved=await page.evaluate(()=>window.__modelBActuatorProbe?.());
+ assert(Math.abs(xyMoved.B03.xCarriageLocalMm+5)<.05);
+ assert(Math.abs(xyMoved.B03.depthCarriageLocalMm+4)<.05,
+   'B03 second-axis movement must be independent of X');
+ await page.locator('#translate').evaluate(el=>{el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ await page.locator('#translate-depth').evaluate(el=>{el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));});
   const support=await page.evaluate(()=>window.__modelBSupportProbe?.());
  assert(support?.available,'V34 full-system support probe missing');
  assert(Math.abs(support.boardSizeMm[0]-250)<0.1&&
