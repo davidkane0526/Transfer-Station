@@ -168,6 +168,8 @@ window.__modelAKinematicProbe=()=>{
     a17SideSlotCount:magnet.userData.photo22SideSlotCount??0,
     a17FrontKnobCount:magnet.userData.photo22FrontKnobCount??0,
     a17TopCounterboreCount:magnet.userData.photo23TopCounterboreCount??0,
+    a15TopCounterboreCount:parts.get('A15')?.g.userData.A15Photo23TopCounterboreCount??0,
+    a15RecessedHeadCount:parts.get('A15')?.g.userData.A15Photo23RecessedHeadCount??0,
     a17OemComparisonSku:magnet.userData.oemComparisonSku??null,
     a10ActualFootBoresOpen:a10Open,
     a10CandidateBoltHeadCount:a10Heads,
@@ -697,7 +699,23 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
    add(carriageX,cub(w*.96,middleH,d*.94,mats.dark,0,lowerH+middleH/2,0));
    const carriageY=new THREE.Group();carriageX.add(carriageY);
    g.userData.slidingDepth=carriageY;g.userData.slidingTop=carriageY;
-   add(carriageY,cub(w*.94,topH,d*.92,mats.dark,0,lowerH+middleH+topH/2,0));
+   if(id==='A15'){
+    // Photo23: the four corner counterbores belong to the TOP of the
+    // GCM-T25M2L stage, not to the lower A17 magnetic base.
+    const holes=[[-25,-25,3],[-25,25,3],[25,-25,3],[25,25,3]];
+    const topPlate=add(carriageY,plate(w*.94,d*.92,topH,mats.dark,holes));
+    topPlate.position.y=lowerH+middleH;
+    topPlate.userData.A15Photo23FourTopCounterbores=true;
+    for(const [x,z] of [[-25,-25],[-25,25],[25,-25],[25,25]]){
+      const head=add(carriageY,cyl(2.35,1.2,mats.silver,x,lowerH+middleH+topH-2.1,z,24));
+      head.userData.A15Photo23RecessedFastenerCandidate=true;
+      add(carriageY,cub(2.2,.18,.45,mats.ink,x,lowerH+middleH+topH-1.47,z));
+    }
+    g.userData.A15Photo23TopCounterboreCount=4;
+    g.userData.A15Photo23RecessedHeadCount=4;
+   }else{
+    add(carriageY,cub(w*.94,topH,d*.92,mats.dark,0,lowerH+middleH+topH/2,0));
+   }
    // Two REAL distinct crossed micrometer assemblies, per original 97/108 and GCM-T25M2L.
    const supportZ=depthHandleSide*(d/2+6);
    add(g,cub(14,11,14,mats.dark,0,lowerH*.5,supportZ));
@@ -713,7 +731,7 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
   const xStem=add(g,cyl(6,27,mats.silver,side*(w/2+24),h-9,actuatorZ));xStem.rotation.z=Math.PI/2;
   const xDrum=add(g,cyl(9,14,mats.silver,side*(w/2+43),h-9,actuatorZ));xDrum.rotation.z=Math.PI/2;
   label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,actuatorZ);
-  if(JOINTS[id])addJointHeads(g.userData.slidingTop,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
+  if(JOINTS[id]&&id!=='A15')addJointHeads(g.userData.slidingTop,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g.userData.slidingTop,3,h+.5,xx,zz);
   label(g,title,0,h+11,0);
  },{explode:[0,id==='B03'?15:10,0],...motion});
@@ -1618,12 +1636,11 @@ function platformA(){
    // A17 maker/SKU remains unreadable. Photo23 shows four large corner
    // counterbores; photo22/24 show a FRONT slotted silver side plate,
    // a central knurled control and two lower fasteners.
-   const body=add(g,cub(65,17,65,mats.dark,0,8.5,0));
+   const body=add(g,cub(65,20,65,mats.dark,0,10,0));
    body.userData.photo22A17MagneticBaseEnvelopeCandidate=true;
-   const cornerBores=[[-25,-25,3.1],[-25,25,3.1],[25,-25,3.1],[25,25,3.1]];
-   const top=plate(65,65,3,mats.dark,cornerBores);
-   top.position.y=17;add(g,top);
-   top.userData.photo23FourCornerCounterboresCandidate=true;
+   // The four counterbores in photo23 are on A15's upper T25M plate,
+   // not on this lower A17 magnetic stand.
+   g.userData.photo23TopCounterboreCount=0;
    // Build the thin plate as four separate rails so the horizontal slot
    // is genuinely open; the dark magnet body is visible through it.
    add(g,cub(42,5.9,1.5,mats.silver,0,14.05,33.25));
@@ -1647,7 +1664,7 @@ function platformA(){
    g.userData.photo22SideSlotCount=1;
    g.userData.photo22FrontKnobCount=1;
    g.userData.photo23TopCounterboreCount=4;
-   g.userData.candidateMountHoleMarkers=cornerBores;
+   g.userData.candidateMountHoleMarkers=[];
    label(g,'A17磁吸底座候选 · 实拍四角孔/侧滑槽/旋钮 · 型号未知',0,32,0);
  },{explode:[-10,0,0]});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
