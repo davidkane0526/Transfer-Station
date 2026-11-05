@@ -1309,10 +1309,10 @@ function rotaryB(){
    add(g,plate(65,65,6,mats.steel,mounting));
    add(g,plate(65,65,5,mats.steel,mounting.map(p=>[p[0],p[1],5.5]))).position.y=6;
    const slidingTop=new THREE.Group();g.add(slidingTop);g.userData.slidingTop=slidingTop;
-   const tapped=[
+   const tapped=modelConfirmed?[
      ...[-25,0,25].flatMap(x=>[-25,0,25].map(z=>[x,z,2.5])),
      ...[-16,16].flatMap(x=>[-16,16].map(z=>[x,z,1.25]))
-   ];
+   ]:[[-25,-25,2.45],[-25,25,2.45],[25,-25,2.45],[25,25,2.45]];
    const lower=plate(65,65,2,mats.steel);lower.position.y=11;add(slidingTop,lower);
    const drilled=plate(65,65,10,mats.steel,tapped);drilled.position.y=13;add(slidingTop,drilled);
    // 3+4 side-hole rows are retained as photo-fit geometry. For B41
@@ -1342,8 +1342,14 @@ function rotaryB(){
    g.userData.envelopeCandidateMm=[65,65,23];
    if(modelConfirmed)g.userData.NFPMicrometerOverallLengthCandidateMm=177.5;
    else g.userData.micrometerLengthVisualCandidateMm=177.5;
-   for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
-   for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
+   if(modelConfirmed){
+     for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
+     for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
+   }else{
+     for(const x of [-25,25])for(const z of [-25,25])circleGuide(slidingTop,2.8,23.4,x,z);
+     g.userData.B41TopFourM6MountPatternCandidate=true;
+     g.userData.B41TopHolePatternVerified=false;
+   }
    for(const x of [-25,25])for(const z of [-25,25])circleGuide(g,5.5,11.3,x,z);
    addJointHeads(g,id,10.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:4.2});
    label(g,modelConfirmed?'NFP 仅单轴 X / 一根测微头':'第二级正交单轴台 · 前向测微头（型号待核）',-38,46,0);
