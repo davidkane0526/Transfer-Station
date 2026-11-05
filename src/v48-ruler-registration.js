@@ -54,11 +54,11 @@ export const V48_RULER_EVIDENCE=Object.freeze({
         photo23TopCornerCounterboresOnA15:true,
         exactSlotDimensionsMeasured:false,controlFunctionIdentified:false,
         magneticSwitchIdentified:false,manufacturerSkuVerified:false,
-        independentAVisualMatchToCatalog:true,
-        modelCandidate:'GCM-420302M',
-        modelCandidateConfidence:'high_visual_match_only',
-        candidateTopHolePattern:Object.freeze({M6:5,M4:4,M3:4,total:13,source:'Daheng GCM-42 catalogue',measuredOnA17:false}),
-        candidateHolePatternAppliedToModel:true,
+        independentAVisualMatchToCatalog:false,
+        modelCandidate:null,
+        modelCandidateConfidence:'unidentified',
+        candidateTopHolePattern:null,
+        candidateHolePatternAppliedToModel:false,
         comparisonToB_GCM420302MAllowed:false
       }),
       filmToSampleCommonXYCoordinatesMeasured:false
