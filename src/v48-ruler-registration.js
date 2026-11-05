@@ -74,6 +74,12 @@ export const V48_RULER_EVIDENCE=Object.freeze({
       separateFromSilverSharedBoard:true,
       actualMountingPlateSkuVerified:false
     }),
+    nfpSideHoles:Object.freeze({
+      photos:['25','26'],model:'NFP-1462C',
+      nominalStageSizeMm:[65,65],nominalThicknessMm:23,
+      fixedLowerRowCount:4,movingUpperRowCount:3,total:7,
+      exactCoordinatesMeasured:false,diametersMeasured:false,threadsVerified:false
+    }),
     arm:Object.freeze({
       photo:'29',
       namedClamp:'Zolix PHUC-1',
