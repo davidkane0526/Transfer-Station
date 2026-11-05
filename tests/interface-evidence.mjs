@@ -18,7 +18,14 @@ for(const item of INTERFACES){
   }
 }
 const b09=interfaceEvidence('B','B09');
-assert(b09.some(x=>x.id==='B-ROTARY-NFP'),'NFP mounting interface omitted');
+assert(b09.some(x=>x.id==='B-ROTARY-CROSSED-XY'),'B09 upper stage must attach through B41, not directly onto B08');
+const b41=interfaceEvidence('B','B41');
+assert(b41.some(x=>x.id==='B-ROTARY-CROSSED-XY'),'B41 newly inserted lower stage must have a mounting audit');
+assert(b41.some(x=>x.missing.some(v=>v.includes('确切SKU'))),'B41 exact OEM identification remains unverified');
+assert(!INTERFACES.some(x=>x.id==='B-ROTARY-NFP'),'Obsolete direct B08-B09 interface must not remain');
+assert(interfaceEvidence('A','A17').some(x=>x.id==='A-MAGNET-T25M'),'A17 unverified magnetic-to-T25M joint omitted');
+assert(interfaceEvidence('A','A05C').some(x=>x.id==='A-GLASS-END'),'A05 candidate glass clamp must carry an unresolved interface');
+assert(interfaceEvidence('A','A16').some(x=>x.id==='A-SAMPLE'),'A16 mounting base must be part of the real sample-side assembly audit');
 assert(b09.some(x=>x.id==='B-CHUCK-FASTENERS'),'Upper fastener interface omitted');
 assert(b09.some(x=>x.missing.some(s=>s.includes('攻丝孔组'))),
   'Vendor clearance holes must never silently become tapped upper fastener holes');
