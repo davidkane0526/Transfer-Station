@@ -1174,8 +1174,8 @@ for i in (1,2):
     check(wire.intersect(chuck).Volume()<1e-6,f'Heater wire {i} fits milled rear tunnel')
 thermo=part(B,'B13L')[0]
 check(thermo.intersect(chuck).Volume()<1e-6,'Thermocouple wire fits rear shallow roof groove')
-center_vac=cq.Solid.makeCylinder(1.25,32.5,Vector(82,-32.5,107.5),Vector(0,1,0))
-center_top=cq.Solid.makeCylinder(.55,2.9,Vector(82,0,107.3),Vector(0,0,1))
+center_vac=cq.Solid.makeCylinder(1.25,32.5,Vector(82,-32.5,130.5),Vector(0,1,0))
+center_top=cq.Solid.makeCylinder(.55,2.9,Vector(82,0,130.3),Vector(0,0,1))
 check(center_vac.intersect(chuck).Volume()<1e-6,'Rear vacuum bore is connected towards center')
 check(center_top.intersect(chuck).Volume()<1e-6,'One central top suction hole is unobstructed')
 # V37: physical vacuum loop (photo120 confirms VN-50, NOT W-50).
@@ -1187,7 +1187,7 @@ port_body=part(B,'B20I')[0]
 pump_body=part(B,'B20')[0]
 # Actual annular B15 fitting and B20I suction port. A solid plug
 # in either location must fail this test.
-fitting_void=vy(1.15,11.8,82,-44.4,107.5)
+fitting_void=vy(1.15,11.8,82,-44.4,130.5)
 check(vac.intersect(fitting_void).Volume()<1e-5,
       'V37 rear vacuum connector has a genuinely OPEN axial bore')
 # V53: B20I is a G1/4 thread-diameter datum ring, not a hose spigot.
@@ -1234,7 +1234,7 @@ def vacuum_axis_probe(a,b,r=.9,trim=.15):
     direction=v.normalized()
     origin=Vector(*a)+direction*trim
     return cq.Solid.makeCylinder(r,length-2*trim,origin,direction)
-short_points=[(82,-44.5,107.5),(82,-58,108.5)]
+short_points=[(82,-44.5,130.5),(82,-58,131.5)]
 outer_points=[(94,-79,90.5),(200,-135,70)]
 check(vacstub.intersect(vacuum_axis_probe(*short_points)).Volume()<.01,
       'V37 B15T short hose has a CONTINUOUS hollow center')
@@ -1292,7 +1292,7 @@ report['V40_rear_routed_suction_loop']={
  'pump_electrical_connection_inferred':False,
  'hose_thread_and_material_spec_verified':False
 }
-left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,107.5),Vector(1,0,0))
+left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,130.5),Vector(1,0,0))
 check(left_probe.intersect(chuck).Volume()>1.0,'Old left-side inlet is absent from metal')
 
 # V50: validate the B-specific MXFMS reconstruction using only B photos
