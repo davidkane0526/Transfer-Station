@@ -100,8 +100,74 @@ def rot(sys,key,x,y,z,grade,radius=47,lock_radius=8):
     top=vz(radius,10.2,x,y,z+23)
     top=cut(top,[(x+dx,y+dy) for dx in (-pitch,0,pitch) for dy in (-pitch,0,pitch)],5,8,z+25.2)
     add(sys,key+'A','rotary_top_nine_candidate_bores',top,grade)
-    # Operator-facing side lock, actual rod profile unmeasured.
-    add(sys,key+'B','operator_side_rotary_lock',vy(lock_radius,30,x,y+radius,z+12))
+    # A lock/handle is emitted only for rotary models whose real hardware
+    # includes one. B08's user-confirmed GCM-1107M has no external handle.
+    if lock_radius and lock_radius>0:
+        add(sys,key+'B','operator_side_rotary_lock',vy(lock_radius,30,x,y+radius,z+12))
+
+def rotate_about_vertical(shape,cx,cy,z0,degrees):
+    """Rotate a local sample-stage component about its own vertical centre."""
+    if not degrees:
+        return shape
+    return shape.rotate(Vector(cx,cy,z0),Vector(cx,cy,z0+1),degrees)
+
+def nfp_single_axis(sys,key,cx,cy,z0,yaw_deg=0,model_confirmed=False):
+    """65x65x23mm one-axis stage proxy. Local micrometer points +X.
+    yaw_deg=90 turns its micrometer toward the operator (+Y in STEP /
+    +Z in the WebGL scene), creating the lower orthogonal sample axis.
+    """
+    place=lambda shape: rotate_about_vertical(shape,cx,cy,z0,yaw_deg)
+    corners=[(cx+dx,cy+dy) for dx in (-25,25) for dy in (-25,25)]
+    fixed=box(65,65,11,cx,cy,z0)
+    fixed=cut(fixed,corners,6.5,11,z0)
+    fixed=cut(fixed,corners,11,5,z0+6)
+    lower_side=[(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]
+    upper_side=[(-22,1.8),(-8,1.8),(12,2.8)]
+    for xoff,radius in lower_side:
+        fixed=fixed.cut(vy(radius,2.5,cx+xoff,cy+30,z0+7))
+    add(sys,key,'NFP1462C_fixed_base_65x65x11_O6p5_O11' if model_confirmed
+        else '65mm_class_lower_orthogonal_stage_fixed_base_SKU_UNVERIFIED',
+        place(fixed),'D' if model_confirmed else 'P')
+    for i,(hx,hy) in enumerate(corners,1):
+        screw=vz(2.45,18,hx,hy,z0-7).fuse(vz(4.2,2.5,hx,hy,z0+8.5))
+        add(sys,f'{key}S{i}','single_axis_stage_fixed_base_M6x18_candidate_'+str(i),
+            place(screw),'C')
+    moving_lower=box(65,65,2,cx,cy,z0+11)
+    add(sys,key+'M','single_axis_stage_moving_carriage_lower_2mm',place(moving_lower),'P')
+    moving_top=box(65,65,10,cx,cy,z0+13)
+    m6=[(cx+x,cy+y) for x in (-25,0,25) for y in (-25,0,25)]
+    m3=[(cx+x,cy+y) for x in (-16,16) for y in (-16,16)]
+    moving_top=cut(moving_top,m6,5,10,z0+13)
+    moving_top=cut(moving_top,m3,2.5,10,z0+13)
+    for xoff,radius in upper_side:
+        moving_top=moving_top.cut(vy(radius,2.5,cx+xoff,cy+30,z0+17.5))
+    add(sys,key+'A','single_axis_stage_moving_top_9M6_4M3_10mm',
+        place(moving_top),'D' if model_confirmed else 'P')
+    # Local -X is the micrometer side on the OEM model. Yaw 90 makes it
+    # point to the front while preserving the upper stage's independent +X.
+    housing=box(24,30,15,cx+45,cy,z0+12)
+    housing=housing.cut(vx(4,9,cx+48,cy,z0+12))
+    add(sys,key+'B','single_axis_micrometer_housing_24x30x15_blind_O8',
+        place(housing),'P')
+    add(sys,key+'C','single_axis_micrometer_spindle_O7p2x82p5',
+        place(vx(3.6,82.5,cx+48,cy,z0+12)),'P')
+    collar=vx(9,23,cx+107.5,cy,z0+12).cut(
+        vx(3.8,23,cx+107.5,cy,z0+12))
+    add(sys,key+'D','single_axis_micrometer_collar_O18x23_bore_O7p6',
+        place(collar),'P')
+    drum=vx(11,28,cx+117,cy,z0+12).cut(
+        vx(9.2,28,cx+117,cy,z0+12))
+    add(sys,key+'E','single_axis_micrometer_drum_O22x28_bore_O18p4',
+        place(drum),'P')
+    report_name='B09_NFP1462C' if key=='B09' else 'B41_lower_orthogonal_stage'
+    return {'fixed_base_z_mm':z0,'top_z_mm':z0+23,
+            'micrometer_world_direction':'+X' if yaw_deg==0 else '+Y',
+            'model_confirmed':model_confirmed,
+            'envelope_candidate_mm':[65,65,23],
+            'fixed_hole_pitch_mm':50,
+            'moving_top_pattern':'9 M6 + 4 M3 candidates',
+            'micrometer_length_candidate_mm':177.5}
+
 def heater(cx=82,cy=0,z=98.2):
     corners=[(cx+dx,cy+dy) for dx in (-25,25) for dy in (-25,25)]
     metal=box(65,65,12,cx,cy,z)
@@ -314,54 +380,17 @@ def make_b():
     # V51: restore the two sample-side components that were present in
     # WebGL/BOM but absent from the STEP builder.
     # GCM-1107M: Ø94 x 33.2mm rotary stage, nine-hole 25mm top pattern.
-    rot('B','B08',cx,0,20+microscope_rise,'D',radius=47,lock_radius=6)
-    # Zolix NFP-1462C: 65x65x23mm single-X stage, installed with its
-    # micrometer pointing to the right as in photo110. The four base
-    # holes are Ø6.5 clearance with Ø11 counterbores; the moving top
-    # carries 9-M6 and 4-M3 tap-drill proxies.
-    nfp_z=20+microscope_rise+33.2
-    nfp_corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
-    nfp_fixed=box(65,65,11,cx,0,nfp_z)
-    nfp_fixed=cut(nfp_fixed,nfp_corners,6.5,11,nfp_z)
-    nfp_fixed=cut(nfp_fixed,nfp_corners,11,5,nfp_z+6)
-    nfp_lower_side=[(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]
-    nfp_upper_side=[(-22,1.8),(-8,1.8),(12,2.8)]
-    for xoff,radius in nfp_lower_side:
-        nfp_fixed=nfp_fixed.cut(vy(radius,2.5,cx+xoff,30.0,nfp_z+7))
-    add('B','B09','Zolix_NFP1462C_fixed_base_65x65x11_O6p5_O11',nfp_fixed,'D')
-    for i,(hx,hy) in enumerate(nfp_corners,1):
-        screw=vz(2.45,18,hx,hy,nfp_z-7).fuse(vz(4.2,2.5,hx,hy,nfp_z+8.5))
-        add('B',f'B09S{i}','NFP1462C_fixed_base_M6x18_candidate_'+str(i),screw,'C')
-    nfp_slide_lower=box(65,65,2,cx,0,nfp_z+11)
-    add('B','B09M','NFP1462C_moving_carriage_lower_2mm',nfp_slide_lower,'P')
-    nfp_slide_top=box(65,65,10,cx,0,nfp_z+13)
-    nfp_m6=[(cx+x,y) for x in (-25,0,25) for y in (-25,0,25)]
-    nfp_m3=[(cx+x,y) for x in (-16,16) for y in (-16,16)]
-    nfp_slide_top=cut(nfp_slide_top,nfp_m6,5,10,nfp_z+13)
-    nfp_slide_top=cut(nfp_slide_top,nfp_m3,2.5,10,nfp_z+13)
-    for xoff,radius in nfp_upper_side:
-        nfp_slide_top=nfp_slide_top.cut(vy(radius,2.5,cx+xoff,30.0,nfp_z+17.5))
-    add('B','B09A','NFP1462C_moving_top_9M6_4M3_10mm',nfp_slide_top,'D')
-    # OEM micrometer points +X after the photographed 180-degree install.
-    nfp_mic_z=nfp_z+12
-    # Photo110 installation reverses the OEM micrometer direction to +X.
-    # Housing has a blind Ø8 bore; the Ø7.2 shaft enters 9mm and extends
-    # 82.5mm to the right. Collar and drum are nested hollow sleeves.
-    nfp_housing=box(24,30,15,cx+45,0,nfp_mic_z)
-    nfp_housing=nfp_housing.cut(vx(4,9,cx+48,0,nfp_mic_z))
-    add('B','B09B','NFP1462C_micrometer_housing_24x30x15_blind_O8',nfp_housing,'P')
-    add('B','B09C','NFP1462C_micrometer_spindle_O7p2x82p5',
-        vx(3.6,82.5,cx+48,0,nfp_mic_z),'P')
-    nfp_collar=vx(9,23,cx+107.5,0,nfp_mic_z).cut(
-        vx(3.8,23,cx+107.5,0,nfp_mic_z))
-    add('B','B09D','NFP1462C_micrometer_collar_O18x23_bore_O7p6',nfp_collar,'P')
-    nfp_drum=vx(11,28,cx+117,0,nfp_mic_z).cut(
-        vx(9.2,28,cx+117,0,nfp_mic_z))
-    add('B','B09E','NFP1462C_micrometer_drum_O22x28_bore_O18p4',nfp_drum,'P')
-    # B10/B11/B12/B13/B14 heater and vacuum-block stack sits directly
-    # above the 23mm NFP-1462C stage; B14 M6x25 screws engage the
-    # four corner M6 positions in the NFP moving top.
-    heater(cx=cx,cy=0,z=98.2)
+    rot('B','B08',cx,0,20+microscope_rise,'D',radius=47,lock_radius=0)
+    # Photo147 reveals TWO stacked orthogonal single-axis sample stages.
+    # B41 is the lower, front-facing stage (exact SKU unverified);
+    # B09 is the upper Zolix NFP-1462C, with its drive to the right.
+    nfp_lower_z=20+microscope_rise+33.2
+    nfp_upper_z=nfp_lower_z+23
+    nfp_b41=nfp_single_axis('B','B41',cx,0,nfp_lower_z,yaw_deg=90,model_confirmed=False)
+    nfp_b09=nfp_single_axis('B','B09',cx,0,nfp_upper_z,yaw_deg=0,model_confirmed=True)
+    # The 10mm insulator sits on the upper B09 moving top. The chuck,
+    # heater and vacuum fitting are therefore raised by the second 23mm stage.
+    heater(cx=cx,cy=0,z=nfp_upper_z+33.0)
     # Photo116 identifies SDPTOP MXFMS. Manufacturer data specifies
     # a Ø32 x 280mm post; the actual B35 adapter foot is a custom
     # installation proxy, not the standard 320x260x16mm B5 base.
