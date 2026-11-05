@@ -50,6 +50,8 @@ jobs:
           node tests/b35-fastener-audit.mjs
           node --check src/a-photo-scale-calibration.js
           node tests/a-photo-scale-calibration.mjs
+          node --check src/v48-ruler-registration.js
+          node tests/v48-ruler-registration.mjs
           node --check src/platform-a-assembly-audit.js
           node tests/platform-a-assembly-audit.mjs
           node --check src/b-physical-audit.js
