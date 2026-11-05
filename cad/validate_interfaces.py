@@ -106,9 +106,9 @@ for i,(x,y) in enumerate(candidate_foot,1):
     backing=vz(2.45,.5,x,y,25.5)
     check(sample_board.intersect(backing).Volume()>5,
           'B35 M6 tapped-core proposal MUST remain blind, not through')
-    screw=part(B,f'B16S{i}')[0]
-    check(len(screw)==1,
-          'B16M6 screw proxy must have connected shank and head')
+    screw_solids=part(B,f'B16S{i}')
+    check(len(screw_solids)==1 and screw_solids[0].isValid(),
+          'B16M6 screw proxy must be one valid connected shank/head solid')
 centre_errors=[
     min(((fx-gx)**2+(fy-gy)**2)**.5 for gx,gy in candidate_grid)
     for fx,fy in candidate_foot
@@ -297,33 +297,48 @@ aheat=part(A,'A07')[0].BoundingBox()
 amagnet=part(A,'A17')[0].BoundingBox()
 check(abs(amagnet.zmin-20)<.02 and abs(amagnet.zmax-40)<.02,
       'V38 A has one TRUE film-side magnetic mounting stand above the only breadboard')
-# V46: GCM-420302M family reference has 5-M6, 4-M4 and 4-M3
-# top holes. They are ONLY 3mm visual blind candidates for A17.
-# Do not certify the unmarked A photo's manufacturer or screw engagement.
-from cadquery import Vector as _V46Vector
-for pitch,dia,with_center in ((50,6,True),(40,4,False),(32,3,False)):
-    pts=[(-116+dx,dy) for dx in (-pitch/2,pitch/2)
-         for dy in (-pitch/2,pitch/2)]
-    if with_center:pts.append((-116,0))
-    for xx,yy in pts:
-        r=dia/2-.15
-        probe=vz(r,2.8,xx,yy,37.1)
-        backing=vz(r,.4,xx,yy,36.6)
-        check(part(A,'A17')[0].intersect(probe).Volume()<1e-4,
-              'V46 A17 candidate top hole must be OPEN for 3mm only')
-        check(part(A,'A17')[0].intersect(backing).Volume()>1,
-              'V46 A17 candidate top hole must be BLIND, not a magnet through-bore')
-a_switch=part(A,'A17L')[0]
-check(a_switch.intersect(part(A,'A17')[0]).Volume()>1,
-      'V46 A17 magnetic switch must attach to body, not float')
-report['V46_A17_magnetic_base_candidate']={
-    'original_A17_model_identified':False,
-    'manufacturer_comparison_only':'Daheng GCM-420302M',
-    'reference_nominal_dimensions_mm':[65,65,20],
-    'candidate_top_blind_hole_count':13,
-    'candidate_blind_depth_mm':3,
-    'magnet_switch_connected_to_body':True,
-    'thread_qualification_passed':False
+# V49: A17 photo22-24 evidence. The four corner counterbores are a
+# photo-fit candidate only; no B02/GCM-420302M 13-hole pattern is copied.
+a17_body=part(A,'A17')[0]
+a17_panel=part(A,'A17P')[0]
+a17_control=part(A,'A17L')[0]
+check(abs(a17_body.BoundingBox().zmin-20)<.02 and
+      abs(a17_body.BoundingBox().zmax-40)<.02,
+      'V49 A17 remains one 65x65x20mm magnetic-base envelope candidate')
+for xx,yy in [(-141,-25),(-141,25),(-91,-25),(-91,25)]:
+    bore=vz(2.85,2.8,xx,yy,37.1)
+    backing=vz(2.85,.4,xx,yy,36.6)
+    check(a17_body.intersect(bore).Volume()<1e-4,
+          'V49 A17 photo23 corner counterbore is open for 3mm candidate depth')
+    check(a17_body.intersect(backing).Volume()>1,
+          'V49 A17 counterbore remains blind, not through the magnetic body')
+centre=vz(2.85,2.8,-116,0,37.1)
+check(a17_body.intersect(centre).Volume()>1,
+      'V49 A17 must NOT inherit the B GCM-420302M central M6 hole')
+slot_probe=box(24,.5,3.5,-116,33.25,26.25)
+check(a17_panel.intersect(slot_probe).Volume()<1e-4,
+      'V49 A17 front panel has a REAL horizontal through-slot')
+check(abs(a17_panel.BoundingBox().ymin-a17_body.BoundingBox().ymax)<.02,
+      'V49 A17 slotted panel sits on the +Y body face')
+check(a17_body.intersect(a17_control).Volume()<1e-4,
+      'V49 A17 central control shaft clears its candidate body bore')
+check(a17_panel.intersect(a17_control).Volume()<1e-4,
+      'V49 A17 control shaft passes through the panel slot without collision')
+for i in (1,2):
+    panel_screw=part(A,f'A17S{i}')[0]
+    check(panel_screw.intersect(a17_panel).Volume()>0,
+          'V49 A17 side-panel lower screw head contacts the plate')
+report['V49_A17_photo22_24_geometry']={
+    'manufacturer_model_verified':False,
+    'envelope_mm':[65,65,20],
+    'top_corner_counterbores':4,
+    'top_hole_pattern_measured':False,
+    'front_slotted_panel_count':1,
+    'slot_is_open':True,
+    'central_control_knob_count':1,
+    'control_function_identified':False,
+    'B_GCM420302M_hole_pattern_copied':False,
+    'magnetic_load_verified':False
 }
 check(abs(amagnet.zmax-a15.zmin)<.02,
       'A15 film translation stage MUST rest ON A17 magnetic stand, not naked breadboard')
