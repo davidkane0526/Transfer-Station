@@ -22,6 +22,7 @@ import {auditBaseTopology,mountStatus} from './assembly-mounts.js';
 import {suctionDimension,auditVacuumInterfaceFit} from './pneumatic-dimensions.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
 import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
+import {A_WORKING_LAYOUT,auditAWorkingLayout} from './a-working-layout.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -63,10 +64,16 @@ microscope:{name:'显微镜 / 相机 / 物镜',color:'#a7c8f2'},
 illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
-let platform='B', bPhoto94Mode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
+let platform='B', bPhoto94Mode=false, aWorkingPoseMode=true, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
     filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleShiftDepth=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 // Read-only platform state for automated browser QA.
-window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',partCount:parts.size});
+window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',aPose:platform==='A'?(aWorkingPoseMode?'candidate':'photo94'):null,partCount:parts.size});
+const activeAFilmX=()=>aWorkingPoseMode?A_WORKING_LAYOUT.filmStageX:CONFIG.A.armX;
+window.__platformAWorkingPoseProbe=()=>platform==='A'?{
+ available:true,mode:aWorkingPoseMode?'candidate':'photo94',
+ ...auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
+   sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop})
+}:{available:false};
 let sampleSubstrate=null;
 let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
