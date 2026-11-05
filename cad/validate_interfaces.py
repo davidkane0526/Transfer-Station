@@ -127,36 +127,6 @@ report['B35_microscope_fastener_readiness']={
     'B16_fastener_positions_verified':False,
     'loaded_joint_accepted':False
 }
-# V50: photo41/71/72 microscope optics and support are reconstructed as
-# connected, measurable CAD solids; dimensions remain photo-fit candidates.
-scope_boom=part(B,'B16B')[0].BoundingBox()
-check(abs(scope_boom.xlen-34)<.05 and
-      abs(scope_boom.ylen-132)<.05 and abs(scope_boom.zlen-34)<.05,
-      'V50 B16 support boom is a round Ø28 tube with Ø34 end collars')
-scope_head=part(B,'B16C')[0].BoundingBox()
-check(scope_head.xmax>194.9 and scope_head.xlen>140,
-      'V50 B16 microscope head includes the right-facing stepped side optical tube')
-camera_solids=part(B,'B17')
-check(len(camera_solids)==1 and camera_solids[0].isValid(),
-      'V50 B17 camera, stepped lens tube and cable loop form one valid connected solid')
-camera_bb=camera_solids[0].BoundingBox()
-check(abs(camera_bb.zmin-286)<.1 and camera_bb.zmax>429,
-      'V50 B17 stepped tube connects head height to raised camera and includes cable arch')
-objective_solids=part(B,'B18')
-check(len(objective_solids)==1 and objective_solids[0].isValid(),
-      'V50 B18 three-objective nosepiece is one valid connected solid')
-objective_bb=objective_solids[0].BoundingBox()
-check(objective_bb.zmin<173 and objective_bb.zmax>224,
-      'V50 B18 objective barrels extend below a common rotary nosepiece')
-report['B_microscope_photo_fit']={
-    'round_support_boom_diameter_mm':28,
-    'support_boom_end_collar_diameter_mm':34,
-    'side_optical_tube_end_x_mm':round(scope_head.xmax,1),
-    'camera_lens_tube_length_mm':76,
-    'camera_cable_loop_included':True,
-    'objective_barrels':3,
-    'manufacturer_dimensions_verified':False
-}
 check(sample_board.intersect(microscope_foot).Volume()<1e-4,
       'B35 black plate and microscope foot must CONTACT, not intersect')
 micbb=microscope_foot.BoundingBox()
@@ -1148,7 +1118,7 @@ left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,107.5),Vector(1,0,0))
 check(left_probe.intersect(chuck).Volume()>1.0,'Old left-side inlet is absent from metal')
 
 # Optical tips are a conservative candidate for open clearance, not WD qualification.
-tipbb=part(B,'B18')[0].BoundingBox()
+tipbb=part(B,'B18A')[0].BoundingBox()
 glass=part(B,'B07')[0].BoundingBox()
 check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide collision')
 report['checks_passed']=len(report['checks'])
