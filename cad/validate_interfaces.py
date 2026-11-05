@@ -1148,7 +1148,7 @@ left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,107.5),Vector(1,0,0))
 check(left_probe.intersect(chuck).Volume()>1.0,'Old left-side inlet is absent from metal')
 
 # Optical tips are a conservative candidate for open clearance, not WD qualification.
-tipbb=part(B,'B18A')[0].BoundingBox()
+tipbb=part(B,'B18')[0].BoundingBox()
 glass=part(B,'B07')[0].BoundingBox()
 check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide collision')
 report['checks_passed']=len(report['checks'])
