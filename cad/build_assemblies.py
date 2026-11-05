@@ -704,6 +704,32 @@ def make_a():
     for i,dx in enumerate((-14,14),1):
         add('A',f'A05S{i}','photo94_TOP_VISIBLE_SCREW_HEAD_CANDIDATE',
             vz(3.1,2,ax+dx,13,166.5),'P')
+    # V57: A05C is NOT the old discredited 215mm carrier.
+    # The neutral, LOCAL 21mm glass-jaw proxy restores the missing
+    # A05 -> A05C -> A05G attachment chain. We make no OEM or screw
+    # pattern claims; the whole first-rig cross-branch registration
+    # against the heater remains unresolved.
+    bracket_leg_x=l_left+1.25
+    glass_left=bracket_leg_x+10
+    glass_center_x=glass_left+38
+    glass_center_z=93
+    tie=box(2.5,10,14,bracket_leg_x,13,92)
+    clamp_carrier=box(21,27,3,bracket_leg_x+9,13,89.5)
+    lower_jaw=box(10,27,1.2,bracket_leg_x+15,13,91.3)
+    clamp_body=tie.fuse(clamp_carrier,lower_jaw)
+    add('A','A05C','A05C_unidentified_clamp_BRACKET_TIE_AND_LOWER_JAW_SCENE_PROXY',
+        clamp_body,'C')
+    # The upper jaw is a separately movable candidate component;
+    # unknown tightening screw, travel and mounting threads remain
+    # explicitly unmanufacturable.
+    add('A','A05CU','A05C_upper_jaw_NO_VERIFIED_DRIVE_or_SCREWS',
+        box(10,27,1.2,bracket_leg_x+15,13,93.5),'C')
+    add('A','A05G','A05G_glass_76x26x1_STANDARD_CANDIDATE',
+        box(76,26,1,glass_center_x,13,92.5),'C')
+    # The glass carries a separate PDMS stamp, 4mm from its RIGHT
+    # end. It is below, not inside, the glass.
+    add('A','A05GP','PDMS_stamp_8x8x1p8_right_edge_CANDIDATE',
+        box(8,8,1.8,glass_left+68,13,90.7),'C')
     # Photos137/161 show a separate Daheng GCM-5306M 8mm mounting base.
     base=box(112,70,8,cx,0,20)
     # Real Ø6.5 clearance holes, four grid-aligned M5 candidate bolts.
