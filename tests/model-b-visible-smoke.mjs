@@ -574,6 +574,11 @@ try{
  assert.equal(aContactBefore.stampRightInsetMm,4);
  assert.equal(aContactBefore.sampleChipTopWorldYmm,110.6);
  assert.equal(aContactBefore.pdmsToChipGapMm,13);
+ await page.locator('#open-bom').evaluate(el=>el.click());
+ const aChipRow=page.locator('#bom-body tr').filter({hasText:/^\\s*A07W\\b/});
+ assert.equal(await aChipRow.count(),1,
+   'A07W sample chip must be a distinct BOM/scene/STEP part, not hidden in A07 metal');
+ await page.locator('#close-bom').evaluate(el=>el.click());
  assert.equal(aContactBefore.clampFastenerProxyCount,2);
  assert.equal(aContactBefore.dimensionsForFabricationValidated,false);
  const aComplete=await page.evaluate(()=>window.__platformACompletenessProbe?.());
