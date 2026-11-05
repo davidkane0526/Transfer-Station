@@ -840,8 +840,8 @@ check(abs(a_chip.BoundingBox().zmax-a_pdms.BoundingBox().zmin)<.02,
       'PDMS interface is on sample chip, not 1.4mm inside the heater')
 check(a_clamp.BoundingBox().xmax<a_heater.xmin,
       'A05C fixed clamp must remain outside A07 heater X footprint')
-check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-26)<.03,
-      'A05C nominal clamp clearance must remain 26mm in candidate pose')
+check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-25.5)<.03,
+      'A05C nominal clamp clearance is 25.5mm including protruding lower jaw')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
 check(abs(a_scope_bb.zmin-a_board.zmax)<.02,
