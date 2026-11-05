@@ -202,7 +202,15 @@ export function auditVacuumPath(options={}){
     &&minimumHarnessClearanceMm>VN50.minimumHarnessSurfaceClearanceMm
     &&VN50.innerBoreRadiusMm>0
     &&VN50.innerBoreRadiusMm<VN50.outerHoseRadiusMm;
-  if(!verify)throw Error('VN-50 rear hose route collides with B16/B19/B36 or B37/B38');
+  if(!verify)throw Error('VN-50 rear hose route clearance failed '+JSON.stringify({
+    sampleShiftMm:options.sampleShiftMm??0,
+    sampleDepthShiftMm:options.sampleDepthShiftMm??0,
+    sampleAngleDeg:options.sampleAngleDeg??0,
+    cabinetClearanceMm,controllerClearanceMm,microscopeClearanceMm,
+    minimumHarnessClearanceMm,
+    harnessClearances,
+    distinct,passesBehindController,routeAroundCabinetLeft,routeAroundCabinetRight
+  }));
   return Object.freeze({
     pumpModel:VN50.model,
     photoConfirmedPumpModel:VN50.physicalNameplate,
