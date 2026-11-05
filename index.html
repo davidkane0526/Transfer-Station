@@ -18,6 +18,13 @@
  <div class="warning" id="b-physical-audit" role="status">模型 B 的玻片夹具端与样品侧连接未完成物理验收，禁止作为加工装配图。</div>
 </div>
 <div class="warning" id="a-physical-audit" role="status" hidden>平台 A 的工作位置尚未完成配准，无法确认玻片端到热台的正常接触。</div>
+<div class="control-block" id="a-pose-selector" hidden>
+<div class="title">平台 A · 两种装配姿态</div>
+<p class="small">操作位置仅是待核实的几何候选：它假设A05向右折弯并改变未测定的下折边长度；不代表照片94或真实设备已经证实这一安装朝向。</p>
+<div class="buttons">
+<button id="btn-a-working-pose" class="on" aria-pressed="true">操作位置候选 · 检查夹具避让</button>
+<button id="btn-a-photo-pose" aria-pressed="false">照片94原方向 · 未配准</button>
+</div><div class="marked-note" id="a-working-metrics" role="status">操作位置的几何间隙待计算</div></div>
 <div class="control-block" id="photo-crosscheck"><div class="title">实物照片的对应关系</div>
 <p class="small" id="photo-scope-note" data-ref-rig="A">A：94/95/97、137–144、152、155、161（新增GCM-5306M底座）。B：107–112、145–151（新增PHUC-1和GCM-1302M同机确认）。两套装配不可混用。</p>
 <div class="buttons"><button id="btn-photo947">查看照片94 / 95 / 97对应的A装配</button><button id="btn-photo94">94 · G40/L片</button><button id="btn-photo95">95 · T25M</button><button id="btn-photo97">97 · VC13M</button></div>
