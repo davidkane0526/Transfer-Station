@@ -340,7 +340,7 @@ def make_b():
     nfp_slide_top=cut(nfp_slide_top,nfp_m6,5,10,nfp_z+13)
     nfp_slide_top=cut(nfp_slide_top,nfp_m3,2.5,10,nfp_z+13)
     for xoff,radius in nfp_upper_side:
-        nfp_slide_top=nfp_slide_top.cut(vy(radius,2.5,cx+xoff,30.0,nfp_z+18))
+        nfp_slide_top=nfp_slide_top.cut(vy(radius,2.5,cx+xoff,30.0,nfp_z+17.5))
     add('B','B09A','NFP1462C_moving_top_9M6_4M3_10mm',nfp_slide_top,'D')
     # OEM micrometer points +X after the photographed 180-degree install.
     nfp_mic_z=nfp_z+12
