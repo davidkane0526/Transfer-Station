@@ -330,8 +330,12 @@ window.__modelBHeatingHarnessProbe=()=>{
 };
 window.__modelBVacuumSplineEnvelopeProbe=()=>{
  if(platform!=='B')return {available:false};
- const shifts=Array.from({length:51},(_,i)=>-12.5+i*.5);
- const angles=Array.from({length:181},(_,i)=>-90+i);
+ // A 3D sample of BOTH crossed translation axes and B08 yaw. Include
+ // travel limits; the higher-resolution straight-segment audit runs
+ // separately in src/b-vacuum-routing.js. This is not a continuous proof.
+ const shifts=Array.from({length:9},(_,i)=>-12.5+i*3.125);
+ const depths=Array.from({length:9},(_,i)=>-12.5+i*3.125);
+ const angles=Array.from({length:37},(_,i)=>-90+i*5);
  const sampleCurve=(points,segments)=>{
    const curve=new THREE.CatmullRomCurve3(points.map(p=>
      new THREE.Vector3(p.x,p.y,p.z)));
@@ -344,8 +348,10 @@ window.__modelBVacuumSplineEnvelopeProbe=()=>{
  const worst={};
  const hoseRadius=VN50.outerHoseRadiusMm;
  let posesChecked=0;
- for(const sampleShiftMm of shifts)for(const sampleAngleDeg of angles){
-   const options={sampleShiftMm,sampleAngleDeg};
+ for(const sampleShiftMm of shifts)
+ for(const sampleDepthShiftMm of depths)
+ for(const sampleAngleDeg of angles){
+   const options={sampleShiftMm,sampleDepthShiftMm,sampleAngleDeg};
    const hose=sampleCurve(vacuumHosePath(options),48);
    const wires=electricalHarnessPaths(options);
    for(const wire of wires){
@@ -353,26 +359,24 @@ window.__modelBVacuumSplineEnvelopeProbe=()=>{
      const surface=centerline-hoseRadius-wire.radiusMm;
      if(surface<minima[wire.id]){
        minima[wire.id]=surface;
-       worst[wire.id]={sampleShiftMm,sampleAngleDeg};
+       worst[wire.id]=options;
      }
    }
    posesChecked++;
  }
  return {
-   available:true,
-   posesChecked,
+   available:true,posesChecked,
    sampleShiftRangeMm:[-12.5,12.5],
+   sampleDepthShiftRangeMm:[-12.5,12.5],
    sampleAngleRangeDeg:[-90,90],
-   shiftStepMm:.5,
-   angleStepDeg:1,
+   shiftStepMm:3.125,depthStepMm:3.125,angleStepDeg:5,
    curveType:'THREE.CatmullRomCurve3 centripetal; getPointAt arc-length sampling',
-   hoseCurveSegments:48,
-   harnessCurveSegments:32,
-   minimumSurfaceClearanceMm:minima,
-   worstCasePoses:worst,
+   hoseCurveSegments:48,harnessCurveSegments:32,
+   minimumSurfaceClearanceMm:minima,worstCasePoses:worst,
    requiredSurfaceClearanceMm:VN50.minimumHarnessSurfaceClearanceMm,
    fullStrokeSplineGridPass:Object.values(minima).every(v=>
-     v>VN50.minimumHarnessSurfaceClearanceMm)
+     v>VN50.minimumHarnessSurfaceClearanceMm),
+   continuousBetweenSamplesProven:false
  };
 };
 window.__modelBVacuumProbe=()=>{
