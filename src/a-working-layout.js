@@ -32,7 +32,7 @@ export function auditAWorkingLayout({
   const heaterHalfEnvelopeX=d.heaterFootprintMm/2*(Math.abs(c)+Math.abs(s));
   const heaterLeftX=sampleWorldX-heaterHalfEnvelopeX;
   const heaterRightX=sampleWorldX+heaterHalfEnvelopeX;
-  const clampRightX=legX+9+10.5;
+  const clampRightX=legX+15+5; // upper/lower jaws extend 0.5mm beyond carrier
   const clampHeaterClearanceMm=heaterLeftX-clampRightX;
   const footprintGapMm=(d.sampleCenterX-d.sampleBaseFootprintXmm/2)-
     (d.filmStageX+d.magnetFootprintMm/2);
