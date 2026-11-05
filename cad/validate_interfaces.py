@@ -1117,6 +1117,60 @@ report['V40_rear_routed_suction_loop']={
 left_probe=cq.Solid.makeCylinder(1.2,10,Vector(49.5,0,107.5),Vector(1,0,0))
 check(left_probe.intersect(chuck).Volume()>1.0,'Old left-side inlet is absent from metal')
 
+# V50: validate the B-specific MXFMS reconstruction using only B photos
+# 108/110/113/116 and MXFMS manufacturer dimensions; A photos 41/71/72
+# are deliberately excluded from this platform's geometry evidence.
+mxpost=part(B,'B16')[0].BoundingBox()
+check(abs(mxpost.xlen-32)<.02 and abs(mxpost.ylen-32)<.02 and
+      abs(mxpost.zlen-280)<.02,
+      'B16 MXFMS post must match manufacturer Ø32x280mm envelope')
+micbody=part(B,'B16C')[0].BoundingBox()
+check(abs(micbody.zmin-(249+12-25))<.02 and
+      abs(micbody.zmax-(249+12+25))<.02,
+      'B16C MXFMS body datum must match WebGL head height')
+for focus_id in ('B16E','B16F'):
+    focus=part(B,focus_id)
+    check(len(focus)==1 and focus[0].isValid(),
+          focus_id+' coaxial coarse/fine focus assembly must be one valid solid')
+camera=part(B,'B17')
+check(len(camera)==1 and camera[0].isValid(),
+      'B17 camera and stepped relay adapter must form one connected solid')
+camera_bb=camera[0].BoundingBox()
+check(abs(camera_bb.zmin-260)<.02 and abs(camera_bb.zmax-336)<.02,
+      'B17 camera adapter and body must match WebGL vertical stack')
+nosepiece=part(B,'B18')
+check(len(nosepiece)==1 and nosepiece[0].isValid(),
+      'B18 MXFMS five-hole inward nosepiece must be one valid solid')
+nose_bb=nosepiece[0].BoundingBox()
+check(abs(nose_bb.zmin-212)<.02 and abs(nose_bb.zmax-225)<.02,
+      'B18 nosepiece height must match the objective/mount interface')
+turret_cx=82-18
+port_centres=[(turret_cx+18*math.cos(i*2*math.pi/5),
+               18*math.sin(i*2*math.pi/5)) for i in range(5)]
+for i,(px,py) in enumerate([(turret_cx,0),*port_centres],1):
+    bore=vz(7.9,13,px,py,212)
+    check(nosepiece[0].intersect(bore).Volume()<1e-4,
+          f'B18 central hub / objective port {i} must remain open')
+mount=part(B,'B16D')[0]
+check(abs(mount.BoundingBox().xlen-16)<.02 and
+      mount.intersect(nosepiece[0]).Volume()<1e-4,
+      'B16D offset turret support must clear the B18 central hub bore')
+for objective_id in ('B18A','B18B'):
+    objective=part(B,objective_id)
+    check(len(objective)==1 and objective[0].isValid(),
+          objective_id+' objective barrel must be one connected valid solid')
+report['B_microscope_MXFMS_photo_fit']={
+    'maker_model':'SUNNY/SDPTOP MXFMS',
+    'maker_post_diameter_mm':32,
+    'maker_post_height_mm':280,
+    'maker_coarse_travel_mm':32,
+    'maker_fine_precision_mm':0.002,
+    'nosepiece_ports':5,
+    'photo_identified_objectives':['10x/0.15/DIC/WD10.8','OptoSigma model unknown'],
+    'installed_objective_proxies':2,
+    'custom_B35_foot_and_port_pitch_verified':False,
+    'physical_acceptance':False
+}
 # Optical tips are a conservative candidate for open clearance, not WD qualification.
 tipbb=part(B,'B18A')[0].BoundingBox()
 glass=part(B,'B07')[0].BoundingBox()
