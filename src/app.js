@@ -2079,6 +2079,52 @@ function platformA(){
    label(g,'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
       -24,17,0);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
+ // V57: A05 previously ended at an unsupported metal flange, leaving
+ // the glass and a possible holder entirely absent from the 3D scene.
+ // These are explicit PROXY subassemblies, not identified purchased parts.
+ // Both share A05's film translation and VC13M vertical motion.
+ const bracketLegLocalX=aBent.leftX-ax+aBent.metalThickness/2;
+ const glassLeftX=bracketLegLocalX+10;
+ const glassCenterX=glassLeftX+38;
+ const glassCenterY=-aBent.verticalLegLength+1.0;
+ addPart('A05C',ax,164,0,g=>{
+   // Connection tab touches A05's bent leg; the actual clamp
+   // mechanism, jaw aperture and bolt holes are NOT photo-verified.
+   const bracketTie=add(g,cub(2.5,14,10,mats.black,
+     bracketLegLocalX,-aBent.verticalLegLength+7,aBent.sheetFrontZ));
+   bracketTie.userData.A05CUnverifiedConnection=true;
+   const carrier=add(g,cub(21,3,27,mats.dark,
+     bracketLegLocalX+9,glassCenterY-2,aBent.sheetFrontZ));
+   const upperJaw=add(g,cub(10,1.2,27,mats.dark,
+     bracketLegLocalX+15,glassCenterY+1.1,aBent.sheetFrontZ));
+   const lowerJaw=add(g,cub(10,1.2,27,mats.dark,
+     bracketLegLocalX+15,glassCenterY-1.1,aBent.sheetFrontZ));
+   for(const m of [carrier,upperJaw,lowerJaw])m.userData.A05CClampingProxy=true;
+   g.userData.unverifiedClampMechanism=true;
+   g.userData.jawGapCandidateMm=1;
+   g.userData.actualClampOEM=false;
+   label(g,'A05C · 玻片夹连接示意（实物夹具型号、孔位未确认）',
+     bracketLegLocalX+5,18,aBent.sheetFrontZ);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
+ addPart('A05G',ax,164,0,g=>{
+   // Typical 76x26x1mm glass slide extends to the RIGHT of the
+   // external holder. Put the PDMS stamp near its right edge so the
+   // jaw can remain outside the heater envelope in an eventual
+   // physically registered transfer pose.
+   const slide=add(g,cub(76,1,26,mats.glass,
+     glassCenterX,glassCenterY,aBent.sheetFrontZ));
+   slide.userData.candidateStandardSlide=[76,26,1];
+   const pdmsX=glassLeftX+68;
+   const stamp=add(g,cub(8,1.8,8,mats.ceramic,
+     pdmsX,glassCenterY-1.4,aBent.sheetFrontZ));
+   stamp.userData.A05GStampRightMarginMm=4;
+   g.userData.stampAtRightGlassEdge=true;
+   g.userData.clampLeftOutsideHeaterCandidate=true;
+   g.userData.glassToHolderPhysicallyVerified=false;
+   g.userData.unregisteredGlobalPose=true;
+   label(g,'A05G · 76×26×1mm玻片候选 / 右端印章 / A07全局未配准',
+     glassCenterX,15,aBent.sheetFrontZ);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
  addPart('A06',sx,28,0,g=>{
   // Photos17/18/20: rotary cylinder does not exceed the 65mm upper
   // square plate. V47 Ø94 was geometrically disproportionate.
@@ -2539,7 +2585,7 @@ function resetScene(){
  }
  else {
    platformA();
-   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A16','A06','A02','A07','A10']){
+   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A07','A10']){
      if(!parts.has(id))throw Error('Model A missing: '+id);
    }
  }
