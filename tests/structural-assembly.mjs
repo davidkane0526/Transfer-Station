@@ -45,4 +45,5 @@ assert.equal(JOINTS.B14.count,4);
 assert.equal(JOINTS.B14.status,'count-and-flush-user-confirmed');
 assert.equal(JOINTS.B09.status,'candidate','Never infer NFP-to-rotary bolt length');
 assert.equal(JOINTS.B06.count,2);
+assert.equal(JOINTS.A04L.count,2,'A lower photo94 goniometer needs two visible candidate heads');
 console.log('Structural QA: X-only NFP; B03 XY; no return loop; supported film clamp; visible provisional fasteners PASS');
