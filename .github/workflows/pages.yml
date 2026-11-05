@@ -57,6 +57,8 @@ jobs:
           node tests/v48-ruler-registration.mjs
           node --check src/platform-a-assembly-audit.js
           node tests/platform-a-assembly-audit.mjs
+          node --check src/a-working-layout.js
+          node tests/a-working-layout.mjs
           node --check src/b-physical-audit.js
           node tests/b-profile-audit.mjs
           node --check src/interface-evidence.js
@@ -94,6 +96,7 @@ jobs:
             Transfer-Station-V29-B-Post-Sleeve-Closeup.png
             Transfer-Station-V29-B-Film-Viewer.png
             Transfer-Station-ModelA-5306M-Base.png
+            Transfer-Station-V58-A-Candidate-Transfer-Contact.png
             Transfer-Station-V46-A-VC13M-Raised.png
             Transfer-Station-V46-A-VC13M-Lowered.png
             Transfer-Station-Preview-B.png
