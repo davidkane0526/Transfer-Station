@@ -140,7 +140,8 @@ for key,z0,fixed in (('B41',lower_z,b41_fixed),('B09',upper_z,nfp_fixed)):
         screw=part(B,f'{key}S{i}')
         check(len(screw)==1 and screw[0].isValid(),
               key+' fixed-base mounting screw is one valid connected solid')
-# The lower B41 top pattern receives the B09 fixed-base screws.
+# The lower B41 top has only the four candidate corner M6 holes needed
+# to mount the upper B09 fixed base. Do not impose the NFP full hole grid.
 for dx in (-25,25):
     for dy in (-25,25):
         tapped=vz(2.45,8,82+dx,dy,lower_z+23-8)
