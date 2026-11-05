@@ -533,7 +533,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V56.*A17.*A05C.*A05G/);
+ assert.match(await page.locator('#platform-caption').innerText(),/V57.*A05C.*A05G.*A17/);
  const aComplete=await page.evaluate(()=>window.__platformACompletenessProbe?.());
  assert.equal(aComplete?.available,true,
    'Platform A must model A05C clamp and A05G glass as separate scene components');
