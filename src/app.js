@@ -722,6 +722,7 @@ function screw(g,x,topY,z,length=25){
  const rim=add(g,torus(5.13,.25,mats.ink,x,topY-.02,z));
  for(const o of [shaft,head,socket,rim])o.userData.fastenerProxy=true;
  head.userData.confirmedHeadCount=true;
+ return head;
 }
 function makeBoard(){
  addPart(platform+'01',0,0,0,g=>{
@@ -1364,6 +1365,12 @@ function microscopeB(){
    foot.userData.trueCandidateMountBores=4;
    foot.userData.boardThreadedFixingVerified=false;
    foot.userData.B35GridRegistered=true;
+   // Four M6x20 socket-head candidates: 12mm foot + 8mm nominal B35 engagement.
+   for(const x of [-25,25])for(const z of [-25,25]){
+     const head=screw(g,x,18,z,20);
+     head.userData.B16MountingScrewHead=true;
+   }
+   g.userData.B16MountingScrewCount=4;
    g.userData.mountingFootCenterWorld=[87.5,-112.5];
    g.userData.mountingFootGridRegistered=true;
    // MXFMS maker specification: Ø32 x 280mm post. The custom foot,
