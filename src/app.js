@@ -2525,6 +2525,25 @@ function selectPart(id){
 }
 function updateTransforms(){
  const e=explosion/100,angle=sampleAngle*Math.PI/180;
+ let aPoseAudit=platform==='A'&&aWorkingPoseMode?auditAWorkingLayout({
+   filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
+   sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop
+ }):null;
+ if(aPoseAudit&&filmDrop>0&&!aPoseAudit.candidateCanLower){
+   filmDrop=0;
+   $('film-drop').value='0';$('film-drop-value').textContent='0.0 mm';
+   aPoseAudit=auditAWorkingLayout({filmShiftMm:filmShift,
+     filmDepthShiftMm:filmShiftDepth,sampleShiftMm:sampleShift,
+     sampleAngleDeg:sampleAngle,filmDropMm:0});
+ }
+ if($('a-working-metrics')&&aPoseAudit){
+   $('a-working-metrics').textContent='磁座/样品底座分离 '+aPoseAudit.footprintGapMm.toFixed(1)+
+     ' mm；夹具距热台边缘 '+aPoseAudit.clampHeaterClearanceMm.toFixed(1)+
+     ' mm；印章竖直间隙 '+aPoseAudit.verticalStampGapMm.toFixed(1)+' mm。'+
+     (aPoseAudit.candidateCanLower?'当前姿态允许几何下降预览。':
+       '当前旋转/平移姿态不允许下降；须先调整夹具/印章位置。')+
+     ' 以上皆为场景候选尺寸，非照片测量或实际设备安全认证。';
+ }
  const motionAudit=platform==='B'&&!bPhoto94Mode?
    auditBLoweringPose({filmShiftX:filmShift,sampleShiftX:sampleShift,
      sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle,
@@ -2538,7 +2557,12 @@ function updateTransforms(){
    $('lowering-clearance').textContent=motionAudit?
      '夹具与热台X向保守间隙：'+motionAudit.planarGapMm.toFixed(1)+' mm'+
        (motionAudit.possibleClash?'；当前平移/旋转姿态下禁用下降':'；下降检查允许接触印章'):
-     '平台 A · VC13M从候选抬升13mm位置向下运动至旧静态下限；A04L/A04/A05共同随动，玻片夹/整机位置未确认，禁止将其视为实物零位或安全接触';
+     aPoseAudit?
+       'A操作位置仅为几何假设：夹具至热台 '+aPoseAudit.clampHeaterClearanceMm.toFixed(1)+
+         ' mm；PDMS垂直间隙 '+aPoseAudit.verticalStampGapMm.toFixed(1)+' mm；'+
+         (aPoseAudit.candidateCanLower?'允许运动预览':'当前姿态禁止继续下降')+
+         '。实物夹具、磁座和安装朝向未验证。':
+     '平台 A · 照片94原始左折边姿态，全局位置未配准；VC13M升降仅供演示，不可据此认为可转移';
  }
  parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,translateSampleDepth,rotateSample,facingYaw=0})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0;
