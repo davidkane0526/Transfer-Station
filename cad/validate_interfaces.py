@@ -710,9 +710,11 @@ check(abs(long.BoundingBox().xmin+90)<.02 and abs(long.BoundingBox().xmax+20)<.0
       'First rod crosses B33→PHUC without floating or extra metal tail')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
-# V38 A film side photo94: ONE connected bent-L sheet and two visible
-# screw heads. Old A05A 215mm fabricated span and A05C glass jaw
-# were contradicted by photos94/95/97 and are intentionally absent.
+# V57: retain the photo94-confirmed SHORT connected L sheet and
+# its two visible screw heads. Only the old 215mm imaginary beam and
+# false spacer remain rejected. A05C is now a SHORT, explicitly
+# unverified scene clamp with a separate upper jaw and glass, NOT an
+# identified OEM product. Never infer physical transfer readiness.
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
 check(abs(asheet_bb.xmin+164)<.02 and abs(asheet_bb.xmax+89)<.02,
@@ -728,9 +730,47 @@ for i,dx in enumerate((-14,14),1):
           'A photo94 two bolt heads sit on the folded plate')
     check(abs((head.BoundingBox().xmin+head.BoundingBox().xmax)/2-(-116+dx))<.02,
           'A photo94 candidate bolt pair aligned over G40')
-for id in ('A05A','A05B','A05C'):
+for id in ('A05A','A05B'):
     check(not (A/(id+'.step')).exists(),
-          'A old invented 215mm slide carrier, fake riser and guessed glass clip removed: '+id)
+          'Discredited 215mm transfer beam/spacer must remain absent: '+id)
+a_clamp=part(A,'A05C')[0]
+a_upper_jaw=part(A,'A05CU')[0]
+a_slide=part(A,'A05G')[0]
+a_pdms=part(A,'A05GP')[0]
+check(len(part(A,'A05C'))==1,
+      'A05C bracket tie and lower jaw must be a connected solid')
+check(a_sheet.distance(a_clamp)<.05,
+      'A05C local clamp must touch the end of the A05 L bracket')
+check(a_clamp.distance(a_slide)<.05,
+      'A05C lower jaw must touch, not penetrate, the candidate glass')
+check(a_upper_jaw.distance(a_slide)<.05,
+      'A05C upper jaw must touch, not penetrate, the glass upper face')
+check(a_pdms.distance(a_slide)<.05,
+      'A05GP PDMS must contact glass underside, not float below it')
+check(a_clamp.intersect(a_slide).Volume()<.0001 and
+      a_upper_jaw.intersect(a_slide).Volume()<.0001 and
+      a_pdms.intersect(a_slide).Volume()<.0001,
+      'A05 clamp/PDMS must avoid physical penetration into the glass')
+check(abs(a_slide.BoundingBox().xlen-76)<.02 and
+      abs(a_slide.BoundingBox().ylen-26)<.02 and
+      abs(a_slide.BoundingBox().zlen-1)<.02,
+      'A05G nominal glass is a distinct 76x26x1mm candidate')
+check(abs(a_slide.BoundingBox().xmax-a_pdms.BoundingBox().xmax-4)<.02,
+      'A05GP stamp must be 4mm from the right-hand glass edge')
+a_heater=part(A,'A07')[0]
+check(a_slide.distance(a_heater)>30,
+      'A05G is still globally UNREGISTERED to A07; a valid-looking clamp is not a complete transfer station')
+report['V57_A05C_A05G_candidate_chain']={
+    'part_chain':['A05','A05C','A05CU','A05G','A05GP'],
+    'glass_size_candidate_mm':[76,26,1],
+    'pdms_size_candidate_mm':[8,8,1.8],
+    'pdms_right_margin_mm':4,
+    'photo94_confirms_A05_bent_sheet_only':True,
+    'clamp_oem_sku_confirmed':False,
+    'clamp_to_heater_global_pose_registered':False,
+    'clamp_screw_pattern_verified':False,
+    'made_for_machining_or_procurement':False
+}
 report['V47_A_photo94_visual_scale']={
  'source':'photo94 approx landmarks against G40M60L 40mm OEM top size',
  'top_span_mm_candidate':75,
