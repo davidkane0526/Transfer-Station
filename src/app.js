@@ -2698,7 +2698,7 @@ function switchPlatform(next){
   $('sample-move-label').textContent=next==='A'?
     '样品侧 A02 · X平移（行程待核）':
     '样品上层 B09 · X平移';
-  $('sample-move-depth-label').textContent='样品下层 B41 · Z平移（前后）';
+  $('sample-move-depth-label').textContent='样品下层 B41 · Y平移（前后，场景+Z）';
   $('sample-move-depth').disabled=next!=='B';
   $('film-drop').min='-13';
   $('film-drop').max='0';
