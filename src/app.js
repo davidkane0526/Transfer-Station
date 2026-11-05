@@ -61,8 +61,12 @@ microscope:{name:'显微镜 / 相机 / 物镜',color:'#a7c8f2'},
 illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
-let platform='B', bPhoto94Mode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
+let platform='B', bPhoto94Mode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0;
+// Read-only platform state for automated browser QA.
+window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',partCount:parts.size});
+/*
     filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
+*/
 let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
 // Read-only diagnostic used by the real-browser assembly smoke test.
