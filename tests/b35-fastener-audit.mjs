@@ -25,6 +25,7 @@ assert.equal(a.boardBoltPatternAligned,true);
 assert.equal(a.boardThreadedFixingVerified,false);
 assert.equal(a.boardAnchorThreadVerified,false);
 assert.equal(a.loadedJointAccepted,false);
+assert.equal(a.loadBearingFastenerJointAccepted,false);
 assert.equal(a.holesAreDecorativeBlindRecesses,false);
 
 const oldV45=auditB35MicroscopeFasteners({microscopeCenterX:90,microscopeCenterZ:-100});

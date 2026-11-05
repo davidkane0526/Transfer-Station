@@ -100,6 +100,7 @@ export function auditB35MicroscopeFasteners({
     boardThreadedFixingVerified:false,
     boardAnchorThreadVerified:false,
     loadedJointAccepted:false,
+    loadBearingFastenerJointAccepted:false,
     footFastenerTypeCandidate:'M6×18 socket-head screws',
     boardAnchorFastenerTypeCandidate:'M6×20 low-head screws',
     photoFitOriginalFootCenterWorldMm:[82,-112],
