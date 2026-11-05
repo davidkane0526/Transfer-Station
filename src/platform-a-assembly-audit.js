@@ -1,4 +1,5 @@
 import {inferAProxyDimensionsFromOriginalPhotos} from './a-photo-scale-calibration.js';
+import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 const V47_A_LOCAL_SHEET=inferAProxyDimensionsFromOriginalPhotos();
 // V47: first-rig local sheet dimensions scale to photo94 G40, global origin unregistered.
 // This module measures the mutually inconsistent proxy scene datums; none of these
@@ -8,7 +9,7 @@ export function auditPlatformAAssembly({
   bracketTopWidthMm=Math.round(V47_A_LOCAL_SHEET.sheetTopWidthMm),
   bracketOverhangLeftMm=Math.round(V47_A_LOCAL_SHEET.sheetLeftOverhangMm),
   bracketReturnWidthMm=13,filmTravelHalfMm=12.5,sampleTravelHalfMm=12.5,
-  bracketLowestYmm=92,heaterTopYmm=99.2
+  bracketLowestYmm=92,heaterTopYmm=auditV48RulerRegistration().sampleTopGlobalMm
 }={}){
   const numbers=[filmStageX,sampleCenterX,sampleHeaterWidthMm,
     bracketTopWidthMm,bracketOverhangLeftMm,bracketReturnWidthMm,
@@ -37,7 +38,10 @@ export function auditPlatformAAssembly({
     localSheetSizeManuallyCalibratedFromG40Photo94:true,
     secondTwentyMmGoniometerCandidateAdded:true,
     secondGoniometerActualSkuVerified:false,
-    sourceRulerMeasurementsAvailable:false,
+    sourceRulerMeasurementsAvailable:true,
+    sourceRulerPhotoIds:['17','18','19','20','21'],
+    sampleTopAboveBoardMeasuredRangeMm:[V48_RULER_EVIDENCE.A.sampleTopHeightAboveBreadboardMm.min,V48_RULER_EVIDENCE.A.sampleTopHeightAboveBreadboardMm.max],
+    sampleTopStackGeometryRulerCompatible:auditV48RulerRegistration().sampleTopWithinVisibleRulerRange,
     absoluteFilmSampleCoordinatesPhotoRegistered:false,
     photoConfirmedMagneticBaseSku:false,
     filmStageX,sampleCenterX,
@@ -58,6 +62,6 @@ export function auditPlatformAAssembly({
     functionalTransferAccepted:false,
     missing:['A05 lower glass jaw model & fixing thread','A17 magnetic base actual SKU, height & mounting pitch',
       'film stage/thermal stage relative origin and direction','A02 actual travel axis','A05-to-glass-to-PDMS contact height'],
-    note:'A05 local length uses photo94 G40 projected size (not ruler); global stage coordinates still unregistered. Both horizontal reach gaps diagnose the provisional scene, NOT measured inter-stage distance.'
+    note:'A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
   });
 }
