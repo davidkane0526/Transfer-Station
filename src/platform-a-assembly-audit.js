@@ -1,11 +1,12 @@
 import {inferAProxyDimensionsFromOriginalPhotos} from './a-photo-scale-calibration.js';
+import {CONFIG} from './parts.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 const V47_A_LOCAL_SHEET=inferAProxyDimensionsFromOriginalPhotos();
 // V47: first-rig local sheet dimensions scale to photo94 G40, global origin unregistered.
 // This module measures the mutually inconsistent proxy scene datums; none of these
 // coordinates should be mistaken for a dimension observed in user photos.
 export function auditPlatformAAssembly({
-  filmStageX=-116,sampleCenterX=78,sampleHeaterWidthMm=65,
+  filmStageX=CONFIG.A.armX,sampleCenterX=CONFIG.A.sampleX,sampleHeaterWidthMm=65,
   bracketTopWidthMm=Math.round(V47_A_LOCAL_SHEET.sheetTopWidthMm),
   bracketOverhangLeftMm=Math.round(V47_A_LOCAL_SHEET.sheetLeftOverhangMm),
   bracketReturnWidthMm=13,filmTravelHalfMm=12.5,sampleTravelHalfMm=12.5,
