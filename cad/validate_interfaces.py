@@ -358,11 +358,38 @@ report['V46_A03_external_drive_and_moving_plate']={
     'physical_zero_height_verified':False
 }
 check(abs(part(A,'A06A')[0].BoundingBox().zmax-a02.zmin)<.02,'A sample T25M above rotary')
-check(abs((a02.zmin+20)-aheat.zmin)<.02,'A sample heater above second T25M')
+check(abs((a02.zmin+20)-part(A,'A07B')[0].BoundingBox().zmin)<.02,
+      'V48 A07 dark bottom 9mm directly rests on sample A02 T25M')
+check(abs(part(A,'A07B')[0].BoundingBox().zmax-
+          part(A,'A07I')[0].BoundingBox().zmin)<.02,
+      'V48 7mm intermediate visible layer rests on lower dark support')
+check(abs(part(A,'A07I')[0].BoundingBox().zmax-aheat.zmin)<.02,
+      'V48 12mm silver top sits on the gold-colored intermediate plate')
+check(abs(aheat.zmax-109.2)<.02,
+      'V48 ruler photo17/18: sample top global 109.2mm, 89.2mm above 20mm board')
+check(87<(aheat.zmax-20)<93,
+      'V48 ruler: silver sample top must stand approx 9cm above breadboard')
+check(abs(arot.xlen-66)<.02 and abs(arot.ylen-66)<.02,
+      'V48 A only: candidate rotary Ø66 mm, NOT disproportional Ø94')
+for i in range(1,5):
+    head=part(A,f'A07S{i}')[0]
+    check(abs(head.BoundingBox().zmax-108.6)<.02,
+          'V48 silver top screw HEAD must be recessed, not floating above sample')
+report['V48_A_sample_height_ruler']={
+    'photo_references':['17','18','19','20','21'],
+    'board_top_z_mm':20,
+    'photo_top_above_board_mm_estimate':[87,93],
+    'scene_top_above_board_mm':round(aheat.zmax-20,1),
+    'A07_layers_mm':[9,7,12],
+    'A07_middle_layer_material_identified':False,
+    'A06_rotary_diameter_candidate_mm':66,
+    'A06_actual_rotation_sku_identified':False,
+    'A07_top_4_blind_screw_head_locations_qualified':False
+}
 check(part(A,'A15B')[0].BoundingBox().xmin>=a15.xmax-.02,
       'A film T25M handle points to RIGHT +X')
-check(part(A,'A02B')[0].BoundingBox().xmin>=a02.xmax-.02,
-      'A sample T25M handle points to RIGHT +X')
+check(part(A,'A02B')[0].BoundingBox().xmax<=a02.xmin+.02,
+      'A sample T25M silver left handle in photo17 points LEFT -X')
 check(part(A,'A03M')[0].BoundingBox().zmax<=part(A,'A03K')[0].BoundingBox().zmin+.02,
       'A VC13M micrometer is vertically oriented')
 check(part(A,'A04LM')[0].BoundingBox().xmin>=a04_lower.xmax-.02,
@@ -513,8 +540,8 @@ a_horizontal_gap=a_heater.xmin-a_lip_tip_right-25 # two optimistic +/-12.5mm sta
 a_bracket_to_heater_z=a_heater.zmax-asheet_bb.zmin
 check(170<a_horizontal_gap<175,
       'V47 A photo94 G40-scaled sheet remains 171.5mm away under UNREGISTERED global stage origins')
-check(7<a_bracket_to_heater_z<8,
-      'V47 second goniometer raises A05 lower lip 20mm, leaving ~7.2mm candidate height error')
+check(17<a_bracket_to_heater_z<18,
+      'V48 photo-layer sample top raises 10mm to 89.2mm above board; lip gap ~17.2mm in UNREGISTERED scene')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
 check(abs(a_scope_bb.zmin-a_board.zmax)<.02,
