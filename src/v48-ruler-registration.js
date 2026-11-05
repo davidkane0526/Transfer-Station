@@ -48,6 +48,13 @@ export const V48_RULER_EVIDENCE=Object.freeze({
       topModelPreserved:true,
       magneticFootModelConfirmed:false,
       photoOf420302MNameplateInThisGroup:false,
+      A17:Object.freeze({
+        sideSlotVisible:true,frontKnurledControlVisible:true,
+        lowerPanelFastenersVisible:2,topCornerCounterboresVisible:4,
+        exactSlotDimensionsMeasured:false,controlFunctionIdentified:false,
+        magneticSwitchIdentified:false,manufacturerSkuVerified:false,
+        comparisonToB_GCM420302MAllowed:false
+      }),
       filmToSampleCommonXYCoordinatesMeasured:false
     })
   }),
