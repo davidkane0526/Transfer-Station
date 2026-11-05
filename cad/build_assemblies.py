@@ -523,7 +523,7 @@ def make_a():
     a17_panel=box(42,1.5,16,ax,33.25,22).cut(
         box(26,1.6,4.2,ax,33.25,25.9))
     add('A','A17P','FILM_MAGNET_FRONT_SLOTTED_PANEL_PHOTO22',a17_panel,'P')
-    for i,xx in enumerate((ax-13,ax+13),1):
+    for i,xx in enumerate((ax-17,ax+17),1):
         add('A',f'A17S{i}','FILM_MAGNET_PANEL_LOWER_SCREW_HEAD_CANDIDATE',
             vy(2.2,1.5,xx,33.25,22.5),'C')
     a17_control=vy(1.8,14.5,ax,19.5,25.9).fuse(
