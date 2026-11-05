@@ -344,7 +344,7 @@ window.__modelBVacuumProbe=()=>{
  if(!pump||!hose||!fitting)return {available:false};
  pump.updateWorldMatrix(true,true);
  fitting.updateWorldMatrix(true,true);
- const ring=pump.children.find(o=>o.userData.realSuctionInlet);
+ const ring=pump.children.find(o=>o.userData.G1QuarterThreadReference);
  const bored=fitting.children.find(o=>o.userData.trueVacuumAxialBore);
  if(!ring||!bored)return {available:false};
  const pumpBounds=new THREE.Box3().setFromObject(pump);

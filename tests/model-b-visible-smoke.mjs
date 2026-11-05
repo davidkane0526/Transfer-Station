@@ -96,7 +96,7 @@ try{
  assert(vac?.available,'V37 pump suction tube or diagnostic not mounted');
  assert.equal(vac.nameplateModel,'VN-50','Photo120 VN-50 must replace W-50');
  assert.equal(vac.photoConfirmed,true);
- assert.equal(vac.geometryRevision,'V43_photo120_123_cylindrical_shell_same_side_rods_candidate');
+ assert.equal(vac.geometryRevision,'V53_VN50_G14_thread_datum_not_a_hose_spigot');
  assert.deepEqual(vac.pumpEnvelopeMm.map(v=>Math.round(v)),[200,150,110],
    'VN-50 candidate body must respect the 200×110×150mm family envelope');
  assert.equal(vac.pumpFeatures.basePlate,1);
