@@ -310,6 +310,47 @@ def make_b():
     microscope_b35_centres=[(x,y) for x in (mic_foot_x-25,mic_foot_x+25)
                             for y in (mic_foot_y-25,mic_foot_y+25)]
     microscope_rise=12
+    # V51: restore the two sample-side components that were present in
+    # WebGL/BOM but absent from the STEP builder.
+    # GCM-1107M: Ø94 x 33.2mm rotary stage, nine-hole 25mm top pattern.
+    rot('B','B08',cx,0,20+microscope_rise,'D',radius=47,lock_radius=6)
+    # Zolix NFP-1462C: 65x65x23mm single-X stage, installed with its
+    # micrometer pointing to the right as in photo110. The four base
+    # holes are Ø6.5 clearance with Ø11 counterbores; the moving top
+    # carries 9-M6 and 4-M3 tap-drill proxies.
+    nfp_z=20+microscope_rise+33.2
+    nfp_corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
+    nfp_fixed=box(65,65,11,cx,0,nfp_z)
+    nfp_fixed=cut(nfp_fixed,nfp_corners,6.5,11,nfp_z)
+    nfp_fixed=cut(nfp_fixed,nfp_corners,11,5,nfp_z+6)
+    nfp_lower_side=[(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]
+    nfp_upper_side=[(-22,1.8),(-8,1.8),(12,2.8)]
+    for xoff,radius in nfp_lower_side:
+        nfp_fixed=nfp_fixed.cut(vy(radius,.8,cx+xoff,32.1,nfp_z+7))
+    add('B','B09','Zolix_NFP1462C_fixed_base_65x65x11_O6p5_O11',nfp_fixed,'D')
+    for i,(hx,hy) in enumerate(nfp_corners,1):
+        screw=vz(2.45,18,hx,hy,nfp_z-7).fuse(vz(4.2,2.5,hx,hy,nfp_z+8.5))
+        add('B',f'B09S{i}','NFP1462C_fixed_base_M6x18_candidate_'+str(i),screw,'C')
+    nfp_slide_lower=box(65,65,2,cx,0,nfp_z+11)
+    add('B','B09M','NFP1462C_moving_carriage_lower_2mm',nfp_slide_lower,'P')
+    nfp_slide_top=box(65,65,10,cx,0,nfp_z+13)
+    nfp_m6=[(cx+x,y) for x in (-25,0,25) for y in (-25,0,25)]
+    nfp_m3=[(cx+x,y) for x in (-16,16) for y in (-16,16)]
+    nfp_slide_top=cut(nfp_slide_top,nfp_m6,5,10,nfp_z+13)
+    nfp_slide_top=cut(nfp_slide_top,nfp_m3,2.5,10,nfp_z+13)
+    for xoff,radius in nfp_upper_side:
+        nfp_slide_top=nfp_slide_top.cut(vy(radius,.8,cx+xoff,32.1,nfp_z+18))
+    add('B','B09A','NFP1462C_moving_top_9M6_4M3_10mm',nfp_slide_top,'D')
+    # OEM micrometer points +X after the photographed 180-degree install.
+    nfp_mic_z=nfp_z+12
+    add('B','B09B','NFP1462C_micrometer_housing_photo_proxy',
+        box(24,30,15,cx+45,0,nfp_mic_z),'P')
+    add('B','B09C','NFP1462C_micrometer_spindle_O7p2x74',
+        vx(3.6,74,cx+85,0,nfp_mic_z),'P')
+    add('B','B09D','NFP1462C_micrometer_collar_O18x23',
+        vx(9,23,cx+119,0,nfp_mic_z),'P')
+    add('B','B09E','NFP1462C_micrometer_drum_O22x28',
+        vx(11,28,cx+131,0,nfp_mic_z),'P')
     # Photo116 identifies SDPTOP MXFMS. Manufacturer data specifies
     # a Ø32 x 280mm post; the actual B35 adapter foot is a custom
     # installation proxy, not the standard 320x260x16mm B5 base.

@@ -83,6 +83,90 @@ for system,aux,anchors,head_z in (
 sample_board=part(B,'B35')[0]
 silver_board=part(B,'B01')[0]
 sample_base=part(B,'B08')[0]
+rotary_top=part(B,'B08A')[0]
+nfp_z=20+12+33.2
+nfp_fixed=part(B,'B09')[0]
+nfp_moving_lower=part(B,'B09M')[0]
+nfp_moving_top=part(B,'B09A')[0]
+check(abs(sample_base.BoundingBox().zmin-32)<.02,
+      'B08 GCM-1107M rotary begins directly on the B35 board top')
+check(abs(rotary_top.BoundingBox().zmax-nfp_fixed.BoundingBox().zmin)<.02,
+      'B09 NFP-1462C fixed base rests directly on the B08 rotary top')
+check(abs(nfp_fixed.BoundingBox().zlen-11)<.02 and
+      abs(nfp_moving_lower.BoundingBox().zlen-2)<.02 and
+      abs(nfp_moving_top.BoundingBox().zlen-10)<.02,
+      'B09 NFP-1462C retains 11+2+10mm fixed/moving stack')
+check(abs(nfp_fixed.BoundingBox().zmin-nfp_z)<.02 and
+      abs(nfp_moving_top.BoundingBox().zmax-(nfp_z+23))<.02,
+      'B09 NFP-1462C total mechanical height is 23mm')
+check(rotary_top.intersect(nfp_fixed).Volume()<1e-4,
+      'B08 rotary top and B09 fixed base contact without interpenetration')
+check(nfp_fixed.intersect(nfp_moving_lower).Volume()<1e-4 and
+      nfp_moving_lower.intersect(nfp_moving_top).Volume()<1e-4,
+      'B09 fixed and moving layers meet at planar interfaces')
+# GCM-1107M nine-hole 25mm candidate pattern.
+for dx in (-25,0,25):
+    for dy in (-25,0,25):
+        hole=vz(2.45,8,82+dx,dy,57.2)
+        check(rotary_top.intersect(hole).Volume()<1e-5,
+              'B08 GCM-1107M 9-hole top pattern remains open')
+# NFP fixed base: 4 x Ø6.5 clearance / Ø11 counterbores at 50mm pitch.
+nfp_corners=[(82+dx,dy) for dx in (-25,25) for dy in (-25,25)]
+for i,(x,y) in enumerate(nfp_corners,1):
+    clearance=vz(3.2,11,x,y,nfp_z)
+    counterbore=vz(5.45,5,x,y,nfp_z+6)
+    check(nfp_fixed.intersect(clearance).Volume()<1e-5,
+          'B09 NFP fixed base Ø6.5 clearance hole is open')
+    check(nfp_fixed.intersect(counterbore).Volume()<1e-5,
+          'B09 NFP fixed base Ø11 counterbore is open')
+    tapped=vz(2.45,8,x,y,57.2)
+    check(rotary_top.intersect(tapped).Volume()<1e-5,
+          'B09 mounting screw position aligns with a GCM-1107M top M6 candidate hole')
+    screw=part(B,f'B09S{i}')
+    check(len(screw)==1 and screw[0].isValid(),
+          'B09 fixed-base M6 screw is one valid connected solid')
+# NFP moving top: 9 M6 + 4 M3 tap-drill proxies.
+for dx in (-25,0,25):
+    for dy in (-25,0,25):
+        probe=vz(2.45,10,82+dx,dy,nfp_z+13)
+        check(nfp_moving_top.intersect(probe).Volume()<1e-5,
+              'B09 NFP moving plate 9-M6 top hole is open')
+for dx in (-16,16):
+    for dy in (-16,16):
+        probe=vz(1.20,10,82+dx,dy,nfp_z+13)
+        check(nfp_moving_top.intersect(probe).Volume()<1e-5,
+              'B09 NFP moving plate 4-M3 top hole is open')
+for xoff,radius in [(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]:
+    probe=vy(radius,.6,82+xoff,32.2,nfp_z+7)
+    check(nfp_fixed.intersect(probe).Volume()<1e-5,
+          'B09 NFP fixed-base lower photo side bore is open')
+for xoff,radius in [(-22,1.8),(-8,1.8),(12,2.8)]:
+    probe=vy(radius,.6,82+xoff,32.2,nfp_z+18)
+    check(nfp_moving_top.intersect(probe).Volume()<1e-5,
+          'B09 NFP moving-top upper photo side bore is open')
+for key in ('B09B','B09C','B09D','B09E'):
+    item=part(B,key)
+    check(len(item)==1 and item[0].isValid(),
+          f'{key} NFP micrometer assembly component exists and is valid')
+nfp_micrometer=part(B,'B09E')[0].BoundingBox()
+check(nfp_micrometer.xmax>220,
+      'B09 NFP micrometer drum points to the operator-right side')
+report['B08_GCM1107M']={
+    'envelope_mm':[94,94,33.2],
+    'top_hole_pattern':'9 M6 candidate holes at 25mm pitch',
+    'operator_lock_side':'+Y',
+    'OEM_model_confirmed':True
+}
+report['B09_NFP1462C']={
+    'envelope_mm':[65,65,23],
+    'fixed_moving_stack_mm':[11,2,10],
+    'fixed_base_mounting':'4 x Ø6.5 clearance / Ø11 counterbore at 50mm pitch',
+    'moving_top_pattern':'9 M6 + 4 M3 candidate tapped holes',
+    'photo_side_holes':{'fixed_lower':4,'moving_upper':3},
+    'micrometer_direction':'+X',
+    'single_axis_only':True,
+    'manufacturer_model_confirmed':True
+}
 sbb=sample_board.BoundingBox();bb0=silver_board.BoundingBox()
 check(abs(sbb.zmin-bb0.zmax)<.02,'B35 local plate directly rests on the sole B01 common breadboard')
 check(abs(sbb.zmax-sample_base.BoundingBox().zmin)<.02,'B08 rotary sits on B35, not directly on B01')
