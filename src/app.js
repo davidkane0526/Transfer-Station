@@ -135,6 +135,27 @@ window.__modelBSupportProbe=()=>{
    microscopeMountAudit:mountAudit
  };
 };
+// V50: inspect actual rendered microscope meshes, not just metadata.
+window.__modelBMicroscopeProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const roots={scope:parts.get('B16')?.g,camera:parts.get('B17')?.g,
+              objectives:parts.get('B18')?.g};
+ if(!roots.scope||!roots.camera||!roots.objectives)return {available:false};
+ const count=(root,flag)=>{
+   let n=0;root.traverse(o=>{if(o.userData[flag])n++});return n;
+ };
+ let housing=null;
+ roots.scope.traverse(o=>{if(o.userData.microscopeHousingMaterial)housing=o});
+ return {
+   available:true,
+   supportBoomCylindrical:count(roots.scope,'microscopeSupportBoom')===1,
+   sideOpticalTubeSegments:count(roots.scope,'microscopeSideTube'),
+   cameraLensTubeSegments:count(roots.camera,'cameraLensTubeSegment'),
+   cameraCableLoop:count(roots.camera,'cameraCableLoop')===1,
+   objectiveBarrels:count(roots.objectives,'objectiveBarrel'),
+   housingBlack:housing?.material===mats.black
+ };
+};
 // V46 read-only first-rig kinematic witness: A03 fixed body does NOT
 // move; its output plate plus A04L/A04/A05 must move together by the preview
 // displacement. This is NOT a real glass-contact/collision certification.
