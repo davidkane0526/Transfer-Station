@@ -329,15 +329,15 @@ for i in range(1,5):
     ss=part(B,'B14_'+str(i))
     check(len(ss)==1,f'B14_{i} screw is ONE connected solid')
     bb=ss[0].BoundingBox()
-    check(abs(bb.zmax-109.7)<0.03,f'B14_{i} top recessed 0.5 mm')
-    check(abs(bb.zmin-78.7)<0.03,f'B14_{i} nominal M6x25 under-head length')
+    check(abs(bb.zmax-132.7)<0.03,f'B14_{i} top recessed 0.5 mm')
+    check(abs(bb.zmin-101.7)<0.03,f'B14_{i} nominal M6x25 under-head length')
 nfp_lower=part(B,'B09M')[0]
 nfp=part(B,'B09A')[0]
-check(abs(nfp_lower.BoundingBox().zmin-76.2)<.01,'NFP carriage lower datum')
-check(abs(nfp.BoundingBox().zmin-78.2)<.01,'NFP moving top plate lower datum')
-check(abs(nfp.BoundingBox().zmax-88.2)<.01,'NFP top mounting datum')
+check(abs(nfp_lower.BoundingBox().zmin-99.2)<.01,'NFP upper carriage lower datum')
+check(abs(nfp.BoundingBox().zmin-101.2)<.01,'NFP upper moving top plate lower datum')
+check(abs(nfp.BoundingBox().zmax-111.2)<.01,'NFP upper top mounting datum')
 # The modeled hole depth is 10 mm. Tip at 66.7 and blind bottom at 66.2 => .5 mm.
-hole_bottom=78.2;tip=78.7
+hole_bottom=101.2;tip=101.7
 check(tip-hole_bottom>=.5-1e-4,'candidate fastener has 0.5 mm axial blind-hole clearance')
 # Photo149: formerly missing PHSH-style black 50mm sleeve, long
 # vertical post passing through it and the separate upper square clamp.
@@ -827,8 +827,9 @@ report['V45_A_global_assembly_readiness']={
 # 145-151. The former erroneous B_photo94 assembly is not exported.
 check(not (ROOT/'build'/'platform_B_photo94').exists(),
       'Never build a B-photo94 assembly from verified A photographs')
-for required in ('B07','B35','B08','B09','B10','B11','B12','B14_1','B14_2',
-                 'B14_3','B14_4','B15','B16','B17','B18',
+for required in ('B07','B35','B08','B41','B41A','B41M','B41B','B41C','B41D','B41E',
+                 'B41S1','B41S2','B41S3','B41S4','B09','B09A','B09M','B09B','B09C','B09D','B09E',
+                 'B10','B11','B12','B14_1','B14_2','B14_3','B14_4','B15','B16','B17','B18',
                  'B24','B25','B26','B27','B28','B33','B34','B36','B37','B37A','B38','B39','B20I','B40'):
     check((B/(required+'.step')).exists(),
           'Corrected photo145-151 B full-system STEP missing '+required)
