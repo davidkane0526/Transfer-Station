@@ -83,13 +83,17 @@ def stage(sys,key,x,y,z,direction='+X',axes=1,depth_direction='+Y'):
         else:
             add(sys,key+'D','Y_micrometer_stem',vy(6,40,x,y-72.5,z+5.5),'D')
             add(sys,key+'E','Y_micrometer_knob',vy(9,14,x,y-86.5,z+5.5),'D')
-def rot(sys,key,x,y,z,grade):
-    add(sys,key,'rotary_lower',vz(47,23,x,y,z),grade)
-    top=vz(47,10.2,x,y,z+23)
-    top=cut(top,[(x+dx,y+dy) for dx in (-25,0,25) for dy in (-25,0,25)],5,8,z+25.2)
-    add(sys,key+'A','rotary_top_9_M6_25',top,grade)
-    # Operator-facing rotary lock shown in 111.jpg / 100.jpg.
-    add(sys,key+'B','operator_side_rotary_lock',vy(8,30,x,y+47,z+12))
+def rot(sys,key,x,y,z,grade,radius=47):
+    # B uses its historical Ø94 candidate. A photo17/20/21/23 ruler
+    # silhouette is distinctly narrower than the 65mm top-plate.
+    # V48 only A uses Ø66 candidate, bounded [55,75]mm; SKU unknown.
+    add(sys,key,'rotary_lower_radius_'+str(radius),vz(radius,23,x,y,z),grade)
+    pitch=25 if radius>=40 else 16
+    top=vz(radius,10.2,x,y,z+23)
+    top=cut(top,[(x+dx,y+dy) for dx in (-pitch,0,pitch) for dy in (-pitch,0,pitch)],5,8,z+25.2)
+    add(sys,key+'A','rotary_top_nine_candidate_bores',top,grade)
+    # Operator-facing side lock, actual rod profile unmeasured.
+    add(sys,key+'B','operator_side_rotary_lock',vy(8,30,x,y+radius,z+12))
 def heater(cx=82,cy=0,z=98.2):
     corners=[(cx+dx,cy+dy) for dx in (-25,25) for dy in (-25,25)]
     metal=box(65,65,12,cx,cy,z)
@@ -578,8 +582,25 @@ def make_a():
     for i,(x,y) in enumerate(abolt,1):
         screw=vz(2.5,16,x,y,12).fuse(vz(4.25,2.5,x,y,25.5))
         add('A',f'A16S{i}','A16_to_single_A01_grid_anchor_CANDIDATE',screw,'C')
-    rot('A','A06',cx,0,28,'I')
-    add('A','A07','heater_proxy',box(65,65,18,cx,0,81.2))
+    rot('A','A06',cx,0,28,'I',radius=33)
+    # V48 photos17/18 show the 65mm silver top at ~90mm ABOVE THE
+    # 20mm-thick board TOP, not 90mm absolute from model origin.
+    # Photos17–21 show three distinct vertical bands. Material of the
+    # middle gold/tan layer remains unknown, not certified ceramic.
+    # Current A02 ends at z81.2; lower9 + middle7 + top12 =>109.2.
+    add('A','A07B','sample_lower_dark_support_65x65x9_CANDIDATE',
+        box(65,65,9,cx,0,81.2),'C')
+    add('A','A07I','sample_intermediate_goldtoned_65x65x7_MATERIAL_UNKNOWN',
+        box(65,65,7,cx,0,90.2),'C')
+    a07_top=box(65,65,12,cx,0,97.2)
+    a07_holes=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
+    a07_top=cut(a07_top,a07_holes,6.5,2.5,106.7)
+    add('A','A07','silver_sample_upper_plate_65x65x12_four_blind_head_recesses',
+        a07_top,'C')
+    for i,(xx,yy) in enumerate(a07_holes,1):
+        # Heads only: do not claim unknown buried screw threads.
+        add('A',f'A07S{i}','silver_top_four_VISIBLE_HEAD_only_CANDIDATE',
+            vz(2.9,1.8,xx,yy,106.8),'C')
     # V45: previous STEP A10 post started at Z=32 and floated 12mm
     # above the only A01 board top (Z=20). A single connected base
     # and post now match the web viewer mounting arrangement.
@@ -615,7 +636,7 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,192).cut(vz(26.1,66.2,cx,0,191.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',
         sleeve_A14,'C')
-CAD_REVISION='V47'
+CAD_REVISION='V48'
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
     # The user's B photos distinguish the SILVER common table from the
