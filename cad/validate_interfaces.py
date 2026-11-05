@@ -1,4 +1,4 @@
-"""Post-build mechanical checks for V18 candidate STEP assemblies.
+"""Post-build mechanical checks for V51 candidate STEP assemblies.
 
 Verifies geometric continuity and *candidate* blind-hole depth, not real
 manufacturer thread engagement, applied torque, heat paths, or safe machining.
@@ -84,50 +84,66 @@ sample_board=part(B,'B35')[0]
 silver_board=part(B,'B01')[0]
 sample_base=part(B,'B08')[0]
 sbb=sample_board.BoundingBox();bb0=silver_board.BoundingBox()
-check(abs(sbb.zmin-bb0.zmax)<.02,
-      'B35 Thorlabs black plate directly rests on silver common table')
-check(abs(sbb.zmax-sample_base.BoundingBox().zmin)<.02,
-      'B08 rotary must sit ON B35 black plate, not on B01 directly')
+check(abs(sbb.zmin-bb0.zmax)<.02,'B35 local plate directly rests on the sole B01 common breadboard')
+check(abs(sbb.zmax-sample_base.BoundingBox().zmin)<.02,'B08 rotary sits on B35, not directly on B01')
 check(abs(sbb.xlen-250)<.02 and abs(sbb.ylen-300)<.02 and abs(sbb.zlen-12)<.02,
-      'B35 photo-fit 250x300x12 must cover both sample rotary and rear microscope foot')
+      'B35 photo-fit envelope is 250x300x12mm')
+check(abs(sbb.xmin+50)<.02 and abs(sbb.xmax-200)<.02,
+      'B35 candidate board centre X is 75mm')
 check(sample_board.intersect(silver_board).Volume()<1e-4,
-      'Two independent photo-confirmed B board layers must not interpenetrate')
+      'B35 and B01 are separate contacting plates, not interpenetrating solids')
+# MB2530/M candidate pattern: 10 columns × 12 rows, M6 through-tap drill proxy Ø5,
+# 25mm pitch, first hole 12.5mm from each edge.
+b35_grid=[]
+for i in range(10):
+    for j in range(12):
+        x=75-112.5+25*i
+        y=-137.5+25*j
+        b35_grid.append((x,y))
+        probe=vz(2.45,12,x,y,20)
+        check(sample_board.intersect(probe).Volume()<1e-5,
+              'B35 OEM candidate M6 grid hole must pass through the full 12mm board')
+check(len(b35_grid)==120,'B35 MB2530/M candidate has exactly 120 grid holes')
+b35_anchors=[(x,y) for x in (-25,175) for y in (-125,125)]
+for i,(x,y) in enumerate(b35_anchors,1):
+    clearance=vz(3.2,12,x,y,20)
+    counterbore=vz(5.45,3.5,x,y,28.5)
+    check(sample_board.intersect(clearance).Volume()<1e-5,
+          'B35 corner M6 mounting clearance bore is open')
+    check(sample_board.intersect(counterbore).Volume()<1e-5,
+          'B35 corner M6 low-head counterbore is open')
+    b01_pilot=vz(2.45,12,x,y,8)
+    check(silver_board.intersect(b01_pilot).Volume()<1e-5,
+          'B35 corner anchor coordinates align with B01 candidate M6 tapped grid')
+    anchor=part(B,f'B35S{i}')
+    check(len(anchor)==1 and anchor[0].isValid(),
+          'B35 M6x20 low-head anchor proxy is one valid connected solid')
+    abb=anchor[0].BoundingBox()
+    check(abs(abb.zmax-32)<.03 and abs(abb.zmin-8.5)<.03,
+          'B35 M6x20 anchor spans counterbore and B01 pilot depth')
 microscope_foot=part(B,'B16A')[0]
-# V45: correct an impossible Ø4-for-M6 bolt fit, and register four
-# PROPOSED hole centres to the photo-fit 25mm B35 grid. No OEM claim.
-candidate_grid=[(65+x,y) for x in range(-100,101,25) for y in range(-125,126,25)]
-candidate_foot=[(90+x,-100+y) for x in (-25,25) for y in (-25,25)]
+candidate_grid=b35_grid
+candidate_foot=[(87.5+x,-112.5+y) for x in (-25,25) for y in (-25,25)]
 for i,(x,y) in enumerate(candidate_foot,1):
     axis=vz(3.20,12,x,y,32)
     check(microscope_foot.intersect(axis).Volume()<1e-5,
-          'B16A must have four real Ø6.5 candidate M6 clearance holes')
-    core=vz(2.45,6,x,y,26)
+          'B16A has four real Ø6.5 M6 clearance bores')
+    core=vz(2.45,12,x,y,20)
     check(sample_board.intersect(core).Volume()<1e-5,
-          'B35 proposed Ø5 tapped-core hole must be 6mm deep')
-    backing=vz(2.45,.5,x,y,25.5)
-    check(sample_board.intersect(backing).Volume()>5,
-          'B35 M6 tapped-core proposal MUST remain blind, not through')
+          'B16 foot M6 position aligns with a B35 through-tapped grid hole')
     screw_solids=part(B,f'B16S{i}')
     check(len(screw_solids)==1 and screw_solids[0].isValid(),
-          'B16M6 screw proxy must be one valid connected shank/head solid')
+          'B16 M6 screw proxy must be one valid connected shank/head solid')
 centre_errors=[
     min(((fx-gx)**2+(fy-gy)**2)**.5 for gx,gy in candidate_grid)
     for fx,fy in candidate_foot
 ]
 check(max(centre_errors)<.01,
-      'V45 proposed B16/M6 centre coordinates must align to B35 nominal grid')
-report['B35_microscope_fastener_readiness']={
-    'B16A_actual_through_clearance_bores':4,
-    'candidate_bore_diameter_mm':6.5,
-    'max_grid_mismatch_mm':round(max(centre_errors),2),
-    'B35_other_grid_blind_recess_depth_mm':2,
-    'proposed_tapped_core_diameter_mm':5,
-    'proposed_tapped_core_depth_mm':6,
-    'candidate_bolt_count':4,
-    'B35_threaded_anchors_verified':False,
-    'B16_fastener_positions_verified':False,
-    'loaded_joint_accepted':False
-}
+      'V51 B16 50mm foot pattern is exactly registered to the B35 OEM grid phase')
+microscope_post=part(B,'B16')[0]
+microscope_arm=part(B,'B16G')[0]
+check(microscope_post.intersect(microscope_arm).Volume()>1,
+      'B16 support arm must overlap the relocated microscope post')
 check(sample_board.intersect(microscope_foot).Volume()<1e-4,
       'B35 black plate and microscope foot must CONTACT, not intersect')
 micbb=microscope_foot.BoundingBox()
@@ -137,8 +153,6 @@ check(micbb.xmin>sbb.xmin and micbb.xmax<sbb.xmax and
       micbb.ymin>sbb.ymin and micbb.ymax<sbb.ymax,
       'Microscope foot must lie FULLY within B35 black-board footprint')
 def mating_face_area_mm2(support,upper):
-    # 0.05mm overlap perturbation estimates nonzero planar support
-    # while leaving the canonical STEP assembly free of collisions.
     return upper.translate((0,0,-.05)).intersect(support).Volume()/.05
 area_mic=mating_face_area_mm2(sample_board,microscope_foot)
 area_rot=mating_face_area_mm2(sample_board,sample_base)
@@ -146,27 +160,31 @@ check(area_mic>3200,
       f'B35 must support microscope FOOT over substantial area, got {area_mic:.1f} mm²')
 check(area_rot>5000,
       f'B35 must support rotary FOOT over substantial area, got {area_rot:.1f} mm²')
+report['B35_microscope_fastener_readiness']={
+    'board_sku_candidate':'Thorlabs MB2530/M',
+    'board_sku_confirmed':False,
+    'board_photo_fit_mm':[250,300,12],
+    'official_candidate_thickness_mm':12.7,
+    'grid_hole_count':120,
+    'grid_pitch_mm':25,
+    'grid_edge_offset_mm':12.5,
+    'grid_hole_mode':'M6 through-tapped; Ø5 tap-drill proxy in CAD',
+    'mounting_hole_inset_mm':25,
+    'mounting_hole_world_positions_mm':b35_anchors,
+    'B01_candidate_grid_aligned':True,
+    'B16A_actual_through_clearance_bores':4,
+    'candidate_bore_diameter_mm':6.5,
+    'max_grid_mismatch_mm':round(max(centre_errors),2),
+    'B35_threaded_anchors_verified':False,
+    'B16_fastener_positions_verified':False,
+    'loaded_joint_accepted':False
+}
 report['B35_dual_mount_face_areas_mm2']={
-    'microscope':round(area_mic,1),
-    'rotary':round(area_rot,1),
-    'exact_plate_dimensions_verified':False,
-    'fastener_holes_verified':False
+    'microscope':round(area_mic,1),'rotary':round(area_rot,1),
+    'exact_plate_sku_verified':False,'fastener_threads_verified':False
 }
 check(sample_board.intersect(part(B,'B02')[0]).Volume()<1e-4,
       'Black sample plate must not engulf the separate left-side magnet')
-# Holes are shallow photo-fit pockets: open at z30..32, closed below 30.
-for xx in (65-100,65,65+100):
-    for yy in (-125,0,125):
-        if (xx,yy) in {(65,-125),(65,-75),(115,-125),(115,-75)}:
-            # These four have separately tested deeper V45 blind pilot bores.
-            continue
-        opening=vz(2.6,2,xx,yy,30)
-        backing=vz(2.6,.5,xx,yy,29.5)
-        check(sample_board.intersect(opening).Volume()<1e-5,
-              'B35 display hole must be actually open at board TOP')
-        check(sample_board.intersect(backing).Volume()>7,
-              'B35 display hole must be BLIND: do not invent a through-fastener')
-
 # Previously this failed: separated 0.5mm screw shaft and head.
 for i in range(1,5):
     ss=part(B,'B14_'+str(i))

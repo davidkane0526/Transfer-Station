@@ -2,7 +2,7 @@
 // I=interface inference, C=candidate/proxy. Never treat C as manufacturing data.
 export const CONFIG={
   board:{width:430,depth:300,height:20,pitch:25,holeDiameter:5,level:"I",note:"430×300×20 与 Ø5 深孔为候选；25 mm 网格由照片推断，孔不代表完整 M6 螺纹"},
-  B:{sampleX:82,armX:-112,scopeX:82,scopeZ:-112,sampleBoardRiseMm:12,sampleBoardCenterX:65,sampleBoardWidthMm:250,sampleBoardDepthMm:300},
+  B:{sampleX:82,armX:-112,scopeX:82,scopeZ:-112.5,sampleBoardRiseMm:12,sampleBoardCenterX:75,sampleBoardWidthMm:250,sampleBoardDepthMm:300},
   A:{sampleX:78,armX:-116,scopeX:78,scopeZ:-110},
   chuck:{width:65,depth:65,height:12,heaterWidth:38,heaterDepth:38,heaterHeight:5,pocketWidth:38.6,pocketDepth:38.6,pocketHeight:5.4,insulation:10,fastenerPitch:50,fastenerCount:4,vacuumHoleDiameter:1.4,fastener:"M6×25 (candidate)"},
   nfp:{width:65,depth:65,height:23,topM6Pitch:25,topM3Pitch:32,bottomPitch:50},
@@ -13,7 +13,7 @@ const part=(id,group,name,maker,model,dims,level,detail,interfaceNote,evidence,p
 export const PARTS={
 B:[
 part("B01","base","底层银色光学台面","未知","底部银色孔阵列","430×300×20；25 网格 (外形候选)","I","平台 B 唯一公共面包板 B01。照片150显示 B35 是安装在其上的黑色局部安装板，二者不应计为两套公共底座；B02磁座夹持左侧载玻片机构。","银色面板尺寸和孔系均为代理。","108、145、150","询价"),
-part("B35","sample","螺栓固定式黑色局部安装板（非第二套底座）","Thorlabs（实拍标志）","型号未识别：黑色Thorlabs孔阵列板","250×300×12 mm 均为装配比例候选","P","照片145/150可见 THORLABS 黑色局部板位于银色 B01 面包板之上，承载样品旋转台及显微镜支架。作为一块螺栓固定的局部转接板存在，不是第二套底座。","当前250×300×12mm仅为按照片覆盖范围选择的装配候选，Thorlabs有250×300×12.7mm标准产品但无法认定原机型号。实际孔距、螺纹、在公共台面的锚固孔均未实测；12mm仅为显示高度候选，禁止当作官方图纸。","145、146、150","询价"),
+part("B35","sample","螺栓固定式黑色局部安装板（非第二套底座）","Thorlabs（实拍标志）","MB2530/M孔系候选（SKU未确认）","250×300×12mm照片拟合；M6/25mm贯通网格；边缘12.5mm；四角M6沉孔内缩25mm","P","照片145/150可见THORLABS黑色局部板位于银色B01面包板之上，承载样品旋转台及显微镜支架。它是独立螺栓固定的局部安装板，不是第二套底座。","Thorlabs MB2530/M官方规格为250×300×12.7mm、M6贯通孔阵列（25mm网格、首孔距边12.5mm）及四角沉孔（距边25mm）。照片品牌、外形与孔阵列支持将其列为高可信度候选，但本模型厚度仍按尺图取12mm，不能确认精确SKU。按B01候选25mm网格将板中心X设为75mm，使四角安装孔落在世界坐标X=-25/175、Y=±125；B16脚座中心87.5/-112.5mm，其四个Ø6.5mm孔与B35网格零误差配准。B01实际螺纹、沉孔方向及承载连接仍待实测。","145、146、150；Thorlabs MB2530/M官方规格","询价"),
 part("B02","film","磁性底座","Daheng","GCM-420302M","65×65×20；M6@50、M4@40、M3@32","D","载玻片转移臂底层基座。","与面包板之间依靠磁吸而非底部螺钉固定；顶面孔距来自厂家产品系列图，磁性开关与实物图31铭牌可直接确认；额定30kg为厂商标称而非本机负载试验值。新照片31明确标识GCM-420302M属于B膜侧磁座，不是A17的身份依据。","108、112、20261103145352_31（磁座铭牌）","NT$1,783 (历史未税参考)"),
 part("B03","film","X–Y 双轴平移台（两根手柄）","Daheng","GCM-T25M（2L/2C双轴后缀待核）","65×65×33；X/Y各±12.5","P","原图108可见两根正交水平测微头，109可见T25M铭牌；机械X/Y轴对应网页坐标X/Z（Y为高度）。B03在B02磁座之上、B04 V25M之下。","原厂GCM-901604M组合图含T25M2L+V25M。2L后缀属于照片与组合图匹配候选；原装旋转角与机械螺孔仍待核实。","108、109；大恒GCM-901604M尺寸图","参考NT$8,740（2L版本）"),
 part("B04","film","Z 升降台","Daheng","GCM-V25M","台面 65×66；行程 25","D","B套位于双轴T25M之上的竖直移动台，银色测微头沿世界Y高度向上；原先脱离主滑块的两根悬空立杆已由贴合导向面替代。","接合面与紧固件尚无完整厂家原生CAD。","109","询价"),

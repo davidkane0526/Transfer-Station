@@ -111,8 +111,8 @@ window.__modelBSupportProbe=()=>{
  // Do not confuse this with fastening to B35's decorative 2mm recesses.
  const mountAudit=auditB35MicroscopeFasteners({
    boardCenterX:CONFIG.B.sampleBoardCenterX,
-   microscopeCenterX:90,
-   microscopeCenterZ:-100,
+   microscopeCenterX:87.5,
+   microscopeCenterZ:-112.5,
    boardThicknessMm:CONFIG.B.sampleBoardRiseMm
  });
  const footBoresOpen=mountAudit.candidateHolePairs.every(hole=>{
@@ -1195,41 +1195,40 @@ function rotaryB(){
  // 250×300×12 is a PHOTO-FIT coverage candidate, NOT the
  // identifiable 250×300×12.7mm Thorlabs MB2530/M OEM SKU.
  addPart('B35',CONFIG.B.sampleBoardCenterX,20,0,g=>{
-   const w=CONFIG.B.sampleBoardWidthMm,d=CONFIG.B.sampleBoardDepthMm;
-   // V38: B35 is a bolted accessory above the only common B01.
-   const anchors=[[-40,-100,3.25],[-40,100,3.25],
-                  [110,-100,3.25],[110,100,3.25]];
-   // Lower 6mm remains solid; upper 4mm contains four proposed
-   // microscope tapped-core bores in addition to the B35 base anchors.
-   // Together with the 2mm top layer this gives a 6mm pilot depth.
-   add(g,plate(w,d,6,mats.black,anchors));
-   const holes=[];
-   for(let x=-100;x<=100;x+=25)for(let z=-125;z<=125;z+=25)
-      holes.push([x,z,2.8]);
-   // Candidate B16 pilot holes register at x=65/115, z=-125/-75.
-   // These four need deeper recesses, unlike the cosmetic 2 mm grid.
-   const microscopePilot=[ [0,-125,2.5],[50,-125,2.5],
-                           [0,-75,2.5],[50,-75,2.5] ];
-   const core=plate(w,d,rise-8,mats.black,[...anchors,...microscopePilot]);
-   core.position.y=6;add(g,core);
-   // The visible top-grid holes alone do not certify an M6 thread.
-   // The prototype pilot coordinates are audited against B16 separately.
-   const top=plate(w,d,2,mats.dark,
-     [...holes,...anchors.map(([x,z])=>[x,z,4.5])]);
-   top.position.y=rise-2;add(g,top);
+   const w=CONFIG.B.sampleBoardWidthMm,d=CONFIG.B.sampleBoardDepthMm,rise=CONFIG.B.sampleBoardRiseMm;
+   // MB2530/M comparison geometry: 10×12 M6 through-grid, 12.5mm edge phase.
+   // Exact SKU remains unconfirmed; 12mm thickness is retained from ruler fit.
+   const anchors=[[-100,-125],[-100,125],[100,-125],[100,125]];
+   const grid=[];
+   for(let x=-112.5;x<=112.5+1e-6;x+=25)
+     for(let z=-137.5;z<=137.5+1e-6;z+=25)grid.push([x,z,2.5]);
+   const lower=plate(w,d,8.5,mats.black,[...grid,...anchors.map(([x,z])=>[x,z,3.25])]);
+   add(g,lower);
+   const upper=plate(w,d,rise-8.5,mats.black,[...grid,...anchors.map(([x,z])=>[x,z,5.5])]);
+   upper.position.y=8.5;add(g,upper);
    for(const [x,z] of anchors){
-     const shaft=add(g,cyl(2.5,21,mats.silver,x,1.5,z));
+     const shaft=add(g,cyl(2.5,20,mats.silver,x,-1.5,z));
      shaft.userData.B35CandidateAnchor=true;
-     const head=add(g,cyl(4.25,2.4,mats.steel,x,rise-1.2,z));
+     const head=add(g,cyl(5,3.5,mats.steel,x,rise-1.75,z));
+     add(g,cyl(2.2,.35,mats.ink,x,rise-.15,z,6));
      head.userData.B35CandidateAnchorHead=true;
    }
    g.userData.boltedAuxiliaryPlate=true;
    g.userData.candidateGridAlignedBolts=4;
    g.userData.independentSampleBoard=true;
-   g.userData.thicknessPhotoUnverified=true;
-   label(g,'照片145/150：B35黑色Thorlabs安装板 同时支撑旋转台和显微镜底座（尺寸候选）',0,rise+9,135);
- },{explode:[0,-8,0]});
- addPart('B08',sx,20+rise,0,g=>{
+   g.userData.boardSkuCandidate='Thorlabs MB2530/M';
+   g.userData.boardSkuVerified=false;
+   g.userData.gridHoleCount=120;
+   g.userData.gridHolePitchMm=25;
+   g.userData.gridEdgeOffsetMm=12.5;
+   g.userData.boardThicknessPhotoFitMm=12;
+   g.userData.officialCandidateThicknessMm=12.7;
+   g.userData.mountingHoleInsetMm=25;
+   g.userData.anchorHoleCoordinatesWorld=[[-25,-125],[-25,125],[175,-125],[175,125]];
+   g.userData.threadGeometry='M6 through-tapped pattern represented by Ø5mm tap-drill holes';
+   label(g,'B35 · Thorlabs MB2530/M孔系候选 · 250×300×12 photo-fit · M6/25mm贯通网格',0,rise+8,136);
+  });
+  addPart('B08',sx,20+rise,0,g=>{
     add(g,cyl(47,23,mats.dark,0,11.5,0));
     add(g,cyl(47,10.2,mats.steel,0,28.1,0));
     add(g,torus(45,1.0,mats.ink,0,33.35,0));
@@ -1341,7 +1340,7 @@ function microscopeB(){
  // Photo150: microscope post FOOT occupies the BACK of B35.
  // It MUST NOT sit directly on lower silver B01 while the
  // adjacent sample rotary sits 12mm higher on B35.
- addPart('B16',90,20+rise,-100,g=>{
+ addPart('B16',87.5,20+rise,-112.5,g=>{
    // B-specific evidence: photos108/116 identify the SDPTOP MXFMS;
    // the 65x65 foot remains the photographed installation adapter,
    // NOT the manufacturer's separate 320x260 B5 base.
@@ -1349,33 +1348,36 @@ function microscopeB(){
    const foot=add(g,plate(65,65,12,mats.dark,footHolePattern));
    foot.userData.trueCandidateMountBores=4;
    foot.userData.boardThreadedFixingVerified=false;
+   foot.userData.B35GridRegistered=true;
+   g.userData.mountingFootCenterWorld=[87.5,-112.5];
+   g.userData.mountingFootGridRegistered=true;
    // MXFMS maker specification: Ø32 x 280mm post. The custom foot,
    // post-to-board anchors and exact installed height remain candidates.
    const post=add(g,cyl(16,280,mats.steel,0,152,0));
    post.userData.MXFMSPost={diameterMm:32,heightMm:280,manufacturerDimension:true};
    add(g,sleeve(18.5,16.2,26,mats.dark,0,242,0,'y'));
-   add(g,cub(80,34,34,mats.microscope,-4,242,23));
-   const boom=add(g,cub(32,26,125,mats.microscope,-4,253,75));
+   add(g,cub(80,34,34,mats.microscope,-1.5,242,23));
+   const boom=add(g,cub(32,26,125,mats.microscope,-1.5,253,87.5));
    boom.userData.MXFMSBoomProxy=true;
-   const body=add(g,cub(55,50,55,mats.microscope,-8,229,100));
+   const body=add(g,cub(55,50,55,mats.microscope,-5.5,229,112.5));
    body.userData.MXFMSBody=true;
    // MXFMS coaxial coarse/fine focus. Paired controls on both sides;
    // knob diameters are visual proxies, not measured OEM dimensions.
    for(const side of [-1,1]){
-     const shaftX=side===1?25.5:-41.5;
-     const coarseX=side===1?36:-52;
-     const fineX=side===1?42.5:-58.5;
+     const shaftX=side===1?28:-39;
+     const coarseX=side===1?38.5:-49.5;
+     const fineX=side===1?45:-56;
      const rot=side*Math.PI/2;
-     const shaft=add(g,cyl(5,12,mats.dark,shaftX,225,96));shaft.rotation.z=rot;
+     const shaft=add(g,cyl(5,12,mats.dark,shaftX,225,108.5));shaft.rotation.z=rot;
      shaft.userData.MXFMSFocusShaft=true;
-     const coarse=add(g,cyl(28,9,mats.dark,coarseX,225,96));coarse.rotation.z=rot;
+     const coarse=add(g,cyl(28,9,mats.dark,coarseX,225,108.5));coarse.rotation.z=rot;
      coarse.userData.MXFMSFocusKnob='coarse';
-     const fine=add(g,cyl(15,4,mats.silver,fineX,225,96));fine.rotation.z=rot;
+     const fine=add(g,cyl(15,4,mats.silver,fineX,225,108.5));fine.rotation.z=rot;
      fine.userData.MXFMSFocusKnob='fine';
    }
    // Turret support is offset from the active objective optical axis.
    // Its exact offset is a photo-fit candidate; the 32mm MXFMS post is OEM.
-   const mount=add(g,cyl(8,44,mats.dark,-26,188,100));
+   const mount=add(g,cyl(8,44,mats.dark,-23.5,188,112.5));
    mount.userData.MXFMSNosepieceMount=true;
    for(const x of [-25,25])for(const z of [-25,25]){
      const shank=add(g,cyl(3,18,mats.steel,x,3,z));
@@ -2078,7 +2080,7 @@ function renderPhotoLedger(){
  }
  const m=document.createElement('div');m.className='marked-note';
  m.textContent=platform==='B'&&bPhoto94Mode?'用户要求的B新照片对照配置：GCM-T25M→GCM-VC13M→GCM-G40M60L→L型薄板；此前A/B照片归档冲突未解决，不能以此证明NFP样品侧同机。':platform==='B'?
-   'B02磁座在B03之下；B35黑色Thorlabs板同时承托B08旋转台与B16显微镜后方立柱底座；B36金属机箱包含前置B19温控器、内部B21电源及B23模块。B20真空泵/B22灯电源独立显示。各箱体尺寸为候选。':
+   'B02为GCM-420302M磁座；B35按Thorlabs MB2530/M候选孔相位重建120个M6贯通孔。B35中心X=75mm，四角安装孔与B01候选25mm网格对齐；B16脚座中心87.5/-112.5mm，四孔与B35网格零误差配准。板厚仍按照片拟合12mm，官方候选12.7mm，SKU和B01螺纹未确认。B36金属机箱包含前置B19温控器、内部B21电源及B23模块。B20真空泵/B22灯电源独立显示。':
    'A17磁座在A15双轴T25M之下（用户固定方式确认，型号候选）；A16底部安装座螺钉固定在唯一A01光学面包板，A02为另一台独立T25M。';
  host.append(m);
 }
@@ -2187,12 +2189,12 @@ function updateDetail(part){
    ' mm 是张开口；当前压板已移动 '+jawDatums.previewClosingTravelMm+' mm，与 '+jawDatums.contactJawGapMm+' mm 厚玻片处于名义接触。夹紧力、真实行程和夹口尺寸均未经验收。</p></div>':'';
  const b35FastenerAudit=(platform==='B'&&(part.id==='B16'||part.id==='B35'))?
    auditB35MicroscopeFasteners({boardCenterX:CONFIG.B.sampleBoardCenterX,
-     microscopeCenterX:90,microscopeCenterZ:-100,
+     microscopeCenterX:87.5,microscopeCenterZ:-112.5,
      boardThicknessMm:CONFIG.B.sampleBoardRiseMm}):null;
  const b35FastenerHtml=b35FastenerAudit?
    '<div class="field" id="b35-microscope-fastener-audit" data-bolt-align="'+
    b35FastenerAudit.boardBoltPatternAligned+'" data-mismatch-mm="'+
-   b35FastenerAudit.maxMismatchMm.toFixed(2)+'"><b>B35↔B16候选四孔配准（V45）</b><p>'+
+   b35FastenerAudit.maxMismatchMm.toFixed(2)+'"><b>B35↔B16孔系配准（V51）</b><p>'+
    'B16底座为4个Ø6.5 mm 候选M6通孔，B35对位4个Ø5×6 mm候选螺纹底孔，'+
    '25mm候选网格下孔中心偏差为 '+
    b35FastenerAudit.maxMismatchMm.toFixed(1)+' mm；其余网格仅为2mm装饰盲孔。'+
@@ -2406,10 +2408,10 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · V50 / MXFMS显微镜 / PHUC-1夹具 / 五孔物镜转换器 / B40后侧管路 / 145–151实拍'):
+   '平台 B · V51 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路'):
    '平台 A · V48 / A样品台尺规约9cm / 两层摆角台候选 / 全局未配准';
  $('stack-note').textContent=platform==='B'?
-  bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
+  bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B的B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
   '照片94/95/97: A膜侧 A15 T25M→A03 VC13M→A04L下层独立摆角台→A04上层G40M60L→A05折弯片。新实拍17–24: A样品侧GCM-5306M非旋转底座→A06Ø66候选旋转台（右侧角度调节）→A02 T25M（左侧银色直线测微头）→A07三层金属/中间层样品台；B照片29–31的PHUC-1及磁座铭牌不属于A。';
  focus('iso');
  updateTable();

@@ -1,24 +1,39 @@
 import assert from 'node:assert/strict';
 import {auditB35MicroscopeFasteners} from '../src/b35-fastener-audit.js';
+
 const a=auditB35MicroscopeFasteners();
+assert.equal(a.boardSkuCandidate,'Thorlabs MB2530/M');
+assert.equal(a.boardSkuConfirmed,false);
+assert.deepEqual(a.boardSizePhotoFitMm,[250,300,12]);
+assert.equal(a.officialCandidateThicknessMm,12.7);
+assert.equal(a.gridHolePitchMm,25);
+assert.equal(a.gridEdgeOffsetMm,12.5);
+assert.equal(a.gridHoleCount,120,'MB2530/M candidate grid is 10×12 through-tapped M6');
+assert.equal(a.gridThrough,true);
+assert.equal(a.gridTapDrillDiameterMm,5);
+assert.equal(a.mountingHoleInsetMm,25);
+assert.equal(a.mountingHoleCount,4);
+assert.deepEqual(a.boardAnchorHolePositionsWorldMm,[[-25,-125],[-25,125],[175,-125],[175,125]]);
+assert.equal(a.boardAnchorsAlignToB01CandidateGrid,true);
+assert.deepEqual(a.footCenterWorldMm,[87.5,-112.5]);
+assert.deepEqual(a.footHolePositionsWorldMm,[[62.5,-137.5],[62.5,-87.5],[112.5,-137.5],[112.5,-87.5]]);
 assert.equal(a.candidateFootHoleCount,4);
-assert.equal(a.footHasFourCandidateThroughBores,true);
-assert.equal(a.footBoreDiameterMm,6.5,'An M6 screw cannot pass the previous Ø4 hole');
-assert.equal(a.proposedThreadPilotDiameterMm,5);
-assert.equal(a.proposedThreadPilotDepthMm,6);
-assert.equal(a.candidateThreadPilotCount,4);
-assert.equal(a.maxMismatchMm,0,'Nominal geometry must register all four candidate hole centres');
-assert.equal(a.boardBoltPatternAligned,true);
+assert.equal(a.footBoreDiameterMm,6.5);
+assert.equal(a.maxMismatchMm,0);
 assert.equal(a.nominalGridRegistered,true);
-assert.deepEqual(a.microscopePostShiftFromV44Mm,{x:8,z:12});
+assert.equal(a.boardBoltPatternAligned,true);
+assert.equal(a.boardThreadedFixingVerified,false);
 assert.equal(a.boardAnchorThreadVerified,false);
-assert.equal(a.knownOEMBoardSku,false);
-assert.equal(a.loadBearingFastenerJointAccepted,false,
- 'A plausible candidate bolt layout is NOT approval for a real load-bearing microscope');
-const old=auditB35MicroscopeFasteners({microscopeCenterX:82,microscopeCenterZ:-112});
-assert(old.maxMismatchMm>14&&old.maxMismatchMm<15,
-  'Regression: the old scene location had ~14.4 mm centre mismatch');
-assert.equal(old.boardBoltPatternAligned,false);
-assert.throws(()=>auditB35MicroscopeFasteners({boardBlindDepthMm:12}),/Invalid/);
-assert.throws(()=>auditB35MicroscopeFasteners({proposedThreadPilotDiameterMm:7}),/Invalid/);
-console.log('V45 B16/B35 nominal four-hole registration, M6 fit and OEM uncertainty: PASS');
+assert.equal(a.loadedJointAccepted,false);
+assert.equal(a.holesAreDecorativeBlindRecesses,false);
+
+const oldV45=auditB35MicroscopeFasteners({microscopeCenterX:90,microscopeCenterZ:-100});
+assert.equal(oldV45.nominalGridRegistered,false);
+assert.ok(Math.abs(oldV45.maxMismatchMm-Math.hypot(2.5,12.5))<.01,
+  'V45 90/-100 foot coordinates miss the true MB2530/M grid phase');
+const originalPhotoFit=auditB35MicroscopeFasteners({microscopeCenterX:82,microscopeCenterZ:-112});
+assert.ok(Math.abs(originalPhotoFit.maxMismatchMm-Math.hypot(5.5,.5))<.01,
+  'original photo-fit center is close but not exactly on the OEM grid');
+assert.throws(()=>auditB35MicroscopeFasteners({boardPitchMm:0}),/finite and positive/);
+assert.throws(()=>auditB35MicroscopeFasteners({boardWidthMm:20,boardEdgeOffsetMm:12.5}),/edge offset/);
+console.log('V51 MB2530/M candidate grid, B35 anchors and B16 foot registration: PASS');

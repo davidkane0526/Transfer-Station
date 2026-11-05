@@ -151,6 +151,7 @@ def make_b():
     mag=box(65,65,20,ax,0,20)
     for pitch,dia in [(50,5),(40,3.3),(32,2.5)]:
         mag=cut(mag,[(ax+dx,dy) for dx in (-pitch/2,pitch/2) for dy in (-pitch/2,pitch/2)],dia,10,30)
+    mag=cut(mag,[(ax,0)],5,10,30)
     add('B','B02','GCM420302M_magnet_LOWEST',mag,'D')
     # The OFF/ON lever and front sticker identify the magnetic base at the bottom.
     add('B','B02L','magnet_OFF_ON_lever',vy(3,12,ax-23,32.5,27),'P')
@@ -293,59 +294,25 @@ def make_b():
     # under the rear microscope upright base, not just the rotary.
     # 250x300x12 remains a PHOTO-FIT candidate; MB2530/M standard
     # 250x300x12.7 cannot yet be asserted as the exact hardware.
-    black=box(250,300,12,65,0,20)
-    photo_holes=[(65+dx,dy) for dx in range(-100,101,25) for dy in range(-125,126,25)]
-    black=cut(black,photo_holes,5.6,2,30)
-    # V45: four NOMINALLY registered 6 mm-deep M6 core-drill proxies,
-    # not photographed tapped holes or validated thread engagement.
-    # The remaining 25 mm grid depressions stay cosmetic and blind.
-    microscope_b35_centres=[(x,y) for x in (65,115) for y in (-125,-75)]
-    black=cut(black,microscope_b35_centres,5,6,26)
-    # B35 is NOT another shared optical breadboard. It is a
-    # local Thorlabs accessory panel with FOUR candidate M5 anchors
-    # into the already-existing B01 grid (25mm alignment). Exact OEM
-    # mount centres, thread engagement and safety are unverified.
-    bolts=[(x,y) for x in (25,175) for y in (-100,100)]
-    black=cut(black,bolts,6.5,12,20)
-    black=cut(black,bolts,9,3,29)
-    add('B','B35','THORLABS_BLACK_BOLTED_AUXILIARY_PANEL_NOT_SECOND_BASE',black,'P')
-    for i,(x,y) in enumerate(bolts,1):
-        screw=vz(2.5,21,x,y,11).fuse(vz(4.25,2.6,x,y,29.4))
-        add('B',f'B35S{i}','ONE_M5_BASEGRID_ALIGNED_ANCHOR_CANDIDATE',screw,'C')
-    rot('B','B08',cx,0,32,'D')
-    corners=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
-    # Manufacturer PDF (NFP-1462C) specifies four Ø6.5 clearance
-    # holes with Ø11 counterbore on fixed-stage view (50mm square).
-    # They are NOT M6 tapped holes and should not be modeled as threads.
-    lo=cut(box(65,65,11,cx,0,65.2),corners,6.5,11,65.2)
-    lo=cut(lo,corners,11,4,72.2)
-    # Photos25/26: four lower-row blind side openings on the fixed body.
-    # Their diameter/threads are NOT in the readable OEM drawing and
-    # remain photo-fit proxies; drill 2.5mm inward from the +Y face.
-    nfp_lower_side=[(-18,72.2,1.6),(-4,72.2,2.0),(11,72.2,2.6),(22,72.2,1.6)]
-    for dx,zz,rr in nfp_lower_side:
-        lo=lo.cut(vy(rr,2.5,cx+dx,30,zz))
-    add('B','B09','NFP1462C_lower_4clearance_O6p5_counterbore_O11_photo_side_bores',lo,'D')
-    # Opposite view shows 9-M6 / 4-M3 threaded-hole arrays on the moving plate.
-    # Minor diameters and 10mm/7mm hole DEPTHS are candidates, not OEM data.
-    top=box(65,65,12,cx,0,76.2)
-    top=cut(top,[(cx+dx,dy) for dx in (-25,0,25) for dy in (-25,0,25)],5,10,78.2)
-    top=cut(top,[(cx+dx,dy) for dx in (-16,16) for dy in (-16,16)],2.5,7,81.2)
-    # Photos25/26: three upper-row side openings on the moving plate.
-    nfp_upper_side=[(-22,82.7,1.8),(-8,82.7,1.8),(12,82.7,2.8)]
-    for dx,zz,rr in nfp_upper_side:
-        top=top.cut(vy(rr,2.5,cx+dx,30,zz))
-    add('B','B09A','NFP1462C_upper_9M6_4M3_candidates_photo_side_bores',top,'D')
-    # OEM drawing: native micrometer left. The user photo110 shows right
-    # after whole-stage installation yaw=180° relative to native plan.
-    # OEM overall maker dimension: 155.5..180.5 mm along drive axis.
-    add('B','B09B','NFP_micro_extended_world_RIGHT',vx(4,76,cx+33,0,76.5),'D')
-    add('B','B09C','NFP_micro_drum_world_RIGHT',vx(10,25,cx+109,0,76.5),'D')
-    heater()
-    # Photo150: the rear microscope FOOT shares B35 with the rotary,
-    # so it must be translated UP by the same 12mm support thickness.
-    # Do not lift only the sample, leaving a floating microscope arm.
-    microscope_rise=12
+    # V51: B35 matches the Thorlabs MB2530/M hole phase as a high-confidence
+# candidate. Thickness remains 12mm photo-fit (OEM MB2530/M is 12.7mm).
+# B35 centre X=75 places its four corner counterbores on the B01 25mm grid.
+black=box(250,300,12,75,0,20)
+photo_holes=[(75-112.5+25*i,-137.5+25*j) for i in range(10) for j in range(12)]
+black=cut(black,photo_holes,5,12,20)  # M6 through-tap drill proxy, threads omitted
+bolts=[(x,y) for x in (-25,175) for y in (-125,125)]
+black=cut(black,bolts,6.5,12,20)
+black=cut(black,bolts,11,3.5,28.5)
+add('B','B35','Thorlabs MB2530/M HOLE-PHASE CANDIDATE / 250x300x12 PHOTO-FIT AUXILIARY PLATE',black,'P')
+for i,(x,y) in enumerate(bolts,1):
+    screw=vz(2.5,20,x,y,8.5).fuse(vz(5,3.5,x,y,28.5))
+    add('B',f'B35S{i}',f'M6x20 LOW-HEAD ANCHOR CANDIDATE {i}',screw,'C')
+# The four B16 foot bores are a subset of the 120-hole B35 OEM grid.
+mic_foot_x=87.5
+mic_foot_y=-112.5
+microscope_b35_centres=[(x,y) for x in (mic_foot_x-25,mic_foot_x+25)
+                        for y in (mic_foot_y-25,mic_foot_y+25)]
+microscope_rise=12
     # V45: translate only the POST and FOOT from (82,-112) to (90,-100)
     # to register 4 proposed 50mm-pitch M6 clearance bores to B35's
     # 25mm candidate grid. Keep camera/objective on sample axis X=82.
@@ -370,7 +337,7 @@ def make_b():
         add('B',f'B16S{i}','B16_to_B35_M6x18_thread_CANDIDATE',screw,'C')
     # Main column-to-head arm and forward boom, mapped to the Three.js datums.
     add('B','B16G','MXFMS_column_to_head_support_arm',
-        box(80,34,34,86,-77,245+microscope_rise),'P')
+        box(80,34,34,86,mic_foot_y+23,245+microscope_rise),'P')
     add('B','B16B','MXFMS_forward_head_support_boom',
         box(32,125,26,86,-25,260+microscope_rise),'P')
     # MXFMS coaxial coarse/fine focusing wheels on both sides of the body.
@@ -705,7 +672,7 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,192).cut(vz(26.1,66.2,cx,0,191.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',
         sleeve_A14,'C')
-CAD_REVISION='V48'
+CAD_REVISION='V51'
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
     # The user's B photos distinguish the SILVER common table from the
