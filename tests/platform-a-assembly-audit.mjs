@@ -13,10 +13,12 @@ assert.equal(a.mirroredReturnRightX,-68);
 assert.equal(a.mirroredOrientationResidualGapMm,88.5);
 assert.equal(a.bestOfTwoOrientationsResidualGapMm,88.5);
 assert.equal(a.orientationFlipAloneCannotResolveReach,true);
-assert.equal(a.sourceRulerMeasurementsAvailable,false);
+assert.equal(a.sourceRulerMeasurementsAvailable,true);
+assert.deepEqual(a.sampleTopAboveBoardMeasuredRangeMm,[87,93]);
+assert.equal(a.sampleTopStackGeometryRulerCompatible,true);
 assert.equal(a.absoluteFilmSampleCoordinatesPhotoRegistered,false);
 assert.equal(a.orientationMeasuredFromPhoto,false);
-assert.equal(a.verticalBracketBelowHeaterTopMm,7.2);
+assert.equal(a.verticalBracketBelowHeaterTopMm,17.2);
 assert.equal(a.secondTwentyMmGoniometerCandidateAdded,true);
 assert.equal(a.secondGoniometerActualSkuVerified,false);
 assert.equal(a.nominalApproachEnvelopeRegistered,false);
@@ -28,4 +30,4 @@ const correctedTestFixture=auditPlatformAAssembly({filmStageX:160,bracketOverhan
 assert(correctedTestFixture.nominalApproachEnvelopeRegistered,
   'Auditor should recognize overlapping possible X envelopes without certifying real glass grip');
 assert.equal(correctedTestFixture.functionalTransferAccepted,false);
-console.log('V45 A rig 183.5mm unreachable glass endpoint + unknown magnetic/clamp models: PASS');
+console.log('V48 A ruler photo17/18 top height, three-layer sample stack and unregistered XY: PASS');
