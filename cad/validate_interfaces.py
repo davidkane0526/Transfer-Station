@@ -84,78 +84,112 @@ sample_board=part(B,'B35')[0]
 silver_board=part(B,'B01')[0]
 sample_base=part(B,'B08')[0]
 rotary_top=part(B,'B08A')[0]
-nfp_z=20+12+33.2
+lower_z=20+12+33.2
+upper_z=lower_z+23
+b41_fixed=part(B,'B41')[0]
+b41_moving_lower=part(B,'B41M')[0]
+b41_moving_top=part(B,'B41A')[0]
 nfp_fixed=part(B,'B09')[0]
 nfp_moving_lower=part(B,'B09M')[0]
 nfp_moving_top=part(B,'B09A')[0]
 check(abs(sample_base.BoundingBox().zmin-32)<.02,
       'B08 GCM-1107M rotary begins directly on the B35 board top')
-check(abs(rotary_top.BoundingBox().zmax-nfp_fixed.BoundingBox().zmin)<.02,
-      'B09 NFP-1462C fixed base rests directly on the B08 rotary top')
-check(abs(nfp_fixed.BoundingBox().zlen-11)<.02 and
+check(abs(rotary_top.BoundingBox().zmax-lower_z)<.02,
+      'B08 rotary top reaches the lower B41 stage mounting datum')
+check(abs(b41_fixed.BoundingBox().zmin-lower_z)<.02 and
+      abs(b41_fixed.BoundingBox().zlen-11)<.02 and
+      abs(b41_moving_lower.BoundingBox().zlen-2)<.02 and
+      abs(b41_moving_top.BoundingBox().zlen-10)<.02,
+      'B41 lower orthogonal stage retains 11+2+10mm fixed/moving stack')
+check(abs(b41_moving_top.BoundingBox().zmax-upper_z)<.02,
+      'B41 lower stage top is the B09 upper-stage mounting datum')
+check(abs(nfp_fixed.BoundingBox().zmin-upper_z)<.02 and
+      abs(nfp_fixed.BoundingBox().zlen-11)<.02 and
       abs(nfp_moving_lower.BoundingBox().zlen-2)<.02 and
       abs(nfp_moving_top.BoundingBox().zlen-10)<.02,
-      'B09 NFP-1462C retains 11+2+10mm fixed/moving stack')
-check(abs(nfp_fixed.BoundingBox().zmin-nfp_z)<.02 and
-      abs(nfp_moving_top.BoundingBox().zmax-(nfp_z+23))<.02,
-      'B09 NFP-1462C total mechanical height is 23mm')
-check(rotary_top.intersect(nfp_fixed).Volume()<1e-4,
-      'B08 rotary top and B09 fixed base contact without interpenetration')
-check(nfp_fixed.intersect(nfp_moving_lower).Volume()<1e-4 and
-      nfp_moving_lower.intersect(nfp_moving_top).Volume()<1e-4,
-      'B09 fixed and moving layers meet at planar interfaces')
+      'B09 upper NFP retains its own independent 11+2+10mm stack')
+check(abs(nfp_moving_top.BoundingBox().zmax-(upper_z+23))<.02,
+      'B09 upper NFP total mechanical height is 23mm')
+check(rotary_top.intersect(b41_fixed).Volume()<1e-4 and
+      b41_moving_top.intersect(nfp_fixed).Volume()<1e-4,
+      'B08/B41 and B41/B09 interfaces are planar contacts without interpenetration')
+for fixed,lower,top,key in ((b41_fixed,b41_moving_lower,b41_moving_top,'B41'),
+                            (nfp_fixed,nfp_moving_lower,nfp_moving_top,'B09')):
+    check(fixed.intersect(lower).Volume()<1e-4 and lower.intersect(top).Volume()<1e-4,
+          key+' fixed/carriage/top layers meet without interpenetration')
+# B08 is a rotation-only stage: the real unit has no external operating handle.
+check(len(part(B,'B08B'))==0,'B08 GCM-1107M must not contain a fabricated external handle')
 # GCM-1107M nine-hole 25mm candidate pattern.
 for dx in (-25,0,25):
     for dy in (-25,0,25):
         hole=vz(2.45,8,82+dx,dy,57.2)
         check(rotary_top.intersect(hole).Volume()<1e-5,
               'B08 GCM-1107M 9-hole top pattern remains open')
-# NFP fixed base: 4 x Ø6.5 clearance / Ø11 counterbores at 50mm pitch.
-nfp_corners=[(82+dx,dy) for dx in (-25,25) for dy in (-25,25)]
-for i,(x,y) in enumerate(nfp_corners,1):
-    clearance=vz(3.2,11,x,y,nfp_z)
-    counterbore=vz(5.45,5,x,y,nfp_z+6)
-    check(nfp_fixed.intersect(clearance).Volume()<1e-5,
-          'B09 NFP fixed base Ø6.5 clearance hole is open')
-    check(nfp_fixed.intersect(counterbore).Volume()<1e-5,
-          'B09 NFP fixed base Ø11 counterbore is open')
-    tapped=vz(2.45,8,x,y,57.2)
-    check(rotary_top.intersect(tapped).Volume()<1e-5,
-          'B09 mounting screw position aligns with a GCM-1107M top M6 candidate hole')
-    screw=part(B,f'B09S{i}')
-    check(len(screw)==1 and screw[0].isValid(),
-          'B09 fixed-base M6 screw is one valid connected solid')
-# NFP moving top: 9 M6 + 4 M3 tap-drill proxies.
+# Both 65mm-class single-axis stages have separate 4-hole fixed bases.
+for key,z0,fixed in (('B41',lower_z,b41_fixed),('B09',upper_z,nfp_fixed)):
+    for dx in (-25,25):
+        for dy in (-25,25):
+            x,y=82+dx,dy
+            clearance=vz(3.2,11,x,y,z0)
+            counterbore=vz(5.45,5,x,y,z0+6)
+            check(fixed.intersect(clearance).Volume()<1e-5,
+                  key+' fixed-base Ø6.5 clearance hole is open')
+            check(fixed.intersect(counterbore).Volume()<1e-5,
+                  key+' fixed-base Ø11 counterbore is open')
+    for i in range(1,5):
+        screw=part(B,f'{key}S{i}')
+        check(len(screw)==1 and screw[0].isValid(),
+              key+' fixed-base mounting screw is one valid connected solid')
+# The lower B41 top pattern receives the B09 fixed-base screws.
+for dx in (-25,25):
+    for dy in (-25,25):
+        tapped=vz(2.45,8,82+dx,dy,lower_z+23-8)
+        check(b41_moving_top.intersect(tapped).Volume()<1e-5,
+              'B41 moving top corner M6 candidate hole remains open for B09 mounting')
+# B09 NFP moving top: 9 M6 + 4 M3 tap-drill proxies.
 for dx in (-25,0,25):
     for dy in (-25,0,25):
-        probe=vz(2.45,10,82+dx,dy,nfp_z+13)
+        probe=vz(2.45,10,82+dx,dy,upper_z+13)
         check(nfp_moving_top.intersect(probe).Volume()<1e-5,
               'B09 NFP moving plate 9-M6 top hole is open')
 for dx in (-16,16):
     for dy in (-16,16):
-        probe=vz(1.20,10,82+dx,dy,nfp_z+13)
+        probe=vz(1.20,10,82+dx,dy,upper_z+13)
         check(nfp_moving_top.intersect(probe).Volume()<1e-5,
               'B09 NFP moving plate 4-M3 top hole is open')
 for xoff,radius in [(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]:
-    probe=vy(radius,.6,82+xoff,32.2,nfp_z+7)
+    probe=vy(radius,.6,82+xoff,32.2,upper_z+7)
     check(nfp_fixed.intersect(probe).Volume()<1e-5,
           'B09 NFP fixed-base lower photo side bore is open')
 for xoff,radius in [(-22,1.8),(-8,1.8),(12,2.8)]:
-    probe=vy(radius,.6,82+xoff,32.2,nfp_z+17.5)
+    probe=vy(radius,.6,82+xoff,32.2,upper_z+17.5)
     check(nfp_moving_top.intersect(probe).Volume()<1e-5,
           'B09 NFP moving-top upper photo side bore is open')
-for key in ('B09B','B09C','B09D','B09E'):
+for key in ('B09B','B09C','B09D','B09E','B41B','B41C','B41D','B41E'):
     item=part(B,key)
     check(len(item)==1 and item[0].isValid(),
-          f'{key} NFP micrometer assembly component exists and is valid')
+          f'{key} sample-stage micrometer component exists and is valid')
 nfp_micrometer=part(B,'B09E')[0].BoundingBox()
 check(nfp_micrometer.xmax>220,
-      'B09 NFP micrometer drum points to the operator-right side')
+      'B09 NFP micrometer drum points to the operator-right side (+X)')
+b41_micrometer=part(B,'B41E')[0].BoundingBox()
+b41_body=part(B,'B41')[0].BoundingBox()
+check(b41_micrometer.ymin>b41_body.ymax-.02,
+      'B41 second micrometer points toward the operator/front (+Y)')
 report['B08_GCM1107M']={
     'envelope_mm':[94,94,33.2],
     'top_hole_pattern':'9 M6 candidate holes at 25mm pitch',
-    'operator_lock_side':'+Y',
+    'external_operating_handle':False,
     'OEM_model_confirmed':True
+}
+report['B41_lower_orthogonal_stage']={
+    'stack_order':'B35 -> B08 -> B41 -> B09 -> B10 -> B11',
+    'envelope_candidate_mm':[65,65,23],
+    'fixed_moving_stack_mm':[11,2,10],
+    'micrometer_direction':'+Y (front)',
+    'orthogonal_to_B09_X':True,
+    'exact_SKU_confirmed':False,
+    'mounting_hole_pattern_verified':False
 }
 report['B09_NFP1462C']={
     'envelope_mm':[65,65,23],
@@ -378,7 +412,7 @@ check(mic_shaft.BoundingBox().xmax<v25_fixed.BoundingBox().xmin,
       'V31 V25M micrometer axis is outside fixed upright in photo108')
 
 # Check exposed stage stack contact datums.
-for name,bottom,top in [('B10',88.2,98.2),('B11',98.2,110.2)]:
+for name,bottom,top in [('B10',111.2,121.2),('B11',121.2,133.2)]:
     bb=part(B,name)[0].BoundingBox()
     check(abs(bb.zmin-bottom)<.02 and abs(bb.zmax-top)<.02,name+' correct stage stack datums')
 # V19 PHOTO-VERIFIED stacking and actuator directions.
@@ -405,9 +439,12 @@ v25_knob=part(B,'B04D')[0].BoundingBox()
 check(v25_stem.zmax<=v25_knob.zmin+.02 and
       v25_knob.zmax>v25_stem.zmax,'B V25M micrometer stands vertically +Z')
 brot=part(B,'B08')[0].BoundingBox()
-b_lock=part(B,'B08B')[0].BoundingBox()
-check(b_lock.ymin>=brot.ymax-.02,'B rotary operator lock points to front (+Y)')
+check(len(part(B,'B08B'))==0,'B rotary table has no external handle')
 nfp_right=part(B,'B09B')[0].BoundingBox()
+b41_drive=part(B,'B41B')[0].BoundingBox()
+b41_body_box=part(B,'B41')[0].BoundingBox()
+check(b41_drive.BoundingBox().ymin>=b41_body_box.BoundingBox().ymax-.02,
+      'B41 second linear micrometer exits toward the front (+Y)')
 nfp_body=part(B,'B09')[0].BoundingBox()
 check(nfp_right.xmin>=nfp_body.xmax-.02,'B NFP micrometer exits right +X')
 a15=part(A,'A15')[0].BoundingBox()
@@ -815,14 +852,14 @@ check(155.5<=max(nfp_drum.BoundingBox().xmax,
 for dx in (-25,25):
  for dy in (-25,25):
     bx,by=82+dx,dy
-    small=vz(3.1,11,bx,by,65.2)
-    cb=vz(5.35,4,bx,by,72.2)
+    small=vz(3.1,11,bx,by,88.2)
+    cb=vz(5.35,4,bx,by,94.2)
     check(nfp_clearance.intersect(small).Volume()<1e-5,
           'NFP fixed base corner Ø6.5 clearance is open (not a thread)')
     check(nfp_clearance.intersect(cb).Volume()<1e-5,
           'NFP 50mm corner mounting counterbore Ø11 exists')
-check(abs(part(B,'B09A')[0].BoundingBox().zmax-88.2)<.02,
-      'NFP moving top nominal 23mm above 65.2 mount datum')
+check(abs(part(B,'B09A')[0].BoundingBox().zmax-111.2)<.02,
+      'NFP moving top nominal 23mm above 88.2 upper-stage datum')
 # B06 follows the same independent fixed/movable pressure-plate
 # arrangement as the web candidate: one shared plate, TWO pressure screws.
 fixed_jaw=part(B,'B06F')[0]
