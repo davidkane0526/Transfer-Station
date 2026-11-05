@@ -1350,7 +1350,7 @@ function microscopeB(){
    // between the rear post and the optical head.
    const boom=add(g,cyl(14,132,mats.black,-4,253,54));
    boom.rotation.x=Math.PI/2;boom.userData.microscopeSupportBoom=true;
-   for(const z of [-6,114]){
+   for(const z of [-6,116]){
      const collar=add(g,cyl(17,8,mats.dark,-4,253,z));
      collar.rotation.x=Math.PI/2;collar.userData.microscopeBoomCollar=true;
    }
@@ -1396,8 +1396,8 @@ function microscopeB(){
    camera.userData.cameraHousing=true;
    add(g,cub(28,18,1,mats.dark,0,24,24.5));
    add(g,cyl(2.2,7,mats.silver,12,47,-6));
-   const cable=add(g,tube([[12,47,-6],[22,61,-12],[31,70,-30],
-      [29,61,-48],[18,43,-52],[8,28,-42]],1.8,mats.rubber));
+   const cable=add(g,tube([[18,47,0],[33,64,10],[48,68,4],
+      [50,54,-15],[34,32,-25],[16,18,-18]],1.8,mats.rubber));
    cable.userData.cameraCableLoop=true;
    g.userData.cameraTubeSegments=5;
    g.userData.cameraCableLoop=true;
