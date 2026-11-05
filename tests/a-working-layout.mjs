@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import {A_WORKING_LAYOUT,auditAWorkingLayout} from '../src/a-working-layout.js';
+import {photo94BracketCandidate} from '../src/photo-947-assembly.js';
+const original=photo94BracketCandidate({stageCenterX:-116,stageTopY:164});
+assert.equal(original.handedness,'left');
+assert.equal(original.leftX,-164);
+assert.equal(original.legX,-164);
+assert.equal(original.verticalLegLength,72);
+const hypothesis=photo94BracketCandidate({
+  stageCenterX:A_WORKING_LAYOUT.filmStageX,stageTopY:164,
+  handedness:'right',verticalLegLength:A_WORKING_LAYOUT.lLegLengthMm
+});
+assert.equal(hypothesis.legX,A_WORKING_LAYOUT.filmStageX+48);
+assert.equal(hypothesis.verticalLegBottomY,110.5);
+const nominal=auditAWorkingLayout();
+assert.equal(nominal.actualStagePosePhotoRegistered,false);
+assert.equal(nominal.A17SkuVerified,false);
+assert.equal(nominal.A05CClampSkuVerified,false);
+assert.equal(nominal.basesSeparate,true);
+assert.equal(nominal.footprintGapMm,36.25);
+assert.equal(nominal.glassLeftX,10);
+assert.equal(nominal.glassRightX,86);
+assert.equal(nominal.stampCenterX,78);
+assert.equal(nominal.stampRightMarginMm,4);
+assert.equal(nominal.clampRightX,19.5);
+assert.equal(nominal.clampHeaterClearanceMm,26);
+assert.equal(nominal.initialVerticalStampGapMm,13);
+assert.equal(nominal.candidateCanLower,true);
+const contact=auditAWorkingLayout({filmDropMm:13});
+assert.equal(contact.verticalStampGapMm,0);
+assert.equal(contact.candidateCanLower,true);
+const worstStraight=auditAWorkingLayout({filmShiftMm:12.5,sampleShiftMm:-12.5});
+assert.equal(worstStraight.clampHeaterClearanceMm,1);
+assert.equal(worstStraight.clipOutsideHeater,true);
+const unsafeTurn=auditAWorkingLayout({sampleAngleDeg:45,filmDropMm:13});
+assert(unsafeTurn.clampHeaterClearanceMm<nominal.clampHeaterClearanceMm);
+const worstTurn=auditAWorkingLayout({sampleAngleDeg:45,filmShiftMm:12.5,sampleShiftMm:-12.5,filmDropMm:13});
+assert.equal(worstTurn.clipOutsideHeater,false);
+assert.equal(worstTurn.candidateCanLower,false);
+assert.throws(()=>auditAWorkingLayout({filmDropMm:14}),/Invalid/);
+assert.equal(nominal.usableForMachining,false);
+console.log('V58 platform A: mirrored PROXY, separate magnetic/sample bases, stamp alignment, 13mm VC13 descent, rotated clamp collision lock: PASS');
