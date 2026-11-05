@@ -282,8 +282,8 @@ def make_b():
     # is identified from an engraved label.
     plate_z=90;plate_h=6
     holder_z=plate_z+plate_h
-    post_len=100;holder_len=50
-    upper_rod_z=168;lower_rod_z=135
+    post_len=112;holder_len=50
+    upper_rod_z=191;lower_rod_z=158
     assert upper_rod_z-lower_rod_z==33  # PHUC-1 OEM E
     add('B','B05','photo108_V25M_side_mount_plate_PROXY',
         box(65,66,plate_h,ax+60.5,0,plate_z),'C')
@@ -311,10 +311,10 @@ def make_b():
     # Ø12 through bores, center spacing=33mm. Both physical rods
     # appear HORIZONTAL from the same photo149 side view.
     phuc_x=-35
-    phuc=vz(15,60,phuc_x,0,121.5)
+    phuc=vz(15,60,phuc_x,0,144.5)
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,upper_rod_z))
     phuc=phuc.cut(vx(6.05,32,phuc_x-16,0,lower_rod_z))
-    groove=vz(15.1,1,phuc_x,0,151.5).cut(vz(13,1,phuc_x,0,151.5))
+    groove=vz(15.1,1,phuc_x,0,174.5).cut(vz(13,1,phuc_x,0,174.5))
     phuc=phuc.cut(groove)
     add('B','B24','Zolix_PHUC1_OEM_A60_B30_2X12_E33_photo149',phuc,'D')
     # Candidate first/second Ø12 rods. PHUC's 33mm pitch and the
@@ -337,7 +337,7 @@ def make_b():
     # Shift the GCM-1302M jaw and glass to a plausible aligned height.
     # Only the interconnection hierarchy is photographed; this 20.5mm
     # change is a geometry fit, NOT a confirmed measured clearance.
-    jaw_shift=20.5
+    jaw_shift=43.5
     # The moving pressure plate B06M must NOT penetrate the fixed
     # spine. The old 17mm wide spine overlapped B06M by 490mm^3,
     # and B06F by 70mm^3 in separate STEP parts.
@@ -348,7 +348,7 @@ def make_b():
     # 0.5mm edge: zero collision did not mean a viable joining face.
     # Now spine Z=121..139.5, meeting both fixed/moving jaw plates
     # by planar side contact without penetration.
-    fixed_spine=box(14.5,56,18.5,clamp_x-8.25,0,121)
+    fixed_spine=box(14.5,56,18.5,clamp_x-8.25,0,144)
     fixed_spine=fixed_spine.cut(vx(3.06,10,-2.5,0,lower_rod_z))
     add('B','B06','GCM13_fixed_spine_with_REAL_M6_candidate_side_bore',
         fixed_spine,'C')
