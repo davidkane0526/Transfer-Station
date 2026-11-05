@@ -52,6 +52,7 @@ function showLargePhoto(src,title,note){
  let dialog=document.getElementById('source-photo-lightbox');
  if(!dialog){
   dialog=el('dialog','source-photo-lightbox');
+  dialog.id='source-photo-lightbox';
   const close=el('button','photo-lightbox-close','关闭');
   close.type='button';close.onclick=()=>dialog.close();
   dialog.append(close);
