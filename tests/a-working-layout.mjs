@@ -21,6 +21,7 @@ assert.equal(nominal.footprintGapMm,36.25);
 assert.equal(nominal.glassLeftX,10);
 assert.equal(nominal.glassRightX,86);
 assert.equal(nominal.stampCenterX,78);
+assert.equal(nominal.stampCenterZ,0);
 assert.equal(nominal.stampRightMarginMm,4);
 assert.equal(nominal.clampRightX,19.5);
 assert.equal(nominal.clampHeaterClearanceMm,26);
