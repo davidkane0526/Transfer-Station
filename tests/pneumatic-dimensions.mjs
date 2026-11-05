@@ -23,7 +23,11 @@ assert.equal(VN50_FAMILY_PORT.flankAngleDeg,55);
 assert.equal(VN50_FAMILY_PORT.requiresFaceSealOrOring,true);
 assert.equal(VN50_FAMILY_PORT.photographedSpecimenMatchVerified,false);
 assert.equal(VN50_FAMILY_PORT.pumpPortGenderVerified,false);
-assert.equal(suctionDimension('B20I').idMm,8.2);
+assert.equal(suctionDimension('B20I').idMm,null,
+  'VN-50 G1/4 threaded port must not be represented as a measured Ø8.2 hose bore');
+assert.equal(suctionDimension('B20I').odMm,null);
+assert.equal(suctionDimension('B20I').threadMajorDiameterMm,13.157);
+assert.equal(suctionDimension('B20I').pitchMm,1.337);
 const fit=auditVacuumInterfaceFit();
 assert.equal(fit.status,'unverified');
 assert.equal(fit.pumpFamilyThreadReference.claimedFamilyPort,'G1/4');
