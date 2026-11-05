@@ -21,7 +21,7 @@ export const HANDLES={
   B03:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,direction:'-X',secondaryDirection:'+Z',localDirection:'+X',installationYawDeg:180,brandedFace:'-Z',evidence:'108.jpg磁座铭牌面见手柄在左；109.jpg从相反的T25M铭牌面看手柄在右，是同一根手柄',confidence:'photo'},
   B04:{kind:'vertical',direction:'+Y',evidence:'108.jpg：移动臂侧面竖直银色测微头',confidence:'photo'},
   B08:{kind:'rotation-only',handles:0,evidence:'用户2026-11-05根据实物照片明确纠正：GCM-1107M旋转台没有外伸操作手柄',confidence:'user-correction'},
-  B41:{kind:'horizontal',axes:1,handles:1,direction:'+Z',evidence:'用户照片147：旋转台上方、NFP-1462C下方存在独立的前向测微头；型号未确认',confidence:'photo'},
+  B41:{kind:'horizontal',axes:1,handles:1,direction:'+Z',physicalAxis:'Y',evidence:'用户照片147：旋转台上方、NFP-1462C下方存在独立的前向测微头；型号未确认',confidence:'photo'},
   B09:{kind:'horizontal',axes:1,handles:1,direction:'+X',evidence:'110.jpg及147号带尺照片：上层NFP-1462C右侧银色测微头',confidence:'photo'},
   A15:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,direction:'+X',secondaryDirection:'+Z',evidence:'95.jpg、97.jpg：VC13M下方T25M右伸微分头',confidence:'photo'},
   A03:{kind:'vertical',direction:'+Y',evidence:'97.jpg：VC13M竖直导轨正面银色测微装置',confidence:'photo'},
