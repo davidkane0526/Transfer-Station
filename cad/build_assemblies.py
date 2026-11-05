@@ -295,10 +295,11 @@ def make_b():
     sleeve=vz(10,holder_len,post_x,-15,holder_z)
     sleeve=sleeve.cut(vz(6.08,holder_len,post_x,-15,holder_z))
     add('B','B34','photo149_black_sleeve_PHSH2_50mm_candidate',sleeve,'C')
-    # The old PHSP12-1 25mm post cannot pass through BOTH the ~50mm
-    # sleeve and the distinct upper square clamp. Try OEM 100mm size;
-    # end thread and installed insertion depth remain photo candidates.
-    add('B','B27','photo149_vertical_O12x100_PHSP12-4_candidate',
+    # B41 raises the heater by 23mm. Lift the PHUC/rod/clamp/glass
+    # branch by the same amount to preserve the 14.8mm glass gap and
+    # 13mm PDMS approach. 112mm is the resulting scene-fit post length,
+    # NOT a claimed Zolix standard SKU.
+    add('B','B27','photo149_vertical_O12x112_scene_fit_SKU_unverified',
         vz(6,post_len,post_x,-15,holder_z),'C')
     # Separate, currently unidentified, little BLACK SQUARE clamp.
     # Both bores cut THROUGH the actual box so two steel rods do not
