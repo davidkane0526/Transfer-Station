@@ -1759,7 +1759,8 @@ function vacuumSupplyB(){
 function refreshVacuumHoseB(){
  if(platform!=='B')return;
  const pipe=parts.get('B40')?.g;if(!pipe)return;
- const route=vacuumHosePath({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
+ const route=vacuumHosePath({sampleShiftMm:sampleShift,
+   sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle});
  const pts=route.map(p=>[p.x,p.y,p.z]);
  pipe.traverse(o=>{
    if(!o.isMesh||!o.userData.dynamicVacuumHose)return;
@@ -1768,7 +1769,8 @@ function refreshVacuumHoseB(){
    const next=tube(pts,rad,o.material);
    o.geometry.dispose();o.geometry=next.geometry;
  });
- const a=auditVacuumPath({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
+ const a=auditVacuumPath({sampleShiftMm:sampleShift,
+   sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle});
  pipe.userData.audit=a;
  pipe.userData.lastRoute=route;
 }
@@ -1812,9 +1814,10 @@ function refreshHeatingControlHarness(){
  const angle=sampleAngle*Math.PI/180;
  const ca=Math.cos(angle),sa=Math.sin(angle);
  const travel=stageLocalTranslation(sampleShift,angle);
+ const depth=stageLocalDepthTranslation(sampleShiftDepth,angle);
  const source=(x,y,z)=>new THREE.Vector3(
-   CONFIG.B.sampleX+travel.x+x*ca+z*sa,
-   y,-x*sa+z*ca+travel.z);
+   CONFIG.B.sampleX+travel.x+depth.x+x*ca+z*sa,
+   y+23,-x*sa+z*ca+travel.z+depth.z);
  const gland=new THREE.Vector3(222.5,86,-166);
  for(const id of ['B37','B38']){
    const g=parts.get(id)?.g;if(!g)continue;
