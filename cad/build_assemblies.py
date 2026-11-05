@@ -292,32 +292,24 @@ def make_b():
     # is plainly visible under the rotary, with its own front edge
     # and vendor plaque. Photo150 shows this black board ALSO runs
     # under the rear microscope upright base, not just the rotary.
-    # 250x300x12 remains a PHOTO-FIT candidate; MB2530/M standard
-    # 250x300x12.7 cannot yet be asserted as the exact hardware.
-    # V51: B35 matches the Thorlabs MB2530/M hole phase as a high-confidence
-# candidate. Thickness remains 12mm photo-fit (OEM MB2530/M is 12.7mm).
-# B35 centre X=75 places its four corner counterbores on the B01 25mm grid.
-black=box(250,300,12,75,0,20)
-photo_holes=[(75-112.5+25*i,-137.5+25*j) for i in range(10) for j in range(12)]
-black=cut(black,photo_holes,5,12,20)  # M6 through-tap drill proxy, threads omitted
-bolts=[(x,y) for x in (-25,175) for y in (-125,125)]
-black=cut(black,bolts,6.5,12,20)
-black=cut(black,bolts,11,3.5,28.5)
-add('B','B35','Thorlabs MB2530/M HOLE-PHASE CANDIDATE / 250x300x12 PHOTO-FIT AUXILIARY PLATE',black,'P')
-for i,(x,y) in enumerate(bolts,1):
-    screw=vz(2.5,20,x,y,8.5).fuse(vz(5,3.5,x,y,28.5))
-    add('B',f'B35S{i}',f'M6x20 LOW-HEAD ANCHOR CANDIDATE {i}',screw,'C')
-# The four B16 foot bores are a subset of the 120-hole B35 OEM grid.
-mic_foot_x=87.5
-mic_foot_y=-112.5
-microscope_b35_centres=[(x,y) for x in (mic_foot_x-25,mic_foot_x+25)
-                        for y in (mic_foot_y-25,mic_foot_y+25)]
-microscope_rise=12
-    # V45: translate only the POST and FOOT from (82,-112) to (90,-100)
-    # to register 4 proposed 50mm-pitch M6 clearance bores to B35's
-    # 25mm candidate grid. Keep camera/objective on sample axis X=82.
-    # This remains a LAYOUT PROPOSAL, not measured OEM mounting.
-    mic_foot_x,mic_foot_y=90,-100
+    # V51: MB2530/M is a high-confidence hole-pattern candidate only.
+    # Retain 12mm photo-fit thickness; OEM candidate is 12.7mm.
+    black=box(250,300,12,75,0,20)
+    photo_holes=[(75-112.5+25*i,-137.5+25*j) for i in range(10) for j in range(12)]
+    black=cut(black,photo_holes,5,12,20)  # M6 through-tap drill proxy, threads omitted
+    bolts=[(x,y) for x in (-25,175) for y in (-125,125)]
+    black=cut(black,bolts,6.5,12,20)
+    black=cut(black,bolts,11,3.5,28.5)
+    add('B','B35','Thorlabs MB2530/M HOLE-PHASE CANDIDATE / 250x300x12 PHOTO-FIT AUXILIARY PLATE',black,'P')
+    for i,(x,y) in enumerate(bolts,1):
+        screw=vz(2.5,20,x,y,8.5).fuse(vz(5,3.5,x,y,28.5))
+        add('B',f'B35S{i}',f'M6x20 LOW-HEAD ANCHOR CANDIDATE {i}',screw,'C')
+    # The four B16 foot bores are a subset of the 120-hole B35 OEM grid.
+    mic_foot_x=87.5
+    mic_foot_y=-112.5
+    microscope_b35_centres=[(x,y) for x in (mic_foot_x-25,mic_foot_x+25)
+                            for y in (mic_foot_y-25,mic_foot_y+25)]
+    microscope_rise=12
     # Photo116 identifies SDPTOP MXFMS. Manufacturer data specifies
     # a Ø32 x 280mm post; the actual B35 adapter foot is a custom
     # installation proxy, not the standard 320x260x16mm B5 base.
