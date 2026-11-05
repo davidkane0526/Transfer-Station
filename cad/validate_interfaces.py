@@ -188,6 +188,11 @@ for i in range(10):
         check(sample_board.intersect(probe).Volume()<1e-5,
               'B35 OEM candidate M6 grid hole must pass through the full 12mm board')
 check(len(b35_grid)==120,'B35 MB2530/M candidate has exactly 120 grid holes')
+# MB2530/M is a 250x300mm board: four corner counterbores only.
+# The fifth central counterbore applies to larger boards, not this SKU.
+central_counterbore_probe=vz(5.45,3.5,75,0,28.5)
+check(sample_board.intersect(central_counterbore_probe).Volume()>1,
+      'B35 MB2530/M candidate has NO central fifth counterbore')
 b35_anchors=[(x,y) for x in (-25,175) for y in (-125,125)]
 for i,(x,y) in enumerate(b35_anchors,1):
     clearance=vz(3.2,12,x,y,20)

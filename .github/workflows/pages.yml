@@ -58,6 +58,7 @@ jobs:
           node tests/b-profile-audit.mjs
           node --check src/interface-evidence.js
           node --check src/procurement.js
+          node tests/procurement-structure.mjs
           node tests/interface-evidence.mjs
           node --check src/cad-registration.js
           node tests/cad-registration.mjs

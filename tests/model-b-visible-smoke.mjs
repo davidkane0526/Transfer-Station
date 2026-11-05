@@ -362,7 +362,7 @@ try{
  const boardDetail=await page.locator('#part-detail').innerText();
  assert.match(boardDetail,/Thorlabs|THORLABS/);
  assert.match(boardDetail,/145|150/);
- assert.match(boardDetail,/B35↔B16候选四孔配准/);
+ assert.match(boardDetail,/B35↔B16孔系配准/);
  await page.locator('#open-bom').click();
  await page.locator('#bom-query').fill('B36');
  // B19/B21/B23 descriptions also say "inside B36", so a

@@ -131,6 +131,7 @@ window.__modelBSupportProbe=()=>{
    rotaryFullyOnBlackBoard:overlaps2D(rotFootBox,boardBox),
    originalThorlabsPartNumberConfirmed:false,
    microscopeFootFourTrueThroughBores:footBoresOpen,
+   B16MountingScrewHeads:scopeMeshes.filter(m=>m.userData.B16MountingScrewHead).length,
    microscopeMountAudit:mountAudit
  };
 };
@@ -1229,11 +1230,15 @@ function rotaryB(){
    g.userData.boardSkuCandidate='Thorlabs MB2530/M';
    g.userData.boardSkuVerified=false;
    g.userData.gridHoleCount=120;
+    g.userData.mountingCounterboreCount=4;
+    g.userData.centralFifthCounterbore=false;
    g.userData.gridHolePitchMm=25;
    g.userData.gridEdgeOffsetMm=12.5;
    g.userData.boardThicknessPhotoFitMm=12;
    g.userData.officialCandidateThicknessMm=12.7;
    g.userData.mountingHoleInsetMm=25;
+   g.userData.mountingHoleCount=4;
+   g.userData.centralFifthCounterbore=false;
    g.userData.anchorHoleCoordinatesWorld=[[-25,-125],[-25,125],[175,-125],[175,125]];
    g.userData.threadGeometry='M6 through-tapped pattern represented by Ø5mm tap-drill holes';
    label(g,'B35 · Thorlabs MB2530/M孔系候选 · 250×300×12 photo-fit · M6/25mm贯通网格',0,rise+8,136);

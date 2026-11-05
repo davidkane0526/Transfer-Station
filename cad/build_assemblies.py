@@ -304,6 +304,7 @@ def make_b():
     for i,(x,y) in enumerate(bolts,1):
         screw=vz(2.5,20,x,y,8.5).fuse(vz(5,3.5,x,y,28.5))
         add('B',f'B35S{i}',f'M6x20 LOW-HEAD ANCHOR CANDIDATE {i}',screw,'C')
+    # MB2530/M at 250x300mm has FOUR corner counterbores, no central fifth.
     # The four B16 foot bores are a subset of the 120-hole B35 OEM grid.
     mic_foot_x=87.5
     mic_foot_y=-112.5
@@ -326,7 +327,7 @@ def make_b():
     nfp_lower_side=[(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]
     nfp_upper_side=[(-22,1.8),(-8,1.8),(12,2.8)]
     for xoff,radius in nfp_lower_side:
-        nfp_fixed=nfp_fixed.cut(vy(radius,.8,cx+xoff,32.1,nfp_z+7))
+        nfp_fixed=nfp_fixed.cut(vy(radius,2.4,cx+xoff,30.1,nfp_z+7))
     add('B','B09','Zolix_NFP1462C_fixed_base_65x65x11_O6p5_O11',nfp_fixed,'D')
     for i,(hx,hy) in enumerate(nfp_corners,1):
         screw=vz(2.45,18,hx,hy,nfp_z-7).fuse(vz(4.2,2.5,hx,hy,nfp_z+8.5))
@@ -339,7 +340,7 @@ def make_b():
     nfp_slide_top=cut(nfp_slide_top,nfp_m6,5,10,nfp_z+13)
     nfp_slide_top=cut(nfp_slide_top,nfp_m3,2.5,10,nfp_z+13)
     for xoff,radius in nfp_upper_side:
-        nfp_slide_top=nfp_slide_top.cut(vy(radius,.8,cx+xoff,32.1,nfp_z+18))
+        nfp_slide_top=nfp_slide_top.cut(vy(radius,2.4,cx+xoff,30.1,nfp_z+18))
     add('B','B09A','NFP1462C_moving_top_9M6_4M3_10mm',nfp_slide_top,'D')
     # OEM micrometer points +X after the photographed 180-degree install.
     nfp_mic_z=nfp_z+12
@@ -370,8 +371,8 @@ def make_b():
     # tapped-core proxy for 6mm. The simplified cylindrical thread
     # engagement is NOT a collision-free representation of M6 flanks.
     for i,(hx,hy) in enumerate(foot_bores,1):
-        screw=vz(3,18,hx,hy,26).fuse(vz(5,2.5,hx,hy,44))
-        add('B',f'B16S{i}','B16_to_B35_M6x18_thread_CANDIDATE',screw,'C')
+        screw=vz(3,20,hx,hy,24).fuse(vz(5,6,hx,hy,44))
+        add('B',f'B16S{i}','B16_to_B35_M6x20_socket_head_CANDIDATE',screw,'C')
     # Main column-to-head arm and forward boom, mapped to the Three.js datums.
     add('B','B16G','MXFMS_column_to_head_support_arm',
         box(80,34,34,86,mic_foot_y+23,245+microscope_rise),'P')
