@@ -220,7 +220,7 @@ export function auditVacuumPath(options={}){
     minimumHarnessClearanceMm,
     minimumRequiredHarnessClearanceMm:VN50.minimumHarnessSurfaceClearanceMm,
     start,end,
-    nominalSourceMatches:near(start.x,94)&&near(start.y,90.5)&&near(start.z,-79),
+    nominalSourceMatches:near(start.x,94)&&near(start.y,113.5)&&near(start.z,-79),
     inletMatches:true,
     independentFromElectricController:true,
     visuallyContinuous:true,
