@@ -4,11 +4,12 @@
 export const A_WORKING_LAYOUT=Object.freeze({
   filmStageX:-46.75, sampleCenterX:78,
   lBracketHandedness:'right',
-  lBracketOverhangMm:48, lLegLengthMm:53.5,
+  lBracketOverhangMm:48, lLegLengthMm:52.1,
   glassLengthMm:76, glassWidthMm:26, glassThicknessMm:1,
   pdmsLengthMm:8, pdmsThicknessMm:1.8, stampRightMarginMm:4,
   magnetFootprintMm:65, sampleBaseFootprintXmm:112,
   heaterFootprintMm:65, heaterTopWorldYmm:109.2,
+  sampleChipTopWorldYmm:110.6,
   bracketTopWorldYmm:164, initialVC13LiftMm:13,
   maximumFilmTravelMm:12.5, maximumSampleTravelMm:12.5,
   clearanceReserveMm:0.5
@@ -43,7 +44,7 @@ export function auditAWorkingLayout({
   const initialStampBottomYmm=d.bracketTopWorldYmm+d.initialVC13LiftMm-
     d.lLegLengthMm+1-1.4-d.pdmsThicknessMm/2;
   const stampBottomYmm=initialStampBottomYmm-filmDropMm;
-  const verticalStampGapMm=stampBottomYmm-d.heaterTopWorldYmm;
+  const verticalStampGapMm=stampBottomYmm-d.sampleChipTopWorldYmm;
   const basesSeparate=footprintGapMm>0;
   const clipOutsideHeater=clampHeaterClearanceMm>=d.clearanceReserveMm;
   const candidateCanLower=basesSeparate&&clipOutsideHeater&&
@@ -65,7 +66,9 @@ export function auditAWorkingLayout({
     clampRightX:Number(clampRightX.toFixed(2)),
     clampHeaterClearanceMm:Number(clampHeaterClearanceMm.toFixed(2)),
     footprintGapMm:Number(footprintGapMm.toFixed(2)),
-    initialVerticalStampGapMm:Number((initialStampBottomYmm-d.heaterTopWorldYmm).toFixed(2)),
+    initialVerticalStampGapMm:Number((initialStampBottomYmm-d.sampleChipTopWorldYmm).toFixed(2)),
+    sampleChipTopWorldYmm:d.sampleChipTopWorldYmm,
+    metalHeaterTopWorldYmm:d.heaterTopWorldYmm,
     verticalStampGapMm:Number(verticalStampGapMm.toFixed(2)),
     stampRightMarginMm:d.stampRightMarginMm,
     stampInsideHeaterBoundingBox,clipOutsideHeater,basesSeparate,
