@@ -2513,20 +2513,26 @@ function updateDetail(part){
    '，三维场景轴 '+esc(axis.sceneAxes.join('/'))+'。'+
    (part.id==='B09'?'NFP 无第二根平移测微头；B08 是独立旋转轴。':'')+'</p></div>':'';
 
- const aRigAudit=(platform==='A'&&['A17','A15','A03','A04L','A04','A05','A07'].includes(part.id))?
-    auditPlatformAAssembly():null;
- const aRigHtml=aRigAudit?'<div class="field" id="platform-a-unregistered-assembly" '+
-   'data-accepted="false" data-gap-mm="'+aRigAudit.optimisticResidualHorizontalGapMm+'">'+
-   '<b>平台A尚未完成全局装配配准（V48）</b><p>照片17/18样品台顶距面包板约87–93mm（模型89.2mm），但A05薄L片末端距A07样品台的场景X缺口仍是未校准的代理值；'+
-   '即使将两侧X候选行程全部用于相向移动，仍有约 '+
+ const isAPart=platform==='A'&&['A17','A15','A03','A04L','A04',
+   'A05','A05C','A05G','A16','A06','A02','A07'].includes(part.id);
+ const aRigAudit=isAPart?(aWorkingPoseMode?
+   auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
+     sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop}):
+   auditPlatformAAssembly()):null;
+ const aRigHtml=aRigAudit?(aWorkingPoseMode?
+   '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
+   ' data-gap-mm="'+aRigAudit.clampHeaterClearanceMm+'">'+
+   '<b>A操作位置候选 · 非实物配准</b><p>这是一种假设A05折边向右、折腿缩为52.1mm、膜侧磁座中心X=-46.75mm的工程构型。'+
+   'A17与A16底座平面间隔 '+aRigAudit.footprintGapMm+
+   'mm；夹具到加热台X向边缘间隔 '+aRigAudit.clampHeaterClearanceMm+
+   'mm；右端PDMS与A07样品片表面Y向间隙 '+aRigAudit.verticalStampGapMm+
+   'mm。可切换照片94原始左折边作对比；此构型不能证明真实A17孔系、A05夹具、光学工作距离、完整碰撞安全或可加工性。</p></div>':
+   '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
+   ' data-gap-mm="'+aRigAudit.optimisticResidualHorizontalGapMm+'">'+
+   '<b>照片94左折边 · 全局位置未配准</b><p>原始局部方向下，薄L片末端至A07样品台仍有约 '+
    aRigAudit.optimisticResidualHorizontalGapMm+
-    ' mm水平缺口；即便做未经实物支持的方向翻转，仍缺约 '+
-   aRigAudit.mirroredOrientationResidualGapMm+
-   ' mm。按目前A16 112mm原厂外形、A17 65mm候选宽度和单套430mm面包板边界，纯几何上允许的膜侧X中心候选区间约为 '+aRigAudit.tentativeFilmStageXInterval.join('～')+
-   ' mm（并非照片测量或实际安装建议），不能将当前不相交的装配误判为可工作。旧静态下限的折弯片下端比热台顶面低约 '+
-   aRigAudit.verticalBracketBelowHeaterTopMm+
-   ' mm。A05未识别玻片夹、A17磁座型号和真实整机相对位置均待核实。'+
-   '这是当前错误代理坐标的诊断，不是实物间距；严禁据此拉长悬臂或宣称平台A可转移。</p></div>':'';
+   'mm的场景X缺口（不是实物测量），翻转假设也未证实。'+
+   'A05C夹具、A17磁座型号/孔位及绝对位置均未知；不能据此加工。</p></div>'):'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
  '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
