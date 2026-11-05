@@ -24,7 +24,7 @@ try{
    assert.equal(await toggle.isChecked(),true,'B scene category hidden '+category);
  }
  const proof=await page.locator('#photo-ledger').innerText();
- for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B09','B36','B19','B21','B23','B37','B38','B39','B40'])
+ for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B41','B09','B36','B19','B21','B23','B37','B38','B39','B40'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
  const mountingB=await page.evaluate(()=>window.__mountingProbe?.());
@@ -236,10 +236,14 @@ try{
  const splineEnvelope=await page.evaluate(()=>
    window.__modelBVacuumSplineEnvelopeProbe?.());
  assert(splineEnvelope?.available,'Full Catmull-Rom envelope probe unavailable');
- assert.equal(splineEnvelope.posesChecked,9231);
+ assert.equal(splineEnvelope.posesChecked,2997);
+ assert.deepEqual(splineEnvelope.sampleDepthShiftRangeMm,[-12.5,12.5],
+   'Spline audit must include the added lower B41 axis');
+ assert.equal(splineEnvelope.continuousBetweenSamplesProven,false,
+   'Discrete Catmull-Rom pose sampling is not a continuous clearance proof');
  assert.equal(splineEnvelope.fullStrokeSplineGridPass,true,
    'Actual Catmull-Rom route must clear every heater/sensor harness over the full UI grid');
- console.log('V40 full Catmull-Rom clearance grid:',JSON.stringify(splineEnvelope));
+ console.log('V55 crossed XY / yaw Catmull-Rom sampled clearance grid:',JSON.stringify(splineEnvelope));
  for(const id of ['B37A','B37B','B38'])
    assert(splineEnvelope.minimumSurfaceClearanceMm[id]>2,
      'Full rendered spline grid clearance below 2mm for '+id);
@@ -264,6 +268,20 @@ try{
    el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
  await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ // V55: with the upper X micrometer at zero, the missing lower Y axis
+ // must carry the B15 fitting and first B40 knot together. Pump stays put.
+ await page.locator('#sample-move-depth').evaluate(el=>{
+   el.value='7';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const depthVac=await page.evaluate(()=>window.__modelBVacuumProbe?.());
+ assert(depthVac.sourceCoordinateErrorMm<.01,
+   'B41 second axis moved the fitting but detached the first B40 hose waypoint');
+ assert(depthVac.pumpCoordinateErrorMm<.01);
+ assert(Math.abs(depthVac.dynamicRoute[0].z-vac.dynamicRoute[0].z-7)<.01,
+   'B41 fore/aft travel must shift the first hose node by the same distance');
+ await page.locator('#sample-move-depth').evaluate(el=>{
    el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
  const prevRoute=vac.dynamicRoute;
