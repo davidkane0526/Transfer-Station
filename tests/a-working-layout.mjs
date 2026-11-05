@@ -11,7 +11,7 @@ const hypothesis=photo94BracketCandidate({
   handedness:'right',verticalLegLength:A_WORKING_LAYOUT.lLegLengthMm
 });
 assert.equal(hypothesis.legX,A_WORKING_LAYOUT.filmStageX+48);
-assert.equal(hypothesis.verticalLegBottomY,110.5);
+assert.equal(hypothesis.verticalLegBottomY,111.9);
 const nominal=auditAWorkingLayout();
 assert.equal(nominal.actualStagePosePhotoRegistered,false);
 assert.equal(nominal.A17SkuVerified,false);
@@ -24,6 +24,8 @@ assert.equal(nominal.stampCenterX,78);
 assert.equal(nominal.stampRightMarginMm,4);
 assert.equal(nominal.clampRightX,19.5);
 assert.equal(nominal.clampHeaterClearanceMm,26);
+assert.equal(nominal.sampleChipTopWorldYmm,110.6);
+assert.equal(nominal.metalHeaterTopWorldYmm,109.2);
 assert.equal(nominal.initialVerticalStampGapMm,13);
 assert.equal(nominal.candidateCanLower,true);
 const contact=auditAWorkingLayout({filmDropMm:13});
