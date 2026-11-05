@@ -103,9 +103,9 @@ export function enrichParts(partMap, platform, onMesh){
     const g=part.g;
     const movingTop=g.userData.slidingTop||g;
     const stageType=part.part.id;
-    const topY=stageType==='B09'?23:['B03','A15'].includes(stageType)?33:stageType==='A02'?20:65;
-    box(g,51,1.2,5,0,stageType==='B09'?11.5:10.4,31,graphite,.1);
-    box(g,51,1.2,5,0,stageType==='B09'?11.5:10.4,-31,graphite,.1);
+    const topY=['B09','B41'].includes(stageType)?23:['B03','A15'].includes(stageType)?33:stageType==='A02'?20:65;
+    box(g,51,1.2,5,0,['B09','B41'].includes(stageType)?11.5:10.4,31,graphite,.1);
+    box(g,51,1.2,5,0,['B09','B41'].includes(stageType)?11.5:10.4,-31,graphite,.1);
     for(let x of [-21,21])for(let z of [-24,24])screwHead(movingTop,x,topY+.7,z,2.1);
     for(let i=-2;i<=2;i++) box(movingTop,3,2.4,18,i*10,topY-1.5,0,gunmetal,.3);
     // Black crossed roller bearing carrier, side cover screws and engraved branding
@@ -115,6 +115,12 @@ export function enrichParts(partMap, platform, onMesh){
       // The actual photo shows Zolix branding toward the camera.
       for(let x of [-26,-15,16,27])screwHead(g,x,11.5,-33,2.7,'back');
       decal(g,'Zolix  NFP-1462C',54,9,0,15,-33.4,'back','#20262b');
+      knurl(g,-131,12,0,10.5,27,'x',48);
+    } else if(stageType==='B41'){
+      // Unidentified lower 65mm-class linear stage: preserve its own
+      // forward-facing micrometer after the 90-degree crossed install.
+      // No manufacturer logo or exact NFP model is asserted.
+      for(let x of [-26,-15,16,27])screwHead(g,x,11.5,-33,2.7,'back');
       knurl(g,-131,12,0,10.5,27,'x',48);
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
@@ -188,7 +194,7 @@ export function enrichParts(partMap, platform, onMesh){
        knurl(g,-35,10,38,3.9,10,'x',22);
        drilled(g,[[-25,-25],[-25,25],[25,-25],[25,25]],21.1);
     });
-    for(const [id,brand] of [['B03','GCM-T25M'],['B09','Zolix NFP-1462C']]){
+    for(const [id,brand] of [['B03','GCM-T25M'],['B09','Zolix NFP-1462C'],['B41','']]){
       const p=partMap.get(id);if(p)stageHardware(p,brand);
     }
     decoration('B04',(g)=>{
@@ -237,8 +243,7 @@ export function enrichParts(partMap, platform, onMesh){
           box(g,6,3,9,x,9,z,gunmetal,.5);
        }
        drilled(g,[[-25,-25],[-25,25],[25,-25],[25,25],[0,0]],33.3,2.75);
-       // 111.jpg: rotary stage's operator-facing lock/drive along +Z.
-       const collar=cyl(g,7.2,22,0,12,77,ring,40);collar.rotation.x=Math.PI/2;
+       // User-confirmed rotary stage has NO external operating handle.
        decal(g,'GCM-1107M',44,9,0,9,46.5,'front','#e1e6ea');
     });
     decoration('B10',(g)=>{
