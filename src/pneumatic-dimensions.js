@@ -31,8 +31,11 @@ export const VACUUM_DIMS=Object.freeze({
    odMm:6,idMm:2.84,lengthMm:13,verified:false},
  B40:{name:'连续负压软管',nominal:'OD Ø7.0 / ID Ø4.4 mm',
    odMm:7,idMm:4.4,verified:false},
- B20:{name:'VN-50吸入口（候选朝向）',nominal:'接头 OD Ø18.0 / 中心孔 Ø8.2 mm',
-   odMm:18,idMm:8.2,threadCandidate:'G1/4（同系列资料，不是实测）',verified:false}
+ B20:{name:'VN-50泵端接口（产品族螺纹候选）',
+   nominal:'G1/4 BSPP候选：基本大径 Ø13.157 mm / P1.337 mm / 19TPI；若为内牙，攻丝底孔候选 Ø11.8 mm。实物牙型、内外牙和位置未测',
+   odMm:null,idMm:null,threadMajorDiameterMm:13.157,pitchMm:1.337,
+   femaleTapDrillCandidateMm:11.8,
+   threadCandidate:'G1/4（同型号族目录候选，非实测）',verified:false}
 });
 export function suctionDimension(id){
  if(id==='B15T')id='B40';
