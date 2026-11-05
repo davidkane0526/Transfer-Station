@@ -52,6 +52,10 @@ try{
  assert.deepEqual(actuators.B41.axes,['Z']);
  assert.deepEqual(actuators.B41.directions,['+Z'],
    'B41 second linear micrometer must face the operator/front (+Z)');
+ assert.equal(actuators.B41.sideHoleRowsCandidate,null,
+   'B41 must not inherit the NFP side-hole rows without a verified SKU');
+ assert.equal(actuators.B41.B41TopFourM6MountPatternCandidate,true,
+   'B41 may expose only the four candidate mating holes needed by B09');
  assert.equal(actuators.B09.linearHandleCount,1,
    'B09 NFP-1462C is a single-axis upper stage with one micrometer');
  assert.deepEqual(actuators.B09.axes,['X']);
