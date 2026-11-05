@@ -327,7 +327,7 @@ def make_b():
     nfp_lower_side=[(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]
     nfp_upper_side=[(-22,1.8),(-8,1.8),(12,2.8)]
     for xoff,radius in nfp_lower_side:
-        nfp_fixed=nfp_fixed.cut(vy(radius,2.4,cx+xoff,30.1,nfp_z+7))
+        nfp_fixed=nfp_fixed.cut(vy(radius,2.5,cx+xoff,30.0,nfp_z+7))
     add('B','B09','Zolix_NFP1462C_fixed_base_65x65x11_O6p5_O11',nfp_fixed,'D')
     for i,(hx,hy) in enumerate(nfp_corners,1):
         screw=vz(2.45,18,hx,hy,nfp_z-7).fuse(vz(4.2,2.5,hx,hy,nfp_z+8.5))
@@ -340,7 +340,7 @@ def make_b():
     nfp_slide_top=cut(nfp_slide_top,nfp_m6,5,10,nfp_z+13)
     nfp_slide_top=cut(nfp_slide_top,nfp_m3,2.5,10,nfp_z+13)
     for xoff,radius in nfp_upper_side:
-        nfp_slide_top=nfp_slide_top.cut(vy(radius,2.4,cx+xoff,30.1,nfp_z+18))
+        nfp_slide_top=nfp_slide_top.cut(vy(radius,2.5,cx+xoff,30.0,nfp_z+18))
     add('B','B09A','NFP1462C_moving_top_9M6_4M3_10mm',nfp_slide_top,'D')
     # OEM micrometer points +X after the photographed 180-degree install.
     nfp_mic_z=nfp_z+12
