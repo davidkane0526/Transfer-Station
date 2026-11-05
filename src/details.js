@@ -115,12 +115,20 @@ export function enrichParts(partMap, platform, onMesh){
       // The actual photo shows Zolix branding toward the camera.
       for(let x of [-26,-15,16,27])screwHead(g,x,11.5,-33,2.7,'back');
       decal(g,'Zolix  NFP-1462C',54,9,0,15,-33.4,'back','#20262b');
+      // Small scene-only band at the LOWER edge of the upper X stage,
+      // intentionally separated from the genuine OEM side branding.
+      const xAxisTag=decal(g,'上层 X · B09',43,5.0,0,6.2,-33.6,'back','#eaf6ff','#24445c');
+      xAxisTag.userData.modelOnlyAxisAnnotation='upper-X';
       knurl(g,-131,12,0,10.5,27,'x',48);
     } else if(stageType==='B41'){
       // Unidentified lower 65mm-class linear stage: preserve its own
       // forward-facing micrometer after the 90-degree crossed install.
       // No manufacturer logo or exact NFP model is asserted.
       knurl(g,-88.5,12,0,10.5,27,'x',48);
+      // The lower Y stage faces a different direction. Put the
+      // photo-review-only badge on its exposed near face (local -X).
+      const yAxisTag=decal(g,'下层 Y · B41',26,4.8,-33.6,18,16,'left','#e7f2fb','#334a5d');
+      yAxisTag.userData.modelOnlyAxisAnnotation='lower-Y';
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
       // Stage B03 is installed yaw=180° relative to magnet. From its
