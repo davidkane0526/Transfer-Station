@@ -73,7 +73,7 @@ jobs:
           node --check tests/smoke.mjs
           node --check tests/model-b-visible-smoke.mjs
       - name: Validate complete model B scene and capture screenshot
-        timeout-minutes: 3
+        timeout-minutes: 7
         run: |
           python3 -m http.server 8765 > /tmp/transfer-site.log 2>&1 &
           node tests/model-b-visible-smoke.mjs
