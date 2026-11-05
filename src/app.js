@@ -2709,7 +2709,7 @@ function switchPlatform(next){
     '玻片竖直下降 · VC13M（13mm候选）':
     '玻片竖直下降 · V25M（13mm接触预览）';
   $('sample-move-label').textContent=next==='A'?
-    '样品侧 A02 · X平移（行程待核）':
+    '样品侧 A02 · GCM-T25M（后缀待核）· X平移':
     '样品上层 B09 · X平移';
   $('sample-move-depth-label').textContent='样品下层 B41 · Y平移（前后，场景+Z）';
   $('sample-move-depth').disabled=next!=='B';
