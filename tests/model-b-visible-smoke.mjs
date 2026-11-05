@@ -396,10 +396,12 @@ try{
  // output, while A03 body and magnet remain fixed to their base.
  const aBefore=await page.evaluate(()=>window.__modelAKinematicProbe?.());
  assert(aBefore?.available,'A viewer kinematic witness missing');
- assert.equal(aBefore.a17CandidateHoleCount,4);
+ assert.equal(aBefore.a17CandidateHoleCount,0);
  assert.equal(aBefore.a17SideSlotCount,1);
  assert.equal(aBefore.a17FrontKnobCount,1);
- assert.equal(aBefore.a17TopCounterboreCount,4);
+ assert.equal(aBefore.a17TopCounterboreCount,0);
+  assert.equal(aBefore.a15TopCounterboreCount,4);
+  assert.equal(aBefore.a15RecessedHeadCount,4);
  assert.equal(aBefore.a17OemComparisonSku,null);
 assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
   'Photo94 requires two vertically stacked distinct 20mm goniometer modules');
