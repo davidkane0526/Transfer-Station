@@ -27,7 +27,7 @@ export const HANDLES={
   A04L:{kind:'tilt',direction:'+X',evidence:'94.jpg下层独立微分头向右；具体G40型号无法读出',confidence:'photo-proxy'},
   A04:{kind:'tilt',direction:'-X',evidence:'94.jpg上层标G40M60L，另一侧向左微分头/螺纹机构方向待照片校正',confidence:'photo-candidate'},
   A06:{kind:'rotation-lock',direction:'+Z',evidence:'100.jpg：圆刻度台前侧可见锁止件',confidence:'candidate'},
-  A02:{kind:'horizontal',axes:1,handles:1,thicknessMm:20,subtypeUnverified:true,direction:'+X',evidence:'100.jpg：旋转台上方T25M右侧银色微分头',confidence:'photo'}
+  A02:{kind:'horizontal',axes:1,handles:1,thicknessMm:20,subtypeUnverified:true,direction:'-X',evidence:'照片17/18/20：银色台左侧有水平方向测微头；下层旋转台右侧另有角度调节测微头',confidence:'photo'}
 };
 export const MAGNET_PLACEMENT={id:'B02',lowest:true,baseZmm:20,topZmm:40,
   evidence:'108.jpg/112.jpg：GCM-420302M底面接光学面包板，上面直接是T25M；不是中部支架'};
