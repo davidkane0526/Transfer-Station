@@ -499,7 +499,7 @@ def make_a():
     ax,cx=-116,78
     # A photo 100 shows sample-side T25M above rotary; A photo 97 shows a
     # SECOND T25M below VC13M. Both physically exist.
-    stage('A','A02',cx,0,61.2,'+X')
+    stage('A','A02',cx,0,61.2,'-X')
     # User-confirmed mounting relationship, maker/height candidate:
     # A15 must rest on the actual magnetic base, not on naked board.
     # V46: only a *candidate* GCM-420302M-style 65x65x20 magnet.
