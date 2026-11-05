@@ -2812,19 +2812,32 @@ renderer.domElement.addEventListener('pointerup',ev=>{
 function updatePhotoScope(){
  const node=$('photo-scope-note');
  $('b-photo-profile').hidden=platform!=='B';
+ $('a-pose-selector').hidden=platform!=='A';
+ $('btn-a-working-pose').classList.toggle('on',platform==='A'&&aWorkingPoseMode);
+ $('btn-a-photo-pose').classList.toggle('on',platform==='A'&&!aWorkingPoseMode);
+ $('btn-a-working-pose').setAttribute('aria-pressed',String(platform==='A'&&aWorkingPoseMode));
+ $('btn-a-photo-pose').setAttribute('aria-pressed',String(platform==='A'&&!aWorkingPoseMode));
  $('btn-b-user-photos').classList.toggle('on',platform==='B');
  $('btn-b-archive').classList.remove('on');
  $('b-profile-note').textContent='照片149：B34黑色套筒、B27长立杆、B33方夹及PHUC-1双横杆。照片108/150：下杆直入GCM-1302M侧边，取消虚构B26大转接座。50mm套筒、Ø12×112mm场景拟合立杆及玻片高度仍为候选；PHUC孔距33mm、GCM夹具型号由原厂/铭牌支持。';
  const aCritical=$('a-physical-audit');
  aCritical.hidden=platform!=='A';
  if(platform==='A'){
-   const aStatus=auditPlatformAAssembly();
-   aCritical.textContent='平台A整体装配未通过：A05末端与A07候选样品台在最乐观X行程下仍有约 '+
-     aStatus.optimisticResidualHorizontalGapMm+
-     ' mm水平缺口；单纯镜像翻转后仍缺约 '+
-     aStatus.mirroredOrientationResidualGapMm+
-     ' mm。按当前底座/板边界候选，膜侧中心X若在 '+aStatus.tentativeFilmStageXInterval.join('～')+
-     ' mm范围内，水平运动包络才可能相交；这是几何推导，不是实物尺图测得的坐标，也未检验完整夹具。A05C夹具、A17磁座及真实三轴配准仍未核验。VC13M运动仅供演示，不能确认安全接触。';
+   if(aWorkingPoseMode){
+     const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
+       sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
+     aCritical.textContent='A操作位置为独立的工程几何假设，未经实物照片支持：磁座中心X '+
+       a.filmStageX+' mm；折边方向由照片94的左折改为右折，竖腿长度改用'+
+       a.bracketVerticalLegMm+' mm候选；初始印章/热台间隙约'+
+       a.initialVerticalStampGapMm+' mm，夹具/热台X向间隔约'+
+       a.clampHeaterClearanceMm+' mm，磁座/样品底座平面分离'+a.footprintGapMm+
+       ' mm。夹具真实型号及螺丝、A17孔系、A02/A16孔位、折边朝向、显微镜工作距离都没有认证。可以用按钮切回照片94原朝向，禁止将候选视为可制造的转移平台。';
+   }else{
+     const aStatus=auditPlatformAAssembly();
+     aCritical.textContent='A照片94原始局部构型未做全局配准：A05末端至A07在最乐观X行程下仍缺约 '+
+       aStatus.optimisticResidualHorizontalGapMm+
+       ' mm。原图方向、夹具型号及全局位置不得由镜像工作候选代替；可以切换到独立标注的操作位置候选进行碰撞推演。';
+   }
  }
  const critical=$('b-physical-audit');
  critical.hidden=platform!=='B';
@@ -2836,11 +2849,14 @@ function updatePhotoScope(){
  $('btn-photo947').textContent='查看平台 A 的 94/95/97 实物构型';
 }
 function focusPhoto947(photo='94'){
+ // Photo94 must show its ORIGINAL left-return pose, never V58 mirrored engineering pose.
+ if(platform==='A'&&aWorkingPoseMode){aWorkingPoseMode=false;switchPlatform('A');}
+ else if(platform!=='A')aWorkingPoseMode=false;
  // 94/95/97 belong to platform A; the November ruler images
  // 145–151 and 108–112 jointly establish the distinct platform B.
  if(platform!=='A')switchPlatform('A');
  const isB=false;
- const x=isB?CONFIG.B.armX:CONFIG.A.armX;
+ const x=isB?CONFIG.B.armX:activeAFilmX();
  // Photos94/95/97 identify one mechanical film-side arm. In the new B
  // comparison this maps to B29/B03/B30/B31/B32; archival A uses A15/A03/A04/A05.
  // This camera choice alone does NOT verify attachment to B's sample branch.
@@ -2881,6 +2897,12 @@ function switchPlatform(next){
 }
 $('show-b').onclick=()=>switchPlatform('B');
 $('show-a').onclick=()=>switchPlatform('A');
+$('btn-a-working-pose').onclick=()=>{
+ aWorkingPoseMode=true;switchPlatform('A');
+};
+$('btn-a-photo-pose').onclick=()=>{
+ aWorkingPoseMode=false;switchPlatform('A');
+};
 $('btn-b-user-photos').onclick=()=>{bPhoto94Mode=false;switchPlatform('B');};
 $('btn-b-archive').onclick=()=>{bPhoto94Mode=false;switchPlatform('A');};
 $('btn-photo947').onclick=()=>focusPhoto947('94');
@@ -2888,7 +2910,7 @@ $('btn-photo94').onclick=()=>focusPhoto947('94');
 $('btn-photo95').onclick=()=>focusPhoto947('95');
 $('btn-photo97').onclick=()=>focusPhoto947('97');
 function focusMechanicalBranch(which){
- const x=which==='film'?(platform==='B'?CONFIG.B.armX:CONFIG.A.armX):(platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX);
+ const x=which==='film'?(platform==='B'?CONFIG.B.armX:activeAFilmX()):(platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX);
  const fittedBFilm=which==='film'&&platform==='B';
  // Previous camera at y=85, distance~300mm CHOPPED OFF photo149's
  // B27 exposed top (world Y>205). Back camera up and target its
