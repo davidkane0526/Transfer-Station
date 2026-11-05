@@ -54,7 +54,7 @@ def board(sys):
     holes=[(x,y) for x in range(-200,201,25) for y in range(-125,126,25)]
     s=cq.Workplane('XY').add(s).faces('>Z').workplane().pushPoints(holes).hole(5,12).val()
     add(sys,sys+'01','breadboard_430x300_25mm_grid_CANDIDATE',s,'I')
-def stage(sys,key,x,y,z,direction='+X',axes=1,depth_direction='+Y'):
+def stage(sys,key,x,y,z,direction='+X',axes=1,depth_direction='+Y',photo_top_bores=False):
     """Vendor-dimension constrained GCM-T25M stages. XY double stack = 33mm.
     2 orthogonal micrometer assemblies are mandatory for -T25M2L/-2C.
     Exact screw-boss detailing requires manufacturer's native CAD.
@@ -64,7 +64,15 @@ def stage(sys,key,x,y,z,direction='+X',axes=1,depth_direction='+Y'):
     if axes==2:
         add(sys,key,'lower_fixed_11mm',box(65,65,11,x,y,z),'D')
         add(sys,key+'M','crossed_X_carriage_11mm',box(63,63,11,x,y,z+11),'D')
-        add(sys,key+'A','crossed_Y_carriage_11mm',box(62,62,11,x,y,z+22),'D')
+        top=box(62,62,11,x,y,z+22)
+        if photo_top_bores:
+            corners=[(x+dx,y+dy) for dx in (-25,25) for dy in (-25,25)]
+            top=cut(top,corners,6,3,z+30)
+            for i,(xx,yy) in enumerate(corners,1):
+                # Photo23: recessed screw heads inside four corner counterbores.
+                add(sys,f'{key}S{i}','photo23_recessed_top_fastener_candidate',
+                    vz(2.35,1.2,xx,yy,z+30.5),'C')
+        add(sys,key+'A','crossed_Y_carriage_11mm_photo_top_counterbores' if photo_top_bores else 'crossed_Y_carriage_11mm',top,'P' if photo_top_bores else 'D')
         h=33
     else:
         add(sys,key,'single_fixed_11p6mm',box(65,65,11.6,x,y,z),'D')
@@ -523,7 +531,7 @@ def make_a():
         vy(5.2,9,ax,34,28))
     add('A','A17L','FILM_MAGNET_FRONT_SLOTTED_CONTROL_KNOB_UNKNOWN_FUNCTION',
         a17_control,'C')
-    stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y')
+    stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y',photo_top_bores=True)
     # Photo 97: vertical slide/upright carriage, not a solid block.
     # V46: relocate the VC13 vertical drive beyond the ±32.5mm
     # moving platform envelope. The front bracket spans the stationary
