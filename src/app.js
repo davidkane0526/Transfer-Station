@@ -1789,12 +1789,26 @@ function platformA(){
   // Candidate Ø66mm; actual vendor/SKU is still unreadable.
   add(g,cyl(33,33.2,mats.dark,0,16.6,0));
   add(g,torus(31,1,mats.steel,0,33.5,0));
-  const lock=add(g,cyl(5,28,mats.steel,0,12,45));
+  const lock=add(g,cyl(4.5,28,mats.steel,0,12,45));
   lock.rotation.x=Math.PI/2;
+  lock.userData.A06ShortFrontLock=true;
+  // Separate RIGHT-side angular micrometer, photo17/20/21.
+  add(g,cub(14,14,16,mats.black,34,14,0));
+  const angularStem=add(g,cyl(5.5,36,mats.silver,51,14,0));
+  angularStem.rotation.z=Math.PI/2;
+  const angularDrum=add(g,cyl(9,25,mats.silver,81.5,14,0,48));
+  angularDrum.rotation.z=Math.PI/2;
+  angularDrum.userData.A06RightAngularMicrometer=true;
+  for(let x=71;x<92;x+=3){
+    const ring=add(g,torus(9,.16,mats.ink,x,14,0));
+    ring.rotation.y=Math.PI/2;
+  }
   addJointHeads(g,'A06',33.15,[[-16,-16],[-16,16],[16,-16],[16,16]],{headR:2.5});
   g.userData.photo48CandidateRotaryDiameterMm=66;
   g.userData.rotaryManufacturerSkuConfirmed=false;
-  label(g,'A06旋转台 · Ø66mm照片候选（型号未确认）',0,54,0);
+  g.userData.shortFrontLockCount=1;
+  g.userData.rightAngularMicrometerCount=1;
+  label(g,'A06旋转台 · 右侧角度测微+前侧锁杆 · Ø66候选',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,81.2,0,g=>{
   // Original photos17–21 and a steel ruler show the silver top at
