@@ -64,6 +64,20 @@ try{
  assert.deepEqual(actuators.B41.axes,['Z']);
  assert.deepEqual(actuators.B41.directions,['+Z'],
    'B41 second linear micrometer must face the operator/front (+Z)');
+ assert.equal(actuators.B41.stageRole,'lower-Y');
+ assert.equal(actuators.B09.stageRole,'upper-X');
+ assert.equal(actuators.B41.stageBoundaryMarkerCount,0);
+ assert.equal(actuators.B09.stageBoundaryMarkerCount,1,
+   'Both photographed stages must have a visible demarcation at the B41/B09 mating face');
+ assert.equal(actuators.B41.fixedBaseHeightMm+actuators.B41.movingStageHeightMm,23);
+ assert.equal(actuators.B09.fixedBaseHeightMm+actuators.B09.movingStageHeightMm,23);
+ const photoB=await page.evaluate(()=>window.__photoEvidenceProbe?.('B41'));
+ assert.deepEqual(photoB?.ids,['147']);
+ assert.deepEqual(photoB?.embedded,['147'],
+   'Real photo 147 must be committed as an image asset, not a dangling photo number');
+ const photoFile=await page.request.get('/assets/photos/147.jpg');
+ assert.equal(photoFile.status(),200);
+ assert.match(photoFile.headers()['content-type']||'',/image\/jpeg/);
  assert.equal(actuators.B41.sideHoleRowsCandidate,null,
    'B41 must not inherit the NFP side-hole rows without a verified SKU');
  assert.equal(actuators.B41.B41TopFourM6MountPatternCandidate,true,
@@ -520,6 +534,21 @@ try{
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
  assert.match(await page.locator('#platform-caption').innerText(),/V56.*A17.*A05C.*A05G/);
+ const aComplete=await page.evaluate(()=>window.__platformACompletenessProbe?.());
+ assert.equal(aComplete?.available,true,
+   'Platform A must model A05C clamp and A05G glass as separate scene components');
+ assert.equal(aComplete.separateClampAndGlassParts,true);
+ assert.equal(aComplete.clampProxyUnverified,true);
+ assert.equal(aComplete.actualClampOEMConfirmed,false);
+ assert.deepEqual(aComplete.glassSizeMm,[76,26,1]);
+ assert.equal(aComplete.stampRightMarginMm,4);
+ assert.equal(aComplete.stampAtRightEdge,true);
+ assert.equal(aComplete.clampRelativeToHeaterNotRegistered,true,
+   'The provisional film holder must never be mislabelled as a registered physical transfer pose');
+ const photoA=await page.evaluate(()=>window.__photoEvidenceProbe?.('A05C'));
+ assert(photoA?.ids.includes('94'));
+ assert.deepEqual(photoA?.embedded,[],
+   'Photo94 raw file is not bundled; a stock photo cannot be substituted');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
  assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
