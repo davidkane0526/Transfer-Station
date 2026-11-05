@@ -1834,13 +1834,14 @@ function refreshHeatingControlHarness(){
      // V40 B40 vacuum hose uses a lower 70mm service plane. The
      // three electric branches remain separate above it and are
      // checked against the hose over the complete sampled motion range.
-     const pts=[
-       start,
-       new THREE.Vector3(119,104+mid*5,-92-mid*5),
-       new THREE.Vector3(174,100+mid*6,-140-mid*6),
-       new THREE.Vector3(207,94+mid*5,-165-mid*6),
-       end
-     ];
+     // Raise the three flexible electrical branches above the
+     // B15 vacuum outlet before entering the cabinet feedthrough.
+     const guide=mid===0?
+       [[119,135,-92],[174,130,-140],[207,120,-165]]:
+       mid===1?
+       [[119,140,-97],[174,136,-146],[207,126,-171]]:
+       [[119,138,-102],[174,136,-146],[207,130,-171]];
+     const pts=[start,...guide.map(q=>new THREE.Vector3(...q)),end];
      // The duct is flexible: its first knot follows sample X/yaw.
      const curve=new THREE.CatmullRomCurve3(pts);
      const next=new THREE.TubeGeometry(curve,80,rad,10,false);
