@@ -123,8 +123,9 @@ def nfp_single_axis(sys,key,cx,cy,z0,yaw_deg=0,model_confirmed=False):
     fixed=cut(fixed,corners,11,5,z0+6)
     lower_side=[(-18,1.6),(-4,2.0),(11,2.6),(22,1.6)]
     upper_side=[(-22,1.8),(-8,1.8),(12,2.8)]
-    for xoff,radius in lower_side:
-        fixed=fixed.cut(vy(radius,2.5,cx+xoff,cy+30,z0+7))
+    if model_confirmed:
+        for xoff,radius in lower_side:
+            fixed=fixed.cut(vy(radius,2.5,cx+xoff,cy+30,z0+7))
     add(sys,key,'NFP1462C_fixed_base_65x65x11_O6p5_O11' if model_confirmed
         else '65mm_class_lower_orthogonal_stage_fixed_base_SKU_UNVERIFIED',
         place(fixed),'D' if model_confirmed else 'P')
@@ -148,10 +149,11 @@ def nfp_single_axis(sys,key,cx,cy,z0,yaw_deg=0,model_confirmed=False):
         corner_m6=[(cx+x,cy+y) for x in (-25,25) for y in (-25,25)]
         moving_top=cut(moving_top,corner_m6,4.9,10,z0+13)
         top_pattern='4 M6 corner mounting holes (candidate; full pattern unknown)'
-    for xoff,radius in upper_side:
-        moving_top=moving_top.cut(vy(radius,2.5,cx+xoff,cy+30,z0+17.5))
-    add(sys,key+'A','single_axis_stage_moving_top_9M6_4M3_10mm',
-        place(moving_top),'D' if model_confirmed else 'P')
+    if model_confirmed:
+        for xoff,radius in upper_side:
+            moving_top=moving_top.cut(vy(radius,2.5,cx+xoff,cy+30,z0+17.5))
+    top_name='NFP1462C_moving_top_9M6_4M3' if model_confirmed else 'unidentified_lower_stage_moving_top_4M6_candidate'
+    add(sys,key+'A',top_name,place(moving_top),'D' if model_confirmed else 'P')
     # Local -X is the micrometer side on the OEM model. Yaw 90 makes it
     # point to the front while preserving the upper stage's independent +X.
     housing=box(24,30,15,cx+45,cy,z0+12)
