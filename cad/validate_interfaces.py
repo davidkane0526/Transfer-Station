@@ -373,10 +373,10 @@ check(abs(holderbb.zlen-50)<.02,'PHSH2 50mm sleeve is a candidate but its CAD mu
 check(abs(postbb.zlen-112)<.02,'V55 raised clamp stack requires 112mm scene-fit post; exact SKU unverified')
 check(abs(postbb.zmin-holderbb.zmin)<.02,'Support post inserted from sleeve bottom datum')
 check(holder.intersect(post).Volume()<1e-4,'Black sleeve has real Ø12 steel-post clearance')
-check(abs(squarebb.zmin-holderbb.zmax-7)<.02,
-      'Square clamp lies 7mm above black sleeve with exposed Ø12 steel post')
-check(postbb.zmax>squarebb.zmax+5,
-      'Post tip must protrude above B33 square clamp as actually photographed')
+check(abs(squarebb.zmin-holderbb.zmax-30)<.02,
+      'V55 square clamp rises 30mm above black sleeve after coordinated clamp lift')
+check(abs(postbb.zmax-squarebb.zmax-2)<.02,
+      '112mm scene-fit support post retains 2mm protrusion above B33 clamp')
 check(not (B/'B05D.step').exists(),
       'No double-counted V25M mounting plate or invented PHPB-1 flange')
 # V31 REAL overlap exposed by STEP-vs-photo QA:
