@@ -78,7 +78,7 @@ export function photo94BracketCandidate({
   stageCenterX=-116,stageTopY=164,
   topPlateWidth=Math.round(V47_PHOTO_METRIC.sheetTopWidthMm),topPlateDepth=12,
   leftOverhangMm=Math.round(V47_PHOTO_METRIC.sheetLeftOverhangMm),
-  verticalLegLength=72,metalThickness=2.5,handedness='left'
+  verticalLegLength=72,metalThickness=2.5,handedness='left',sheetFrontZmm=13
 }={}){
   if(!['left','right'].includes(handedness))throw RangeError('Invalid bent-sheet handedness');
   if(!(topPlateWidth>40&&topPlateWidth<110))throw Error('L bracket width is only a photo silhouette candidate');
@@ -95,7 +95,7 @@ export function photo94BracketCandidate({
   const centerX=(leftX+rightX)/2;
   const legCenterY=stageTopY-verticalLegLength/2;
   const verticalLegBottomY=stageTopY-verticalLegLength;
-  const sheetFrontZ=13; // photo94 black sheet lies near front edge of G40, not broad center cover
+  const sheetFrontZ=sheetFrontZmm; // photo94=13mm; V58 mirrored working hypothesis=0mm, unverified
   return {leftX,rightX,legX,handedness,centerX,topY:stageTopY,
     topPlateWidth,topPlateDepth,leftOverhangMm,sheetFrontZ,metalThickness,verticalLegLength,
     photo94ManualG40ScaleCandidate:true,topLengthNotFromRuler:true,
