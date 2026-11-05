@@ -19,19 +19,45 @@ export function auditPlatformAAssembly({
     bracketTopWidthMm<=0||bracketOverhangLeftMm<0||
     bracketReturnWidthMm<=0||filmTravelHalfMm<0||sampleTravelHalfMm<0)
     throw new RangeError('Invalid A rig candidate geometry');
-  // Photo94 folded metal overhang faces left in the CURRENT coordinates.
+  // Photo94 silhouette: the L bracket is attached to A15, with a
+  // free left-hand return. Use symmetric interval separation, not
+  // "heater left minus bracket right" alone. That old one-sided test
+  // incorrectly accepted a bracket far to the RIGHT of the heater.
   const leftTipX=filmStageX-bracketOverhangLeftMm;
   const farthestRightReturnX=leftTipX+bracketReturnWidthMm;
   const heaterLeftX=sampleCenterX-sampleHeaterWidthMm/2;
-  // Best-case shift uses both stages toward one another.
+  const heaterRightX=sampleCenterX+sampleHeaterWidthMm/2;
   const combinedTravelMm=filmTravelHalfMm+sampleTravelHalfMm;
-  const remainingHorizontalGapMm=heaterLeftX-
-    (farthestRightReturnX+combinedTravelMm);
-  // Sensitivity-only scenario: mirror the narrow L sheet around A15 X.
-  // This is NOT a photographed orientation change nor a CAD repair.
+  const intervalGap=(leftA,rightA,leftB,rightB)=>
+    Math.max(0,leftA-rightB,leftB-rightA);
+  const remainingHorizontalGapMm=Math.max(0,
+    intervalGap(leftTipX,farthestRightReturnX,heaterLeftX,heaterRightX)-
+    combinedTravelMm);
+  // Sensitivity only: mirroring is NOT photo-grounded and cannot be
+  // promoted to a real installed orientation.
   const mirrorTipLeftX=2*filmStageX-farthestRightReturnX;
   const mirrorTipRightX=2*filmStageX-leftTipX;
-  const mirroredGapMm=heaterLeftX-(mirrorTipRightX+combinedTravelMm);
+  const mirroredGapMm=Math.max(0,
+    intervalGap(mirrorTipLeftX,mirrorTipRightX,heaterLeftX,heaterRightX)-
+    combinedTravelMm);
+  // Mechanical feasibility of an UNMEASURED global placement. 112mm
+  // A16 OEM length and 65mm A17 candidate width must not overlap at
+  // the common board plane; a 5mm scene-only reserve is not OEM data.
+  const filmMagnetHalfWidthMm=32.5;
+  const sampleBaseHalfWidthMm=56;
+  const candidateBaseReserveMm=5;
+  const requiredRightOfSampleMm=sampleBaseHalfWidthMm+
+    filmMagnetHalfWidthMm+candidateBaseReserveMm;
+  const maxFilmXOnBoard=CONFIG.board.width/2-filmMagnetHalfWidthMm;
+  const maxRelativeReachFromLeftBracketMm=bracketOverhangLeftMm+
+    sampleHeaterWidthMm/2+combinedTravelMm;
+  const tentativeFilmStageXInterval=[
+    Number((sampleCenterX+requiredRightOfSampleMm).toFixed(1)),
+    Number(Math.min(maxFilmXOnBoard,
+      sampleCenterX+maxRelativeReachFromLeftBracketMm).toFixed(1))
+  ];
+  const sceneOnlyCandidateIntervalExists=
+    tentativeFilmStageXInterval[0]<=tentativeFilmStageXInterval[1];
   const heightErrorMm=heaterTopYmm-bracketLowestYmm;
   return Object.freeze({
     profile:'A_photo94_95_97_layout_candidate',
@@ -47,6 +73,13 @@ export function auditPlatformAAssembly({
     photoConfirmedMagneticBaseSku:false,
     filmStageX,sampleCenterX,
     stageCenterGapMm:Math.abs(sampleCenterX-filmStageX),
+    currentFilmMinusSampleXmm:filmStageX-sampleCenterX,
+    heaterRightX,
+    candidateRelativeMountingReserveMm:candidateBaseReserveMm,
+    tentativeFilmStageXInterval,
+    sceneOnlyCandidateIntervalExists,
+    candidateIntervalUsesUnverifiedA17Footprint:true,
+    candidateIntervalIsPhotoRegistration:false,
     bracketLeftTipX:leftTipX,
     bracketReturnRightEdgeX:farthestRightReturnX,
     heaterLeftX,
