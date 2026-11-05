@@ -2129,7 +2129,8 @@ function platformA(){
  },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
    handedness:aWorkingPoseMode?'right':'left',
-   verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72});
+   verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72,
+   sheetFrontZmm:aWorkingPoseMode?0:13});
  addPart('A05',ax,164,az,g=>{
    // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
    // and not the 200mm square beam formerly rendered here.
