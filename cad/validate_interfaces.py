@@ -1140,6 +1140,20 @@ for name in ('B37','B37A','B38'):
     check(cable.BoundingBox().xmax>250 and cable.BoundingBox().xmin<100,
           name+' must visually connect sample outlet to B36 interior')
     check(cable.isValid(),name+' must remain a valid connected candidate cable')
+# A full bounding-box check was too weak. The V55 raised heater left
+# B37/B38 STARTS floating above their original straight lead tails.
+# Check the actual modelled solids meet at the same physical endpoint.
+for lead,wire in (('B12L1','B37'),('B12L2','B37A'),('B13L','B38')):
+    endpoint=part(B,lead)[0]
+    run=part(B,wire)[0]
+    check(endpoint.distance(run)<.05,
+          f'V56 {lead} must contact {wire}; no floating power/sensor lead')
+report['V56_heater_lead_contact']={
+    'B12L1_to_B37':True,'B12L2_to_B37A':True,'B13L_to_B38':True,
+    'first_flexible_lead_points_mm':{
+      'B37':[93,-60,121.5],'B37A':[98,-60,121.5],'B38':[88,-51,123.35]
+    },'manufacturer_terminal_pinout_verified':False
+}
 termination=part(B,'B39')[0]
 check(termination.intersect(cabinet).Volume()<1e-4,
       'B39 unassigned terminal zone belongs in open housing without wall overlap')
@@ -1235,14 +1249,19 @@ def vacuum_axis_probe(a,b,r=.9,trim=.15):
     origin=Vector(*a)+direction*trim
     return cq.Solid.makeCylinder(r,length-2*trim,origin,direction)
 short_points=[(82,-44.5,130.5),(82,-58,131.5)]
-outer_points=[(94,-79,90.5),(200,-135,70)]
+outer_points=[(94,-79,113.5),(94,-79,70)]
 check(vacstub.intersect(vacuum_axis_probe(*short_points)).Volume()<.01,
       'V37 B15T short hose has a CONTINUOUS hollow center')
 check(suction.intersect(vacuum_axis_probe(*outer_points)).Volume()<.01,
       'V37 B40 long hose has a CONTINUOUS hollow center')
+check(vacstub.distance(suction)<.05,
+      'V56 B15T stub and B40 hose must PHYSICALLY meet at the raised 113.5mm outlet')
+check(vacstub.BoundingBox().zmax>=113.5-3.5 and
+      suction.BoundingBox().zmax>=113.5-3.5,
+      'V56 both hose parts must reach the NEW raised fitting, not 90.5mm old datum')
 check(vacstub.BoundingBox().xmax>=94-3.5 and
       suction.BoundingBox().xmin<=94+3.5,
-      'V37 short and long hose envelopes must share outlet region')
+      'V56 short and long hose envelopes must share outlet region')
 check(suction.BoundingBox().xmax>=409.2-3.5,
       'V37 pump end of suction hose must reach VN-50 inlet position')
 check(suction.intersect(cabinet).Volume()<.01,
