@@ -23,7 +23,13 @@ for(const [shift,angle] of [[-12.5,0],[12.5,0],[0,30],[8,-25]]){
 }
 assert.deepEqual(movingVacuumOutlet({sampleShiftMm:0,sampleAngleDeg:0}),
                  VN50.chuckRearHoseEndNominal);
-assert.equal(vacuumHosePath().length,10);
+const depthOnly=movingVacuumOutlet({sampleShiftMm:0,sampleDepthShiftMm:5,sampleAngleDeg:0});
+assert.equal(depthOnly.x,VN50.chuckRearHoseEndNominal.x);
+assert.equal(depthOnly.z,VN50.chuckRearHoseEndNominal.z+5);
+const depthTurned=movingVacuumOutlet({sampleDepthShiftMm:5,sampleAngleDeg:90});
+assert(Math.abs(depthTurned.x-movingVacuumOutlet({sampleAngleDeg:90}).x-5)<1e-8,
+  'A 90-degree B08 rotation must transform B41 depth travel into scene X');
+assert.equal(vacuumHosePath().length,11);
 assert.equal(nominal.passesBehindController,true);
 assert(nominal.cabinetClearanceMm>0,'Hose must clear the complete B36 enclosure');
 assert(nominal.controllerClearanceMm>0,'Hose must clear B19 controller body');
@@ -38,8 +44,8 @@ for(const c of nominal.harnessClearances)assert(c.surfaceMm>2,c.id+' harness cle
 const envelope=auditVacuumEnvelope();
 assert.equal(envelope.fullStrokeGridPass,true);
 assert.equal(envelope.continuousBetweenSamplesProven,false);
-assert.equal(envelope.posesChecked,9231,
-  'Full motion envelope must be sampled at 0.5mm × 1° over the UI ranges ±12.5mm and ±90°');
+assert.equal(envelope.posesChecked,18795,
+  'Crossed sample-axis envelope must include both 0.5mm×1° sweeps and combined XY corner poses');
 assert(envelope.minimumClearancesMm.cabinet>0);
 assert(envelope.minimumClearancesMm.controller>0);
 assert(envelope.minimumClearancesMm.microscope>0);
@@ -51,4 +57,4 @@ for(const [shift,angle] of [[-12.5,90],[12.5,90],[-12.5,-90],[12.5,-90]]){
  assert(edge.cabinetClearanceMm>0,'Extreme sample position must clear B36');
  assert.equal(edge.passesBehindController,true);
 }
-console.log('V40 B40 rear-of-B19 route, B37/B38 separation and 0.5mm×1° full UI grid: PASS');
+console.log('V55 B40/B37/B38 crossed sample-axis clearances and combined-pose audit: PASS');
