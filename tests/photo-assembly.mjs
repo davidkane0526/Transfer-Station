@@ -40,6 +40,7 @@ assert(PARTS.A.find(p=>p.id==='A15').group==='film');
 assert.equal(HANDLES.B08.handles,0,'B08 GCM-1107M has no external operating handle');
 assert.equal(HANDLES.B41.axes,1,'B41 is one independent lower linear stage');
 assert.equal(HANDLES.B41.direction,'+Z','B41 micrometer faces forward');
+assert.equal(HANDLES.B41.physicalAxis,'Y','B41 is the physical Y/fore-aft axis despite scene +Z');
 assert.equal(HANDLES.B09.axes,1,'B09 NFP-1462C remains a single-axis stage');
 const expected={B03:'-X',B04:'+Y',B41:'+Z',B09:'+X',
  A02:'-X',A15:'+X',A03:'+Y',A04L:'+X',A04:'-X'};
