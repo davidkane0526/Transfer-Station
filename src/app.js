@@ -21,6 +21,7 @@ import {auditBaseTopology,mountStatus} from './assembly-mounts.js';
 import {suctionDimension,auditVacuumInterfaceFit} from './pneumatic-dimensions.js';
 import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
 import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
+import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
@@ -139,8 +140,10 @@ window.__modelAKinematicProbe=()=>{
   if(platform!=='A')return {available:false};
   const vc=parts.get('A03')?.g,lowerTilt=parts.get('A04L')?.g,
         tilt=parts.get('A04')?.g,arm=parts.get('A05')?.g,magnet=parts.get('A17')?.g,
-        microscopeFoot=parts.get('A10')?.g;
-  if(!vc||!lowerTilt||!tilt||!arm||!magnet||!microscopeFoot)return {available:false};
+        microscopeFoot=parts.get('A10')?.g,
+        silverSample=parts.get('A07')?.g,
+        rotarySample=parts.get('A06')?.g;
+  if(!vc||!lowerTilt||!tilt||!arm||!magnet||!microscopeFoot||!silverSample||!rotarySample)return {available:false};
   microscopeFoot.updateWorldMatrix(true,true);
   const footMesh=microscopeFoot.children.find(m=>m.isMesh);
   const a10Bores=[[-28,-13],[-28,37],[22,-13],[22,37]];
@@ -164,6 +167,13 @@ window.__modelAKinematicProbe=()=>{
     a10CandidateBoltHeadCount:a10Heads,
     a10ActualManufacturerAnchorVerified:false,
     a17PhotographedSkuVerified:false,
+    bMagnetPhotographedSkuVerified:true,
+    bMagnetSkuMustNotBeAttributedToA:true,
+    sampleTopAboveBoardMm:silverSample.userData.rulerSampleTopAboveBoardMm??null,
+    sampleLayersMm:silverSample.userData.layerProxies??null,
+    sampleRotaryDiameterMm:rotarySample.userData.photo48CandidateRotaryDiameterMm??null,
+    sampleRulerWithinTolerance:auditV48RulerRegistration().sampleTopWithinVisibleRulerRange,
+    samplePhotoRulerSource:V48_RULER_EVIDENCE.A.sampleTopHeightAboveBreadboardMm.photos,
     stageModel:'GCM-VC13M',
     knownProxyGeometryCollisionFree:false,
     glassClampedAndReachable:false,
@@ -2064,7 +2074,7 @@ function updateDetail(part){
     auditPlatformAAssembly():null;
  const aRigHtml=aRigAudit?'<div class="field" id="platform-a-unregistered-assembly" '+
    'data-accepted="false" data-gap-mm="'+aRigAudit.optimisticResidualHorizontalGapMm+'">'+
-   '<b>平台A未通过整体装配配准（V46）</b><p>当前A05薄L片末端距A07热台左缘，'+
+   '<b>平台A尚未完成全局装配配准（V48）</b><p>照片17/18样品台顶距面包板约87–93mm（模型89.2mm），但A05薄L片末端距A07样品台的场景X缺口仍是未校准的代理值；'+
    '即使将两侧X候选行程全部用于相向移动，仍有约 '+
    aRigAudit.optimisticResidualHorizontalGapMm+
     ' mm水平缺口；即便做未经实物支持的方向翻转，仍缺约 '+
@@ -2226,7 +2236,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V44 / VN-50泵口待配对 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V47 / 双摆角台候选 / A05局部照片比例已校准 / 全局仍未配准';
+   '平台 A · V48 / A样品台尺规约9cm / 两层摆角台候选 / 全局未配准';
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B照片149修正：B02磁座→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。原厂确认的是PHUC尺寸与夹具型号，杆长、孔位及接口尚待验收。':
   '照片94/95/97: A膜侧 A15 T25M→A03 VC13M→A04L下层独立摆角台→A04上层G40M60L→A05折弯片。新实拍17–24: A样品侧GCM-5306M非旋转底座→A06Ø66候选旋转台（右侧角度调节）→A02 T25M（左侧银色直线测微头）→A07三层金属/中间层样品台；B照片29–31的PHUC-1及磁座铭牌不属于A。';
