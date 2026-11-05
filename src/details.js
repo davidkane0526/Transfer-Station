@@ -120,7 +120,7 @@ export function enrichParts(partMap, platform, onMesh){
       // Unidentified lower 65mm-class linear stage: preserve its own
       // forward-facing micrometer after the 90-degree crossed install.
       // No manufacturer logo or exact NFP model is asserted.
-      knurl(g,-131,12,0,10.5,27,'x',48);
+      knurl(g,-88.5,12,0,10.5,27,'x',48);
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
       // Stage B03 is installed yaw=180° relative to magnet. From its
