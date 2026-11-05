@@ -426,7 +426,11 @@ try{
  // output, while A03 body and magnet remain fixed to their base.
  const aBefore=await page.evaluate(()=>window.__modelAKinematicProbe?.());
  assert(aBefore?.available,'A viewer kinematic witness missing');
- assert.equal(aBefore.a17CandidateHoleCount,0);
+ assert.equal(aBefore.a17CandidateHoleCount,13,
+   'A17 visual candidate must show the 13-hole GCM-42 comparison pattern');
+ assert.equal(aBefore.a17PhotographedSkuVerified,false,
+   'A17 catalogue comparison must not be misreported as a confirmed photographed SKU');
+ assert.match(aBefore.a17OemComparisonSku,/GCM-420302M.*visual candidate/);
  assert.equal(aBefore.a17SideSlotCount,1);
  assert.equal(aBefore.a17FrontKnobCount,1);
  assert.equal(aBefore.a17TopCounterboreCount,0);
