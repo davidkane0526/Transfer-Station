@@ -37,3 +37,29 @@
 .cad-offsets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .cad-alignment a{color:#96c8ed;font-size:11px}
 .cad-alignment button{min-width:0}
+
+
+/* V57: evidence photos are first-class BOM data, not decorative stock art. */
+.bom-photo-cell{min-width:145px;max-width:225px}
+.bom-photo-tile,.evidence-photo-tile{border:1px solid #3a5369;background:#101f2d;color:#b8c9d8;cursor:zoom-in;display:grid;place-items:center;overflow:hidden}
+.bom-photo-tile{width:98px;height:70px;padding:2px;border-radius:6px}
+.bom-photo-tile img{max-width:100%;max-height:100%;object-fit:cover}
+.bom-photo-ids{display:block;font-size:10px;line-height:1.45;color:#a4b7c9;max-width:156px;overflow-wrap:anywhere;margin-top:5px}
+.photo-not-bundled{font-size:11px;color:#c5ac85;padding:8px;text-align:center}
+.evidence-photo-field{padding:12px 0}
+.evidence-photo-field>p.small{margin:5px 0 12px;line-height:1.6}
+.evidence-photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:10px}
+.evidence-photo-card{margin:0;min-width:0;background:#172839;border:1px solid #344e62;border-radius:9px;padding:8px}
+.evidence-photo-tile{display:grid;width:100%;height:118px;border-radius:6px}
+.evidence-photo-image{width:100%;height:100%;object-fit:contain;display:block;background:#0b1721}
+.photo-caption{display:grid;gap:3px;padding-top:7px;font-size:11px;color:#dce8ef}
+.photo-caption span{line-height:1.4;color:#a8bfd0}
+.photo-caption-desc{font-size:10px;color:#99b1c5;line-height:1.5;margin:5px 0}
+.photo-local-import{background:#243648;color:#bcd1df;border:1px solid #456077;font-size:10px;border-radius:5px;padding:5px 6px;cursor:pointer;width:100%;white-space:normal}
+.photo-local-import:disabled{opacity:.75;cursor:default}
+.photo-no-evidence{font-size:11px;color:#aebdca}
+.source-photo-lightbox{position:fixed;inset:4vh 4vw;max-width:92vw;max-height:92vh;padding:14px;border:1px solid #415c70;border-radius:12px;background:#0a141e;color:#e2e8ed;box-shadow:0 15px 70px #000b;overflow:auto}
+.source-photo-lightbox::backdrop{background:#000c}
+.source-photo-lightbox img{display:block;max-width:100%;max-height:74vh;object-fit:contain;margin:auto}
+.photo-lightbox-close{display:block;margin:0 0 10px auto;padding:7px 13px}
+.photo-lightbox-caption{font-size:12px;color:#c8d8e5;text-align:center;margin-top:9px;line-height:1.6}
