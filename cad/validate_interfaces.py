@@ -306,16 +306,21 @@ check(abs(a17_body.BoundingBox().zmin-20)<.02 and
       abs(a17_body.BoundingBox().zmax-40)<.02,
       'V49 A17 remains one 65x65x20mm magnetic-base envelope candidate')
 for xx,yy in [(-141,-25),(-141,25),(-91,-25),(-91,25)]:
-    bore=vz(2.85,2.8,xx,yy,37.1)
-    backing=vz(2.85,.4,xx,yy,36.6)
-    check(a17_body.intersect(bore).Volume()<1e-4,
-          'V49 A17 photo23 corner counterbore is open for 3mm candidate depth')
-    check(a17_body.intersect(backing).Volume()>1,
-          'V49 A17 counterbore remains blind, not through the magnetic body')
+    top_probe=vz(2.85,2.8,xx,yy,37.1)
+    check(a17_body.intersect(top_probe).Volume()>1,
+          'V49 A17 top face remains solid; photo23 corner holes belong to A15')
+a15_top=part(A,'A15A')[0]
+for xx,yy in [(-141,-25),(-141,25),(-91,-25),(-91,25)]:
+    bore=vz(2.85,2.8,xx,yy,70.1)
+    backing=vz(2.85,.4,xx,yy,69.6)
+    check(a15_top.intersect(bore).Volume()<1e-4,
+          'V49 A15 photo23 top counterbore is open for 3mm candidate depth')
+    check(a15_top.intersect(backing).Volume()>1,
+          'V49 A15 top counterbore remains blind, not through the stage')
 centre=vz(2.85,2.8,-116,0,37.1)
 check(a17_body.intersect(centre).Volume()>1,
       'V49 A17 must NOT inherit the B GCM-420302M central M6 hole')
-slot_probe=box(24,.5,3.5,-116,33.25,26.25)
+slot_probe=box_probe(24,.5,3.5,-116,33.25,25.9)
 check(a17_panel.intersect(slot_probe).Volume()<1e-4,
       'V49 A17 front panel has a REAL horizontal through-slot')
 check(abs(a17_panel.BoundingBox().ymin-a17_body.BoundingBox().ymax)<.02,
@@ -331,7 +336,8 @@ for i in (1,2):
 report['V49_A17_photo22_24_geometry']={
     'manufacturer_model_verified':False,
     'envelope_mm':[65,65,20],
-    'top_corner_counterbores':4,
+    'A17_top_corner_counterbores':0,
+    'A15_top_corner_counterbores':4,
     'top_hole_pattern_measured':False,
     'front_slotted_panel_count':1,
     'slot_is_open':True,
