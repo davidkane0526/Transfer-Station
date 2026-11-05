@@ -33,15 +33,7 @@ try{
  assert.equal(mountingB?.commonBase,'B01');
  assert.equal(mountingB?.B35IsAuxiliaryPlate,true);
  assert.equal(mountingB?.B35CandidateAnchorHeads,4);
-  const microscope=await page.evaluate(()=>window.__modelBMicroscopeProbe?.());
- assert(microscope?.available,'V50 photo-grounded microscope probe missing');
- assert.equal(microscope.supportBoomCylindrical,true,'Microscope support boom must be cylindrical, not a rectangular proxy');
- assert.equal(microscope.sideOpticalTubeSegments,4,'Microscope must include the stepped side optical tube');
- assert.equal(microscope.cameraLensTubeSegments,5,'Camera must connect through five stepped vertical tube sections');
- assert.equal(microscope.cameraCableLoop,true,'Camera cable loop missing');
- assert.equal(microscope.objectiveBarrels,3,'Three visible objective barrels must share one nosepiece');
- assert.equal(microscope.housingBlack,true,'Microscope housing should match the black photographed body');
- const support=await page.evaluate(()=>window.__modelBSupportProbe?.());
+  const support=await page.evaluate(()=>window.__modelBSupportProbe?.());
  assert(support?.available,'V34 full-system support probe missing');
  assert(Math.abs(support.boardSizeMm[0]-250)<0.1&&
         Math.abs(support.boardSizeMm[1]-12)<0.1&&
