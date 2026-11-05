@@ -391,7 +391,7 @@ try{
  // candidates and MUST be available without cluttering 3D view.
  for(const [id,pattern] of [
    ['B11',/Ø1\.4/],['B15',/Ø2\.84/],
-   ['B40',/OD Ø7\.0 \/ ID Ø4\.4/],['B20',/Ø18\.0.*Ø8\.2/]
+   ['B40',/OD Ø7\.0 \/ ID Ø4\.4/],['B20',/G1\/4.*Ø13\.157.*P1\.337/]
  ]){
    await page.locator('#open-bom').click();
    await page.locator('#bom-query').fill(id);
@@ -404,8 +404,8 @@ try{
      assert.equal(await page.locator('#vacuum-interface-warning').getAttribute('data-status'),'unverified');
      const fitNote=await page.locator('#vacuum-interface-warning').innerText();
      assert.match(fitNote,/软管内径Ø4\.4/);
-     assert.match(fitNote,/不能据此认定直接套接/);
-     assert.match(fitNote,/1\.2 mm/);
+     assert.match(fitNote,/不能把G1\/4螺纹直径当作软管倒刺直径/);
+     assert.match(fitNote,/转接件型号和密封方式未确认/);
    }
  }
  await page.locator('#btn-b-archive').click();
