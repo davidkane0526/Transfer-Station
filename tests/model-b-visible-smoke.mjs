@@ -354,11 +354,18 @@ try{
  assert.deepEqual(initExternal.hiddenExternalParts,[],
     'Checked external-category checkbox MUST NOT silently hide B36/B19/B21/B23');
  assert(initExternal.visibleExternalCount>=5,'B36 cabinet plus four associated external components required');
- await externalToggle.uncheck();
+ // Trigger the checkbox's native click/change synchronously: repeated
+ // WebGL frame requests can make Playwright's actionability wait time out
+ // after the click has already fired and changed scene visibility.
+ await externalToggle.evaluate(el=>el.click());
+ assert.equal(await externalToggle.isChecked(),false,
+   'External group checkbox must enter the unchecked state on click');
  const disabledExternal=await page.evaluate(()=>window.__modelBViewProbe());
  assert.equal(disabledExternal.visibleExternalCount,0,
     'Turning external group OFF should hide all external scene meshes');
- await externalToggle.check();
+ await externalToggle.evaluate(el=>el.click());
+ assert.equal(await externalToggle.isChecked(),true,
+   'External group checkbox must restore its checked state on click');
  const restoredExternal=await page.evaluate(()=>window.__modelBViewProbe());
  assert.deepEqual(restoredExternal.hiddenExternalParts,[],
     'Turning external group ON must restore all B36 external assemblies');
