@@ -402,11 +402,9 @@ def make_b():
     nosepiece=nosepiece.cut(vz(8.5,13,turret_cx,0,212))
     for px,py in ports:
         nosepiece=nosepiece.cut(vz(8.5,13,px,py,212))
-    hub=vz(8.5,13,turret_cx,0,212).cut(vz(8,13,turret_cx,0,212))
-    nosepiece=nosepiece.fuse(hub)
-    for px,py in ports:
-        lip=vz(8.5,13,px,py,212).cut(vz(8,13,px,py,212))
-        nosepiece=nosepiece.fuse(lip)
+    # Leave the five ports and central hub as true open bores. The
+    # matching sleeves are visual details in WebGL; the STEP disk itself
+    # stays a single clean solid with 0.5mm candidate radial clearance.
     add('B','B18','MXFMS_five_hole_inward_nosepiece',nosepiece.clean(),'P')
     # Photo110: 10x / 0.15 / DIC / WD10.8 objective.
     objective_10x=vz(8,38,cx,0,174)
