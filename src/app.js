@@ -115,6 +115,10 @@ window.__platformACompletenessProbe=()=>{
   glassSizeMm:glass?.userData.candidateStandardSlide??null,
   stampRightMarginMm:stamp?.userData.A05GStampRightMarginMm??null,
   stampAtRightEdge:Boolean(slide.userData.stampAtRightGlassEdge),
+  aPose:aWorkingPoseMode?'candidate':'photo94',
+  sheetHandedness:bracket.userData.photoBracketDatums?.handedness??null,
+  sheetLegLengthMm:bracket.userData.photoBracketDatums?.verticalLegLength??null,
+  clampScrewProxyCount:clamp.userData.clampingScrewProxyCount??0,
   clampRelativeToHeaterNotRegistered:Boolean(slide.userData.unregisteredGlobalPose),
   clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y
  };
@@ -330,7 +334,10 @@ window.__modelAKinematicProbe=()=>{
     stageModel:'GCM-VC13M',
     knownProxyGeometryCollisionFree:false,
     glassClampedAndReachable:false,
-    globalAssemblyAudit:auditPlatformAAssembly()
+    globalAssemblyAudit:aWorkingPoseMode?auditAWorkingLayout({
+      filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
+      sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop
+    }):auditPlatformAAssembly()
   };
 };
 // V36 read-only probes measure ACTUAL rendered Three.js meshes.
