@@ -346,6 +346,32 @@ report['V49_A17_photo22_24_geometry']={
     'B_GCM420302M_hole_pattern_copied':False,
     'magnetic_load_verified':False
 }
+# V49: photos25/26 show two side-hole rows on the B09 NFP-1462C body.
+# Their exact coordinates, diameters and thread forms are NOT in the readable
+# OEM drawing; validate only the seven photo-fit blind recesses.
+nfp_lower=part(B,'B09')[0]
+nfp_upper=part(B,'B09A')[0]
+nfp_lower_side=[(-18,72.2,1.6),(-4,72.2,2.0),(11,72.2,2.6),(22,72.2,1.6)]
+nfp_upper_side=[(-22,82.7,1.8),(-8,82.7,1.8),(12,82.7,2.8)]
+for dx,zz,rr in nfp_lower_side:
+    open_probe=vy(rr,2.4,82+dx,30.05,zz)
+    backing=vy(rr,.5,82+dx,29.5,zz)
+    check(nfp_lower.intersect(open_probe).Volume()<1e-4,
+          'V49 NFP fixed body lower side bore is open from +Y face')
+    check(nfp_lower.intersect(backing).Volume()>1,
+          'V49 NFP fixed body lower side bore remains blind')
+for dx,zz,rr in nfp_upper_side:
+    open_probe=vy(rr,2.4,82+dx,30.05,zz)
+    backing=vy(rr,.5,82+dx,29.5,zz)
+    check(nfp_upper.intersect(open_probe).Volume()<1e-4,
+          'V49 NFP moving plate upper side bore is open from +Y face')
+    check(nfp_upper.intersect(backing).Volume()>1,
+          'V49 NFP moving plate upper side bore remains blind')
+report['V49_NFP_photo25_26_side_holes']={
+    'lower_fixed_row':4,'upper_moving_row':3,'total':7,
+    'diameters_and_threads_verified':False,
+    'upper_row_follows_moving_plate':True
+}
 check(abs(amagnet.zmax-a15.zmin)<.02,
       'A15 film translation stage MUST rest ON A17 magnetic stand, not naked breadboard')
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-73)<.02,
