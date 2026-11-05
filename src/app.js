@@ -2394,11 +2394,13 @@ function updateTransforms(){
        (motionAudit.possibleClash?'；当前平移/旋转姿态下禁用下降':'；下降检查允许接触印章'):
      '平台 A · VC13M从候选抬升13mm位置向下运动至旧静态下限；A04L/A04/A05共同随动，玻片夹/整机位置未确认，禁止将其视为实物零位或安全接触';
  }
- parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,rotateSample,facingYaw=0})=>{
-  const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0,sx=translateSample?sampleShift:0;
-  // Translation in a rotating stage's LOCAL X basis, then rotation about Y.
-  const travel=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
-  const dx=travel.x,dz=travel.z;
+ parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,translateSampleDepth,rotateSample,facingYaw=0})=>{
+  const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0;
+  const sx=translateSample?sampleShift:0,sz=translateSampleDepth?sampleShiftDepth:0;
+  // The two sample axes remain independent and rotate together with B08.
+  const travelX=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
+  const travelZ=rotateSample?stageLocalDepthTranslation(sz,angle):{x:0,z:sz};
+  const dx=travelX.x+travelZ.x,dz=travelX.z+travelZ.z;
   // Platform A default pose is a CANDIDATE 13mm-Raised VC13M output.
   // Downward preview approaches the original static STEP lower-limit
   // without forcing the output plate through the stationary upright.
@@ -2416,10 +2418,17 @@ function updateTransforms(){
     g.userData.slidingX.position.x=part.id==='B03'&&!bPhoto94Mode?-filmShift:filmShift;
     if(g.userData.slidingDepth)g.userData.slidingDepth.position.z=part.id==='B03'&&!bPhoto94Mode?-filmShiftDepth:filmShiftDepth;
   }else if(g.userData.slidingTop){
-    g.userData.slidingTop.position.x=part.id==='B09'?-sampleShift:part.id==='A02'?sampleShift:0;
+    g.userData.slidingTop.position.x=part.id==='B09'?-sampleShift:
+      part.id==='B41'?-sampleShiftDepth:part.id==='A02'?sampleShift:0;
   }
- 
  });
+ if(sampleSubstrate&&platform==='B'){
+   const tx=stageLocalTranslation(sampleShift,angle);
+   const tz=stageLocalDepthTranslation(sampleShiftDepth,angle);
+   sampleSubstrate.position.set(CONFIG.B.sampleX+tx.x+tz.x,
+     121.5+CONFIG.B.sampleBoardRiseMm,tx.z+tz.z);
+   sampleSubstrate.rotation.y=angle;
+ }
  if(platform==='B'){refreshHeatingControlHarness();refreshVacuumHoseB();}
  if(active)updateMeasurement();
 }
@@ -2427,10 +2436,10 @@ function resetScene(){
  // Each platform has its own independent BOM; prevent previous queries from hiding rows.
  if($('bom-query'))$('bom-query').value='';
  if($('priced-only'))$('priced-only').checked=false;
- active=null;clearMeasurement();
+ active=null;clearMeasurement();sampleSubstrate=null;
  $('hover-help').textContent='点击零件显示唯一标签及尺寸；点空白取消';
  $('axis-confidence-note').textContent=platform==='B'?
-  'B：NFP-1462C 只有一个线性X轴，B03双轴T25M对应场景X/Z；照片149确认PHUC-1的33mm孔中心距，照片150确认GCM-1302M；其余接杆长度和安装螺纹为候选。':
+  'B：样品侧为B08无外伸手柄旋转台 + B41前向单轴台 + B09右向单轴NFP-1462C。B41与B09构成两个正交平移轴；B41精确型号、孔系和行程待核。B03载玻片侧为另一套双轴T25M。':
   'A：照片94可见两层约20mm机构，上层G40M60L型号已识别，下层A04L型号未知。以G40的40mm比例估算A05上横板长约75mm、左伸48mm；照片95底座厚约18–19mm。原图94/95无直尺，145–151尺子原图仍在不可解包ZIP中，全局配准待验。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
@@ -2454,7 +2463,7 @@ function resetScene(){
    heatingControlHarnessB();
    vacuumSupplyB();
    // Fail fast if a scene revision silently deletes a whole subsystem.
-   const required=['B01','B35','B03','B07','B08','B09','B10','B11','B12',
+   const required=['B01','B35','B03','B07','B08','B41','B09','B10','B11','B12',
      'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23','B36','B37','B38','B39','B40'];
    if(bPhoto94Mode)required.push('B29','B30','B31','B32');
    else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33','B34');
@@ -2479,10 +2488,10 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
-   '平台 B · V51 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
+   '平台 B · V55 / B08无外伸手柄 / B41+B09正交双轴样品台 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
    '平台 A · V52 / A17磁座型号与孔系未知 / A05夹具待核 / 全局未配准';
  $('stack-note').textContent=platform==='B'?
-  bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B的B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
+  bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B样品侧从下至上为B35→B08（无外伸手柄）→B41（前向Z单轴、型号待核）→B09（右向X单轴NFP-1462C）→B10隔热层→B11真空加热台。B41与B09分别具有独立活动滑块和测微头，构成正交XY平移。B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 100mm竖杆候选→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
   '照片94/95/97: A膜侧 A15 T25M→A03 VC13M→A04L下层独立摆角台→A04上层G40M60L→A05折弯片。新实拍17–24: A样品侧GCM-5306M非旋转底座→A06Ø66候选旋转台（右侧角度调节）→A02 T25M（左侧银色直线测微头）→A07三层样品台；A17型号/孔系仍未知，B照片29–31的PHUC-1及GCM-420302M铭牌不属于A。';
  focus('iso');
  updateTable();
@@ -2658,18 +2667,20 @@ function focusPhoto947(photo='94'){
 function switchPlatform(next){
   clearCadFeatureCandidates();
   platform=next;
-  explosion=0;filmShift=0;filmShiftDepth=0;filmDrop=0;sampleShift=0;sampleAngle=0;
-  for(const [id,value] of [['explode','0'],['translate','0'],['translate-depth','0'],['sample-move','0'],['rotate-sample','0']])$(id).value=value;
+  explosion=0;filmShift=0;filmShiftDepth=0;filmDrop=0;sampleShift=0;sampleShiftDepth=0;sampleAngle=0;
+  for(const [id,value] of [['explode','0'],['translate','0'],['translate-depth','0'],['sample-move','0'],['sample-move-depth','0'],['rotate-sample','0']])$(id).value=value;
   $('explode-value').textContent='0%';$('translate-value').textContent='0 mm';$('translate-depth-value').textContent='0 mm';
-  $('sample-value').textContent='0 mm';$('rotate-value').textContent='0°';
+  $('sample-value').textContent='0 mm';$('sample-depth-value').textContent='0 mm';$('rotate-value').textContent='0°';
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
   $('film-drop-label').textContent=next==='A'?
     '玻片竖直下降 · VC13M（13mm候选）':
     '玻片竖直下降 · V25M（13mm接触预览）';
   $('sample-move-label').textContent=next==='A'?
-    '样品侧 T25M · X平移（轴型/行程待核）':
-    '样品 NFP-1462C · 单轴 X平移';
+    '样品侧 A02 · X平移（行程待核）':
+    '样品上层 B09 · X平移';
+  $('sample-move-depth-label').textContent='样品下层 B41 · Z平移（前后）';
+  $('sample-move-depth').disabled=next!=='B';
   $('film-drop').min='-13';
   $('film-drop').max='0';
   $('film-drop').value='0';
@@ -2693,7 +2704,7 @@ function focusMechanicalBranch(which){
  // Previous camera at y=85, distance~300mm CHOPPED OFF photo149's
  // B27 exposed top (world Y>205). Back camera up and target its
  // whole 0–215mm physical stack, not just the T25M at the bottom.
- const y=fittedBFilm?125:(which==='film'?85:79);
+ const y=fittedBFilm?125:(which==='film'?85:92);
  const t=new THREE.Vector3(x,y,0);
  const handSide=which==='film'&&platform==='B'?-1:1;
  const horizontal=fittedBFilm?210:155;
@@ -2738,6 +2749,7 @@ $('translate-depth').oninput=e=>{filmShiftDepth=Number(e.target.value);$('transl
 $('film-drop').oninput=e=>{filmDrop=Math.max(0,-Number(e.target.value));
  $('film-drop-value').textContent=(-filmDrop).toFixed(1)+' mm';updateTransforms()};
 $('sample-move').oninput=e=>{sampleShift=Number(e.target.value);$('sample-value').textContent=sampleShift.toFixed(1)+' mm';updateTransforms()};
+$('sample-move-depth').oninput=e=>{sampleShiftDepth=Number(e.target.value);$('sample-depth-value').textContent=sampleShiftDepth.toFixed(1)+' mm';updateTransforms()};
 $('rotate-sample').oninput=e=>{sampleAngle=Number(e.target.value);$('rotate-value').textContent=sampleAngle+'°';updateTransforms()};
 function proxyReplaced(o){
  let p=o.parent;
