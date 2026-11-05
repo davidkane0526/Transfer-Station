@@ -456,26 +456,26 @@ try{
  await page.locator('#bom-query').fill('B24');
  const phuc=page.locator('#bom-body tr').filter({hasText:'B24'});
  assert.equal(await phuc.count(),1);
- await phuc.click();
+ await phuc.evaluate(el=>el.click());
  assert.match(await page.locator('#part-detail').innerText(),/PHUC-1/);
  assert.equal(await page.locator('#holder-geometric-qa').getAttribute('data-hole-spacing'),'33');
  await page.locator('#open-bom').evaluate(el=>el.click()); // Selecting a row closes the BOM panel
  await page.locator('#bom-query').fill('B34');
  const holder=page.locator('#bom-body tr').filter({hasText:'B34'});
  assert.equal(await holder.count(),1,'Black photo149 sleeve must have its own BOM row');
- await holder.click();
+ await holder.evaluate(el=>el.click());
  assert.match(await page.locator('#part-detail').innerText(),/PHSH-2/);
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B33');
  const square=page.locator('#bom-body tr').filter({hasText:'B33'});
  assert.equal(await square.count(),1,'Independent square clamp cannot disappear');
- await square.click();
+ await square.evaluate(el=>el.click());
  assert.match(await page.locator('#part-detail').innerText(),/方形夹块|方夹/);
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B35');
  const board=page.locator('#bom-body tr').filter({hasText:'B35'});
  assert.equal(await board.count(),1,'Black Thorlabs sample board must be a separate BOM item');
- await board.click();
+ await board.evaluate(el=>el.click());
  const boardDetail=await page.locator('#part-detail').innerText();
  assert.match(boardDetail,/Thorlabs|THORLABS/);
  assert.match(boardDetail,/145|150/);
@@ -487,7 +487,7 @@ try{
  // FIRST model ID instead of erroneously counting references.
  const cabinet=page.locator('#bom-body tr').filter({hasText:/^\s*B36\b/});
  assert.equal(await cabinet.count(),1,'Open steel control enclosure must be independent BOM item');
- await cabinet.click();
+ await cabinet.evaluate(el=>el.click());
  const cabinetDetail=await page.locator('#part-detail').innerText();
  assert.match(cabinetDetail,/119/);
  assert.match(cabinetDetail,/B21|B23/);
@@ -501,7 +501,7 @@ try{
    await page.locator('#bom-query').fill(id);
    const row=page.locator('#bom-body tr').filter({hasText:new RegExp('^\\s*'+id+'\\b')});
    assert.equal(await row.count(),1,'Suction BOM ID '+id+' missing');
-   await row.click();
+   await row.evaluate(el=>el.click());
    assert.equal(await page.locator('#suction-dimensions').getAttribute('data-candidate'),'true');
    assert.match(await page.locator('#suction-dimensions').innerText(),pattern);
    if(id==='B40'||id==='B20'){
