@@ -146,6 +146,12 @@ window.__modelBActuatorProbe=()=>{
      fixedBaseHeightMm:root.userData.fixedBaseHeightMm??null,
      movingStageHeightMm:root.userData.movingStageHeightMm??null,
      stageRole:root.userData.stageRole??null,
+     modelOnlyAxisAnnotations:(()=>{
+       const tags=[];root.traverse(obj=>{
+         if(obj.userData.modelOnlyAxisAnnotation)tags.push(obj.userData.modelOnlyAxisAnnotation);
+       });
+       return tags;
+     })(),
      worldPosition:origin.toArray()
    };
  };
@@ -2570,7 +2576,7 @@ function resetScene(){
  active=null;clearMeasurement();sampleSubstrate=null;
  $('hover-help').textContent='点击零件显示唯一标签及尺寸；点空白取消';
  $('axis-confidence-note').textContent=platform==='B'?
-  'B：样品侧为B08无外伸手柄旋转台 + B41前向单轴台 + B09右向单轴NFP-1462C。B41与B09构成两个正交平移轴；B41精确型号、孔系和行程待核。B03载玻片侧为另一套双轴T25M。':
+  'B：样品侧为B08无外伸手柄旋转台 + B41下层Y（前后） + B09上层X（左右）单轴NFP-1462C。两级台体用视觉色差、接合线和X/Y字样区分（非实物铭牌/材质差异）；B41精确型号、孔系和行程待核。B03载玻片侧为另一套双轴T25M。':
   'A：照片94可见两层约20mm机构，上层G40M60L型号已识别，下层A04L型号未知。以G40的40mm比例估算A05上横板长约75mm、左伸48mm；照片95底座厚约18–19mm。原图94/95无直尺，145–151尺子原图仍在不可解包ZIP中，全局配准待验。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
