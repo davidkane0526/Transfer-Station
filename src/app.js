@@ -124,6 +124,25 @@ window.__platformACompletenessProbe=()=>{
  };
 };
 // Physical mesh-based photo195/196 test: do NOT trust metadata alone.
+// Projection QA uses real rendered geometries, not hard-coded pixel placement.
+window.__platformAFramingProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const cable=parts.get('A20')?.g,board=parts.get('A01')?.g;
+ if(!cable||!board)return {available:false};
+ camera.updateMatrixWorld(true);
+ const topBox=new THREE.Box3().setFromObject(cable);
+ const bottomBox=new THREE.Box3().setFromObject(board);
+ const cableTop=new THREE.Vector3((topBox.min.x+topBox.max.x)/2,topBox.max.y,
+   (topBox.min.z+topBox.max.z)/2).project(camera);
+ const baseBottom=new THREE.Vector3((bottomBox.min.x+bottomBox.max.x)/2,bottomBox.min.y,
+   (bottomBox.min.z+bottomBox.max.z)/2).project(camera);
+ return {available:true,topNdcY:Number(cableTop.y.toFixed(3)),
+   boardBottomNdcY:Number(baseBottom.y.toFixed(3)),
+   topVisible:Math.abs(cableTop.y)<.95,
+   boardVisible:Math.abs(baseBottom.y)<.95,
+   topWorldYmm:Number(topBox.max.y.toFixed(1)),
+   mode:aWorkingPoseMode?'candidate':'photo94'};
+};
 window.__modelAPhoto194Probe=()=>{
  if(platform!=='A')return {available:false};
  const lower=parts.get('A04L')?.g,upper=parts.get('A04')?.g;
@@ -2841,18 +2860,24 @@ function focus(mode){
  // Full-system camera must show the cabinet as well as film/sample
  // rather than hiding most accessories outside the viewport.
  const fullB=platform==='B'&&(mode==='iso'||mode==='home');
+ // V61: the original A iso camera clipped the upper 403mm microscope/camera
+ // stack, visually implying missing optical parts. Fit the WHOLE A system.
+ const fullA=platform==='A'&&(mode==='iso'||mode==='home');
  const rearB=platform==='B'&&mode==='rear';
  const target=mode==='optical'?new THREE.Vector3(sampleX-20,125,0):
    rearB?new THREE.Vector3(365,105,-155):
    fullB?new THREE.Vector3(115,135,-30):
+   fullA?new THREE.Vector3(0,188,0):
    new THREE.Vector3(platform==='B'?-15:0,128,0);
  const dst=mode==='optical'?new THREE.Vector3(sampleX-20,460,0.01):
    mode==='top'?new THREE.Vector3(0,780,0.01):
    mode==='front'?new THREE.Vector3(0,185,760):
    rearB?new THREE.Vector3(700,270,-620):
    mode==='rear'?new THREE.Vector3(295,250,-380):
-   mode==='iso'?(fullB?new THREE.Vector3(725,480,835):new THREE.Vector3(350,300,440)):
-   fullB?new THREE.Vector3(805,515,965):new THREE.Vector3(425,365,505);
+   mode==='iso'?(fullB?new THREE.Vector3(725,480,835):
+                 fullA?new THREE.Vector3(535,465,655):new THREE.Vector3(350,300,440)):
+   fullB?new THREE.Vector3(805,515,965):
+   fullA?new THREE.Vector3(585,500,735):new THREE.Vector3(425,365,505);
  camera.position.copy(dst);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
 
