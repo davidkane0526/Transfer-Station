@@ -78,7 +78,9 @@ export function enrichParts(partMap, platform, onMesh){
     group.add(rim);extras.push(rim);
     return group;
   }
-  function analogScale(g,x,y,z,r,height=2){
+  function analogScale(g,r,y,height=2){
+    // V67: radius must be explicitly supplied. The old 5-argument
+    // signature received only 2-3 values and created NaN-position ticks.
     // Vertical engraved tick marks around cylindrical rotary skirt (photo 100/110).
     for(let i=0;i<180;i++){
       const ang=(i/180)*Math.PI*2;
@@ -244,7 +246,7 @@ export function enrichParts(partMap, platform, onMesh){
        decal(g,'GCM-1302M',34,5,0,2.55,30.4,'front','#dce3e9');
     });
     decoration('B08',(g)=>{
-       analogScale(g,46.7,16,0);
+       analogScale(g,46.7,16);
        for(let a of [0,Math.PI/2,Math.PI,3*Math.PI/2]){
           const x=43*Math.cos(a),z=43*Math.sin(a);
           box(g,6,3,9,x,9,z,gunmetal,.5);
@@ -315,18 +317,28 @@ export function enrichParts(partMap, platform, onMesh){
      });
      for(const id of ['A02','A15']){const p=partMap.get(id);if(p)stageHardware(p,'GCM-T25M')}
      decoration('A03',(g)=>{
-       knurl(g,0,70,31,8.5,15,'y',44);
-       decal(g,'GCM-VC13M',53,8,0,30,33,'front','#e6ebf1');
+       // A03 already has ONE physical micrometer at local Y39/Z40.
+       // Previous knurl(Y70/Z31) was an unsupported floating SECOND drum.
+       g.userData.noDuplicateDecorativeMicrometer=true;
+       const nameplate=decal(g,'GCM-VC13M',40,8,0,30,7.5,'front','#e6ebf1');
+       nameplate.userData.A03LabelOnStationaryFace=true;
     });
     decoration('A04',(g)=>{
-       knurl(g,42,10,0,7.5,19,'x',42);
+       // One right-hand micrometer already exists in app.js (with rings).
+       g.userData.noDuplicateDecorativeG40Drum=true;
        decal(g,'GCM-G40M60L',38,6,0,10,20.5,'front','#e3e5e9');
     });
-    decoration('A06',(g)=>{analogScale(g,46.2,12);
+    decoration('A06',(g)=>{analogScale(g,31.8,12);
        const c=cyl(g,7,24,0,12,69,ring);c.rotation.x=Math.PI/2;});
      decoration('A08',(g)=>{
-        for(let y of [2,73,84])cyl(g,21.5,2,0,y,0,ring);
-        decal(g,'THORLABS TTL200-A',31,8,0,37,21.4,'front','#dce5f1');
+        // A08 TTL200-A housing nominal local Y=0..28mm only.
+        // Rings Y73 and Y84 were disconnected ghost geometry.
+        for(const y of [2,12,20]){
+          const rim=cyl(g,26.5,1.2,0,y,0,ring);
+          rim.userData.A08HousingCollarCandidate=true;
+        }
+        g.userData.A08HousingCollarsConfinedToNominal28mm=true;
+        decal(g,'THORLABS TTL200-A',31,8,0,14,26.4,'front','#dce5f1');
         cyl(g,12,2,0,0,0,green);
      });
      decoration('A09',(g)=>{
