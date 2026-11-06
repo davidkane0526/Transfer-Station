@@ -2209,17 +2209,18 @@ function platformA(){
    // Photos194/196 show two visible wing/蝶形 fasteners at the lower
    // flange. Their head silhouettes are evidence-based; thread size,
    // fastening load and exact grip-to-glass interface are NOT verified.
+   const screwX=bracketLegLocalX+(aWorkingPoseMode?7:-7);
    for(const zOffset of [-9,9]){
      const driver=add(g,cyl(1.4,8,mats.steel,
-       bracketLegLocalX+7,glassCenterY+3,aBent.sheetFrontZ+zOffset));
+       screwX,glassCenterY+3,aBent.sheetFrontZ+zOffset));
      driver.userData.A05CUnverifiedClampingScrew=true;
      const cap=add(g,cyl(2.8,2,mats.silver,
-       bracketLegLocalX+7,glassCenterY+7,aBent.sheetFrontZ+zOffset));
+       screwX,glassCenterY+7,aBent.sheetFrontZ+zOffset));
      cap.userData.A05CUnverifiedClampingScrewHead=true;
      cap.userData.photo194WingFastenerCandidate=true;
      for(const side of [-1,1]){
        const wing=add(g,cub(7,3.8,1.6,mats.steel,
-         bracketLegLocalX+7+side*4.8,glassCenterY+8,
+         screwX+side*4.8,glassCenterY+8,
          aBent.sheetFrontZ+zOffset));
        wing.rotation.z=side*.35;
      }
