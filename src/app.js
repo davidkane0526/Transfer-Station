@@ -175,9 +175,18 @@ window.__modelA05FootBoreProbe=()=>{
  ).intersectObject(foot,false).length;
  const centers=shafts.map(m=>{const v=new THREE.Vector3();m.getWorldPosition(v);return v});
  const mid=new THREE.Vector3();foot.getWorldPosition(mid);
+ const carrier=parts.get('A05C')?.g.children.find(m=>
+   m.userData.A05CActualThroughBores!==undefined);
+ const carrierBox=carrier?new THREE.Box3().setFromObject(carrier):null;
+ const carrierOpen=Boolean(carrier)&&centers.every(v=>new THREE.Raycaster(
+   new THREE.Vector3(v.x,carrierBox.min.y-1,v.z),
+   new THREE.Vector3(0,1,0),0,6
+ ).intersectObject(carrier,false).length===0);
  return {available:true,actualBoresOpen:centers.every(v=>hit(v.x,v.z)===0),
    solidMaterialBetweenBores:hit(mid.x,mid.z)>0,
    boreCount:foot.userData.A05ActualThroughBoreCount,
+   carrierActualBoreCount:carrier?.userData.A05CActualThroughBores??null,
+   carrierScrewAxesOpen:carrierOpen,
    independentFastenerPart:sheet!==screws&&parts.get('A05C')?.g!==screws,
    shaftCount:shafts.length,
    tipBelowFootMm:Number((footBox.min.y-Math.min(...shafts.map(m=>
@@ -2272,8 +2281,13 @@ function platformA(){
    const bracketTie=add(g,cub(2.5,14,10,mats.black,
      bracketLegLocalX,-aBent.verticalLegLength+7,aBent.sheetFrontZ));
    bracketTie.userData.A05CUnverifiedConnection=true;
-   const carrier=add(g,cub(21,3,27,mats.dark,
-     bracketLegLocalX+9,glassCenterY-2,aBent.sheetFrontZ));
+   // V64: the proxy carrier ALSO requires two real screw clearances.
+   // Photo94 alternate pose remains unregistered; do not impose this
+   // right-hand candidate hole map on its left-folded layout.
+   const bores=aWorkingPoseMode?[[-2,-9,1.6],[-2,9,1.6]]:[];
+   const carrier=add(g,plate(21,27,3,mats.dark,bores));
+   carrier.position.set(bracketLegLocalX+9,glassCenterY-3.5,aBent.sheetFrontZ);
+   carrier.userData.A05CActualThroughBores=aWorkingPoseMode?2:0;
    const upperJaw=add(g,cub(10,1.2,27,mats.dark,
      bracketLegLocalX+15,glassCenterY+1.1,aBent.sheetFrontZ));
    const lowerJaw=add(g,cub(10,1.2,27,mats.dark,

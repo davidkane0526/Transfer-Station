@@ -635,6 +635,9 @@ try{
  assert.equal(foot.actualBoresOpen,true,'A05 foot must be physically bored for both screws');
  assert.equal(foot.solidMaterialBetweenBores,true,'Adjacent metal must remain solid');
  assert.equal(foot.boreCount,2);
+ assert.equal(foot.carrierActualBoreCount,2);
+ assert.equal(foot.carrierScrewAxesOpen,true,
+   'A05C carrier must not block two folded-foot screw axes');
  assert.equal(foot.shaftCount,2);
  assert.equal(foot.tipBelowFootMm,3.5);
  assert.equal(foot.independentFastenerPart,true);

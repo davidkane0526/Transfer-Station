@@ -721,6 +721,10 @@ def make_a():
     glass_center_z=glass_bottom+.5
     tie=box(2.5,10,14,bracket_leg_x,0,leg_bottom)
     carrier=box(21,27,3,bracket_leg_x+9,0,glass_bottom-3)
+    # V64: carrier is also traversed by the two screws.
+    # Real clearance bores; neither the rod threads nor clamp load is verified.
+    for yy in (-9,9):
+        carrier=carrier.cut(vz(1.6,3.2,bracket_leg_x+7,yy,glass_bottom-3.1))
     lower_jaw=box(10,27,1.2,bracket_leg_x+15,0,glass_bottom-1.2)
     add('A','A05C','clamp_bracket_tie_plus_carrier_and_lower_jaw_UNVERIFIED',
         tie.fuse(carrier,lower_jaw),'C')

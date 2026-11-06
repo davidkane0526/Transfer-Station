@@ -784,6 +784,15 @@ a_pdms=part(A,'A05GP')[0]
 a_chip=part(A,'A07W')[0]
 check(len(part(A,'A05C'))==1,
       'A05C bracket tie, carrier and lower jaw form a connected solid')
+glass_bottom=leg_bottom+.5
+for yy in (-9,9):
+    bore_axis=vz(1.4,3,leg_x+7,yy,glass_bottom-3)
+    check(a_clamp.intersect(bore_axis).Volume()<1e-4,
+          'V64 A05C carrier has REAL through bore on both screw axes')
+report['V64_A05C_true_carrier_clearance']={
+    'carrier_boolean_bore_count':2,
+    'same_axes_as_A05_foot':True,
+    'carrier_clamping_force_and_threads_verified':False}
 check(a_sheet.distance(a_clamp)<.05,
       'A05C local clamp must contact the end of the folded A05 sheet')
 check(a_clamp.distance(a_slide)<.05,
@@ -813,8 +822,10 @@ check(a_pdms.intersect(part(A,'A07')[0]).Volume()<.0001,
       'V58 PDMS must not enter underlying silver heater plate')
 for i in (1,2):
     screw=part(A,f'A05CS{i}')[0]
-    check(screw.isValid() and a_clamp.distance(screw)<.05,
-          'V58 A05C candidate clamping screws must touch their carrier')
+    check(screw.isValid() and a_clamp.distance(screw)<.26,
+          'V64 A05C candidate screw needs clearance yet stay near carrier')
+    check(a_clamp.intersect(screw).Volume()<1e-4,
+          'V64 A05C screw must not penetrate solid clamp carrier')
     check(screw.intersect(a_slide).Volume()<.0001,
           'V58 candidate fasteners must remain outside glass footprint')
 a17_bb=part(A,'A17')[0].BoundingBox()
