@@ -123,6 +123,27 @@ window.__platformACompletenessProbe=()=>{
   clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y
  };
 };
+// Physical mesh-based photo195/196 test: do NOT trust metadata alone.
+window.__modelAPhoto194Probe=()=>{
+ if(platform!=='A')return {available:false};
+ const lower=parts.get('A04L')?.g,upper=parts.get('A04')?.g;
+ const clamp=parts.get('A05C')?.g,bracket=parts.get('A05')?.g;
+ const driveSide=(group,tag)=>{
+   const drum=group?.children.find(m=>m.userData[tag]);
+   if(!drum)return null;
+   group.updateWorldMatrix(true,true);drum.updateWorldMatrix(true,false);
+   const origin=new THREE.Vector3(),center=new THREE.Vector3();
+   group.getWorldPosition(origin);drum.getWorldPosition(center);
+   return center.x>origin.x?'+X':'-X';
+ };
+ return {available:Boolean(lower&&upper&&clamp&&bracket),
+   upperDrive:driveSide(upper,'A04DriveDrum'),
+   lowerDrive:driveSide(lower,'A04LDriveDrum'),
+   wingFastenerCount:clamp?.children.filter(m=>m.userData.photo194WingFastenerCandidate).length??0,
+   outwardFootCount:bracket?.children.filter(m=>m.userData.A05OutwardFootCandidate).length??0,
+   fastenerThreadVerified:false,photoRegisteredGlobalPose:false,
+   clampSkuVerified:false};
+};
 window.__modelAContactProbe=()=>{
  if(platform!=='A')return {available:false};
  const child=(id,tag)=>parts.get(id)?.g.children.find(o=>o.isMesh&&o.userData[tag]);
@@ -2151,10 +2172,13 @@ function platformA(){
      hex.userData.photo94Fastener=true;
      hex.material=mats.dark; // photo94 black bolt heads seated on black folded sheet
    }
-   // The lower leg end only forms a slim return flange; the exact glass
-   // jaw and optics beyond this photo are NOT modelled here.
-   add(g,cub(13,2.5,aBent.topPlateDepth,mats.black,
-       leftLocalX+6,-aBent.verticalLegLength+1.25,aBent.sheetFrontZ));
+   // Photos194/196: the L leg ends in a short OUTWARD foot, whose
+   // two wing fasteners are separate A05C components below.
+   // Foot depth remains a photo-proportioned, unverified 26mm proxy.
+   const footSign=aWorkingPoseMode?1:-1;
+   const foot=add(g,cub(13,2.5,26,mats.black,
+       leftLocalX+footSign*6,-aBent.verticalLegLength+1.25,aBent.sheetFrontZ));
+   foot.userData.A05OutwardFootCandidate=true;
    g.userData.photo94BentSheet=true;
    g.userData.verifiedPhotoBentCorner=true;
    g.userData.photoBracketDatums=aBent;
@@ -2182,9 +2206,9 @@ function platformA(){
    const lowerJaw=add(g,cub(10,1.2,27,mats.dark,
      bracketLegLocalX+15,glassCenterY-1.1,aBent.sheetFrontZ));
    for(const m of [carrier,upperJaw,lowerJaw])m.userData.A05CClampingProxy=true;
-   // Two independent compression fastener PROXIES on the OUTSIDE of the
-   // glass edge, not through the 1mm glass. Count, thread and tightening
-   // geometry cannot be inferred from photo94 and are not OEM-confirmed.
+   // Photos194/196 show two visible wing/蝶形 fasteners at the lower
+   // flange. Their head silhouettes are evidence-based; thread size,
+   // fastening load and exact grip-to-glass interface are NOT verified.
    for(const zOffset of [-9,9]){
      const driver=add(g,cyl(1.4,8,mats.steel,
        bracketLegLocalX+7,glassCenterY+3,aBent.sheetFrontZ+zOffset));
@@ -2192,7 +2216,15 @@ function platformA(){
      const cap=add(g,cyl(2.8,2,mats.silver,
        bracketLegLocalX+7,glassCenterY+7,aBent.sheetFrontZ+zOffset));
      cap.userData.A05CUnverifiedClampingScrewHead=true;
+     cap.userData.photo194WingFastenerCandidate=true;
+     for(const side of [-1,1]){
+       const wing=add(g,cub(7,3.8,1.6,mats.steel,
+         bracketLegLocalX+7+side*4.8,glassCenterY+8,
+         aBent.sheetFrontZ+zOffset));
+       wing.rotation.z=side*.35;
+     }
    }
+   g.userData.photo194VisibleWingFastenerCount=2;
    g.userData.clampingScrewProxyCount=2;
    g.userData.clampingScrewThreadVerified=false;
    g.userData.unverifiedClampMechanism=true;
