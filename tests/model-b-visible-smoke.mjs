@@ -727,6 +727,14 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'candidate');
+ const front194=await page.evaluate(()=>window.__platformAStageFrontProbe?.());
+ assert.equal(front194?.available,true);
+ assert.equal(front194?.frontPlateAboveMagnet,true);
+ assert.equal(front194?.frontPlateFollowsA15X,true);
+ assert.equal(front194?.A15FrontKnobCount,1);
+ assert.equal(front194?.A15FrontScrewCount,2);
+ assert.equal(front194?.A17LowerLeverCount,1);
+ assert.equal(front194?.noDuplicateA17Slot,true);
  const mountA=await page.evaluate(()=>window.__mountingProbe?.());
  assert.equal(mountA?.singleBreadboardInScene,true);
  assert.equal(mountA?.commonBase,'A01');
