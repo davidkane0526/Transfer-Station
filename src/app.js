@@ -2231,7 +2231,7 @@ function platformA(){
    g.userData.unverifiedClampMechanism=true;
    g.userData.jawGapCandidateMm=1;
    g.userData.actualClampOEM=false;
-   label(g,'A05C · 玻片夹连接示意（实物夹具型号、孔位未确认）',
+   label(g,'A05C · 两枚蝶形紧固件（照片194/196），玻片夹型号/孔位仍未知',
      bracketLegLocalX+5,18,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
  addPart('A05G',ax,164,az,g=>{
@@ -2775,7 +2775,7 @@ function resetScene(){
  $('axis-confidence-note').textContent=platform==='B'?
   'B：样品侧为B08无外伸手柄旋转台 + B41下层Y（前后） + B09上层X（左右）单轴NFP-1462C。两级台体用视觉色差、接合线和X/Y字样区分（非实物铭牌/材质差异）；B41精确型号、孔系和行程待核。B03载玻片侧为另一套双轴T25M。':
   'A：照片94左折边的G40M60L上摆角及A04L下摆角是历史实拍约束；当前'+
-   (aWorkingPoseMode?'在单独的V58工程候选中镜像为右折边、改用53.5mm场景腿长，并将磁座重新配准到-46.75mm，均未由实物证实。':'显示照片94原局部朝向。')+
+   (aWorkingPoseMode?'在单独的V58工程候选中镜像为右折边、改用52.1mm场景腿长，并将磁座重新配准到-46.75mm，均未由实物证实。':'显示照片94原局部朝向。')+
    'A05C夹具、A17磁座型号与孔系未知；操作姿态不等于设备可靠性认证。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
@@ -2825,7 +2825,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V59 / '+(aWorkingPoseMode?
+   '平台 A · V60 / '+(aWorkingPoseMode?
     '右折边操作位置候选（未实物验证）/ 玻片印章对准A07 / 夹具避开热台 / A17型号未知':
     '照片94原始左折边朝向 / A05C夹具+A05G玻片 / 全局未配准');
  $('stack-note').textContent=platform==='B'?
@@ -2995,7 +2995,7 @@ function updatePhotoScope(){
  if(platform==='B')critical.textContent='V30已消除B05与V25M固定机架此前6048mm³的几何穿透：活动导轨通过独立侧向支承桥接B05。B26巨大转接块删除，只剩可能的M6端面连接。真实螺钉孔距、移动全行程及玻片工作距离仍未认证，禁止加工。';
  node.dataset.refRig=platform==='A'?'A-94-95-97-137-144-152-155-161':'B-107-112-145-151';
  node.textContent=platform==='A'?
-  '平台 A：94/95/97、137–144、152、155、161。新增照片137/161的 GCM-5306M 是 112×70×8 mm 安装底座，不是旋转台。':
+  '平台 A：94/95/97、137–144、152、155、161、191–196。新增照片137/161的 GCM-5306M 是 112×70×8 mm 安装底座，不是旋转台。':
   '平台 B：照片145/150确认B35黑色Thorlabs板覆盖旋转台及显微镜底座（250×300×12mm为候选），149确认PHUC-1，150确认GCM-1302M；照片114/117/119确认宇电面板B19与SE-600-48、黑色辅助模块同装在金属控制箱B36内。控制箱尺寸和线束仍待测。';
  $('btn-photo947').textContent='查看平台 A 的 94/95/97 实物构型';
 }
