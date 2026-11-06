@@ -642,7 +642,7 @@ check(abs(a19.zmin-150)<.02 and abs(a19.zmax-160)<.02,
       'V59 objective turret remains a distinct 10mm component below microscope head')
 check(abs(o1.zmin-116)<.02 and abs(o1.zmax-155)<.02 and abs(o2.zmin-116)<.02 and abs(o2.zmax-155)<.02 and abs(o2.xmin-o1.xmin)>20,
       'V59 two installed objective barrels are separate and clear the sample stage top')
-check(a20.isValid() and a20.zmax>390,
+check(part(A,'A20')[0].isValid() and a20.zmax>390,
       'V59 camera cable is a continuous valid routed solid above the camera')
 report['V47_A04_photo94_two_goniometers']={
     'independent_goniometer_envelopes':2,
