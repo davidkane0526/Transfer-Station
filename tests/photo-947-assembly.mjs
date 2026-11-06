@@ -37,7 +37,7 @@ assert.throws(()=>vc13PhotoScrewDatums({drumCenterLocalYmm:58}),
 assert.equal(PHOTO_94_95_97.g40.centerOfRotationHeightMm,60);
 assert.deepEqual(PHOTO_94_95_97.vc13m.topSizeMm,[65,65]);
 assert.equal(HANDLES.A15.handles,2);
-assert.equal(HANDLES.A04L.direction,'+X');
+assert.equal(HANDLES.A04L.direction,'-X');
 assert.equal(HANDLES.A04.direction,'+X');
 assert.equal(PHOTO_94_95_97.visibleMetalConnection.likelySecondGoniometerUnderNamedG40,true);
 assert.equal(PHOTO_94_95_97.visibleMetalConnection.lowerGoniometerModelVerified,false);
