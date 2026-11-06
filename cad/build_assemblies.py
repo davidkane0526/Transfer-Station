@@ -818,7 +818,7 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
     # V59: photo191–193 microscope head, bilateral focus and two installed objectives.
-    add('A','A18','MICROSCOPE_HEAD_HOUSING_100x90x70_PHOTO_PROXY',box(100,90,70,cx,0,200),'C')
+    add('A','A18','MICROSCOPE_HEAD_HOUSING_100x90x70_PHOTO_PROXY',box(100,90,70,cx,0,165),'C')
     add('A','A18T','MICROSCOPE_HEAD_UPPER_TUBE_COLLAR_PROXY',vz(22,18,cx,0,235),'C')
     add('A','A18R','MICROSCOPE_HORIZONTAL_TUBE_RIGHT_160mm_PROXY',vx(16,160,cx,0,240),'C')
     add('A','A18FL','MICROSCOPE_LEFT_COARSE_FOCUS_DRUM_PROXY',vx(25,18,cx-68,0,198),'C')
