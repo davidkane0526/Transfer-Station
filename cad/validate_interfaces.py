@@ -750,6 +750,12 @@ for i,dx in enumerate((-14,14),1):
           'V58 both sheet screw HEADS contact top plate')
     center=(head.BoundingBox().xmin+head.BoundingBox().xmax)/2
     check(abs(center-(-46.75+dx))<.02,'V58 G40 head pair follows moved film unit')
+for i in (1,2):
+    wing=part(A,f'A05CS{i}')[0]
+    check(wing.isValid() and wing.BoundingBox().xlen>14,
+          'V60 two butterfly screw-head silhouettes must be present in STEP')
+check(asheet_bb.ylen>=26-.02,
+      'V60 photographed A outward folded foot supports two wing fasteners')
 for id in ('A05A','A05B'):
     check(not (A/(id+'.step')).exists(),
           'Discredited 215mm transfer beam/spacer remains absent: '+id)

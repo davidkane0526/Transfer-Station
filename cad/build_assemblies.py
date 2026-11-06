@@ -707,7 +707,7 @@ def make_a():
     bracket_leg_x=ax+48-1.25
     sheet=box(75,12,2.5,ax+10.5,0,164).fuse(
         box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),
-        box(13,12,2.5,bracket_leg_x+6,0,leg_bottom))
+        box(13,26,2.5,bracket_leg_x+6,0,leg_bottom))
     add('A','A05','WORKING_HYPOTHESIS_mirrored_right_75mm_L_sheet_NOT_photo_orientation',
         sheet,'C')
     for i,dx in enumerate((-14,14),1):
@@ -727,11 +727,14 @@ def make_a():
     add('A','A05CU','candidate_separate_upper_compression_jaw',
         box(10,27,1.2,bracket_leg_x+15,0,glass_bottom+1),'C')
     for i,zoffset in enumerate((-9,9),1):
-        # A provisional Ø2.8 shaft and Ø5.6 head; no specified thread.
+        # Two wing fasteners are visible at the outward foot in photos194/196.
+        # Shaft Ø2.8, head Ø5.6 and blade dimensions remain unverified proxies.
         shank=vz(1.4,8,bracket_leg_x+7,zoffset,glass_center_z-1)
-        head=vz(2.8,2,bracket_leg_x+7,zoffset,glass_center_z+6)
-        add('A',f'A05CS{i}','candidate_jaw_clamping_fastener_NOT_OEM',
-            shank.fuse(head),'C')
+        hub=vz(2.8,2,bracket_leg_x+7,zoffset,glass_center_z+6)
+        wings=[box(7,1.6,3.8,bracket_leg_x+7+sgn*4.8,
+                   zoffset,glass_center_z+7) for sgn in (-1,1)]
+        add('A',f'A05CS{i}','photo194_two_butterfly_head_screws_THREAD_UNKNOWN',
+            shank.fuse(hub,*wings),'C')
     add('A','A05G','standard_76x26x1mm_glass_POSITION_CANDIDATE',
         box(76,26,1,glass_center_x,0,glass_bottom),'C')
     add('A','A05GP','PDMS_8x8x1p8_right_edge_center_over_sample_PROXY',

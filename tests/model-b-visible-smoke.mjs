@@ -596,8 +596,8 @@ try{
  await page.locator('#bom-query').fill('A05C');
  const aClampRow=page.locator('#bom-body tr').filter({hasText:/^\s*A05C\b/});
  assert.equal(await aClampRow.count(),1,'A05C clamp needs a separate BOM row');
- assert.match(await aClampRow.locator('.bom-photo-tile').innerText(),/未入库/,
-   'Photo94 may be referenced but must not be falsely shown as an embedded original');
+ assert.match(await aClampRow.locator('.bom-photo-tile img').getAttribute('src'),/194\.webp$/,
+   'Photo194 must appear as an actual embedded BOM thumbnail for A05C');
  await aClampRow.evaluate(el=>el.click());
  assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 94/);
  assert.match(await page.locator('#photo-evidence-gallery').innerText(),/原图未入库/);
@@ -606,8 +606,8 @@ try{
  await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  const photoA=await page.evaluate(()=>window.__photoEvidenceProbe?.('A05C'));
  assert(photoA?.ids.includes('94'));
- assert.deepEqual(photoA?.embedded,[],
-   'Photo94 raw file is not bundled; a stock photo cannot be substituted');
+ assert.deepEqual(photoA?.embedded,['194','196'],
+   'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
  assert.match(await page.locator('#a-physical-audit').innerText(),/工程几何假设/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/36.25/);
@@ -615,6 +615,13 @@ try{
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
  // A03 VC13M must move only its output plate; A04/A05 follow the
  // output, while A03 body and magnet remain fixed to their base.
+ const mechA=await page.evaluate(()=>window.__modelAPhoto194Probe?.());
+ assert.equal(mechA.available,true);
+ assert.equal(mechA.upperDrive,'+X','Photo196 upper G40 knob must be on the RIGHT');
+ assert.equal(mechA.lowerDrive,'-X','Photo195 lower goniometer knob must be on the LEFT');
+ assert.equal(mechA.wingFastenerCount,2,'Photo194/196 require two wing fasteners');
+ assert.equal(mechA.outwardFootCount,1,'Photo194/196 L bracket needs one outward foot');
+ assert.equal(mechA.fastenerThreadVerified,false);
  const aBefore=await page.evaluate(()=>window.__modelAKinematicProbe?.());
  assert(aBefore?.available,'A viewer kinematic witness missing');
  assert.equal(aBefore.a17CandidateHoleCount,0,
