@@ -620,8 +620,10 @@ check(part(A,'A02B')[0].BoundingBox().xmax<=a02.xmin+.02,
       'A sample T25M silver left handle in photo17 points LEFT -X')
 check(part(A,'A03M')[0].BoundingBox().zmax<=part(A,'A03K')[0].BoundingBox().zmin+.02,
       'A VC13M micrometer is vertically oriented')
-check(part(A,'A04LM')[0].BoundingBox().xmin>=a04_lower.xmax-.02,
-      'V47 lower goniometer micrometer exits RIGHT')
+check(part(A,'A04LM')[0].BoundingBox().xmax<=a04_lower.xmin+.02,
+      'V60 lower goniometer micrometer exits LEFT -X (photo195)')
+check(part(A,'A04LK')[0].BoundingBox().xmax<=part(A,'A04LM')[0].BoundingBox().xmin+.02,
+      'V60 lower G40 knob continues beyond the LEFT shaft')
 check(part(A,'A04M')[0].BoundingBox().xmin>=a04.xmax-.02,
       'V59 labeled upper G40M60L micrometer exits RIGHT +X')
 check(part(A,'A04K')[0].BoundingBox().xmin>=part(A,'A04M')[0].BoundingBox().xmax-.02,

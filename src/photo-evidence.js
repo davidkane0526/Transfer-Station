@@ -26,7 +26,7 @@ export const HANDLES={
   B09:{kind:'horizontal',axes:1,handles:1,direction:'+X',evidence:'110.jpg及147号带尺照片：上层NFP-1462C右侧银色测微头',confidence:'photo'},
   A15:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,direction:'+X',secondaryDirection:'+Z',evidence:'95.jpg、97.jpg及194–196.jpg：VC13M下方T25M两根正交微分头',confidence:'photo'},
   A03:{kind:'vertical',direction:'+Y',evidence:'97.jpg及195.jpg：VC13M竖直导轨与正面竖直测微装置',confidence:'photo'},
-  A04L:{kind:'tilt',direction:'+X',evidence:'94.jpg下层独立微分头向右；具体G40型号无法读出',confidence:'photo-proxy'},
+  A04L:{kind:'tilt',direction:'-X',evidence:'照片195下层独立摆角台微分头向左，与上层G40M60L向右的微分头分居左右。下层具体型号仍未知',confidence:'photo'},
   A04:{kind:'tilt',direction:'+X',evidence:'194–196.jpg可辨GCM-G40M60L铭牌及右侧微分头；按该组近正面视角统一为+X，94号图的投影左右不单独作为全局轴向依据',confidence:'photo'},
   A06:{kind:'rotation-lock+fine-adjust',direction:'+Z',micrometerDirection:'+X',micrometerCount:1,evidence:'新上传照片17/18/20/21：下层圆台右侧长银色角度微调头，与前侧小锁紧杆分别可见；具体GCM-11后缀未知',confidence:'photo'},
   A02:{kind:'horizontal',axes:1,handles:1,thicknessMm:20,subtypeUnverified:true,direction:'-X',evidence:'照片17/18/20：银色台左侧有水平方向测微头；下层旋转台右侧另有角度调节测微头',confidence:'photo'}
