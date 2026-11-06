@@ -194,6 +194,36 @@ window.__modelA05FootBoreProbe=()=>{
    diameterMmCandidate:foot.userData.A05BoreDiameterCandidateMm,
    actualOEMThreadsVerified:false};
 };
+window.__modelAVerticalGuideProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const stage=parts.get('A03')?.g;
+ const fixed=stage?.children.filter(m=>m.userData.A03StationarySideGuide);
+ const moving=stage?.userData.verticalCarriage?.children
+   .filter(m=>m.userData.A03MovingGuideTongue);
+ const plate=stage?.userData.verticalCarriage?.children
+   .find(m=>m.userData.A03MovingOutputPlate);
+ if(!stage||fixed?.length!==2||moving?.length!==2||!plate)return {available:false};
+ stage.updateWorldMatrix(true,true);
+ const box=m=>new THREE.Box3().setFromObject(m);
+ const pairs=[-1,1].map(sign=>{
+   const f=box(fixed.find(m=>m.userData.A03StationarySideGuide===sign));
+   const t=box(moving.find(m=>m.userData.A03MovingGuideTongue===sign));
+   const clearance=sign>0?t.min.x-f.max.x:f.min.x-t.max.x;
+   const axialOverlap=Math.min(t.max.y,f.max.y)-Math.max(t.min.y,f.min.y);
+   return {side:sign,clearanceMm:Number(clearance.toFixed(2)),
+     axialOverlapMm:Number(axialOverlap.toFixed(2)),
+     noGuideClash:clearance>0,engaged:axialOverlap>0};
+ });
+ const plateBox=box(plate);
+ const tonguesTouchPlate=moving.every(t=>box(t).max.y>plateBox.min.y-.01);
+ return {available:true,stationaryGuideCount:fixed.length,
+   movingTongueCount:moving.length,pairs,
+   tonguesTouchMovingPlate:tonguesTouchPlate,
+   travelMm:stage.userData.nominalVerticalTravelMm,
+   outputLiftMm:stage.userData.verticalCarriage.position.y,
+   actualTravelInGuideEnvelope:pairs.every(p=>p.noGuideClash&&p.engaged),
+   manufacturerGuideProfileVerified:false};
+};
 window.__modelAPhoto194Probe=()=>{
  if(platform!=='A')return {available:false};
  const lower=parts.get('A04L')?.g,upper=parts.get('A04')?.g;
@@ -2131,6 +2161,14 @@ function platformA(){
    add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
    add(g,cub(45,36,16,mats.dark,0,26,-8)); // stationary body ends at output lower-limit local Y=44
    add(g,cub(44,36,4,mats.black,0,26,5)); // fixed guide ends at lower-limit local Y=44
+   // V65 photo194: the raised A03 plate needs visible continuous side
+   // guides. In V64 the +13mm raised plate sat above a bare fixed upright.
+   // Separate side channels remain fixed; moving tongues are nested with
+   // 0.3mm candidate side clearance and overlap them throughout 0..13mm.
+   for(const sign of [-1,1]){
+     const fixed=add(g,cub(3.4,32,8,mats.black,sign*24,28,-8));
+     fixed.userData.A03StationarySideGuide=sign;
+   }
    for(const x of [-18,18]){
      add(g,cub(2.2,35,2,mats.ink,x,27,8));
      // Captured front-side retaining screw positions are approximate.
@@ -2143,7 +2181,15 @@ function platformA(){
    // V46: movable VC13M output; previous slider left A03/A04/A05 immobile.
    // Mechanical collision along the actual 13mm travel remains unqualified.
    const movingVC13=new THREE.Group();g.add(movingVC13);
-   add(movingVC13,cub(65,7,65,mats.dark,0,47.5,0));
+   const outputPlate=add(movingVC13,cub(65,7,65,mats.dark,0,47.5,0));
+   outputPlate.userData.A03MovingOutputPlate=true;
+   // Two tongues descend INTO their stationary side-guide envelopes
+   // and follow ONLY the 13mm moving output, never the A03 housing.
+   for(const sign of [-1,1]){
+     const tongue=add(movingVC13,cub(3.4,24,8,mats.steel,
+       sign*27.7,33,-8));
+     tongue.userData.A03MovingGuideTongue=sign;
+   }
    g.userData.verticalCarriage=movingVC13;
    g.userData.nominalVerticalTravelMm=13;
    g.userData.motionProxyNotCollisionCertified=true;

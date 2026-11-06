@@ -539,8 +539,8 @@ check(abs(amagnet.zmax-a15.zmin)<.02,
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-73)<.02,
       'A T25M2L has 33 mm verified dual-axis height above its V38 magnetic seat')
 check(abs(part(A,'A15A')[0].BoundingBox().zmax-a03.zmin)<.02,'A film T25M directly UNDER VC13M')
-check(abs(a03.zmax-a03_top.zmin)<.02,
-      'A VC13 fixed upright must meet, not overlap, independent moving plate')
+check(abs(a03.zmax-(a03_top.zmax-7))<.02,
+      'V65 A03 fixed upright meets main movable PLATE at lower pose; lower guide tongues extend below it')
 check(abs(a03_top.zmax-a04_lower.zmin)<.02,
       'V47 VC13 moving plate supports LOWER G40-class module')
 check(abs(a04_lower.zmax-a04.zmin)<.02,
@@ -551,6 +551,23 @@ check(abs(a04_lower.zlen-20)<.02 and abs(a04.zlen-20)<.02,
       'V47 photo94 double-stage proxy must preserve separate 20mm heights')
 check(part(A,'A03')[0].intersect(a03_moving).Volume()<1e-4,
       'A03 stationary body and A03T moving plate must not overlap at lower pose')
+a03_raised=a03_moving.translate(Vector(0,0,13))
+check(part(A,'A03')[0].intersect(a03_raised).Volume()<1e-4,
+      'V65 full 13mm A03 stroke must NOT cause moving guide/outer channel solid overlap')
+check(abs(a03_moving.BoundingBox().zmin-95)<.02 and
+      abs(a03_moving.BoundingBox().zmax-124)<.02,
+      'V65 moving side tongues descend below output plate and remain physically joined')
+check(a03_raised.BoundingBox().zmin<part(A,'A03')[0].BoundingBox().zmax-8,
+      'V65 raised A03 moving side tongue must still overlap stationary channel in Z')
+check(len(a03_raised.Solids())==1 and len(a03_moving.Solids())==1,
+      'V65 two moving guide tongues belong to ONE connected moving STEP assembly')
+report['V65_A03_floating_output_repair']={
+    'photo_refs':['194','195'],'fixed_side_channel_count':2,
+    'moving_output_tongue_count':2,'travel_mm_nominal':13,
+    'full_travel_static_and_raised_boolean_collision_free':True,
+    'moving_guide_still_engaged_at_top_of_travel':True,
+    'candidate_channel_width_mm':3,'clearance_candidate_mm':1.3,
+    'factory_guide_dimensions_verified':False}
 check(len(part(A,'A03'))==1,
       'A03 bracket plus fixed carriage must be ONE connected STEP solid')
 check(part(A,'A03')[0].intersect(part(A,'A03M')[0]).Volume()<1e-4,

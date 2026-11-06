@@ -665,9 +665,17 @@ def make_a():
     vc13=(box(65,65,8,ax,0,73)
           .fuse(box(56,17,36,ax,-9,81))
           .fuse(front_drive_bracket))
-    add('A','A03','VC13M_FIXED_UPRIGHT_front_support_CANDIDATE',vc13)
-    add('A','A03T','VC13M_MOVING_OUTPUT_65x65x7_STATIC_LOWER_POSE_CANDIDATE',
-        box(65,65,7,ax,0,117),'C')
+    # V65: fixed outer channels overlap the stationary body at x=+/-28.
+    # Separate inner moving tongues touch the OUTPUT, but maintain
+    # side clearance to the channels across the nominal 0..13mm travel.
+    for sign in (-1,1):
+        vc13=vc13.fuse(box(3,8,32,ax+sign*29,0,85))
+    add('A','A03','VC13M_FIXED_UPRIGHT_with_2_side_channels_CANDIDATE',vc13)
+    moving=box(65,65,7,ax,0,117)
+    for sign in (-1,1):
+        moving=moving.fuse(box(3.4,8,24,ax+sign*34,0,95))
+    add('A','A03T','VC13M_OUTPUT_with_2_telescopic_guides_LOWER_POSE',
+        moving,'C')
     add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,40,98),'P')
     add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,40,133),'P')
     # Photo94: 40mm-wide front silhouette has TWO ~20mm thick

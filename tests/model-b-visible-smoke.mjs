@@ -645,6 +645,14 @@ try{
 
  assert.equal(mechA.outwardFootCount,1,'Photo194/196 L bracket needs one outward foot');
  assert.equal(mechA.fastenerThreadVerified,false);
+ const guideBefore=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());
+ assert.equal(guideBefore?.available,true,'A03 must have real telescoping guides, not floating raised output');
+ assert.equal(guideBefore.stationaryGuideCount,2);
+ assert.equal(guideBefore.movingTongueCount,2);
+ assert.equal(guideBefore.tonguesTouchMovingPlate,true);
+ assert.equal(guideBefore.actualTravelInGuideEnvelope,true);
+ assert.equal(guideBefore.outputLiftMm,13);
+ assert.equal(guideBefore.manufacturerGuideProfileVerified,false);
  const aBefore=await page.evaluate(()=>window.__modelAKinematicProbe?.());
  assert(aBefore?.available,'A viewer kinematic witness missing');
  assert.equal(aBefore.a17CandidateHoleCount,0,
@@ -683,6 +691,9 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  await page.locator('#film-drop').evaluate(el=>{
    el.value='-6';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
+ const guideMid=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());
+ assert.equal(guideMid.outputLiftMm,7,'A03 guides must follow moving output at mid stroke');
+ assert.equal(guideMid.actualTravelInGuideEnvelope,true);
  const aAfter=await page.evaluate(()=>window.__modelAKinematicProbe?.());
  assert.equal(aAfter.filmDropMm,6);
  assert.equal(aAfter.vStageStationaryBaseWorldY,aBefore.vStageStationaryBaseWorldY,
@@ -703,6 +714,9 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  await page.locator('#film-drop').evaluate(el=>{
    el.value='-13';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
+ const guideLower=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());
+ assert.equal(guideLower.outputLiftMm,0);
+ assert.equal(guideLower.actualTravelInGuideEnvelope,true);
  const fullA=await page.evaluate(()=>window.__modelAContactProbe?.());
  assert.equal(fullA.pdmsToChipGapMm,0,
    'V58 at -13mm PDMS must touch the A07 sample chip surface exactly');
