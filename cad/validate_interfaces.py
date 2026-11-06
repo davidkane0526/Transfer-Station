@@ -654,7 +654,7 @@ check(abs(a19.zmin-150)<.02 and abs(a19.zmax-160)<.02,
       'V59 objective turret remains a distinct 10mm component below microscope head')
 check(110.6+2<o1.zmin<121 and o1.zmax<=163 and
       abs(o2.zmin-116)<.02 and abs(o2.zmax-155)<.02 and
-      o1.xmin<cx-18-17 and abs(o2.xmin-(cx+18-11.5))<.02,
+      o1.xmin<78-18-17 and abs(o2.xmin-(78+18-11.5))<.02,
       'V66 left photo191/193 objective angles outward but two objectives stay separate and above chip')
 check(abs(part(A,'A19R1')[0].BoundingBox().xmin-
           part(A,'A19O1')[0].BoundingBox().xmin)<14,
