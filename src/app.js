@@ -2261,6 +2261,15 @@ function platformA(){
     const head=add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24));
     head.userData.A07VisibleHeadCandidate=true;
   }
+  // Photo191/193: separate front slotted adjustment plate and fasteners.
+  const frontPlate=add(g,cub(36,16,2,mats.silver,0,14,33.4));
+  frontPlate.userData.A07FrontSlottedPlateCandidate=true;
+  add(g,cub(18,2.6,.8,mats.ink,0,14,34.55));
+  const adjustStem=add(g,cyl(2.7,5,mats.steel,0,14,37.2));adjustStem.rotation.x=Math.PI/2;
+  const adjustKnob=add(g,cyl(5.2,3,mats.silver,0,14,41));adjustKnob.rotation.x=Math.PI/2;
+  for(const x of [-12,12]){
+    const screw=add(g,cyl(2.2,2,mats.steel,x,7,35));screw.rotation.x=Math.PI/2;
+  }
   g.userData.rulerSampleTopAboveBoardMm=89.2;
   g.userData.layerProxies=[9,7,12];
   g.userData.intermediateMaterialUnknown=true;
@@ -2289,20 +2298,21 @@ function platformA(){
       const head=add(g,cyl(4.25,2.5,mats.silver,x,12.75,z));
       head.userData.A10CandidateBoltHead=true;
     }
-    add(g,cyl(13,225,mats.steel,0,126,0));
-    add(g,cub(34,25,127,mats.dark,0,234,65));
+    // V59: taller photographed camera/microscope stack; post length remains candidate.
+    add(g,cyl(13,372,mats.steel,0,199,0));
+    add(g,cub(34,25,127,mats.dark,0,200,65));
     g.userData.fourTrueCandidateFootBores=true;
     g.userData.actualOEMFasteningVerified=false;
     label(g,'A10显微镜支架 · 底脚四孔及螺钉均为候选',0,267,60);
  },{explode:[0,15,-30]});
- addPart('A08',sx,170,0,g=>{
+ addPart('A08',sx,235,0,g=>{
   // OEM TTL200-A housing is 28mm long; 200mm is focal length.
   // The older 85mm single filled cylinder was not a manufacturer body.
   add(g,cyl(26,28,mats.black,0,14,0));
   add(g,cyl(25.7,2,mats.silver,0,1,0));
   label(g,'Thorlabs TTL200-A · 28mm壳体 / SM2外螺纹',0,41,0);
  },{explode:[0,35,0]});
- addPart('A09',sx,258,0,g=>{
+ addPart('A09',sx,323,0,g=>{
   add(g,cub(50,45,44,mats.dark,0,22.5,0));
   add(g,cyl(15,12,mats.silver,0,0,0));
   label(g,'Daheng Imaging 工业相机',0,72,0);
@@ -2322,13 +2332,60 @@ function platformA(){
   add(g,cub(40,15,4,mats.silver,0,16,34));
   label(g,'德力西 CDG1-1DD/25A',0,62,0);
  },{explode:[45,15,20]});
- addPart('A14',sx,192,0,g=>{
-   // A transparent nominal SM2 seat: the open sleeve overlaps the
-   // lens housing for 6mm at Y=192..198; top reaches the camera Y=258.
-   // Neither sleeve length nor camera flange is OEM-confirmed.
+ addPart('A14',sx,257,0,g=>{
+   // V59: 66mm open sleeve overlaps A08 by 6mm and meets camera A09.
+   // Thread engagement and camera flange remain unverified.
    add(g,sleeve(28,26.1,66,mats.dark,0,33,0,'y'));
    label(g,'SM2接口候选镜筒 · 长66mm含6mm装配重叠 / 相机端未认证',0,80,0);
  },{explode:[0,25,0]});
+ addPart('A18',sx,200,0,g=>{
+   // Photo191/192: black microscope head, horizontal tube and bilateral focus drums.
+   // Dimensions are photo-proportioned candidates, not OEM data.
+   add(g,cub(100,70,88,mats.dark,0,0,0));
+   add(g,cub(86,4,78,mats.black,0,-31,0));
+   add(g,cyl(22,18,mats.black,0,44,0));
+   const opticalArm=add(g,cyl(16,160,mats.black,80,40,0));opticalArm.rotation.z=Math.PI/2;
+   opticalArm.userData.A18HorizontalTubeCandidate=true;
+   for(const x of [20,115,135]){
+     const collar=add(g,torus(16.4,.65,mats.ink,x,40,0));collar.rotation.y=Math.PI/2;
+   }
+   for(const sign of [-1,1]){
+     const coarse=add(g,cyl(25,18,mats.black,sign*59,-2,0));coarse.rotation.z=Math.PI/2;
+     coarse.userData.A18CoarseFocusKnob=true;
+     const fine=add(g,cyl(16,6,mats.silver,sign*71,-2,0));fine.rotation.z=Math.PI/2;
+     fine.userData.A18FineFocusKnob=true;
+     for(let i=0;i<8;i++){
+       const groove=add(g,torus(25,.35,mats.ink,sign*(52+i*2),-2,0));groove.rotation.y=Math.PI/2;
+     }
+   }
+   const lockLever=add(g,cyl(3.5,24,mats.black,68,20,0));lockLever.rotation.z=-Math.PI/5;
+   g.userData.microscopeHeadModelUnverified=true;g.userData.focusKnobPairCount=2;
+   label(g,'A18 显微镜主机头 / 双侧调焦 · 型号待识别',0,48,0);
+ },{explode:[0,35,0]});
+ addPart('A19',sx,160,0,g=>{
+   // Only the two photographed installed objectives are drawn.
+   add(g,cyl(36,10,mats.black,0,0,0));
+   add(g,torus(34,1,mats.steel,0,0,0));
+   add(g,cyl(18,5,mats.dark,0,7.5,0));
+   const left=add(g,cyl(11.5,39,mats.black,-18,-24.5,0));
+   const right=add(g,cyl(11.5,39,mats.black,18,-24.5,0));
+   left.userData.objectiveLabel='JH-TOP MPLAN 5x/0.10?';
+   right.userData.objectiveLabel='Olympus PlanFL 10x/0.40?';
+   add(g,cyl(12.8,2,mats.copper,-18,-43,0));
+   add(g,cyl(12.8,2,mats.silver,18,-43,0));
+   for(const x of [-18,18]){
+     const lens=add(g,cyl(7.5,1.2,mats.glass,x,-44.5,0));lens.userData.objectiveOpticProxy=true;
+   }
+   g.userData.installedObjectiveCount=2;g.userData.objectiveTurretPortCountUnverified=true;
+   label(g,'A19 物镜转换盘 · 5×与10×物镜（铭牌待复核）',0,22,0);
+ },{explode:[0,22,0]});
+ addPart('A20',sx,323,0,g=>{
+   const points=[[18,44,0],[22,65,-12],[40,80,-24],[60,72,-22],[74,50,-8],[80,22,8],[76,-18,18]];
+   const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));
+   const cable=add(g,new THREE.Mesh(new THREE.TubeGeometry(curve,80,2.4,10,false),mats.black));
+   cable.userData.A20CameraCableRouteCandidate=true;g.userData.electricalInterfaceVerified=false;
+   label(g,'A20 相机线缆 · 走线路径候选',82,24,18);
+ },{explode:[0,45,20]});
 }
 function addAxis(){
  const axes=new THREE.AxesHelper(80);axes.position.set(-216,22,145);currentRoot.add(axes);axisObjects.push(axes);

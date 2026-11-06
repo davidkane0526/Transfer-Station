@@ -13,8 +13,9 @@ export const STACKS={
   A:{
     film:['A17','A15','A03','A04L','A04','A05','A05C','A05G'],
     sample:['A01','A16','A06','A02','A07'],
-    photo:['94.jpg','95.jpg','97.jpg','100.jpg','137.jpg','138.jpg','139.jpg','140.jpg','141.jpg','142.jpg','143.jpg','144.jpg','152.jpg','155.jpg','161.jpg'],
-    confidence:'用户确认A15玻片双轴T25M经A17磁性固定座吸附在唯一A01面包板。照片22/24显示A17前侧横向滑槽、中央旋钮和两颗面板螺钉，底座厂商型号、孔距及旋钮功能仍未知。照片23四角沉孔位于A15顶板、围绕VC13M立柱，不属于A17；A17不得套用B02/GCM-420302M的13孔规格。A15在A03 VC13M下；照片94高度比例支持另有一层A04L约20mm摆角台（型号仍待核），上层铭牌确认A04 GCM-G40M60L，上接单片L薄片，照片94/95/97、137–144；A16底部GCM-5306M是112×70×8mm安装底座，不是旋转台，见137/161。'
+    external:['A10','A18','A19','A08','A14','A09','A20'],
+    photo:['94.jpg','95.jpg','97.jpg','100.jpg','137.jpg','138.jpg','139.jpg','140.jpg','141.jpg','142.jpg','143.jpg','144.jpg','152.jpg','155.jpg','161.jpg','191.jpg','192.jpg','193.jpg','194.jpg','195.jpg','196.jpg'],
+    confidence:'用户确认A15玻片双轴T25M经A17磁性固定座吸附在唯一A01面包板。照片22/24显示A17前侧横向滑槽、中央旋钮和两颗面板螺钉，底座厂商型号、孔距及旋钮功能仍未知。照片23四角沉孔位于A15顶板、围绕VC13M立柱，不属于A17；A17不得套用B02/GCM-420302M的13孔规格。A15在A03 VC13M下；照片94高度比例支持另有一层A04L约20mm摆角台（型号仍待核），上层铭牌确认A04 GCM-G40M60L。照片194–196补充了A15→A03→A04叠装视角，G40M60L右侧测微头统一为+X；照片191–193补充显微镜头部、双物镜、相机线缆及样品侧A16→A06→A02→A07。A16底部GCM-5306M是112×70×8mm安装底座，不是旋转台，见137/161。'
   }
 };
 export const HANDLES={
@@ -23,10 +24,10 @@ export const HANDLES={
   B08:{kind:'rotation-only',handles:0,evidence:'用户2026-11-05根据实物照片明确纠正：GCM-1107M旋转台没有外伸操作手柄',confidence:'user-correction'},
   B41:{kind:'horizontal',axes:1,handles:1,direction:'+Z',physicalAxis:'Y',evidence:'用户照片147：旋转台上方、NFP-1462C下方存在独立的前向测微头；型号未确认',confidence:'photo'},
   B09:{kind:'horizontal',axes:1,handles:1,direction:'+X',evidence:'110.jpg及147号带尺照片：上层NFP-1462C右侧银色测微头',confidence:'photo'},
-  A15:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,direction:'+X',secondaryDirection:'+Z',evidence:'95.jpg、97.jpg：VC13M下方T25M右伸微分头',confidence:'photo'},
-  A03:{kind:'vertical',direction:'+Y',evidence:'97.jpg：VC13M竖直导轨正面银色测微装置',confidence:'photo'},
+  A15:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,direction:'+X',secondaryDirection:'+Z',evidence:'95.jpg、97.jpg及194–196.jpg：VC13M下方T25M两根正交微分头',confidence:'photo'},
+  A03:{kind:'vertical',direction:'+Y',evidence:'97.jpg及195.jpg：VC13M竖直导轨与正面竖直测微装置',confidence:'photo'},
   A04L:{kind:'tilt',direction:'+X',evidence:'94.jpg下层独立微分头向右；具体G40型号无法读出',confidence:'photo-proxy'},
-  A04:{kind:'tilt',direction:'-X',evidence:'94.jpg上层标G40M60L，另一侧向左微分头/螺纹机构方向待照片校正',confidence:'photo-candidate'},
+  A04:{kind:'tilt',direction:'+X',evidence:'194–196.jpg可辨GCM-G40M60L铭牌及右侧微分头；按该组近正面视角统一为+X，94号图的投影左右不单独作为全局轴向依据',confidence:'photo'},
   A06:{kind:'rotation-lock+fine-adjust',direction:'+Z',micrometerDirection:'+X',micrometerCount:1,evidence:'新上传照片17/18/20/21：下层圆台右侧长银色角度微调头，与前侧小锁紧杆分别可见；具体GCM-11后缀未知',confidence:'photo'},
   A02:{kind:'horizontal',axes:1,handles:1,thicknessMm:20,subtypeUnverified:true,direction:'-X',evidence:'照片17/18/20：银色台左侧有水平方向测微头；下层旋转台右侧另有角度调节测微头',confidence:'photo'}
 };

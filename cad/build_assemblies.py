@@ -687,10 +687,10 @@ def make_a():
         vx(8.5,15,ax+42,0,134),'C')
     add('A','A04','UPPER_G40M60L_LABEL_PHOTO94_40x40x20',
         box(40,40,20,ax,0,144),'P')
-    add('A','A04M','UPPER_G40M60L_left_micrometer_ORIENTATION_CANDIDATE',
-        vx(5,22,ax-42,0,154),'C')
-    add('A','A04K','UPPER_G40M60L_left_knob_ORIENTATION_CANDIDATE',
-        vx(8.5,15,ax-57,0,154),'C')
+    add('A','A04M','UPPER_G40M60L_right_micrometer_photo191_196',
+        vx(5,22,ax+20,0,154),'P')
+    add('A','A04K','UPPER_G40M60L_right_knob_photo191_196',
+        vx(8.5,15,ax+42,0,154),'P')
     # V38: source photo 94 shows ONE thin bent-L metal sheet on G40,
     # NOT a fabricated 215mm solid transfer beam / invented glass clip.
     # Match the existing Three.js A05 geometry; open glass attachment
@@ -773,6 +773,13 @@ def make_a():
         # Heads only: do not claim unknown buried screw threads.
         add('A',f'A07S{i}','silver_top_four_VISIBLE_HEAD_only_CANDIDATE',
             vz(2.9,1.8,xx,yy,106.8),'C')
+    # Photo191/193: front slotted adjustment plate and visible screws.
+    a07_front=box(36,2,18,cx,33.5,91).cut(box(18,2.2,3,cx,33.5,92))
+    add('A','A07F','sample_stage_front_slotted_adjust_plate_photo191_candidate',a07_front,'C')
+    add('A','A07FA','sample_stage_front_adjustment_shaft_candidate',vy(2.4,5,cx,34.5,92),'C')
+    add('A','A07FB','sample_stage_front_adjustment_knob_candidate',vy(4.5,2,cx,39.5,92),'C')
+    for i,xx in enumerate((cx-12,cx+12),1):
+        add('A',f'A07FS{i}','sample_stage_front_plate_lower_screw_candidate',vy(2.1,2,xx,34.5,84),'C')
     # V58: viewer always contains this 28x28x1.4mm sample-chip proxy;
     # prior STEP omitted it and would falsely put the PDMS into metal.
     add('A','A07W','sample_chip_28x28x1p4_THICKNESS_UNVERIFIED',
@@ -790,18 +797,17 @@ def make_a():
     microscope_a_foot=box(72,65,14,*a10_foot_center,20)
     microscope_a_foot=cut(microscope_a_foot,a10_anchors,5.5,14,20)
     microscope_a_foot=cut(microscope_a_foot,a10_anchors,9,2.5,31.5)
-    microscope_a_post=vz(13,225,cx,-112,32)
+    microscope_a_post=vz(13,372,cx,-112,33)
     add('A','A10','imaging_column_WITH_4_M5_CANDIDATE_BORE_FOOT',
         microscope_a_foot.fuse(microscope_a_post))
     for i,(xx,yy) in enumerate(a10_anchors,1):
         screw=vz(2.5,17.5,xx,yy,14).fuse(vz(4.25,2.5,xx,yy,31.5))
         add('A',f'A10S{i}','A10_M5x17p5_GRID_ANCHOR_CANDIDATE',screw,'C')
-    add('A','A10A','imaging_boom',box(34,125,25,cx,-50,243))
-    # TTL200-A is a nominal 28 mm lens housing, NOT an 85 mm solid.
-    # Additional optical tube is a separate unresolved A14 sleeve.
+    add('A','A10A','imaging_boom',box(34,125,25,cx,-50,220))
+    # V59: photo191–193 show a taller camera/microscope stack; no ruler is present.
     add('A','A08','TTL200A_nominal_28mm_housing_CANDIDATE',
-        vz(26,28,cx,0,170),'D')
-    add('A','A09','Daheng_camera',box(50,44,45,cx,0,258),'P')
+        vz(26,28,cx,0,235),'D')
+    add('A','A09','Daheng_camera',box(50,44,45,cx,0,323),'P')
     add('A','A11','MWWHL4',vz(13,33,155,60,184),'P')
     add('A','A12','LEDD1B',box(60,73,104,262,-80,20),'P')
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
@@ -809,10 +815,26 @@ def make_a():
     # listed SM1CP2 is a CAP and cannot mate to that SM2 male thread.
     # A14 therefore becomes an OPEN mechanical illustration only:
     # nominal Ø56/Ø52.2 x66 sleeve overlapping A08 over Z192..198 and reaching A09 at Z258.
-    sleeve_A14=vz(28,66,cx,0,192).cut(vz(26.1,66.2,cx,0,191.9))
-    add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',
-        sleeve_A14,'C')
-CAD_REVISION='V58'
+    sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
+    add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
+    # V59: photo191–193 microscope head, bilateral focus and two installed objectives.
+    add('A','A18','MICROSCOPE_HEAD_HOUSING_100x90x70_PHOTO_PROXY',box(100,90,70,cx,0,200),'C')
+    add('A','A18T','MICROSCOPE_HEAD_UPPER_TUBE_COLLAR_PROXY',vz(22,18,cx,0,235),'C')
+    add('A','A18R','MICROSCOPE_HORIZONTAL_TUBE_RIGHT_160mm_PROXY',vx(16,160,cx,0,240),'C')
+    add('A','A18FL','MICROSCOPE_LEFT_COARSE_FOCUS_DRUM_PROXY',vx(25,18,cx-68,0,198),'C')
+    add('A','A18FR','MICROSCOPE_RIGHT_COARSE_FOCUS_DRUM_PROXY',vx(25,18,cx+50,0,198),'C')
+    add('A','A18FLL','MICROSCOPE_LEFT_FINE_FOCUS_KNOB_PROXY',vx(16,5,cx-73,0,198),'C')
+    add('A','A18FRL','MICROSCOPE_RIGHT_FINE_FOCUS_KNOB_PROXY',vx(16,5,cx+68,0,198),'C')
+    add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PROXY',vz(36,10,cx,0,150),'C')
+    add('A','A19N','MICROSCOPE_OBJECTIVE_TURRET_NECK_PROXY',vz(18,5,cx,0,160),'C')
+    add('A','A19O1','JHTOP_MPLAN_5x010_OBJECTIVE_TEXT_UNVERIFIED',vz(11.5,39,cx-18,0,116),'C')
+    add('A','A19O2','OLYMPUS_PLANFL_10x040_OBJECTIVE_TEXT_UNVERIFIED',vz(11.5,39,cx+18,0,116),'C')
+    add('A','A19R1','LEFT_OBJECTIVE_COLOR_BAND_PROXY',vz(12.8,2,cx-18,0,116),'C')
+    add('A','A19R2','RIGHT_OBJECTIVE_COLOR_BAND_PROXY',vz(12.8,2,cx+18,0,116),'C')
+    camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
+        (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
+    add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
+CAD_REVISION='V59'
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
     # The user's B photos distinguish the SILVER common table from the

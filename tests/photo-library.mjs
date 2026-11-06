@@ -11,9 +11,15 @@ assert(photoRefsForPart('B','B09').some(p=>p.id==='147'));
 assert(photoRefsForPart('B','B08').some(p=>p.id==='147'));
 assert(photoRefsForPart('B','B35').some(p=>p.id==='147'));
 assert.deepEqual(photoCoverageForPart('A','A05C').notYetBundled,['94']);
+assert.deepEqual(photoRefsForPart('A','A10').map(p=>p.id),['41','71','72','191','192','193']);
+assert.deepEqual(photoRefsForPart('A','A15').map(p=>p.id),['95','97','23','194','195','196']);
+assert(photoRefsForPart('A','A04').some(p=>p.id==='196'));
+assert(photoRefsForPart('A','A19').some(p=>p.id==='191'));
+assert.deepEqual(photoCoverageForPart('A','A18').notYetBundled,['191','192','193']);
+assert.equal(PHOTO_LIBRARY['195'].kind,'direct');
 assert.equal(photoCoverageForPart('A','A05C').embeddedCount,0);
 assert(PHOTO_LIBRARY['94'].src===undefined,
  'Do not attribute a missing A photo to a different image asset');
 assert.deepEqual(photoRefsForPart('A','B41'),[],
  'Never attribute B rig photo evidence to platform A');
-console.log('V57 photos: real embedded JPEG147, honest A05C unavailable source and part mapping PASS');
+console.log('V59 photos: JPEG147, A microscope/sample/film-side photo mapping and honest unbundled references PASS');

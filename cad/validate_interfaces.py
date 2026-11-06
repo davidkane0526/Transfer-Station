@@ -622,8 +622,28 @@ check(part(A,'A03M')[0].BoundingBox().zmax<=part(A,'A03K')[0].BoundingBox().zmin
       'A VC13M micrometer is vertically oriented')
 check(part(A,'A04LM')[0].BoundingBox().xmin>=a04_lower.xmax-.02,
       'V47 lower goniometer micrometer exits RIGHT')
-check(part(A,'A04M')[0].BoundingBox().xmax<=a04.xmin+.02,
-      'V47 labeled upper G40M60L micrometer is candidate LEFT')
+check(part(A,'A04M')[0].BoundingBox().xmin>=a04.xmax-.02,
+      'V59 labeled upper G40M60L micrometer exits RIGHT +X')
+check(part(A,'A04K')[0].BoundingBox().xmin>=part(A,'A04M')[0].BoundingBox().xmax-.02,
+      'V59 upper G40M60L knurled knob continues beyond right micrometer shaft')
+a07_front=part(A,'A07F')[0]
+slot_probe=box_probe(18,2.2,3,78,33.5,92)
+check(a07_front.intersect(slot_probe).Volume()<1e-4,
+      'V59 A07 front adjustment plate has an actual open horizontal slot')
+a18=part(A,'A18')[0].BoundingBox();a18r=part(A,'A18R')[0].BoundingBox()
+a19=part(A,'A19')[0].BoundingBox()
+o1=part(A,'A19O1')[0].BoundingBox();o2=part(A,'A19O2')[0].BoundingBox()
+a20=part(A,'A20')[0].BoundingBox()
+check(abs(a18.zmin-165)<.02 and abs(a18.zmax-235)<.02,
+      'V59 microscope head occupies the photo-proportioned 70mm vertical envelope')
+check(a18r.xmin>=a18.xmin-.02 and a18r.xmax>a18.xmax+100,
+      'V59 microscope horizontal tube projects from the head to the right')
+check(abs(a19.zmin-150)<.02 and abs(a19.zmax-160)<.02,
+      'V59 objective turret remains a distinct 10mm component below microscope head')
+check(abs(o1.zmin-116)<.02 and abs(o1.zmax-155)<.02 and abs(o2.zmin-116)<.02 and abs(o2.zmax-155)<.02 and abs(o2.xmin-o1.xmin)>20,
+      'V59 two installed objective barrels are separate and clear the sample stage top')
+check(a20.isValid() and a20.zmax>390,
+      'V59 camera cable is a continuous valid routed solid above the camera')
 report['V47_A04_photo94_two_goniometers']={
     'independent_goniometer_envelopes':2,
     'lower_sku_photographically_verified':False,
