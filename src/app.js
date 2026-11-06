@@ -79,6 +79,35 @@ let pointerDown=null;
 const measurementOverlay=new THREE.Group();scene.add(measurementOverlay);
 // Read-only diagnostic used by the real-browser assembly smoke test.
 // Coordinate projection detects "component in BOM but outside viewport".
+window.__sceneFiniteGeometryProbe=()=>{
+ const invalid=[],pos=new THREE.Vector3();let meshCount=0;
+ currentRoot.updateWorldMatrix(true,true);
+ currentRoot.traverse(node=>{
+  if(!node.isMesh)return;
+  meshCount++;node.getWorldPosition(pos);
+  if(!Number.isFinite(pos.x)||!Number.isFinite(pos.y)||!Number.isFinite(pos.z)){
+    invalid.push(node.userData.partId||'?');
+  }
+ });
+ const rotor=parts.get(platform==='A'?'A06':'B08')?.g;
+ const ticks=rotor?.children.filter(o=>o.userData.AuxAngularTick)??[];
+ const distances=ticks.map(o=>Math.hypot(o.position.x,o.position.z));
+ return {available:true,meshCount,invalidMeshes:invalid.length,
+   invalidParts:invalid.slice(0,6),tickCount:ticks.length,
+   minRadiusMm:distances.length?Math.min(...distances):null,
+   maxRadiusMm:distances.length?Math.max(...distances):null};
+};
+window.__platformADetailTopologyProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const vertical=parts.get('A03')?.g,gonio=parts.get('A04')?.g,tube=parts.get('A08')?.g;
+ if(!vertical||!gonio||!tube)return {available:false};
+ const bigSubgroups=g=>g.children.filter(o=>o.isGroup&&o.children.length>=30).length;
+ const rings=tube.children.filter(o=>o.userData.A08HousingCollarCandidate);
+ return {available:true,ghostVerticalKnurlGroups:bigSubgroups(vertical),
+   duplicateGoniometerKnurlGroups:bigSubgroups(gonio),
+   nominalTubeCollarHeightsMm:rings.map(o=>o.position.y),
+   verticalNameplateMounted:vertical.children.some(o=>o.userData.A03LabelOnStationaryFace)};
+};
 window.__modelBViewProbe=()=>{
  const g=parts.get('B36')?.g;
  if(!g)return {exists:false};
@@ -2994,7 +3023,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V64 / '+(aWorkingPoseMode?
+   '平台 A · V67 / '+(aWorkingPoseMode?
     '右折边操作位置候选（未实物验证）/ 玻片印章对准A07 / 夹具避开热台 / A17型号未知':
     '照片94原始左折边朝向 / A05C夹具+A05G玻片 / 全局未配准');
  $('stack-note').textContent=platform==='B'?
