@@ -103,8 +103,8 @@ window.__modelBViewProbe=()=>{
 window.__photoEvidenceProbe=(partId,rig=platform)=>photoEvidenceProbe(rig,partId);
 window.__platformACompletenessProbe=()=>{
  if(platform!=='A')return {available:false};
- const clamp=parts.get('A05C')?.g,slide=parts.get('A05G')?.g,bracket=parts.get('A05')?.g;
- if(!clamp||!slide||!bracket)return {available:false};
+ const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g,slide=parts.get('A05G')?.g,bracket=parts.get('A05')?.g;
+ if(!clamp||!screws||!slide||!bracket)return {available:false};
  const stamp=slide.children.find(o=>o.userData.A05GStampRightMarginMm!==undefined);
  const glass=slide.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
  return {
@@ -118,7 +118,7 @@ window.__platformACompletenessProbe=()=>{
   aPose:aWorkingPoseMode?'candidate':'photo94',
   sheetHandedness:bracket.userData.photoBracketDatums?.handedness??null,
   sheetLegLengthMm:bracket.userData.photoBracketDatums?.verticalLegLength??null,
-  clampScrewProxyCount:clamp.userData.clampingScrewProxyCount??0,
+  clampScrewProxyCount:screws.children.filter(m=>m.userData.photo194WingFastenerCandidate).length,
   clampRelativeToHeaterNotRegistered:Boolean(slide.userData.unregisteredGlobalPose),
   clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y
  };
@@ -162,10 +162,33 @@ window.__platformAStageFrontProbe=()=>{
   noDuplicateA17Slot:!mag.userData.A17Photo22SlottedSidePanel,
   manufacturerHolePatternVerified:false,slotDimensionsVerified:false};
 };
+window.__modelA05FootBoreProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const sheet=parts.get('A05')?.g,screws=parts.get('A05CS')?.g;
+ const foot=sheet?.children.find(m=>m.userData.A05OutwardFootCandidate);
+ const shafts=screws?.children.filter(m=>m.userData.A05CSCandidateShank);
+ if(!foot||!screws||shafts?.length!==2)return {available:false};
+ sheet.updateWorldMatrix(true,true);screws.updateWorldMatrix(true,true);
+ const footBox=new THREE.Box3().setFromObject(foot);
+ const hit=(x,z)=>new THREE.Raycaster(
+   new THREE.Vector3(x,footBox.min.y-1,z),new THREE.Vector3(0,1,0),0,6
+ ).intersectObject(foot,false).length;
+ const centers=shafts.map(m=>{const v=new THREE.Vector3();m.getWorldPosition(v);return v});
+ const mid=new THREE.Vector3();foot.getWorldPosition(mid);
+ return {available:true,actualBoresOpen:centers.every(v=>hit(v.x,v.z)===0),
+   solidMaterialBetweenBores:hit(mid.x,mid.z)>0,
+   boreCount:foot.userData.A05ActualThroughBoreCount,
+   independentFastenerPart:sheet!==screws&&parts.get('A05C')?.g!==screws,
+   shaftCount:shafts.length,
+   tipBelowFootMm:Number((footBox.min.y-Math.min(...shafts.map(m=>
+     new THREE.Box3().setFromObject(m).min.y))).toFixed(2)),
+   diameterMmCandidate:foot.userData.A05BoreDiameterCandidateMm,
+   actualOEMThreadsVerified:false};
+};
 window.__modelAPhoto194Probe=()=>{
  if(platform!=='A')return {available:false};
  const lower=parts.get('A04L')?.g,upper=parts.get('A04')?.g;
- const clamp=parts.get('A05C')?.g,bracket=parts.get('A05')?.g;
+ const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g,bracket=parts.get('A05')?.g;
  const driveSide=(group,tag)=>{
    const drum=group?.children.find(m=>m.userData[tag]);
    if(!drum)return null;
@@ -174,10 +197,10 @@ window.__modelAPhoto194Probe=()=>{
    group.getWorldPosition(origin);drum.getWorldPosition(center);
    return center.x>origin.x?'+X':'-X';
  };
- return {available:Boolean(lower&&upper&&clamp&&bracket),
+ return {available:Boolean(lower&&upper&&clamp&&screws&&bracket),
    upperDrive:driveSide(upper,'A04DriveDrum'),
    lowerDrive:driveSide(lower,'A04LDriveDrum'),
-   wingFastenerCount:clamp?.children.filter(m=>m.userData.photo194WingFastenerCandidate).length??0,
+   wingFastenerCount:screws?.children.filter(m=>m.userData.photo194WingFastenerCandidate).length??0,
    outwardFootCount:bracket?.children.filter(m=>m.userData.A05OutwardFootCandidate).length??0,
    fastenerThreadVerified:false,photoRegisteredGlobalPose:false,
    clampSkuVerified:false};
@@ -215,7 +238,7 @@ window.__modelAContactProbe=()=>{
    stampRightInsetMm:Number((glass.max.x-pdms.max.x).toFixed(3)),
    stampFullyInsideChipXY:allInside(pdms,chip),
    glassAndChipOverlapXY:overlapX(glass,chip)&&overlapZ(glass,chip),
-   clampFastenerProxyCount:clamp.userData.clampingScrewProxyCount??0,
+   clampFastenerProxyCount:parts.get('A05CS')?.g.children.filter(m=>m.userData.photo194WingFastenerCandidate).length??0,
    allComponentsPhotoConfirmed:false,
    dimensionsForFabricationValidated:false
  };
@@ -2221,9 +2244,14 @@ function platformA(){
    // two wing fasteners are separate A05C components below.
    // Foot depth remains a photo-proportioned, unverified 26mm proxy.
    const footSign=aWorkingPoseMode?1:-1;
-   const foot=add(g,cub(13,2.5,26,mats.black,
-       leftLocalX+footSign*6,-aBent.verticalLegLength+1.25,aBent.sheetFrontZ));
+   // V63: actual double through-bore rather than screw/solid intersections.
+   const footX=leftLocalX+footSign*6;
+   const foot=add(g,plate(13,26,2.5,mats.black,
+     [[footSign*1,-9,1.6],[footSign*1,9,1.6]]));
+   foot.position.set(footX,-aBent.verticalLegLength,aBent.sheetFrontZ);
    foot.userData.A05OutwardFootCandidate=true;
+   foot.userData.A05ActualThroughBoreCount=2;
+   foot.userData.A05BoreDiameterCandidateMm=3.2;
    g.userData.photo94BentSheet=true;
    g.userData.verifiedPhotoBentCorner=true;
    g.userData.photoBracketDatums=aBent;
@@ -2251,33 +2279,35 @@ function platformA(){
    const lowerJaw=add(g,cub(10,1.2,27,mats.dark,
      bracketLegLocalX+15,glassCenterY-1.1,aBent.sheetFrontZ));
    for(const m of [carrier,upperJaw,lowerJaw])m.userData.A05CClampingProxy=true;
-   // Photos194/196 show two visible wing/蝶形 fasteners at the lower
-   // flange. Their head silhouettes are evidence-based; thread size,
-   // fastening load and exact grip-to-glass interface are NOT verified.
-   const screwX=bracketLegLocalX+(aWorkingPoseMode?7:-7);
-   for(const zOffset of [-9,9]){
-     const driver=add(g,cyl(1.4,8,mats.steel,
-       screwX,glassCenterY+3,aBent.sheetFrontZ+zOffset));
-     driver.userData.A05CUnverifiedClampingScrew=true;
-     const cap=add(g,cyl(2.8,2,mats.silver,
-       screwX,glassCenterY+7,aBent.sheetFrontZ+zOffset));
-     cap.userData.A05CUnverifiedClampingScrewHead=true;
-     cap.userData.photo194WingFastenerCandidate=true;
-     for(const side of [-1,1]){
-       const wing=add(g,cub(7,3.8,1.6,mats.steel,
-         screwX+side*4.8,glassCenterY+8,
-         aBent.sheetFrontZ+zOffset));
-       wing.rotation.z=side*.35;
-     }
-   }
-   g.userData.photo194VisibleWingFastenerCount=2;
-   g.userData.clampingScrewProxyCount=2;
-   g.userData.clampingScrewThreadVerified=false;
+   // Two butterfly fasteners are separate A05CS assembly, not an
+   // invented integral part of the unidentified clamping jaws.
    g.userData.unverifiedClampMechanism=true;
    g.userData.jawGapCandidateMm=1;
    g.userData.actualClampOEM=false;
    label(g,'A05C · 两枚蝶形紧固件（照片194/196），玻片夹型号/孔位仍未知',
      bracketLegLocalX+5,18,aBent.sheetFrontZ);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
+ addPart('A05CS',ax,164,az,g=>{
+   const side=aWorkingPoseMode?1:-1;
+   const screwX=bracketLegLocalX+side*7;
+   for(const zOffset of [-9,9]){
+     const shaft=add(g,cyl(1.4,10.5,mats.steel,
+       screwX,glassCenterY+.75,aBent.sheetFrontZ+zOffset));
+     shaft.userData.A05CSCandidateShank=true;
+     const head=add(g,cyl(2.8,2,mats.silver,
+       screwX,glassCenterY+7,aBent.sheetFrontZ+zOffset));
+     head.userData.photo194WingFastenerCandidate=true;
+     for(const wingSide of [-1,1]){
+       const wing=add(g,cub(7,3.8,1.6,mats.steel,
+         screwX+wingSide*4.8,glassCenterY+8,
+         aBent.sheetFrontZ+zOffset));
+       wing.rotation.z=wingSide*.35;
+     }
+   }
+   g.userData.visibleWingFastenerCount=2;
+   g.userData.belowFootTailMmCandidate=3.5;
+   g.userData.realOEMThreadVerified=false;
+   label(g,'A05CS · 两枚蝶形紧固件 / 194、196 实拍；螺纹候选',0,15,0);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
  addPart('A05G',ax,164,az,g=>{
    // Typical 76x26x1mm glass slide extends to the RIGHT of the
