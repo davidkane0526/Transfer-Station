@@ -2091,16 +2091,19 @@ function platformA(){
      hd.userData.fastenerProxy=true;
      const inset=add(g,cyl(1.3,.2,mats.ink,x,y,22,6));inset.rotation.x=Math.PI/2;
    }
-   add(g,cub(16,15,29,mats.black,24,8,0)); // outer end stop
-   const stem=add(g,cyl(5.5,18,mats.steel,27,10,0,40));stem.rotation.z=Math.PI/2;
-   const drum=add(g,cyl(8.3,20,mats.silver,43,10,0,48));drum.rotation.z=Math.PI/2;
-   for(let x=35;x<52;x+=3){
+   // Photo195: the LOWER goniometer has its own LEFT (-X) micrometer.
+   add(g,cub(16,15,29,mats.black,-24,8,0));
+   const stem=add(g,cyl(5.5,18,mats.steel,-27,10,0,40));stem.rotation.z=Math.PI/2;
+   const drum=add(g,cyl(8.3,20,mats.silver,-43,10,0,48));drum.rotation.z=Math.PI/2;
+   drum.userData.A04LDriveDrum=true;
+   for(let x=-52;x<-35;x+=3){
      const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
-     ring.rotation.y=Math.PI/2; // ring normal along X
+     ring.rotation.y=Math.PI/2;
    }
    addJointHeads(g,'A04L',14.9,[[-14,-14],[14,14]],{headR:2.6});
    g.userData.lowerGoniometerSkuUnverified=true;
-   label(g,'照片94下层独立摆角机构 · 右侧测微 · 型号待核',-4,40,0);
+   g.userData.photo195LowerDriveDirection='-X';
+   label(g,'照片195：下层独立摆角机构 · 左侧测微 · 型号待核',-4,40,0);
  },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true});
  addPart('A04',ax,144,az,g=>{
    // Upper G40M60L label is visually legible in photo94.
@@ -2112,20 +2115,19 @@ function platformA(){
      rocker.rotation.z=x<0?.07:-.07;
    }
    add(g,cub(40,3,40,mats.dark,0,18.5,0));
-   // The upper visible drive appears leftward in the current photo
-   // projection. This axis is still a candidate until ruler/orthoview.
-   add(g,cub(16,15,29,mats.black,-24,8,0));
-   const stem=add(g,cyl(5.5,18,mats.steel,-27,10,0,40));
-   stem.rotation.z=Math.PI/2;
-   const drum=add(g,cyl(8.3,20,mats.silver,-43,10,0,48));
-   drum.rotation.z=Math.PI/2;
-   for(let x=-52;x<-35;x+=3){
+   // Photos195/196: the UPPER labelled GCM-G40M60L micrometer is RIGHT (+X).
+   add(g,cub(16,15,29,mats.black,24,8,0));
+   const stem=add(g,cyl(5.5,18,mats.steel,27,10,0,40));stem.rotation.z=Math.PI/2;
+   const drum=add(g,cyl(8.3,20,mats.silver,43,10,0,48));drum.rotation.z=Math.PI/2;
+   drum.userData.A04DriveDrum=true;
+   for(let x=35;x<52;x+=3){
      const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
      ring.rotation.y=Math.PI/2;
    }
    addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
    g.userData.upperConfirmedPhoto94='GCM-G40M60L';
-   label(g,'94上层：GCM-G40M60L · 40×40×20mm',-4,40,0);
+   g.userData.photo196UpperDriveDirection='+X';
+   label(g,'照片196：上层 GCM-G40M60L · 右侧测微 · 40×40×20mm',-4,40,0);
  },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
    handedness:aWorkingPoseMode?'right':'left',
