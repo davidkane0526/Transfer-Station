@@ -897,18 +897,22 @@ a_optical_tube=part(A,'A14')[0]
 a_cam=part(A,'A09')[0]
 check(abs(a_lens.BoundingBox().zlen-28)<.02,
       'TTL200-A 28mm mechanical housing must not be 85mm CAD proxy')
-check(abs(a_optical_tube.BoundingBox().zmin-192)<.02 and
-      abs(a_optical_tube.BoundingBox().zmax-258)<.02,
-      'A14 open SM2 candidate must overlap lens 6mm and reach camera underside')
+check(abs(a_optical_tube.BoundingBox().zmin-257)<.02 and
+      abs(a_optical_tube.BoundingBox().zmax-323)<.02,
+      'V59 A14 open SM2 candidate must overlap the raised lens 6mm and reach camera underside')
 check(a_optical_tube.intersect(a_lens).Volume()<1e-3,
       'SM2 candidate tube must NOT become a solid plug through the lens')
 check(abs(a_cam.BoundingBox().zmin-a_optical_tube.BoundingBox().zmax)<.02,
       'A camera candidate underside must touch SM2 sleeve envelope')
-report['V58_A_global_candidate_readiness']={
+report['V59_A_global_candidate_readiness']={
   'clamp_to_heater_nominal_edge_clearance_mm':round(a_heater.xmin-a_clamp.BoundingBox().xmax,2),
   'A17_A16_footprint_gap_mm':round(a_base_gap,2),
   'sample_chip_PDMS_touch_at_lower_static_pose':True,
-  'photo94_original_orientation_preserved_in_viewer':True,
+  'photo194_196_G40M60L_right_drive_registered':True,
+  'photo94_projection_reconciled_as_opposite_view':True,
+  'A18_microscope_head_photo_proxy_only':True,
+  'A19_visible_installed_objectives':2,
+  'A20_camera_cable_route_physically_verified':False,
   'A10_microscope_foot_contacts_A01':True,
   'A08_TTL200A_real_housing_length_mm':28,
   'A14_candidate_SM2_sleeve_length_mm':66,
