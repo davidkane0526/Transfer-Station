@@ -8,7 +8,7 @@ assert.deepEqual(PHOTO_94_95_97.imageToParts['94'],['A04L','A04','A05']);
 assert.deepEqual(PHOTO_94_95_97.imageToParts['95'],['A15']);
 assert.deepEqual(PHOTO_94_95_97.imageToParts['97'],['A15','A03']);
 assert.deepEqual(PHOTO_94_95_97.stageIds,STACKS.A.film.slice(1,6));
-assert.deepEqual(STACKS.A.film.slice(6),['A05C','A05G'],
+assert.deepEqual(STACKS.A.film.slice(6),['A05C','A05CS','A05G'],
  'Unverified clamp and right-edge glass must be separate from the photo94-confirmed bracket');
 assert.equal(STACKS.A.film[0],'A17','A17 is user-confirmed magnetic mounting relation, not photo94-visible model');
 assert.deepEqual(PHOTO_94_95_97.g40.nominalPlateMm,[40,40]);

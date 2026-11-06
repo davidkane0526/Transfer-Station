@@ -27,6 +27,8 @@ assert.deepEqual(photoCoverageForPart('A','A18').notYetBundled,[]);
 assert.equal(PHOTO_LIBRARY['195'].kind,'direct');
 assert.equal(photoCoverageForPart('A','A05C').embeddedCount,2);
 assert.deepEqual(photoRefsForPart('A','A05C').map(p=>p.id),['94','194','196']);
+assert.deepEqual(photoRefsForPart('A','A05CS').map(p=>p.id),['194','196']);
+assert.equal(photoCoverageForPart('A','A05CS').embeddedCount,2);
 assert(PHOTO_LIBRARY['94'].src===undefined,
  'Do not attribute a missing A photo to a different image asset');
 assert.deepEqual(photoRefsForPart('A','B41'),[],

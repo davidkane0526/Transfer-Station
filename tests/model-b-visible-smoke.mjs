@@ -601,6 +601,11 @@ try{
  await page.locator('#bom-query').fill('A05C');
  const aClampRow=page.locator('#bom-body tr').filter({hasText:/^\s*A05C\b/});
  assert.equal(await aClampRow.count(),1,'A05C clamp needs a separate BOM row');
+ await page.locator('#bom-query').fill('A05CS');
+ const screwRow=page.locator('#bom-body tr').filter({hasText:/^\s*A05CS\b/});
+ assert.equal(await screwRow.count(),1,'A05CS must be a distinct pair of wing screws in BOM');
+ assert.match(await screwRow.innerText(),/数量 2 枚|2枚/);
+ await page.locator('#bom-query').fill('A05C');
  assert.match(await aClampRow.locator('.bom-photo-tile img').getAttribute('src'),/194\.webp$/,
    'Photo194 must appear as an actual embedded BOM thumbnail for A05C');
  await aClampRow.evaluate(el=>el.click());
@@ -625,6 +630,16 @@ try{
  assert.equal(mechA.upperDrive,'+X','Photo196 upper G40 knob must be on the RIGHT');
  assert.equal(mechA.lowerDrive,'-X','Photo195 lower goniometer knob must be on the LEFT');
  assert.equal(mechA.wingFastenerCount,2,'Photo194/196 require two wing fasteners');
+ const foot=await page.evaluate(()=>window.__modelA05FootBoreProbe?.());
+ assert.equal(foot.available,true);
+ assert.equal(foot.actualBoresOpen,true,'A05 foot must be physically bored for both screws');
+ assert.equal(foot.solidMaterialBetweenBores,true,'Adjacent metal must remain solid');
+ assert.equal(foot.boreCount,2);
+ assert.equal(foot.shaftCount,2);
+ assert.equal(foot.tipBelowFootMm,3.5);
+ assert.equal(foot.independentFastenerPart,true);
+ assert.equal(foot.actualOEMThreadsVerified,false);
+
  assert.equal(mechA.outwardFootCount,1,'Photo194/196 L bracket needs one outward foot');
  assert.equal(mechA.fastenerThreadVerified,false);
  const aBefore=await page.evaluate(()=>window.__modelAKinematicProbe?.());
