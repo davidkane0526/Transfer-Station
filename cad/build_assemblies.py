@@ -701,9 +701,13 @@ def make_a():
     leg_len=52.1
     leg_bottom=164-leg_len
     bracket_leg_x=ax+48-1.25
+    # Photo194/196: true axial openings for two butterfly screws.
+    # Hole Ø3.2 / centre pitch 18mm are UNVERIFIED dimensional candidates.
+    foot=box(13,26,2.5,bracket_leg_x+6,0,leg_bottom)
+    for yy in (-9,9):
+        foot=foot.cut(vz(1.6,2.7,bracket_leg_x+7,yy,leg_bottom-.1))
     sheet=box(75,12,2.5,ax+10.5,0,164).fuse(
-        box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),
-        box(13,26,2.5,bracket_leg_x+6,0,leg_bottom))
+        box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),foot)
     add('A','A05','WORKING_HYPOTHESIS_mirrored_right_75mm_L_sheet_NOT_photo_orientation',
         sheet,'C')
     for i,dx in enumerate((-14,14),1):
@@ -725,7 +729,7 @@ def make_a():
     for i,zoffset in enumerate((-9,9),1):
         # Two wing fasteners are visible at the outward foot in photos194/196.
         # Shaft Ø2.8, head Ø5.6 and blade dimensions remain unverified proxies.
-        shank=vz(1.4,8,bracket_leg_x+7,zoffset,glass_center_z-1)
+        shank=vz(1.4,10.5,bracket_leg_x+7,zoffset,leg_bottom-3.5)
         hub=vz(2.8,2,bracket_leg_x+7,zoffset,glass_center_z+6)
         wings=[box(7,1.6,3.8,bracket_leg_x+7+sgn*4.8,
                    zoffset,glass_center_z+7) for sgn in (-1,1)]

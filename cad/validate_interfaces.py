@@ -749,6 +749,31 @@ for i in (1,2):
           'V60 two butterfly screw-head silhouettes must be present in STEP')
 check(asheet_bb.ylen>=26-.02,
       'V60 photographed A outward folded foot supports two wing fasteners')
+# V63 physically test both hollow bores and solid material between them.
+# Prior versions had bolt/foot volume collisions despite passing contact QA.
+leg_bottom=164-52.1
+leg_x=-46.75+48-1.25
+for i,yy in enumerate((-9,9),1):
+    shaft_axis=vz(1.4,2.5,leg_x+7,yy,leg_bottom)
+    check(a_sheet.intersect(shaft_axis).Volume()<1e-5,
+          'V63 A05 actual STEP bore clears screw '+str(i))
+    bolt=part(A,f'A05CS{i}')[0]
+    check(a_sheet.intersect(bolt).Volume()<1e-4,
+          'V63 A05 butterfly bolt must not intersect solid foot '+str(i))
+    check(abs(bolt.BoundingBox().zmin-(leg_bottom-3.5))<.02,
+          'V63 photo196 thread tail projects BELOW the black foot')
+    check(bolt.BoundingBox().zmax>leg_bottom+8,
+          'V63 butterfly head remains ABOVE the folded foot')
+solid_axis=vz(1.25,2.5,leg_x+6,0,leg_bottom)
+check(a_sheet.intersect(solid_axis).Volume()>6,
+      'V63 no false void throughout entire folded foot')
+report['V63_A05_real_through_bores']={
+    'photo_sources':['194','196'],'bore_count':2,
+    'bore_diameter_mm_candidate':3.2,'screw_diameter_mm_candidate':2.8,
+    'hole_pitch_mm_candidate':18,'below_foot_tail_mm_candidate':3.5,
+    'bore_boolean_and_solid_material_checked':True,
+    'screw_thread_and_torque_verified':False,
+    'actual_glass_clamp_loadpath_verified':False}
 for id in ('A05A','A05B'):
     check(not (A/(id+'.step')).exists(),
           'Discredited 215mm transfer beam/spacer remains absent: '+id)
