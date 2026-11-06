@@ -194,6 +194,30 @@ window.__modelA05FootBoreProbe=()=>{
    diameterMmCandidate:foot.userData.A05BoreDiameterCandidateMm,
    actualOEMThreadsVerified:false};
 };
+window.__modelAObjectiveOrientationProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const root=parts.get('A19')?.g;
+ if(!root)return {available:false};
+ root.updateWorldMatrix(true,true);
+ const inspect=side=>{
+   const pivot=root.children.find(m=>m.userData.A19ObjectivePivot===side);
+   const barrel=pivot?.children.find(m=>m.userData.A19ObjectiveBarrel===side);
+   const lens=pivot?.children.find(m=>m.userData.objectiveOpticProxy);
+   if(!pivot||!barrel||!lens)return null;
+   const q=new THREE.Quaternion();pivot.getWorldQuaternion(q);
+   const axis=new THREE.Vector3(0,-1,0).applyQuaternion(q);
+   const center=new THREE.Vector3();lens.getWorldPosition(center);
+   return {side,
+     axisTiltDeg:Number((Math.atan2(axis.x,-axis.y)*180/Math.PI).toFixed(2)),
+     lensCenterWorldMm:center.toArray().map(x=>Number(x.toFixed(2))),
+     barrelAndLensSamePivot:barrel.parent===pivot&&lens.parent===pivot};
+ };
+ const left=inspect('left'),center=inspect('center');
+ return {available:!!left&&!!center,left,center,
+   independentObjectivePivots:root.children.filter(o=>o.userData.A19ObjectivePivot).length===2,
+   photoRefs:['191','192','193'],
+   actualTurretIndexAnglesVerified:false};
+};
 window.__modelAVerticalGuideProbe=()=>{
  if(platform!=='A')return {available:false};
  const stage=parts.get('A03')?.g;
@@ -2537,15 +2561,25 @@ function platformA(){
    add(g,cyl(36,10,mats.black,0,0,0));
    add(g,torus(34,1,mats.steel,0,0,0));
    add(g,cyl(18,5,mats.dark,0,7.5,0));
-   const left=add(g,cyl(11.5,39,mats.black,-18,-24.5,0));
-   const right=add(g,cyl(11.5,39,mats.black,18,-24.5,0));
-   left.userData.objectiveLabel='JH-TOP MPLAN 5x/0.10?';
-   right.userData.objectiveLabel='Olympus PlanFL 10x/0.40?';
-   add(g,cyl(12.8,2,mats.copper,-18,-43,0));
-   add(g,cyl(12.8,2,mats.silver,18,-43,0));
-   for(const x of [-18,18]){
-     const lens=add(g,cyl(7.5,1.2,mats.glass,x,-44.5,0));lens.userData.objectiveOpticProxy=true;
-   }
+   // V66 photo191-193: the LEFT installed objective projects obliquely
+   // toward the left; the central/right working objective is near vertical.
+   // The old pair of parallel vertical tubes was visually/optically wrong.
+   // 22.5° is a photo-proportioned display candidate, NOT OEM turret indexing.
+   const objective=(x,angle,labelText,bandMat,side)=>{
+     const pivot=new THREE.Group();pivot.position.set(x,-5,0);
+     pivot.rotation.z=angle;g.add(pivot);
+     pivot.userData.A19ObjectivePivot=side;
+     const barrel=add(pivot,cyl(11.5,39,mats.black,0,-19.5,0));
+     barrel.userData.objectiveLabel=labelText;
+     barrel.userData.A19ObjectiveBarrel=side;
+     const band=add(pivot,cyl(12.8,2,bandMat,0,-38,0));
+     band.userData.A19ObjectiveBand=side;
+     const lens=add(pivot,cyl(7.5,1.2,mats.glass,0,-39.5,0));
+     lens.userData.objectiveOpticProxy=true;
+     return pivot;
+   };
+   objective(-18,-Math.PI/8,'JH-TOP MPLAN 5x/0.10?',mats.copper,'left');
+   objective(18,0,'Olympus PlanFL 10x/0.40?',mats.silver,'center');
    g.userData.installedObjectiveCount=2;g.userData.objectiveTurretPortCountUnverified=true;
    label(g,'A19 物镜转换盘 · 5×与10×物镜（铭牌待复核）',0,22,0);
  },{explode:[0,22,0]});

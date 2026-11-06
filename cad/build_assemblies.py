@@ -843,10 +843,20 @@ def make_a():
     add('A','A18FRL','MICROSCOPE_RIGHT_FINE_FOCUS_KNOB_PROXY',vx(16,5,cx+68,0,198),'C')
     add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PROXY',vz(36,10,cx,0,150),'C')
     add('A','A19N','MICROSCOPE_OBJECTIVE_TURRET_NECK_PROXY',vz(18,5,cx,0,160),'C')
-    add('A','A19O1','JHTOP_MPLAN_5x010_OBJECTIVE_TEXT_UNVERIFIED',vz(11.5,39,cx-18,0,116),'C')
-    add('A','A19O2','OLYMPUS_PLANFL_10x040_OBJECTIVE_TEXT_UNVERIFIED',vz(11.5,39,cx+18,0,116),'C')
-    add('A','A19R1','LEFT_OBJECTIVE_COLOR_BAND_PROXY',vz(12.8,2,cx-18,0,116),'C')
-    add('A','A19R2','RIGHT_OBJECTIVE_COLOR_BAND_PROXY',vz(12.8,2,cx+18,0,116),'C')
+    # V66 photo191/193: left outer objective is inclined, while centre
+    # optical objective is approximately vertical. This is deliberately
+    # a PHOTO-PROPORTIONED mounting angle, not a manufacturer indexing angle.
+    objective_pivot=Vector(cx-18,0,155)
+    objective_axis=Vector(cx-18,1,155)
+    left_tilt=lambda sh:sh.rotate(objective_pivot,objective_axis,22.5)
+    add('A','A19O1','JHTOP_MPLAN_5x010_LEFT_INCLINED_22p5deg_CANDIDATE',
+        left_tilt(vz(11.5,39,cx-18,0,116)),'C')
+    add('A','A19O2','OLYMPUS_PLANFL_10x040_CENTER_VERTICAL_PROXY',
+        vz(11.5,39,cx+18,0,116),'C')
+    add('A','A19R1','LEFT_INCLINED_OBJECTIVE_COLOR_BAND_PROXY',
+        left_tilt(vz(12.8,2,cx-18,0,116)),'C')
+    add('A','A19R2','RIGHT_VERTICAL_OBJECTIVE_COLOR_BAND_PROXY',
+        vz(12.8,2,cx+18,0,116),'C')
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')

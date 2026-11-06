@@ -652,8 +652,19 @@ check(a18r.xmin>=a18.xmin-.02 and a18r.xmax>a18.xmax+100,
       'V59 microscope horizontal tube projects from the head to the right')
 check(abs(a19.zmin-150)<.02 and abs(a19.zmax-160)<.02,
       'V59 objective turret remains a distinct 10mm component below microscope head')
-check(abs(o1.zmin-116)<.02 and abs(o1.zmax-155)<.02 and abs(o2.zmin-116)<.02 and abs(o2.zmax-155)<.02 and abs(o2.xmin-o1.xmin)>20,
-      'V59 two installed objective barrels are separate and clear the sample stage top')
+check(110.6+2<o1.zmin<121 and o1.zmax<=163 and
+      abs(o2.zmin-116)<.02 and abs(o2.zmax-155)<.02 and
+      o1.xmin<cx-18-17 and abs(o2.xmin-(cx+18-11.5))<.02,
+      'V66 left photo191/193 objective angles outward but two objectives stay separate and above chip')
+check(abs(part(A,'A19R1')[0].BoundingBox().xmin-
+          part(A,'A19O1')[0].BoundingBox().xmin)<14,
+      'V66 left color band must follow same tilted objective shaft, not float at original vertical axis')
+report['V66_A19_photo_objective_orientation']={
+    'photo_refs':['191','192','193'],
+    'outboard_objective_inclination_candidate_deg':22.5,
+    'center_objective_vertical_candidate_deg':0,
+    'left_tilt_and_color_band_rotate_as_unit':True,
+    'full_turret_indexing_and_optical_working_distance_verified':False}
 check(part(A,'A20')[0].isValid() and a20.zmax>390,
       'V59 camera cable is a continuous valid routed solid above the camera')
 report['V47_A04_photo94_two_goniometers']={

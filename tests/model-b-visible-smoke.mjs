@@ -560,6 +560,15 @@ try{
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
  const aDefault=await page.evaluate(()=>window.__platformAWorkingPoseProbe?.());
  assert.equal(aDefault.mode,'candidate');
+ const angled=await page.evaluate(()=>window.__modelAObjectiveOrientationProbe?.());
+ assert.equal(angled.available,true,'A19 independent objective pivots must be visible');
+ assert.equal(angled.independentObjectivePivots,true);
+ assert.equal(angled.left.axisTiltDeg,-22.5,
+   'Photo191-193 outboard objective must NOT be parallel to central barrel');
+ assert.equal(angled.center.axisTiltDeg,0);
+ assert.equal(angled.left.barrelAndLensSamePivot,true);
+ assert.equal(angled.center.barrelAndLensSamePivot,true);
+ assert.equal(angled.actualTurretIndexAnglesVerified,false);
  const aFrame=await page.evaluate(()=>window.__platformAFramingProbe?.());
  assert.equal(aFrame.available,true,'A full-system optical view probe missing');
  assert.equal(aFrame.topVisible,true,'A camera and optical cable clipped from default ISO view');
@@ -778,6 +787,11 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.match(evidenceA,/A15/);
  assert.match(evidenceA,/A16/,'Photo137/161 mounting base must be in A stack');
  await page.screenshot({path:'Transfer-Station-ModelA-5306M-Base.png'});
+ // V66 user screenshot came from frontal side view, not the default ISO.
+ // Save a matching angle for regression review of VC13 guides/objectives.
+ await page.locator('#btn-front').evaluate(el=>el.click());
+ await page.screenshot({path:'Transfer-Station-V66-A-Front-Assembly.png'});
+ await page.locator('#btn-iso').evaluate(el=>el.click());
  await page.locator('#open-bom').evaluate(el=>el.click());
  const arows=await page.locator('#bom-body tr').allTextContents();
  assert(arows.some(r=>r.trim().startsWith('A16')&&r.includes('GCM-5306M')),
