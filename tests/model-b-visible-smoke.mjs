@@ -554,12 +554,17 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V60.*A17/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V61.*A17/,
   'The initial platform A view must identify the unverified working hypothesis');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
  const aDefault=await page.evaluate(()=>window.__platformAWorkingPoseProbe?.());
  assert.equal(aDefault.mode,'candidate');
+ const aFrame=await page.evaluate(()=>window.__platformAFramingProbe?.());
+ assert.equal(aFrame.available,true,'A full-system optical view probe missing');
+ assert.equal(aFrame.topVisible,true,'A camera and optical cable clipped from default ISO view');
+ assert.equal(aFrame.boardVisible,true,'A main breadboard clipped from default ISO view');
+ assert(aFrame.topWorldYmm>=390,'A optical/camera cable top is missing from the scene');
  assert.equal(aDefault.actualStagePosePhotoRegistered,false);
  assert.equal(aDefault.A05CClampSkuVerified,false);
  assert.equal(aDefault.footprintGapMm,36.25);
