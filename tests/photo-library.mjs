@@ -12,7 +12,7 @@ assert(photoRefsForPart('B','B08').some(p=>p.id==='147'));
 assert(photoRefsForPart('B','B35').some(p=>p.id==='147'));
 assert.deepEqual(photoCoverageForPart('A','A05C').notYetBundled,['94']);
 assert.deepEqual(photoRefsForPart('A','A10').map(p=>p.id),['41','71','72','191','192','193']);
-assert.deepEqual(photoRefsForPart('A','A15').map(p=>p.id),['95','97','23','194','195','196']);
+assert.deepEqual(photoRefsForPart('A','A15').map(p=>p.id),['95','97','22','23','24','194','195','196']);
 assert(photoRefsForPart('A','A04').some(p=>p.id==='196'));
 assert(photoRefsForPart('A','A19').some(p=>p.id==='191'));
 for(const id of ['191','192','193','194','195','196']){

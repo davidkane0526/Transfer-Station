@@ -635,8 +635,8 @@ try{
    'A17 manufacturer SKU remains unidentified');
  assert.equal(aBefore.a17OemComparisonSku,null,
    'A17 must not claim a GCM-420302M comparison SKU from front-panel appearance alone');
- assert.equal(aBefore.a17SideSlotCount,1);
- assert.equal(aBefore.a17FrontKnobCount,1);
+ assert.equal(aBefore.a17SideSlotCount,0,'Photo194 silver slot is on A15, not A17');
+ assert.equal(aBefore.a17FrontKnobCount,0,'A17 has no duplicate A15 slot knob');
  assert.equal(aBefore.a17TopCounterboreCount,0);
   assert.equal(aBefore.a15TopCounterboreCount,4);
   assert.equal(aBefore.a15RecessedHeadCount,4);
