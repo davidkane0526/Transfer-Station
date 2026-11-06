@@ -50,12 +50,12 @@ export const PHOTO_LIBRARY=Object.freeze({
   '152':{title:'照片152 · A平台补充',kind:'assembly'},
   '155':{title:'照片155 · A平台补充',kind:'assembly'},
   '161':{title:'照片161 · A16底座补充',kind:'direct'},
-  '191':{title:'照片191 · A显微镜与样品侧总装近景',kind:'assembly',description:'显微镜相机、竖直光学筒、主机头、调焦机构、双物镜及下方样品承载台的同视角记录。'},
-  '192':{title:'照片192 · A显微镜侧视及样品台',kind:'assembly',description:'补充显微镜支柱、水平镜筒、调焦旋钮、物镜与样品侧旋转/平移台的相对位置。'},
-  '193':{title:'照片193 · A显微镜与样品台正面总览',kind:'assembly',description:'用于核对显微镜光轴、样品侧三层承载台及面包板上的整体位置。'},
-  '194':{title:'照片194 · A载玻片侧位移机构正面',kind:'assembly',description:'显示门形支架、上层摆角台、中央竖直调节机构及底部平移台；支架接口仍待配准。'},
-  '195':{title:'照片195 · A载玻片侧VC13M机构侧视',kind:'direct',description:'可辨认GCM-VC13M铭牌、竖直微分头、下方平移台及上层摆角机构的叠装关系。'},
-  '196':{title:'照片196 · A载玻片侧G40M60L局部',kind:'direct',description:'可辨认GCM-G40M60L型号及其右侧微分头；用于校正上层摆角台的驱动方向。'}
+  '191':{title:'照片191 · A显微镜与样品侧总装近景',kind:'assembly',description:'显微镜相机、竖直光学筒、主机头、调焦机构、双物镜及下方样品承载台的同视角记录。',src:'./assets/photos/191.webp',status:'embedded'},
+  '192':{title:'照片192 · A显微镜侧视及样品台',kind:'assembly',description:'补充显微镜支柱、水平镜筒、调焦旋钮、物镜与样品侧旋转/平移台的相对位置。',src:'./assets/photos/192.webp',status:'embedded'},
+  '193':{title:'照片193 · A显微镜与样品台正面总览',kind:'assembly',description:'用于核对显微镜光轴、样品侧三层承载台及面包板上的整体位置。',src:'./assets/photos/193.webp',status:'embedded'},
+  '194':{title:'照片194 · A载玻片侧位移机构正面',kind:'assembly',description:'显示门形支架、上层摆角台、中央竖直调节机构及底部平移台；支架接口仍待配准。',src:'./assets/photos/194.webp',status:'embedded'},
+  '195':{title:'照片195 · A载玻片侧VC13M机构侧视',kind:'direct',description:'可辨认GCM-VC13M铭牌、竖直微分头、下方平移台及上层摆角机构的叠装关系。',src:'./assets/photos/195.webp',status:'embedded'},
+  '196':{title:'照片196 · A载玻片侧G40M60L局部',kind:'direct',description:'可辨认GCM-G40M60L型号及其右侧微分头；用于校正上层摆角台的驱动方向。',src:'./assets/photos/196.webp',status:'embedded'}
 });
 const EVIDENCE_BY_PART=Object.freeze({
  A01:['17','20'],A17:['22','23','24'],A15:['95','97','23','194','195','196'],A03:['97','94','194','195','196'],A04L:['94'],A04:['94','194','195','196'],

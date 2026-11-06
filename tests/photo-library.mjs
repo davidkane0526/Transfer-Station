@@ -15,11 +15,19 @@ assert.deepEqual(photoRefsForPart('A','A10').map(p=>p.id),['41','71','72','191',
 assert.deepEqual(photoRefsForPart('A','A15').map(p=>p.id),['95','97','23','194','195','196']);
 assert(photoRefsForPart('A','A04').some(p=>p.id==='196'));
 assert(photoRefsForPart('A','A19').some(p=>p.id==='191'));
-assert.deepEqual(photoCoverageForPart('A','A18').notYetBundled,['191','192','193']);
+for(const id of ['191','192','193','194','195','196']){
+  assert.equal(PHOTO_LIBRARY[id].src,`./assets/photos/${id}.webp`);
+  assert.equal(PHOTO_LIBRARY[id].status,'embedded');
+  const raw=readFileSync(new URL(`../assets/photos/${id}.webp`,import.meta.url));
+  assert(raw.length>1000,`Photo ${id} preview was not bundled`);
+  assert.equal(raw.subarray(0,4).toString(),'RIFF');
+  assert.equal(raw.subarray(8,12).toString(),'WEBP');
+}
+assert.deepEqual(photoCoverageForPart('A','A18').notYetBundled,[]);
 assert.equal(PHOTO_LIBRARY['195'].kind,'direct');
 assert.equal(photoCoverageForPart('A','A05C').embeddedCount,0);
 assert(PHOTO_LIBRARY['94'].src===undefined,
  'Do not attribute a missing A photo to a different image asset');
 assert.deepEqual(photoRefsForPart('A','B41'),[],
  'Never attribute B rig photo evidence to platform A');
-console.log('V59 photos: JPEG147, A microscope/sample/film-side photo mapping and honest unbundled references PASS');
+console.log('V59 photos: JPEG147 and six embedded A photo previews mapped to BOM components PASS');
