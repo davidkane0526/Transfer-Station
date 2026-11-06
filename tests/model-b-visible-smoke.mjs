@@ -77,6 +77,11 @@ try{
    'Viewer must disclose that X/Y visual axis labels are not factory markings');
  assert.equal(actuators.B41.fixedBaseHeightMm+actuators.B41.movingStageHeightMm,23);
  assert.equal(actuators.B09.fixedBaseHeightMm+actuators.B09.movingStageHeightMm,23);
+ const finiteB=await page.evaluate(()=>window.__sceneFiniteGeometryProbe?.());
+ assert.equal(finiteB.available,true);
+ assert.equal(finiteB.invalidMeshes,0,'Rotary B tick meshes must not have NaN positions');
+ assert.equal(finiteB.tickCount,180);
+ assert(finiteB.minRadiusMm>46&&finiteB.maxRadiusMm<47.1);
  const photoB=await page.evaluate(()=>window.__photoEvidenceProbe?.('B41'));
  assert.deepEqual(photoB?.ids,['147']);
  assert.deepEqual(photoB?.embedded,['147'],
@@ -554,10 +559,21 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V64.*A17/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V67.*A17/,
   'The initial platform A view must identify the unverified working hypothesis');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
+ const finiteA=await page.evaluate(()=>window.__sceneFiniteGeometryProbe?.());
+ assert.equal(finiteA.available,true);
+ assert.equal(finiteA.invalidMeshes,0,'Rotary A tick meshes must not have NaN positions');
+ assert.equal(finiteA.tickCount,180);
+ assert(finiteA.minRadiusMm>31&&finiteA.maxRadiusMm<32.1);
+ const detailsA=await page.evaluate(()=>window.__platformADetailTopologyProbe?.());
+ assert.equal(detailsA.available,true);
+ assert.equal(detailsA.ghostVerticalKnurlGroups,0,'A03 must not contain floating second micrometer');
+ assert.equal(detailsA.duplicateGoniometerKnurlGroups,0,'A04 must not contain duplicated shaft');
+ assert.deepEqual(detailsA.nominalTubeCollarHeightsMm,[2,12,20]);
+ assert.equal(detailsA.verticalNameplateMounted,true);
  const aDefault=await page.evaluate(()=>window.__platformAWorkingPoseProbe?.());
  assert.equal(aDefault.mode,'candidate');
  const angled=await page.evaluate(()=>window.__modelAObjectiveOrientationProbe?.());
