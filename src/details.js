@@ -87,6 +87,7 @@ export function enrichParts(partMap, platform, onMesh){
       const major=i%10===0,minor=i%5===0;
       const len=major?6:minor?4:2;
       const tick=box(g,.45,len,.45,Math.sin(ang)*r,y+len*.5,Math.cos(ang)*r,dialFace,.05);
+      tick.userData.AuxAngularTick=true;
       tick.rotation.y=ang;
     }
     for(const [k,a] of [[0,-Math.PI/2],[90,0],[180,Math.PI/2],[270,Math.PI]]){
