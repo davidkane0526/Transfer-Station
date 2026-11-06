@@ -465,8 +465,9 @@ check(abs(amagnet.zmin-20)<.02 and abs(amagnet.zmax-40)<.02,
 # The body top is deliberately a neutral blank proxy, not a claim that the
 # physical base has no holes. Never transfer B02/GCM-420302M's 13-hole pattern.
 a17_body=part(A,'A17')[0]
-a17_panel=part(A,'A17P')[0]
 a17_control=part(A,'A17L')[0]
+a15_front=part(A,'A15F')[0]
+a15_control=part(A,'A15FK')[0]
 check(abs(a17_body.BoundingBox().zmin-20)<.02 and
       abs(a17_body.BoundingBox().zmax-40)<.02,
       'V52 A17 remains a 65x65x20mm magnetic-base envelope candidate')
@@ -484,37 +485,29 @@ for xx,yy in [(-71.75,-25),(-71.75,25),(-21.75,-25),(-21.75,25)]:
           'V51 A15 photo23 top counterbore is open for 3mm candidate depth')
     check(a15_top.intersect(backing).Volume()>1,
           'V51 A15 top counterbore remains blind, not through the stage')
-slot_probe=box_probe(24,.5,3.5,-46.75,33.25,24.05)
-check(a17_panel.intersect(slot_probe).Volume()<1e-4,
-      'V51 A17 front panel has a REAL horizontal through-slot')
-check(abs(a17_panel.BoundingBox().ymin-a17_body.BoundingBox().ymax)<.02,
-      'V51 A17 slotted panel sits on the +Y body face')
-check(a17_body.intersect(a17_control).Volume()<1e-4,
-      'V51 A17 central control shaft clears its candidate body bore')
-check(a17_panel.intersect(a17_control).Volume()<1e-4,
-      'V51 A17 control shaft passes through the panel slot without collision')
+slot_probe=box_probe(24,.5,3.5,-46.75,33.25,57.25)
+check(a15_front.intersect(slot_probe).Volume()<1e-4,
+      'V62 A15 photo194 front face is truly slotted')
+check(a15_front.BoundingBox().zmin>amagnet.zmax+10,
+      'V62 A15 silver slot higher than A17 magnet')
+check(a15_front.intersect(a15_control).Volume()<1e-4,
+      'V62 front slot must clear the control shaft')
 for i in (1,2):
-    panel_screw=part(A,f'A17S{i}')[0]
-    check(panel_screw.intersect(a17_panel).Volume()>0,
-          'V51 A17 side-panel lower screw head contacts the plate')
-report['V51_A17_photo22_24_geometry']={
-    'manufacturer_model_verified':False,
-    'visual_model_candidate':None,
-    'independent_A_photo_visual_match':True,
-    'envelope_mm':[65,65,20],
-    'top_interface_modelled':False,
-    'candidate_top_hole_pattern':None,
-    'candidate_hole_pattern_measured_on_A17':False,
-    'B02_GCM420302M_hole_pattern_transferred_to_A17':False,
-    'A17_top_corner_counterbores':0,
-    'A15_top_corner_counterbores':4,
-    'front_slotted_panel_count':1,
-    'slot_is_open':True,
-    'central_control_knob_count':1,
-    'control_function_identified':False,
-    'B_GCM420302M_nameplate_transferred_to_A':False,
-    'magnetic_load_verified':False
-}
+    bolt=part(A,f'A15FS{i}')[0]
+    check(bolt.intersect(a15_front).Volume()>0,
+          'V62 face screw must contact A15 face')
+check(a17_body.intersect(a17_control).Volume()<1e-4,
+      'V62 A17 low lever must be outside magnet body')
+check(a17_control.BoundingBox().xmax<a17_body.BoundingBox().xmax-5,
+      'V62 A17 photo194 lower lever is left offset')
+for legacy in ('A17P','A17S1','A17S2'):
+    check(not (A/(legacy+'.step')).exists(),
+          'V62 no false magnet silver slot '+legacy)
+report['V62_A15_front_slot_A17_lower_lever']={
+  'photo':['194','195'],'A15_front_open_slot':True,
+  'A15_front_plate_screw_count':2,'A15_control_count':1,
+  'A17_lower_lever_count':1,'A17_duplicate_slot_count':0,
+  'OEM_dimensions_and_threads_verified':False}
 # V49: photos25/26 show two side-hole rows on the B09 NFP-1462C body.
 # Their exact coordinates, diameters and thread forms are NOT in the readable
 # OEM drawing; validate only the seven photo-fit blind recesses.

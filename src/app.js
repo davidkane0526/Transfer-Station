@@ -143,6 +143,25 @@ window.__platformAFramingProbe=()=>{
    topWorldYmm:Number(topBox.max.y.toFixed(1)),
    mode:aWorkingPoseMode?'candidate':'photo94'};
 };
+window.__platformAStageFrontProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const stage=parts.get('A15')?.g,mag=parts.get('A17')?.g;
+ const slider=stage?.userData.slidingX;
+ const plate=slider?.children.find(m=>m.userData.A15Photo194FrontSlottedPlate);
+ const knob=slider?.children.find(m=>m.userData.A15Photo194SlotControlKnob);
+ const lever=mag?.children.find(m=>m.userData.A17Photo194LowerLeverCandidate);
+ if(!stage||!mag||!plate||!knob||!lever)return {available:false};
+ stage.updateWorldMatrix(true,true);mag.updateWorldMatrix(true,true);
+ const p=new THREE.Vector3(),m=new THREE.Vector3();
+ plate.getWorldPosition(p);mag.getWorldPosition(m);
+ return {available:true,frontPlateAboveMagnet:p.y>m.y+20,
+  frontPlateFollowsA15X:plate.parent===slider,
+  A15FrontKnobCount:slider.children.filter(x=>x.userData.A15Photo194SlotControlKnob).length,
+  A15FrontScrewCount:slider.children.filter(x=>x.userData.A15Photo194FrontPlateScrewCandidate).length,
+  A17LowerLeverCount:mag.children.filter(x=>x.userData.A17Photo194LowerLeverCandidate).length,
+  noDuplicateA17Slot:!mag.userData.A17Photo22SlottedSidePanel,
+  manufacturerHolePatternVerified:false,slotDimensionsVerified:false};
+};
 window.__modelAPhoto194Probe=()=>{
  if(platform!=='A')return {available:false};
  const lower=parts.get('A04L')?.g,upper=parts.get('A04')?.g;
@@ -933,6 +952,23 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
       head.userData.A15Photo23RecessedFastenerCandidate=true;
       add(carriageY,cub(2.2,.18,.45,mats.ink,x,lowerH+middleH+topH-1.47,z));
     }
+    // Photo194: the silver slot belongs to the A15 moving middle stage.
+    const stageFace=carriageX;
+    const bar=(x,y,w,h)=>add(stageFace,cub(w,h,1.5,mats.silver,x,y,33.25));
+    const topBar=bar(0,23,42,4);
+    bar(0,15,42,4);bar(-17,19,8,4);bar(17,19,8,4);
+    topBar.userData.A15Photo194FrontSlottedPlate=true;
+    for(const x of [-17,17]){
+      const bolt=add(stageFace,cyl(2.2,1.5,mats.steel,x,15,34.3,24));
+      bolt.rotation.x=Math.PI/2;
+      bolt.userData.A15Photo194FrontPlateScrewCandidate=true;
+    }
+    const frontStem=add(stageFace,cyl(1.8,9,mats.steel,0,19,38.5,24));
+    frontStem.rotation.x=Math.PI/2;
+    const frontKnob=add(stageFace,cyl(5.2,7,mats.silver,0,19,46.5,40));
+    frontKnob.rotation.x=Math.PI/2;
+    frontKnob.userData.A15Photo194SlotControlKnob=true;
+    g.userData.A15Photo194SlotDimensionsVerified=false;
     g.userData.A15Photo23TopCounterboreCount=4;
     g.userData.A15Photo23RecessedHeadCount=4;
    }else{
@@ -2028,23 +2064,12 @@ function platformA(){
     add(g,cub(65,10,65,mats.dark,0,5,0));
     const top=add(g,plate(65,65,10,mats.dark,[]));
     top.position.y=10;
-    // The front slotted panel sits on the body face. Do not add a false
-    // solid front extension that would obstruct the front row of top holes.
-    add(g,cub(42,10,1.5,mats.silver,0,13,33.25));
-    add(g,cub(42,1.8,1.5,mats.silver,0,2.9,33.25));
-    add(g,cub(8,4.2,1.5,mats.silver,-17,5.9,33.25));
-    add(g,cub(8,4.2,1.5,mats.silver,17,5.9,33.25));
-    g.userData.A17Photo22SlottedSidePanel=true;
-    for(const x of [-17,17]){
-      const screwHead=add(g,cyl(2.2,1.5,mats.silver,x,2.5,34.0,24));
-      screwHead.rotation.x=Math.PI/2;
-      screwHead.userData.A17Photo22PanelFastenerCandidate=true;
-    }
-    const shaft=add(g,cyl(1.8,8.75,mats.steel,0,5.9,36.875));
-    shaft.rotation.x=Math.PI/2;
-    const knob=add(g,cyl(5.2,9,mats.silver,0,5.9,38.5,40));
-    knob.rotation.x=Math.PI/2;
-    knob.userData.A17FrontSlottedControlKnob=true;
+    // Photo194: the lower magnet has a separate small operating lever.
+    const pin=add(g,cyl(2.2,10,mats.steel,-23,7,37.5,24));
+    pin.rotation.x=Math.PI/2;
+    const lever=add(g,cyl(3,8,mats.silver,-23,8,39.5,24));
+    lever.userData.A17Photo194LowerLeverCandidate=true;
+    g.userData.lowerLeverPositionVerified=false;
     g.userData.magneticFixture=true;
     g.userData.brandAndHolePatternNotVerified=true;
     g.userData.oemComparisonSku=null;
@@ -2053,8 +2078,9 @@ function platformA(){
     g.userData.topInterfaceModelled=false;
     g.userData.oemIdentityVerified=false;
     g.userData.candidateTopHolePattern=null;
-    g.userData.photo22SideSlotCount=1;
-    g.userData.photo22FrontKnobCount=1;
+    g.userData.photo22SideSlotCount=0;
+    g.userData.photo22FrontKnobCount=0;
+    g.userData.photo194LowerLeverCount=1;
     g.userData.candidateMountHoleMarkers=[];
     g.userData.topCornerCounterbores=0;
     label(g,'A17 · 磁吸底座（型号/顶部孔系未知）',0,32,0);

@@ -639,23 +639,19 @@ def make_a():
     stage('A','A02',cx,0,61.2,'-X')
     # User-confirmed mounting relationship, maker/height candidate:
     # A15 must rest on the actual magnetic base, not on naked board.
-    # V52 A17: A photos22/24 show only the front slot, central knurled
-    # control and two panel screws. Top/underside hole pattern is not visible.
-    # Leave a neutral blank top-interface proxy; do not copy B02/GCM-420302M holes.
+    # Photo194: face slot is on A15, not the lowest A17 magnet.
     mag=box(65,65,20,ax,0,20)
-    mag=mag.cut(vy(2.1,13,ax,19.5,25.9))
-    add('A','A17','A17_UNKNOWN_MAGNETIC_BASE_PHOTO22_FRONT_FEATURES_ONLY',mag,'C')
-    a17_panel=box(42,1.5,16,ax,33.25,22).cut(
-        box(26,1.6,4.2,ax,33.25,23.8))
-    add('A','A17P','FILM_MAGNET_FRONT_SLOTTED_PANEL_PHOTO22',a17_panel,'P')
-    for i,xx in enumerate((ax-17,ax+17),1):
-        add('A',f'A17S{i}','FILM_MAGNET_PANEL_LOWER_SCREW_HEAD_CANDIDATE',
-            vy(2.2,1.5,xx,33.25,22.5),'C')
-    a17_control=vy(1.8,14.5,ax,19.5,25.9).fuse(
-        vy(5.2,9,ax,34,25.9))
-    add('A','A17L','FILM_MAGNET_FRONT_SLOTTED_CONTROL_KNOB_UNKNOWN_FUNCTION',
-        a17_control,'C')
+    add('A','A17','unknown_magnetic_base_top_hole_map_unobserved',mag,'C')
+    lower_lever=vy(2.2,10,ax-23,32.5,27).fuse(vz(3,8,ax-23,39.5,24))
+    add('A','A17L','photo194_lower_magnet_lever_UNVERIFIED',lower_lever,'C')
     stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y',photo_top_bores=True)
+    front=box(42,1.5,12,ax,33.25,53).cut(box(26,1.6,4,ax,33.25,57))
+    add('A','A15F','photo194_A15_front_slotted_plate_candidate',front,'P')
+    for i,xx in enumerate((ax-17,ax+17),1):
+        add('A',f'A15FS{i}','photo194_A15_front_face_fastener_candidate',
+            vy(2.2,1.5,xx,33.25,55),'C')
+    ctrl=vy(1.8,9,ax,34,59).fuse(vy(5.2,7,ax,43,59))
+    add('A','A15FK','photo194_A15_front_control_UNVERIFIED',ctrl,'C')
     # Photo 97: vertical slide/upright carriage, not a solid block.
     # V46: relocate the VC13 vertical drive beyond the ±32.5mm
     # moving platform envelope. The front bracket spans the stationary
