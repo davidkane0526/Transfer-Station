@@ -773,8 +773,9 @@ for i,dx in enumerate((-14,14),1):
     check(abs(center-(-46.75+dx))<.02,'V58 G40 head pair follows moved film unit')
 for i in (1,2):
     wing=part(A,f'A05CS{i}')[0]
-    check(wing.isValid() and wing.BoundingBox().xlen>14,
-          'V60 two butterfly screw-head silhouettes must be present in STEP')
+    check(wing.isValid() and wing.BoundingBox().ylen>14 and
+          wing.BoundingBox().xlen<8,
+          'V70 butterfly heads retain two wings across front/back, clear of A05 vertical leg')
 check(asheet_bb.ylen>=14-.02,
       'V70 outward foot has short 14mm front-back span, not false 26mm screw depth')
 # V63 physically test both hollow bores and solid material between them.
