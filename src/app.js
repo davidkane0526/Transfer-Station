@@ -2826,7 +2826,7 @@ function populateGroups(){
    const subset=meta.filter(x=>x.group===key);if(!subset.length)continue;
    const line=document.createElement('label');line.className='group-row';
    const input=document.createElement('input');input.type='checkbox';input.checked=true;input.dataset.group=key;
-   input.onchange=()=>parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked});
+   input.onchange=()=>parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked&&!v.g.userData.hiddenBecauseNotPhotographed});
    const dot=document.createElement('i');dot.className='dot';dot.style.background=cfg.color;
    const tx=document.createElement('span');tx.textContent=cfg.name;
    const count=document.createElement('span');count.className='count';count.textContent=subset.length+' 件';
@@ -2834,7 +2834,7 @@ function populateGroups(){
    // Every checked category MUST be visible. An older optimization
    // silently hid all external objects while leaving its checkbox ON;
    // this made B36/B19/B21/B23 disappear despite valid STEP/BOM.
-   parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked});
+   parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked&&!v.g.userData.hiddenBecauseNotPhotographed});
  }
 }
 function updateDetail(part){
