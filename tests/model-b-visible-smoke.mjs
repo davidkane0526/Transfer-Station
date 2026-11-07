@@ -559,7 +559,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V67.*A17/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V68.*A17/,
   'The initial platform A view must identify the unverified working hypothesis');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -596,7 +596,25 @@ try{
  assert.equal(aDefault.stampCenterX,78);
  assert.equal(aDefault.stampCenterZ,0);
  assert.equal(aDefault.initialVerticalStampGapMm,13);
+ assert.equal(aDefault.opticalParkingLiftMm,18);
+ assert.equal(aDefault.opticalParkingMechanismVerified,false);
  assert.equal(aDefault.clampHeaterClearanceMm,25.5);
+ const opticsRaised=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
+ assert.equal(opticsRaised?.available,true);
+ assert.equal(opticsRaised.coherentOpticOffsets,true,
+   'A18/A19/A08/A09/A10A/A14/A20 must retract as ONE optical stack');
+ assert.equal(opticsRaised.actualParkingLiftMm,18);
+ assert.equal(opticsRaised.opticPartIds.length,7);
+ assert.equal(opticsRaised.currentBroadphaseCollisions.length,0,
+   'Raised glass must not intersect either parked microscope objective');
+ assert.equal(opticsRaised.planarOverlapExists,true,
+   'The optical collision test must not pass by moving objectives sideways');
+ assert(opticsRaised.verticalGapMm>3,
+   'Raised slide needs conservative positive clearance to objective nose');
+ assert(opticsRaised.withoutParkingGapMm<0,
+   'QA must expose historic unparked optics/glass conflict');
+ assert.equal(opticsRaised.OEMFocusStrokeVerified,false);
+ assert.equal(opticsRaised.physicalCollisionCertification,false);
  const aContactBefore=await page.evaluate(()=>window.__modelAContactProbe?.());
  assert.equal(aContactBefore?.available,true);
  assert.equal(aContactBefore.clampOutsideHeater,true);
@@ -716,6 +734,11 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  await page.locator('#film-drop').evaluate(el=>{
    el.value='-6';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
+ const opticsMid=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
+ assert.equal(opticsMid?.currentBroadphaseCollisions.length,0);
+ assert.equal(opticsMid?.coherentOpticOffsets,true);
+ assert(opticsMid.verticalGapMm>opticsRaised.verticalGapMm,
+   'Clearance grows as the film descends beneath retracted objectives');
  const guideMid=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());
  assert.equal(guideMid.outputLiftMm,7,'A03 guides must follow moving output at mid stroke');
  assert.equal(guideMid.actualTravelInGuideEnvelope,true);
@@ -739,6 +762,10 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  await page.locator('#film-drop').evaluate(el=>{
    el.value='-13';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
+ const opticsLower=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
+ assert.equal(opticsLower?.currentBroadphaseCollisions.length,0);
+ assert.equal(opticsLower?.coherentOpticOffsets,true);
+ assert(opticsLower.verticalGapMm>opticsMid.verticalGapMm);
  const guideLower=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());
  assert.equal(guideLower.outputLiftMm,0);
  assert.equal(guideLower.actualTravelInGuideEnvelope,true);
