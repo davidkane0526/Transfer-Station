@@ -2504,11 +2504,14 @@ function platformA(){
        screwX,glassCenterY+7,aBent.sheetFrontZ));
      head.userData.A05CSOutwardOffsetMm=outwardOffset;
      head.userData.photo194WingFastenerCandidate=true;
+     // Real butterfly heads can rotate about the vertical screw axis.
+     // Orient both wings front/back, avoiding a fabricated clash with
+     // the L upright next to the inner (+7mm) fastener.
      for(const wingSide of [-1,1]){
-       const wing=add(g,cub(7,3.8,1.6,mats.steel,
-         screwX+wingSide*4.8,glassCenterY+8,
-         aBent.sheetFrontZ));
-       wing.rotation.z=wingSide*.35;
+       const wing=add(g,cub(1.6,3.8,7,mats.steel,
+         screwX,glassCenterY+8,
+         aBent.sheetFrontZ+wingSide*4.8));
+       wing.rotation.x=wingSide*.35;
      }
    }
    g.userData.visibleWingFastenerCount=2;
