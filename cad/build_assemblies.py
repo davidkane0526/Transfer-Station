@@ -709,11 +709,12 @@ def make_a():
     leg_len=52.1
     leg_bottom=164-leg_len
     bracket_leg_x=ax+48-1.25
-    # Photo194/196: true axial openings for two butterfly screws.
-    # Hole Ø3.2 / centre pitch 18mm are UNVERIFIED dimensional candidates.
-    foot=box(13,26,2.5,bracket_leg_x+6,0,leg_bottom)
-    for yy in (-9,9):
-        foot=foot.cut(vz(1.6,2.7,bracket_leg_x+7,yy,leg_bottom-.1))
+    # V70: photos194/196 place TWO wing heads along the OUTWARD
+    # extension of the L foot, not across its short front-back width.
+    # 32x14 and Ø3.2/pitch18 are proportional scene guesses only.
+    foot=box(32,14,2.5,bracket_leg_x+16,0,leg_bottom)
+    for xx in (bracket_leg_x+7,bracket_leg_x+25):
+        foot=foot.cut(vz(1.6,2.7,xx,0,leg_bottom-.1))
     sheet=box(75,12,2.5,ax+10.5,0,164).fuse(
         box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),foot)
     add('A','A05','WORKING_HYPOTHESIS_mirrored_right_75mm_L_sheet_NOT_photo_orientation',
@@ -728,23 +729,26 @@ def make_a():
     glass_bottom=leg_bottom+.5
     glass_center_z=glass_bottom+.5
     tie=box(2.5,10,14,bracket_leg_x,0,leg_bottom)
-    carrier=box(21,27,3,bracket_leg_x+9,0,glass_bottom-3)
-    # V64: carrier is also traversed by the two screws.
-    # Real clearance bores; neither the rod threads nor clamp load is verified.
-    for yy in (-9,9):
-        carrier=carrier.cut(vz(1.6,3.2,bracket_leg_x+7,yy,glass_bottom-3.1))
+    # V70 hypothetical carrier remains ONLY in operation candidate,
+    # with holes coaxial to the photographed wing screws.
+    # Place its upper surface at the folded foot underside, not 0.5mm
+    # THROUGH the sheet. It is NOT visible in 194/196 photographs.
+    carrier=box(36,27,3,bracket_leg_x+16,0,glass_bottom-3.5)
+    for xx in (bracket_leg_x+7,bracket_leg_x+25):
+        carrier=carrier.cut(vz(1.6,3.2,xx,0,glass_bottom-3.6))
     lower_jaw=box(10,27,1.2,bracket_leg_x+15,0,glass_bottom-1.2)
     add('A','A05C','clamp_bracket_tie_plus_carrier_and_lower_jaw_UNVERIFIED',
         tie.fuse(carrier,lower_jaw),'C')
     add('A','A05CU','candidate_separate_upper_compression_jaw',
         box(10,27,1.2,bracket_leg_x+15,0,glass_bottom+1),'C')
-    for i,zoffset in enumerate((-9,9),1):
-        # Two wing fasteners are visible at the outward foot in photos194/196.
-        # Shaft Ø2.8, head Ø5.6 and blade dimensions remain unverified proxies.
-        shank=vz(1.4,10.5,bracket_leg_x+7,zoffset,leg_bottom-3.5)
-        hub=vz(2.8,2,bracket_leg_x+7,zoffset,glass_center_z+6)
-        wings=[box(7,1.6,3.8,bracket_leg_x+7+sgn*4.8,
-                   zoffset,glass_center_z+7) for sgn in (-1,1)]
+    for i,dx in enumerate((7,25),1):
+        # Outward X direction is supported by photo194/196, but actual
+        # Ø, head and thread dimensions remain unmeasured candidates.
+        screw_x=bracket_leg_x+dx
+        shank=vz(1.4,10.5,screw_x,0,leg_bottom-3.5)
+        hub=vz(2.8,2,screw_x,0,glass_center_z+6)
+        wings=[box(7,1.6,3.8,screw_x+sgn*4.8,
+                   0,glass_center_z+7) for sgn in (-1,1)]
         add('A',f'A05CS{i}','photo194_two_butterfly_head_screws_THREAD_UNKNOWN',
             shank.fuse(hub,*wings),'C')
     add('A','A05G','standard_76x26x1mm_glass_POSITION_CANDIDATE',
