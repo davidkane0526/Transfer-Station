@@ -250,7 +250,7 @@ window.__modelAObjectiveOrientationProbe=()=>{
 window.__modelAOpticalClearanceProbe=()=>{
  if(platform!=='A')return {available:false};
  const obj=parts.get('A19')?.g,slide=parts.get('A05G')?.g;
- const opticIDs=['A08','A09','A10A','A14','A18','A19','A20'];
+ const opticIDs=['A08','A09','A14','A18','A19','A20'];
  const opticalRoots=opticIDs.map(id=>({id,root:parts.get(id)?.g,base:parts.get(id)?.base}));
  const glass=slide?.children.find(o=>o.userData.candidateStandardSlide);
  if(!obj||!glass||opticalRoots.some(x=>!x.root))return {available:false};
@@ -274,11 +274,16 @@ window.__modelAOpticalClearanceProbe=()=>{
  const headOffset=opticalRoots.map(({id,root,base})=>({
    id,offsetMm:Number((root.position.y-base.y).toFixed(2))
  }));
+ const fixedPost=parts.get('A10')?.g;
+ const movingBoom=fixedPost?.userData.opticsMovingBoom;
+ const boomMatched=Boolean(movingBoom)&&Math.abs(movingBoom.position.y-parked)<.02;
  const minOpticalBottom=Math.min(...optics.map(x=>x.lowerYmm));
  const minVerticalGap=Number((minOpticalBottom-glassBox.max.y).toFixed(2));
  const hypotheticalUnparkedMinGap=Number((minVerticalGap-parked).toFixed(2));
  return {available:true,mode:aWorkingPoseMode?'candidate':'photo94',
-   opticPartIds:opticIDs,coherentOpticOffsets:headOffset.every(x=>Math.abs(x.offsetMm-parked)<.02),
+   opticPartIds:[...opticIDs,'A10:movable-boom'],
+   coherentOpticOffsets:headOffset.every(x=>Math.abs(x.offsetMm-parked)<.02)&&boomMatched,
+   supportBoomMovesWhilePostFixed:boomMatched&&Math.abs(fixedPost.position.y-parts.get('A10').base.y)<.02,
    actualParkingLiftMm:parked,
    glassTopWorldYmm:Number(glassBox.max.y.toFixed(2)),
    closestObjectiveBottomYmm:minOpticalBottom,
@@ -2566,8 +2571,11 @@ function platformA(){
       head.userData.A10CandidateBoltHead=true;
     }
     // V59: taller photographed camera/microscope stack; post length remains candidate.
-    add(g,cyl(13,372,mats.steel,0,199,0));
-    add(g,cub(34,25,127,mats.dark,0,200,65));
+    add(g,cyl(13,372,mats.steel,0,199,0)); // fixed optical post
+    const movingBoom=new THREE.Group();g.add(movingBoom);
+    add(movingBoom,cub(34,25,127,mats.dark,0,200,65));
+    movingBoom.userData.A10AdjustableBoomCandidate=true;
+    g.userData.opticsMovingBoom=movingBoom;
     g.userData.fourTrueCandidateFootBores=true;
     g.userData.actualOEMFasteningVerified=false;
     label(g,'A10显微镜支架 · 底脚四孔及螺钉均为候选',0,267,60);
@@ -2986,12 +2994,18 @@ function updateTransforms(){
   // microscope carriage, as a conservative visual parking hypothesis.
   // Do not mistake 18mm for measured/OEM focus travel or actual working distance.
   const parkOptics=platform==='A'&&aWorkingPoseMode&&
-    ['A08','A09','A10A','A14','A18','A19','A20'].includes(part.id);
+    ['A08','A09','A14','A18','A19','A20'].includes(part.id);
   const opticsLift=parkOptics?A_WORKING_LAYOUT.opticalParkingLiftMm:0;
   g.position.set(base.x+off[0]*e+fx+dx,
     base.y+off[1]*e+(moveFilmVertical?aLift-filmDrop:0)+opticsLift,
     base.z+off[2]*e+dz+fz);
   g.rotation.y=(rotateSample?angle:0)+facingYaw;
+  if(platform==='A'&&part.id==='A10'&&g.userData.opticsMovingBoom){
+    // Only the horizontal imaging-arm clamp follows the optical head.
+    // A10 breadboard foot and 372mm column remain FIXED.
+    g.userData.opticsMovingBoom.position.y=
+      aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0;
+  }
   if(g.userData.verticalCarriage)
     g.userData.verticalCarriage.position.y=
       (platform==='A'&&part.id==='A03'?aLift:0)-filmDrop;
