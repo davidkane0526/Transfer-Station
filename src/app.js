@@ -247,6 +247,50 @@ window.__modelAObjectiveOrientationProbe=()=>{
    photoRefs:['191','192','193'],
    actualTurretIndexAnglesVerified:false};
 };
+window.__modelAOpticalClearanceProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const obj=parts.get('A19')?.g,slide=parts.get('A05G')?.g;
+ const opticIDs=['A08','A09','A10A','A14','A18','A19','A20'];
+ const opticalRoots=opticIDs.map(id=>({id,root:parts.get(id)?.g,base:parts.get(id)?.base}));
+ const glass=slide?.children.find(o=>o.userData.candidateStandardSlide);
+ if(!obj||!glass||opticalRoots.some(x=>!x.root))return {available:false};
+ obj.updateWorldMatrix(true,true);slide.updateWorldMatrix(true,true);
+ const glassBox=new THREE.Box3().setFromObject(glass);
+ const optics=[];
+ for(const node of obj.children){
+   if(!node.userData.A19ObjectivePivot)continue;
+   for(const m of node.children){
+     if(!(m.userData.A19ObjectiveBarrel||m.userData.A19ObjectiveBand||m.userData.objectiveOpticProxy))continue;
+     const box=new THREE.Box3().setFromObject(m);
+     const planarOverlap=box.min.x<glassBox.max.x&&box.max.x>glassBox.min.x&&
+       box.min.z<glassBox.max.z&&box.max.z>glassBox.min.z;
+     optics.push({side:node.userData.A19ObjectivePivot,
+       type:m.userData.A19ObjectiveBarrel?'barrel':m.userData.A19ObjectiveBand?'band':'lens',
+       planarOverlap,conservativeCollision:box.intersectsBox(glassBox),
+       lowerYmm:Number(box.min.y.toFixed(2))});
+   }
+ }
+ const parked=aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0;
+ const headOffset=opticalRoots.map(({id,root,base})=>({
+   id,offsetMm:Number((root.position.y-base.y).toFixed(2))
+ }));
+ const minOpticalBottom=Math.min(...optics.map(x=>x.lowerYmm));
+ const minVerticalGap=Number((minOpticalBottom-glassBox.max.y).toFixed(2));
+ const hypotheticalUnparkedMinGap=Number((minVerticalGap-parked).toFixed(2));
+ return {available:true,mode:aWorkingPoseMode?'candidate':'photo94',
+   opticPartIds:opticIDs,coherentOpticOffsets:headOffset.every(x=>Math.abs(x.offsetMm-parked)<.02),
+   actualParkingLiftMm:parked,
+   glassTopWorldYmm:Number(glassBox.max.y.toFixed(2)),
+   closestObjectiveBottomYmm:minOpticalBottom,
+   verticalGapMm:minVerticalGap,
+   withoutParkingGapMm:hypotheticalUnparkedMinGap,
+   planarOverlapExists:optics.some(x=>x.planarOverlap),
+   currentBroadphaseCollisions:optics.filter(x=>x.conservativeCollision),
+   allOpticSolidsAboveSlide:minVerticalGap>0,
+   OEMFocusStrokeVerified:false,
+   actualWorkingDistanceVerified:false,
+   physicalCollisionCertification:false};
+};
 window.__modelAVerticalGuideProbe=()=>{
  if(platform!=='A')return {available:false};
  const stage=parts.get('A03')?.g;
@@ -2937,8 +2981,15 @@ function updateTransforms(){
   // Downward preview approaches the original static STEP lower-limit
   // without forcing the output plate through the stationary upright.
   const aLift=platform==='A'?13:0;
+  // V68: the original raised A05G slide intersects the modelled A19
+  // objectives. Retract the COMPLETE optical stack, including the
+  // microscope carriage, as a conservative visual parking hypothesis.
+  // Do not mistake 18mm for measured/OEM focus travel or actual working distance.
+  const parkOptics=platform==='A'&&aWorkingPoseMode&&
+    ['A08','A09','A10A','A14','A18','A19','A20'].includes(part.id);
+  const opticsLift=parkOptics?A_WORKING_LAYOUT.opticalParkingLiftMm:0;
   g.position.set(base.x+off[0]*e+fx+dx,
-    base.y+off[1]*e+(moveFilmVertical?aLift-filmDrop:0),
+    base.y+off[1]*e+(moveFilmVertical?aLift-filmDrop:0)+opticsLift,
     base.z+off[2]*e+dz+fz);
   g.rotation.y=(rotateSample?angle:0)+facingYaw;
   if(g.userData.verticalCarriage)
@@ -2954,6 +3005,22 @@ function updateTransforms(){
       part.id==='B41'?-sampleShiftDepth:part.id==='A02'?sampleShift:0;
   }
  });
+ if(platform==='A'&&aWorkingPoseMode){
+   const o=window.__modelAOpticalClearanceProbe?.();
+   if(o?.available){
+     if(o.currentBroadphaseCollisions.length){
+       if($('lowering-clearance'))$('lowering-clearance').textContent=
+         '物镜与玻片候选包络相交，当前运动预览不得作为可用装配！';
+     }else if($('lowering-clearance')){
+       $('lowering-clearance').textContent+='；物镜最低端至玻片上表面名义垂直间隙 '+o.verticalGapMm.toFixed(1)+
+         ' mm（整组光学部件退避 '+o.actualParkingLiftMm+' mm 仅供避碰演示，非实物调焦行程）。';
+     }
+     if($('a-working-metrics'))$('a-working-metrics').textContent+=
+       ' 光学退避 '+o.actualParkingLiftMm+'mm：'+
+       (o.currentBroadphaseCollisions.length?'包络冲突':'场景包络未冲突')+
+       '；未经实物工作距离和对焦行程验证。';
+   }
+ }
  if(sampleSubstrate&&platform==='B'){
    const tx=stageLocalTranslation(sampleShift,angle);
    const tz=stageLocalDepthTranslation(sampleShiftDepth,angle);
@@ -3023,7 +3090,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V67 / '+(aWorkingPoseMode?
+   '平台 A · V68 / '+(aWorkingPoseMode?
     '右折边操作位置候选（未实物验证）/ 玻片印章对准A07 / 夹具避开热台 / A17型号未知':
     '照片94原始左折边朝向 / A05C夹具+A05G玻片 / 全局未配准');
  $('stack-note').textContent=platform==='B'?
