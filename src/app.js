@@ -3126,7 +3126,11 @@ function updateTransforms(){
   if(g.userData.slidingX){
     // A physical X carriage carries a SECOND, nested depth carriage.
     // B03 has a yaw-180 installation; local negative X maps to world +X.
-    g.userData.slidingX.position.x=part.id==='B03'&&!bPhoto94Mode?-filmShift:filmShift;
+    // A02 is the SAMPLE-side X carriage. It must follow the sample
+     // slider, not the unrelated film-side A15 slider. The previous
+     // shared filmShift branch physically disconnected A02 from A07.
+     g.userData.slidingX.position.x=part.id==='A02'?sampleShift:
+       part.id==='B03'&&!bPhoto94Mode?-filmShift:filmShift;
     if(g.userData.slidingDepth)g.userData.slidingDepth.position.z=part.id==='B03'&&!bPhoto94Mode?-filmShiftDepth:filmShiftDepth;
   }else if(g.userData.slidingTop){
     g.userData.slidingTop.position.x=part.id==='B09'?-sampleShift:
