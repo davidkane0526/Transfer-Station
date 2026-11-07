@@ -191,6 +191,29 @@ window.__platformAStageFrontProbe=()=>{
   noDuplicateA17Slot:!mag.userData.A17Photo22SlottedSidePanel,
   manufacturerHolePatternVerified:false,slotDimensionsVerified:false};
 };
+window.__modelA05PhotoEvidenceProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const sheet=parts.get('A05')?.g,fasteners=parts.get('A05CS')?.g;
+ const candidateGrip=parts.get('A05C')?.g,candidateGlass=parts.get('A05G')?.g;
+ const foot=sheet?.children.find(m=>m.userData.A05OutwardFootCandidate);
+ const heads=fasteners?.children.filter(m=>m.userData.photo194WingFastenerCandidate);
+ if(!foot||heads?.length!==2||!candidateGrip||!candidateGlass)return {available:false};
+ sheet.updateWorldMatrix(true,true);fasteners.updateWorldMatrix(true,true);
+ const positions=heads.map(m=>m.getWorldPosition(new THREE.Vector3()));
+ const bb=new THREE.Box3().setFromObject(foot);
+ return {available:true,pose:aWorkingPoseMode?'candidate':'photo94',
+   visibleFastenerCount:heads.length,
+   fastenerAxis:'X-outward',
+   screwPitchXmm:Number(Math.abs(positions[1].x-positions[0].x).toFixed(2)),
+   screwPitchZmm:Number(Math.abs(positions[1].z-positions[0].z).toFixed(2)),
+   footSpanXmm:Number((bb.max.x-bb.min.x).toFixed(2)),
+   footSpanZmm:Number((bb.max.z-bb.min.z).toFixed(2)),
+   glassCandidateVisible:candidateGlass.visible,
+   fabricatedJawsVisible:candidateGrip.visible,
+   photo194196ActuallyShowsMountedSlide:false,
+   glassClampOEMVerified:false,
+   physicalClampLoadPathVerified:false};
+};
 window.__modelA05FootBoreProbe=()=>{
  if(platform!=='A')return {available:false};
  const sheet=parts.get('A05')?.g,screws=parts.get('A05CS')?.g;
@@ -2414,15 +2437,18 @@ function platformA(){
    }
    // Photos194/196: the L leg ends in a short OUTWARD foot, whose
    // two wing fasteners are separate A05C components below.
-   // Foot depth remains a photo-proportioned, unverified 26mm proxy.
+   // V70 photo194/196: the two butterfly heads are side-by-side
+   // ALONG the OUTWARD foot direction, not front/back Z as in V69.
+   // X length 32 and Z width 14 remain candidate proportions.
    const footSign=aWorkingPoseMode?1:-1;
-   // V63: actual double through-bore rather than screw/solid intersections.
-   const footX=leftLocalX+footSign*6;
-   const foot=add(g,plate(13,26,2.5,mats.black,
-     [[footSign*1,-9,1.6],[footSign*1,9,1.6]]));
+   const footX=leftLocalX+footSign*16;
+   const foot=add(g,plate(32,14,2.5,mats.black,
+     [[-9,0,1.6],[9,0,1.6]]));
    foot.position.set(footX,-aBent.verticalLegLength,aBent.sheetFrontZ);
    foot.userData.A05OutwardFootCandidate=true;
    foot.userData.A05ActualThroughBoreCount=2;
+   foot.userData.A05BoreAxis='X-outward';
+   foot.userData.A05CandidateHolePitchMm=18;
    foot.userData.A05BoreDiameterCandidateMm=3.2;
    g.userData.photo94BentSheet=true;
    g.userData.verifiedPhotoBentCorner=true;
@@ -2445,12 +2471,15 @@ function platformA(){
      bracketLegLocalX,-aBent.verticalLegLength+7,aBent.sheetFrontZ));
    bracketTie.userData.A05CUnverifiedConnection=true;
    // V64: the proxy carrier ALSO requires two real screw clearances.
-   // Photo94 alternate pose remains unregistered; do not impose this
-   // right-hand candidate hole map on its left-folded layout.
-   const bores=aWorkingPoseMode?[[-2,-9,1.6],[-2,9,1.6]]:[];
-   const carrier=add(g,plate(21,27,3,mats.dark,bores));
-   carrier.position.set(bracketLegLocalX+9,glassCenterY-3.5,aBent.sheetFrontZ);
-   carrier.userData.A05CActualThroughBores=aWorkingPoseMode?2:0;
+   // V70: align the provisional carrier's two actual bores to the
+   // photographic OUTWARD-axis fastener centres (+7/+25 or -7/-25).
+   // This carrier and both jaws are UNOBSERVED and are hidden in photo mode.
+   const sign=aWorkingPoseMode?1:-1;
+   const bores=[[-9,0,1.6],[9,0,1.6]];
+   const carrier=add(g,plate(36,27,3,mats.dark,bores));
+   carrier.position.set(bracketLegLocalX+sign*16,glassCenterY-2.5,aBent.sheetFrontZ);
+   carrier.userData.A05CActualThroughBores=2;
+   carrier.userData.A05CCandidateOnly=true;
    const upperJaw=add(g,cub(10,1.2,27,mats.dark,
      bracketLegLocalX+15,glassCenterY+1.1,aBent.sheetFrontZ));
    const lowerJaw=add(g,cub(10,1.2,27,mats.dark,
@@ -2466,18 +2495,19 @@ function platformA(){
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
  addPart('A05CS',ax,164,az,g=>{
    const side=aWorkingPoseMode?1:-1;
-   const screwX=bracketLegLocalX+side*7;
-   for(const zOffset of [-9,9]){
+   for(const outwardOffset of [7,25]){
+     const screwX=bracketLegLocalX+side*outwardOffset;
      const shaft=add(g,cyl(1.4,10.5,mats.steel,
-       screwX,glassCenterY+.75,aBent.sheetFrontZ+zOffset));
+       screwX,glassCenterY+.75,aBent.sheetFrontZ));
      shaft.userData.A05CSCandidateShank=true;
      const head=add(g,cyl(2.8,2,mats.silver,
-       screwX,glassCenterY+7,aBent.sheetFrontZ+zOffset));
+       screwX,glassCenterY+7,aBent.sheetFrontZ));
+     head.userData.A05CSOutwardOffsetMm=outwardOffset;
      head.userData.photo194WingFastenerCandidate=true;
      for(const wingSide of [-1,1]){
        const wing=add(g,cub(7,3.8,1.6,mats.steel,
          screwX+wingSide*4.8,glassCenterY+8,
-         aBent.sheetFrontZ+zOffset));
+         aBent.sheetFrontZ));
        wing.rotation.z=wingSide*.35;
      }
    }
@@ -2505,6 +2535,15 @@ function platformA(){
    label(g,aWorkingPoseMode?'A05G · 玻片右侧印章落于热台上方（几何候选；未实物配准）':'A05G · 76×26×1mm玻片候选 / 右端印章 / A07全局未配准',
      glassCenterX,15,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
+ // The photo94/194/196 evidence does NOT show glass installed or prove
+ // the invented twin-jaw carrier. Hide only those two PROXY part groups in
+ // photographic orientation, retaining their BOM and engineering candidate.
+ if(!aWorkingPoseMode){
+   for(const id of ['A05C','A05G']){
+     const item=parts.get(id);
+     if(item){item.g.visible=false;item.g.userData.hiddenBecauseNotPhotographed=true;}
+   }
+ }
  addPart('A06',sx,28,0,g=>{
   // Photos17/18/20: rotary cylinder does not exceed the 65mm upper
   // square plate. V47 Ø94 was geometrically disproportionate.
@@ -3128,7 +3167,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V69 / '+(aWorkingPoseMode?
+   '平台 A · V70 / '+(aWorkingPoseMode?
     '右折边操作位置候选（未实物验证）/ 玻片印章对准A07 / 夹具避开热台 / A17型号未知':
     '照片94原始左折边朝向 / A05C夹具+A05G玻片 / 全局未配准');
  $('stack-note').textContent=platform==='B'?
