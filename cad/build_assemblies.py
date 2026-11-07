@@ -731,7 +731,8 @@ def make_a():
     glass_center_x=glass_left+38
     glass_bottom=leg_bottom+.5
     glass_center_z=glass_bottom+.5
-    tie=box(2.5,10,14,bracket_leg_x,0,leg_bottom)
+    # Candidate tie rides the INWARD face of vertical L leg, not through its metal.
+    tie=box(2.5,10,14,bracket_leg_x-2.5,0,leg_bottom)
     # V70 hypothetical carrier remains ONLY in operation candidate,
     # with holes coaxial to the photographed wing screws.
     # Place its upper surface at the folded foot underside, not 0.5mm
