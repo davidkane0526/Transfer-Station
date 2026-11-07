@@ -29,13 +29,28 @@ assert.equal(nominal.sampleChipTopWorldYmm,110.6);
 assert.equal(nominal.metalHeaterTopWorldYmm,109.2);
 assert.equal(nominal.initialVerticalStampGapMm,13);
 assert.equal(nominal.candidateCanLower,true);
+assert.equal(nominal.stampInsideSampleChipFootprint,true);
+assert.equal(nominal.sampleChipFootprintMm,28);
+assert.equal(nominal.minimumStampEdgeInsetMm,10);
+const safeOffset=auditAWorkingLayout({sampleShiftMm:5,filmDepthShiftMm:3});
+assert.equal(safeOffset.stampInsideSampleChipFootprint,true);
+assert.equal(safeOffset.candidateCanLower,true);
+const badDepth=auditAWorkingLayout({filmDepthShiftMm:12.5});
+assert.equal(badDepth.stampInsideHeaterBoundingBox,true);
+assert.equal(badDepth.stampInsideSampleChipFootprint,false);
+assert.equal(badDepth.candidateCanLower,false);
 const contact=auditAWorkingLayout({filmDropMm:13});
 assert.equal(contact.verticalStampGapMm,0);
 assert.equal(contact.candidateCanLower,true);
 const worstStraight=auditAWorkingLayout({filmShiftMm:12.5,sampleShiftMm:-12.5});
 assert.equal(worstStraight.clampHeaterClearanceMm,1);
 assert.equal(worstStraight.clipOutsideHeater,true);
-assert.equal(worstStraight.candidateCanLower,true);
+assert.equal(worstStraight.stampInsideHeaterBoundingBox,true,
+  '8mm stamp still fits wide heater bounding box');
+assert.equal(worstStraight.stampInsideSampleChipFootprint,false,
+  'Full stamp falls outside 28mm sample chip after -12.5mm stroke');
+assert.equal(worstStraight.candidateCanLower,false,
+  'Do not allow descent when stamp misses the chip even if heater envelope passes');
 const unsafeTurn=auditAWorkingLayout({sampleAngleDeg:45,filmDropMm:13});
 assert(unsafeTurn.clampHeaterClearanceMm<nominal.clampHeaterClearanceMm);
 const worstTurn=auditAWorkingLayout({sampleAngleDeg:45,filmShiftMm:12.5,sampleShiftMm:-12.5,filmDropMm:13});
