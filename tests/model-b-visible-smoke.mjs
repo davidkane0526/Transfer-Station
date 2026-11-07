@@ -602,7 +602,9 @@ try{
  const opticsRaised=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
  assert.equal(opticsRaised?.available,true);
  assert.equal(opticsRaised.coherentOpticOffsets,true,
-   'A18/A19/A08/A09/A10A/A14/A20 must retract as ONE optical stack');
+   'A18/A19/A08/A09/A14/A20 and A10 sliding BOOM must move together');
+ assert.equal(opticsRaised.supportBoomMovesWhilePostFixed,true,
+   'Optics follow raised support bracket, while A10 breadboard post/foot stay fixed');
  assert.equal(opticsRaised.actualParkingLiftMm,18);
  assert.equal(opticsRaised.opticPartIds.length,7);
  assert.equal(opticsRaised.currentBroadphaseCollisions.length,0,
