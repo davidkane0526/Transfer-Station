@@ -819,7 +819,11 @@ def make_a():
     for i,(xx,yy) in enumerate(a10_anchors,1):
         screw=vz(2.5,17.5,xx,yy,14).fuse(vz(4.25,2.5,xx,yy,31.5))
         add('A',f'A10S{i}','A10_M5x17p5_GRID_ANCHOR_CANDIDATE',screw,'C')
-    add('A','A10A','imaging_boom',box(34,125,25,cx,-50,220))
+    # V69: A10 stationary Ø26 post previously pierced the solid boom.
+    # Candidate Ø26.6 real clearance through-hole: center registered to post.
+    # Arm shifted 20mm rearward (not an OEM-dimension claim).
+    boom=box(34,125,25,cx,-70,220).cut(vz(13.3,25.2,cx,-112,219.9))
+    add('A','A10A','imaging_boom_WITH_POST_THROUGH_BORE_UNVERIFIED',boom,'C')
     # V59: photo191–193 show a taller camera/microscope stack; no ruler is present.
     add('A','A08','TTL200A_nominal_28mm_housing_CANDIDATE',
         vz(26,28,cx,0,235),'D')
