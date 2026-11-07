@@ -465,6 +465,16 @@ window.__modelBActuatorProbe=()=>{
      fixedBaseHeightMm:root.userData.fixedBaseHeightMm??null,
      movingStageHeightMm:root.userData.movingStageHeightMm??null,
      stageRole:root.userData.stageRole??null,
+     recessedBaseHeadCount:root.children.filter(o=>o.userData.stageBaseRecessedHead).length,
+     fixedBaseFastenerTopMm:root.userData.fixedBaseFastenerTopMm??null,
+     movingUndersideToFastenerClearanceMm:(()=>{
+       const heads=root.children.filter(o=>o.userData.stageBaseRecessedHead);
+       const face=root.userData.slidingTop?.children.find(o=>o.userData.sampleStageMovingUnderside);
+       if(!heads.length||!face)return null;
+       const headTop=Math.max(...heads.map(h=>new THREE.Box3().setFromObject(h).max.y));
+       const movingBottom=new THREE.Box3().setFromObject(face).min.y;
+       return Number((movingBottom-headTop).toFixed(3));
+     })(),
      modelOnlyAxisAnnotations:(()=>{
        const tags=[];root.traverse(obj=>{
          if(obj.userData.modelOnlyAxisAnnotation)tags.push(obj.userData.modelOnlyAxisAnnotation);
@@ -1115,6 +1125,27 @@ function addJointHeads(g,id,topY,locations,{headR=3.1}={}){
  for(const [x,z] of locations)jointHead(g,x,topY,z,{headR});
  g.userData.fastenerProxies=locations.length;
 }
+// B41/B09 mount through the FIXED 11mm base, beneath a travelling carriage.
+// Former screw heads protruded into the translating lower plate.
+// Recess the candidate heads inside the base counterbores.
+function stageBaseRecessedFasteners(g,id,locations){
+ if(!JOINTS[id]||JOINTS[id].count!==locations.length)
+  throw Error('Stage base fastening count mismatch '+id);
+ const headTopMm=10.85,headH=2.8;
+ for(const [x,z] of locations){
+  const shank=add(g,cyl(2.6,8.05,mats.steel,x,4.025,z,24));
+  const head=add(g,cyl(4.2,headH,mats.silver,x,headTopMm-headH/2,z,32));
+  const socket=add(g,cyl(1.65,.12,mats.ink,x,headTopMm-.06,z,6));
+  head.userData.fastenerHead=true;
+  head.userData.stageBaseRecessedHead=true;
+  for(const o of [shank,head,socket]){
+   o.userData.fastenerProxy=true;o.userData.verifiedFastener=false;
+  }
+ }
+ g.userData.fixedBaseFastenerTopMm=headTopMm;
+ g.userData.fixedBaseNominalTopMm=11;
+ g.userData.fastenerProxies=locations.length;
+}
 function screw(g,x,topY,z,length=25){
  // User-confirmed four flush heads, NOT verified M6x25 or hole pitch.
  const headH=6,headBottom=topY-headH;
@@ -1706,7 +1737,9 @@ function rotaryB(){
      ...[-25,0,25].flatMap(x=>[-25,0,25].map(z=>[x,z,2.5])),
      ...[-16,16].flatMap(x=>[-16,16].map(z=>[x,z,1.25]))
    ]:[[-25,-25,2.45],[-25,25,2.45],[25,-25,2.45],[25,25,2.45]];
-   const lower=plate(65,65,2,stageBodyMaterial);lower.position.y=11;add(slidingTop,lower);
+   const lower=plate(65,65,2,stageBodyMaterial);
+   lower.position.y=11;lower.userData.sampleStageMovingUnderside=true;
+   add(slidingTop,lower);
    const drilled=plate(65,65,10,stageBodyMaterial,tapped);drilled.position.y=13;add(slidingTop,drilled);
    g.userData.fixedBaseHeightMm=11;
    g.userData.movingStageHeightMm=12;
@@ -1762,7 +1795,7 @@ function rotaryB(){
      g.userData.B41TopHolePatternVerified=false;
    }
    for(const x of [-25,25])for(const z of [-25,25])circleGuide(g,5.5,11.3,x,z);
-   addJointHeads(g,id,10.9,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:4.2});
+   stageBaseRecessedFasteners(g,id,[[-25,-25],[-25,25],[25,-25],[25,25]]);
    label(g,modelConfirmed?'NFP 仅单轴 X / 一根测微头':'第二级正交单轴台 · 前向测微头（型号待核）',-38,46,0);
    label(g,title,0,42,0);
   },{explode:[0,16,0],rotateSample:true,facingYaw,
