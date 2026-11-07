@@ -638,6 +638,35 @@ try{
  assert.equal(aContactBefore.stampRightInsetMm,4);
  assert.equal(aContactBefore.sampleChipTopWorldYmm,110.6);
  assert.equal(aContactBefore.pdmsToChipGapMm,13);
+ // A02 and A15 are DIFFERENT physical stages and must use different
+ // sliders. Previously the sample A02 top moved with filmShift instead.
+ const aZero=await page.evaluate(()=>window.__modelAKinematicProbe?.());
+ assert.equal(aZero.A02SampleCarriageLocalXmm,0);
+ assert.equal(aZero.A15FilmCarriageLocalXmm,0);
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='4';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const aSampleOnly=await page.evaluate(()=>window.__modelAKinematicProbe?.());
+ assert.equal(aSampleOnly.A02SampleCarriageLocalXmm,4,
+   'A02 physical sample slide must follow its own sample X input');
+ assert.equal(aSampleOnly.A15FilmCarriageLocalXmm,0,
+   'Sample X must not move the separate film-stage X carriage');
+ assert.equal(aSampleOnly.sampleHeaterWorldXmm-aZero.sampleHeaterWorldXmm,4,
+   'A07 heater must ride on the actual A02 sample carriage');
+ await page.locator('#translate').evaluate(el=>{
+   el.value='5';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const aIndependent=await page.evaluate(()=>window.__modelAKinematicProbe?.());
+ assert.equal(aIndependent.A02SampleCarriageLocalXmm,4,
+   'Film X cannot move the independent sample carriage');
+ assert.equal(aIndependent.A15FilmCarriageLocalXmm,5,
+   'Film X must move the A15 carriage');
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#translate').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
  await page.locator('#open-bom').evaluate(el=>el.click());
  const aChipRow=page.locator('#bom-body tr').filter({hasText:/^\s*A07W\b/});
  assert.equal(await aChipRow.count(),1,
