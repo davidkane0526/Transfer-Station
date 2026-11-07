@@ -201,6 +201,11 @@ window.__modelA05PhotoEvidenceProbe=()=>{
  sheet.updateWorldMatrix(true,true);fasteners.updateWorldMatrix(true,true);
  const positions=heads.map(m=>m.getWorldPosition(new THREE.Vector3()));
  const bb=new THREE.Box3().setFromObject(foot);
+ const slide=candidateGlass.children.find(m=>m.userData.candidateStandardSlide);
+ const slideBounds=slide?new THREE.Box3().setFromObject(slide):null;
+ const shafts=fasteners.children.filter(m=>m.userData.A05CSCandidateShank);
+ const fastenerGlassCollisions=slideBounds?
+   shafts.filter(m=>new THREE.Box3().setFromObject(m).intersectsBox(slideBounds)).length:null;
  return {available:true,pose:aWorkingPoseMode?'candidate':'photo94',
    visibleFastenerCount:heads.length,
    fastenerAxis:'X-outward',
@@ -208,6 +213,10 @@ window.__modelA05PhotoEvidenceProbe=()=>{
    screwPitchZmm:Number(Math.abs(positions[1].z-positions[0].z).toFixed(2)),
    footSpanXmm:Number((bb.max.x-bb.min.x).toFixed(2)),
    footSpanZmm:Number((bb.max.z-bb.min.z).toFixed(2)),
+   glassCandidateLeftXmm:slideBounds?Number(slideBounds.min.x.toFixed(2)):null,
+   footCandidateRightXmm:Number(bb.max.x.toFixed(2)),
+   fastenerGlassCollisionCount:fastenerGlassCollisions,
+   foldedFootOutsideGlass:slideBounds?bb.max.x<slideBounds.min.x:false,
    glassCandidateVisible:candidateGlass.visible,
    fabricatedJawsVisible:candidateGrip.visible,
    photo194196ActuallyShowsMountedSlide:false,
@@ -2461,7 +2470,7 @@ function platformA(){
  // These are explicit PROXY subassemblies, not identified purchased parts.
  // Both share A05's film translation and VC13M vertical motion.
  const bracketLegLocalX=aBent.legX-ax+(aWorkingPoseMode?-aBent.metalThickness/2:aBent.metalThickness/2);
- const glassLeftX=bracketLegLocalX+10;
+ const glassLeftX=bracketLegLocalX+34; // V70 starts beyond second wing screw and folded foot
  const glassCenterX=glassLeftX+38;
  const glassCenterY=-aBent.verticalLegLength+1.0;
  addPart('A05C',ax,164,az,g=>{
@@ -2480,10 +2489,13 @@ function platformA(){
    carrier.position.set(bracketLegLocalX+sign*16,glassCenterY-2.5,aBent.sheetFrontZ);
    carrier.userData.A05CActualThroughBores=2;
    carrier.userData.A05CCandidateOnly=true;
+   // Candidate only: both jaws begin just OUTSIDE the new foot edge
+   // (foot finishes at leg+32). They touch the glass over its first 9.5mm.
+   // 0.5mm overlap with carrier is a candidate mechanical tie, NOT OEM.
    const upperJaw=add(g,cub(10,1.2,27,mats.dark,
-     bracketLegLocalX+15,glassCenterY+1.1,aBent.sheetFrontZ));
+     bracketLegLocalX+38.5,glassCenterY+1.1,aBent.sheetFrontZ));
    const lowerJaw=add(g,cub(10,1.2,27,mats.dark,
-     bracketLegLocalX+15,glassCenterY-1.1,aBent.sheetFrontZ));
+     bracketLegLocalX+38.5,glassCenterY-1.1,aBent.sheetFrontZ));
    for(const m of [carrier,upperJaw,lowerJaw])m.userData.A05CClampingProxy=true;
    // Two butterfly fasteners are separate A05CS assembly, not an
    // invented integral part of the unidentified clamping jaws.
