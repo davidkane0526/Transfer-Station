@@ -277,6 +277,18 @@ window.__modelAOpticalClearanceProbe=()=>{
  const fixedPost=parts.get('A10')?.g;
  const movingBoom=fixedPost?.userData.opticsMovingBoom;
  const boomMatched=Boolean(movingBoom)&&Math.abs(movingBoom.position.y-parked)<.02;
+ const boomShell=movingBoom?.children.find(m=>m.userData.A10BoomTruePostThroughBore);
+ let boomBoreOpen=false,boomNearbyMetal=false;
+ if(boomShell){
+   fixedPost.updateWorldMatrix(true,true);
+   const bb=new THREE.Box3().setFromObject(boomShell);
+   const boreRay=(x,z)=>new THREE.Raycaster(
+     new THREE.Vector3(x,bb.min.y-1,z),new THREE.Vector3(0,1,0),0,27
+   ).intersectObject(boomShell,false).length;
+   const postPos=new THREE.Vector3();fixedPost.getWorldPosition(postPos);
+   boomBoreOpen=boreRay(postPos.x,postPos.z)===0;
+   boomNearbyMetal=boreRay(postPos.x,postPos.z+22)>0;
+ }
  const minOpticalBottom=Math.min(...optics.map(x=>x.lowerYmm));
  const minVerticalGap=Number((minOpticalBottom-glassBox.max.y).toFixed(2));
  const hypotheticalUnparkedMinGap=Number((minVerticalGap-parked).toFixed(2));
@@ -284,6 +296,9 @@ window.__modelAOpticalClearanceProbe=()=>{
    opticPartIds:[...opticIDs,'A10:movable-boom'],
    coherentOpticOffsets:headOffset.every(x=>Math.abs(x.offsetMm-parked)<.02)&&boomMatched,
    supportBoomMovesWhilePostFixed:boomMatched&&Math.abs(fixedPost.position.y-parts.get('A10').base.y)<.02,
+   supportBoomRealPostBore:boomBoreOpen,
+   supportBoomNearbySolidMetal:boomNearbyMetal,
+   supportBoomCandidatePostBoreDiameterMm:boomShell?.userData.A10BoreDiameterCandidateMm??null,
    actualParkingLiftMm:parked,
    glassTopWorldYmm:Number(glassBox.max.y.toFixed(2)),
    closestObjectiveBottomYmm:minOpticalBottom,
@@ -2573,7 +2588,14 @@ function platformA(){
     // V59: taller photographed camera/microscope stack; post length remains candidate.
     add(g,cyl(13,372,mats.steel,0,199,0)); // fixed optical post
     const movingBoom=new THREE.Group();g.add(movingBoom);
-    add(movingBoom,cub(34,25,127,mats.dark,0,200,65));
+    // V69: old solid support penetrated A10 Ø26 stationary column.
+    // Make an actual Ø26.6 axial clearance bore around the post.
+    // Longitudinal center moves 20mm rearward (still a candidate).
+    const boomShell=add(movingBoom,plate(34,127,25,mats.dark,
+      [[0,-45,13.3]]));
+    boomShell.position.set(0,187.5,45);
+    boomShell.userData.A10BoomTruePostThroughBore=true;
+    boomShell.userData.A10BoreDiameterCandidateMm=26.6;
     movingBoom.userData.A10AdjustableBoomCandidate=true;
     g.userData.opticsMovingBoom=movingBoom;
     g.userData.fourTrueCandidateFootBores=true;
@@ -3104,7 +3126,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V68 / '+(aWorkingPoseMode?
+   '平台 A · V69 / '+(aWorkingPoseMode?
     '右折边操作位置候选（未实物验证）/ 玻片印章对准A07 / 夹具避开热台 / A17型号未知':
     '照片94原始左折边朝向 / A05C夹具+A05G玻片 / 全局未配准');
  $('stack-note').textContent=platform==='B'?
