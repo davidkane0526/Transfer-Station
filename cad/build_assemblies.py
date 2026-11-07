@@ -630,7 +630,7 @@ def make_b():
         box(65,72,48,335,65,0),'P')
 def make_a():
     board('A')
-    ax,cx=-46.75,78
+    ax,cx=-70.75,78
     # V58 CAD exports ONLY the labelled working-layout candidate.
     # The original photographed left-return arm remains in the web viewer.
     # This X position, mirrored fold and 52.1mm leg are NOT OEM dimensions.
@@ -724,7 +724,10 @@ def make_a():
             vz(3.1,2,ax+dx,0,166.5),'C')
     # Three independent jaw/glass members and an 8x8mm PDMS stamp.
     # The screws are MODEL PROXIES placed OUTSIDE the glass perimeter.
-    glass_left=bracket_leg_x+10
+    # V70: glass begins 2mm past the outward folded foot (length32);
+    # relocating the unregistered film base by 24mm preserves the
+    # stamp's global candidate X=78 without drilling the glass.
+    glass_left=bracket_leg_x+34
     glass_center_x=glass_left+38
     glass_bottom=leg_bottom+.5
     glass_center_z=glass_bottom+.5
@@ -736,11 +739,11 @@ def make_a():
     carrier=box(36,27,3,bracket_leg_x+16,0,glass_bottom-3.5)
     for xx in (bracket_leg_x+7,bracket_leg_x+25):
         carrier=carrier.cut(vz(1.6,3.2,xx,0,glass_bottom-3.6))
-    lower_jaw=box(10,27,1.2,bracket_leg_x+15,0,glass_bottom-1.2)
+    lower_jaw=box(10,27,1.2,bracket_leg_x+38.5,0,glass_bottom-1.2)
     add('A','A05C','clamp_bracket_tie_plus_carrier_and_lower_jaw_UNVERIFIED',
         tie.fuse(carrier,lower_jaw),'C')
     add('A','A05CU','candidate_separate_upper_compression_jaw',
-        box(10,27,1.2,bracket_leg_x+15,0,glass_bottom+1),'C')
+        box(10,27,1.2,bracket_leg_x+38.5,0,glass_bottom+1),'C')
     for i,dx in enumerate((7,25),1):
         # Outward X direction is supported by photo194/196, but actual
         # Ø, head and thread dimensions remain unmeasured candidates.
