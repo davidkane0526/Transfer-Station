@@ -592,13 +592,13 @@ try{
  assert(aFrame.topWorldYmm>=390,'A optical/camera cable top is missing from the scene');
  assert.equal(aDefault.actualStagePosePhotoRegistered,false);
  assert.equal(aDefault.A05CClampSkuVerified,false);
- assert.equal(aDefault.footprintGapMm,36.25);
+ assert.equal(aDefault.footprintGapMm,60.25);
  assert.equal(aDefault.stampCenterX,78);
  assert.equal(aDefault.stampCenterZ,0);
  assert.equal(aDefault.initialVerticalStampGapMm,13);
  assert.equal(aDefault.opticalParkingLiftMm,18);
  assert.equal(aDefault.opticalParkingMechanismVerified,false);
- assert.equal(aDefault.clampHeaterClearanceMm,11.5);
+ assert.equal(aDefault.clampHeaterClearanceMm,26);
  const opticsRaised=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
  assert.equal(opticsRaised?.available,true);
  assert.equal(opticsRaised.coherentOpticOffsets,true,
@@ -670,7 +670,7 @@ try{
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
  assert.match(await page.locator('#a-physical-audit').innerText(),/工程几何假设/);
- assert.match(await page.locator('#a-physical-audit').innerText(),/36.25/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/60.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
  // A03 VC13M must move only its output plate; A04/A05 follow the
@@ -699,6 +699,12 @@ try{
  assert.equal(photoAxis.screwPitchZmm,0);
  assert.equal(photoAxis.footSpanXmm,32);
  assert.equal(photoAxis.footSpanZmm,14);
+ assert.equal(photoAxis.glassCandidateLeftXmm,10);
+ assert.equal(photoAxis.footCandidateRightXmm,8);
+ assert.equal(photoAxis.fastenerGlassCollisionCount,0,
+   'Fastener must stay outside undrilled glass candidate');
+ assert.equal(photoAxis.foldedFootOutsideGlass,true,
+   'A05 glass must start after the folded foot, not overlap it');
  assert.equal(photoAxis.glassCandidateVisible,true);
  assert.equal(photoAxis.fabricatedJawsVisible,true);
  assert.equal(photoAxis.photo194196ActuallyShowsMountedSlide,false);

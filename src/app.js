@@ -2946,7 +2946,7 @@ function updateDetail(part){
  const aRigHtml=aRigAudit?(aWorkingPoseMode?
    '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
    ' data-gap-mm="'+aRigAudit.clampHeaterClearanceMm+'">'+
-   '<b>A操作位置候选 · 非实物配准</b><p>这是一种假设A05折边向右、折腿缩为52.1mm、膜侧磁座中心X=-46.75mm的工程构型。'+
+   '<b>A操作位置候选 · 非实物配准</b><p>这是一种假设A05折边向右、折腿缩为52.1mm、膜侧磁座中心X=-70.75mm的工程构型。'+
    'A17与A16底座平面间隔 '+aRigAudit.footprintGapMm+
    'mm；夹具到加热台X向边缘间隔 '+aRigAudit.clampHeaterClearanceMm+
    'mm；右端PDMS与A07样品片表面Y向间隙 '+aRigAudit.verticalStampGapMm+
@@ -3132,7 +3132,7 @@ function resetScene(){
  $('axis-confidence-note').textContent=platform==='B'?
   'B：样品侧为B08无外伸手柄旋转台 + B41下层Y（前后） + B09上层X（左右）单轴NFP-1462C。两级台体用视觉色差、接合线和X/Y字样区分（非实物铭牌/材质差异）；B41精确型号、孔系和行程待核。B03载玻片侧为另一套双轴T25M。':
   'A：照片94左折边的G40M60L上摆角及A04L下摆角是历史实拍约束；当前'+
-   (aWorkingPoseMode?'在单独的V58工程候选中镜像为右折边、改用52.1mm场景腿长，并将磁座重新配准到-46.75mm，均未由实物证实。':'显示照片94原局部朝向。')+
+   (aWorkingPoseMode?'在单独的V58工程候选中镜像为右折边、改用52.1mm场景腿长，并将磁座重新配准到-70.75mm，均未由实物证实。':'显示照片94原局部朝向。')+
    'A05C夹具、A17磁座型号与孔系未知；操作姿态不等于设备可靠性认证。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
@@ -3187,7 +3187,7 @@ function resetScene(){
     '照片94原始左折边朝向 / A05C夹具+A05G玻片 / 全局未配准');
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B样品侧从下至上为B35→B08（无外伸手柄）→B41（前向Z单轴、型号待核）→B09（右向X单轴NFP-1462C）→B10隔热层→B11真空加热台。B41与B09分别具有独立活动滑块和测微头，构成正交XY平移。B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 Ø12×112mm场景拟合立杆（实物长度待核）→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
-  'A装配：唯一A01面包板→A17未知磁座（磁吸）→A15独立XY双轴T25M→A03独立Z轴VC13M→A04L/A04双摆角机构→A05薄型L片→A05C独立夹持器候选→A05G 76×26×1mm玻片+右缘PDMS。样品侧：A16 GCM-5306M螺栓底座→A06 Ø66候选旋转台→A02单轴T25M→A07三层样品座。'+(aWorkingPoseMode?'目前采用右折边、短折腿的工作位置候选；水平夹具退在A07热台外、PDMS名义中心对准样品顶面，13mm下降接触仅为几何推演。照片94原方向保留在切换按钮中，未被此构型替代。':'目前显示照片94原始左折边局部轮廓，A与样品全局距离仍不匹配，不能据此转移。')+'A05C、A17具体型号/孔位、底座真实安装朝向和显微镜工作距离均未确认。';
+  'A装配：唯一A01面包板→A17未知磁座（磁吸）→A15独立XY双轴T25M→A03独立Z轴VC13M→A04L/A04双摆角机构→A05薄型L片→A05C独立夹持器候选→A05G 76×26×1mm玻片+右缘PDMS。样品侧：A16 GCM-5306M螺栓底座→A06 Ø66候选旋转台→A02单轴T25M→A07三层样品座。'+(aWorkingPoseMode?'目前采用右折边、短折腿的工作位置候选；水平夹具退在A07热台外、PDMS名义中心对准样品顶面，13mm下降接触仅为几何推演。照片94原方向保留在切换按钮中，未被此构型替代。':'目前显示照片94原始左折边局部轮廓，A与样品全局距离仍不匹配，不能据此转移。')+'A05C、A17具体型号/孔位、底座真实安装朝向和显微镜工作距离均未确认。V70将膜侧操作候选左移24mm，使玻片起点避开两颗翼形螺钉；不代表实物已配准。';
  focus('iso');
  updateTable();
 }
