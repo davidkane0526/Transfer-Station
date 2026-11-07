@@ -474,7 +474,7 @@ check(abs(a17_body.BoundingBox().zmin-20)<.02 and
 for dx,dy in [(0,0),(-25,-25),(-25,25),(25,-25),(25,25),
               (-20,-20),(-20,20),(20,-20),(20,20),
               (-16,-16),(-16,16),(16,-16),(16,16)]:
-    unobserved_hole_probe=vz(1.2,8,-46.75+dx,dy,32)
+    unobserved_hole_probe=vz(1.2,8,-70.75+dx,dy,32)
     check(a17_body.intersect(unobserved_hole_probe).Volume()>1,
           'V52 A17 neutral top proxy must not fabricate an unobserved GCM-42 hole')
 a15_top=part(A,'A15A')[0]
@@ -485,7 +485,7 @@ for xx,yy in [(-71.75,-25),(-71.75,25),(-21.75,-25),(-21.75,25)]:
           'V51 A15 photo23 top counterbore is open for 3mm candidate depth')
     check(a15_top.intersect(backing).Volume()>1,
           'V51 A15 top counterbore remains blind, not through the stage')
-slot_probe=box_probe(24,.5,3.5,-46.75,33.25,57.25)
+slot_probe=box_probe(24,.5,3.5,-70.75,33.25,57.25)
 check(a15_front.intersect(slot_probe).Volume()<1e-4,
       'V62 A15 photo194 front face is truly slotted')
 check(a15_front.BoundingBox().zmin>amagnet.zmax+10,
@@ -759,7 +759,7 @@ check(not (B/'B06S3.step').exists(),
 # rather than the V57 false positive that accepted a 171.5mm scene gap.
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
-check(abs(asheet_bb.xmin+73.75)<.02 and abs(asheet_bb.xmax-32)<.02,
+check(abs(asheet_bb.xmin+97.75)<.02 and abs(asheet_bb.xmax-8)<.02,
       'V70 sheet folded foot extends 32mm toward right, candidate not photo94 pose')
 check(abs(asheet_bb.zmin-111.9)<.02 and abs(asheet_bb.zmax-166.5)<.02,
       'V58 52.1mm unverified leg joins G40 top and target glass position')
@@ -770,7 +770,7 @@ for i,dx in enumerate((-14,14),1):
     check(abs(head.BoundingBox().zmin-asheet_bb.zmax)<.02,
           'V58 both sheet screw HEADS contact top plate')
     center=(head.BoundingBox().xmin+head.BoundingBox().xmax)/2
-    check(abs(center-(-46.75+dx))<.02,'V58 G40 head pair follows moved film unit')
+    check(abs(center-(-70.75+dx))<.02,'V58 G40 head pair follows moved film unit')
 for i in (1,2):
     wing=part(A,f'A05CS{i}')[0]
     check(wing.isValid() and wing.BoundingBox().ylen>14 and
@@ -781,7 +781,7 @@ check(asheet_bb.ylen>=14-.02,
 # V63 physically test both hollow bores and solid material between them.
 # Prior versions had bolt/foot volume collisions despite passing contact QA.
 leg_bottom=164-52.1
-leg_x=-46.75+48-1.25
+leg_x=-70.75+48-1.25
 for i,dx in enumerate((7,25),1):
     shaft_axis=vz(1.4,2.5,leg_x+dx,0,leg_bottom)
     check(a_sheet.intersect(shaft_axis).Volume()<1e-5,
@@ -869,6 +869,12 @@ check(a_clamp.intersect(a_slide).Volume()<.0001 and
       a_upper_jaw.intersect(a_slide).Volume()<.0001 and
       a_pdms.intersect(a_slide).Volume()<.0001,
       'A05 clamp/PDMS must not penetrate the candidate glass')
+check(a_sheet.intersect(a_slide).Volume()<1e-4,
+      'V70 photographed folded foot must not penetrate UNDRILLED glass slide')
+check(a_sheet.intersect(a_clamp).Volume()<1e-4,
+      'V70 photographed L-fold sheet and hypothesis jaws cannot occupy same solid volume')
+check(a_sheet.distance(a_slide)>1.5,
+      'V70 fabricated glass must start beyond second wing screw/foot with physical horizontal gap')
 check(abs(a_slide.BoundingBox().xlen-76)<.02 and
       abs(a_slide.BoundingBox().ylen-26)<.02 and
       abs(a_slide.BoundingBox().zlen-1)<.02,
@@ -895,8 +901,8 @@ for i in (1,2):
 a17_bb=part(A,'A17')[0].BoundingBox()
 a16_bb=part(A,'A16')[0].BoundingBox()
 a_base_gap=a16_bb.xmin-a17_bb.xmax
-check(abs(a_base_gap-36.25)<.02,
-      'V58 sample A16 and film A17 bases need a 36.25mm footprint gap')
+check(abs(a_base_gap-60.25)<.02,
+      'V70 A16/A17 nominal 60.25mm clearance after re-registering glass beyond foot')
 check(abs((a_pdms.BoundingBox().xmin+a_pdms.BoundingBox().xmax)/2-78)<.02 and
       abs((a_pdms.BoundingBox().ymin+a_pdms.BoundingBox().ymax)/2)<.02,
       'V58 PDMS stamp must be centered above sample-chip XY')
@@ -908,7 +914,7 @@ report['V58_A_working_geometry_only']={
     'part_chain':['A17','A15','A03','A04L','A04','A05','A05C',
                   'A05CU','A05CS1','A05CS2','A05G','A05GP'],
     'A17_A16_footprint_gap_mm':round(a_base_gap,2),
-    'film_center_x_mm':-46.75,'working_film_bent_sheet_handedness':'right',
+    'film_center_x_mm':-70.75,'working_film_bent_sheet_handedness':'right',
     'photo94_original_handedness':'left',
     'a05_leg_height_candidate_mm':52.1,
     'glass_size_candidate_mm':[76,26,1],
@@ -961,8 +967,8 @@ check(abs(a_chip.BoundingBox().zmax-a_pdms.BoundingBox().zmin)<.02,
       'PDMS interface is on sample chip, not 1.4mm inside the heater')
 check(a_clamp.BoundingBox().xmax<a_heater.xmin,
       'A05C fixed clamp must remain outside A07 heater X footprint')
-check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-11.5)<.03,
-      'V70 photo-correct outward foot/carrier reduces candidate heater gap to 11.5mm')
+check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-26.0)<.03,
+      'V70 candidate far-end jaw stays outside heater with 26mm scene-only clearance')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
 # V69: the optical support must be bored around the fixed 26mm post;
