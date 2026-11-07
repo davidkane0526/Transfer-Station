@@ -33,7 +33,7 @@ export function auditAWorkingLayout({
   const heaterHalfEnvelopeX=d.heaterFootprintMm/2*(Math.abs(c)+Math.abs(s));
   const heaterLeftX=sampleWorldX-heaterHalfEnvelopeX;
   const heaterRightX=sampleWorldX+heaterHalfEnvelopeX;
-  const clampRightX=legX+15+5; // upper/lower jaws extend 0.5mm beyond carrier
+  const clampRightX=legX+34; // V70 36mm X-extended candidate carrier, NOT original 20mm jaws
   const clampHeaterClearanceMm=heaterLeftX-clampRightX;
   const footprintGapMm=(d.sampleCenterX-d.sampleBaseFootprintXmm/2)-
     (d.filmStageX+d.magnetFootprintMm/2);
@@ -73,7 +73,11 @@ export function auditAWorkingLayout({
     verticalStampGapMm:Number(verticalStampGapMm.toFixed(2)),
     stampRightMarginMm:d.stampRightMarginMm,
     stampInsideHeaterBoundingBox,clipOutsideHeater,basesSeparate,
-    candidateCanLower,
+    candidateCanLower, // planar-preview eligibility ONLY, not full 3D physical safety
+    photographedWingScrewAxis:'X-outward',
+    glassMountActuallyObservedInPhotos194196:false,
+    candidateJawsObservedInPhotos194196:false,
+    fullCandidateClampAssemblyCertified:false,
     usableForMachining:false,
     actualClampAndMountingHolesUnknown:true,
     opticalParkingLiftMm:d.opticalParkingLiftMm,
