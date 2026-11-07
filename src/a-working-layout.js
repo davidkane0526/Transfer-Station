@@ -2,7 +2,7 @@
 // The original photo94 left-return configuration remains separately selectable
 // in the browser. This is NEVER a measured global stage registration.
 export const A_WORKING_LAYOUT=Object.freeze({
-  filmStageX:-46.75, filmStageZ:0, sampleCenterX:78,
+  filmStageX:-70.75, filmStageZ:0, sampleCenterX:78,
   lBracketHandedness:'right',
   lBracketOverhangMm:48, lLegLengthMm:52.1,
   glassLengthMm:76, glassWidthMm:26, glassThicknessMm:1,
@@ -24,7 +24,9 @@ export function auditAWorkingLayout({
     throw new RangeError('Invalid platform-A working candidate pose');
   const r=sampleAngleDeg*Math.PI/180,c=Math.cos(r),s=Math.sin(r);
   const legX=d.filmStageX+d.lBracketOverhangMm-1.25+filmShiftMm;
-  const glassLeftX=legX+10;
+  // V70: glass must begin OUTSIDE the last wing bolt/short-foot metal.
+  // The global film stage shifts left 24mm to retain stamp center X=78.
+  const glassLeftX=legX+34;
   const glassRightX=glassLeftX+d.glassLengthMm;
   const stampCenterX=glassRightX-d.stampRightMarginMm-d.pdmsLengthMm/2;
   const stampCenterZ=d.filmStageZ+filmDepthShiftMm;
@@ -33,7 +35,7 @@ export function auditAWorkingLayout({
   const heaterHalfEnvelopeX=d.heaterFootprintMm/2*(Math.abs(c)+Math.abs(s));
   const heaterLeftX=sampleWorldX-heaterHalfEnvelopeX;
   const heaterRightX=sampleWorldX+heaterHalfEnvelopeX;
-  const clampRightX=legX+34; // V70 36mm X-extended candidate carrier, NOT original 20mm jaws
+  const clampRightX=legX+43.5; // V70 far-end jaw avoids foot and grips glass beyond its edge
   const clampHeaterClearanceMm=heaterLeftX-clampRightX;
   const footprintGapMm=(d.sampleCenterX-d.sampleBaseFootprintXmm/2)-
     (d.filmStageX+d.magnetFootprintMm/2);
@@ -78,6 +80,9 @@ export function auditAWorkingLayout({
     glassMountActuallyObservedInPhotos194196:false,
     candidateJawsObservedInPhotos194196:false,
     fullCandidateClampAssemblyCertified:false,
+    filmBaseRepositionedMm:-24,
+    wingScrewsOutsideUndrilledGlass:true,
+    candidateFootGlassPlanarOverlap:false,
     usableForMachining:false,
     actualClampAndMountingHolesUnknown:true,
     opticalParkingLiftMm:d.opticalParkingLiftMm,
