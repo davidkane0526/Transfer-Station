@@ -77,6 +77,15 @@ try{
    'Viewer must disclose that X/Y visual axis labels are not factory markings');
  assert.equal(actuators.B41.fixedBaseHeightMm+actuators.B41.movingStageHeightMm,23);
  assert.equal(actuators.B09.fixedBaseHeightMm+actuators.B09.movingStageHeightMm,23);
+ // Verify rendered B41/B09 screws are physically below travelling plates.
+ for(const id of ['B41','B09']){
+  assert.equal(actuators[id].recessedBaseHeadCount,4,
+    id+' must retain four separate fixed-base fastener heads');
+  assert(actuators[id].fixedBaseFastenerTopMm<11,
+    id+' head must not protrude into moving layer');
+  assert(actuators[id].movingUndersideToFastenerClearanceMm>=0.1,
+    id+' mounting screw heads penetrate moving stage');
+ }
  const finiteB=await page.evaluate(()=>window.__sceneFiniteGeometryProbe?.());
  assert.equal(finiteB.available,true);
  assert.equal(finiteB.invalidMeshes,0,'Rotary B tick meshes must not have NaN positions');
