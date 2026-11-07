@@ -2476,8 +2476,11 @@ function platformA(){
  addPart('A05C',ax,164,az,g=>{
    // Connection tab touches A05's bent leg; the actual clamp
    // mechanism, jaw aperture and bolt holes are NOT photo-verified.
+   // The provisional tie must sit BESIDE the L vertical sheet,
+   // not inside its solid volume. It attaches on the inward face.
+   const gripSign=aWorkingPoseMode?1:-1;
    const bracketTie=add(g,cub(2.5,14,10,mats.black,
-     bracketLegLocalX,-aBent.verticalLegLength+7,aBent.sheetFrontZ));
+     bracketLegLocalX-gripSign*2.5,-aBent.verticalLegLength+7,aBent.sheetFrontZ));
    bracketTie.userData.A05CUnverifiedConnection=true;
    // V64: the proxy carrier ALSO requires two real screw clearances.
    // V70: align the provisional carrier's two actual bores to the
