@@ -8,7 +8,7 @@ export const A_WORKING_LAYOUT=Object.freeze({
   glassLengthMm:76, glassWidthMm:26, glassThicknessMm:1,
   pdmsLengthMm:8, pdmsThicknessMm:1.8, stampRightMarginMm:4,
   magnetFootprintMm:65, sampleBaseFootprintXmm:112,
-  heaterFootprintMm:65, heaterTopWorldYmm:109.2,
+  heaterFootprintMm:65, sampleChipFootprintMm:28, heaterTopWorldYmm:109.2,
   sampleChipTopWorldYmm:110.6,
   bracketTopWorldYmm:164, initialVC13LiftMm:13,
   opticalParkingLiftMm:18, // collision-avoidance DISPLAY pose only: NOT an OEM focus travel
@@ -44,6 +44,21 @@ export function auditAWorkingLayout({
     stampCenterX-stampHalf>=heaterLeftX&&
     stampCenterX+stampHalf<=heaterRightX&&
     Math.abs(stampCenterZ-sampleWorldZ)+stampHalf<=heaterHalfEnvelopeX;
+  // The 8x8mm stamp must sit on the ACTUAL DISPLAYED 28x28mm sample
+  // chip, not merely within the much larger 65mm heater. For rotated
+  // sample stages, check all FOUR corners in the chip's local frame.
+  // An axis-aligned heater bounding box previously gave false-safe poses.
+  const chipHalf=d.sampleChipFootprintMm/2;
+  const stampCorners=[[-stampHalf,-stampHalf],[-stampHalf,stampHalf],
+                      [stampHalf,-stampHalf],[stampHalf,stampHalf]];
+  const localCorners=stampCorners.map(([ox,oz])=>{
+    const dx=stampCenterX+ox-sampleWorldX;
+    const dz=stampCenterZ+oz-sampleWorldZ;
+    return {x:c*dx-s*dz,z:s*dx+c*dz};
+  });
+  const minimumStampEdgeInsetMm=Math.min(...localCorners.flatMap(p=>
+    [chipHalf-Math.abs(p.x),chipHalf-Math.abs(p.z)]));
+  const stampInsideSampleChipFootprint=minimumStampEdgeInsetMm>=-1e-8;
   const initialStampBottomYmm=d.bracketTopWorldYmm+d.initialVC13LiftMm-
     d.lLegLengthMm+1-1.4-d.pdmsThicknessMm/2;
   const stampBottomYmm=initialStampBottomYmm-filmDropMm;
@@ -51,7 +66,7 @@ export function auditAWorkingLayout({
   const basesSeparate=footprintGapMm>0;
   const clipOutsideHeater=clampHeaterClearanceMm>=d.clearanceReserveMm;
   const candidateCanLower=basesSeparate&&clipOutsideHeater&&
-    stampInsideHeaterBoundingBox&&verticalStampGapMm>=-1e-8;
+    stampInsideHeaterBoundingBox&&stampInsideSampleChipFootprint&&verticalStampGapMm>=-1e-8;
   return Object.freeze({
     verification:'unverified working layout only',
     rawPhoto94LeftBendPreservedInOtherView:true,
@@ -74,7 +89,10 @@ export function auditAWorkingLayout({
     metalHeaterTopWorldYmm:d.heaterTopWorldYmm,
     verticalStampGapMm:Number(verticalStampGapMm.toFixed(2)),
     stampRightMarginMm:d.stampRightMarginMm,
-    stampInsideHeaterBoundingBox,clipOutsideHeater,basesSeparate,
+    stampInsideHeaterBoundingBox,stampInsideSampleChipFootprint,
+    sampleChipFootprintMm:d.sampleChipFootprintMm,
+    minimumStampEdgeInsetMm:Number(minimumStampEdgeInsetMm.toFixed(3)),
+    clipOutsideHeater,basesSeparate,
     candidateCanLower, // planar-preview eligibility ONLY, not full 3D physical safety
     photographedWingScrewAxis:'X-outward',
     glassMountActuallyObservedInPhotos194196:false,
