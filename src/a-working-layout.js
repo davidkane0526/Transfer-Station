@@ -11,6 +11,7 @@ export const A_WORKING_LAYOUT=Object.freeze({
   heaterFootprintMm:65, heaterTopWorldYmm:109.2,
   sampleChipTopWorldYmm:110.6,
   bracketTopWorldYmm:164, initialVC13LiftMm:13,
+  opticalParkingLiftMm:18, // collision-avoidance DISPLAY pose only: NOT an OEM focus travel
   maximumFilmTravelMm:12.5, maximumSampleTravelMm:12.5,
   clearanceReserveMm:0.5
 });
@@ -75,6 +76,9 @@ export function auditAWorkingLayout({
     candidateCanLower,
     usableForMachining:false,
     actualClampAndMountingHolesUnknown:true,
+    opticalParkingLiftMm:d.opticalParkingLiftMm,
+    opticalParkingMechanismVerified:false,
+    opticalWorkingDistanceVerified:false,
     fullMechanicalCollisionProof:false
   });
 }
