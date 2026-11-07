@@ -759,8 +759,8 @@ check(not (B/'B06S3.step').exists(),
 # rather than the V57 false positive that accepted a 171.5mm scene gap.
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
-check(abs(asheet_bb.xmin+73.75)<.02 and abs(asheet_bb.xmax-12.5)<.02,
-      'V58 mirrored 75mm sheet fits A05 right-fold hypothesis, NOT photo94')
+check(abs(asheet_bb.xmin+73.75)<.02 and abs(asheet_bb.xmax-32)<.02,
+      'V70 sheet folded foot extends 32mm toward right, candidate not photo94 pose')
 check(abs(asheet_bb.zmin-111.9)<.02 and abs(asheet_bb.zmax-166.5)<.02,
       'V58 52.1mm unverified leg joins G40 top and target glass position')
 check(a_sheet.distance(part(A,'A04')[0])<.05,
@@ -775,28 +775,34 @@ for i in (1,2):
     wing=part(A,f'A05CS{i}')[0]
     check(wing.isValid() and wing.BoundingBox().xlen>14,
           'V60 two butterfly screw-head silhouettes must be present in STEP')
-check(asheet_bb.ylen>=26-.02,
-      'V60 photographed A outward folded foot supports two wing fasteners')
+check(asheet_bb.ylen>=14-.02,
+      'V70 outward foot has short 14mm front-back span, not false 26mm screw depth')
 # V63 physically test both hollow bores and solid material between them.
 # Prior versions had bolt/foot volume collisions despite passing contact QA.
 leg_bottom=164-52.1
 leg_x=-46.75+48-1.25
-for i,yy in enumerate((-9,9),1):
-    shaft_axis=vz(1.4,2.5,leg_x+7,yy,leg_bottom)
+for i,dx in enumerate((7,25),1):
+    shaft_axis=vz(1.4,2.5,leg_x+dx,0,leg_bottom)
     check(a_sheet.intersect(shaft_axis).Volume()<1e-5,
-          'V63 A05 actual STEP bore clears screw '+str(i))
+          'V70 A05 actual STEP bore on the OUTWARD X foot clears screw '+str(i))
     bolt=part(A,f'A05CS{i}')[0]
     check(a_sheet.intersect(bolt).Volume()<1e-4,
-          'V63 A05 butterfly bolt must not intersect solid foot '+str(i))
+          'V70 A05 butterfly bolt must not intersect metal foot '+str(i))
     check(abs(bolt.BoundingBox().zmin-(leg_bottom-3.5))<.02,
-          'V63 photo196 thread tail projects BELOW the black foot')
+          'V70 photo196 thread tail projects BELOW the black foot')
     check(bolt.BoundingBox().zmax>leg_bottom+8,
-          'V63 butterfly head remains ABOVE the folded foot')
-solid_axis=vz(1.25,2.5,leg_x+6,0,leg_bottom)
+          'V70 butterfly head remains ABOVE the folded foot')
+    check(abs((bolt.BoundingBox().xmin+bolt.BoundingBox().xmax)/2-
+              (leg_x+dx))<.02,
+          'V70 both wing-screw centres registered along X, NOT Z')
+solid_axis=vz(1.25,2.5,leg_x+16,0,leg_bottom)
 check(a_sheet.intersect(solid_axis).Volume()>6,
       'V63 no false void throughout entire folded foot')
-report['V63_A05_real_through_bores']={
+report['V70_A05_outward_screw_axis']={
     'photo_sources':['194','196'],'bore_count':2,
+    'screw_axis':'X-outward, NOT previously Z front-back',
+    'foot_length_X_mm_candidate':32,
+    'foot_width_Y_mm_candidate':14,
     'bore_diameter_mm_candidate':3.2,'screw_diameter_mm_candidate':2.8,
     'hole_pitch_mm_candidate':18,'below_foot_tail_mm_candidate':3.5,
     'bore_boolean_and_solid_material_checked':True,
@@ -841,12 +847,13 @@ report['V68_A_optical_head_glass_collision']={
 check(len(part(A,'A05C'))==1,
       'A05C bracket tie, carrier and lower jaw form a connected solid')
 glass_bottom=leg_bottom+.5
-for yy in (-9,9):
-    bore_axis=vz(1.4,3,leg_x+7,yy,glass_bottom-3)
+for dx in (7,25):
+    bore_axis=vz(1.4,3,leg_x+dx,0,glass_bottom-3.5)
     check(a_clamp.intersect(bore_axis).Volume()<1e-4,
-          'V64 A05C carrier has REAL through bore on both screw axes')
-report['V64_A05C_true_carrier_clearance']={
+          'V70 A05C carrier has co-axial TRUE holes on the outward foot X direction')
+report['V70_A05C_outward_carrier_clearance']={
     'carrier_boolean_bore_count':2,
+    'coaxial_X_outward_screw_centres_mm':[7,25],
     'same_axes_as_A05_foot':True,
     'carrier_clamping_force_and_threads_verified':False}
 check(a_sheet.distance(a_clamp)<.05,
@@ -953,8 +960,8 @@ check(abs(a_chip.BoundingBox().zmax-a_pdms.BoundingBox().zmin)<.02,
       'PDMS interface is on sample chip, not 1.4mm inside the heater')
 check(a_clamp.BoundingBox().xmax<a_heater.xmin,
       'A05C fixed clamp must remain outside A07 heater X footprint')
-check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-25.5)<.03,
-      'A05C nominal clamp clearance is 25.5mm including protruding lower jaw')
+check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-11.5)<.03,
+      'V70 photo-correct outward foot/carrier reduces candidate heater gap to 11.5mm')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
 # V69: the optical support must be bored around the fixed 26mm post;
