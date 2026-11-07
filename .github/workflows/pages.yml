@@ -35,6 +35,7 @@ jobs:
           node --check src/assembly-qa.js
           node --check src/details.js
           node tests/structural-assembly.mjs
+          node tests/b-photo147-xy-evidence.mjs
           node --check src/vendor-hardware.js
           node tests/vendor-hardware.mjs
           node --check src/holder-mechanics.js
