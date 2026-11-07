@@ -810,6 +810,34 @@ a_upper_jaw=part(A,'A05CU')[0]
 a_slide=part(A,'A05G')[0]
 a_pdms=part(A,'A05GP')[0]
 a_chip=part(A,'A07W')[0]
+# V68: Lowered STEP contact pose has the glass below both objectives.
+# The original Web candidate RAISED the film 13mm without moving optical
+# assembly at all; that trajectory intersected the optical metal.
+# Geometric retract 18mm is a V68 visual hypothesis only, not measured travel.
+optical_solids=[part(A,id)[0] for id in ('A19O1','A19O2','A19R1','A19R2')]
+unparked_raised_glass=a_slide.translate(Vector(0,0,13))
+lower_contact_overlap=sum(a_slide.intersect(o).Volume() for o in optical_solids)
+raised_unparked_overlap=sum(unparked_raised_glass.intersect(o).Volume() for o in optical_solids)
+raised_retracted_overlap=sum(unparked_raised_glass.intersect(
+    o.translate(Vector(0,0,18))).Volume() for o in optical_solids)
+check(lower_contact_overlap<1e-4,
+      'V68 static lowered STEP pose must keep glass separate from objectives')
+check(raised_unparked_overlap>0.1,
+      'V68 detector MUST catch the original 13mm raised glass/objective solid collision')
+check(raised_retracted_overlap<1e-4,
+      'V68 proposed 18mm visual parking of both objectives avoids raised glass interference')
+report['V68_A_optical_head_glass_collision']={
+    'A05G_static_lowered_pose_glass_objective_intersection_mm3':round(lower_contact_overlap,3),
+    'A05G_raised_13mm_original_unparked_intersection_mm3':round(raised_unparked_overlap,3),
+    'A05G_raised_13mm_parked_18mm_intersection_mm3':round(raised_retracted_overlap,3),
+    'film_vertical_travel_candidate_mm':13,
+    'optics_parking_offset_candidate_mm':18,
+    'real_focus_travel_measured':False,
+    'objective_working_distance_measured':False,
+    'real_turret_swing_swept_volume_certified':False,
+    'photographic_registration_verified':False
+}
+
 check(len(part(A,'A05C'))==1,
       'A05C bracket tie, carrier and lower jaw form a connected solid')
 glass_bottom=leg_bottom+.5
