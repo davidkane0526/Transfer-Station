@@ -559,7 +559,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V69.*A17/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V70.*A17/,
   'The initial platform A view must identify the unverified working hypothesis');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -598,7 +598,7 @@ try{
  assert.equal(aDefault.initialVerticalStampGapMm,13);
  assert.equal(aDefault.opticalParkingLiftMm,18);
  assert.equal(aDefault.opticalParkingMechanismVerified,false);
- assert.equal(aDefault.clampHeaterClearanceMm,25.5);
+ assert.equal(aDefault.clampHeaterClearanceMm,11.5);
  const opticsRaised=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
  assert.equal(opticsRaised?.available,true);
  assert.equal(opticsRaised.coherentOpticOffsets,true,
@@ -691,6 +691,18 @@ try{
  assert.equal(foot.shaftCount,2);
  assert.equal(foot.tipBelowFootMm,3.5);
  assert.equal(foot.independentFastenerPart,true);
+ const photoAxis=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
+ assert.equal(photoAxis?.available,true);
+ assert.equal(photoAxis.pose,'candidate');
+ assert.equal(photoAxis.fastenerAxis,'X-outward');
+ assert.equal(photoAxis.screwPitchXmm,18);
+ assert.equal(photoAxis.screwPitchZmm,0);
+ assert.equal(photoAxis.footSpanXmm,32);
+ assert.equal(photoAxis.footSpanZmm,14);
+ assert.equal(photoAxis.glassCandidateVisible,true);
+ assert.equal(photoAxis.fabricatedJawsVisible,true);
+ assert.equal(photoAxis.photo194196ActuallyShowsMountedSlide,false);
+ assert.equal(photoAxis.physicalClampLoadPathVerified,false);
  assert.equal(foot.actualOEMThreadsVerified,false);
 
  assert.equal(mechA.outwardFootCount,1,'Photo194/196 L bracket needs one outward foot');
@@ -816,10 +828,24 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aPhoto.aPose,'photo94');
  assert.equal(aPhoto.sheetHandedness,'left');
  assert.equal(aPhoto.sheetLegLengthMm,72);
+ const photographed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
+ assert.equal(photographed.pose,'photo94');
+ assert.equal(photographed.screwPitchXmm,18);
+ assert.equal(photographed.screwPitchZmm,0);
+ assert.equal(photographed.glassCandidateVisible,false,
+   'A photo mode must not show glass that was not observed in photos194/196');
+ assert.equal(photographed.fabricatedJawsVisible,false,
+   'Unidentified hypothetical twin jaw must not be presented as photographic evidence');
  assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
  assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
+ await page.locator('#btn-front').evaluate(el=>el.click());
+ await page.screenshot({path:'Transfer-Station-V70-A-Photo-Bare-Foot.png'});
+ await page.locator('#btn-iso').evaluate(el=>el.click());
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'candidate');
+ const resumed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
+ assert.equal(resumed.glassCandidateVisible,true);
+ assert.equal(resumed.fabricatedJawsVisible,true);
  const front194=await page.evaluate(()=>window.__platformAStageFrontProbe?.());
  assert.equal(front194?.available,true);
  assert.equal(front194?.frontPlateAboveMagnet,true);

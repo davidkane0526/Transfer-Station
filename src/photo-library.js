@@ -53,9 +53,9 @@ export const PHOTO_LIBRARY=Object.freeze({
   '191':{title:'照片191 · A显微镜与样品侧总装近景',kind:'assembly',description:'显微镜相机、竖直光学筒、主机头、调焦机构、双物镜及下方样品承载台的同视角记录。',src:'./assets/photos/191.webp',status:'embedded'},
   '192':{title:'照片192 · A显微镜侧视及样品台',kind:'assembly',description:'补充显微镜支柱、水平镜筒、调焦旋钮、物镜与样品侧旋转/平移台的相对位置。',src:'./assets/photos/192.webp',status:'embedded'},
   '193':{title:'照片193 · A显微镜与样品台正面总览',kind:'assembly',description:'用于核对显微镜光轴、样品侧三层承载台及面包板上的整体位置。',src:'./assets/photos/193.webp',status:'embedded'},
-  '194':{title:'照片194 · A载玻片侧位移机构正面',kind:'assembly',description:'可见A15前侧长槽/中央调节件和下方A17底部操作杆，并展示上方门形支架；具体连接与尺寸待核。',src:'./assets/photos/194.webp',status:'embedded'},
+  '194':{title:'照片194 · A载玻片侧位移机构正面',kind:'assembly',description:'可见A15正面长槽、A17磁座操作杆、上方门形折弯片及外伸末端并排两枚蝶形紧固件；尚未看到可识别的实际玻片夹爪。',src:'./assets/photos/194.webp',status:'embedded'},
   '195':{title:'照片195 · A载玻片侧VC13M机构侧视',kind:'direct',description:'可辨认GCM-VC13M铭牌、竖直微分头、下方平移台及上层摆角机构的叠装关系。',src:'./assets/photos/195.webp',status:'embedded'},
-  '196':{title:'照片196 · A载玻片侧G40M60L局部',kind:'direct',description:'可辨认GCM-G40M60L型号及其右侧微分头；用于校正上层摆角台的驱动方向。',src:'./assets/photos/196.webp',status:'embedded'}
+  '196':{title:'照片196 · A载玻片侧G40M60L局部',kind:'direct',description:'可辨认GCM-G40M60L型号及其右侧微分头；折弯脚末端两枚蝶形紧固件沿外伸方向并排，但未清楚显示夹持玻片或独立上下夹爪。',src:'./assets/photos/196.webp',status:'embedded'}
 });
 const EVIDENCE_BY_PART=Object.freeze({
  A01:['17','20'],A17:['22','24','194','195'],A15:['95','97','22','23','24','194','195','196'],A03:['97','94','194','195','196'],A04L:['94'],A04:['94','194','195','196'],
