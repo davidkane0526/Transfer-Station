@@ -559,7 +559,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V68.*A17/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V69.*A17/,
   'The initial platform A view must identify the unverified working hypothesis');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -605,6 +605,11 @@ try{
    'A18/A19/A08/A09/A14/A20 and A10 sliding BOOM must move together');
  assert.equal(opticsRaised.supportBoomMovesWhilePostFixed,true,
    'Optics follow raised support bracket, while A10 breadboard post/foot stay fixed');
+ assert.equal(opticsRaised.supportBoomRealPostBore,true,
+   'A10 boom must have actual through-bore clearing the fixed microscope post');
+ assert.equal(opticsRaised.supportBoomNearbySolidMetal,true,
+   'Boom must retain metal around the candidate Ø26.6 post-bore');
+ assert.equal(opticsRaised.supportBoomCandidatePostBoreDiameterMm,26.6);
  assert.equal(opticsRaised.actualParkingLiftMm,18);
  assert.equal(opticsRaised.opticPartIds.length,7);
  assert.equal(opticsRaised.currentBroadphaseCollisions.length,0,
@@ -739,6 +744,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  const opticsMid=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
  assert.equal(opticsMid?.currentBroadphaseCollisions.length,0);
  assert.equal(opticsMid?.coherentOpticOffsets,true);
+ assert.equal(opticsMid.supportBoomRealPostBore,true);
  assert(opticsMid.verticalGapMm>opticsRaised.verticalGapMm,
    'Clearance grows as the film descends beneath retracted objectives');
  const guideMid=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());
@@ -767,6 +773,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  const opticsLower=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
  assert.equal(opticsLower?.currentBroadphaseCollisions.length,0);
  assert.equal(opticsLower?.coherentOpticOffsets,true);
+ assert.equal(opticsLower.supportBoomRealPostBore,true);
  assert(opticsLower.verticalGapMm>opticsMid.verticalGapMm);
  const guideLower=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());
  assert.equal(guideLower.outputLiftMm,0);
