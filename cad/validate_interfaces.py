@@ -957,6 +957,29 @@ check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-25.5)<.03,
       'A05C nominal clamp clearance is 25.5mm including protruding lower jaw')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
+# V69: the optical support must be bored around the fixed 26mm post;
+# a solid boom piercing its post was previously tolerated by STEP QA.
+a_support_boom=part(A,'A10A')[0]
+post_axis=vz(13,25,78,-112,220)
+check(a_support_boom.intersect(post_axis).Volume()<1e-4,
+      'V69 A10 boom has true 26.6mm through-bore for stationary Ø26 post')
+check(a_support_boom.intersect(a_scope_col).Volume()<1e-4,
+      'V69 A10 boom must not cut through actual solid microscope post')
+check(a_support_boom.translate(Vector(0,0,18)).intersect(a_scope_col).Volume()<1e-4,
+      'V69 retracted 18mm optical carrier remains clear of the fixed post')
+check(a_support_boom.intersect(vz(2,25,78,-90,220)).Volume()>50,
+      'V69 boom retains real metal adjacent to the post clearance')
+check(abs(a_support_boom.BoundingBox().ymin+132.5)<.02 and
+      abs(a_support_boom.BoundingBox().ymax+7.5)<.02,
+      'V69 boom shifted rearward while preserving 125mm candidate length')
+report['V69_A10_post_support_collision']={
+    'post_outer_diameter_mm_candidate':26,
+    'boom_clearance_bore_mm_candidate':26.6,
+    'boom_post_boolean_intersection_mm3':0,
+    'boom_raised_18mm_clearance':True,
+    'boom_support_mount_bolt_verified':False,
+    'photographic_OEM_interface_verified':False
+}
 check(abs(a_scope_bb.zmin-a_board.zmax)<.02,
       'A10 microscope column must have an attached foot contacting the A01 board')
 check(a_scope_col.intersect(part(A,'A01')[0]).Volume()<1e-4,
