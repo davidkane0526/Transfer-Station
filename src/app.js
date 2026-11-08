@@ -435,7 +435,8 @@ window.__modelAContactProbe=()=>{
 window.__modelBRotaryTopBoreProbe=()=>{
  if(platform!=='B')return {available:false};
  const g=parts.get('B08')?.g;
- const upper=g?.children.find(o=>o.userData.B08TrueTopNineBores);
+ const deck=g?.userData.rotatingDeck;
+ const upper=deck?.children.find(o=>o.userData.B08TrueTopNineBores);
  if(!upper)return {available:false};
  upper.updateWorldMatrix(true,false);
  const caster=new THREE.Raycaster();
@@ -446,7 +447,20 @@ window.__modelBRotaryTopBoreProbe=()=>{
    return caster.intersectObject(upper,false).length>0;
  };
  const holes=[...[-25,0,25].flatMap(x=>[-25,0,25].map(z=>[x,z]))];
+ const worldHoles=holes.map(([x,z])=>
+   upper.localToWorld(new THREE.Vector3(x,8,z)));
+ const mountHeads=parts.get('B41')?.g.children.filter(o=>
+   o.userData.stageBaseRecessedHead)??[];
+ const mountingMisalignmentMm=mountHeads.length===4?
+   Math.max(...mountHeads.map(head=>{
+     const p=head.getWorldPosition(new THREE.Vector3());
+     return Math.min(...worldHoles.map(h=>Math.hypot(h.x-p.x,h.z-p.z)));
+   })):null;
  return {available:true,
+   deckYawDeg:Number((deck.rotation.y*180/Math.PI).toFixed(3)),
+   B41MountHeadCount:mountHeads.length,
+   mountingMisalignmentMm,
+   duplicateB41MountHeadsOnB08:g.userData.B08DuplicateB41Fasteners,
    nineBoreCount:g.userData.B08TopTrueBoreCount,
    allNineBoresOpen:holes.every(([x,z])=>!test(x,z)),
    metalBetweenBores:test(12.5,12.5),
@@ -455,7 +469,7 @@ window.__modelBRotaryTopBoreProbe=()=>{
    blindDepthCandidateMm:g.userData.B08TopBlindDepthCandidateMm,
    oemThreadDepthVerified:Boolean(g.userData.B08TopThreadDepthOEMVerified),
    remainingBlindFloorMm:2.2,
-   blindFloorIsSolid:Boolean(g.children.find(o=>o.userData.B08BlindBoreFloorCandidate))};
+   blindFloorIsSolid:Boolean(deck.children.find(o=>o.userData.B08BlindBoreFloorCandidate))};
 };
 window.__modelBActuatorProbe=()=>{
  if(platform!=='B')return {available:false};
@@ -1754,6 +1768,12 @@ function rotaryB(){
   });
   addPart('B08',sx,20+rise,0,g=>{
     add(g,cyl(47,23,mats.dark,0,11.5,0));
+    // Lower 23mm body stays fixed on B35; the upper circular face
+    // rotates with B41, as on the actual rotation platform.
+    const rotatingDeck=new THREE.Group();
+    g.add(rotatingDeck);
+    rotatingDeck.userData.B08MovingRotaryDeck=true;
+    g.userData.rotatingDeck=rotatingDeck;
     // The lower B41 stage engages B08 by four recessed screws. The old
     // solid cylinder with painted rings had NO holes and those screws
     // physically penetrated its metal.
@@ -1762,9 +1782,9 @@ function rotaryB(){
     // 2.2mm uncut metal. Thread depth itself is not specified by OEM.
     const nineTopBores=[...[-25,0,25].flatMap(x=>
       [-25,0,25].map(z=>[x,z,2.5]))];
-    const rotaryBlindBottom=add(g,cyl(47,2.2,mats.steel,0,24.1,0));
+    const rotaryBlindBottom=add(rotatingDeck,cyl(47,2.2,mats.steel,0,24.1,0));
     rotaryBlindBottom.userData.B08BlindBoreFloorCandidate=true;
-    const rotaryUpper=add(g,drilledDisc(47,8,mats.steel,nineTopBores));
+    const rotaryUpper=add(rotatingDeck,drilledDisc(47,8,mats.steel,nineTopBores));
     rotaryUpper.position.y=25.2;
     rotaryUpper.userData.B08TrueTopNineBores=true;
     g.userData.B08TopTrueBoreCount=9;
@@ -1773,10 +1793,14 @@ function rotaryB(){
     g.userData.B08TopBlindDepthCandidateMm=8;
     g.userData.B08TopBorePatternOEMVerified=true;
     g.userData.B08TopThreadDepthOEMVerified=false;
-    add(g,torus(45,1.0,mats.ink,0,33.35,0));
-    for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(g,2.6,33.5,x,z);
+    add(rotatingDeck,torus(45,1.0,mats.ink,0,33.35,0));
+    for(const x of [-25,0,25])for(const z of [-25,0,25])
+      circleGuide(rotatingDeck,2.6,33.5,x,z);
+    // The bolts engaging B08's rotating top belong to B41 fixed base.
+    // Do not draw a second, duplicated set on B08.
+    g.userData.B08DuplicateB41Fasteners=0;
+    g.userData.B08BaseToB35BoltsVerified=false;
     // User-confirmed GCM-1107M has NO external operating handle.
-    addJointHeads(g,'B08',33.15,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.9});
     label(g,'GCM-1107M · Ø94×33.2 · 无外伸手柄',0,46,0);
  },{explode:[12,0,0],rotateSample:false});
  // B09 is the upper OEM-identified NFP-1462C. B41 is the lower
@@ -3231,7 +3255,12 @@ function updateTransforms(){
      121.5+CONFIG.B.sampleBoardRiseMm,tx.z+tz.z);
    sampleSubstrate.rotation.y=angle;
  }
- if(platform==='B'){refreshHeatingControlHarness();refreshVacuumHoseB();}
+ if(platform==='B'){
+   // B08 fixed body remains still; its top face rotates with B41.
+   const deck=parts.get('B08')?.g.userData.rotatingDeck;
+   if(deck)deck.rotation.y=angle;
+   refreshHeatingControlHarness();refreshVacuumHoseB();
+ }
  if(active)updateMeasurement();
 }
 function resetScene(){
