@@ -630,6 +630,8 @@ try{
  assert.equal(photoTruth.fabricatedClampVisible,false);
  assert.equal(photoTruth.unphotographedGlassVisible,false);
  assert.equal(photoTruth.actualClampManufacturerConfirmed,false);
+ assert.equal(await page.locator('#film-drop').isDisabled(),true,
+   'Static photograph-only pose must not simulate an unregistered 13mm glass descent');
  assert.equal(photoTruth.vc13CarriageMeshLiftMm,0,
    'Actual VC13 moving mesh must not start with a fictitious 13mm extension');
  for(const [name,value] of [
@@ -662,6 +664,8 @@ try{
  // Switch explicitly to hypothesis only for the EXISTING transfer tests.
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('#film-drop').isEnabled(),true,
+   'Only explicitly selected transfer hypothesis may run the kinematic preview');
  const finiteA=await page.evaluate(()=>window.__sceneFiniteGeometryProbe?.());
  assert.equal(finiteA.available,true);
  assert.equal(finiteA.invalidMeshes,0,'Rotary A tick meshes must not have NaN positions');
