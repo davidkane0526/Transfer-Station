@@ -931,34 +931,28 @@ try{
  assert.equal(mechA.wingFastenerCount,2,'Photo194/196 require two wing fasteners');
  const foot=await page.evaluate(()=>window.__modelA05FootBoreProbe?.());
  assert.equal(foot.available,true);
- assert.equal(foot.actualBoresOpen,true,'A05 foot must be physically bored for both screws');
- assert.equal(foot.solidMaterialBetweenBores,true,'Adjacent metal must remain solid');
- assert.equal(foot.boreCount,2);
- assert.equal(foot.carrierActualBoreCount,2);
- assert.equal(foot.carrierScrewAxesOpen,true,
-   'A05C carrier must not block two folded-foot screw axes');
+ assert.equal(foot.verticalClampBoresRemoved,true,
+   'A05 folded foot must not be drilled for the side-clamp screws');
+ assert.equal(foot.boreCount,0);
  assert.equal(foot.shaftCount,2);
- assert.equal(foot.tipBelowFootMm,3.5);
+ assert.equal(foot.shaftAxesParallelGlassShortEdge,true);
+ assert.equal(foot.shaftsEngagePressureRail,true);
  assert.equal(foot.independentFastenerPart,true);
+ assert.equal(foot.actualOEMThreadsVerified,false);
  const photoAxis=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
  assert.equal(photoAxis?.available,true);
- assert.equal(photoAxis.pose,'candidate');
- assert.equal(photoAxis.fastenerAxis,'X-outward');
- assert.equal(photoAxis.screwPitchXmm,18);
- assert.equal(photoAxis.screwPitchZmm,0);
- assert.equal(photoAxis.footSpanXmm,32);
- assert.equal(photoAxis.footSpanZmm,14);
- assert.equal(photoAxis.glassCandidateLeftXmm,10);
- assert.equal(photoAxis.footCandidateRightXmm,8);
+ assert.equal(photoAxis.pose,'installed180');
+ assert.equal(photoAxis.fastenerShaftAxis,'Z / parallel to glass 26mm short edge');
+ assert.equal(photoAxis.actualShaftGeometryParallelShortEdge,true);
+ assert.equal(photoAxis.screwPitchAlongGlassLengthMm,18);
  assert.equal(photoAxis.fastenerGlassCollisionCount,0,
-   'Fastener must stay outside undrilled glass candidate');
- assert.equal(photoAxis.foldedFootOutsideGlass,true,
-   'A05 glass must start after the folded foot, not overlap it');
- assert.equal(photoAxis.glassCandidateVisible,false);
- assert.equal(photoAxis.fabricatedJawsVisible,false);
- assert.equal(photoAxis.photo194196ActuallyShowsMountedSlide,false);
- assert.equal(photoAxis.physicalClampLoadPathVerified,false);
- assert.equal(foot.actualOEMThreadsVerified,false);
+   'Side-clamp shafts must remain outside glass');
+ assert.equal(photoAxis.glassCandidateVisible,true);
+ assert.equal(photoAxis.sideClampVisible,true);
+ assert.equal(photoAxis.verticalFootBoreCount,0);
+ assert.equal(photoAxis.completeFilmBranchYawDeg,180);
+ assert.equal(photoAxis.photo194196ConfirmsTwoFasteners,true);
+ assert.equal(photoAxis.glassClampOEMVerified,false);
 
  assert.equal(mechA.outwardFootCount,1,'Photo194/196 L bracket needs one outward foot');
  assert.equal(mechA.fastenerThreadVerified,false);
@@ -1050,8 +1044,8 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(guideLower.actualTravelInGuideEnvelope,true);
  const fullA=await page.evaluate(()=>window.__modelAContactProbe?.());
  assert.equal((await page.evaluate(()=>window.__modelAClampChainProbe?.()))
-    .workingChainContinuous,true,
-    'A05 clamp must stay fully supported throughout the 13mm film lowering stroke');
+    .sideClampGeometricallyCoherent,true,
+    'A05 side clamp must remain coherent throughout the 13mm film lowering stroke');
   assert.equal(fullA.pdmsToChipGapMm,0,
    'V58 at -13mm PDMS must touch the A07 sample chip surface exactly');
  assert.equal(fullA.clampOutsideHeater,true);
@@ -1083,35 +1077,43 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
      el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
    });
  }
- // Show the historical photo94 left-fold configuration separately.
+ // Show the historical photo94 orientation separately without deleting
+ // required transfer hardware from the model.
  await page.locator('#btn-a-photo-pose').evaluate(el=>el.click());
  const aPhoto=await page.evaluate(()=>window.__platformACompletenessProbe?.());
- assert.equal(aPhoto.aPose,'photo94');
- assert.equal(aPhoto.sheetHandedness,'left');
+ assert.equal(aPhoto.aPose,'photo-reference');
+ assert.equal(aPhoto.localSheetHandedness,'left');
+ assert.equal(aPhoto.installedFilmYawDeg,0);
  assert.equal(aPhoto.sheetLegLengthMm,72);
+ assert.equal(aPhoto.glassRequiredForTransfer,true);
  const photographed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
- assert.equal(photographed.pose,'photo94');
- assert.equal(photographed.screwPitchXmm,18);
- assert.equal(photographed.screwPitchZmm,0);
- assert.equal(photographed.glassCandidateVisible,false,
-   'A photo mode must not show glass that was not observed in photos194/196');
- assert.equal(photographed.fabricatedJawsVisible,false,
-   'Unidentified hypothetical twin jaw must not be presented as photographic evidence');
- assert.match(await page.locator('#a-physical-audit').innerText(),/171\.5/);
+ assert.equal(photographed.pose,'photo-reference');
+ assert.equal(photographed.fastenerShaftAxis,'Z / parallel to glass 26mm short edge');
+ assert.equal(photographed.actualShaftGeometryParallelShortEdge,true);
+ assert.equal(photographed.screwPitchAlongGlassLengthMm,18);
+ assert.equal(photographed.glassCandidateVisible,true,
+   'Photo-reference orientation must not delete a required physical glass component');
+ assert.equal(photographed.sideClampVisible,true);
+ assert.equal(photographed.verticalFootBoreCount,0);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/照片94/);
  assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('#film-drop').isDisabled(),true,
+   'Reference orientation is comparison-only and cannot run the transfer stroke');
  await page.locator('#btn-front').evaluate(el=>el.click());
- await page.screenshot({path:'Transfer-Station-V70-A-Photo-Bare-Foot.png'});
+ await page.screenshot({path:'Transfer-Station-V79-A-Photo-Reference.png'});
  await page.locator('#btn-iso').evaluate(el=>el.click());
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
- assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'candidate');
+ assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'installed180');
  const resumed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
- assert.equal(resumed.glassCandidateVisible,false);
- assert.equal(resumed.fabricatedJawsVisible,false);
+ assert.equal(resumed.glassCandidateVisible,true);
+ assert.equal(resumed.sideClampVisible,true);
+ assert.equal(resumed.completeFilmBranchYawDeg,180);
  const front194=await page.evaluate(()=>window.__platformAStageFrontProbe?.());
  assert.equal(front194?.available,true);
  assert.equal(front194?.frontPlateAboveMagnet,true);
  assert.equal(front194?.frontPlateFollowsA15X,true);
- assert.equal(front194?.A15FrontKnobCount,1);
+ assert.equal(front194?.A15FrontKnobCount,0,
+   'Unconnected A15 central cylinder must remain deleted');
  assert.equal(front194?.A15FrontScrewCount,2);
  assert.equal(front194?.A17LowerLeverCount,1);
  assert.equal(front194?.noDuplicateA17Slot,true);
