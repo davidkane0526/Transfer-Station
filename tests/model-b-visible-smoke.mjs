@@ -656,7 +656,7 @@ try{
  assert.equal(aDefault.initialVerticalStampGapMm,13);
  assert.equal(aDefault.opticalParkingLiftMm,18);
  assert.equal(aDefault.opticalParkingMechanismVerified,false);
- assert.equal(aDefault.clampHeaterClearanceMm,26);
+ assert.equal(aDefault.clampHeaterClearanceMm,25.5);
  const opticsRaised=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
  assert.equal(opticsRaised?.available,true);
  assert.equal(opticsRaised.coherentOpticOffsets,true,
