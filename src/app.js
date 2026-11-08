@@ -321,7 +321,24 @@ window.__modelAOpticalClearanceProbe=()=>{
    boomBoreOpen=boreRay(postPos.x,postPos.z)===0;
    boomNearbyMetal=boreRay(postPos.x,postPos.z+22)>0;
  }
- const minOpticalBottom=Math.min(...optics.map(x=>x.lowerYmm));
+ const headRoot=parts.get('A18')?.g;
+  const headHousing=headRoot?.children.find(o=>o.isMesh);
+  const boomBounds=boomShell?new THREE.Box3().setFromObject(boomShell):null;
+  const housingBounds=headHousing?new THREE.Box3().setFromObject(headHousing):null;
+  const boomFrontGapMm=boomBounds&&housingBounds?
+    Number((housingBounds.min.z-boomBounds.max.z).toFixed(3)):null;
+  const boomFaceAreaMm2=boomBounds&&housingBounds?
+    Number((Math.max(0,Math.min(boomBounds.max.x,housingBounds.max.x)-
+      Math.max(boomBounds.min.x,housingBounds.min.x))*
+      Math.max(0,Math.min(boomBounds.max.y,housingBounds.max.y)-
+      Math.max(boomBounds.min.y,housingBounds.min.y))).toFixed(3)):null;
+  const boomHousingOverlapMm3=boomBounds&&housingBounds?(()=>{
+    const shared=boomBounds.clone().intersect(housingBounds);
+    if(shared.isEmpty())return 0;
+    const sz=new THREE.Vector3();shared.getSize(sz);
+    return Number((sz.x*sz.y*sz.z).toFixed(3));
+  })():null;
+  const minOpticalBottom=Math.min(...optics.map(x=>x.lowerYmm));
  const minVerticalGap=Number((minOpticalBottom-glassBox.max.y).toFixed(2));
  const hypotheticalUnparkedMinGap=Number((minVerticalGap-parked).toFixed(2));
  return {available:true,mode:aWorkingPoseMode?'candidate':'photo94',
@@ -330,6 +347,10 @@ window.__modelAOpticalClearanceProbe=()=>{
    supportBoomMovesWhilePostFixed:boomMatched&&Math.abs(fixedPost.position.y-parts.get('A10').base.y)<.02,
    supportBoomRealPostBore:boomBoreOpen,
    supportBoomNearbySolidMetal:boomNearbyMetal,
+    boomLengthCandidateMm:boomShell?.userData.A10BoomLengthCandidateMm??null,
+    boomHousingFrontGapMm:boomFrontGapMm,
+    boomHousingMatingFaceAreaMm2:boomFaceAreaMm2,
+    boomHousingOverlapMm3,
    supportBoomCandidatePostBoreDiameterMm:boomShell?.userData.A10BoreDiameterCandidateMm??null,
    actualParkingLiftMm:parked,
    glassTopWorldYmm:Number(glassBox.max.y.toFixed(2)),
