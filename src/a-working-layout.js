@@ -2,9 +2,9 @@
 // The original photo94 left-return configuration remains separately selectable
 // in the browser. This is NEVER a measured global stage registration.
 export const A_WORKING_LAYOUT=Object.freeze({
-  filmStageX:-70.75, filmStageZ:0, sampleCenterX:78,
+  filmStageX:-82.75, filmStageZ:0, sampleCenterX:78,
   lBracketHandedness:'right',
-  lBracketOverhangMm:48, lLegLengthMm:52.1,
+  lBracketOverhangMm:60, lBracketTopWidthMm:87, lLegLengthMm:52.1,
   glassLengthMm:76, glassWidthMm:26, glassThicknessMm:1,
   pdmsLengthMm:8, pdmsThicknessMm:1.8, stampRightMarginMm:4,
   magnetFootprintMm:65, sampleBaseFootprintXmm:112,
@@ -25,7 +25,7 @@ export function auditAWorkingLayout({
   const r=sampleAngleDeg*Math.PI/180,c=Math.cos(r),s=Math.sin(r);
   const legX=d.filmStageX+d.lBracketOverhangMm-1.25+filmShiftMm;
   // V70: glass must begin OUTSIDE the last wing bolt/short-foot metal.
-  // The global film stage shifts left 24mm to retain stamp center X=78.
+  // Widen the right L reach by 12mm AND move the film stage left 12mm to preserve stamp center X=78 while clearing the right-hand G40 knob.
   const glassLeftX=legX+34;
   const glassRightX=glassLeftX+d.glassLengthMm;
   const stampCenterX=glassRightX-d.stampRightMarginMm-d.pdmsLengthMm/2;
@@ -98,7 +98,7 @@ export function auditAWorkingLayout({
     glassMountActuallyObservedInPhotos194196:false,
     candidateJawsObservedInPhotos194196:false,
     fullCandidateClampAssemblyCertified:false,
-    filmBaseRepositionedMm:-24,
+    filmBaseRepositionedMm:-36,
     wingScrewsOutsideUndrilledGlass:true,
     candidateFootGlassPlanarOverlap:false,
     usableForMachining:false,
