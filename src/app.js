@@ -468,6 +468,26 @@ window.__modelBRotaryTopBoreProbe=()=>{
    baseFaceOrientationVerified:Boolean(g.userData.B08CounterboreFaceOrientationVerified),
    baseBoreMeshes:g.children.filter(o=>o.userData.B08FixedLowerClearanceHoles||
      o.userData.B08FixedUpperCounterbores).length,
+   baseFourClearanceBoresOpen:(()=>{
+     const m=g.children.find(o=>o.userData.B08FixedLowerClearanceHoles);
+     if(!m)return false;
+     const ray=new THREE.Raycaster();
+     return [-25,25].every(x=>[-25,25].every(z=>{
+       ray.set(m.localToWorld(new THREE.Vector3(x,8,z)),new THREE.Vector3(0,-1,0));
+       ray.far=9;
+       return ray.intersectObject(m,false).length===0;
+     }));
+   })(),
+   baseFourCounterboresOpen:(()=>{
+     const m=g.children.find(o=>o.userData.B08FixedUpperCounterbores);
+     if(!m)return false;
+     const ray=new THREE.Raycaster();
+     return [-25,25].every(x=>[-25,25].every(z=>{
+       ray.set(m.localToWorld(new THREE.Vector3(x,17,z)),new THREE.Vector3(0,-1,0));
+       ray.far=18;
+       return ray.intersectObject(m,false).length===0;
+     }));
+   })(),
    duplicateB41MountHeadsOnB08:g.userData.B08DuplicateB41Fasteners,
    nineBoreCount:g.userData.B08TopTrueBoreCount,
    allNineBoresOpen:holes.every(([x,z])=>!test(x,z)),
