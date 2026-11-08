@@ -245,98 +245,89 @@ window.__platformAStageFrontProbe=()=>{
   manufacturerHolePatternVerified:false,slotDimensionsVerified:false};
 };
 window.__platformABareClampProbe=()=>{
-   if(platform!=='A')return {available:false};
-   const sheet=parts.get('A05')?.g,screw=parts.get('A05CS')?.g;
-   const foot=sheet?.children.find(o=>o.userData.A05OutwardFootCandidate);
-   const web=sheet?.children.find(o=>o.userData.A05VerticalSheetWeb);
-   const heads=screw?.children.filter(o=>o.userData.A05CSFootSeatedHead)??[];
-   const ears=screw?.children.filter(o=>o.userData.A05CSWingEarPlane)??[];
-   if(!foot||!web||heads.length!==2||ears.length!==4)return {available:false};
-   sheet.updateWorldMatrix(true,true);screw.updateWorldMatrix(true,true);
-   const bounds=o=>new THREE.Box3().setFromObject(o);
-   const fb=bounds(foot),wb=bounds(web);
-   const centers=heads.map(h=>h.getWorldPosition(new THREE.Vector3()));
-   const r=x=>{const n=Number(x.toFixed(3));return Object.is(n,-0)?0:n;};
-   const overlap=ears.reduce((sum,o)=>{
-     const intrude=bounds(o).clone().intersect(wb);
-     if(intrude.isEmpty())return sum;
-     const size=new THREE.Vector3();intrude.getSize(size);
-     return sum+size.x*size.y*size.z;
-   },0);
-   return {available:true,visibleGlass:Boolean(parts.get('A05G')?.g.visible),
-    visibleFabricatedJaws:Boolean(parts.get('A05C')?.g.visible),
-    visibleWingScrewCount:heads.length,wingEarCount:ears.length,
-    actualFootBores:foot.userData.A05ActualThroughBoreCount,
-    wingPairPitchXMm:r(Math.abs(centers[1].x-centers[0].x)),
-    wingPairPitchZMm:r(Math.abs(centers[1].z-centers[0].z)),
-    wingEarPlane:screw.userData.wingHeadPlane,
-    wingToUprightOverlapMm3:r(overlap),
-    headFootMaxGapMm:r(Math.max(...heads.map(h=>bounds(h).min.y-fb.max.y))),
-    approvedDisplay:'A05 folded sheet + bare foot + two screws without glass',
-    actualWingNutOEMVerified:false};
- };
- window.__modelA05PhotoEvidenceProbe=()=>{
  if(platform!=='A')return {available:false};
- const sheet=parts.get('A05')?.g,fasteners=parts.get('A05CS')?.g;
- const candidateGrip=parts.get('A05C')?.g,candidateGlass=parts.get('A05G')?.g;
+ const sheet=parts.get('A05')?.g,clamp=parts.get('A05C')?.g,
+   screws=parts.get('A05CS')?.g,glassRoot=parts.get('A05G')?.g;
+ const foot=sheet?.children.find(o=>o.userData.A05OutwardFootCandidate);
+ const shafts=screws?.children.filter(o=>o.userData.A05CSCandidateShank)??[];
+ const heads=screws?.children.filter(o=>o.userData.A05CSScrewHead)??[];
+ const pressure=clamp?.children.find(o=>o.userData.A05CPressureRail);
+ const slide=glassRoot?.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
+ if(!foot||shafts.length!==2||heads.length!==2||!pressure||!slide)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const bb=o=>new THREE.Box3().setFromObject(o);
+ const sz=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
+ const shaftSizes=shafts.map(sz);
+ const glassBox=bb(slide),pressureBox=bb(pressure);
+ const screwGlassOverlap=shafts.reduce((sum,o)=>{
+   const q=bb(o).clone().intersect(glassBox);if(q.isEmpty())return sum;
+   const v=new THREE.Vector3();q.getSize(v);return sum+v.x*v.y*v.z;
+ },0);
+ const screwPressureEngaged=shafts.every(o=>!bb(o).clone().intersect(pressureBox).isEmpty());
+ const stamp=glassRoot.children.find(o=>o.userData.A05GStampRightMarginMm!==undefined);
+ const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();
+ stamp?.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
+ return {available:true,
+   visibleGlass:glassRoot.visible,visibleClamp:clamp.visible,
+   visibleWingScrewCount:heads.length,shaftCount:shafts.length,
+   actualFootBores:foot.userData.A05ActualThroughBoreCount,
+   screwAxesParallelGlassShortEdge:shaftSizes.every(v=>v.z>v.x*4&&v.z>v.y*4),
+   glassShortEdgeWorldAxis:'Z',
+   screwPitchAlongGlassLengthMm:Number(Math.abs(
+     heads[0].getWorldPosition(new THREE.Vector3()).x-
+     heads[1].getWorldPosition(new THREE.Vector3()).x).toFixed(2)),
+   screwPressureEngaged,screwGlassOverlapMm3:Number(screwGlassOverlap.toFixed(4)),
+   installedYawDeg:sheet.userData.installedYawDeg??0,
+   stampToSampleCenterXmm:stamp?Number((stampPos.x-samplePos.x).toFixed(2)):null,
+   approvedDisplay:'A05 folded sheet + side clamp + required glass + PDMS',
+   actualClampOEMVerified:false,actualWingNutOEMVerified:false};
+};
+window.__modelA05PhotoEvidenceProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const screws=parts.get('A05CS')?.g,clamp=parts.get('A05C')?.g,
+   glassRoot=parts.get('A05G')?.g,sheet=parts.get('A05')?.g;
  const foot=sheet?.children.find(m=>m.userData.A05OutwardFootCandidate);
- const heads=fasteners?.children.filter(m=>m.userData.photo194WingFastenerCandidate);
- if(!foot||heads?.length!==2||!candidateGrip||!candidateGlass)return {available:false};
- sheet.updateWorldMatrix(true,true);fasteners.updateWorldMatrix(true,true);
+ const heads=screws?.children.filter(m=>m.userData.photo194WingFastenerCandidate)??[];
+ const shafts=screws?.children.filter(m=>m.userData.A05CSCandidateShank)??[];
+ const slide=glassRoot?.children.find(m=>Array.isArray(m.userData.candidateStandardSlide));
+ const pressure=clamp?.children.find(m=>m.userData.A05CPressureRail);
+ if(!foot||heads.length!==2||shafts.length!==2||!slide||!pressure)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const bb=o=>new THREE.Box3().setFromObject(o),size=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
+ const glassBox=bb(slide);
+ const collisions=shafts.filter(m=>!bb(m).clone().intersect(glassBox).isEmpty());
  const positions=heads.map(m=>m.getWorldPosition(new THREE.Vector3()));
- const bb=new THREE.Box3().setFromObject(foot);
- const slide=candidateGlass.children.find(m=>m.userData.candidateStandardSlide);
- const slideBounds=slide?new THREE.Box3().setFromObject(slide):null;
- const shafts=fasteners.children.filter(m=>m.userData.A05CSCandidateShank);
- const fastenerGlassCollisions=slideBounds?
-   shafts.filter(m=>new THREE.Box3().setFromObject(m).intersectsBox(slideBounds)).length:null;
- return {available:true,pose:aWorkingPoseMode?'candidate':'photo94',
+ return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
    visibleFastenerCount:heads.length,
-   fastenerAxis:'X-outward',
-   screwPitchXmm:Number(Math.abs(positions[1].x-positions[0].x).toFixed(2)),
-   screwPitchZmm:Number(Math.abs(positions[1].z-positions[0].z).toFixed(2)),
-   footSpanXmm:Number((bb.max.x-bb.min.x).toFixed(2)),
-   footSpanZmm:Number((bb.max.z-bb.min.z).toFixed(2)),
-   glassCandidateLeftXmm:slideBounds?Number(slideBounds.min.x.toFixed(2)):null,
-   footCandidateRightXmm:Number(bb.max.x.toFixed(2)),
-   fastenerGlassCollisionCount:fastenerGlassCollisions,
-   foldedFootOutsideGlass:slideBounds?bb.max.x<slideBounds.min.x:false,
-   glassCandidateVisible:candidateGlass.visible,
-   fabricatedJawsVisible:candidateGrip.visible,
-   photo194196ActuallyShowsMountedSlide:false,
-   glassClampOEMVerified:false,
-   physicalClampLoadPathVerified:false};
+   fastenerShaftAxis:'Z / parallel to glass 26mm short edge',
+   actualShaftGeometryParallelShortEdge:shafts.every(m=>{
+     const v=size(m);return v.z>v.x*4&&v.z>v.y*4;
+   }),
+   screwPitchAlongGlassLengthMm:Number(Math.abs(positions[1].x-positions[0].x).toFixed(2)),
+   fastenerGlassCollisionCount:collisions.length,
+   glassCandidateVisible:glassRoot.visible,sideClampVisible:clamp.visible,
+   verticalFootBoreCount:foot.userData.A05ActualThroughBoreCount,
+   completeFilmBranchYawDeg:aWorkingPoseMode?180:0,
+   photo194196ConfirmsTwoFasteners:true,
+   photoDoesNotDefineThreadOrClampSku:true,
+   glassClampOEMVerified:false};
 };
 window.__modelA05FootBoreProbe=()=>{
  if(platform!=='A')return {available:false};
- const sheet=parts.get('A05')?.g,screws=parts.get('A05CS')?.g;
+ const sheet=parts.get('A05')?.g,screws=parts.get('A05CS')?.g,clamp=parts.get('A05C')?.g;
  const foot=sheet?.children.find(m=>m.userData.A05OutwardFootCandidate);
- const shafts=screws?.children.filter(m=>m.userData.A05CSCandidateShank);
- if(!foot||!screws||shafts?.length!==2)return {available:false};
- sheet.updateWorldMatrix(true,true);screws.updateWorldMatrix(true,true);
- const footBox=new THREE.Box3().setFromObject(foot);
- const hit=(x,z)=>new THREE.Raycaster(
-   new THREE.Vector3(x,footBox.min.y-1,z),new THREE.Vector3(0,1,0),0,6
- ).intersectObject(foot,false).length;
- const centers=shafts.map(m=>{const v=new THREE.Vector3();m.getWorldPosition(v);return v});
- const mid=new THREE.Vector3();foot.getWorldPosition(mid);
- const carrier=parts.get('A05C')?.g.children.find(m=>
-   m.userData.A05CActualThroughBores!==undefined);
- const carrierBox=carrier?new THREE.Box3().setFromObject(carrier):null;
- const carrierOpen=Boolean(carrier)&&centers.every(v=>new THREE.Raycaster(
-   new THREE.Vector3(v.x,carrierBox.min.y-1,v.z),
-   new THREE.Vector3(0,1,0),0,6
- ).intersectObject(carrier,false).length===0);
- return {available:true,actualBoresOpen:centers.every(v=>hit(v.x,v.z)===0),
-   solidMaterialBetweenBores:hit(mid.x,mid.z)>0,
+ const shafts=screws?.children.filter(m=>m.userData.A05CSCandidateShank)??[];
+ const pressure=clamp?.children.find(m=>m.userData.A05CPressureRail);
+ if(!foot||shafts.length!==2||!pressure)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const bb=o=>new THREE.Box3().setFromObject(o),size=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
+ return {available:true,
+   verticalClampBoresRemoved:foot.userData.A05ActualThroughBoreCount===0,
    boreCount:foot.userData.A05ActualThroughBoreCount,
-   carrierActualBoreCount:carrier?.userData.A05CActualThroughBores??null,
-   carrierScrewAxesOpen:carrierOpen,
-   independentFastenerPart:sheet!==screws&&parts.get('A05C')?.g!==screws,
    shaftCount:shafts.length,
-   tipBelowFootMm:Number((footBox.min.y-Math.min(...shafts.map(m=>
-     new THREE.Box3().setFromObject(m).min.y))).toFixed(2)),
-   diameterMmCandidate:foot.userData.A05BoreDiameterCandidateMm,
+   shaftAxesParallelGlassShortEdge:shafts.every(m=>{const v=size(m);return v.z>v.y*4&&v.z>v.x*4}),
+   shaftsEngagePressureRail:shafts.every(m=>!bb(m).clone().intersect(bb(pressure)).isEmpty()),
+   independentFastenerPart:sheet!==screws&&clamp!==screws,
    actualOEMThreadsVerified:false};
 };
 window.__modelAObjectiveOrientationProbe=()=>{
