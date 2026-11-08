@@ -69,15 +69,37 @@ let platform='B', bPhoto94Mode=false, aWorkingPoseMode=false, currentRoot=new TH
 // Read-only platform state for automated browser QA.
 window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',aPose:platform==='A'?(aWorkingPoseMode?'candidate':'photo94'):null,partCount:parts.size});
  // Photo-referenced A is the default view, not an unverified mirror.
- window.__platformAPhotoTruthProbe=()=>platform==='A'?{
-  available:true,photoMode:!aWorkingPoseMode,
-  filmStageX:activeAFilmX(),VC13InitialLiftMm:aWorkingPoseMode?13:0,
-  bracketMirroredFromPhoto:aWorkingPoseMode,
-  fabricatedClampVisible:Boolean(parts.get('A05C')?.g.visible),
-  unphotographedGlassVisible:Boolean(parts.get('A05G')?.g.visible),
-  actualClampManufacturerConfirmed:false,
-  directPhotoIds:['191','192','193','194','195','196']
- }:{available:false};
+ window.__platformAPhotoTruthProbe=()=>{
+  if(platform!=='A')return {available:false};
+  currentRoot.updateWorldMatrix(true,true);
+  const vc13=parts.get('A03')?.g;
+  const slider=vc13?.userData.verticalCarriage;
+  const output=slider?.children.find(x=>x.userData.A03MovingOutputPlate);
+  const lowerGoniometer=parts.get('A04L')?.g;
+  const upperGoniometer=parts.get('A04')?.g;
+  const lSheet=parts.get('A05')?.g.children.find(o=>o.isMesh);
+  const a17=parts.get('A17')?.g;
+  const a15=parts.get('A15')?.g;
+  const round=x=>Number(x.toFixed(3));
+  const gap=(lower,upper)=>lower&&upper?
+    round(new THREE.Box3().setFromObject(upper).min.y-
+      new THREE.Box3().setFromObject(lower).max.y):null;
+  const vc13ToGoniometer=output&&lowerGoniometer?
+    round(new THREE.Box3().setFromObject(lowerGoniometer).min.y-
+      new THREE.Box3().setFromObject(output).max.y):null;
+  return {available:true,photoMode:!aWorkingPoseMode,
+   filmStageX:activeAFilmX(),VC13InitialLiftMm:aWorkingPoseMode?13:0,
+   vc13CarriageMeshLiftMm:slider?round(slider.position.y):null,
+   vc13OutputToGoniometerGapMm:vc13ToGoniometer,
+   goniometerToUpperGapMm:gap(lowerGoniometer,upperGoniometer),
+   upperGoniometerToSheetTopGapMm:gap(upperGoniometer,lSheet),
+   magnetToXyBaseGapMm:gap(a17,a15),
+   bracketMirroredFromPhoto:aWorkingPoseMode,
+   fabricatedClampVisible:Boolean(parts.get('A05C')?.g.visible),
+   unphotographedGlassVisible:Boolean(parts.get('A05G')?.g.visible),
+   actualClampManufacturerConfirmed:false,photographicMountsAccepted:false,
+   directPhotoIds:['191','192','193','194','195','196']};
+ };
 const activeAFilmX=()=>aWorkingPoseMode?A_WORKING_LAYOUT.filmStageX:CONFIG.A.armX;
 window.__platformAWorkingPoseProbe=()=>platform==='A'?{
  available:true,mode:aWorkingPoseMode?'candidate':'photo94',
