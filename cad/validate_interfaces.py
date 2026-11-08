@@ -1037,18 +1037,17 @@ check(abs(a_base.zmin-a_board.zmax)<.02 and abs(a_rot_lower.zmin-a_base.zmax)<.0
 a_tilt=part(A,'A04')[0].BoundingBox()
 check(abs(a_tilt.zmax-164)<.02,
       'V47 A04 is upper of 2x20mm G40-class stack; A05 touches top z164')
-# V58: printed STEP is the *UNVERIFIED* candidate lower-contact pose.
-# Photo94 left-fold geometry is NOT overwritten: see viewer photo94 mode.
-# Do not pretend that fitting two candidate solids validates the actual rig.
+# V79 complete STEP applies the same rigid 180° film-chain yaw validated above.
+# Contact/clearance checks below therefore use installed world-space clamp/PDMS.
 a_heater=part(A,'A07')[0].BoundingBox()
 check(abs(a_heater.zmax-109.2)<.02,
       'Sample silver support top remains 109.2mm above datum')
-check(abs(a_chip.BoundingBox().zmax-a_pdms.BoundingBox().zmin)<.02,
-      'PDMS interface is on sample chip, not 1.4mm inside the heater')
-check(a_clamp.BoundingBox().xmax<a_heater.xmin,
-      'A05C fixed clamp must remain outside A07 heater X footprint')
-check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-25.5)<.03,
-      'V73 candidate far-end jaw stays outside heater with 25.5mm scene-only clearance')
+check(abs(a_chip.BoundingBox().zmax-installed_pdms.BoundingBox().zmin)<.02,
+      'V79 installed PDMS interface is on sample chip, not inside heater')
+check(installed_clamp.BoundingBox().xmax<a_heater.xmin,
+      'V79 installed A05C side clamp remains outside A07 heater X footprint')
+check(abs(a_heater.xmin-installed_clamp.BoundingBox().xmax-7.5)<.03,
+      'V79 side-clamp geometry retains 7.5mm nominal heater-edge clearance')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
 # V69: the optical support must be bored around the fixed 26mm post;
