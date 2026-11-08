@@ -3821,6 +3821,13 @@ function switchPlatform(next){
   $('film-drop').max='0';
   $('film-drop').value='0';
   $('film-drop-value').textContent='0.0 mm';
+  // Photo-only A has no verified glass/jaws or contact datum: disabling
+  // vertical descent prevents a false transfer simulation through the
+  // photograph-supported static machine. Movement is only possible in
+  // the explicitly marked and collision-tested operation hypothesis.
+  $('film-drop').disabled=next==='A'&&!aWorkingPoseMode;
+  $('film-drop').title=next==='A'&&!aWorkingPoseMode?
+    '实拍朝向未配准玻片与夹具，禁止按假设的13mm行程执行下降':'仅几何预览，不是实际硬件控制';
   // Both A and B have photo-confirmed film-side T25M. Actual travel use remains candidate.
   $('translate').disabled=false;
   $('translate').title=next==='A'?'A15: 照片95/97证明存在载玻片侧 T25M':'B03: 照片108/109证明存在磁座上T25M';
