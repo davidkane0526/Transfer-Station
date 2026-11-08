@@ -47,11 +47,34 @@ assert.equal(rotary.candidateGridDirectFit,false);
 assert.equal(rotary.currentSceneBoltedJointAccepted,false);
 assert.equal(rotary.realMachineMountVerified,false);
 assert.equal(rotary.mountingHolePairs.length,4);
+assert.equal(rotary.gridPossibleAfterRigidTranslation,true);
+assert.equal(rotary.sceneGeometryAutomaticallyRepositioned,false);
+assert.equal(rotary.rigidTranslationCheckedAgainstOpticalAxis,false);
+assert.equal(rotary.rigidTranslationCheckedAgainstAdjacentHardware,false);
+assert.equal(rotary.nearestFullFourHoleRegistrations.length,4);
+assert.equal(rotary.minimumRigidTranslationMm,13.657);
+assert.deepEqual(rotary.nearestFullFourHoleRegistrations.slice(0,2).map(c=>c.centerMm),
+  [[87.5,-12.5],[87.5,12.5]],
+  'Both equal-distance full-pattern registrations must be exposed instead of arbitrarily shifting the optical axis');
+assert.deepEqual(rotary.nearestFullFourHoleRegistrations.slice(0,2).map(c=>c.translationMm),
+  [[5.5,-12.5],[5.5,12.5]]);
+assert(rotary.nearestFullFourHoleRegistrations.every(c=>
+  c.allFourBoresRegistered&&c.fullRotaryFootOnBoard),
+  'A proposed mount cannot solve each hole independently or let the Ø94 foot hang off B35');
 assert(Math.abs(rotary.maxMismatchMm-Math.hypot(5.5,12.5))<.002,
   "B08's four OEM base holes do not coincide with B35 photo-fit grid");
 const hypothetical=auditB08ToB35Mount({rotaryCenterX:87.5,rotaryCenterZ:12.5});
 assert.equal(hypothetical.maxMismatchMm,0,
   'The checker must recognize a grid-compatible hypothetical pose, without relocating the optical axis');
 assert.equal(hypothetical.realMachineMountVerified,false);
+assert.equal(hypothetical.minimumRigidTranslationMm,0);
+assert.equal(hypothetical.candidateGridDirectFit,true);
+const noGridMount=auditB08ToB35Mount({
+  boardWidthMm:100,boardDepthMm:100,boardPitchMm:40,
+  boardEdgeOffsetMm:10,rotaryMountPitchMm:50});
+assert.equal(noGridMount.gridPossibleAfterRigidTranslation,false,
+  'Reject false four-hole solutions when the 50mm OEM pattern cannot register on a 40mm grid');
+assert.equal(noGridMount.minimumRigidTranslationMm,null);
+assert.deepEqual(noGridMount.nearestFullFourHoleRegistrations,[]);
 assert.throws(()=>auditB08ToB35Mount({rotaryMountPitchMm:0}),/Invalid/);
 console.log('V51 MB2530/M candidate grid, B35 anchors and B16 foot registration: PASS');
