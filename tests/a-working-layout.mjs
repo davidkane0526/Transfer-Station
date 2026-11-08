@@ -8,16 +8,18 @@ assert.equal(original.legX,-164);
 assert.equal(original.verticalLegLength,72);
 const hypothesis=photo94BracketCandidate({
   stageCenterX:A_WORKING_LAYOUT.filmStageX,stageTopY:164,
+  topPlateWidth:A_WORKING_LAYOUT.lBracketTopWidthMm,
+  leftOverhangMm:A_WORKING_LAYOUT.lBracketOverhangMm,
   handedness:'right',verticalLegLength:A_WORKING_LAYOUT.lLegLengthMm
 });
-assert.equal(hypothesis.legX,A_WORKING_LAYOUT.filmStageX+48);
+assert.equal(hypothesis.legX,A_WORKING_LAYOUT.filmStageX+60);
 assert.equal(hypothesis.verticalLegBottomY,111.9);
 const nominal=auditAWorkingLayout();
 assert.equal(nominal.actualStagePosePhotoRegistered,false);
 assert.equal(nominal.A17SkuVerified,false);
 assert.equal(nominal.A05CClampSkuVerified,false);
 assert.equal(nominal.basesSeparate,true);
-assert.equal(nominal.footprintGapMm,60.25);
+assert.equal(nominal.footprintGapMm,72.25);
 assert.equal(nominal.glassLeftX,10);
 assert.equal(nominal.glassRightX,86);
 assert.equal(nominal.stampCenterX,78);
@@ -58,8 +60,8 @@ assert.equal(worstTurn.clipOutsideHeater,false);
 assert.equal(worstTurn.candidateCanLower,false);
 assert.throws(()=>auditAWorkingLayout({filmDropMm:14}),/Invalid/);
 assert.equal(nominal.photographedWingScrewAxis,'X-outward');
-assert.equal(nominal.filmStageX,-70.75);
-assert.equal(nominal.filmBaseRepositionedMm,-24);
+assert.equal(nominal.filmStageX,-82.75);
+assert.equal(nominal.filmBaseRepositionedMm,-36);
 assert.equal(nominal.wingScrewsOutsideUndrilledGlass,true);
 assert.equal(nominal.candidateFootGlassPlanarOverlap,false);
 assert.equal(nominal.fullCandidateClampAssemblyCertified,false);
