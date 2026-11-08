@@ -3867,6 +3867,19 @@ $('btn-photo947').onclick=()=>focusPhoto947('94');
 $('btn-photo94').onclick=()=>focusPhoto947('94');
 $('btn-photo95').onclick=()=>focusPhoto947('95');
 $('btn-photo97').onclick=()=>focusPhoto947('97');
+function focusPhoto196(){
+ if(platform!=='A'||aWorkingPoseMode){
+  aWorkingPoseMode=false;switchPlatform('A');
+ }
+ const x=activeAFilmX();
+ // Compare the opposite/drive side of photo196: camera is shifted
+ // toward +X to make G40M60L RIGHT-hand micrometer and A05 return
+ // visible as distinct solids, instead of duplicating photo94 camera.
+ const target=new THREE.Vector3(x+7,153,0);
+ camera.position.set(x+127,190,155);
+ orbit.target.copy(target);camera.lookAt(target);orbit.update();
+}
+$('btn-photo196').onclick=focusPhoto196;
 function focusMechanicalBranch(which){
  const x=which==='film'?(platform==='B'?CONFIG.B.armX:activeAFilmX()):(platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX);
  const fittedBFilm=which==='film'&&platform==='B';
