@@ -840,183 +840,162 @@ check(abs(long.BoundingBox().xmin+90)<.02 and abs(long.BoundingBox().xmax+20)<.0
       'First rod crosses B33→PHUC without floating or extra metal tail')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
-# V58: the editable STEP is the clearly labelled UNVERIFIED working
-# hypothesis (photo94 left-fold is preserved separately in the viewer).
-# Validate REAL solid contact and zero penetration for the glass/stamp,
-# rather than the V57 false positive that accepted a 171.5mm scene gap.
+# V79: platform A uses ONE local left-handed film stack, then the complete
+# film-side chain is yawed 180 degrees around the A17/A15 vertical datum.
+# Validate the local mechanical interfaces first, then validate the installed
+# world-space PDMS/sample relationship after the same rigid transform.
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
-check(abs(asheet_bb.xmin+109.75)<.02 and abs(asheet_bb.xmax-8)<.02,
-      'V70 sheet folded foot extends 32mm toward right, candidate not photo94 pose')
-check(abs(asheet_bb.zmin-111.9)<.02 and abs(asheet_bb.zmax-166.5)<.02,
-      'V58 52.1mm unverified leg joins G40 top and target glass position')
+ax=-82.75
+leg_bottom=164-52.1
+leg_x=ax-60+1.25
+check(abs(asheet_bb.xmin+173.5)<.02 and abs(asheet_bb.xmax+55.75)<.02,
+      'V79 A05 local sheet/foot remains one LEFT-handed definition before rigid yaw')
+check(abs(asheet_bb.zmin-leg_bottom)<.02 and abs(asheet_bb.zmax-166.5)<.02,
+      'V79 52.1mm candidate leg joins G40 top and the glass support height')
 check(a_sheet.distance(part(A,'A04')[0])<.05,
-      'V58 sheet rests on independent upper G40 stage')
+      'V79 A05 sheet rests on the independent upper G40 stage')
 for i,dx in enumerate((-14,14),1):
     head=part(A,f'A05S{i}')[0]
     check(abs(head.BoundingBox().zmin-asheet_bb.zmax)<.02,
-          'V58 both sheet screw HEADS contact top plate')
+          'V79 both sheet screw heads contact the A05 top plate')
     center=(head.BoundingBox().xmin+head.BoundingBox().xmax)/2
-    check(abs(center-(-82.75+dx))<.02,'V58 G40 head pair follows moved film unit')
-for i in (1,2):
-    wing=part(A,f'A05CS{i}')[0]
-    check(wing.isValid() and wing.BoundingBox().xlen>9.4 and
-          wing.BoundingBox().ylen<6.1,
-          'V77 butterfly heads rotated 90deg into X-outward plane, not Z/front-back')
-    check(wing.intersect(a_sheet).Volume()<1e-4,
-          'V77 rotated butterfly ears must stay outside the upright and folded foot')
-check(asheet_bb.ylen>=14-.02,
-      'V70 outward foot has short 14mm front-back span, not false 26mm screw depth')
-# V63 physically test both hollow bores and solid material between them.
-# Prior versions had bolt/foot volume collisions despite passing contact QA.
-leg_bottom=164-52.1
-leg_x=-82.75+60-1.25
-for i,dx in enumerate((7,25),1):
-    shaft_axis=vz(1.4,2.5,leg_x+dx,0,leg_bottom)
-    check(a_sheet.intersect(shaft_axis).Volume()<1e-5,
-          'V70 A05 actual STEP bore on the OUTWARD X foot clears screw '+str(i))
-    bolt=part(A,f'A05CS{i}')[0]
-    check(a_sheet.intersect(bolt).Volume()<1e-4,
-          'V70 A05 butterfly bolt must not intersect metal foot '+str(i))
-    check(abs(bolt.BoundingBox().zmin-(leg_bottom-3.5))<.02,
-          'V70 photo196 thread tail projects BELOW the black foot')
-    check(bolt.BoundingBox().zmax>leg_bottom+6,
-          'V70 butterfly head remains ABOVE the folded foot')
-    check(abs((bolt.BoundingBox().xmin+bolt.BoundingBox().xmax)/2-
-              (leg_x+dx))<.02,
-          'V70 both wing-screw centres registered along X, NOT Z')
-solid_axis=vz(1.25,2.5,leg_x+16,0,leg_bottom)
-check(a_sheet.intersect(solid_axis).Volume()>6,
-      'V63 no false void throughout entire folded foot')
-report['V70_A05_outward_screw_axis']={
-    'photo_sources':['194','196'],'bore_count':2,
-    'screw_axis':'X-outward, NOT previously Z front-back',
-    'wing_ear_plane':'X-outward, rotated 90deg from legacy Z-oriented wings',
-    'installed_glass_in_complete_STEP':False,
-    'foot_length_X_mm_candidate':32,
-    'foot_width_Y_mm_candidate':14,
-    'bore_diameter_mm_candidate':3.2,'screw_diameter_mm_candidate':2.8,
-    'hole_pitch_mm_candidate':18,'below_foot_tail_mm_candidate':3.5,
-    'bore_boolean_and_solid_material_checked':True,
-    'screw_thread_and_torque_verified':False,
-    'actual_glass_clamp_loadpath_verified':False}
-for id in ('A05A','A05B'):
-    check(not (A/(id+'.step')).exists(),
-          'Discredited 215mm transfer beam/spacer remains absent: '+id)
+    check(abs(center-(ax+dx))<.02,'V79 A05 top fasteners follow the film datum')
+# The folded support is SOLID: old vertical clamp bores were caused by the
+# wrong screw-axis interpretation and must no longer exist.
+for x in (leg_x-7,leg_x-25):
+    probe=vz(1.2,2.4,x,0,leg_bottom+.05)
+    check(a_sheet.intersect(probe).Volume()>5,
+          'V79 A05 folded foot must remain solid at former vertical screw locations')
+
 a_clamp=part(A,'A05C')[0]
-a_upper_jaw=part(A,'A05CU')[0]
+a_pressure=part(A,'A05CU')[0]
 a_slide=part(A,'A05G')[0]
 a_pdms=part(A,'A05GP')[0]
 a_chip=part(A,'A07W')[0]
-# V68: Lowered STEP contact pose has the glass below both objectives.
-# The original Web candidate RAISED the film 13mm without moving optical
-# assembly at all; that trajectory intersected the optical metal.
-# Geometric retract 18mm is a V68 visual hypothesis only, not measured travel.
+check(len(part(A,'A05C'))==1,
+      'V79 A05C support ledge, fixed rail, neck and screw bosses form one component')
+check(abs(a_slide.BoundingBox().xlen-76)<.02 and
+      abs(a_slide.BoundingBox().ylen-26)<.02 and
+      abs(a_slide.BoundingBox().zlen-1)<.02,
+      'V79 A05G glass candidate is 76x26x1mm')
+# Fixed rail / ledge and moving pressure rail contact the glass on designed
+# faces only. No metal may occupy finite volume inside the glass.
+check(a_clamp.distance(a_slide)<.05,
+      'V79 fixed clamp/support must contact the glass without floating')
+check(a_pressure.distance(a_slide)<.05,
+      'V79 pressure rail must meet the opposite glass short-edge face')
+check(a_clamp.intersect(a_slide).Volume()<1e-4 and
+      a_pressure.intersect(a_slide).Volume()<1e-4,
+      'V79 side rails/support must not penetrate the glass')
+check(a_pdms.distance(a_slide)<.05 and
+      a_pdms.intersect(a_slide).Volume()<1e-4,
+      'V79 PDMS must contact the glass underside without interpenetration')
+check(a_sheet.intersect(a_slide).Volume()<1e-4,
+      'V79 folded A05 metal must not penetrate the required glass')
+
+# Two clamp screw shafts run along STEP +Y = viewer scene Z, i.e. parallel
+# to the 26mm glass short edge. They thread through the outer bosses and
+# press the moving pressure rail; they never pass vertically through A05.
+screw_centres=[]
+for i in (1,2):
+    screw=part(A,f'A05CS{i}')[0]
+    bb=screw.BoundingBox()
+    check(bb.ylen>bb.xlen*1.7 and bb.ylen>bb.zlen*2,
+          'V79 A05CS screw principal axis must be +Y / glass short edge')
+    check(screw.intersect(a_pressure).Volume()>0.2,
+          'V79 A05CS screw must engage the moving pressure rail')
+    check(screw.intersect(a_slide).Volume()<1e-4,
+          'V79 A05CS screw must remain outside glass volume')
+    check(screw.intersect(a_sheet).Volume()<1e-4,
+          'V79 A05CS screw must not pass through folded A05 foot')
+    screw_centres.append((bb.xmin+bb.xmax)/2)
+check(abs(abs(screw_centres[1]-screw_centres[0])-18)<.02,
+      'V79 two side screws are spaced 18mm along glass length candidate')
+report['V79_A05_short_edge_side_clamp']={
+    'photo_sources':['194','196'],
+    'required_glass_in_complete_STEP':True,
+    'local_sheet_handedness':'left',
+    'complete_film_chain_installed_yaw_deg':180,
+    'vertical_folded_foot_clamp_bores':0,
+    'side_screw_count':2,
+    'screw_axis':'STEP +Y / viewer scene Z / parallel to 26mm glass short edge',
+    'screw_pitch_along_glass_length_mm_candidate':18,
+    'moving_pressure_rail_present':True,
+    'screw_to_pressure_rail_engagement_checked':True,
+    'screw_to_glass_intersection_mm3':0,
+    'thread_pitch_and_clamping_force_verified':False,
+    'actual_clamp_SKU_verified':False}
+
+# Apply exactly the same rigid yaw used by build_assemblies.py complete export.
+pivot=Vector(ax,0,0)
+vertical=Vector(ax,0,1)
+installed=lambda sh:sh.rotate(pivot,vertical,180)
+installed_slide=installed(a_slide)
+installed_pdms=installed(a_pdms)
+installed_sheet=installed(a_sheet)
+installed_clamp=installed(a_clamp)
+installed_pressure=installed(a_pressure)
+installed_screws=[installed(part(A,f'A05CS{i}')[0]) for i in (1,2)]
+
+check(abs((installed_pdms.BoundingBox().xmin+installed_pdms.BoundingBox().xmax)/2-78)<.02 and
+      abs((installed_pdms.BoundingBox().ymin+installed_pdms.BoundingBox().ymax)/2)<.02,
+      'V79 rigid 180deg film-chain yaw must put PDMS over A07 sample XY')
+check(abs(a_chip.BoundingBox().zmax-110.6)<.02,
+      'V79 A07W sample-chip top is 110.6mm')
+check(abs(installed_pdms.BoundingBox().zmin-a_chip.BoundingBox().zmax)<.02,
+      'V79 static lower pose PDMS reaches chip top')
+check(installed_pdms.distance(a_chip)<.05 and
+      installed_pdms.intersect(a_chip).Volume()<1e-4,
+      'V79 PDMS contacts A07W chip without floating/interpenetration')
+check(installed_pdms.intersect(part(A,'A07')[0]).Volume()<1e-4,
+      'V79 PDMS does not enter underlying sample-stage metal')
+
+# Retain conservative optical collision audit using INSTALLED world geometry.
 optical_solids=[part(A,id)[0] for id in ('A19O1','A19O2','A19R1','A19R2')]
-unparked_raised_glass=a_slide.translate(Vector(0,0,13))
-lower_contact_overlap=sum(a_slide.intersect(o).Volume() for o in optical_solids)
+unparked_raised_glass=installed_slide.translate(Vector(0,0,13))
+lower_contact_overlap=sum(installed_slide.intersect(o).Volume() for o in optical_solids)
 raised_unparked_overlap=sum(unparked_raised_glass.intersect(o).Volume() for o in optical_solids)
 raised_retracted_overlap=sum(unparked_raised_glass.intersect(
     o.translate(Vector(0,0,18))).Volume() for o in optical_solids)
 check(lower_contact_overlap<1e-4,
-      'V68 static lowered STEP pose must keep glass separate from objectives')
-check(raised_unparked_overlap>0.1,
-      'V68 detector MUST catch the original 13mm raised glass/objective solid collision')
+      'V79 static lower installed glass must remain separate from objectives')
 check(raised_retracted_overlap<1e-4,
-      'V68 proposed 18mm visual parking of both objectives avoids raised glass interference')
-report['V68_A_optical_head_glass_collision']={
-    'A05G_static_lowered_pose_glass_objective_intersection_mm3':round(lower_contact_overlap,3),
-    'A05G_raised_13mm_original_unparked_intersection_mm3':round(raised_unparked_overlap,3),
-    'A05G_raised_13mm_parked_18mm_intersection_mm3':round(raised_retracted_overlap,3),
+      'V79 18mm display-only optical parking avoids raised-glass solid collision')
+report['V79_A_optical_head_glass_collision']={
+    'static_lowered_glass_objective_intersection_mm3':round(lower_contact_overlap,3),
+    'raised_13mm_unparked_intersection_mm3':round(raised_unparked_overlap,3),
+    'raised_13mm_parked_18mm_intersection_mm3':round(raised_retracted_overlap,3),
     'film_vertical_travel_candidate_mm':13,
     'optics_parking_offset_candidate_mm':18,
     'real_focus_travel_measured':False,
     'objective_working_distance_measured':False,
-    'real_turret_swing_swept_volume_certified':False,
-    'photographic_registration_verified':False
-}
+    'physical_collision_certification':False}
 
-check(len(part(A,'A05C'))==1,
-      'A05C bracket tie, carrier and lower jaw form a connected solid')
-glass_bottom=leg_bottom+.5
-for dx in (7,25):
-    bore_axis=vz(1.4,3,leg_x+dx,0,glass_bottom-3.5)
-    check(a_clamp.intersect(bore_axis).Volume()<1e-4,
-          'V70 A05C carrier has co-axial TRUE holes on the outward foot X direction')
-report['V70_A05C_outward_carrier_clearance']={
-    'carrier_boolean_bore_count':2,
-    'coaxial_X_outward_screw_centres_mm':[7,25],
-    'same_axes_as_A05_foot':True,
-    'carrier_clamping_force_and_threads_verified':False}
-check(a_sheet.distance(a_clamp)<.05,
-      'A05C local clamp must contact the end of the folded A05 sheet')
-check(a_clamp.distance(a_slide)<.05,
-      'A05C lower glass jaw must touch the glass without floating')
-check(a_upper_jaw.distance(a_slide)<.05,
-      'A05C upper jaw must touch the glass without floating')
-check(a_pdms.distance(a_slide)<.05,
-      'A05GP PDMS must contact glass underside')
-check(a_clamp.intersect(a_slide).Volume()<.0001 and
-      a_upper_jaw.intersect(a_slide).Volume()<.0001 and
-      a_pdms.intersect(a_slide).Volume()<.0001,
-      'A05 clamp/PDMS must not penetrate the candidate glass')
-check(a_sheet.intersect(a_slide).Volume()<1e-4,
-      'V70 photographed folded foot must not penetrate UNDRILLED glass slide')
-check(a_sheet.intersect(a_clamp).Volume()<1e-4,
-      'V70 photographed L-fold sheet and hypothesis jaws cannot occupy same solid volume')
-check(a_sheet.distance(a_slide)>1.5,
-      'V70 fabricated glass must start beyond second wing screw/foot with physical horizontal gap')
-check(abs(a_slide.BoundingBox().xlen-76)<.02 and
-      abs(a_slide.BoundingBox().ylen-26)<.02 and
-      abs(a_slide.BoundingBox().zlen-1)<.02,
-      'A05G candidate glass is 76x26x1mm')
-check(abs(a_slide.BoundingBox().xmax-a_pdms.BoundingBox().xmax-4)<.02,
-      'V58 PDMS right edge must be 4mm inset from glass right edge')
-check(abs(a_chip.BoundingBox().zmax-110.6)<.02,
-      'V58 A07W sample-chip top is 110.6mm, not 109.2mm bare metal')
-check(abs(a_pdms.BoundingBox().zmin-a_chip.BoundingBox().zmax)<.02,
-      'V58 static LOWER pose: PDMS reaches CHIP TOP, not naked hotplate')
-check(a_pdms.distance(a_chip)<.05 and
-      a_pdms.intersect(a_chip).Volume()<.0001,
-      'V58 PDMS contacts A07W chip without floating/interpenetration')
-check(a_pdms.intersect(part(A,'A07')[0]).Volume()<.0001,
-      'V58 PDMS must not enter underlying silver heater plate')
-for i in (1,2):
-    screw=part(A,f'A05CS{i}')[0]
-    check(screw.isValid() and a_clamp.distance(screw)<.26,
-          'V64 A05C candidate screw needs clearance yet stay near carrier')
-    check(a_clamp.intersect(screw).Volume()<1e-4,
-          'V64 A05C screw must not penetrate solid clamp carrier')
-    check(screw.intersect(a_slide).Volume()<.0001,
-          'V58 candidate fasteners must remain outside glass footprint')
 a17_bb=part(A,'A17')[0].BoundingBox()
 a16_bb=part(A,'A16')[0].BoundingBox()
 a_base_gap=a16_bb.xmin-a17_bb.xmax
 check(abs(a_base_gap-72.25)<.02,
-      'V70 A16/A17 nominal 72.25mm clearance after re-registering glass beyond foot')
-check(abs((a_pdms.BoundingBox().xmin+a_pdms.BoundingBox().xmax)/2-78)<.02 and
-      abs((a_pdms.BoundingBox().ymin+a_pdms.BoundingBox().ymax)/2)<.02,
-      'V58 PDMS stamp must be centered above sample-chip XY')
+      'V79 A16/A17 nominal base-envelope gap remains 72.25mm')
 check(abs(a_chip.BoundingBox().xlen-28)<.02 and
       abs(a_chip.BoundingBox().ylen-28)<.02 and
       abs(a_chip.BoundingBox().zlen-1.4)<.02,
-      'V58 sample chip geometry matches browser 28x28x1.4mm proxy')
-report['V58_A_working_geometry_only']={
+      'V79 sample chip proxy remains 28x28x1.4mm')
+report['V79_A_installed_geometry']={
     'part_chain':['A17','A15','A03','A04L','A04','A05','A05C',
                   'A05CU','A05CS1','A05CS2','A05G','A05GP'],
     'A17_A16_footprint_gap_mm':round(a_base_gap,2),
-    'film_center_x_mm':-82.75,'working_film_bent_sheet_handedness':'right',
-    'photo94_original_handedness':'left',
-    'a05_leg_height_candidate_mm':52.1,
+    'film_center_x_mm':ax,
+    'local_sheet_handedness':'left',
+    'installed_film_yaw_deg':180,
     'glass_size_candidate_mm':[76,26,1],
     'pdms_size_candidate_mm':[8,8,1.8],
-    'pdms_right_margin_mm':4,
+    'pdms_far_edge_margin_mm':4,
     'sample_chip_top_mm':110.6,
     'static_lowered_PDMS_contact_with_chip':True,
     'full_13mm_motion_collision_certified':False,
-    'actual_photo_pose_registered':False,
     'A17_and_A05C_OEM_identified':False,
-    'clamp_screw_pattern_verified':False,
+    'clamp_screw_thread_verified':False,
     'made_for_machining_or_procurement':False
 }
 report['V47_A_photo94_visual_scale']={
