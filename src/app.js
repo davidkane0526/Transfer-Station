@@ -467,6 +467,8 @@ window.__modelBActuatorProbe=()=>{
      stageRole:root.userData.stageRole??null,
      recessedBaseHeadCount:root.children.filter(o=>o.userData.stageBaseRecessedHead).length,
      fixedBaseFastenerTopMm:root.userData.fixedBaseFastenerTopMm??null,
+     belowBaseScrewEngagementMm:root.userData.belowBaseScrewEngagementMm??null,
+     screwInterfacingHoleRegistrationVerified:Boolean(root.userData.stageScrewInterfacingHoleRegistrationVerified),
      movingUndersideToFastenerClearanceMm:(()=>{
        const heads=root.children.filter(o=>o.userData.stageBaseRecessedHead);
        const face=root.userData.slidingTop?.children.find(o=>o.userData.sampleStageMovingUnderside);
@@ -1136,7 +1138,15 @@ function stageBaseRecessedFasteners(g,id,locations){
   throw Error('Stage base fastening count mismatch '+id);
  const headTopMm=10.85,headH=2.8;
  for(const [x,z] of locations){
-  const shank=add(g,cyl(2.6,8.05,mats.steel,x,4.025,z,24));
+  // Head remains recessed, but the shank must traverse the 11mm
+  // stationary stage base and engage the lower part by 7mm.
+  // -7..8.05 is a display candidate, matching STEP's -7mm engagement.
+  const insertionBelowBaseMm=7;
+  const shankTopMm=headTopMm-headH;
+  const shankLengthMm=shankTopMm+insertionBelowBaseMm;
+  const shank=add(g,cyl(2.4,shankLengthMm,mats.steel,
+   x,(shankTopMm-insertionBelowBaseMm)/2,z,24));
+  shank.userData.stageBelowBaseEngagementMm=insertionBelowBaseMm;
   const head=add(g,cyl(4.2,headH,mats.silver,x,headTopMm-headH/2,z,32));
   const socket=add(g,cyl(1.65,.12,mats.ink,x,headTopMm-.06,z,6));
   head.userData.fastenerHead=true;
@@ -1146,6 +1156,8 @@ function stageBaseRecessedFasteners(g,id,locations){
   }
  }
  g.userData.fixedBaseFastenerTopMm=headTopMm;
+ g.userData.belowBaseScrewEngagementMm=7;
+ g.userData.stageScrewInterfacingHoleRegistrationVerified=false;
  g.userData.fixedBaseNominalTopMm=11;
  g.userData.fastenerProxies=locations.length;
 }
