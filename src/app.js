@@ -68,7 +68,8 @@ external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
 let platform='B', bPhoto94Mode=false, aWorkingPoseMode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
     filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleShiftDepth=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 // Read-only platform state for automated browser QA.
-window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',aPose:platform==='A'?(aWorkingPoseMode?'candidate':'photo94'):null,partCount:parts.size});
+window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',
+ aPose:platform==='A'?(aWorkingPoseMode?'installed180':'photo-reference'):null,partCount:parts.size});
  // Photo-referenced A is the default view, not an unverified mirror.
  window.__platformAPhotoTruthProbe=()=>{
   if(platform!=='A')return {available:false};
@@ -1527,11 +1528,11 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
       bolt.rotation.x=Math.PI/2;
       bolt.userData.A15Photo194FrontPlateScrewCandidate=true;
     }
-    const frontStem=add(stageFace,cyl(1.8,9,mats.steel,0,19,-38.5,24));
-    frontStem.rotation.x=Math.PI/2;
-    const frontKnob=add(stageFace,cyl(5.2,7,mats.silver,0,19,-46.5,40));
-    frontKnob.rotation.x=Math.PI/2;
-    frontKnob.userData.A15Photo194SlotControlKnob=true;
+    // V79: the old free-standing cylindrical "central control" was not
+    // mechanically justified by the photos and is the long-standing floating
+    // handle visible in the user's screenshot. Keep the observed slotted plate
+    // and its two fasteners, but delete that invented detached knob until its
+    // actual linkage/model can be identified.
      g.userData.A15SilverSlotFaceLocalZ=-1;
      g.userData.A15XYActuatorAxes={X:'+X',Y:'+Z'};
     g.userData.A15Photo194SlotDimensionsVerified=false;
@@ -1541,23 +1542,34 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
     add(carriageY,cub(w*.94,topH,d*.92,mats.dark,0,lowerH+middleH+topH/2,0));
    }
    // Two REAL distinct crossed micrometer assemblies, per original 97/108 and GCM-T25M2L.
-   const supportZ=depthHandleSide*(d/2+6);
-   add(g,cub(14,11,14,mats.dark,0,lowerH*.5,supportZ));
-   const yStem=add(g,cyl(6,27,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+23)));yStem.rotation.x=Math.PI/2;
-   const yDrum=add(g,cyl(9,14,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+39)));yDrum.rotation.x=Math.PI/2;
+   // V79: continuous support -> spindle -> collar -> drum chain.
+   const supportZ=depthHandleSide*(d/2+7);
+   const ySupport=add(g,cub(14,11,14,mats.dark,0,lowerH*.5,supportZ));
+   ySupport.userData.stageActuatorSupport={kind:'linear',localAxis:'depth'};
+   const yStem=add(g,cyl(4.2,30,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+27.5)));yStem.rotation.x=Math.PI/2;
+   const yCollar=add(g,cyl(6.4,7,mats.dark,0,lowerH*.5,depthHandleSide*(d/2+43)));yCollar.rotation.x=Math.PI/2;
+   const yDrum=add(g,cyl(9,18,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+49.5)));yDrum.rotation.x=Math.PI/2;
+   for(let q=0;q<6;q++){const ring=add(g,torus(9.04,.18,mats.ink,0,lowerH*.5,
+     depthHandleSide*(d/2+43+q*2.2)));ring.rotation.x=Math.PI/2;}
    yDrum.userData.stageActuatorHandle={kind:'linear',localAxis:'depth'};
    yStem.userData.stageActuatorStem={kind:'linear',localAxis:'depth'};
+   yCollar.userData.stageActuatorCollar={kind:'linear',localAxis:'depth'};
    label(g,'机构Y / 场景Z：前后微调',0,lowerH+5,depthHandleSide*(d/2+55));
   }else{
    g.userData.slidingTop=carriageX;
    add(carriageX,cub(w*.94,h-lowerH,d*.92,mats.dark,0,lowerH+(h-lowerH)/2,0));
   }
   const side=handleSide;
-  add(g,cub(14,12,14,mats.dark,side*(w/2+6),h-9,actuatorZ));
-  const xStem=add(g,cyl(6,27,mats.silver,side*(w/2+24),h-9,actuatorZ));xStem.rotation.z=Math.PI/2;
-  const xDrum=add(g,cyl(9,14,mats.silver,side*(w/2+43),h-9,actuatorZ));xDrum.rotation.z=Math.PI/2;
+  const xSupport=add(g,cub(14,12,14,mats.dark,side*(w/2+7),h-9,actuatorZ));
+  xSupport.userData.stageActuatorSupport={kind:'linear',localAxis:'X'};
+  const xStem=add(g,cyl(4.2,30,mats.silver,side*(w/2+27.5),h-9,actuatorZ));xStem.rotation.z=Math.PI/2;
+  const xCollar=add(g,cyl(6.4,7,mats.dark,side*(w/2+43),h-9,actuatorZ));xCollar.rotation.z=Math.PI/2;
+  const xDrum=add(g,cyl(9,18,mats.silver,side*(w/2+49.5),h-9,actuatorZ));xDrum.rotation.z=Math.PI/2;
+  for(let q=0;q<6;q++){const ring=add(g,torus(9.04,.18,mats.ink,
+    side*(w/2+43+q*2.2),h-9,actuatorZ));ring.rotation.y=Math.PI/2;}
   xDrum.userData.stageActuatorHandle={kind:'linear',localAxis:'X'};
   xStem.userData.stageActuatorStem={kind:'linear',localAxis:'X'};
+  xCollar.userData.stageActuatorCollar={kind:'linear',localAxis:'X'};
   label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,actuatorZ);
   if(JOINTS[id]&&id!=='A15')addJointHeads(g.userData.slidingTop,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g.userData.slidingTop,3,h+.5,xx,zz);
@@ -1659,7 +1671,7 @@ function filmB(){
    for(let y=32;y<micrometer.drumTopLocalYmm;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,micrometer.frontZmm));
    addJointHeads(g,'B30',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
    label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
- },{explode:[-15,18,0],moveFilm:true});
+ },{explode:[-15,18,0],moveFilm:true,facingYaw:aFilmYaw});
  addPart('B31',ax,124,0,g=>{
    // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
    // Photo94 front body has a LOWER cradle, a split rocker top, two
@@ -2650,6 +2662,9 @@ function refreshHeatingControlHarness(){
 function platformA(){
  const ax=activeAFilmX(),sx=CONFIG.A.sampleX;
  const az=aWorkingPoseMode?A_WORKING_LAYOUT.filmStageZ:0;
+ // V79: installed A film-side stack faces the sample. This is the user-
+ // confirmed 180° correction of the previous backwards orientation.
+ const aFilmYaw=aWorkingPoseMode?Math.PI:0;
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
  // not the separate left transfer-arm adjustment stage.
  // New photos137/161 show the factory-marked GCM-5306M 8mm mount
@@ -2698,11 +2713,12 @@ function platformA(){
     g.userData.candidateMountHoleMarkers=[];
     g.userData.topCornerCounterbores=0;
     label(g,'A17 · 磁吸底座（型号/顶部孔系未知）',0,32,0);
-  },{explode:[-10,0,0]});
+  },{explode:[-10,0,0],facingYaw:aFilmYaw});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
- makeStageBlock('A15',ax,40,az,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,{},1,2,1);
+ makeStageBlock('A15',ax,40,az,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,
+   {facingYaw:aFilmYaw},1,2,1);
  // Actual photo 97: A15 dual-axis T25M below upright GCM-VC13M;
  // photo 94: GCM-G40M60L on VC13M, with a SINGLE THIN folded-L
  // plate bolted to G40's movable top. These three images are platform A,
@@ -2806,7 +2822,7 @@ function platformA(){
    g.userData.photo20261108LowerDriveAxisCandidate='+Z';
    g.userData.lowerDriveOrthogonalToUpperG40=true;
    label(g,'双角度实拍推断：下层 +Z 轴与上层 +X 轴正交；型号待核',-4,40,0);
- },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true});
+ },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  addPart('A04',ax,144,az,g=>{
    // Upper G40M60L label is visually legible in photo94.
    // Lower partner is not positively identified. G40M60L body:
@@ -2830,7 +2846,7 @@ function platformA(){
    g.userData.upperConfirmedPhoto94='GCM-G40M60L';
    g.userData.photo196UpperDriveDirection='+X';
    label(g,'照片196：上层 GCM-G40M60L · 右侧测微 · 40×40×20mm',-4,40,0);
- },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true});
+ },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
    topPlateWidth:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketTopWidthMm:undefined,
    leftOverhangMm:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketOverhangMm:undefined,
@@ -2981,18 +2997,9 @@ function platformA(){
    label(g,aWorkingPoseMode?'A05G · 玻片右侧印章落于热台上方（几何候选；未实物配准）':'A05G · 76×26×1mm玻片候选 / 右端印章 / A07全局未配准',
      glassCenterX,15,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
- // User-approved platform A presentation: one photo-oriented folded L
- // sheet, bare foot and two screw heads; NO installed glass or
- // imaginary double jaws in either publicly accessible pose.
- // A05C/A05G remain hidden computation-only legacy study parts.
- for(const id of ['A05C','A05G']){
-   const item=parts.get(id);
-   if(item){
-     item.g.visible=false;
-     item.g.userData.hiddenBecauseNotPhotographed=true;
-     item.g.userData.excludedFromPhysicalAssembly=true;
-   }
- }
+ // V79: A05G glass is a required element of a transfer station. It remains
+ // visible in the installed model even when a comparison photograph does not
+ // show its transparent outline clearly. Clamp dimensions remain unverified.
  addPart('A06',sx,28,0,g=>{
   // Photos17/18/20: rotary cylinder does not exceed the 65mm upper
   // square plate. V47 Ø94 was geometrically disproportionate.
@@ -3915,7 +3922,7 @@ function switchPlatform(next){
   resetScene();updatePhotoScope();
 }
 $('show-b').onclick=()=>switchPlatform('B');
-$('show-a').onclick=()=>{aWorkingPoseMode=false;switchPlatform('A');};
+$('show-a').onclick=()=>{aWorkingPoseMode=true;switchPlatform('A');};
 $('btn-a-working-pose').onclick=()=>{
  aWorkingPoseMode=true;switchPlatform('A');
 };
