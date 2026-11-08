@@ -679,6 +679,8 @@ try{
    'Photo1 right-hand +X drum MUST appear on the LEFT of the stage');
  assert(f1.actualA04XKnobRelativeNdc<-.04,
    'Photo1 upper +X G40 micrometer must appear LEFT');
+ assert(f1.actualA04LowerPlusZKnobRelativeNdc<-.015,
+   'Photo1 lower +Z G40 micrometer must ALSO project LEFT, from different 3D axis');
  assert(f1.actualA05LegRelativeNdc>.04,
    'Photo1 LEFT-return L plate must appear RIGHT from opposite camera');
  const count=f1.scenePartCount;
@@ -693,8 +695,10 @@ try{
    'Photo2 other independent +Z stage micrometer must project LEFT');
  assert(f2.actualA04XKnobRelativeNdc>.03,
    'Photo2 upper G40 +X knob must appear RIGHT');
- assert(f2.actualA04LowerMinusXKnobRelativeNdc<-.03,
-   'Photo2 lower goniometer -X knob must appear LEFT');
+ assert(f2.actualA04LowerPlusZKnobRelativeNdc<-.03,
+   'Photo2 lower goniometer +Z knob must appear LEFT on orthogonal axis');
+ assert.equal(f2.lowerG40DriveAxisCandidate,'+Z',
+   'Lower tilt micrometer must not be falsely placed along -X in CAD');
  assert(f2.actualA05LegRelativeNdc<-.02,
    'Photo2 same LEFT fold must be LEFT of G40 without mirroring hardware');
  assert.equal(f2.scenePartCount,count,
