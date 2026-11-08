@@ -240,6 +240,65 @@ for i in range(10):
         check(sample_board.intersect(probe).Volume()<1e-5,
               'B35 OEM candidate M6 grid hole must pass through the full 12mm board')
 check(len(b35_grid)==120,'B35 MB2530/M candidate has exactly 120 grid holes')
+# V78: an OEM four-hole mounting pattern must register as ONE rigid object.
+# Independent nearest-neighbour hits do not prove that all four mounting
+# screws could be installed at the same rotary pose. This calculation is
+# NOT used to reposition B08: the physical optical axis remains unregistered.
+b08_origin_xy=(82.,0.)
+b08_half_pitch=25.
+b08_holes=[(b08_origin_xy[0]+dx,b08_origin_xy[1]+dy)
+           for dx in (-b08_half_pitch,b08_half_pitch)
+           for dy in (-b08_half_pitch,b08_half_pitch)]
+b08_nearest_grid_mismatches=[
+    min(math.hypot(hx-gx,hy-gy) for gx,gy in b35_grid)
+    for hx,hy in b08_holes
+]
+b08_current_max_mismatch=round(max(b08_nearest_grid_mismatches),3)
+check(abs(b08_current_max_mismatch-13.657)<.001,
+      'V78 B08 hole-to-B35 grid mismatch must be reported, never treated as aligned')
+b08_grid_set=set(b35_grid)
+b08_rigid_options=[]
+for gx,gy in b35_grid:
+    cx,cy=gx+b08_half_pitch,gy+b08_half_pitch
+    # All of the Ø94mm rotary footprint must be supported on the B35 plate.
+    if not (sbb.xmin+47<=cx<=sbb.xmax-47 and
+            sbb.ymin+47<=cy<=sbb.ymax-47):
+        continue
+    if not all((cx+dx,cy+dy) in b08_grid_set
+               for dx in (-b08_half_pitch,b08_half_pitch)
+               for dy in (-b08_half_pitch,b08_half_pitch)):
+        continue
+    offset=(cx-b08_origin_xy[0],cy-b08_origin_xy[1])
+    b08_rigid_options.append({
+        'candidate_rotary_center_xy_mm':[cx,cy],
+        'translation_xy_mm':list(offset),
+        'translation_length_mm':round(math.hypot(*offset),3),
+        'all_four_holes_on_grid':True,
+        'rotary_foot_within_board':True
+    })
+b08_rigid_options.sort(key=lambda e:(e['translation_length_mm'],
+                                      e['candidate_rotary_center_xy_mm'][1],
+                                      e['candidate_rotary_center_xy_mm'][0]))
+check(len(b08_rigid_options)>=2 and
+      [o['candidate_rotary_center_xy_mm'] for o in b08_rigid_options[:2]]==
+      [[87.5,-12.5],[87.5,12.5]],
+      'V78 STEP and WebGL must expose the same two nominal rigid four-hole alternatives')
+check(not (B/'B08S1.step').exists(),
+      'V78 do not introduce fictional installed B08/B35 fasteners before physical registration')
+report['V78_B08_B35_rigid_four_hole_audit']={
+    'b08_oem_pitch_mm':50,
+    'b35_pitch_mm':25,
+    'b35_hole_phase_mm':12.5,
+    'current_rotary_center_xy_mm':list(b08_origin_xy),
+    'maximum_individual_hole_mismatch_mm':b08_current_max_mismatch,
+    'current_four_hole_bolted_joint_accepted':False,
+    'minimum_rigid_translation_mm':b08_rigid_options[0]['translation_length_mm'],
+    'two_nearest_mathematical_options':b08_rigid_options[:2],
+    'real_optical_axis_registered':False,
+    'adjacent_hardware_interference_certified':False,
+    'scene_or_STEP_automatically_repositioned':False,
+    'mount_screw_length_and_engagement_verified':False
+}
 # MB2530/M is a 250x300mm board: four corner counterbores only.
 # The fifth central counterbore applies to larger boards, not this SKU.
 central_counterbore_probe=vz(5.45,3.5,75,0,28.5)
