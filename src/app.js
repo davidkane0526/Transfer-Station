@@ -3595,9 +3595,9 @@ function resetScene(){
  $('hover-help').textContent='点击零件显示唯一标签及尺寸；点空白取消';
  $('axis-confidence-note').textContent=platform==='B'?
   'B：样品侧为B08无外伸手柄旋转台 + B41下层Y（前后） + B09上层X（左右）单轴NFP-1462C。两级台体用视觉色差、接合线和X/Y字样区分（非实物铭牌/材质差异）；B41精确型号、孔系和行程待核。B03载玻片侧为另一套双轴T25M。':
-  'A：照片94左折边的G40M60L上摆角及A04L下摆角是历史实拍约束；当前'+
-   (aWorkingPoseMode?'在单独的V58工程候选中镜像为右折边、改用52.1mm场景腿长，并将磁座重新配准到-82.75mm，均未由实物证实。':'显示照片94原局部朝向。')+
-   'A05C夹具、A17磁座型号与孔系未知；操作姿态不等于设备可靠性认证。';
+  'A：A15按大恒双轴T25M的65×65×33mm约束，A03按VC13M 65×65/13mm行程约束，A04按G40M60L 40×40×20mm约束；'+
+   (aWorkingPoseMode?'当前载玻片支路作为一个刚体链整体旋转180°朝向样品，玻片保留，夹紧螺杆轴线平行26mm短边。':'当前仅显示照片94参考方向，不代表实际转移朝向。')+
+   'A05夹具SKU、A17磁座孔系及显微镜主机型号仍待确认。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
  parts.clear();hitMeshes.length=0;holes.length=0;labels.length=0;axisObjects.length=0;
@@ -3646,12 +3646,12 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V77 / '+(aWorkingPoseMode?
-    '右折边操作位置候选（未实物验证）/ 玻片印章对准A07 / 夹具避开热台 / A17型号未知':
-    '照片94左折边 / 蝶翼转90° / 无玻片 / VC13零位 / 全局未配准');
+   '平台 A · V79 / '+(aWorkingPoseMode?
+    '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
+    '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B样品侧从下至上为B35→B08（无外伸手柄）→B41（前向Z单轴、型号待核）→B09（右向X单轴NFP-1462C）→B10隔热层→B11真空加热台。B41与B09分别具有独立活动滑块和测微头，构成正交XY平移。B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 Ø12×112mm场景拟合立杆（实物长度待核）→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
-  '平台A当前安装：A01面包板→A17未知磁座→A15双轴T25M→A03 VC13M→A04L/A04双摆角台→A05照片原方向L形折弯板→A05CS两枚独立蝶形螺钉（沿X外伸方向排列，蝶翼旋转90°）。无A05G玻片、PDMS和未经识别的双夹爪。样品侧：A16 GCM-5306M底座→A06旋转台→A02平移台→A07三层样品台。A05C/A05G仅作为独立研究模型保留，不计入V77完整STEP；真正孔距、牙型和全局安装配准仍待核对。';
+  '平台A当前安装：A01→A17未知磁座→A15双轴T25M→A03 VC13M→A04L/A04双摆角台→A05折弯支架→A05C侧向夹具→A05G玻片/PDMS。整套载玻片支路以同一基准整体旋转180°朝向样品，不再只镜像末端支架。A05CS两枚螺杆轴线沿场景Z，即平行玻片26mm短边，并通过压紧条夹持；旧版竖直穿底脚孔已删除。样品侧：A16 GCM-5306M→A06旋转台→A02平移台→A07。A05夹具SKU、A17孔系、A06/A02精确型号及光学工作距离仍待实测。';
  focus('iso');
  updateTable();
 }
@@ -3890,7 +3890,7 @@ $('btn-a-photo-pose').onclick=()=>{
  aWorkingPoseMode=false;switchPlatform('A');
 };
 $('btn-b-user-photos').onclick=()=>{bPhoto94Mode=false;switchPlatform('B');};
-$('btn-b-archive').onclick=()=>{bPhoto94Mode=false;aWorkingPoseMode=false;switchPlatform('A');};
+$('btn-b-archive').onclick=()=>{bPhoto94Mode=false;aWorkingPoseMode=true;switchPlatform('A');};
 $('btn-photo947').onclick=()=>focusPhoto947('94');
 $('btn-photo94').onclick=()=>focusPhoto947('94');
 $('btn-photo95').onclick=()=>focusPhoto947('95');
