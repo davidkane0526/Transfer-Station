@@ -2953,7 +2953,17 @@ function platformA(){
  },{explode:[0,92,0]});
  addPart('A11',155,184,60,g=>{
   add(g,cyl(13,33,mats.silver,0,16.5,0));add(g,cyl(11,8,mats.ceramic,0,35,0));
-  const neck=add(g,cyl(5,80,mats.black,-25,-12,-12));neck.rotation.z=Math.PI/4;
+  // V75: former 80mm slanted rod ended without an actual mount.
+  // Keep the lamp attached to the A18 housing-side surface through
+  // a continuous flexible support proxy (real fixing remains UNKNOWN).
+  const lampMountPoints=[[-27,16,-36],[-22,17,-28],[-16,19,-17],
+    [-13,15,-5],[-13,13,0]];
+  const gooseneck=add(g,tube(lampMountPoints,3,mats.steel));
+  gooseneck.userData.A11PhysicallyConnectedSupportProxy=true;
+  const rootCollar=add(g,cyl(5,4,mats.black,-26,16,-36,28));
+  rootCollar.rotation.z=Math.PI/2;
+  rootCollar.userData.A11A18SideMountProxy=true;
+  g.userData.A11MountingMethodVerified=false;
   label(g,'Thorlabs MWWHL4 LED',0,59,0);
  },{explode:[22,20,22]});
  addPart('A12',262,20,-80,g=>{
@@ -3365,7 +3375,7 @@ function updateTransforms(){
   // microscope carriage, as a conservative visual parking hypothesis.
   // Do not mistake 18mm for measured/OEM focus travel or actual working distance.
   const parkOptics=platform==='A'&&aWorkingPoseMode&&
-    ['A08','A09','A14','A18','A19','A20'].includes(part.id);
+    ['A08','A09','A11','A14','A18','A19','A20'].includes(part.id);
   const opticsLift=parkOptics?A_WORKING_LAYOUT.opticalParkingLiftMm:0;
   g.position.set(base.x+off[0]*e+fx+dx,
     base.y+off[1]*e+(moveFilmVertical?aLift-filmDrop:0)+opticsLift,
