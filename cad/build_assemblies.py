@@ -661,8 +661,9 @@ def make_a():
     for i,xx in enumerate((ax-17,ax+17),1):
         add('A',f'A15FS{i}','photo194_A15_front_face_fastener_candidate',
             vy(2.2,1.5,xx,-33.25,55),'C')
-    ctrl=vy(1.8,9,ax,-34,59).fuse(vy(5.2,7,ax,-43,59))
-    add('A','A15FK','photo194_A15_front_control_UNVERIFIED',ctrl,'C')
+    # V79: remove the detached A15FK cylinder. The photograph supports
+    # the slotted face and two fasteners; the old free-standing control had
+    # no verified mechanical linkage and produced the persistent floating knob.
     # Photo 97: vertical slide/upright carriage, not a solid block.
     # V46: relocate the VC13 vertical drive beyond the ±32.5mm
     # moving platform envelope. The front bracket spans the stationary
@@ -712,73 +713,60 @@ def make_a():
         vx(5,22,ax+20,0,154),'P')
     add('A','A04K','UPPER_G40M60L_right_knob_photo191_196',
         vx(8.5,15,ax+42,0,154),'P')
-    # V38: source photo 94 shows ONE thin bent-L metal sheet on G40,
-    # NOT a fabricated 215mm solid transfer beam / invented glass clip.
-    # Match the existing Three.js A05 geometry; open glass attachment
-    # is intentionally unresolved until more real photos are available.
-    # V58 geometric WORKING hypothesis: do not confuse with
-    # photo94's confirmed LEFT-return L sheet. The current candidate
-    # mirrors the folded edge to the RIGHT; a 52.1mm vertical leg
-    # brings PDMS to the upper surface of the 1.4mm sample chip
-    # after VC13M's 13mm travel. Neither length nor orientation is
-    # measured on the user's rig; absolute coordinates are provisional.
+    # V79: build ONE left-handed local A05 transfer end, then rotate the
+    # COMPLETE film-side branch 180° during complete-assembly export.
+    # This avoids the old error of mirroring only the bracket.
     leg_len=52.1
     leg_bottom=164-leg_len
-    bracket_leg_x=ax+60-1.25
-    # V70: photos194/196 place TWO wing heads along the OUTWARD
-    # extension of the L foot, not across its short front-back width.
-    # 32x14 and Ø3.2/pitch18 are proportional scene guesses only.
-    foot=box(32,14,2.5,bracket_leg_x+16,0,leg_bottom)
-    for xx in (bracket_leg_x+7,bracket_leg_x+25):
-        foot=foot.cut(vz(1.6,2.7,xx,0,leg_bottom-.1))
-    sheet=box(87,12,2.5,ax+16.5,0,164).fuse(
+    bracket_leg_x=ax-60+1.25
+    foot=box(32,14,2.5,bracket_leg_x-16,0,leg_bottom)
+    sheet=box(87,12,2.5,ax-16.5,0,164).fuse(
         box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),foot)
-    add('A','A05','WORKING_HYPOTHESIS_mirrored_right_75mm_L_sheet_NOT_photo_orientation',
+    add('A','A05','LEFT_LOCAL_BENT_SHEET_FOR_RIGID_180_INSTALLED_ROTATION',
         sheet,'C')
     for i,dx in enumerate((-14,14),1):
         add('A',f'A05S{i}','two_candidate_sheet_top_fastener_heads',
             vz(3.1,2,ax+dx,0,166.5),'C')
-    # Three independent jaw/glass members and an 8x8mm PDMS stamp.
-    # The screws are MODEL PROXIES placed OUTSIDE the glass perimeter.
-    # V70: glass begins 2mm past the outward folded foot (length32);
-    # relocating the unregistered film base by 24mm preserves the
-    # stamp's global candidate X=78 without drilling the glass.
-    glass_left=bracket_leg_x+34
-    glass_center_x=glass_left+38
+
+    # Required glass extends outward in local -X. After the common 180°
+    # yaw its PDMS lies toward world +X / A07 sample side.
+    glass_near=bracket_leg_x-34
+    glass_center_x=glass_near-38
     glass_bottom=leg_bottom+.5
     glass_center_z=glass_bottom+.5
-    # Hypothetical face-connected glass holder, not a photographed SKU.
-    # Carrier upper plane meets the L foot UNDERSIDE; no sheet overlap.
-    carrier=box(36,27,3,bracket_leg_x+16,0,leg_bottom-3)
-    for xx in (bracket_leg_x+7,bracket_leg_x+25):
-        carrier=carrier.cut(vz(1.6,3.2,xx,0,leg_bottom-3.1))
-    # Jaws touch the two faces of a suspended 1mm cantilever slide.
-    # Edge cheek joins the jaws to the carrier outside glass Y=+/-13.
-    jaw_x=bracket_leg_x+39
-    back_spine=box(10,2,5.7,jaw_x,-14,glass_bottom-.65)
-    lower_jaw=box(10,26,1.2,jaw_x,0,glass_bottom-1.2)
-    add('A','A05C','flush_carrier_back_spine_lower_glass_jaw_UNVERIFIED',
-        carrier.fuse(back_spine,lower_jaw),'C')
-    add('A','A05CU','candidate_separate_upper_compression_jaw',
-        box(10,26,1.2,jaw_x,0,glass_bottom+1),'C')
-    for i,dx in enumerate((7,25),1):
-        # Outward X direction is supported by photo194/196, but actual
-        # Ø, head and thread dimensions remain unmeasured candidates.
-        screw_x=bracket_leg_x+dx
-        shank=vz(1.4,6,screw_x,0,leg_bottom-3.5)
-        hub=vz(2.8,2,screw_x,0,leg_bottom+2.5)
-        # User-approved reference: both butterfly wings are rotated
-        # 90 degrees into the same X-outward plane as the two bolts.
-        # 4.6mm short ears leave 0.45mm outside the 2.5mm upright
-        # while their inner tips intersect the screw hub mechanically.
-        wings=[box(4.2,1.6,3.8,screw_x+sgn*2.65,
-                   0,leg_bottom+3.1) for sgn in (-1,1)]
-        add('A',f'A05CS{i}','photo194_two_butterfly_head_screws_THREAD_UNKNOWN',
+    clamp_center_x=glass_near-14
+
+    # Side-clamp carrier. It supports the slide vertically and constrains the
+    # two long edges with fixed/moving rails. Exact SKU and dimensions remain
+    # unverified; the force direction, however, is no longer impossible.
+    neck=box(5,14,2.5,bracket_leg_x-32.5,0,leg_bottom-2.5)
+    ledge=box(28,30,1,clamp_center_x,0,glass_bottom-1)
+    fixed_rail=box(28,2,3,clamp_center_x,-14,glass_bottom-1)
+    bosses=[]
+    for q in (5,23):
+        screw_x=glass_near-q
+        bosses.append(box(7,7,7,screw_x,18.5,glass_bottom-3))
+    add('A','A05C','side_clamp_fixed_carrier_SHORT_EDGE_SCREW_AXIS_CANDIDATE',
+        neck.fuse(ledge,fixed_rail,*bosses),'C')
+    add('A','A05CU','moving_pressure_rail_side_clamp_CANDIDATE',
+        box(28,2,3,clamp_center_x,14,glass_bottom-1),'C')
+
+    # Two screw SHAFTS run along STEP +Y = WebGL scene Z, parallel to the
+    # 26mm glass short edge. They engage the pressure rail at Y=+14 and
+    # never pass vertically through the A05 folded foot or through glass.
+    for i,q in enumerate((5,23),1):
+        screw_x=glass_near-q
+        shank=vy(1.4,20,screw_x,14,glass_center_z)
+        hub=vy(3.0,3,screw_x,34,glass_center_z)
+        wings=[box(5,1.6,2.8,screw_x+sgn*3,36.2,glass_center_z-1.4)
+               for sgn in (-1,1)]
+        add('A',f'A05CS{i}','side_clamp_screw_AXIS_PARALLEL_GLASS_SHORT_EDGE',
             shank.fuse(hub,*wings),'C')
-    add('A','A05G','standard_76x26x1mm_glass_POSITION_CANDIDATE',
+
+    add('A','A05G','installed_standard_76x26x1mm_glass_CANDIDATE',
         box(76,26,1,glass_center_x,0,glass_bottom),'C')
-    add('A','A05GP','PDMS_8x8x1p8_right_edge_center_over_sample_PROXY',
-        box(8,8,1.8,glass_left+68,0,glass_bottom-1.8),'C')
+    add('A','A05GP','PDMS_8x8x1p8_transfer_stamp_installed',
+        box(8,8,1.8,glass_near-68,0,glass_bottom-1.8),'C')
     # Photos137/161 show a separate Daheng GCM-5306M 8mm mounting base.
     base=box(112,70,8,cx,0,20)
     # Real Ø6.5 clearance holes, four grid-aligned M5 candidate bolts.
@@ -901,43 +889,18 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V77'
-# Four A legacy study solids remain available separately, but are NOT
-# installed on the user-approved photographed bare wing-screw bracket.
-UNINSTALLED_A_STUDY_IDS=frozenset({'A05C','A05CU','A05G','A05GP'})
-def _approved_a_photo_solid(key,shape):
-    """Assembly A uses user-approved ORIGINAL left-return photo bracket.
-    Study component STEP files still preserve the old RIGIDLY SEPARATE
-    V58 right-return operation hypothesis for ongoing parametric audits.
+CAD_REVISION='V79'
+UNINSTALLED_A_STUDY_IDS=frozenset()
+A_INSTALLED_FILM_CENTER_X=-82.75
+def _installed_a_solid(key,shape):
+    """V79 installed A: one rigid 180° yaw of the complete film-side chain.
+    STEP Z is height, so rotation is around the vertical axis through A15/A17.
+    Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """
-    ax=-116
-    web_x=ax-48+1.25
-    foot_bottom=164-72
-    if key=='A05':
-        sheet=box(75,12,2.5,ax-10.5,13,164).fuse(
-            box(2.5,12,72,web_x,13,foot_bottom))
-        foot=box(32,14,2.5,web_x-16,13,foot_bottom)
-        for delta in (7,25):
-            foot=foot.cut(vz(1.6,2.7,web_x-delta,13,foot_bottom-.1))
-        result=sheet.fuse(foot)
-        assert result.isValid()
-        return result
-    if key in ('A05CS1','A05CS2'):
-        dx=7 if key=='A05CS1' else 25
-        x=web_x-dx
-        shank=vz(1.4,6,x,13,foot_bottom-3.5)
-        hub=vz(2.8,2,x,13,foot_bottom+2.5)
-        wings=[box(4.2,1.6,3.8,x+sgn*2.65,13,foot_bottom+3.1)
-               for sgn in (-1,1)]
-        result=shank.fuse(hub,*wings)
-        assert result.isValid()
-        assert result.intersect(_approved_a_photo_solid('A05',shape)).Volume()<1e-4
-        return result
-    # The photo stack uses CONFIG.A.armX=-116 whereas the deprecated
-    # operation simulation uses -82.75. Apply an X-only rigid move to
-    # every real film-side component, preserving its internal axes.
     if key.startswith(('A17','A15','A03','A04','A05')):
-        return shape.translate(Vector(ax-(-82.75),0,0))
+        return shape.rotate(
+            Vector(A_INSTALLED_FILM_CENTER_X,0,0),
+            Vector(A_INSTALLED_FILM_CENTER_X,0,1),180)
     return shape
 
 def export(sys):
@@ -956,11 +919,11 @@ def export(sys):
     for key,name,grade,shape in published:
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
-        installed=_approved_a_photo_solid(key,shape) if sys=='A' else shape
+        installed=_installed_a_solid(key,shape) if sys=='A' else shape
         if key=='A05':
-            props['name']='A05__photo_left_return_L_without_glass'
+            props['name']='A05__installed_rigid180_bent_sheet_with_side_clamp'
         if key.startswith('A05CS'):
-            props['name']=key+'__photo_two_wing_fasteners_X_rotated_90deg'
+            props['name']=key+'__side_screw_axis_parallel_glass_short_edge'
         assembly.add(installed,**props)
     target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_'+CAD_REVISION+'.step')
     assembly.save(str(target))
@@ -976,8 +939,8 @@ def export(sys):
                 w.writerow([key,name,'not installed on user-approved bare A bracket'])
     return dict(system=sys,assembly_components=len(published),
                 excluded_uninstalled=[p[0] for p in excluded],
-                approved_installed_shape='photo_left_return_L_no_glass_2_X_wing_nuts' if sys=='A' else 'manufacturer_and_photo_B',
-                photo_A_stage_center_x_mm=-116 if sys=='A' else None,
+                approved_installed_shape='rigid_180deg_film_chain_with_glass_short_edge_side_clamp' if sys=='A' else 'manufacturer_and_photo_B',
+                photo_A_stage_center_x_mm=A_INSTALLED_FILM_CENTER_X if sys=='A' else None,
                 study_solids_available=len(PARTS[sys]),step_solids=len(solids),
                 size_bytes=target.stat().st_size)
 if __name__=='__main__':
