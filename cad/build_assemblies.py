@@ -671,7 +671,7 @@ def make_a():
     # but is NOT fused to the stationary upright. This is necessary
     # for motion-aware STEP assembly and future travel collision tests.
     vc13=(box(65,65,8,ax,0,73)
-          .fuse(box(56,17,36,ax,-9,81))
+          .fuse(box(45,17,36,ax,-9,81))
           .fuse(front_drive_bracket))
     # V65: fixed outer channels overlap the stationary body at x=+/-28.
     # Separate inner moving tongues touch the OUTPUT, but maintain
