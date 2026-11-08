@@ -687,6 +687,30 @@ try{
  assert.equal(aContactBefore.stampRightInsetMm,4);
  assert.equal(aContactBefore.sampleChipTopWorldYmm,110.6);
  assert.equal(aContactBefore.pdmsToChipGapMm,13);
+  // V73: full glass support chain must be surface-connected, WITHOUT
+  // an overlapping sheet/plate or unsupported pair of floating jaws.
+  const aClampChain=await page.evaluate(()=>window.__modelAClampChainProbe?.());
+  assert.equal(aClampChain?.available,true,'A05-C-G mesh chain probe absent');
+  assert.equal(aClampChain.pose,'candidate');
+  assert.equal(aClampChain.clampRendered,true);
+  assert.equal(aClampChain.glassRendered,true);
+  assert.equal(aClampChain.footCarrierGapMm,0,
+    'A05 foot and A05C carrier must mate flush, not overlap');
+  assert.equal(aClampChain.carrierSpineGapMm,0,
+    'Back spine is detached from carrier or penetrating its metal');
+  assert.equal(aClampChain.spineUpperGapMm,0);
+  assert.equal(aClampChain.spineLowerGapMm,0);
+  assert.equal(aClampChain.upperGlassGapMm,0);
+  assert.equal(aClampChain.lowerGlassGapMm,0);
+  assert.equal(aClampChain.gripXmm,10);
+  assert.equal(aClampChain.metalOverlapMm3,0,
+    'A05 L-web/foot and A05C carrier still interpenetrate');
+  assert.equal(aClampChain.jawGlassOverlapMm3,0,
+    'Glass must be clamped on faces, not penetrated by metal jaws');
+  assert.equal(aClampChain.workingChainContinuous,true,
+    'No actual support chain exists from the A05 folded sheet through A05C to glass');
+  assert.equal(aClampChain.physicalTransferAssemblyAccepted,false,
+    'Geometry-only clamp closure cannot certify unphotographed OEM jaws');
  // A02 and A15 are DIFFERENT physical stages and must use different
  // sliders. Previously the sample A02 top moved with filmShift instead.
  const aZero=await page.evaluate(()=>window.__modelAKinematicProbe?.());
@@ -884,7 +908,10 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(guideLower.outputLiftMm,0);
  assert.equal(guideLower.actualTravelInGuideEnvelope,true);
  const fullA=await page.evaluate(()=>window.__modelAContactProbe?.());
- assert.equal(fullA.pdmsToChipGapMm,0,
+ assert.equal((await page.evaluate(()=>window.__modelAClampChainProbe?.()))
+    .workingChainContinuous,true,
+    'A05 clamp must stay fully supported throughout the 13mm film lowering stroke');
+  assert.equal(fullA.pdmsToChipGapMm,0,
    'V58 at -13mm PDMS must touch the A07 sample chip surface exactly');
  assert.equal(fullA.clampOutsideHeater,true);
  assert.equal(fullA.stampFullyInsideChipXY,true);
