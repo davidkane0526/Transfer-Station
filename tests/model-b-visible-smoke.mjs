@@ -839,6 +839,9 @@ try{
  assert.equal(dA.A15StemCount,2);
  assert.equal(dA.A15CollarCount,2);
  assert.equal(dA.A15SupportCount,2);
+ assert.equal(dA.A15ActuatorChainsContinuous,true,
+   'Both A15 T25M handles must form support→stem→collar→drum contact chains');
+ assert.deepEqual(dA.A15ActuatorChainGapsMm,{X:[0,0,0],depth:[0,0,0]});
  assert.equal(dA.A15FloatingCentralControlCount,0,
    'Persistent floating A15 central cylinder must never return');
  assert.equal(dA.clampScrewCount,2);
