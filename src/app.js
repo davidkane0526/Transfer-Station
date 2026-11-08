@@ -80,6 +80,23 @@ window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':
   const lSheet=parts.get('A05')?.g.children.find(o=>o.isMesh);
   const a17=parts.get('A17')?.g;
   const a15=parts.get('A15')?.g;
+  const a15MountBase=a15?.children.find(o=>o.userData.A15StationaryMountingBase);
+  // The Ø18 A15 depth micrometer overhangs OUTSIDE the 65mm magnetic
+  // base. Its drum dips below the mounting plane by 3.5mm, but has
+  // no physical volume collision with A17. Never use the entire
+  // stage AABB to judge the mounting face.
+  const magnetBox=a17?new THREE.Box3().setFromObject(a17):null;
+  const actuatorMagnetOverlap=magnetBox&&a15?(()=>{
+    let collision=0;
+    a15.children.filter(o=>o.userData.stageActuatorHandle).forEach(o=>{
+      const intersect=magnetBox.clone().intersect(new THREE.Box3().setFromObject(o));
+      if(!intersect.isEmpty()){
+        const size=new THREE.Vector3();intersect.getSize(size);
+        collision+=size.x*size.y*size.z;
+      }
+    });
+    return Number(collision.toFixed(3));
+  })():null;
   const round=x=>Number(x.toFixed(3));
   const gap=(lower,upper)=>lower&&upper?
     round(new THREE.Box3().setFromObject(upper).min.y-
@@ -93,7 +110,9 @@ window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':
    vc13OutputToGoniometerGapMm:vc13ToGoniometer,
    goniometerToUpperGapMm:gap(lowerGoniometer,upperGoniometer),
    upperGoniometerToSheetTopGapMm:gap(upperGoniometer,lSheet),
-   magnetToXyBaseGapMm:gap(a17,a15),
+   magnetToXyBaseGapMm:gap(a17,a15MountBase),
+   a15DrumsVsMagnetOverlapMm3:actuatorMagnetOverlap,
+   falseAabbGapFromWholeA15Mm:gap(a17,a15),
    bracketMirroredFromPhoto:aWorkingPoseMode,
    fabricatedClampVisible:Boolean(parts.get('A05C')?.g.visible),
    unphotographedGlassVisible:Boolean(parts.get('A05G')?.g.visible),
@@ -1439,7 +1458,8 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
  if(axes===2 && Math.abs(h-33)>0.01)throw Error('Official GCM-T25M two-axis thickness must be 33mm');
  addPart(id,x,y,z,g=>{
   const lowerH=axes===2?11:11.6;
-  add(g,cub(w,lowerH,d,mats.dark,0,lowerH/2,0));
+  const stationaryBase=add(g,cub(w,lowerH,d,mats.dark,0,lowerH/2,0));
+  if(id==='A15')stationaryBase.userData.A15StationaryMountingBase=true;
   const carriageX=new THREE.Group();g.add(carriageX);g.userData.slidingX=carriageX;
   if(axes===2){
    const middleH=11,topH=h-lowerH-middleH;
