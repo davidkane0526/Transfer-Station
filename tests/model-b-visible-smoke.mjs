@@ -630,6 +630,18 @@ try{
  assert.equal(photoTruth.fabricatedClampVisible,false);
  assert.equal(photoTruth.unphotographedGlassVisible,false);
  assert.equal(photoTruth.actualClampManufacturerConfirmed,false);
+ assert.equal(photoTruth.vc13CarriageMeshLiftMm,0,
+   'Actual VC13 moving mesh must not start with a fictitious 13mm extension');
+ for(const [name,value] of [
+   ['VC13M moving table to lower G40',photoTruth.vc13OutputToGoniometerGapMm],
+   ['lower G40 to upper G40',photoTruth.goniometerToUpperGapMm],
+   ['upper G40 to bent-sheet mounting plate',photoTruth.upperGoniometerToSheetTopGapMm],
+   ['A17 magnetic base to A15 T25M',photoTruth.magnetToXyBaseGapMm]
+ ]){
+   assert(value!==null&&Math.abs(value)<.025,
+     name+' must be in actual surface contact in photo-view geometry, gap='+value+'mm');
+ }
+ assert.equal(photoTruth.photographicMountsAccepted,false);
  // Capture evidence-view geometry after real THREE.js frames, not mock images.
  // Views are approximate camera orientations, NOT pixel-registered metrology.
  const photoShot=async(filename,buttonId)=>{
