@@ -739,20 +739,20 @@ def make_a():
     glass_center_x=glass_left+38
     glass_bottom=leg_bottom+.5
     glass_center_z=glass_bottom+.5
-    # Candidate tie rides the INWARD face of vertical L leg, not through its metal.
-    tie=box(2.5,10,14,bracket_leg_x-2.5,0,leg_bottom)
-    # V70 hypothetical carrier remains ONLY in operation candidate,
-    # with holes coaxial to the photographed wing screws.
-    # Place its upper surface at the folded foot underside, not 0.5mm
-    # THROUGH the sheet. It is NOT visible in 194/196 photographs.
-    carrier=box(36,27,3,bracket_leg_x+16,0,glass_bottom-3.5)
+    # Hypothetical face-connected glass holder, not a photographed SKU.
+    # Carrier upper plane meets the L foot UNDERSIDE; no sheet overlap.
+    carrier=box(36,27,3,bracket_leg_x+16,0,leg_bottom-3)
     for xx in (bracket_leg_x+7,bracket_leg_x+25):
-        carrier=carrier.cut(vz(1.6,3.2,xx,0,glass_bottom-3.6))
-    lower_jaw=box(10,27,1.2,bracket_leg_x+38.5,0,glass_bottom-1.2)
-    add('A','A05C','clamp_bracket_tie_plus_carrier_and_lower_jaw_UNVERIFIED',
-        tie.fuse(carrier,lower_jaw),'C')
+        carrier=carrier.cut(vz(1.6,3.2,xx,0,leg_bottom-3.1))
+    # Jaws touch the two faces of a suspended 1mm cantilever slide.
+    # Edge cheek joins the jaws to the carrier outside glass Y=+/-13.
+    jaw_x=bracket_leg_x+39
+    back_spine=box(10,2,5.7,jaw_x,-14,glass_bottom-.65)
+    lower_jaw=box(10,26,1.2,jaw_x,0,glass_bottom-1.2)
+    add('A','A05C','flush_carrier_back_spine_lower_glass_jaw_UNVERIFIED',
+        carrier.fuse(back_spine,lower_jaw),'C')
     add('A','A05CU','candidate_separate_upper_compression_jaw',
-        box(10,27,1.2,bracket_leg_x+38.5,0,glass_bottom+1),'C')
+        box(10,26,1.2,jaw_x,0,glass_bottom+1),'C')
     for i,dx in enumerate((7,25),1):
         # Outward X direction is supported by photo194/196, but actual
         # Ø, head and thread dimensions remain unmeasured candidates.
