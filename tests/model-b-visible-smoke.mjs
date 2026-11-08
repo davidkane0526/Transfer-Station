@@ -629,54 +629,41 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V77.*左折边/,
-   'A must initially show the photo-evidence shape, not an invented mirror');
+ assert.match(await page.locator('#platform-caption').innerText(),/V79.*整体旋转180°/,
+   'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
- assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
- const photoTruth=await page.evaluate(()=>window.__platformAPhotoTruthProbe?.());
- assert.equal(photoTruth?.photoMode,true,
-   'Default A photo view must not be the mirrored operation hypothesis');
- assert.equal(photoTruth.VC13InitialLiftMm,0,
-   'Photo mode cannot invent the 13mm vertical gap that made VC13M appear floating');
- assert.equal(photoTruth.bracketMirroredFromPhoto,false);
- assert.equal(photoTruth.fabricatedClampVisible,false);
- assert.equal(photoTruth.unphotographedGlassVisible,false);
- assert.equal(photoTruth.actualClampManufacturerConfirmed,false);
- const approvedBare=await page.evaluate(()=>window.__platformABareClampProbe?.());
- assert.equal(approvedBare?.available,true);
- assert.equal(approvedBare.visibleGlass,false);
- assert.equal(approvedBare.visibleFabricatedJaws,false);
- assert.equal(approvedBare.visibleWingScrewCount,2);
- assert.equal(approvedBare.wingEarCount,4);
- assert.equal(approvedBare.actualFootBores,2);
- assert.equal(approvedBare.wingPairPitchXMm,18);
- assert.equal(approvedBare.wingPairPitchZMm,0);
- assert.equal(approvedBare.wingEarPlane,'X-outward');
- assert.equal(approvedBare.wingToUprightOverlapMm3,0,
-   '90° wing ears still clip L-web');
- assert.equal(approvedBare.headFootMaxGapMm,0,
-   'Both butterfly screws must physically seat against the foot');
- assert.equal(approvedBare.actualWingNutOEMVerified,false);
- assert.equal(await page.locator('#btn-a-working-pose').isVisible(),false,
-   'Discredited mirrored transfer hypothesis must not be exposed as a second rig');
- assert.equal(await page.locator('#film-drop').isDisabled(),true,
-   'Static photograph-only pose must not simulate an unregistered 13mm glass descent');
- assert.equal(photoTruth.vc13CarriageMeshLiftMm,0,
-   'Actual VC13 moving mesh must not start with a fictitious 13mm extension');
- for(const [name,value] of [
-   ['VC13M moving table to lower G40',photoTruth.vc13OutputToGoniometerGapMm],
-   ['lower G40 to upper G40',photoTruth.goniometerToUpperGapMm],
-   ['upper G40 to bent-sheet mounting plate',photoTruth.upperGoniometerToSheetTopGapMm],
-   ['A17 magnetic base to A15 T25M',photoTruth.magnetToXyBaseGapMm]
- ]){
-   assert(value!==null&&Math.abs(value)<.025,
-     name+' must be in actual surface contact in photo-view geometry, gap='+value+'mm');
- }
- assert.equal(photoTruth.photographicMountsAccepted,false);
- assert.equal(photoTruth.a15DrumsVsMagnetOverlapMm3,0,
-   'A15 overhung micrometer must not actually intersect the A17 magnetic block');
- assert.equal(photoTruth.falseAabbGapFromWholeA15Mm,-3.5,
-   'The whole-stage -3.5mm false gap must remain detectable separately from the base contact');
+ assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('#btn-a-working-pose').isVisible(),true);
+ const installedTruth=await page.evaluate(()=>window.__platformAPhotoTruthProbe?.());
+ assert.equal(installedTruth?.photoMode,false);
+ assert.equal(installedTruth.filmBranchInstalledYawDeg,180,
+   'Complete film branch must be yawed 180°, not only the end bracket');
+ assert.equal(installedTruth.transferFacingInstalledPose,true);
+ assert.equal(installedTruth.bracketMirroredFromPhoto,false,
+   'V79 must preserve one physical bracket definition and rotate the rigid chain');
+ assert.equal(installedTruth.fabricatedClampVisible,true);
+ assert.equal(installedTruth.unphotographedGlassVisible,true,
+   'Glass is a required transfer component even when transparent in the reference photo');
+ assert.equal(installedTruth.actualClampManufacturerConfirmed,false);
+ const installedClamp=await page.evaluate(()=>window.__platformABareClampProbe?.());
+ assert.equal(installedClamp?.available,true);
+ assert.equal(installedClamp.visibleGlass,true);
+ assert.equal(installedClamp.visibleClamp,true);
+ assert.equal(installedClamp.visibleWingScrewCount,2);
+ assert.equal(installedClamp.shaftCount,2);
+ assert.equal(installedClamp.actualFootBores,0,
+   'Old vertical A05 screw bores must stay deleted');
+ assert.equal(installedClamp.screwAxesParallelGlassShortEdge,true,
+   'Both actual screw shafts must be parallel to the 26mm glass short edge');
+ assert.equal(installedClamp.screwPitchAlongGlassLengthMm,18);
+ assert.equal(installedClamp.screwPressureEngaged,true);
+ assert.equal(installedClamp.screwGlassOverlapMm3,0);
+ assert.equal(installedClamp.installedYawDeg,180);
+ assert.equal(installedClamp.stampToSampleCenterXmm,0,
+   'Rigid 180° installation must place PDMS over A07 sample centre');
+ assert.equal(installedClamp.actualWingNutOEMVerified,false);
+ assert.equal(await page.locator('#film-drop').isEnabled(),true,
+   'Installed A with required glass/PDMS must expose geometry-only VC13 descent');
  // Capture evidence-view geometry after real THREE.js frames, not mock images.
  // Views are approximate camera orientations, NOT pixel-registered metrology.
  const photoShot=async(filename,buttonId)=>{
@@ -751,7 +738,7 @@ try{
  assert.deepEqual(detailsA.nominalTubeCollarHeightsMm,[2,12,20]);
  assert.equal(detailsA.verticalNameplateMounted,true);
  const aDefault=await page.evaluate(()=>window.__platformAWorkingPoseProbe?.());
- assert.equal(aDefault.mode,'candidate');
+ assert.equal(aDefault.mode,'installed180');
  const angled=await page.evaluate(()=>window.__modelAObjectiveOrientationProbe?.());
  assert.equal(angled.available,true,'A19 independent objective pivots must be visible');
  assert.equal(angled.independentObjectivePivots,true);
@@ -774,7 +761,7 @@ try{
  assert.equal(aDefault.initialVerticalStampGapMm,13);
  assert.equal(aDefault.opticalParkingLiftMm,18);
  assert.equal(aDefault.opticalParkingMechanismVerified,false);
- assert.equal(aDefault.clampHeaterClearanceMm,25.5);
+ assert.equal(aDefault.clampHeaterClearanceMm,7.5);
  const opticsRaised=await page.evaluate(()=>window.__modelAOpticalClearanceProbe?.());
  assert.equal(opticsRaised?.available,true);
  assert.equal(opticsRaised.coherentOpticOffsets,true,
@@ -812,56 +799,55 @@ try{
  assert.equal(aContactBefore.stampRightInsetMm,4);
  assert.equal(aContactBefore.sampleChipTopWorldYmm,110.6);
  assert.equal(aContactBefore.pdmsToChipGapMm,13);
-  // V73: full glass support chain must be surface-connected, WITHOUT
-  // an overlapping sheet/plate or unsupported pair of floating jaws.
+  // V79: side-clamp chain must be visible and mechanically coherent.
   const aClampChain=await page.evaluate(()=>window.__modelAClampChainProbe?.());
-  assert.equal(aClampChain?.available,true,'A05-C-G mesh chain probe absent');
-  assert.equal(aClampChain.pose,'candidate');
-  assert.equal(aClampChain.clampRendered,false,'Unphotographed jaws must never be installed in public A');
-  assert.equal(aClampChain.glassRendered,false,'The approved A reference has NO installed glass');
-  assert.equal(aClampChain.footCarrierGapMm,0,
-    'A05 foot and A05C carrier must mate flush, not overlap');
-  assert.equal(aClampChain.carrierSpineGapMm,0,
-    'Back spine is detached from carrier or penetrating its metal');
-  assert.equal(aClampChain.spineUpperGapMm,0);
-  assert.equal(aClampChain.spineLowerGapMm,0);
-  assert.equal(aClampChain.upperGlassGapMm,0);
-  assert.equal(aClampChain.lowerGlassGapMm,0);
-  assert.equal(aClampChain.gripXmm,10);
-  assert.equal(aClampChain.metalOverlapMm3,0,
-    'A05 L-web/foot and A05C carrier still interpenetrate');
-  assert.equal(aClampChain.jawGlassOverlapMm3,0,
-    'Glass must be clamped on faces, not penetrated by metal jaws');
-  const bareAgain=await page.evaluate(()=>window.__platformABareClampProbe?.());
- assert.equal(bareAgain.visibleGlass,false);
- assert.equal(bareAgain.visibleFabricatedJaws,false);
- assert.equal(bareAgain.wingEarPlane,'X-outward');
- assert.equal(aClampChain.workingChainContinuous,true,
-    'No actual support chain exists from the A05 folded sheet through A05C to glass');
+  assert.equal(aClampChain?.available,true,'A05 side-clamp mesh chain probe absent');
+  assert.equal(aClampChain.pose,'installed180');
+  assert.equal(aClampChain.clampRendered,true);
+  assert.equal(aClampChain.glassRendered,true);
+  assert.equal(aClampChain.glassSupportGapMm,0);
+  assert.equal(aClampChain.fixedGlassGapMm,0);
+  assert.equal(aClampChain.pressureGlassGapMm,0);
+  assert(aClampChain.screwPressureOverlapMm3>0,
+    'Side screws must physically engage the moving pressure rail');
+  assert.equal(aClampChain.screwGlassOverlapMm3,0,
+    'Clamp screws must not pass through glass');
+  assert.equal(aClampChain.screwAxis,'scene-Z / glass short edge');
+  assert.equal(aClampChain.installedFilmBranchYawDeg,180);
+  assert.equal(aClampChain.stampToSampleCenterXmm,0);
+  assert.equal(aClampChain.stampToSampleCenterZmm,0);
+  assert.equal(aClampChain.sideClampGeometricallyCoherent,true);
   assert.equal(aClampChain.physicalTransferAssemblyAccepted,false,
-    'Geometry-only clamp closure cannot certify unphotographed OEM jaws');
+    'Coherent candidate geometry cannot certify an unidentified OEM clamp');
+  const clampAgain=await page.evaluate(()=>window.__platformABareClampProbe?.());
+  assert.equal(clampAgain.visibleGlass,true);
+  assert.equal(clampAgain.visibleClamp,true);
+  assert.equal(clampAgain.screwAxesParallelGlassShortEdge,true);
  // Screenshot-level checks: previously visible detached or
  // clipping assemblies are tested using actual world-space meshes.
  const dA=await page.evaluate(()=>window.__modelADetailMountProbe?.());
  assert.equal(dA?.available,true,'Missing A detail mount mesh probe');
- assert.equal(dA.pose,'candidate');
- assert.equal(dA.lampSupportPresent,true);
- assert.equal(dA.lampMountToHeadSideGapMm,0,
-   'Thorlabs lamp fixing face is detached from microscope');
- assert.equal(dA.lampSupportStartSurfaceGapMm,0);
- assert.equal(dA.lampSupportToBulbRearGapMm,0);
- assert.equal(dA.lampOpticsParkingOffsetDifferenceMm,0,
-   'A11 lamp must follow the A18 microscope focus parking group');
- assert(dA.g40RightDrumToBendWebClearanceMm>=4,
-   'G40 micrometer still cuts into bent L bracket');
+ assert.equal(dA.pose,'installed180');
+ assert.equal(dA.lampOEMDiameterMm,30.5);
+ assert.equal(dA.lampElectricalCablePresent,true);
+ assert.equal(dA.inventedLampGooseneckPresent,false,
+   'Old invented MWWHL4 mechanical gooseneck must stay deleted');
+ assert.equal(dA.unsupportedA18HorizontalTubePresent,false,
+   'Old unexplained 160mm A18 black horizontal tube must stay deleted');
+ assert.equal(dA.A18VendorIdentificationPending,true);
+ assert.equal(dA.A15LinearHandleCount,2);
+ assert.equal(dA.A15StemCount,2);
+ assert.equal(dA.A15CollarCount,2);
+ assert.equal(dA.A15SupportCount,2);
+ assert.equal(dA.A15FloatingCentralControlCount,0,
+   'Persistent floating A15 central cylinder must never return');
+ assert.equal(dA.clampScrewCount,2);
+ assert.equal(dA.clampScrewAxesParallelShortEdge,true);
  assert.equal(dA.g40DrumBendOverlapVolumeAabbMm3,0);
  assert(dA.sampleMicrometerStemDrumEngagementMm>=2.9,
-   'A06 angular stem must enter its detached-looking knob');
- assert.equal(dA.wingFastenerCount,2);
- assert.equal(dA.maxWingHeadFloatGapMm,0,
-   'Two butterfly fastener heads float above the A05 foot');
+   'A06 angular stem must remain engaged with its knob');
  assert.deepEqual(dA.A03TonguePlateOverlapMm,[6,6],
-   'VC13M two grey guide posts still lack real engagement');
+   'VC13M two guide tongues still require real overlap');
  assert.equal(dA.physicalPhotoFitCertified,false);
  // A02 and A15 are DIFFERENT physical stages and must use different
  // sliders. Previously the sample A02 top moved with filmShift instead.
