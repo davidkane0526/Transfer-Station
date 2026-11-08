@@ -57,6 +57,15 @@ try{
    'B08 GCM-1107M is rotation-only and has NO external operating handle');
  assert.equal(actuators.B08.rotaryLockHandleCount,0,
    'B08 must not contain a fabricated rotary lock/drive rod');
+ const b08Bores=await page.evaluate(()=>window.__modelBRotaryTopBoreProbe?.());
+ assert.equal(b08Bores?.available,true,'Missing actual B08 top face');
+ assert.equal(b08Bores.nineBoreCount,9);
+ assert.equal(b08Bores.allNineBoresOpen,true,
+   'B41 bolt shafts must pass through OPEN rotary B08 top holes');
+ assert.equal(b08Bores.metalBetweenBores,true,
+   'B08 top face must not become empty when bores are cut');
+ assert.equal(b08Bores.makerMountPatternVerified,false,
+   'Visual mounting candidates cannot become OEM-verified without a drawing');
  assert.equal(actuators.B08.handles.length,0,
    'B08 rendered rotary body must have no protruding actuator');
  assert.equal(actuators.B41.linearHandleCount,1,
@@ -81,6 +90,10 @@ try{
  for(const id of ['B41','B09']){
   assert.equal(actuators[id].recessedBaseHeadCount,4,
     id+' must retain four separate fixed-base fastener heads');
+  assert.equal(actuators[id].belowBaseScrewEngagementMm,7,
+    id+' mount fasteners must reach into the lower mating part');
+  assert.equal(actuators[id].screwInterfacingHoleRegistrationVerified,false,
+    id+' true mating threads/pitch remain unverified');
   assert(actuators[id].fixedBaseFastenerTopMm<11,
     id+' head must not protrude into moving layer');
   assert(actuators[id].movingUndersideToFastenerClearanceMm>=0.1,
