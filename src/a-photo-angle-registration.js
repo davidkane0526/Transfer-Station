@@ -4,16 +4,17 @@
 // Camera distances/pitch are first-pass, not calibrated focal solutions.
 // Scene coordinates: +X right with the VC13M labeled face at scene +Z,
 // +Y vertical, A15 reverse silver slot at -Z.
-// From -Z, projected +X appears LEFT; from +X/+Z projected +X
+// From the -Z side (+X camera offset), BOTH +X and +Z project LEFT.
+// From +X/+Z, +X projects RIGHT, while +Z still projects LEFT.
 // appears RIGHT, and projected +Z (the second XY actuator) appears LEFT.
 export const A20261108PhotoAngles=Object.freeze({
   monitorBehind:{
     id:'monitor-behind',name:'照片1｜屏幕居中、长槽板面朝镜头',
-    cameraOffsetMm:Object.freeze([14,43,-345]),
+    cameraOffsetMm:Object.freeze([100,43,-345]),
     targetOffsetMm:Object.freeze([0,128,0]),
     observedMonitor:'large nearly frontal Windows desktop behind transfer stack',
     visibleStageFace:'A15 silver sliding slot -Z',
-    visibleMicrometers:['A15 X at image LEFT','upper G40 +X at image LEFT'],
+    visibleMicrometers:['A15 X at image LEFT','upper G40 +X LEFT','lower G40 +Z LEFT'],
     bentBracketScreenSide:'RIGHT',
     originalCameraCalibrated:false
   },
@@ -23,7 +24,7 @@ export const A20261108PhotoAngles=Object.freeze({
     targetOffsetMm:Object.freeze([0,119,0]),
     observedMonitor:'Windows desktop on LEFT of instrument image',
     visibleStageFace:'A03/VC13M +Z front and right-hand +X knobs',
-    visibleMicrometers:['upper G40 +X RIGHT','A15 +X RIGHT','A15 +Z LEFT'],
+    visibleMicrometers:['upper G40 +X RIGHT','lower G40 +Z LEFT','A15 +X RIGHT','A15 +Z LEFT'],
     bentBracketScreenSide:'LEFT or partly occluded',
     originalCameraCalibrated:false
   }
@@ -68,7 +69,8 @@ export function aPhotoOrientationEvidence(){
     camera2SeesPositiveZFace:true,
     projectedA04PlusXFromCamera1:photoAProjectedAxis('monitorBehind','+X'),
     projectedA04PlusXFromCamera2:photoAProjectedAxis('monitorLeft','+X'),
-    projectedA04LMinusXFromCamera2:photoAProjectedAxis('monitorLeft','-X'),
+    projectedA04LPlusZFromCamera1:photoAProjectedAxis('monitorBehind','+Z'),
+    projectedA04LPlusZFromCamera2:photoAProjectedAxis('monitorLeft','+Z'),
     projectedA15DepthPlusZFromCamera2:photoAProjectedAxis('monitorLeft','+Z'),
     bentSheetLeftReturnProjectsRightFromCamera1:
       photoAProjectedAxis('monitorBehind','-X')>0,
