@@ -980,8 +980,8 @@ check(abs(a_chip.BoundingBox().zmax-a_pdms.BoundingBox().zmin)<.02,
       'PDMS interface is on sample chip, not 1.4mm inside the heater')
 check(a_clamp.BoundingBox().xmax<a_heater.xmin,
       'A05C fixed clamp must remain outside A07 heater X footprint')
-check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-26.0)<.03,
-      'V70 candidate far-end jaw stays outside heater with 26mm scene-only clearance')
+check(abs(a_heater.xmin-a_clamp.BoundingBox().xmax-25.5)<.03,
+      'V73 candidate far-end jaw stays outside heater with 25.5mm scene-only clearance')
 a_scope_col=part(A,'A10')[0]
 a_scope_bb=a_scope_col.BoundingBox()
 # V69: the optical support must be bored around the fixed 26mm post;
