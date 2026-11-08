@@ -2647,35 +2647,44 @@ function platformA(){
  const glassCenterX=glassLeftX+38;
  const glassCenterY=-aBent.verticalLegLength+1.0;
  addPart('A05C',ax,164,az,g=>{
-   // Connection tab touches A05's bent leg; the actual clamp
-   // mechanism, jaw aperture and bolt holes are NOT photo-verified.
-   // The provisional tie must sit BESIDE the L vertical sheet,
-   // not inside its solid volume. It attaches on the inward face.
-   const gripSign=aWorkingPoseMode?1:-1;
-   const bracketTie=add(g,cub(2.5,14,10,mats.black,
-     bracketLegLocalX-gripSign*2.5,-aBent.verticalLegLength+7,aBent.sheetFrontZ));
-   bracketTie.userData.A05CUnverifiedConnection=true;
-   // V64: the proxy carrier ALSO requires two real screw clearances.
-   // V70: align the provisional carrier's two actual bores to the
-   // photographic OUTWARD-axis fastener centres (+7/+25 or -7/-25).
-   // This carrier and both jaws are UNOBSERVED and are hidden in photo mode.
+   // Unverified carrier: top face meets the underside of A05's short
+   // foot at zero-gap contact, rather than overlapping its solid metal.
+   // No separate bar is allowed to penetrate the vertical L web.
    const sign=aWorkingPoseMode?1:-1;
    const bores=[[-9,0,1.6],[9,0,1.6]];
-   const carrier=add(g,plate(36,27,3,mats.dark,bores));
-   carrier.position.set(bracketLegLocalX+sign*16,glassCenterY-2.5,aBent.sheetFrontZ);
+   const footBottomY=-aBent.verticalLegLength;
+   const carrierThickness=3;
+   const carrier=add(g,plate(36,27,carrierThickness,mats.dark,bores));
+   carrier.position.set(bracketLegLocalX+sign*16,
+     footBottomY-carrierThickness,aBent.sheetFrontZ);
    carrier.userData.A05CActualThroughBores=2;
    carrier.userData.A05CCandidateOnly=true;
-   // Candidate only: both jaws begin just OUTSIDE the new foot edge
-   // (foot finishes at leg+32). They touch the glass over its first 9.5mm.
-   // 0.5mm overlap with carrier is a candidate mechanical tie, NOT OEM.
-   const upperJaw=add(g,cub(10,1.2,27,mats.dark,
-     bracketLegLocalX+38.5,glassCenterY+1.1,aBent.sheetFrontZ));
-   const lowerJaw=add(g,cub(10,1.2,27,mats.dark,
-     bracketLegLocalX+38.5,glassCenterY-1.1,aBent.sheetFrontZ));
-   for(const m of [carrier,upperJaw,lowerJaw])m.userData.A05CClampingProxy=true;
+   carrier.userData.A05CFlushToLFoot=true;
+   // Glass is a 76x26x1mm cantilever gripped over its first 10mm.
+   // It should hover above the sample until the transfer approaches.
+   const jawX=bracketLegLocalX+39;
+   const upperJaw=add(g,cub(10,1.2,26,mats.dark,
+     jawX,glassCenterY+1.1,aBent.sheetFrontZ));
+   const lowerJaw=add(g,cub(10,1.2,26,mats.dark,
+     jawX,glassCenterY-1.1,aBent.sheetFrontZ));
+   carrier.userData.A05CClampingProxy=true;
+   for(const m of [upperJaw,lowerJaw]){
+     m.userData.A05CClampingProxy=true;
+     m.userData.A05CActualJaw=true;
+   }
+   // Edge cheek joins the two jaws to the lower carrier without
+   // intruding into the glass: slide terminates at sheetFrontZ+13,
+   // cheek starts at that exact Z face and extends outward.
+   const backSpine=add(g,cub(10,5.7,2,mats.dark,
+     jawX,glassCenterY-1.15,aBent.sheetFrontZ+14));
+   backSpine.userData.A05CBackSpineProxy=true;
+   g.userData.A05CClampingStackType='flush foot / carrier / back spine / two jaws / glass';
    // Two butterfly fasteners are separate A05CS assembly, not an
    // invented integral part of the unidentified clamping jaws.
    g.userData.unverifiedClampMechanism=true;
+   g.userData.footToCarrierNominalGapMm=0;
+   g.userData.carrierThicknessMm=3;
+   g.userData.glassGripLengthMmCandidate=10;
    g.userData.jawGapCandidateMm=1;
    g.userData.actualClampOEM=false;
    label(g,'A05C · 两枚蝶形紧固件（照片194/196），玻片夹型号/孔位仍未知',
