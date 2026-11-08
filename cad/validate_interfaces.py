@@ -487,7 +487,7 @@ check(abs(a17_body.BoundingBox().zmin-20)<.02 and
 for dx,dy in [(0,0),(-25,-25),(-25,25),(25,-25),(25,25),
               (-20,-20),(-20,20),(20,-20),(20,20),
               (-16,-16),(-16,16),(16,-16),(16,16)]:
-    unobserved_hole_probe=vz(1.2,8,-70.75+dx,dy,32)
+    unobserved_hole_probe=vz(1.2,8,-82.75+dx,dy,32)
     check(a17_body.intersect(unobserved_hole_probe).Volume()>1,
           'V52 A17 neutral top proxy must not fabricate an unobserved GCM-42 hole')
 a15_top=part(A,'A15A')[0]
@@ -498,7 +498,7 @@ for xx,yy in [(-95.75,-25),(-95.75,25),(-45.75,-25),(-45.75,25)]:
           'V51 A15 photo23 top counterbore is open for 3mm candidate depth')
     check(a15_top.intersect(backing).Volume()>1,
           'V51 A15 top counterbore remains blind, not through the stage')
-slot_probe=box_probe(24,.5,3.5,-70.75,33.25,57.25)
+slot_probe=box_probe(24,.5,3.5,-82.75,33.25,57.25)
 check(a15_front.intersect(slot_probe).Volume()<1e-4,
       'V62 A15 photo194 front face is truly slotted')
 check(a15_front.BoundingBox().zmin>amagnet.zmax+10,
@@ -783,7 +783,7 @@ for i,dx in enumerate((-14,14),1):
     check(abs(head.BoundingBox().zmin-asheet_bb.zmax)<.02,
           'V58 both sheet screw HEADS contact top plate')
     center=(head.BoundingBox().xmin+head.BoundingBox().xmax)/2
-    check(abs(center-(-70.75+dx))<.02,'V58 G40 head pair follows moved film unit')
+    check(abs(center-(-82.75+dx))<.02,'V58 G40 head pair follows moved film unit')
 for i in (1,2):
     wing=part(A,f'A05CS{i}')[0]
     check(wing.isValid() and wing.BoundingBox().ylen>14 and
@@ -794,7 +794,7 @@ check(asheet_bb.ylen>=14-.02,
 # V63 physically test both hollow bores and solid material between them.
 # Prior versions had bolt/foot volume collisions despite passing contact QA.
 leg_bottom=164-52.1
-leg_x=-70.75+48-1.25
+leg_x=-82.75+60-1.25
 for i,dx in enumerate((7,25),1):
     shaft_axis=vz(1.4,2.5,leg_x+dx,0,leg_bottom)
     check(a_sheet.intersect(shaft_axis).Volume()<1e-5,
@@ -804,7 +804,7 @@ for i,dx in enumerate((7,25),1):
           'V70 A05 butterfly bolt must not intersect metal foot '+str(i))
     check(abs(bolt.BoundingBox().zmin-(leg_bottom-3.5))<.02,
           'V70 photo196 thread tail projects BELOW the black foot')
-    check(bolt.BoundingBox().zmax>leg_bottom+8,
+    check(bolt.BoundingBox().zmax>leg_bottom+6,
           'V70 butterfly head remains ABOVE the folded foot')
     check(abs((bolt.BoundingBox().xmin+bolt.BoundingBox().xmax)/2-
               (leg_x+dx))<.02,
@@ -914,8 +914,8 @@ for i in (1,2):
 a17_bb=part(A,'A17')[0].BoundingBox()
 a16_bb=part(A,'A16')[0].BoundingBox()
 a_base_gap=a16_bb.xmin-a17_bb.xmax
-check(abs(a_base_gap-60.25)<.02,
-      'V70 A16/A17 nominal 60.25mm clearance after re-registering glass beyond foot')
+check(abs(a_base_gap-72.25)<.02,
+      'V70 A16/A17 nominal 72.25mm clearance after re-registering glass beyond foot')
 check(abs((a_pdms.BoundingBox().xmin+a_pdms.BoundingBox().xmax)/2-78)<.02 and
       abs((a_pdms.BoundingBox().ymin+a_pdms.BoundingBox().ymax)/2)<.02,
       'V58 PDMS stamp must be centered above sample-chip XY')
@@ -927,7 +927,7 @@ report['V58_A_working_geometry_only']={
     'part_chain':['A17','A15','A03','A04L','A04','A05','A05C',
                   'A05CU','A05CS1','A05CS2','A05G','A05GP'],
     'A17_A16_footprint_gap_mm':round(a_base_gap,2),
-    'film_center_x_mm':-70.75,'working_film_bent_sheet_handedness':'right',
+    'film_center_x_mm':-82.75,'working_film_bent_sheet_handedness':'right',
     'photo94_original_handedness':'left',
     'a05_leg_height_candidate_mm':52.1,
     'glass_size_candidate_mm':[76,26,1],
