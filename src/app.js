@@ -2678,6 +2678,8 @@ function platformA(){
    label(g,'照片196：上层 GCM-G40M60L · 右侧测微 · 40×40×20mm',-4,40,0);
  },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
+   topPlateWidth:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketTopWidthMm:undefined,
+   leftOverhangMm:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketOverhangMm:undefined,
    handedness:aWorkingPoseMode?'right':'left',
    verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72,
    sheetFrontZmm:aWorkingPoseMode?0:13});
@@ -3249,7 +3251,7 @@ function updateDetail(part){
  const aRigHtml=aRigAudit?(aWorkingPoseMode?
    '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
    ' data-gap-mm="'+aRigAudit.clampHeaterClearanceMm+'">'+
-   '<b>A操作位置候选 · 非实物配准</b><p>这是一种假设A05折边向右、折腿缩为52.1mm、膜侧磁座中心X=-70.75mm的工程构型。'+
+   '<b>A操作位置候选 · 非实物配准</b><p>这是一种假设A05折边向右、折腿缩为52.1mm、膜侧磁座中心X=-82.75mm的工程构型。'+
    'A17与A16底座平面间隔 '+aRigAudit.footprintGapMm+
    'mm；夹具到加热台X向边缘间隔 '+aRigAudit.clampHeaterClearanceMm+
    'mm；右端PDMS与A07样品片表面Y向间隙 '+aRigAudit.verticalStampGapMm+
@@ -3444,7 +3446,7 @@ function resetScene(){
  $('axis-confidence-note').textContent=platform==='B'?
   'B：样品侧为B08无外伸手柄旋转台 + B41下层Y（前后） + B09上层X（左右）单轴NFP-1462C。两级台体用视觉色差、接合线和X/Y字样区分（非实物铭牌/材质差异）；B41精确型号、孔系和行程待核。B03载玻片侧为另一套双轴T25M。':
   'A：照片94左折边的G40M60L上摆角及A04L下摆角是历史实拍约束；当前'+
-   (aWorkingPoseMode?'在单独的V58工程候选中镜像为右折边、改用52.1mm场景腿长，并将磁座重新配准到-70.75mm，均未由实物证实。':'显示照片94原局部朝向。')+
+   (aWorkingPoseMode?'在单独的V58工程候选中镜像为右折边、改用52.1mm场景腿长，并将磁座重新配准到-82.75mm，均未由实物证实。':'显示照片94原局部朝向。')+
    'A05C夹具、A17磁座型号与孔系未知；操作姿态不等于设备可靠性认证。';
  // CSS2DRenderer retains node references unless explicitly detached on platform switch.
  for(const oldLabel of labels){if(oldLabel.element?.isConnected)oldLabel.element.remove();}
