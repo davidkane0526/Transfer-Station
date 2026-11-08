@@ -3773,6 +3773,7 @@ function updatePhotoScope(){
  const node=$('photo-scope-note');
  $('b-photo-profile').hidden=platform!=='B';
  $('a-pose-selector').hidden=platform!=='A';
+  $('a-photo-20261108').hidden=platform!=='A';
  $('btn-a-working-pose').classList.toggle('on',platform==='A'&&aWorkingPoseMode);
  $('btn-a-photo-pose').classList.toggle('on',platform==='A'&&!aWorkingPoseMode);
  $('btn-a-working-pose').setAttribute('aria-pressed',String(platform==='A'&&aWorkingPoseMode));
