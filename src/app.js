@@ -501,57 +501,48 @@ window.__modelAPhoto194Probe=()=>{
  window.__modelAClampChainProbe=()=>{
    if(platform!=='A')return {available:false};
    const get=(id,tag)=>parts.get(id)?.g.children.find(o=>o.userData[tag]);
-   const sheet=get('A05','A05VerticalSheetWeb');
    const foot=get('A05','A05OutwardFootCandidate');
-   const carrier=get('A05C','A05CActualThroughBores');
-   const spine=get('A05C','A05CBackSpineProxy');
-   const upper=get('A05C','A05CUpperJaw');
-   const lower=get('A05C','A05CLowerJaw');
+   const neck=get('A05C','A05CBracketNeck');
+   const ledge=get('A05C','A05CSupportLedge');
+   const fixed=get('A05C','A05CFixedSideRail');
+   const pressure=get('A05C','A05CPressureRail');
    const glass=get('A05G','candidateStandardSlide');
-   if(![sheet,foot,carrier,spine,upper,lower,glass].every(Boolean))
+   const stamp=parts.get('A05G')?.g.children.find(o=>o.userData.A05GTransferTarget);
+   const shafts=parts.get('A05CS')?.g.children.filter(o=>o.userData.A05CSCandidateShank)??[];
+   if(![foot,neck,ledge,fixed,pressure,glass,stamp].every(Boolean)||shafts.length!==2)
      return {available:false};
    currentRoot.updateWorldMatrix(true,true);
    const bb=o=>new THREE.Box3().setFromObject(o);
-   const b={sheet:bb(sheet),foot:bb(foot),carrier:bb(carrier),
-     spine:bb(spine),upper:bb(upper),lower:bb(lower),glass:bb(glass)};
-   const v=(boxA,boxB)=>{
-     const overlap=boxA.clone().intersect(boxB),sz=new THREE.Vector3();
-     if(overlap.isEmpty())return 0;
-     overlap.getSize(sz);
-     return Number((sz.x*sz.y*sz.z).toFixed(4));
-   };
-   const rnd=x=>{const mm=Number(x.toFixed(3));return Object.is(mm,-0)?0:mm;};
-   const faceXZ=(a,c)=>Math.min(a.max.x,c.max.x)-Math.max(a.min.x,c.min.x)>1&&
-     Math.min(a.max.z,c.max.z)-Math.max(a.min.z,c.min.z)>1;
-   const faceYZ=(a,c)=>Math.min(a.max.y,c.max.y)-Math.max(a.min.y,c.min.y)>1&&
-     Math.min(a.max.z,c.max.z)-Math.max(a.min.z,c.min.z)>0.2;
-   const overlapXY=(a,c)=>Math.min(a.max.x,c.max.x)-Math.max(a.min.x,c.min.x)>1&&
-     Math.min(a.max.y,c.max.y)-Math.max(a.min.y,c.min.y)>0.2;
-   const footCarrierGapMm=rnd(b.foot.min.y-b.carrier.max.y);
-   const carrierSpineGapMm=rnd(b.spine.min.x-b.carrier.max.x);
-   const spineUpperGapMm=rnd(b.spine.min.z-b.upper.max.z);
-   const spineLowerGapMm=rnd(b.spine.min.z-b.lower.max.z);
-   const upperGlassGapMm=rnd(b.upper.min.y-b.glass.max.y);
-   const lowerGlassGapMm=rnd(b.glass.min.y-b.lower.max.y);
-   const metalOverlapMm3=v(b.sheet,b.carrier)+v(b.foot,b.carrier);
-   const jawGlassOverlapMm3=v(b.upper,b.glass)+v(b.lower,b.glass)+v(b.spine,b.glass);
-   const gripXmm=rnd(Math.min(b.upper.max.x,b.glass.max.x)-
-     Math.max(b.upper.min.x,b.glass.min.x));
-   const workingChainContinuous=
-     Math.abs(footCarrierGapMm)<.02&&faceXZ(b.foot,b.carrier)&&
-     Math.abs(carrierSpineGapMm)<.02&&faceYZ(b.carrier,b.spine)&&
-     Math.abs(spineUpperGapMm)<.02&&overlapXY(b.spine,b.upper)&&
-     Math.abs(spineLowerGapMm)<.02&&overlapXY(b.spine,b.lower)&&
-     Math.abs(upperGlassGapMm)<.02&&Math.abs(lowerGlassGapMm)<.02&&gripXmm>=9.9&&
-     metalOverlapMm3<.01&&jawGlassOverlapMm3<.01;
-   return {available:true,pose:aWorkingPoseMode?'candidate':'photo94',
+   const v=(a,b)=>{const q=a.clone().intersect(b),sz=new THREE.Vector3();
+     if(q.isEmpty())return 0;q.getSize(sz);return Number((sz.x*sz.y*sz.z).toFixed(4));};
+   const r=x=>{const n=Number(x.toFixed(3));return Object.is(n,-0)?0:n;};
+   const B={foot:bb(foot),neck:bb(neck),ledge:bb(ledge),fixed:bb(fixed),
+     pressure:bb(pressure),glass:bb(glass)};
+   const glassSupportGapMm=r(B.glass.min.y-B.ledge.max.y);
+   const fixedGlassGapMm=r(B.glass.min.z-B.fixed.max.z);
+   const pressureGlassGapMm=r(B.pressure.min.z-B.glass.max.z);
+   const screwPressureOverlapMm3=shafts.reduce((n,o)=>n+v(bb(o),B.pressure),0);
+   const screwGlassOverlapMm3=shafts.reduce((n,o)=>n+v(bb(o),B.glass),0);
+   const shaftSizes=shafts.map(o=>{const q=new THREE.Vector3();bb(o).getSize(q);return q;});
+   const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();
+   stamp.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
+   const stampToSampleCenterXmm=r(stampPos.x-samplePos.x);
+   const stampToSampleCenterZmm=r(stampPos.z-samplePos.z);
+   const sideClampGeometricallyCoherent=
+     Math.abs(glassSupportGapMm)<.02&&Math.abs(fixedGlassGapMm)<.02&&
+     Math.abs(pressureGlassGapMm)<.02&&screwPressureOverlapMm3>0&&
+     screwGlassOverlapMm3<.001&&
+     shaftSizes.every(q=>q.z>q.x*4&&q.z>q.y*4);
+   return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
      clampRendered:parts.get('A05C')?.g.visible??false,
      glassRendered:parts.get('A05G')?.g.visible??false,
-     footCarrierGapMm,carrierSpineGapMm,
-     spineUpperGapMm,spineLowerGapMm,
-     upperGlassGapMm,lowerGlassGapMm,
-     metalOverlapMm3,jawGlassOverlapMm3,
-     gripXmm,workingChainContinuous,
+     glassSupportGapMm,fixedGlassGapMm,pressureGlassGapMm,
+     screwPressureOverlapMm3:Number(screwPressureOverlapMm3.toFixed(4)),
+     screwGlassOverlapMm3:Number(screwGlassOverlapMm3.toFixed(4)),
+     screwAxis:'scene-Z / glass short edge',
+     installedFilmBranchYawDeg:aWorkingPoseMode?180:0,
+     stampToSampleCenterXmm,stampToSampleCenterZmm,
+     sideClampGeometricallyCoherent,
      actualManufacturerClampVerified:false,
      physicalTransferAssemblyAccepted:false};
  };
