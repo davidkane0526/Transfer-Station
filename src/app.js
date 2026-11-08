@@ -1478,22 +1478,30 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
       head.userData.A15Photo23RecessedFastenerCandidate=true;
       add(carriageY,cub(2.2,.18,.45,mats.ink,x,lowerH+middleH+topH-1.47,z));
     }
-    // Photo194: the silver slot belongs to the A15 moving middle stage.
+    // 2026-11-08 two complementary user photographs:
+     // SCREEN-FACING photo sees A15 silver slot and (+X) large knob to
+     // its LEFT, whereas monitor-left photo sees the VC13M front and
+     // both right/left orthogonal knobs. These are two OPPOSING camera
+     // sides, NOT a mirror of the platform. Put A15 slot on local -Z,
+     // opposite the VC13M positive-Z micrometer face.
+     // The slot still moves with its OWN carriage, never with A17.
     const stageFace=carriageX;
-    const bar=(x,y,w,h)=>add(stageFace,cub(w,h,1.5,mats.silver,x,y,33.25));
+    const bar=(x,y,w,h)=>add(stageFace,cub(w,h,1.5,mats.silver,x,y,-33.25));
     const topBar=bar(0,23,42,4);
     bar(0,15,42,4);bar(-17,19,8,4);bar(17,19,8,4);
     topBar.userData.A15Photo194FrontSlottedPlate=true;
     for(const x of [-17,17]){
-      const bolt=add(stageFace,cyl(2.2,1.5,mats.steel,x,15,34.3,24));
+      const bolt=add(stageFace,cyl(2.2,1.5,mats.steel,x,15,-34.3,24));
       bolt.rotation.x=Math.PI/2;
       bolt.userData.A15Photo194FrontPlateScrewCandidate=true;
     }
-    const frontStem=add(stageFace,cyl(1.8,9,mats.steel,0,19,38.5,24));
+    const frontStem=add(stageFace,cyl(1.8,9,mats.steel,0,19,-38.5,24));
     frontStem.rotation.x=Math.PI/2;
-    const frontKnob=add(stageFace,cyl(5.2,7,mats.silver,0,19,46.5,40));
+    const frontKnob=add(stageFace,cyl(5.2,7,mats.silver,0,19,-46.5,40));
     frontKnob.rotation.x=Math.PI/2;
     frontKnob.userData.A15Photo194SlotControlKnob=true;
+     g.userData.A15SilverSlotFaceLocalZ=-1;
+     g.userData.A15XYActuatorAxes={X:'+X',Y:'+Z'};
     g.userData.A15Photo194SlotDimensionsVerified=false;
     g.userData.A15Photo23TopCounterboreCount=4;
     g.userData.A15Photo23RecessedHeadCount=4;
