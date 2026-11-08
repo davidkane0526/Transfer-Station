@@ -72,6 +72,23 @@ try{
    'The M6 taps must not be represented as through-holes in a solid rotary top');
  assert.equal(b08Bores.oemThreadDepthVerified,false,
    'The 8mm tapping depth is a STEP proxy, not confirmed OEM thread depth');
+ assert.equal(b08Bores.B41MountHeadCount,4);
+ assert.equal(b08Bores.duplicateB41MountHeadsOnB08,0,
+   'B41-to-B08 joint must NOT be represented by two overlapping sets of heads');
+ assert(b08Bores.mountingMisalignmentMm<.02,
+   'B41 screws must align with B08 upper deck nine-M6 holes');
+ await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='37';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const turnedB08=await page.evaluate(()=>window.__modelBRotaryTopBoreProbe?.());
+ assert.equal(turnedB08.deckYawDeg,37,
+   'B08 upper rotating disk MUST turn, not just the entire B41 top block');
+ assert(turnedB08.mountingMisalignmentMm<.02,
+   'B41 screws separate from B08 deck holes after rotary turns');
+ assert.equal(turnedB08.allNineBoresOpen,true);
+ await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
  assert.equal(actuators.B08.handles.length,0,
    'B08 rendered rotary body must have no protruding actuator');
  assert.equal(actuators.B41.linearHandleCount,1,
