@@ -491,7 +491,7 @@ for dx,dy in [(0,0),(-25,-25),(-25,25),(25,-25),(25,25),
     check(a17_body.intersect(unobserved_hole_probe).Volume()>1,
           'V52 A17 neutral top proxy must not fabricate an unobserved GCM-42 hole')
 a15_top=part(A,'A15A')[0]
-for xx,yy in [(-95.75,-25),(-95.75,25),(-45.75,-25),(-45.75,25)]:
+for xx,yy in [(-107.75,-25),(-107.75,25),(-57.75,-25),(-57.75,25)]:
     bore=vz(2.85,2.8,xx,yy,70.1)
     backing=vz(2.85,.4,xx,yy,69.6)
     check(a15_top.intersect(bore).Volume()<1e-4,
