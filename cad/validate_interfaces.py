@@ -498,11 +498,14 @@ for xx,yy in [(-107.75,-25),(-107.75,25),(-57.75,-25),(-57.75,25)]:
           'V51 A15 photo23 top counterbore is open for 3mm candidate depth')
     check(a15_top.intersect(backing).Volume()>1,
           'V51 A15 top counterbore remains blind, not through the stage')
-slot_probe=box_probe(24,.5,3.5,-82.75,33.25,57.25)
+slot_probe=box_probe(24,.5,3.5,-82.75,-33.25,57.25)
 check(a15_front.intersect(slot_probe).Volume()<1e-4,
       'V62 A15 photo194 front face is truly slotted')
 check(a15_front.BoundingBox().zmin>amagnet.zmax+10,
       'V62 A15 silver slot higher than A17 magnet')
+check(a15_front.BoundingBox().ymax<-32 and
+      part(A,'A03M')[0].BoundingBox().ymin>33,
+      '2026-11-08 two photo sides: A15 silver slot -Y / VC13 micrometer +Y')
 check(a15_front.intersect(a15_control).Volume()<1e-4,
       'V62 front slot must clear the control shaft')
 for i in (1,2):
@@ -517,7 +520,8 @@ for legacy in ('A17P','A17S1','A17S2'):
     check(not (A/(legacy+'.step')).exists(),
           'V62 no false magnet silver slot '+legacy)
 report['V62_A15_front_slot_A17_lower_lever']={
-  'photo':['194','195'],'A15_front_open_slot':True,
+  'photo':['194','195','2026-11-08-screen-front'],'A15_front_open_slot':True,
+   'slot_face_axis_in_CAD':'-Y opposite VC13M +Y face',
   'A15_front_plate_screw_count':2,'A15_control_count':1,
   'A17_lower_lever_count':1,'A17_duplicate_slot_count':0,
   'OEM_dimensions_and_threads_verified':False}
