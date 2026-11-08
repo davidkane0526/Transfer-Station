@@ -899,9 +899,14 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V59'
+CAD_REVISION='V77'
+# Four A legacy study solids remain available separately, but are NOT
+# installed on the user-approved photographed bare wing-screw bracket.
+UNINSTALLED_A_STUDY_IDS=frozenset({'A05C','A05CU','A05G','A05GP'})
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
+    published=[p for p in PARTS[sys] if sys!='A' or p[0] not in UNINSTALLED_A_STUDY_IDS]
+    excluded=[p for p in PARTS[sys] if sys=='A' and p[0] in UNINSTALLED_A_STUDY_IDS]
     # The user's B photos distinguish the SILVER common table from the
     # independent BLACK THORLABS board below the sample stage. Preserve
     # that evidence as AP214 STEP assembly colors, not merely part names.
@@ -911,18 +916,26 @@ def export(sys):
       'B01':cq.Color(0.73,0.76,0.79),
       'B35':cq.Color(0.10,0.12,0.15)
     }
-    for key,name,grade,shape in PARTS[sys]:
+    for key,name,grade,shape in published:
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
         assembly.add(shape,**props)
     target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_'+CAD_REVISION+'.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
-    assert len(solids)>=len(PARTS[sys]) and all(s.isValid() for s in solids)
+    assert len(solids)>=len(published) and all(s.isValid() for s in solids)
     with (target.parent/'part_levels.csv').open('w',encoding='utf-8-sig',newline='') as f:
         w=csv.writer(f);w.writerow(['id','component','level'])
-        for key,name,grade,_ in PARTS[sys]:w.writerow([key,name,grade])
-    return dict(system=sys,assembly_components=len(PARTS[sys]),step_solids=len(solids),size_bytes=target.stat().st_size)
+        for key,name,grade,_ in published:w.writerow([key,name,grade])
+    if excluded:
+        with (target.parent/'uninstalled_study_parts.csv').open('w',encoding='utf-8-sig',newline='') as f:
+            w=csv.writer(f);w.writerow(['id','description','reason'])
+            for key,name,_,_ in excluded:
+                w.writerow([key,name,'not installed on user-approved bare A bracket'])
+    return dict(system=sys,assembly_components=len(published),
+                excluded_uninstalled=[p[0] for p in excluded],
+                study_solids_available=len(PARTS[sys]),step_solids=len(solids),
+                size_bytes=target.stat().st_size)
 if __name__=='__main__':
     make_a();make_b()
     info=[export(x) for x in ('A','B')]
