@@ -2958,11 +2958,14 @@ function platformA(){
   // V75: former 80mm slanted rod ended without an actual mount.
   // Keep the lamp attached to the A18 housing-side surface through
   // a continuous flexible support proxy (real fixing remains UNKNOWN).
-  const lampMountPoints=[[-27,16,-36],[-22,17,-28],[-16,19,-17],
-    [-13,15,-5],[-13,13,0]];
+  // A18 right face is world x=128; root at x=131 with a
+  // Ø6 flexible rod makes TANGENT solid contact (no deep penetration).
+  // Lamp rear face is world z=47; rod ends z=44 with radius 3.
+  const lampMountPoints=[[-24,17,-35],[-19,17,-28],[-10,19,-24],
+    [-3,17,-19],[0,13,-16]];
   const gooseneck=add(g,tube(lampMountPoints,3,mats.steel));
   gooseneck.userData.A11PhysicallyConnectedSupportProxy=true;
-  const rootCollar=add(g,cyl(5,4,mats.black,-26,16,-36,28));
+  const rootCollar=add(g,cyl(5,1.2,mats.black,-26.4,17,-35,28));
   rootCollar.rotation.z=Math.PI/2;
   rootCollar.userData.A11A18SideMountProxy=true;
   g.userData.A11MountingMethodVerified=false;
