@@ -439,7 +439,7 @@ window.__modelAPhoto194Probe=()=>{
      overlap.getSize(sz);
      return Number((sz.x*sz.y*sz.z).toFixed(4));
    };
-   const rnd=x=>Number(x.toFixed(3));
+   const rnd=x=>{const mm=Number(x.toFixed(3));return Object.is(mm,-0)?0:mm;};
    const faceXZ=(a,c)=>Math.min(a.max.x,c.max.x)-Math.max(a.min.x,c.min.x)>1&&
      Math.min(a.max.z,c.max.z)-Math.max(a.min.z,c.min.z)>1;
    const faceYZ=(a,c)=>Math.min(a.max.y,c.max.y)-Math.max(a.min.y,c.min.y)>1&&
