@@ -460,6 +460,14 @@ window.__modelBRotaryTopBoreProbe=()=>{
    deckYawDeg:Number((deck.rotation.y*180/Math.PI).toFixed(3)),
    B41MountHeadCount:mountHeads.length,
    mountingMisalignmentMm,
+   baseMountBoreCount:g.userData.B08BaseMountBoreCount,
+   baseMountPitchMm:g.userData.B08BaseMountPitchMm,
+   baseClearanceDiaMm:g.userData.B08BaseMountClearanceDiaMm,
+   baseCounterboreDiaMm:g.userData.B08BaseCounterboreDiaMm,
+   baseCounterboreDepthMm:g.userData.B08BaseCounterboreDepthMm,
+   baseFaceOrientationVerified:Boolean(g.userData.B08CounterboreFaceOrientationVerified),
+   baseBoreMeshes:g.children.filter(o=>o.userData.B08FixedLowerClearanceHoles||
+     o.userData.B08FixedUpperCounterbores).length,
    duplicateB41MountHeadsOnB08:g.userData.B08DuplicateB41Fasteners,
    nineBoreCount:g.userData.B08TopTrueBoreCount,
    allNineBoresOpen:holes.every(([x,z])=>!test(x,z)),
@@ -1767,7 +1775,24 @@ function rotaryB(){
    label(g,'B35 · Thorlabs MB2530/M孔系候选 · 250×300×12 photo-fit · M6/25mm贯通网格',0,rise+8,136);
   });
   addPart('B08',sx,20+rise,0,g=>{
-    add(g,cyl(47,23,mats.dark,0,11.5,0));
+    // GCM-1107M OEM base: 4 x Ø6.8 clearance holes on 50mm
+    // square with Ø11.5 x 16mm counterbores. Mounting side shown
+    // as an upper-entry proxy; B35 hole-grid registration is pending.
+    const baseMounts=[...[-25,25].flatMap(x=>
+      [-25,25].map(z=>[x,z]))];
+    const baseFoot=add(g,drilledDisc(47,7,mats.dark,
+      baseMounts.map(([x,z])=>[x,z,3.4])));
+    baseFoot.userData.B08FixedLowerClearanceHoles=true;
+    const baseCounterbore=add(g,drilledDisc(47,16,mats.dark,
+      baseMounts.map(([x,z])=>[x,z,5.75])));
+    baseCounterbore.position.y=7;
+    baseCounterbore.userData.B08FixedUpperCounterbores=true;
+    g.userData.B08BaseMountBoreCount=4;
+    g.userData.B08BaseMountPitchMm=50;
+    g.userData.B08BaseMountClearanceDiaMm=6.8;
+    g.userData.B08BaseCounterboreDiaMm=11.5;
+    g.userData.B08BaseCounterboreDepthMm=16;
+    g.userData.B08CounterboreFaceOrientationVerified=false;
     // Lower 23mm body stays fixed on B35; the upper circular face
     // rotates with B41, as on the actual rotation platform.
     const rotatingDeck=new THREE.Group();
