@@ -117,6 +117,17 @@ for fixed,lower,top,key in ((b41_fixed,b41_moving_lower,b41_moving_top,'B41'),
                             (nfp_fixed,nfp_moving_lower,nfp_moving_top,'B09')):
     check(fixed.intersect(lower).Volume()<1e-4 and lower.intersect(top).Volume()<1e-4,
           key+' fixed/carriage/top layers meet without interpenetration')
+# B08 OEM 4xØ6.8 and Ø11.5x16mm fixed-base mounting geometry.
+# A real bore is necessary; a drawn circular ring cannot accept a screw.
+for dx in (-25,25):
+    for dy in (-25,25):
+        x,y=82+dx,dy
+        clearance=vz(3.3,23,x,y,32)
+        counterbore=vz(5.7,16,x,y,39)
+        check(sample_base.intersect(clearance).Volume()<1e-5,
+              'B08 lower OEM Ø6.8 screw clearance must be open')
+        check(sample_base.intersect(counterbore).Volume()<1e-5,
+              'B08 Ø11.5 x 16mm OEM counterbore must be open')
 # B08 is a rotation-only stage: the real unit has no external operating handle.
 check(not (B/'B08B.step').exists(),'B08 GCM-1107M must not contain a fabricated external handle')
 # GCM-1107M nine-hole 25mm candidate pattern.
@@ -179,7 +190,9 @@ check(b41_micrometer.ymin>b41_body.ymax-.02,
       'B41 second micrometer points toward the operator/front (+Y)')
 report['B08_GCM1107M']={
     'envelope_mm':[94,94,33.2],
-    'top_hole_pattern':'9 M6 candidate holes at 25mm pitch',
+    'top_hole_pattern':'OEM 9-M6 at 25mm pitch, 8mm tap-drill proxy',
+    'base_mounting':'OEM four Ø6.8 and Ø11.5x16 counterbores, 50x50mm',
+    'base_to_B35_hole_registration_verified':False,
     'external_operating_handle':False,
     'OEM_model_confirmed':True
 }
