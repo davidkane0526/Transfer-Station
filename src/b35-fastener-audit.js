@@ -153,6 +153,38 @@ export function auditB08ToB35Mount({
       mismatchMm:round(n.distanceMm)};
   });
   const maxMismatchMm=round(Math.max(...closest.map(q=>q.mismatchMm)));
+  // V78: compare a SINGLE rigid displacement of the whole 4-hole pattern.
+  // Matching four holes independently to their nearest grid hole can give
+  // four incompatible "solutions". A valid centre must register all four
+  // bores simultaneously, and the full Ø94mm foot must remain on B35.
+  // This is a what-if geometry audit, NOT permission to reposition B08:
+  // microscope optical-axis alignment, physical B35 origin and other
+  // mounting constraints have not been measured.
+  const rotaryFootRadiusMm=47; // GCM-1107M nominal Ø94 OEM envelope
+  const fitsBoard=(cx,cz)=>
+    Math.abs(cx-boardCenterX)+rotaryFootRadiusMm<=boardWidthMm/2+1e-8&&
+    Math.abs(cz-boardCenterZ)+rotaryFootRadiusMm<=boardDepthMm/2+1e-8;
+  const gridContains=(x,z)=>grid.some(q=>
+    Math.abs(q.x-x)<.01&&Math.abs(q.z-z)<.01);
+  const compatibleCentres=[];
+  for(const hole of grid){
+    // Use each board grid point in turn as the (-pitch/2,-pitch/2) bore.
+    const cx=round(hole.x+half),cz=round(hole.z+half);
+    if(!fitsBoard(cx,cz))continue;
+    const allFourFit=[-half,half].every(dx=>[-half,half].every(dz=>
+      gridContains(round(cx+dx),round(cz+dz))));
+    if(!allFourFit)continue;
+    const dx=round(cx-rotaryCenterX),dz=round(cz-rotaryCenterZ);
+    compatibleCentres.push({
+      centerMm:[cx,cz],translationMm:[dx,dz],
+      displacementMm:round(Math.hypot(dx,dz)),allFourBoresRegistered:true,
+      fullRotaryFootOnBoard:true
+    });
+  }
+  compatibleCentres.sort((a,b)=>a.displacementMm-b.displacementMm||
+    a.centerMm[1]-b.centerMm[1]||a.centerMm[0]-b.centerMm[0]);
+  const nearestFullFourHoleRegistrations=compatibleCentres.slice(0,4);
+  const minimumRigidTranslationMm=compatibleCentres[0]?.displacementMm??null;
   return Object.freeze({
     rotaryMountPattern:'4 x Ø6.8 / Ø11.5 x 16 counterbore, 50x50mm OEM',
     boardGridModel:'MB2530/M 25mm grid, 12.5mm edge phase candidate',
@@ -161,8 +193,14 @@ export function auditB08ToB35Mount({
     mountingHolePairs:closest,
     maxMismatchMm,
     candidateGridDirectFit:maxMismatchMm<=.01,
+    nearestFullFourHoleRegistrations,
+    minimumRigidTranslationMm,
+    gridPossibleAfterRigidTranslation:compatibleCentres.length>0,
+    rigidTranslationCheckedAgainstOpticalAxis:false,
+    rigidTranslationCheckedAgainstAdjacentHardware:false,
+    sceneGeometryAutomaticallyRepositioned:false,
     currentSceneBoltedJointAccepted:false,
     realMachineMountVerified:false,
-    note:'A mismatch in the current model only. Do not shift the optical axis or fabricate an adapter without photographed/verified mounting evidence.'
+    note:'A mismatch in the current model only. Suggested grid-compatible rigid translations are mathematical sensitivity tests, not verified mounting positions. Do not shift the optical axis or fabricate an adapter without photographed/verified mounting evidence.'
   });
 }
