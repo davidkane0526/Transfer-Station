@@ -64,8 +64,14 @@ try{
    'B41 bolt shafts must pass through OPEN rotary B08 top holes');
  assert.equal(b08Bores.metalBetweenBores,true,
    'B08 top face must not become empty when bores are cut');
- assert.equal(b08Bores.makerMountPatternVerified,false,
-   'Visual mounting candidates cannot become OEM-verified without a drawing');
+ assert.equal(b08Bores.makerMountPatternVerified,true,
+   'GCM-1107M OEM drawing identifies the nine M6 top tapped holes');
+ assert.equal(b08Bores.topHolePitchMm,25);
+ assert.equal(b08Bores.blindDepthCandidateMm,8);
+ assert.equal(b08Bores.blindFloorIsSolid,true,
+   'The M6 taps must not be represented as through-holes in a solid rotary top');
+ assert.equal(b08Bores.oemThreadDepthVerified,false,
+   'The 8mm tapping depth is a STEP proxy, not confirmed OEM thread depth');
  assert.equal(actuators.B08.handles.length,0,
    'B08 rendered rotary body must have no protruding actuator');
  assert.equal(actuators.B41.linearHandleCount,1,
