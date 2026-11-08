@@ -2760,19 +2760,21 @@ function platformA(){
      hd.userData.fastenerProxy=true;
      const inset=add(g,cyl(1.3,.2,mats.ink,x,y,22,6));inset.rotation.x=Math.PI/2;
    }
-   // Photo195: the LOWER goniometer has its own LEFT (-X) micrometer.
-   add(g,cub(16,15,29,mats.black,-24,8,0));
-   const stem=add(g,cyl(5.5,18,mats.steel,-27,10,0,40));stem.rotation.z=Math.PI/2;
-   const drum=add(g,cyl(8.3,20,mats.silver,-43,10,0,48));drum.rotation.z=Math.PI/2;
+   // Two photographs from 2026-11-08 establish TWO orthogonal angular
+   // micrometer directions. The upper G40 is +X; the lower one is
+   // seen nearly end-on from the VC13M face, consistent with +Z.
+   // This is a photo-derived orientation CANDIDATE, not an OEM SKU.
+   add(g,cub(29,15,16,mats.black,0,8,24));
+   const stem=add(g,cyl(5.5,18,mats.steel,0,10,27,40));stem.rotation.x=Math.PI/2;
+   const drum=add(g,cyl(8.3,20,mats.silver,0,10,43,48));drum.rotation.x=Math.PI/2;
    drum.userData.A04LDriveDrum=true;
-   for(let x=-52;x<-35;x+=3){
-     const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
-     ring.rotation.y=Math.PI/2;
-   }
+   drum.userData.driveAxisCandidate='+Z';
+   for(let z=35;z<52;z+=3)add(g,torus(8.35,.22,mats.ink,0,10,z));
    addJointHeads(g,'A04L',14.9,[[-14,-14],[14,14]],{headR:2.6});
    g.userData.lowerGoniometerSkuUnverified=true;
-   g.userData.photo195LowerDriveDirection='-X';
-   label(g,'照片195：下层独立摆角机构 · 左侧测微 · 型号待核',-4,40,0);
+   g.userData.photo20261108LowerDriveAxisCandidate='+Z';
+   g.userData.lowerDriveOrthogonalToUpperG40=true;
+   label(g,'双角度实拍推断：下层 +Z 轴与上层 +X 轴正交；型号待核',-4,40,0);
  },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true});
  addPart('A04',ax,144,az,g=>{
    // Upper G40M60L label is visually legible in photo94.
@@ -3924,7 +3926,8 @@ $('btn-photo97').onclick=()=>focusPhoto947('97');
      actualA15XKnobRelativeNdc:delta(stageX,stage),
      actualA15ZKnobRelativeNdc:delta(stageZ,stage),
      actualA04XKnobRelativeNdc:delta(upperX,g40),
-     actualA04LowerMinusXKnobRelativeNdc:delta(lowerX,lower),
+     actualA04LowerPlusZKnobRelativeNdc:delta(lowerX,lower),
+     lowerG40DriveAxisCandidate:lower.userData.photo20261108LowerDriveAxisCandidate,
      actualA05LegRelativeNdc:delta(sheetLeg,g40),
      silverSlotFaceLocalZ:stage.userData.A15SilverSlotFaceLocalZ,
      slotWorldZ:Number(pos(slot).z.toFixed(2)),
