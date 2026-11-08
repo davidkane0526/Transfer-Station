@@ -421,6 +421,8 @@ window.__modelAPhoto194Probe=()=>{
    const rnd=x=>Number(x.toFixed(3));
    const faceXZ=(a,c)=>Math.min(a.max.x,c.max.x)-Math.max(a.min.x,c.min.x)>1&&
      Math.min(a.max.z,c.max.z)-Math.max(a.min.z,c.min.z)>1;
+   const faceYZ=(a,c)=>Math.min(a.max.y,c.max.y)-Math.max(a.min.y,c.min.y)>1&&
+     Math.min(a.max.z,c.max.z)-Math.max(a.min.z,c.min.z)>0.2;
    const overlapXY=(a,c)=>Math.min(a.max.x,c.max.x)-Math.max(a.min.x,c.min.x)>1&&
      Math.min(a.max.y,c.max.y)-Math.max(a.min.y,c.min.y)>0.2;
    const footCarrierGapMm=rnd(b.foot.min.y-b.carrier.max.y);
@@ -435,7 +437,7 @@ window.__modelAPhoto194Probe=()=>{
      Math.max(b.upper.min.x,b.glass.min.x));
    const workingChainContinuous=
      Math.abs(footCarrierGapMm)<.02&&faceXZ(b.foot,b.carrier)&&
-     Math.abs(carrierSpineGapMm)<.02&&overlapXY(b.carrier,b.spine)&&
+     Math.abs(carrierSpineGapMm)<.02&&faceYZ(b.carrier,b.spine)&&
      Math.abs(spineUpperGapMm)<.02&&overlapXY(b.spine,b.upper)&&
      Math.abs(spineLowerGapMm)<.02&&overlapXY(b.spine,b.lower)&&
      Math.abs(upperGlassGapMm)<.02&&Math.abs(lowerGlassGapMm)<.02&&gripXmm>=9.9&&
