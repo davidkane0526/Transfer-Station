@@ -115,7 +115,9 @@ window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':
    magnetToXyBaseGapMm:gap(a17,a15MountBase),
    a15DrumsVsMagnetOverlapMm3:actuatorMagnetOverlap,
    falseAabbGapFromWholeA15Mm:gap(a17,a15),
-   bracketMirroredFromPhoto:aWorkingPoseMode,
+   bracketMirroredFromPhoto:false,
+   filmBranchInstalledYawDeg:aWorkingPoseMode?180:0,
+   transferFacingInstalledPose:Boolean(aWorkingPoseMode),
    fabricatedClampVisible:Boolean(parts.get('A05C')?.g.visible),
    unphotographedGlassVisible:Boolean(parts.get('A05G')?.g.visible),
    actualClampManufacturerConfirmed:false,photographicMountsAccepted:false,
@@ -123,7 +125,7 @@ window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':
  };
 const activeAFilmX=()=>aWorkingPoseMode?A_WORKING_LAYOUT.filmStageX:CONFIG.A.armX;
 window.__platformAWorkingPoseProbe=()=>platform==='A'?{
- available:true,mode:aWorkingPoseMode?'candidate':'photo94',
+ available:true,mode:aWorkingPoseMode?'installed180':'photo-reference',
  ...auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
    sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop})
 }:{available:false};
@@ -230,9 +232,8 @@ window.__platformAStageFrontProbe=()=>{
  const stage=parts.get('A15')?.g,mag=parts.get('A17')?.g;
  const slider=stage?.userData.slidingX;
  const plate=slider?.children.find(m=>m.userData.A15Photo194FrontSlottedPlate);
- const knob=slider?.children.find(m=>m.userData.A15Photo194SlotControlKnob);
  const lever=mag?.children.find(m=>m.userData.A17Photo194LowerLeverCandidate);
- if(!stage||!mag||!plate||!knob||!lever)return {available:false};
+ if(!stage||!mag||!plate||!lever)return {available:false};
  stage.updateWorldMatrix(true,true);mag.updateWorldMatrix(true,true);
  const p=new THREE.Vector3(),m=new THREE.Vector3();
  plate.getWorldPosition(p);mag.getWorldPosition(m);
