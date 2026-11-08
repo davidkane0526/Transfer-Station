@@ -199,11 +199,13 @@ window.__platformACompletenessProbe=()=>{
   glassSizeMm:glass?.userData.candidateStandardSlide??null,
   stampRightMarginMm:stamp?.userData.A05GStampRightMarginMm??null,
   stampAtRightEdge:Boolean(slide.userData.stampAtRightGlassEdge),
-  aPose:aWorkingPoseMode?'candidate':'photo94',
-  sheetHandedness:bracket.userData.photoBracketDatums?.handedness??null,
+  aPose:aWorkingPoseMode?'installed180':'photo-reference',
+  localSheetHandedness:bracket.userData.photoBracketDatums?.handedness??null,
+  installedFilmYawDeg:aWorkingPoseMode?180:0,
   sheetLegLengthMm:bracket.userData.photoBracketDatums?.verticalLegLength??null,
   clampScrewProxyCount:screws.children.filter(m=>m.userData.photo194WingFastenerCandidate).length,
-  clampRelativeToHeaterNotRegistered:Boolean(slide.userData.unregisteredGlobalPose),
+  glassRequiredForTransfer:Boolean(slide.userData.requiredInstalledTransferElement),
+  screwAxisParallelGlassShortEdge:Boolean(clamp.userData.screwAxisParallelToGlassShortEdge),
   clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y
  };
 };
@@ -225,7 +227,7 @@ window.__platformAFramingProbe=()=>{
    topVisible:Math.abs(cableTop.y)<.95,
    boardVisible:Math.abs(baseBottom.y)<.95,
    topWorldYmm:Number(topBox.max.y.toFixed(1)),
-   mode:aWorkingPoseMode?'candidate':'photo94'};
+   mode:aWorkingPoseMode?'installed180':'photo-reference'};
 };
 window.__platformAStageFrontProbe=()=>{
  if(platform!=='A')return {available:false};
@@ -417,7 +419,7 @@ window.__modelAOpticalClearanceProbe=()=>{
   const minOpticalBottom=Math.min(...optics.map(x=>x.lowerYmm));
  const minVerticalGap=Number((minOpticalBottom-glassBox.max.y).toFixed(2));
  const hypotheticalUnparkedMinGap=Number((minVerticalGap-parked).toFixed(2));
- return {available:true,mode:aWorkingPoseMode?'candidate':'photo94',
+ return {available:true,mode:aWorkingPoseMode?'installed180':'photo-reference',
    opticPartIds:[...opticIDs,'A10:movable-boom'],
    coherentOpticOffsets:headOffset.every(x=>Math.abs(x.offsetMm-parked)<.02)&&boomMatched,
    supportBoomMovesWhilePostFixed:boomMatched&&Math.abs(fixedPost.position.y-parts.get('A10').base.y)<.02,
@@ -554,50 +556,48 @@ window.__modelAPhoto194Probe=()=>{
    if(platform!=='A')return {available:false};
    const root=id=>parts.get(id)?.g;
    const mesh=(id,tag)=>root(id)?.children.find(o=>o.isMesh&&o.userData[tag]);
-   const gA11=root('A11'),gA18=root('A18');
-   const lamp=gA11?.children.find(o=>o.isMesh);
-   const housing=gA18?.children.find(o=>o.isMesh);
+   const gA11=root('A11'),gA18=root('A18'),gA15=root('A15'),gS=root('A05CS');
+   const lamp=gA11?.children.find(o=>o.userData.A11OEMHousingDiameterMm!==undefined);
+   const cable=gA11?.children.find(o=>o.userData.A11ElectricalCable);
+   const housing=gA18?.children.find(o=>o.userData.A18PhotoConstrainedMainBody);
    const bend=mesh('A05','A05VerticalSheetWeb');
    const drum=mesh('A04','A04DriveDrum');
-   const foot=mesh('A05','A05OutwardFootCandidate');
-   const screws=root('A05CS')?.children.filter(o=>o.userData.A05CSFootSeatedHead);
    const sampleStem=mesh('A06','A06CoupledMicrometerStem');
    const sampleDrum=mesh('A06','A06RightAngularMicrometer');
-   const support=mesh('A11','A11PhysicallyConnectedSupportProxy');
-   const mount=mesh('A11','A11A18SideMountProxy');
-   if(![lamp,housing,bend,drum,foot,sampleStem,sampleDrum,support,mount].every(Boolean)||
-      screws?.length!==2)return {available:false};
+   const screwHeads=gS?.children.filter(o=>o.userData.A05CSScrewHead)??[];
+   const screwShafts=gS?.children.filter(o=>o.userData.A05CSCandidateShank)??[];
+   if(![lamp,cable,housing,bend,drum,sampleStem,sampleDrum].every(Boolean)||
+      screwHeads.length!==2||screwShafts.length!==2)return {available:false};
    currentRoot.updateWorldMatrix(true,true);
    const box=o=>new THREE.Box3().setFromObject(o);
-   const d=(v)=>{const n=Number(v.toFixed(3));return Object.is(n,-0)?0:n;};
-   const a=box(mesh('A11','A11OEMSlipRingCandidate')??lamp),h=box(housing),b=box(bend),m=box(drum);
-   const f=box(foot),shaft=box(sampleStem),knob=box(sampleDrum);
-   const mountBox=box(mount);
-   const lampMountStart=gA11.localToWorld(new THREE.Vector3(-24,17,-35));
-   const lampMountEnd=gA11.localToWorld(new THREE.Vector3(0,30,-20.5));
-   const opticalParkA11=d(gA11.position.y-parts.get('A11').base.y);
-   const opticalParkA18=d(gA18.position.y-parts.get('A18').base.y);
-   return {available:true,pose:aWorkingPoseMode?'candidate':'photo94',
-     lampSupportPresent:true,lampMountMethodVerified:false,
-     lampMountToHeadSideGapMm:d(mountBox.min.x-h.max.x),
-     lampSupportStartSurfaceGapMm:d(lampMountStart.x-h.max.x-3),
-     lampSupportToBulbRearGapMm:d(a.min.z-lampMountEnd.z-3), // support->SM1RC rear face
-     lampOpticsParkingOffsetDifferenceMm:d(opticalParkA11-opticalParkA18),
-     g40RightDrumToBendWebClearanceMm:d(b.min.x-m.max.x),
-     g40DrumBendOverlapVolumeAabbMm3:(()=>{
-       const shared=b.clone().intersect(m);
-       if(shared.isEmpty())return 0;
-       const sz=new THREE.Vector3();shared.getSize(sz);
-       return d(sz.x*sz.y*sz.z);
-     })(),
+   const size=o=>{const q=new THREE.Vector3();box(o).getSize(q);return q;};
+   const d=v=>{const n=Number(v.toFixed(3));return Object.is(n,-0)?0:n;};
+   const b=box(bend),m=box(drum),shaft=box(sampleStem),knob=box(sampleDrum);
+   const overlap=b.clone().intersect(m),os=new THREE.Vector3();
+   const g40Overlap=overlap.isEmpty()?0:(overlap.getSize(os),d(os.x*os.y*os.z));
+   const a15Handles=gA15?.children.filter(o=>o.userData.stageActuatorHandle)??[];
+   const a15Stems=gA15?.children.filter(o=>o.userData.stageActuatorStem)??[];
+   const a15Collars=gA15?.children.filter(o=>o.userData.stageActuatorCollar)??[];
+   const a15Supports=gA15?.children.filter(o=>o.userData.stageActuatorSupport)??[];
+   return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
+     lampOEMDiameterMm:lamp.userData.A11OEMHousingDiameterMm,
+     lampElectricalCablePresent:Boolean(cable),
+     inventedLampGooseneckPresent:gA11.children.some(o=>o.userData.A11PhysicallyConnectedSupportProxy),
+     unsupportedA18HorizontalTubePresent:gA18.children.some(o=>o.userData.A18HorizontalTubeCandidate),
+     A18VendorIdentificationPending:Boolean(gA18.userData.vendorIdentificationPending),
+     A15LinearHandleCount:a15Handles.length,A15StemCount:a15Stems.length,
+     A15CollarCount:a15Collars.length,A15SupportCount:a15Supports.length,
+     A15FloatingCentralControlCount:gA15.children.filter(o=>o.userData.A15Photo194SlotControlKnob).length,
+     clampScrewCount:screwHeads.length,
+     clampScrewAxesParallelShortEdge:screwShafts.every(o=>{
+       const q=size(o);return q.z>q.x*4&&q.z>q.y*4;
+     }),
+     g40DrumBendOverlapVolumeAabbMm3:g40Overlap,
      sampleMicrometerStemDrumEngagementMm:d(shaft.max.x-knob.min.x),
-     sampleMicrometerStemOuterBlockVerified:false,
-     wingFastenerCount:screws.length,
-     maxWingHeadFloatGapMm:d(Math.max(...screws.map(o=>box(o).min.y-f.max.y))),
      A03TonguePlateOverlapMm:window.__modelAVerticalGuideProbe?.().tonguePlateOverlapMm??null,
      physicalPhotoFitCertified:false};
  };
- window.__modelAContactProbe=()=>{
+  window.__modelAContactProbe=()=>{
  if(platform!=='A')return {available:false};
  const child=(id,tag)=>parts.get(id)?.g.children.find(o=>o.isMesh&&o.userData[tag]);
  const slide=child('A05G','candidateStandardSlide');
@@ -620,7 +620,7 @@ window.__modelAPhoto194Probe=()=>{
    inner.max.z<=outer.max.z+.01;
  const clearance=heaterBox.min.x-jaw.max.x;
  return {
-   available:true,mode:aWorkingPoseMode?'candidate':'photo94',
+   available:true,mode:aWorkingPoseMode?'installed180':'photo-reference',
    A17ToA16XFootprintGapMm:Number((sampleFootBox.min.x-magnetBox.max.x).toFixed(3)),
    clampToHeaterEdgeMm:Number(clearance.toFixed(3)),
    clampOutsideHeater:clearance>0,
@@ -3405,11 +3405,12 @@ function updateDetail(part){
  const aRigHtml=aRigAudit?(aWorkingPoseMode?
    '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
    ' data-gap-mm="'+aRigAudit.clampHeaterClearanceMm+'">'+
-   '<b>A操作位置候选 · 非实物配准</b><p>这是一种假设A05折边向右、折腿缩为52.1mm、膜侧磁座中心X=-82.75mm的工程构型。'+
-   'A17与A16底座平面间隔 '+aRigAudit.footprintGapMm+
-   'mm；夹具到加热台X向边缘间隔 '+aRigAudit.clampHeaterClearanceMm+
-   'mm；右端PDMS与A07样品片表面Y向间隙 '+aRigAudit.verticalStampGapMm+
-   'mm。可切换照片94原始左折边作对比；此构型不能证明真实A17孔系、A05夹具、光学工作距离、完整碰撞安全或可加工性。</p></div>':
+   '<b>V79 当前安装方向 · 整套膜侧刚体旋转180°</b><p>A17→A15→A03→A04L→A04→A05→夹具→玻片保持同一刚体链，'+
+   '不是只镜像末端支架。玻片76×26×1 mm为当前尺寸候选；两枚夹紧螺杆轴线平行26 mm短边。'+
+   'PDMS中心X='+aRigAudit.stampCenterX+' mm；A17/A16底座包络间隔 '+aRigAudit.footprintGapMm+
+   ' mm；夹具至热台名义边缘间隔 '+aRigAudit.clampHeaterClearanceMm+
+   ' mm；PDMS垂直间隙 '+aRigAudit.verticalStampGapMm+
+   ' mm。方向由转移功能确认，但A05夹具SKU、A17孔系、光学工作距离和加工尺寸仍未验收。</p></div>':
    '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
    ' data-gap-mm="'+aRigAudit.optimisticResidualHorizontalGapMm+'">'+
    '<b>照片94左折边 · 全局位置未配准</b><p>原始局部方向下，薄L片末端至A07样品台仍有约 '+
@@ -3509,10 +3510,10 @@ function updateTransforms(){
      '夹具与热台X向保守间隙：'+motionAudit.planarGapMm.toFixed(1)+' mm'+
        (motionAudit.possibleClash?'；当前平移/旋转姿态下禁用下降':'；下降检查允许接触印章'):
      aPoseAudit?
-       'A操作位置仅为几何假设：夹具至热台 '+aPoseAudit.clampHeaterClearanceMm.toFixed(1)+
+       'A当前180°安装几何：夹具至热台 '+aPoseAudit.clampHeaterClearanceMm.toFixed(1)+
          ' mm；PDMS垂直间隙 '+aPoseAudit.verticalStampGapMm.toFixed(1)+' mm；'+
          (aPoseAudit.candidateCanLower?'允许运动预览':'当前姿态禁止继续下降')+
-         '。实物夹具、磁座和安装朝向未验证。':
+         '。夹具SKU、磁座孔系和工作距离未验证。':
      '平台 A · 照片94原始左折边姿态，全局位置未配准；VC13M升降仅供演示，不可据此认为可转移';
  }
  parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,translateSampleDepth,rotateSample,facingYaw=0})=>{
@@ -3522,11 +3523,11 @@ function updateTransforms(){
   const travelX=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
   const travelZ=rotateSample?stageLocalDepthTranslation(sz,angle):{x:0,z:sz};
   const dx=travelX.x+travelZ.x,dz=travelX.z+travelZ.z;
-  // Only selected unverified working pose has a 13mm raised VC13M output.
+  // Installed V79 transfer pose starts with the 13mm VC13M output raised.
   // Downward preview approaches the original static STEP lower-limit
   // without forcing the output plate through the stationary upright.
   const aLift=platform==='A'&&aWorkingPoseMode?13:0;
-  // V68: the original raised A05G slide intersects the modelled A19
+  // Conservative display-only optical parking remains until real focus travel is measured.
   // objectives. Retract the COMPLETE optical stack, including the
   // microscope carriage, as a conservative visual parking hypothesis.
   // Do not mistake 18mm for measured/OEM focus travel or actual working distance.
@@ -3809,17 +3810,17 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='A操作位置为独立的工程几何假设，未经实物照片支持：磁座中心X '+
-       a.filmStageX+' mm；折边方向由照片94的左折改为右折，竖腿长度改用'+
-       a.bracketVerticalLegMm+' mm候选；初始印章/热台间隙约'+
-       a.initialVerticalStampGapMm+' mm，夹具/热台X向间隔约'+
-       a.clampHeaterClearanceMm+' mm，磁座/样品底座平面分离'+a.footprintGapMm+
-       ' mm。夹具真实型号及螺丝、A17孔系、A02/A16孔位、折边朝向、显微镜工作距离都没有认证。可以用按钮切回照片94原朝向，禁止将候选视为可制造的转移平台。';
+     aCritical.textContent='V79当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+       '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
+       ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
+       ' mm，夹具/热台边缘名义间隔 '+a.clampHeaterClearanceMm+
+       ' mm，A17/A16底座包络分离 '+a.footprintGapMm+
+       ' mm。玻片是当前装配必需件；螺杆轴线平行玻片短边。A05夹具SKU、A17孔系及真实光学工作距离仍待实测。';
    }else{
      const aStatus=auditPlatformAAssembly();
      aCritical.textContent='A照片94原始局部构型未做全局配准：A05末端至A07在最乐观X行程下仍缺约 '+
        aStatus.optimisticResidualHorizontalGapMm+
-       ' mm。按确认参考图保留左折L板、两枚沿X方向排列的蝶形螺钉，蝶翼转90°；不安装透明玻片及未识别双夹爪。螺纹参数与全局配准仍待验证。';
+       ' mm。此模式仅用于复核照片94观察方向；当前实际转移装配仍包含玻片，不能把照片中透明玻片不明显误写成设备无玻片。';
    }
  }
  const critical=$('b-physical-audit');
@@ -3862,7 +3863,7 @@ function switchPlatform(next){
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
   $('film-drop-label').textContent=next==='A'?
-    'VC13M竖直台（无玻片，接触预览禁用）':
+    'VC13M竖直台 · V79含玻片/PDMS接触预览':
     '玻片竖直下降 · V25M（13mm接触预览）';
   $('sample-move-label').textContent=next==='A'?
     '样品侧 A02 · GCM-T25M（后缀待核）· X平移':
@@ -3873,13 +3874,11 @@ function switchPlatform(next){
   $('film-drop').max='0';
   $('film-drop').value='0';
   $('film-drop-value').textContent='0.0 mm';
-  // Photo-only A has no verified glass/jaws or contact datum: disabling
-  // vertical descent prevents a false transfer simulation through the
-  // photograph-supported static machine. Movement is only possible in
-  // the explicitly marked and collision-tested operation hypothesis.
+  // Photo-reference mode is comparison-only; the V79 installed pose contains
+  // the required glass/PDMS and may run the geometry-only descent preview.
   $('film-drop').disabled=next==='A'&&!aWorkingPoseMode;
   $('film-drop').title=next==='A'&&!aWorkingPoseMode?
-    '实拍朝向未配准玻片与夹具，禁止按假设的13mm行程执行下降':'仅几何预览，不是实际硬件控制';
+    '照片参考方向仅用于对照，不执行转移下降':'仅几何预览，不是实际硬件控制';
   // Both A and B have photo-confirmed film-side T25M. Actual travel use remains candidate.
   $('translate').disabled=false;
   $('translate').title=next==='A'?'A15: 照片95/97证明存在载玻片侧 T25M':'B03: 照片108/109证明存在磁座上T25M';
