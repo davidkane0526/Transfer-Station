@@ -2688,9 +2688,10 @@ function platformA(){
    const leftLocalX=aBent.legX-ax+(aWorkingPoseMode?-aBent.metalThickness/2:aBent.metalThickness/2);
    add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
        mats.black,localX,aBent.metalThickness/2,aBent.sheetFrontZ));
-   add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
+   const verticalSheet=add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
        aBent.topPlateDepth,mats.black,
        leftLocalX,-aBent.verticalLegLength/2,aBent.sheetFrontZ));
+   verticalSheet.userData.A05VerticalSheetWeb=true;
    // The top plate actually sits ON the G40 top, two photo-visible hex
    // heads near stage 40mm table; threads/length still unverified.
    for(const xx of aBent.topBoltWorldX){
