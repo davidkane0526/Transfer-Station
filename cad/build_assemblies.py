@@ -843,7 +843,7 @@ def make_a():
     # 125mm forward boom still penetrated 37.5mm into the A18 casing.
     # Terminate the support at its rear face (Y=-44). A10 column
     # remains at Y=-112 with a through hole; these are scene candidates.
-    boom=box(34,86,25,cx,-87,220).cut(vz(13.3,25.2,cx,-112,219.9))
+    boom=box(34,86,25,cx,-87,207.5).cut(vz(13.3,25.2,cx,-112,207.4))
     add('A','A10A','imaging_boom_WITH_POST_THROUGH_BORE_UNVERIFIED',boom,'C')
     # V59: photo191–193 show a taller camera/microscope stack; no ruler is present.
     add('A','A08','TTL200A_nominal_28mm_housing_CANDIDATE',
