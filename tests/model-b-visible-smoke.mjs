@@ -665,6 +665,42 @@ try{
  await photoShot('Transfer-Station-A-Photo194-FilmUpper.png','#btn-photo94');
  await photoShot('Transfer-Station-A-Photo195-FilmLower.png','#btn-photo97');
  await photoShot('Transfer-Station-A-Photo196-G40.png','#btn-photo196');
+ // The two high-resolution Nov 08 photos have DIFFERENT external
+ // monitor positions but an identical fixed instrument. Assert actual
+ // Three.js projected hand and L-bracket sidedness for BOTH cameras.
+ await photoShot('Transfer-Station-A-20261108-MonitorFront.png','#btn-a-photo-monitor-front');
+ const f1=await page.evaluate(()=>window.__a20261108PhotoViewProbe?.());
+ assert.equal(f1?.available,true,'Photo 1 calibrated viewing command failed');
+ assert.equal(f1.mode,'monitorBehind');
+ assert.equal(f1.viewedStageFace,'negative-Z');
+ assert.equal(f1.silverSlotFaceLocalZ,-1);
+ assert(f1.slotWorldZ<0);
+ assert(f1.actualA15XKnobRelativeNdc<-.04,
+   'Photo1 right-hand +X drum MUST appear on the LEFT of the stage');
+ assert(f1.actualA04XKnobRelativeNdc<-.04,
+   'Photo1 upper +X G40 micrometer must appear LEFT');
+ assert(f1.actualA05LegRelativeNdc>.04,
+   'Photo1 LEFT-return L plate must appear RIGHT from opposite camera');
+ const count=f1.scenePartCount;
+ await photoShot('Transfer-Station-A-20261108-MonitorLeft.png','#btn-a-photo-monitor-side');
+ const f2=await page.evaluate(()=>window.__a20261108PhotoViewProbe?.());
+ assert.equal(f2?.available,true,'Photo2 side-view camera command failed');
+ assert.equal(f2.mode,'monitorLeft');
+ assert.equal(f2.viewedStageFace,'positive-Z');
+ assert(f2.actualA15XKnobRelativeNdc>.03,
+   'Photo2 stage +X micrometer must project to the RIGHT');
+ assert(f2.actualA15ZKnobRelativeNdc<-.02,
+   'Photo2 other independent +Z stage micrometer must project LEFT');
+ assert(f2.actualA04XKnobRelativeNdc>.03,
+   'Photo2 upper G40 +X knob must appear RIGHT');
+ assert(f2.actualA04LowerMinusXKnobRelativeNdc<-.03,
+   'Photo2 lower goniometer -X knob must appear LEFT');
+ assert(f2.actualA05LegRelativeNdc<-.02,
+   'Photo2 same LEFT fold must be LEFT of G40 without mirroring hardware');
+ assert.equal(f2.scenePartCount,count,
+   'Photo2 must not switch/mirror/replace part geometries');
+ assert(f2.photoConstraints.azimuthSeparationCandidateDeg>120);
+ assert.equal(f2.photoConstraints.physicallyExactCameraAngleVerified,false);
  // Switch explicitly to hypothesis only for the EXISTING transfer tests.
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
