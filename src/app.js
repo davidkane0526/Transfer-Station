@@ -385,10 +385,16 @@ window.__modelAVerticalGuideProbe=()=>{
      noGuideClash:clearance>0,engaged:axialOverlap>0};
  });
  const plateBox=box(plate);
- const tonguesTouchPlate=moving.every(t=>box(t).max.y>plateBox.min.y-.01);
+ const tonguePlateOverlapMm=moving.map(t=>{
+   const bb=box(t);
+   return Number((Math.min(bb.max.y,plateBox.max.y)-
+     Math.max(bb.min.y,plateBox.min.y)).toFixed(2));
+ });
+ const tonguesTouchPlate=tonguePlateOverlapMm.every(x=>x>=5);
  return {available:true,stationaryGuideCount:fixed.length,
    movingTongueCount:moving.length,pairs,
    tonguesTouchMovingPlate:tonguesTouchPlate,
+   tonguePlateOverlapMm,
    travelMm:stage.userData.nominalVerticalTravelMm,
    outputLiftMm:stage.userData.verticalCarriage.position.y,
    actualTravelInGuideEnvelope:pairs.every(p=>p.noGuideClash&&p.engaged),
@@ -2590,8 +2596,12 @@ function platformA(){
    // Two tongues descend INTO their stationary side-guide envelopes
    // and follow ONLY the 13mm moving output, never the A03 housing.
    for(const sign of [-1,1]){
-     const tongue=add(movingVC13,cub(3.4,24,8,mats.steel,
-       sign*27.7,33,-8));
+     // Captive sliding tongue stays inside the stationary side guide
+     // with 0.3mm side clearance and overlaps the travelling top
+     // plate by 6mm (the earlier 1mm neck looked like a loose rod).
+     const tongue=add(movingVC13,cub(3.4,28,8,mats.dark,
+       sign*27.7,36,-8));
+     tongue.userData.A03MovingTongueTopEngagementMm=6;
      tongue.userData.A03MovingGuideTongue=sign;
    }
    g.userData.verticalCarriage=movingVC13;
