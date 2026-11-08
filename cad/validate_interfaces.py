@@ -996,14 +996,27 @@ check(a_support_boom.translate(Vector(0,0,18)).intersect(a_scope_col).Volume()<1
       'V69 retracted 18mm optical carrier remains clear of the fixed post')
 check(a_support_boom.intersect(vz(2,25,78,-90,220)).Volume()>50,
       'V69 boom retains real metal adjacent to the post clearance')
-check(abs(a_support_boom.BoundingBox().ymin+132.5)<.02 and
-      abs(a_support_boom.BoundingBox().ymax+7.5)<.02,
-      'V69 boom shifted rearward while preserving 125mm candidate length')
+check(abs(a_support_boom.BoundingBox().ymin+130)<.02 and
+      abs(a_support_boom.BoundingBox().ymax+44)<.02,
+      'V74 A10 beam must end precisely at A18 rear face, not pierce 40mm of housing')
+a_head=part(A,'A18')[0]
+check(abs(a_head.BoundingBox().ymin-a_support_boom.BoundingBox().ymax)<.02,
+      'V74 A10 front beam and A18 housing rear must mate flush')
+check(a_support_boom.intersect(a_head).Volume()<1e-4,
+      'V74 microscope support beam must not penetrate microscope housing')
+check(a_support_boom.distance(a_head)<.02,
+      'V74 support beam must contact A18 housing, not float behind it')
+check(abs(a_support_boom.BoundingBox().zmin-207.5)<.02 and
+      abs(a_support_boom.BoundingBox().zmax-232.5)<.02,
+      'V74 A10 boom vertical datum must match browser model')
 report['V69_A10_post_support_collision']={
     'post_outer_diameter_mm_candidate':26,
     'boom_clearance_bore_mm_candidate':26.6,
     'boom_post_boolean_intersection_mm3':0,
     'boom_raised_18mm_clearance':True,
+    'boomhousing_rear_face_gap_mm':0,
+    'boomhousing_solid_intersection_mm3':0,
+    'candidate_boom_length_mm':86,
     'boom_support_mount_bolt_verified':False,
     'photographic_OEM_interface_verified':False
 }
