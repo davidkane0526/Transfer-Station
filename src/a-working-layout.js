@@ -35,7 +35,7 @@ export function auditAWorkingLayout({
   const heaterHalfEnvelopeX=d.heaterFootprintMm/2*(Math.abs(c)+Math.abs(s));
   const heaterLeftX=sampleWorldX-heaterHalfEnvelopeX;
   const heaterRightX=sampleWorldX+heaterHalfEnvelopeX;
-  const clampRightX=legX+43.5; // V70 far-end jaw avoids foot and grips glass beyond its edge
+  const clampRightX=legX+44; // flush V73 10mm jaw from x=leg+34..+44, outside the heater
   const clampHeaterClearanceMm=heaterLeftX-clampRightX;
   const footprintGapMm=(d.sampleCenterX-d.sampleBaseFootprintXmm/2)-
     (d.filmStageX+d.magnetFootprintMm/2);
