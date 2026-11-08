@@ -431,6 +431,27 @@ window.__modelAContactProbe=()=>{
    dimensionsForFabricationValidated:false
  };
 };
+// Inspect B08's actual 3D hole topology, not decorative circle markers.
+window.__modelBRotaryTopBoreProbe=()=>{
+ if(platform!=='B')return {available:false};
+ const g=parts.get('B08')?.g;
+ const upper=g?.children.find(o=>o.userData.B08TrueTopNineBores);
+ if(!upper)return {available:false};
+ upper.updateWorldMatrix(true,false);
+ const caster=new THREE.Raycaster();
+ const test=(x,z)=>{
+   const start=upper.localToWorld(new THREE.Vector3(x,11,z));
+   caster.set(start,new THREE.Vector3(0,-1,0));
+   caster.far=11.1;
+   return caster.intersectObject(upper,false).length>0;
+ };
+ const holes=[...[-25,0,25].flatMap(x=>[-25,0,25].map(z=>[x,z]))];
+ return {available:true,
+   nineBoreCount:g.userData.B08TopTrueBoreCount,
+   allNineBoresOpen:holes.every(([x,z])=>!test(x,z)),
+   metalBetweenBores:test(12.5,12.5),
+   makerMountPatternVerified:Boolean(g.userData.B08TopBorePatternOEMVerified)};
+};
 window.__modelBActuatorProbe=()=>{
  if(platform!=='B')return {available:false};
  const inspect=(id)=>{
@@ -1095,6 +1116,18 @@ function plate(w,d,h,material,holesArray=[],pocket=null){
  const geo=new THREE.ExtrudeGeometry(s,{depth:h,bevelEnabled:false,curveSegments:20,steps:1});
  geo.rotateX(-Math.PI/2);return mk(geo,material);
 }
+// Round stage face with real cut-through mounting holes. A painted
+// circle/torus is not a mechanical bore and cannot accept an engaged screw.
+function drilledDisc(radius,height,material,bores){
+ const shape=new THREE.Shape();
+ shape.absarc(0,0,radius,0,2*Math.PI,false);
+ addHoles(shape,bores);
+ const geo=new THREE.ExtrudeGeometry(shape,{
+  depth:height,bevelEnabled:false,curveSegments:96,steps:1
+ });
+ geo.rotateX(-Math.PI/2);
+ return mk(geo,material);
+}
 function addPart(id,x,y,z,make,meta={}){
  const part=PARTS[platform].find(p=>p.id===id);if(!part)throw new Error('Metadata not found: '+id);
  const g=new THREE.Group();g.position.set(x,y,z);g.userData={partId:id,group:part.group};
@@ -1716,7 +1749,17 @@ function rotaryB(){
   });
   addPart('B08',sx,20+rise,0,g=>{
     add(g,cyl(47,23,mats.dark,0,11.5,0));
-    add(g,cyl(47,10.2,mats.steel,0,28.1,0));
+    // The lower B41 stage engages B08 by four recessed screws. The old
+    // solid cylinder with painted rings had NO holes and those screws
+    // physically penetrated its metal.
+    const nineTopBores=[...[-25,0,25].flatMap(x=>
+      [-25,0,25].map(z=>[x,z,2.6]))];
+    const rotaryUpper=add(g,drilledDisc(47,10.2,mats.steel,nineTopBores));
+    rotaryUpper.position.y=23;
+    rotaryUpper.userData.B08TrueTopNineBores=true;
+    g.userData.B08TopTrueBoreCount=nineTopBores.length;
+    g.userData.B08TopBoreDiameterCandidateMm=5.2;
+    g.userData.B08TopBorePatternOEMVerified=false;
     add(g,torus(45,1.0,mats.ink,0,33.35,0));
     for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(g,2.6,33.5,x,z);
     // User-confirmed GCM-1107M has NO external operating handle.
