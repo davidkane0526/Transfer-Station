@@ -847,45 +847,78 @@ def make_a():
     add('A','A08','TTL200A_nominal_28mm_housing_CANDIDATE',
         vz(26,28,cx,0,235),'D')
     add('A','A09','Daheng_camera',box(50,44,45,cx,0,323),'P')
-    # Thorlabs MWWHL4 housing Ø30.5, inner SM1; slip ring optional.
-    add('A','A11','MWWHL4_OEM_30p5mm_housing',vz(15.25,33,155,60,184),'P')
-    slip_ring=vz(17.5,8,155,60,210).cut(vz(15.35,8.2,155,60,209.9))
-    add('A','A11R','SM1RC_mounting_ring_OPTION_UNCONFIRMED',slip_ring,'C')
-    add('A','A11M','MWWHL4_side_gooseneck_to_A18_UNVERIFIED',
-        cable_path([(131,25,201),(136,30,204),(145,34,211),
-                    (152,37,213),(155,39.5,214)],3),'C')
+    # V79: Thorlabs MWWHL4. Use vendor-constrained Ø30.5mm finned
+    # housing and SM1 mounting interface; REMOVE the invented gooseneck
+    # that made a black cylinder appear to hang below the microscope.
+    led_root_x=cx+50
+    led_z=220
+    slip_outer=vx(17.5,6,led_root_x,0,led_z)
+    slip_inner=vx(15.35,6.2,led_root_x-.1,0,led_z)
+    add('A','A11R','SM1RC_STYLE_SLIP_RING_OPTION_UNCONFIRMED',
+        slip_outer.cut(slip_inner),'C')
+    led=vx(15.25,60.4,led_root_x+6,0,led_z)
+    for q in [10+4.8*i for i in range(11)]:
+        led=led.fuse(vx(15.75,1.1,led_root_x+q-.55,0,led_z))
+    add('A','A11','MWWHL4_OEM_DIAMETER_FINNED_HOUSING_60p4_FAMILY_ENVELOPE',
+        led,'D')
+    add('A','A11E','MWWHL4_emitter_face_PROXY',
+        vx(10.8,2.5,led_root_x+66.4,0,led_z),'C')
+    led_cable=cable_path([
+        (led_root_x+43,0,led_z-14),
+        (led_root_x+44,3,led_z-22),
+        (led_root_x+48,8,led_z-30),
+        (led_root_x+55,12,led_z-38)],2.2)
+    add('A','A11C','MWWHL4_ELECTRICAL_CABLE_NOT_MECHANICAL_SUPPORT',
+        led_cable,'C')
     add('A','A12','LEDD1B',box(60,73,104,262,-80,20),'P')
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
-    # TTL200-A uses EXTERNAL SM2 both ends, whereas the previously
-    # listed SM1CP2 is a CAP and cannot mate to that SM2 male thread.
-    # A14 therefore becomes an OPEN mechanical illustration only:
-    # nominal Ø56/Ø52.2 x66 sleeve overlapping A08 over Z192..198 and reaching A09 at Z258.
+    # TTL200-A uses EXTERNAL SM2 both ends. A14 remains an OPEN
+    # candidate mating sleeve until the real adapter stack is identified.
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
-    # V59: photo191–193 microscope head, bilateral focus and two installed objectives.
-    add('A','A18','MICROSCOPE_HEAD_HOUSING_100x88x70_PHOTO_PROXY',box(100,88,70,cx,0,165),'C')
-    add('A','A18T','MICROSCOPE_HEAD_UPPER_TUBE_COLLAR_PROXY',vz(22,18,cx,0,235),'C')
-    add('A','A18R','MICROSCOPE_HORIZONTAL_TUBE_RIGHT_160mm_PROXY',vx(16,160,cx,0,240),'C')
-    add('A','A18FL','MICROSCOPE_LEFT_COARSE_FOCUS_DRUM_PROXY',vx(25,18,cx-68,0,198),'C')
-    add('A','A18FR','MICROSCOPE_RIGHT_COARSE_FOCUS_DRUM_PROXY',vx(25,18,cx+50,0,198),'C')
-    add('A','A18FLL','MICROSCOPE_LEFT_FINE_FOCUS_KNOB_PROXY',vx(16,5,cx-73,0,198),'C')
-    add('A','A18FRL','MICROSCOPE_RIGHT_FINE_FOCUS_KNOB_PROXY',vx(16,5,cx+68,0,198),'C')
-    add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PROXY',vz(36,10,cx,0,150),'C')
-    add('A','A19N','MICROSCOPE_OBJECTIVE_TURRET_NECK_PROXY',vz(18,5,cx,0,160),'C')
-    # V66 photo191/193: left outer objective is inclined, while centre
-    # optical objective is approximately vertical. This is deliberately
-    # a PHOTO-PROPORTIONED mounting angle, not a manufacturer indexing angle.
+
+    # V79 A18/A19: photo191-193 support a compact focus body, direct
+    # upper optical interface, lower turret interface and bilateral focus
+    # controls. The old Ø32x160mm horizontal tube had no manufacturer
+    # drawing or photo-grounded mechanical role and is REMOVED.
+    add('A','A18','MICROSCOPE_FOCUS_BODY_92x88x70_PHOTO_TOPOLOGY',
+        box(92,88,70,cx,0,165),'C')
+    add('A','A18F','MICROSCOPE_FRONT_FACE_PHOTO_PROXY',
+        box(78,4,54,cx,46,173),'C')
+    add('A','A18T','MICROSCOPE_TOP_OPTICAL_COLLAR_PROXY',
+        vz(22,8,cx,0,235),'C')
+    add('A','A18N','MICROSCOPE_BOTTOM_NOSEPIECE_INTERFACE_PROXY',
+        vz(31,8,cx,0,157),'C')
+    add('A','A18FL','MICROSCOPE_LEFT_COARSE_FOCUS_DRUM_PROXY',
+        vx(25,18,cx-64,0,200),'C')
+    add('A','A18FR','MICROSCOPE_RIGHT_COARSE_FOCUS_DRUM_PROXY',
+        vx(25,18,cx+46,0,200),'C')
+    add('A','A18FLL','MICROSCOPE_LEFT_FINE_FOCUS_KNOB_PROXY',
+        vx(15.5,8,cx-72,0,200),'C')
+    add('A','A18FRL','MICROSCOPE_RIGHT_FINE_FOCUS_KNOB_PROXY',
+        vx(15.5,8,cx+64,0,200),'C')
+
+    add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PHOTO_ENVELOPE',
+        vz(36,10,cx,0,155),'C')
+    add('A','A19N','MICROSCOPE_OBJECTIVE_TURRET_NECK_PROXY',
+        vz(18,5,cx,0,165),'C')
     objective_pivot=Vector(cx-18,0,155)
     objective_axis=Vector(cx-18,1,155)
     left_tilt=lambda sh:sh.rotate(objective_pivot,objective_axis,22.5)
-    add('A','A19O1','JHTOP_MPLAN_5x010_LEFT_INCLINED_22p5deg_CANDIDATE',
-        left_tilt(vz(11.5,39,cx-18,0,116)),'C')
-    add('A','A19O2','OLYMPUS_PLANFL_10x040_CENTER_VERTICAL_PROXY',
-        vz(11.5,39,cx+18,0,116),'C')
+    left_obj=vz(11.5,14,cx-18,0,141).fuse(
+        vz(10,16,cx-18,0,125),
+        vz(8.2,9,cx-18,0,116))
+    center_obj=vz(11.5,14,cx+18,0,141).fuse(
+        vz(10,16,cx+18,0,125),
+        vz(8.2,9,cx+18,0,116))
+    add('A','A19O1','JHTOP_MPLAN_5x010_LEFT_INCLINED_PHOTO_CANDIDATE',
+        left_tilt(left_obj),'C')
+    add('A','A19O2','PLANFL_10x040_CENTER_VERTICAL_TEXT_READING_UNVERIFIED',
+        center_obj,'C')
     add('A','A19R1','LEFT_INCLINED_OBJECTIVE_COLOR_BAND_PROXY',
-        left_tilt(vz(12.8,2,cx-18,0,116)),'C')
-    add('A','A19R2','RIGHT_VERTICAL_OBJECTIVE_COLOR_BAND_PROXY',
-        vz(12.8,2,cx+18,0,116),'C')
+        left_tilt(vz(12.4,2,cx-18,0,124)),'C')
+    add('A','A19R2','CENTER_VERTICAL_OBJECTIVE_COLOR_BAND_PROXY',
+        vz(12.4,2,cx+18,0,124),'C')
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
