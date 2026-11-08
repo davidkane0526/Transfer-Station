@@ -6,7 +6,7 @@
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script></head>
 <body><header class="top">
 <div><div class="eyebrow">TRANSFER STATION / ENGINEERING DIGITAL TWIN · RECONSTRUCTION</div><h1>两套干法转移平台 · 交互式工程总装</h1><p class="subtitle">显微镜 · 载玻片运动臂 · 样品平移台 · 旋转台 · 陶瓷加热真空吸附台</p></div>
-<div class="top-actions"><button id="open-bom">零件 BOM / 证据</button><a href="https://github.com/davidkane0526/Transfer-Station" target="_blank" rel="noreferrer">GitHub 项目</a></div>
+<div class="top-actions"><a href="./photo-review.html" class="photo-review-link">A 实物照片 ↔ 实际渲染逐图对照</a><button id="open-bom">零件 BOM / 证据</button><a href="https://github.com/davidkane0526/Transfer-Station" target="_blank" rel="noreferrer">GitHub 项目</a></div>
 </header>
 <div class="layout">
 <aside class="side">
@@ -20,10 +20,10 @@
 <div class="warning" id="a-physical-audit" role="status" hidden>平台 A 的工作位置尚未完成配准，无法确认玻片端到热台的正常接触。</div>
 <div class="control-block" id="a-pose-selector" hidden>
 <div class="title">平台 A · 两种装配姿态</div>
-<p class="small">操作位置仅是待核实的几何候选：它假设A05向右折弯并改变未测定的下折边长度；不代表照片94或真实设备已经证实这一安装朝向。</p>
+<p class="small"><strong>默认显示实物照片支持的 A05 左折边和 VC13M 静态堆栈。</strong>照片没有显示的夹具和玻片不在实拍视图中虚构；右折边操作位置单独作为未验证假设。<a href="./photo-review.html">查看实拍与当次渲染逐图对照</a>。</p>
 <div class="buttons">
-<button id="btn-a-working-pose" class="on" aria-pressed="true">操作位置候选 · 检查夹具避让</button>
-<button id="btn-a-photo-pose" aria-pressed="false">照片94原方向 · 未配准</button>
+<button id="btn-a-working-pose" aria-pressed="false">操作位置候选 · 检查夹具避让</button>
+<button id="btn-a-photo-pose" class="on" aria-pressed="true">照片94原方向 · 实物优先</button>
 </div><div class="marked-note" id="a-working-metrics" role="status">操作位置的几何间隙待计算</div></div>
 <div class="control-block" id="photo-crosscheck"><div class="title">实物照片的对应关系</div>
 <p class="small" id="photo-scope-note" data-ref-rig="A">A：94/95/97、137–144、152、155、161（新增GCM-5306M底座）。B：107–112、145–151（新增PHUC-1和GCM-1302M同机确认）。两套装配不可混用。</p>
