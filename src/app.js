@@ -2892,12 +2892,16 @@ function platformA(){
     const movingBoom=new THREE.Group();g.add(movingBoom);
     // V69: old solid support penetrated A10 Ø26 stationary column.
     // Make an actual Ø26.6 axial clearance bore around the post.
-    // Longitudinal center moves 20mm rearward (still a candidate).
-    // plate() rotates its XY drawing -90° about X: shape +Y maps
-    // to scene -Z, so the POST at local Z=0 is shape hole Y=+45.
-    const boomShell=add(movingBoom,plate(34,127,25,mats.dark,
-      [[0,45,13.3]]));
-    boomShell.position.set(0,187.5,45);
+    // Match the REAR face of the microscope housing at world Z=-44.
+    // Previously 127mm boom ended at Z=-3.5, penetrating the solid
+    // A18 head by 40.5mm. Shorten to 86mm (world Z -130..-44).
+    // plate() rotates shape +Y into scene -Z, so the stationary Ø26
+    // support post at local Z=0 has a genuine Ø26.6 bore at shape Y=25.
+    const boomShell=add(movingBoom,plate(34,86,25,mats.dark,
+      [[0,25,13.3]]));
+    boomShell.position.set(0,187.5,25);
+    boomShell.userData.A10BoomFrontFaceJointToA18=true;
+    boomShell.userData.A10BoomLengthCandidateMm=86;
     boomShell.userData.A10BoomTruePostThroughBore=true;
     boomShell.userData.A10BoreDiameterCandidateMm=26.6;
     movingBoom.userData.A10AdjustableBoomCandidate=true;
