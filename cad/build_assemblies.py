@@ -638,7 +638,7 @@ def make_b():
         box(65,72,48,335,65,0),'P')
 def make_a():
     board('A')
-    ax,cx=-70.75,78
+    ax,cx=-82.75,78
     # V58 CAD exports ONLY the labelled working-layout candidate.
     # The original photographed left-return arm remains in the web viewer.
     # This X position, mirrored fold and 52.1mm leg are NOT OEM dimensions.
@@ -716,14 +716,14 @@ def make_a():
     # measured on the user's rig; absolute coordinates are provisional.
     leg_len=52.1
     leg_bottom=164-leg_len
-    bracket_leg_x=ax+48-1.25
+    bracket_leg_x=ax+60-1.25
     # V70: photos194/196 place TWO wing heads along the OUTWARD
     # extension of the L foot, not across its short front-back width.
     # 32x14 and Ø3.2/pitch18 are proportional scene guesses only.
     foot=box(32,14,2.5,bracket_leg_x+16,0,leg_bottom)
     for xx in (bracket_leg_x+7,bracket_leg_x+25):
         foot=foot.cut(vz(1.6,2.7,xx,0,leg_bottom-.1))
-    sheet=box(75,12,2.5,ax+10.5,0,164).fuse(
+    sheet=box(87,12,2.5,ax+16.5,0,164).fuse(
         box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),foot)
     add('A','A05','WORKING_HYPOTHESIS_mirrored_right_75mm_L_sheet_NOT_photo_orientation',
         sheet,'C')
@@ -757,12 +757,12 @@ def make_a():
         # Outward X direction is supported by photo194/196, but actual
         # Ø, head and thread dimensions remain unmeasured candidates.
         screw_x=bracket_leg_x+dx
-        shank=vz(1.4,10.5,screw_x,0,leg_bottom-3.5)
-        hub=vz(2.8,2,screw_x,0,glass_center_z+6)
+        shank=vz(1.4,6,screw_x,0,leg_bottom-3.5)
+        hub=vz(2.8,2,screw_x,0,leg_bottom+2.5)
         # Wing handles orient along front/back; in-plane X blades would
         # clip the L upright near the first fastener in this photo pose.
         wings=[box(1.6,7,3.8,screw_x,
-                   sgn*4.8,glass_center_z+7) for sgn in (-1,1)]
+                   sgn*4.8,leg_bottom+3.1) for sgn in (-1,1)]
         add('A',f'A05CS{i}','photo194_two_butterfly_head_screws_THREAD_UNKNOWN',
             shank.fuse(hub,*wings),'C')
     add('A','A05G','standard_76x26x1mm_glass_POSITION_CANDIDATE',
@@ -786,7 +786,7 @@ def make_a():
     # silver angular micrometer, in addition to the SHORT front lock.
     # Do not mislabel either of these as A02's left linear micrometer.
     add('A','A06C','rotation_right_fine_adjust_stem_36mm_CANDIDATE',
-        vx(5.5,36,cx+33,0,42),'C')
+        vx(5.5,42,cx+30,0,42),'C')
     add('A','A06D','rotation_right_fine_adjust_knob_25mm_CANDIDATE',
         vx(9,25,cx+69,0,42),'C')
     # V48 photos17/18 show the 65mm silver top at ~90mm ABOVE THE
@@ -850,6 +850,9 @@ def make_a():
         vz(26,28,cx,0,235),'D')
     add('A','A09','Daheng_camera',box(50,44,45,cx,0,323),'P')
     add('A','A11','MWWHL4',vz(13,33,155,60,184),'P')
+    add('A','A11M','MWWHL4_side_gooseneck_to_A18_UNVERIFIED',
+        cable_path([(128,24,200),(133,32,201),(139,43,203),
+                    (142,55,199),(142,60,197)],3),'C')
     add('A','A12','LEDD1B',box(60,73,104,262,-80,20),'P')
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     # TTL200-A uses EXTERNAL SM2 both ends, whereas the previously
