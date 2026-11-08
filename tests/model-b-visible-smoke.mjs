@@ -572,6 +572,18 @@ try{
  assert.match(boardDetail,/Thorlabs|THORLABS/);
  assert.match(boardDetail,/145|150/);
  assert.match(boardDetail,/B35↔B16孔系配准/);
+ assert.match(boardDetail,/120个候选网格孔已按全厚贯通孔建模/,
+   'B35 detail must not repeat the obsolete blind-hole proxy description');
+ const fourHoleFit=page.locator('#b08-b35-mount-fit');
+ assert.equal(await fourHoleFit.getAttribute('data-direct-fit'),'false',
+   'Touching B08 and B35 faces does not prove mounting bores line up');
+ assert.equal(Number(await fourHoleFit.getAttribute('data-mismatch-mm')),13.657);
+ assert.equal(Number(await fourHoleFit.getAttribute('data-minimum-rigid-translation-mm')),13.657);
+ assert.match(await fourHoleFit.innerText(),/四孔整体配准校核/);
+ assert.match(await fourHoleFit.innerText(),/X=87\.5, Z=-12\.5/);
+ assert.match(await fourHoleFit.innerText(),/X=87\.5, Z=12\.5/);
+ assert.match(await fourHoleFit.innerText(),/不会自动移动旋转台/,
+   'A mathematical hole-fit alternative cannot be silently installed in the visible model');
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B36');
  // B19/B21/B23 descriptions also say "inside B36", so a
