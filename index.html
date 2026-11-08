@@ -19,12 +19,12 @@
 </div>
 <div class="warning" id="a-physical-audit" role="status" hidden>平台 A 的工作位置尚未完成配准，无法确认玻片端到热台的正常接触。</div>
 <div class="control-block" id="a-pose-selector" hidden>
-<div class="title">平台 A · 两种装配姿态</div>
-<p class="small"><strong>默认显示实物照片支持的 A05 左折边和 VC13M 静态堆栈。</strong>照片没有显示的夹具和玻片不在实拍视图中虚构；右折边操作位置单独作为未验证假设。<a href="./photo-review.html">查看实拍与当次渲染逐图对照</a>。</p>
+<div class="title">平台 A · 实物优先装配（无玻璃片）</div>
+<p class="small"><strong>已合并为一套实物优先的机械结构：</strong>A05 原折边、末端安装板和沿外伸方向布置的两枚蝶形螺钉。按确认的参考图，不安装透明玻片，也不显示虚构的上下夹爪。真实孔径与螺纹参数仍需测量。<a href="./photo-review.html">实物与模型逐图对照</a>。</p>
 <div class="buttons">
-<button id="btn-a-working-pose" aria-pressed="false">操作位置候选 · 检查夹具避让</button>
-<button id="btn-a-photo-pose" class="on" aria-pressed="true">照片94原方向 · 实物优先</button>
-</div><div class="marked-note" id="a-working-metrics" role="status">操作位置的几何间隙待计算</div></div>
+<button id="btn-a-working-pose" hidden style="display:none" aria-pressed="false">旧工程接触候选（仅回归验证）</button>
+<button id="btn-a-photo-pose" class="on" aria-pressed="true">实物优先 · L形支架 + 双蝶形螺钉 · 无玻片</button>
+</div><div class="marked-note" id="a-working-metrics" role="status">玻片及未识别双夹爪不属于当前实物装配；不能用旧版 PDMS 接触仿真证明工作距离。</div></div>
 <div class="control-block" id="photo-crosscheck"><div class="title">实物照片的对应关系</div>
 <p class="small" id="photo-scope-note" data-ref-rig="A">A：94/95/97、137–144、152、155、161（新增GCM-5306M底座）。B：107–112、145–151（新增PHUC-1和GCM-1302M同机确认）。两套装配不可混用。</p>
 <div class="buttons"><button id="btn-photo947">查看照片94 / 95 / 97对应的A装配</button><button id="btn-photo94">94 · G40/L片</button><button id="btn-photo95">95 · T25M</button><button id="btn-photo97">97 · VC13M</button><button id="btn-photo196">196 · G40右向测微头近景</button></div>
