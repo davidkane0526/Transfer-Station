@@ -243,7 +243,38 @@ window.__platformAStageFrontProbe=()=>{
   noDuplicateA17Slot:!mag.userData.A17Photo22SlottedSidePanel,
   manufacturerHolePatternVerified:false,slotDimensionsVerified:false};
 };
-window.__modelA05PhotoEvidenceProbe=()=>{
+window.__platformABareClampProbe=()=>{
+   if(platform!=='A')return {available:false};
+   const sheet=parts.get('A05')?.g,screw=parts.get('A05CS')?.g;
+   const foot=sheet?.children.find(o=>o.userData.A05OutwardFootCandidate);
+   const web=sheet?.children.find(o=>o.userData.A05VerticalSheetWeb);
+   const heads=screw?.children.filter(o=>o.userData.A05CSFootSeatedHead)??[];
+   const ears=screw?.children.filter(o=>o.userData.A05CSWingEarPlane)??[];
+   if(!foot||!web||heads.length!==2||ears.length!==4)return {available:false};
+   sheet.updateWorldMatrix(true,true);screw.updateWorldMatrix(true,true);
+   const bounds=o=>new THREE.Box3().setFromObject(o);
+   const fb=bounds(foot),wb=bounds(web);
+   const centers=heads.map(h=>h.getWorldPosition(new THREE.Vector3()));
+   const r=x=>{const n=Number(x.toFixed(3));return Object.is(n,-0)?0:n;};
+   const overlap=ears.reduce((sum,o)=>{
+     const intrude=bounds(o).clone().intersect(wb);
+     if(intrude.isEmpty())return sum;
+     const size=new THREE.Vector3();intrude.getSize(size);
+     return sum+size.x*size.y*size.z;
+   },0);
+   return {available:true,visibleGlass:Boolean(parts.get('A05G')?.g.visible),
+    visibleFabricatedJaws:Boolean(parts.get('A05C')?.g.visible),
+    visibleWingScrewCount:heads.length,wingEarCount:ears.length,
+    actualFootBores:foot.userData.A05ActualThroughBoreCount,
+    wingPairPitchXMm:r(Math.abs(centers[1].x-centers[0].x)),
+    wingPairPitchZMm:r(Math.abs(centers[1].z-centers[0].z)),
+    wingEarPlane:screw.userData.wingHeadPlane,
+    wingToUprightOverlapMm3:r(overlap),
+    headFootMaxGapMm:r(Math.max(...heads.map(h=>bounds(h).min.y-fb.max.y))),
+    approvedDisplay:'A05 folded sheet + bare foot + two screws without glass',
+    actualWingNutOEMVerified:false};
+ };
+ window.__modelA05PhotoEvidenceProbe=()=>{
  if(platform!=='A')return {available:false};
  const sheet=parts.get('A05')?.g,fasteners=parts.get('A05CS')?.g;
  const candidateGrip=parts.get('A05C')?.g,candidateGlass=parts.get('A05G')?.g;
@@ -2915,17 +2946,18 @@ function platformA(){
      head.userData.A05CSFootSeatedHead=true;
      head.userData.A05CSOutwardOffsetMm=outwardOffset;
      head.userData.photo194WingFastenerCandidate=true;
-     // Real butterfly heads can rotate about the vertical screw axis.
-     // Orient both wings front/back, avoiding a fabricated clash with
-     // the L upright next to the inner (+7mm) fastener.
+     // Photo-approved reference: the butterfly ears are rotated 90° into
+     // the L-foot outward X direction, not fore/aft Z. The shorter
+     // ears leave clearance to the upright web beside the inner bolt.
      for(const wingSide of [-1,1]){
-       const wing=add(g,cub(1.6,3.8,7,mats.steel,
-         screwX,footBottomY+5,
-         aBent.sheetFrontZ+wingSide*4.8));
-       wing.rotation.x=wingSide*.35;
+       const wing=add(g,cub(4.6,3.8,1.6,mats.steel,
+         screwX+wingSide*3,footBottomY+5,aBent.sheetFrontZ));
+       wing.rotation.z=wingSide*.35;
+       wing.userData.A05CSWingEarPlane='X-outward';
      }
    }
    g.userData.visibleWingFastenerCount=2;
+   g.userData.wingHeadPlane='X-outward';
    g.userData.belowFootTailMmCandidate=3.5;
    g.userData.realOEMThreadVerified=false;
    label(g,'A05CS · 两枚蝶形紧固件 / 194、196 实拍；螺纹候选',0,15,0);
@@ -2949,13 +2981,16 @@ function platformA(){
    label(g,aWorkingPoseMode?'A05G · 玻片右侧印章落于热台上方（几何候选；未实物配准）':'A05G · 76×26×1mm玻片候选 / 右端印章 / A07全局未配准',
      glassCenterX,15,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
- // The photo94/194/196 evidence does NOT show glass installed or prove
- // the invented twin-jaw carrier. Hide only those two PROXY part groups in
- // photographic orientation, retaining their BOM and engineering candidate.
- if(!aWorkingPoseMode){
-   for(const id of ['A05C','A05G']){
-     const item=parts.get(id);
-     if(item){item.g.visible=false;item.g.userData.hiddenBecauseNotPhotographed=true;}
+ // User-approved platform A presentation: one photo-oriented folded L
+ // sheet, bare foot and two screw heads; NO installed glass or
+ // imaginary double jaws in either publicly accessible pose.
+ // A05C/A05G remain hidden computation-only legacy study parts.
+ for(const id of ['A05C','A05G']){
+   const item=parts.get(id);
+   if(item){
+     item.g.visible=false;
+     item.g.userData.hiddenBecauseNotPhotographed=true;
+     item.g.userData.excludedFromPhysicalAssembly=true;
    }
  }
  addPart('A06',sx,28,0,g=>{
