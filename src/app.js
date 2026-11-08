@@ -2779,11 +2779,15 @@ function platformA(){
    const side=aWorkingPoseMode?1:-1;
    for(const outwardOffset of [7,25]){
      const screwX=bracketLegLocalX+side*outwardOffset;
-     const shaft=add(g,cyl(1.4,10.5,mats.steel,
-       screwX,glassCenterY+.75,aBent.sheetFrontZ));
+     // Screw seat on A05 foot top (was floating 4.5mm above).
+     // Shaft continues through foot/carrier bores and 3.5mm below.
+     const footBottomY=-aBent.verticalLegLength;
+     const shaft=add(g,cyl(1.4,6,mats.steel,
+       screwX,footBottomY-.5,aBent.sheetFrontZ));
      shaft.userData.A05CSCandidateShank=true;
      const head=add(g,cyl(2.8,2,mats.silver,
-       screwX,glassCenterY+7,aBent.sheetFrontZ));
+       screwX,footBottomY+3.5,aBent.sheetFrontZ));
+     head.userData.A05CSFootSeatedHead=true;
      head.userData.A05CSOutwardOffsetMm=outwardOffset;
      head.userData.photo194WingFastenerCandidate=true;
      // Real butterfly heads can rotate about the vertical screw axis.
@@ -2791,7 +2795,7 @@ function platformA(){
      // the L upright next to the inner (+7mm) fastener.
      for(const wingSide of [-1,1]){
        const wing=add(g,cub(1.6,3.8,7,mats.steel,
-         screwX,glassCenterY+8,
+         screwX,footBottomY+5,
          aBent.sheetFrontZ+wingSide*4.8));
        wing.rotation.x=wingSide*.35;
      }
@@ -2840,7 +2844,10 @@ function platformA(){
   lock.userData.A06ShortFrontLock=true;
   // Separate RIGHT-side angular micrometer, photo17/20/21.
   add(g,cub(14,14,16,mats.black,34,14,0));
-  const angularStem=add(g,cyl(5.5,36,mats.silver,51,14,0));
+  // Overlap stem into both knob and actuator blocks. Previously the
+   // stem and drum merely met on a mathematically zero-area end face.
+   const angularStem=add(g,cyl(5.5,42,mats.silver,51,14,0));
+   angularStem.userData.A06CoupledMicrometerStem=true;
   angularStem.rotation.z=Math.PI/2;
   const angularDrum=add(g,cyl(9,25,mats.silver,81.5,14,0,48));
   angularDrum.rotation.z=Math.PI/2;
