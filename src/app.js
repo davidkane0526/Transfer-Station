@@ -2850,156 +2850,133 @@ function platformA(){
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
    topPlateWidth:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketTopWidthMm:undefined,
    leftOverhangMm:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketOverhangMm:undefined,
-   handedness:aWorkingPoseMode?'right':'left',
+   // V79: use one left-handed sheet definition. The installed transfer
+   // assembly is obtained by rotating the COMPLETE film branch 180°.
+   handedness:'left',
    verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72,
    sheetFrontZmm:aWorkingPoseMode?0:13});
+ const outwardSign=-1;
  addPart('A05',ax,164,az,g=>{
-   // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
-   // and not the 200mm square beam formerly rendered here.
    const localX=aBent.centerX-ax;
-   const leftLocalX=aBent.legX-ax+(aWorkingPoseMode?-aBent.metalThickness/2:aBent.metalThickness/2);
+   const legLocalX=aBent.legX-ax+aBent.metalThickness/2;
    add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
        mats.black,localX,aBent.metalThickness/2,aBent.sheetFrontZ));
    const verticalSheet=add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
-       aBent.topPlateDepth,mats.black,
-       leftLocalX,-aBent.verticalLegLength/2,aBent.sheetFrontZ));
+       aBent.topPlateDepth,mats.black,legLocalX,
+       -aBent.verticalLegLength/2,aBent.sheetFrontZ));
    verticalSheet.userData.A05VerticalSheetWeb=true;
-   // The top plate actually sits ON the G40 top, two photo-visible hex
-   // heads near stage 40mm table; threads/length still unverified.
    for(const xx of aBent.topBoltWorldX){
      const hex=jointHead(g,xx-ax,aBent.metalThickness,aBent.sheetFrontZ,
        {headR:3.1,shankR:1.5,shankL:4});
-     hex.userData.photo94Fastener=true;
-     hex.material=mats.dark; // photo94 black bolt heads seated on black folded sheet
+     hex.userData.photo94Fastener=true;hex.material=mats.dark;
    }
-   // Photos194/196: the L leg ends in a short OUTWARD foot, whose
-   // two wing fasteners are separate A05C components below.
-   // V70 photo194/196: the two butterfly heads are side-by-side
-   // ALONG the OUTWARD foot direction, not front/back Z as in V69.
-   // X length 32 and Z width 14 remain candidate proportions.
-   const footSign=aWorkingPoseMode?1:-1;
-   const footX=leftLocalX+footSign*16;
-   const foot=add(g,plate(32,14,2.5,mats.black,
-     [[-9,0,1.6],[9,0,1.6]]));
+   // V79: plain folded support. The former two VERTICAL bores existed only
+   // because the clamp screws had been modelled on the wrong axis.
+   const footX=legLocalX+outwardSign*16;
+   const foot=add(g,plate(32,14,2.5,mats.black,[]));
    foot.position.set(footX,-aBent.verticalLegLength,aBent.sheetFrontZ);
    foot.userData.A05OutwardFootCandidate=true;
-   foot.userData.A05ActualThroughBoreCount=2;
-   foot.userData.A05BoreAxis='X-outward';
-   foot.userData.A05CandidateHolePitchMm=18;
-   foot.userData.A05BoreDiameterCandidateMm=3.2;
+   foot.userData.A05ActualThroughBoreCount=0;
+   foot.userData.A05NoVerticalClampScrewBores=true;
    g.userData.photo94BentSheet=true;
    g.userData.verifiedPhotoBentCorner=true;
    g.userData.photoBracketDatums=aBent;
-   label(g,aWorkingPoseMode?'A05 右折边仅作操作位置候选 · 不是94号实物朝向':'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
-      -24,17,0);
- },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
- // V57: A05 previously ended at an unsupported metal flange, leaving
- // the glass and a possible holder entirely absent from the 3D scene.
- // These are explicit PROXY subassemblies, not identified purchased parts.
- // Both share A05's film translation and VC13M vertical motion.
- const bracketLegLocalX=aBent.legX-ax+(aWorkingPoseMode?-aBent.metalThickness/2:aBent.metalThickness/2);
- const glassLeftX=bracketLegLocalX+34; // V70 starts beyond second wing screw and folded foot
- const glassCenterX=glassLeftX+38;
+   g.userData.installedYawDeg=aWorkingPoseMode?180:0;
+   label(g,aWorkingPoseMode?
+     'A05 · 载玻片支路整体旋转180°后的转移朝向':
+     'A05 · 照片参考朝向',-24,17,0);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+
+ const bracketLegLocalX=aBent.legX-ax+aBent.metalThickness/2;
+ // Local slide extends farther toward -X. With installed yaw=180° this
+ // becomes +X in world coordinates, so the PDMS points toward A07.
+ const glassNearX=bracketLegLocalX+outwardSign*34;
+ const glassCenterX=glassNearX+outwardSign*38;
  const glassCenterY=-aBent.verticalLegLength+1.0;
+ const clampLengthX=28;
+ const clampCenterX=glassNearX+outwardSign*14;
+
  addPart('A05C',ax,164,az,g=>{
-   // Unverified carrier: top face meets the underside of A05's short
-   // foot at zero-gap contact, rather than overlapping its solid metal.
-   // No separate bar is allowed to penetrate the vertical L web.
-   const sign=aWorkingPoseMode?1:-1;
-   const bores=[[-9,0,1.6],[9,0,1.6]];
    const footBottomY=-aBent.verticalLegLength;
-   const carrierThickness=3;
-   const carrier=add(g,plate(36,27,carrierThickness,mats.dark,bores));
-   carrier.position.set(bracketLegLocalX+sign*16,
-     footBottomY-carrierThickness,aBent.sheetFrontZ);
-   carrier.userData.A05CActualThroughBores=2;
-   carrier.userData.A05CCandidateOnly=true;
-   carrier.userData.A05CFlushToLFoot=true;
-   // Glass is a 76x26x1mm cantilever gripped over its first 10mm.
-   // It should hover above the sample until the transfer approaches.
-   const jawX=bracketLegLocalX+39;
-   const upperJaw=add(g,cub(10,1.2,26,mats.dark,
-     jawX,glassCenterY+1.1,aBent.sheetFrontZ));
-   const lowerJaw=add(g,cub(10,1.2,26,mats.dark,
-     jawX,glassCenterY-1.1,aBent.sheetFrontZ));
-   carrier.userData.A05CClampingProxy=true;
-   for(const m of [upperJaw,lowerJaw]){
-     m.userData.A05CClampingProxy=true;
-     m.userData.A05CActualJaw=true;
+   const neck=add(g,cub(5,2.5,14,mats.dark,
+     bracketLegLocalX+outwardSign*32.5,footBottomY-1.25,aBent.sheetFrontZ));
+   neck.userData.A05CBracketNeck=true;
+   const ledge=add(g,cub(clampLengthX,1,30,mats.dark,
+     clampCenterX,glassCenterY-1,aBent.sheetFrontZ));
+   ledge.userData.A05CSupportLedge=true;
+   const fixedRail=add(g,cub(clampLengthX,3,2,mats.dark,
+     clampCenterX,glassCenterY,aBent.sheetFrontZ-14));
+   fixedRail.userData.A05CFixedSideRail=true;
+   const pressureRail=add(g,cub(clampLengthX,3,2,mats.silver,
+     clampCenterX,glassCenterY,aBent.sheetFrontZ+14));
+   pressureRail.userData.A05CPressureRail=true;
+   for(const q of [5,23]){
+     const sxLocal=glassNearX+outwardSign*q;
+     const boss=add(g,cub(7,7,7,mats.dark,
+       sxLocal,glassCenterY,aBent.sheetFrontZ+18.5));
+     boss.userData.A05CSideScrewBoss=true;
    }
-   upperJaw.userData.A05CUpperJaw=true;
-   lowerJaw.userData.A05CLowerJaw=true;
-   // Edge cheek joins the two jaws to the lower carrier without
-   // intruding into the glass: slide terminates at sheetFrontZ+13,
-   // cheek starts at that exact Z face and extends outward.
-   const backSpine=add(g,cub(10,5.7,2,mats.dark,
-     jawX,glassCenterY-1.15,aBent.sheetFrontZ+14));
-   backSpine.userData.A05CBackSpineProxy=true;
-   g.userData.A05CClampingStackType='flush foot / carrier / back spine / two jaws / glass';
-   // Two butterfly fasteners are separate A05CS assembly, not an
-   // invented integral part of the unidentified clamping jaws.
+   g.userData.A05CClampingStackType='support ledge + fixed rail + pressure rail';
    g.userData.unverifiedClampMechanism=true;
-   g.userData.footToCarrierNominalGapMm=0;
-   g.userData.carrierThicknessMm=3;
-   g.userData.glassGripLengthMmCandidate=10;
-   g.userData.jawGapCandidateMm=1;
+   g.userData.glassGripLengthMmCandidate=clampLengthX;
+   g.userData.screwAxisParallelToGlassShortEdge=true;
    g.userData.actualClampOEM=false;
-   label(g,'A05C · 两枚蝶形紧固件（照片194/196），玻片夹型号/孔位仍未知',
-     bracketLegLocalX+5,18,aBent.sheetFrontZ);
- },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
+   label(g,'A05C · 侧向压紧：螺杆轴线 ∥ 玻片26mm短边（尺寸待实测）',
+     clampCenterX,18,aBent.sheetFrontZ);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+
  addPart('A05CS',ax,164,az,g=>{
-   const side=aWorkingPoseMode?1:-1;
-   for(const outwardOffset of [7,25]){
-     const screwX=bracketLegLocalX+side*outwardOffset;
-     // Screw seat on A05 foot top (was floating 4.5mm above).
-     // Shaft continues through foot/carrier bores and 3.5mm below.
-     const footBottomY=-aBent.verticalLegLength;
-     const shaft=add(g,cyl(1.4,6,mats.steel,
-       screwX,footBottomY-.5,aBent.sheetFrontZ));
+   for(const q of [5,23]){
+     const screwX=glassNearX+outwardSign*q;
+     // Cylinder default axis is local Y; rotate it onto local Z so the
+     // screw shaft is parallel to the glass short edge.
+     const shaft=add(g,cyl(1.4,20,mats.steel,
+       screwX,glassCenterY,aBent.sheetFrontZ+24));
+     shaft.rotation.x=Math.PI/2;
      shaft.userData.A05CSCandidateShank=true;
-     const head=add(g,cyl(2.8,2,mats.silver,
-       screwX,footBottomY+3.5,aBent.sheetFrontZ));
-     head.userData.A05CSFootSeatedHead=true;
-     head.userData.A05CSOutwardOffsetMm=outwardOffset;
-     head.userData.photo194WingFastenerCandidate=true;
-     // Photo-approved reference: the butterfly ears are rotated 90° into
-     // the L-foot outward X direction, not fore/aft Z. The shorter
-     // ears leave clearance to the upright web beside the inner bolt.
+     shaft.userData.A05CSShaftAxis='glass-short-edge-Z';
+     shaft.userData.A05CSContactsPressureRail=true;
+     const hub=add(g,cyl(3.0,3,mats.silver,
+       screwX,glassCenterY,aBent.sheetFrontZ+35.5));
+     hub.rotation.x=Math.PI/2;
+     hub.userData.A05CSScrewHead=true;
+     hub.userData.photo194WingFastenerCandidate=true;
      for(const wingSide of [-1,1]){
-       const wing=add(g,cub(4.2,3.8,1.6,mats.steel,
-         screwX+wingSide*2.65,footBottomY+5,aBent.sheetFrontZ));
-       wing.rotation.z=wingSide*.35;
-       wing.userData.A05CSWingEarPlane='X-outward';
+       const wing=add(g,cub(5,2.8,1.6,mats.steel,
+         screwX+wingSide*3.0,glassCenterY,aBent.sheetFrontZ+37));
+       wing.rotation.z=wingSide*.3;
+       wing.userData.A05CSWingEarPlane='perpendicular-to-Z-shaft';
      }
    }
    g.userData.visibleWingFastenerCount=2;
-   g.userData.wingHeadPlane='X-outward';
-   g.userData.belowFootTailMmCandidate=3.5;
+   g.userData.screwShaftAxis='scene-Z / parallel to 26mm glass short edge';
+   g.userData.screwPitchAlongGlassLengthMmCandidate=18;
    g.userData.realOEMThreadVerified=false;
-   label(g,'A05CS · 两枚蝶形紧固件 / 194、196 实拍；螺纹候选',0,15,0);
- },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
+   label(g,'A05CS · 2枚侧向夹紧螺钉 · 轴线平行玻片短边',
+     clampCenterX,16,aBent.sheetFrontZ+38);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+
  addPart('A05G',ax,164,az,g=>{
-   // Typical 76x26x1mm glass slide extends to the RIGHT of the
-   // external holder. Put the PDMS stamp near its right edge so the
-   // jaw can remain outside the heater envelope in an eventual
-   // physically registered transfer pose.
    const slide=add(g,cub(76,1,26,mats.glass,
      glassCenterX,glassCenterY,aBent.sheetFrontZ));
    slide.userData.candidateStandardSlide=[76,26,1];
-   const pdmsX=glassLeftX+68;
+   slide.userData.glassShortEdgeAxisLocal='Z';
+   const pdmsX=glassNearX+outwardSign*68;
    const stamp=add(g,cub(8,1.8,8,mats.ceramic,
      pdmsX,glassCenterY-1.4,aBent.sheetFrontZ));
    stamp.userData.A05GStampRightMarginMm=4;
+   stamp.userData.A05GTransferTarget='A07W';
    g.userData.stampAtRightGlassEdge=true;
-   g.userData.clampLeftOutsideHeaterCandidate=true;
    g.userData.glassToHolderPhysicallyVerified=false;
-   g.userData.unregisteredGlobalPose=true;
-   label(g,aWorkingPoseMode?'A05G · 玻片右侧印章落于热台上方（几何候选；未实物配准）':'A05G · 76×26×1mm玻片候选 / 右端印章 / A07全局未配准',
+   g.userData.requiredInstalledTransferElement=true;
+   g.userData.unregisteredGlobalPose=false;
+   label(g,aWorkingPoseMode?
+     'A05G · 76×26×1mm玻片候选 · 180°后PDMS朝向样品':
+     'A05G · 转移机构必需玻片 / 照片参考朝向',
      glassCenterX,15,aBent.sheetFrontZ);
- },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
- // V79: A05G glass is a required element of a transfer station. It remains
- // visible in the installed model even when a comparison photograph does not
- // show its transparent outline clearly. Clamp dimensions remain unverified.
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+ // V79: glass is part of the installed transfer mechanism. Exact clamp SKU,
+ // thread and slide dimensions remain pending physical measurement.
  addPart('A06',sx,28,0,g=>{
   // Photos17/18/20: rotary cylinder does not exceed the 65mm upper
   // square plate. V47 Ø94 was geometrically disproportionate.
