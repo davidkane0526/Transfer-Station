@@ -664,7 +664,7 @@ try{
  await photoShot('Transfer-Station-A-Photo193-Front.png','#btn-front');
  await photoShot('Transfer-Station-A-Photo194-FilmUpper.png','#btn-photo94');
  await photoShot('Transfer-Station-A-Photo195-FilmLower.png','#btn-photo97');
- await photoShot('Transfer-Station-A-Photo196-G40.png','#btn-photo94');
+ await photoShot('Transfer-Station-A-Photo196-G40.png','#btn-photo196');
  // Switch explicitly to hypothesis only for the EXISTING transfer tests.
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
