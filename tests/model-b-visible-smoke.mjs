@@ -70,6 +70,19 @@ try{
  assert.equal(b08Bores.blindDepthCandidateMm,8);
  assert.equal(b08Bores.blindFloorIsSolid,true,
    'The M6 taps must not be represented as through-holes in a solid rotary top');
+ assert.equal(b08Bores.baseMountBoreCount,4);
+ assert.equal(b08Bores.baseMountPitchMm,50);
+ assert.equal(b08Bores.baseClearanceDiaMm,6.8);
+ assert.equal(b08Bores.baseCounterboreDiaMm,11.5);
+ assert.equal(b08Bores.baseCounterboreDepthMm,16);
+ assert.equal(b08Bores.baseBoreMeshes,2,
+   'B08 must have independent through-clearance and counterbore layers');
+ assert.equal(b08Bores.baseFourClearanceBoresOpen,true,
+   'B08 four base clearance bores are still solid');
+ assert.equal(b08Bores.baseFourCounterboresOpen,true,
+   'B08 counterbores remain painted circles rather than true holes');
+ assert.equal(b08Bores.baseFaceOrientationVerified,false,
+   'OEM hole dimensions do not prove the installed counterbore entry face');
  assert.equal(b08Bores.oemThreadDepthVerified,false,
    'The 8mm tapping depth is a STEP proxy, not confirmed OEM thread depth');
  assert.equal(b08Bores.B41MountHeadCount,4);
