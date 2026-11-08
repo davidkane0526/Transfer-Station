@@ -839,8 +839,11 @@ def make_a():
         add('A',f'A10S{i}','A10_M5x17p5_GRID_ANCHOR_CANDIDATE',screw,'C')
     # V69: A10 stationary Ø26 post previously pierced the solid boom.
     # Candidate Ø26.6 real clearance through-hole: center registered to post.
-    # Arm shifted 20mm rearward (not an OEM-dimension claim).
-    boom=box(34,125,25,cx,-70,220).cut(vz(13.3,25.2,cx,-112,219.9))
+    # V74: after registering the post Ø26.6 through-bore, the old
+    # 125mm forward boom still penetrated 37.5mm into the A18 casing.
+    # Terminate the support at its rear face (Y=-44). A10 column
+    # remains at Y=-112 with a through hole; these are scene candidates.
+    boom=box(34,86,25,cx,-87,220).cut(vz(13.3,25.2,cx,-112,219.9))
     add('A','A10A','imaging_boom_WITH_POST_THROUGH_BORE_UNVERIFIED',boom,'C')
     # V59: photo191–193 show a taller camera/microscope stack; no ruler is present.
     add('A','A08','TTL200A_nominal_28mm_housing_CANDIDATE',
@@ -856,7 +859,7 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
     # V59: photo191–193 microscope head, bilateral focus and two installed objectives.
-    add('A','A18','MICROSCOPE_HEAD_HOUSING_100x90x70_PHOTO_PROXY',box(100,90,70,cx,0,165),'C')
+    add('A','A18','MICROSCOPE_HEAD_HOUSING_100x88x70_PHOTO_PROXY',box(100,88,70,cx,0,165),'C')
     add('A','A18T','MICROSCOPE_HEAD_UPPER_TUBE_COLLAR_PROXY',vz(22,18,cx,0,235),'C')
     add('A','A18R','MICROSCOPE_HORIZONTAL_TUBE_RIGHT_160mm_PROXY',vx(16,160,cx,0,240),'C')
     add('A','A18FL','MICROSCOPE_LEFT_COARSE_FOCUS_DRUM_PROXY',vx(25,18,cx-68,0,198),'C')
