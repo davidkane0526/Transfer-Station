@@ -20,7 +20,7 @@ import {B149,auditB149,auditBLoweringPose} from './b-photo149-geometry.js';
 import {VN50,vacuumHosePath,electricalHarnessPaths,auditVacuumPath,auditVacuumEnvelope,polylineDistance} from './b-vacuum-routing.js';
 import {auditBaseTopology,mountStatus} from './assembly-mounts.js';
 import {suctionDimension,auditVacuumInterfaceFit} from './pneumatic-dimensions.js';
-import {auditB35MicroscopeFasteners} from './b35-fastener-audit.js';
+import {auditB35MicroscopeFasteners,auditB08ToB35Mount} from './b35-fastener-audit.js';
 import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
 import {A_WORKING_LAYOUT,auditAWorkingLayout} from './a-working-layout.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
@@ -3065,6 +3065,18 @@ function updateDetail(part){
    '"><b>GCM-13 真实夹紧机构示意</b><p>已绘制 '+realScrewAxes+
    ' 根调节螺杆驱动 1 块共用活动压板；当前夹口 '+jawDatums.nominalJawGapMm+
    ' mm 是张开口；当前压板已移动 '+jawDatums.previewClosingTravelMm+' mm，与 '+jawDatums.contactJawGapMm+' mm 厚玻片处于名义接触。夹紧力、真实行程和夹口尺寸均未经验收。</p></div>':'';
+ const b08Fit=(platform==='B'&&(part.id==='B08'||part.id==='B35'))?
+   auditB08ToB35Mount({rotaryCenterX:CONFIG.B.sampleX,
+     boardCenterX:CONFIG.B.sampleBoardCenterX}):null;
+ const b08FitHtml=b08Fit?
+   '<div class="field" id="b08-b35-mount-fit" data-direct-fit="'+
+   b08Fit.candidateGridDirectFit+'" data-mismatch-mm="'+
+   b08Fit.maxMismatchMm+'"><b>B08↔B35 底座孔位检查</b><p>'+
+   '已按GCM-1107M原厂4孔50×50mm和B35 25mm孔网候选进行比较。'+
+   '当前场景四个旋转台底孔相对最近B35网格孔的最大中心偏差为 '+
+   b08Fit.maxMismatchMm.toFixed(2)+' mm，因此此位置不能直接认定为M6螺接。'+
+   'B35型号、实际孔系原点与B08的真实安装位置仍未配准。'+
+   '不会为掩盖错位而虚构底座螺丝、转接板或移动显微镜光轴。</p></div>':'';
  const b35FastenerAudit=(platform==='B'&&(part.id==='B16'||part.id==='B35'))?
    auditB35MicroscopeFasteners({boardCenterX:CONFIG.B.sampleBoardCenterX,
      microscopeCenterX:87.5,microscopeCenterZ:-112.5,
@@ -3141,7 +3153,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+aRigHtml+photo94QAHtml+photo95QAHtml+
+ hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+b08FitHtml+aRigHtml+photo94QAHtml+photo95QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
