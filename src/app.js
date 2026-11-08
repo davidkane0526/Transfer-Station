@@ -23,6 +23,7 @@ import {suctionDimension,auditVacuumInterfaceFit} from './pneumatic-dimensions.j
 import {auditB35MicroscopeFasteners,auditB08ToB35Mount} from './b35-fastener-audit.js';
 import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
 import {A_WORKING_LAYOUT,auditAWorkingLayout} from './a-working-layout.js';
+import {aPhotoCameraPose,aPhotoOrientationEvidence} from './a-photo-angle-registration.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -3875,7 +3876,65 @@ $('btn-photo947').onclick=()=>focusPhoto947('94');
 $('btn-photo94').onclick=()=>focusPhoto947('94');
 $('btn-photo95').onclick=()=>focusPhoto947('95');
 $('btn-photo97').onclick=()=>focusPhoto947('97');
-function focusPhoto196(){
+// Two new user photos are side views of ONE unchanged mechanism.
+ // Only camera.position/target change. No stage/micrometer is mirrored.
+ let currentA20261108PhotoAngle=null;
+ function focus20261108APhoto(mode){
+   if(platform!=='A'||aWorkingPoseMode){
+     aWorkingPoseMode=false;switchPlatform('A');
+   }
+   const c=aPhotoCameraPose(mode,activeAFilmX());
+   camera.position.set(...c.position);
+   orbit.target.set(...c.target);
+   camera.up.set(0,1,0);
+   camera.lookAt(orbit.target);
+   orbit.update();
+   currentA20261108PhotoAngle=mode;
+ }
+ $('btn-a-photo-monitor-front').onclick=()=>focus20261108APhoto('monitorBehind');
+ $('btn-a-photo-monitor-side').onclick=()=>focus20261108APhoto('monitorLeft');
+ window.__a20261108PhotoViewProbe=()=>{
+   if(platform!=='A'||!currentA20261108PhotoAngle)return {available:false};
+   currentRoot.updateWorldMatrix(true,true);
+   camera.updateMatrixWorld(true);
+   const pos=o=>o?.getWorldPosition(new THREE.Vector3())??null;
+   const part=(id)=>parts.get(id)?.g;
+   const stage=part('A15');
+   const g40=part('A04');
+   const lower=part('A04L');
+   const sheet=part('A05');
+   const stageX=stage?.children.find(o=>o.userData.stageActuatorHandle?.localAxis==='X');
+   const stageZ=stage?.children.find(o=>o.userData.stageActuatorHandle?.localAxis==='depth');
+   const upperX=g40?.children.find(o=>o.userData.A04DriveDrum);
+   const lowerX=lower?.children.find(o=>o.userData.A04LDriveDrum);
+   const sheetLeg=sheet?.children.find(o=>o.userData.A05VerticalSheetWeb);
+   const carriage=stage?.userData.slidingX;
+   const slot=carriage?.children.find(o=>o.userData.A15Photo194FrontSlottedPlate);
+   const vc=part('A03');
+   if(![stage,g40,lower,sheet,stageX,stageZ,upperX,lowerX,sheetLeg,slot,vc].every(Boolean))
+      return {available:false,missingGeometry:true};
+   const sx=p=>p.project(camera).x;
+   const delta=(o,c)=>Number((sx(pos(o))-sx(pos(c))).toFixed(4));
+   const frontSide=camera.position.z<stage.position.z?'negative-Z':'positive-Z';
+   return {
+     available:true,mode:currentA20261108PhotoAngle,
+     cameraWorldPosition:camera.position.toArray().map(x=>Number(x.toFixed(2))),
+     cameraTarget:orbit.target.toArray().map(x=>Number(x.toFixed(2))),
+     actualA15XKnobRelativeNdc:delta(stageX,stage),
+     actualA15ZKnobRelativeNdc:delta(stageZ,stage),
+     actualA04XKnobRelativeNdc:delta(upperX,g40),
+     actualA04LowerMinusXKnobRelativeNdc:delta(lowerX,lower),
+     actualA05LegRelativeNdc:delta(sheetLeg,g40),
+     silverSlotFaceLocalZ:stage.userData.A15SilverSlotFaceLocalZ,
+     slotWorldZ:Number(pos(slot).z.toFixed(2)),
+     vc13FrontMicrometerZ:Number((vc.position.z+40).toFixed(2)),
+     viewedStageFace:frontSide,
+     scenePartCount:parts.size,
+     photoConstraints:aPhotoOrientationEvidence(),
+     cameraFittedToActualLensAndMonitor:false
+   };
+ };
+ function focusPhoto196(){
  if(platform!=='A'||aWorkingPoseMode){
   aWorkingPoseMode=false;switchPlatform('A');
  }
