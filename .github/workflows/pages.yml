@@ -83,6 +83,25 @@ jobs:
         run: |
           python3 -m http.server 8765 > /tmp/transfer-site.log 2>&1 &
           node tests/model-b-visible-smoke.mjs
+      - name: Require six reproducible A photo comparison renders
+        run: |
+          mkdir -p assets/photo-review
+          for name in \
+            Transfer-Station-A-Photo191-Overview.png \
+            Transfer-Station-A-Photo192-Side.png \
+            Transfer-Station-A-Photo193-Front.png \
+            Transfer-Station-A-Photo194-FilmUpper.png \
+            Transfer-Station-A-Photo195-FilmLower.png \
+            Transfer-Station-A-Photo196-G40.png; do
+            test -s "$name" || { echo "::error::A real-photo matching render is missing: $name"; exit 1; }
+            cp "$name" assets/photo-review/
+          done
+      - name: Upload six photo comparison renders to publish job
+        uses: actions/upload-artifact@v4
+        with:
+          name: A-Photo-Comparison-Renders
+          path: assets/photo-review/
+          if-no-files-found: error
       - name: Upload 3D preview screenshot
         if: always()
         uses: actions/upload-artifact@v4
@@ -96,6 +115,12 @@ jobs:
             Transfer-Station-V33-Control-Cabinet-Interior.png
             Transfer-Station-V29-B-Post-Sleeve-Closeup.png
             Transfer-Station-V29-B-Film-Viewer.png
+            Transfer-Station-A-Photo191-Overview.png
+            Transfer-Station-A-Photo192-Side.png
+            Transfer-Station-A-Photo193-Front.png
+            Transfer-Station-A-Photo194-FilmUpper.png
+            Transfer-Station-A-Photo195-FilmLower.png
+            Transfer-Station-A-Photo196-G40.png
             Transfer-Station-ModelA-5306M-Base.png
             Transfer-Station-V66-A-Front-Assembly.png
             Transfer-Station-V70-A-Photo-Bare-Foot.png
@@ -142,6 +167,7 @@ jobs:
           name: Transfer-Station-Interactive-Viewer
           path: |
             index.html
+            photo-review.html
             src/
             assets/
             docs/
@@ -159,6 +185,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Attach the six REAL Three.js render images to public comparison page
+        uses: actions/download-artifact@v4
+        with:
+          name: A-Photo-Comparison-Renders
+          path: assets/photo-review
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
