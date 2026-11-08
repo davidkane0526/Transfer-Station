@@ -3354,15 +3354,28 @@ function updateDetail(part){
  const b08Fit=(platform==='B'&&(part.id==='B08'||part.id==='B35'))?
    auditB08ToB35Mount({rotaryCenterX:CONFIG.B.sampleX,
      boardCenterX:CONFIG.B.sampleBoardCenterX}):null;
+ const b08RegistrationText=b08Fit?.gridPossibleAfterRigidTranslation?
+   '仅从孔网相位计算，整台旋转台平移至少 '+
+   b08Fit.minimumRigidTranslationMm.toFixed(2)+' mm，才能使4个底孔同时落在网格上。'+
+   '两个最近的等距候选中心分别为 '+
+   b08Fit.nearestFullFourHoleRegistrations.slice(0,2).map(c=>
+     '(X='+c.centerMm[0].toFixed(1)+', Z='+c.centerMm[1].toFixed(1)+
+     ') mm [ΔX='+c.translationMm[0].toFixed(1)+
+     ', ΔZ='+c.translationMm[1].toFixed(1)+' mm]').join(' 和 ')+
+   '。它们只是数学上可行的平移，不代表真实安装位置。':
+   '当前候选孔网不存在能让4孔同时对位且Ø94mm底座完整留在板内的平移方案。';
  const b08FitHtml=b08Fit?
    '<div class="field" id="b08-b35-mount-fit" data-direct-fit="'+
    b08Fit.candidateGridDirectFit+'" data-mismatch-mm="'+
-   b08Fit.maxMismatchMm+'"><b>B08↔B35 底座孔位检查</b><p>'+
-   '已按GCM-1107M原厂4孔50×50mm和B35 25mm孔网候选进行比较。'+
-   '当前场景四个旋转台底孔相对最近B35网格孔的最大中心偏差为 '+
-   b08Fit.maxMismatchMm.toFixed(2)+' mm，因此此位置不能直接认定为M6螺接。'+
-   'B35型号、实际孔系原点与B08的真实安装位置仍未配准。'+
-   '不会为掩盖错位而虚构底座螺丝、转接板或移动显微镜光轴。</p></div>':'';
+   b08Fit.maxMismatchMm+'" data-minimum-rigid-translation-mm="'+
+   (b08Fit.minimumRigidTranslationMm??'unknown')+
+   '"><b>B08↔B35 四孔整体配准校核（V78）</b><p>'+
+   '按照GCM-1107M原厂4孔50×50mm和B35候选25mm孔网进行比较。'+
+   '当前四个孔与各自最近网格孔的最大中心偏差为 '+
+   b08Fit.maxMismatchMm.toFixed(2)+' mm，表面接触不能等同于螺接。'+
+   b08RegistrationText+
+   'B35真实孔系原点、B08安装位置、显微镜光轴及邻接零件干涉尚未实测，'+
+   '因此模型不会自动移动旋转台，也不会擅自添加螺丝或转接板。</p></div>':'';
  const b35FastenerAudit=(platform==='B'&&(part.id==='B16'||part.id==='B35'))?
    auditB35MicroscopeFasteners({boardCenterX:CONFIG.B.sampleBoardCenterX,
      microscopeCenterX:87.5,microscopeCenterZ:-112.5,
