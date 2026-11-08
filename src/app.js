@@ -502,7 +502,7 @@ window.__modelAPhoto194Probe=()=>{
       screws?.length!==2)return {available:false};
    currentRoot.updateWorldMatrix(true,true);
    const box=o=>new THREE.Box3().setFromObject(o);
-   const d=(v)=>Number(v.toFixed(3));
+   const d=(v)=>{const n=Number(v.toFixed(3));return Object.is(n,-0)?0:n;};
    const a=box(lamp),h=box(housing),b=box(bend),m=box(drum);
    const f=box(foot),shaft=box(sampleStem),knob=box(sampleDrum);
    const mountBox=box(mount);
