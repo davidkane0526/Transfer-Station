@@ -450,7 +450,12 @@ window.__modelBRotaryTopBoreProbe=()=>{
    nineBoreCount:g.userData.B08TopTrueBoreCount,
    allNineBoresOpen:holes.every(([x,z])=>!test(x,z)),
    metalBetweenBores:test(12.5,12.5),
-   makerMountPatternVerified:Boolean(g.userData.B08TopBorePatternOEMVerified)};
+   makerMountPatternVerified:Boolean(g.userData.B08TopBorePatternOEMVerified),
+   topHolePitchMm:g.userData.B08TopHolePitchMm,
+   blindDepthCandidateMm:g.userData.B08TopBlindDepthCandidateMm,
+   oemThreadDepthVerified:Boolean(g.userData.B08TopThreadDepthOEMVerified),
+   remainingBlindFloorMm:2.2,
+   blindFloorIsSolid:Boolean(g.children.find(o=>o.userData.B08BlindBoreFloorCandidate))};
 };
 window.__modelBActuatorProbe=()=>{
  if(platform!=='B')return {available:false};
@@ -1752,14 +1757,22 @@ function rotaryB(){
     // The lower B41 stage engages B08 by four recessed screws. The old
     // solid cylinder with painted rings had NO holes and those screws
     // physically penetrated its metal.
+    // GCM-1107M OEM drawing: 9-M6 top pattern with 25mm grid.
+    // The STEP reference uses an 8mm BLIND tap-drill proxy above
+    // 2.2mm uncut metal. Thread depth itself is not specified by OEM.
     const nineTopBores=[...[-25,0,25].flatMap(x=>
-      [-25,0,25].map(z=>[x,z,2.6]))];
-    const rotaryUpper=add(g,drilledDisc(47,10.2,mats.steel,nineTopBores));
-    rotaryUpper.position.y=23;
+      [-25,0,25].map(z=>[x,z,2.5]))];
+    const rotaryBlindBottom=add(g,cyl(47,2.2,mats.steel,0,24.1,0));
+    rotaryBlindBottom.userData.B08BlindBoreFloorCandidate=true;
+    const rotaryUpper=add(g,drilledDisc(47,8,mats.steel,nineTopBores));
+    rotaryUpper.position.y=25.2;
     rotaryUpper.userData.B08TrueTopNineBores=true;
-    g.userData.B08TopTrueBoreCount=nineTopBores.length;
-    g.userData.B08TopBoreDiameterCandidateMm=5.2;
-    g.userData.B08TopBorePatternOEMVerified=false;
+    g.userData.B08TopTrueBoreCount=9;
+    g.userData.B08TopHolePitchMm=25;
+    g.userData.B08TopBoreDiameterCandidateMm=5.0;
+    g.userData.B08TopBlindDepthCandidateMm=8;
+    g.userData.B08TopBorePatternOEMVerified=true;
+    g.userData.B08TopThreadDepthOEMVerified=false;
     add(g,torus(45,1.0,mats.ink,0,33.35,0));
     for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(g,2.6,33.5,x,z);
     // User-confirmed GCM-1107M has NO external operating handle.
