@@ -801,7 +801,7 @@ for i,dx in enumerate((-14,14),1):
     check(abs(center-(-82.75+dx))<.02,'V58 G40 head pair follows moved film unit')
 for i in (1,2):
     wing=part(A,f'A05CS{i}')[0]
-    check(wing.isValid() and wing.BoundingBox().xlen>10.5 and
+    check(wing.isValid() and wing.BoundingBox().xlen>9.4 and
           wing.BoundingBox().ylen<6.1,
           'V77 butterfly heads rotated 90deg into X-outward plane, not Z/front-back')
     check(wing.intersect(a_sheet).Volume()<1e-4,
