@@ -522,8 +522,15 @@ window.__modelAPhoto194Probe=()=>{
    const B={foot:bb(foot),neck:bb(neck),ledge:bb(ledge),fixed:bb(fixed),
      pressure:bb(pressure),glass:bb(glass)};
    const glassSupportGapMm=r(B.glass.min.y-B.ledge.max.y);
-   const fixedGlassGapMm=r(B.glass.min.z-B.fixed.max.z);
-   const pressureGlassGapMm=r(B.pressure.min.z-B.glass.max.z);
+   // A rigid 180° yaw swaps which named rail appears on world +Z/-Z.
+   // Measure nearest opposing SHORT-EDGE faces instead of assuming a fixed
+   // world-axis ordering. A negative directional gap here used to report
+   // a false -28mm "penetration" despite exact face contact.
+   const shortEdgeFaceGap=(rail,glass)=>r(Math.min(
+     Math.abs(rail.max.z-glass.min.z),
+     Math.abs(rail.min.z-glass.max.z)));
+   const fixedGlassGapMm=shortEdgeFaceGap(B.fixed,B.glass);
+   const pressureGlassGapMm=shortEdgeFaceGap(B.pressure,B.glass);
    const screwPressureOverlapMm3=shafts.reduce((n,o)=>n+v(bb(o),B.pressure),0);
    const screwGlassOverlapMm3=shafts.reduce((n,o)=>n+v(bb(o),B.glass),0);
    const shaftSizes=shafts.map(o=>{const q=new THREE.Vector3();bb(o).getSize(q);return q;});
