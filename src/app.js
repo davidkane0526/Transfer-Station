@@ -3384,9 +3384,10 @@ function updateDetail(part){
    '<div class="field" id="b35-microscope-fastener-audit" data-bolt-align="'+
    b35FastenerAudit.boardBoltPatternAligned+'" data-mismatch-mm="'+
    b35FastenerAudit.maxMismatchMm.toFixed(2)+'"><b>B35↔B16孔系配准（V51）</b><p>'+
-   'B16底座为4个Ø6.5 mm 候选M6通孔，B35对位4个Ø5×6 mm候选螺纹底孔，'+
-   '25mm候选网格下孔中心偏差为 '+
-   b35FastenerAudit.maxMismatchMm.toFixed(1)+' mm；其余网格仅为2mm装饰盲孔。'+
+   'B16底座为4个Ø6.5mm候选M6间隙通孔，对位B35上25mm间距的Ø5mm候选M6攻丝底孔。'+
+   'B35的120个候选网格孔已按全厚贯通孔建模，非旧版2mm装饰盲孔；螺纹本体未建模。'+
+   '当前四孔中心最大偏差为 '+
+   b35FastenerAudit.maxMismatchMm.toFixed(1)+' mm。'+
    '这只解决三维候选孔位相容问题，原机B16/B35型号、孔位原点、攻丝与螺栓有效啮合尚未验证，'+
    '不得据此采购、钻孔或安装承重显微镜。</p></div>':'';
  // The annotation is only in the selected part's detail view, not an
