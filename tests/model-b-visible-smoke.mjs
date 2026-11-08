@@ -644,6 +644,10 @@ try{
      name+' must be in actual surface contact in photo-view geometry, gap='+value+'mm');
  }
  assert.equal(photoTruth.photographicMountsAccepted,false);
+ assert.equal(photoTruth.a15DrumsVsMagnetOverlapMm3,0,
+   'A15 overhung micrometer must not actually intersect the A17 magnetic block');
+ assert.equal(photoTruth.falseAabbGapFromWholeA15Mm,-3.5,
+   'The whole-stage -3.5mm false gap must remain detectable separately from the base contact');
  // Capture evidence-view geometry after real THREE.js frames, not mock images.
  // Views are approximate camera orientations, NOT pixel-registered metrology.
  const photoShot=async(filename,buttonId)=>{
