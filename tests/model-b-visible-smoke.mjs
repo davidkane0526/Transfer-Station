@@ -650,7 +650,7 @@ try{
  assert(aFrame.topWorldYmm>=390,'A optical/camera cable top is missing from the scene');
  assert.equal(aDefault.actualStagePosePhotoRegistered,false);
  assert.equal(aDefault.A05CClampSkuVerified,false);
- assert.equal(aDefault.footprintGapMm,60.25);
+ assert.equal(aDefault.footprintGapMm,72.25);
  assert.equal(aDefault.stampCenterX,78);
  assert.equal(aDefault.stampCenterZ,0);
  assert.equal(aDefault.initialVerticalStampGapMm,13);
@@ -788,7 +788,7 @@ try{
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
  assert.match(await page.locator('#a-physical-audit').innerText(),/工程几何假设/);
- assert.match(await page.locator('#a-physical-audit').innerText(),/60.25/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
  // A03 VC13M must move only its output plate; A04/A05 follow the
