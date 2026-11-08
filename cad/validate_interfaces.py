@@ -539,7 +539,6 @@ check(abs(amagnet.zmin-20)<.02 and abs(amagnet.zmax-40)<.02,
 a17_body=part(A,'A17')[0]
 a17_control=part(A,'A17L')[0]
 a15_front=part(A,'A15F')[0]
-a15_control=part(A,'A15FK')[0]
 check(abs(a17_body.BoundingBox().zmin-20)<.02 and
       abs(a17_body.BoundingBox().zmax-40)<.02,
       'V52 A17 remains a 65x65x20mm magnetic-base envelope candidate')
@@ -565,8 +564,8 @@ check(a15_front.BoundingBox().zmin>amagnet.zmax+10,
 check(a15_front.BoundingBox().ymax<-32 and
       part(A,'A03M')[0].BoundingBox().ymin>33,
       '2026-11-08 two photo sides: A15 silver slot -Y / VC13 micrometer +Y')
-check(a15_front.intersect(a15_control).Volume()<1e-4,
-      'V62 front slot must clear the control shaft')
+check(not (A/'A15FK.step').exists(),
+      'V79 remove unsupported floating A15 central control cylinder')
 for i in (1,2):
     bolt=part(A,f'A15FS{i}')[0]
     check(bolt.intersect(a15_front).Volume()>0,
@@ -581,7 +580,7 @@ for legacy in ('A17P','A17S1','A17S2'):
 report['V62_A15_front_slot_A17_lower_lever']={
   'photo':['194','195','2026-11-08-screen-front'],'A15_front_open_slot':True,
    'slot_face_axis_in_CAD':'-Y opposite VC13M +Y face',
-  'A15_front_plate_screw_count':2,'A15_control_count':1,
+  'A15_front_plate_screw_count':2,'A15_control_count':0,
   'A17_lower_lever_count':1,'A17_duplicate_slot_count':0,
   'OEM_dimensions_and_threads_verified':False}
 # V49: photos25/26 show two side-hole rows on the B09 NFP-1462C body.
