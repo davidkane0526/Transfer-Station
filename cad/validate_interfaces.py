@@ -1645,6 +1645,37 @@ report['B_microscope_MXFMS_photo_fit']={
 tipbb=part(B,'B18A')[0].BoundingBox()
 glass=part(B,'B07')[0].BoundingBox()
 check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide collision')
+# The uploaded COMPLETE STEP must be the user-approved BARE
+# photo-left-return machine, not the deprecated right-return simulation
+# that included an unphotographed 76mm glass slide and fabricated jaws.
+import csv
+verification=json.loads((ROOT/'build'/'verification.json').read_text())
+a_complete=next(x for x in verification if x['system']=='A')
+omitted={'A05C','A05CU','A05G','A05GP'}
+check(set(a_complete['excluded_uninstalled'])==omitted,
+      'V77 complete A STEP must exclude all four uninstalled twin-jaw/glass/PDMS study solids')
+check(a_complete['approved_installed_shape']=='photo_left_return_L_no_glass_2_X_wing_nuts',
+      'V77 official A STEP exports original left-return plate, not mirrored candidate')
+check(a_complete['photo_A_stage_center_x_mm']==-116,
+      'V77 installed A magnet and vertical goniometer stack must match original photo -116mm X')
+with (ROOT/'build'/'platform_A'/'part_levels.csv').open(encoding='utf-8-sig',newline='') as f:
+    installed_ids={row['id'] for row in csv.DictReader(f)}
+check(not installed_ids.intersection(omitted),
+      'V77 installed A part-level BOM cannot list absent glass/PDMS/imaginary clamp')
+check({'A05','A05CS1','A05CS2'}.issubset(installed_ids),
+      'V77 installed A must still retain the real folded bracket + pair of fastening screws')
+with (ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv').open(encoding='utf-8-sig',newline='') as f:
+    research_ids={row['id'] for row in csv.DictReader(f)}
+check(research_ids==omitted,
+      'V77 uninstalled study geometries must be marked clearly, not silently lost')
+report['V77_A_user_approved_installed_assembly']={
+    'photo_first_left_return':True,
+    'installed_photo_bracket_butterfly_screws':['A05','A05CS1','A05CS2'],
+    'installed_glass':False,
+    'installed_hypothetical_jaws':False,
+    'wing_orientation':'X-outward rotated 90deg',
+    'excluded_study_solids':sorted(omitted),
+    'real_clamp_thread_dimensions_verified':False}
 report['checks_passed']=len(report['checks'])
 report['geometry_status']='passed'
 report['status']='proxy_geometry_only__physical_acceptance_pending'
