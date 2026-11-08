@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>平台 A | 实物照片与模型逐图对照</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Noto Sans CJK SC","Microsoft YaHei",sans-serif;background:#0d1723;color:#e6eef5}
+*{box-sizing:border-box}body{margin:0 auto;max-width:1420px;padding:22px 22px 70px}
+a{color:#9cd4ff}header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+h1{font-size:27px;margin:0 0 8px}h2{font-size:19px;margin:8px 0}
+p{line-height:1.7;color:#c2d0db;margin:8px 0}.notice{border:1px solid #5d6056;background:#202b32;padding:15px 20px;border-radius:9px;margin:20px 0}
+.notice strong{color:#ffd58b}.subtle{font-size:13px;color:#b6c4d0}
+figure{margin:0}.pair{display:grid;grid-template-columns:190px minmax(250px,1fr) minmax(270px,1.15fr);gap:16px;padding:20px 0;border-top:1px solid #354352}
+.info{align-self:start}.info h2{font-size:20px;color:#e2f2ff}.info p{font-size:14px}
+.media{border:1px solid #35485a;border-radius:8px;overflow:hidden;background:#152535;min-height:170px;display:flex;flex-direction:column}
+.media img{display:block;width:100%;height:350px;object-fit:contain;background:#111c29}
+.media.reference img{image-rendering:auto;max-height:320px}
+figcaption{padding:10px 12px;font-size:13px;border-top:1px solid #344455;color:#d2dfeb}
+.empty{padding:10px;color:#ffca7c;font-size:13px}.state{font-weight:650;color:#ffbf73}
+footer{margin-top:25px;color:#8f9eaf;font-size:13px}
+@media(max-width:1050px){.pair{grid-template-columns:165px 1fr 1fr}}@media(max-width:700px){body{padding:14px}.pair{grid-template-columns:1fr 1fr;gap:9px}.info{grid-column:1/-1}.media img{height:230px}}
+</style></head><body>
+<header><div><h1>平台 A · 实物照片与本次模型逐图对照</h1>
+<p>实物照片 191–196 对照每次发布时<strong>真实 Three.js 浏览器渲染</strong>，不是示意图或手工拼出的合成模型。</p>
+</div><div><a href="./index.html">返回三维模型</a> · <a href="https://github.com/davidkane0526/Transfer-Station/actions" target="_blank" rel="noopener">构建记录</a></div></header>
+<div class="notice"><strong>尚未通过实物级验收。</strong> 这里的视角只是接近对应实拍的观察方向，未经相机标定、透视变换或同名机械基准点配准，不能将两张图的像素尺寸直接比较。仓库中实物原图目前只有128×170像素的压缩预览；没有原始高清图片时，不会凭空补造细小孔位或夹爪结构。实拍模式默认不渲染尚未拍到的 A05C 夹爪和 A05G 玻片，右折边工作候选必须单独开启。</div>
+<main id="pairs">
+<section class="pair" id="photo191"><div class="info"><h2>照片 191</h2><p>相机、镜筒、机头及样品区整体。</p><p class="state">未验收：显微镜竖直工作距离、支架与机头实际接口。</p></div>
+<figure class="media reference"><img src="./assets/photos/191.webp" alt="实物191：显微镜整体" loading="eager"><figcaption>实物 191 · 原仓库存档缩略图</figcaption></figure>
+<figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo191-Overview.png" alt="本次构建平台A轴测渲染，接近照片191" loading="eager"><figcaption>模型 · 轴测观察方向，未做视角标定</figcaption></figure></section>
+<section class="pair" id="photo192"><div class="info"><h2>照片 192</h2><p>侧视立柱、机头、相机线及样品台。</p><p class="state">未验收：照明支架固定方式和镜筒连接位置。</p></div>
+<figure class="media reference"><img src="./assets/photos/192.webp" alt="实物192：侧视显微镜" loading="lazy"><figcaption>实物 192</figcaption></figure>
+<figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo192-Side.png" alt="模型侧面渲染" loading="lazy"><figcaption>模型 · 后侧方向，仅可检查相对层级</figcaption></figure></section>
+<section class="pair" id="photo193"><div class="info"><h2>照片 193</h2><p>正面整体：物镜、样品座、两套机构。</p><p class="state">未验收：物镜与样品的真实空间距离。</p></div>
+<figure class="media reference"><img src="./assets/photos/193.webp" alt="实物193：正面整体" loading="lazy"><figcaption>实物 193</figcaption></figure>
+<figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo193-Front.png" alt="模型正面渲染" loading="lazy"><figcaption>模型 · 正面方向，未经摄影测量配准</figcaption></figure></section>
+<section class="pair" id="photo194"><div class="info"><h2>照片 194</h2><p>载玻片侧整体：磁座、T25M、VC13M、G40、折弯片。</p><p class="state">未验收：磁座型号及 A05 下端夹持器。</p></div>
+<figure class="media reference"><img src="./assets/photos/194.webp" alt="实物194：转移臂正面" loading="lazy"><figcaption>实物 194</figcaption></figure>
+<figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo194-FilmUpper.png" alt="模型A上方摆角台与折弯片" loading="lazy"><figcaption>模型 · A04/A05 近景</figcaption></figure></section>
+<section class="pair" id="photo195"><div class="info"><h2>照片 195</h2><p>VC13M 竖直台、底层双轴 T25M 与上方摆角台。</p><p class="state">未验收：具体平移台后缀、导轨与前端螺钉孔位。</p></div>
+<figure class="media reference"><img src="./assets/photos/195.webp" alt="实物195：VC13M局部" loading="lazy"><figcaption>实物 195</figcaption></figure>
+<figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo195-FilmLower.png" alt="模型A下方VC13M与T25M" loading="lazy"><figcaption>模型 · A03/A15 近景</figcaption></figure></section>
+<section class="pair" id="photo196"><div class="info"><h2>照片 196</h2><p>G40M60L 右侧微分头、L形板下端并排蝶形螺钉。</p><p class="state">未验收：两枚螺钉的真实孔距与压紧方式。</p></div>
+<figure class="media reference"><img src="./assets/photos/196.webp" alt="实物196：G40M60L局部" loading="lazy"><figcaption>实物 196</figcaption></figure>
+<figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo196-G40.png" alt="模型G40M60L与折弯片" loading="lazy"><figcaption>模型 · G40与折弯片，摄影角度为近似</figcaption></figure></section>
+</main><footer>每次验证流水线会重新生成右侧六幅三维截图并将其发布到本页面。只要缺少任何一幅，网页发布即视为未完成。几何自动测试成功不能替代这六组视觉复核。</footer>
+<script>
+document.querySelectorAll('.media:not(.reference) img').forEach(img=>{
+ img.addEventListener('error',()=>{
+   const marker=document.createElement('div');marker.className='empty';
+   marker.textContent='当前发布没有对应渲染截图，不能报告视觉复核通过。';
+   img.replaceWith(marker);
+ });
+});
+</script></body></html>
