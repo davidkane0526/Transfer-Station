@@ -667,6 +667,13 @@ try{
    'A10 boom must have actual through-bore clearing the fixed microscope post');
  assert.equal(opticsRaised.supportBoomNearbySolidMetal,true,
    'Boom must retain metal around the candidate Ø26.6 post-bore');
+  assert.equal(opticsRaised.boomLengthCandidateMm,86);
+  assert.equal(opticsRaised.boomHousingFrontGapMm,0,
+    'A10 boom must meet the A18 rear mounting face, not float');
+  assert.equal(opticsRaised.boomHousingOverlapMm3,0,
+    'A10 boom must not enter the solid A18 microscope housing');
+  assert(opticsRaised.boomHousingMatingFaceAreaMm2>=800,
+    'A10 joint must be a physical face, not a zero-area contact');
  assert.equal(opticsRaised.supportBoomCandidatePostBoreDiameterMm,26.6);
  assert.equal(opticsRaised.actualParkingLiftMm,18);
  assert.equal(opticsRaised.opticPartIds.length,7);
@@ -903,6 +910,9 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(opticsLower?.currentBroadphaseCollisions.length,0);
  assert.equal(opticsLower?.coherentOpticOffsets,true);
  assert.equal(opticsLower.supportBoomRealPostBore,true);
+  assert.equal(opticsLower.boomHousingFrontGapMm,0);
+  assert.equal(opticsLower.boomHousingOverlapMm3,0,
+    'A10 boom must remain flush when A05 glass is lowered');
  assert(opticsLower.verticalGapMm>opticsMid.verticalGapMm);
  const guideLower=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());
  assert.equal(guideLower.outputLiftMm,0);
