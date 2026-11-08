@@ -1705,1301 +1705,144 @@ function filmB(){
    addJointHeads(g,'B31',14.9,[[-14,-14],[14,14]],{headR:2.6});
    label(g,'GCM-G40M60L · R60 / 右侧测微（照片94）',-4,40,0);
  },{explode:[-25,42,0],moveFilm:true});
- const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:144});
- addPart('B32',ax,144,0,g=>{
-   // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
-   // and not the 200mm square beam formerly rendered here.
-   const localX=aBent.centerX-ax;
-   const leftLocalX=aBent.leftX-ax+aBent.metalThickness/2;
-   add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
-       mats.black,localX,aBent.metalThickness/2,aBent.sheetFrontZ));
-   const verticalSheet=add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
-       aBent.topPlateDepth,mats.black,
-       leftLocalX,-aBent.verticalLegLength/2,aBent.sheetFrontZ));
-   verticalSheet.userData.A05VerticalSheetWeb=true;
-   // The top plate actually sits ON the G40 top, two photo-visible hex
-   // heads near stage 40mm table; threads/length still unverified.
-   for(const xx of aBent.topBoltWorldX){
-     const hex=jointHead(g,xx-ax,aBent.metalThickness,aBent.sheetFrontZ,
-       {headR:3.1,shankR:1.5,shankL:4});
-     hex.userData.photo94Fastener=true;
-     hex.material=mats.dark; // photo94 black bolt heads seated on black folded sheet
-   }
-   // The lower leg end only forms a slim return flange; the exact glass
-   // jaw and optics beyond this photo are NOT modelled here.
-   add(g,cub(13,2.5,aBent.topPlateDepth,mats.black,
-       leftLocalX+6,-aBent.verticalLegLength+1.25,aBent.sheetFrontZ));
-   g.userData.photo94BentSheet=true;
-   g.userData.verifiedPhotoBentCorner=true;
-   g.userData.photoBracketDatums=aBent;
-   label(g,'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
-      -24,17,0);
- },{explode:[-13,65,0],moveFilm:true});
-
-   // Keep the slide/transfer film visible in the COMPLETE B layout.
-   // Photos 94/95/97 do not identify the missing jaw between B32 and B07.
-   // This is an explicitly detached, translucent TARGET-LOCATION REFERENCE,
-   // never a fabricated load-bearing connection.
-   addPart('B07',CONFIG.B.sampleX+5,105,0,g=>{
-     g.userData.connectionPending=true;
-     const previewGlass=new THREE.MeshPhysicalMaterial({
-       color:'#b6def3',transparent:true,opacity:.30,roughness:.1,
-       metalness:0,depthWrite:false,side:THREE.DoubleSide
-     });
-     const plate=add(g,cub(76,1,26,previewGlass,0,0,0));
-     plate.userData.unconnectedReference=true;
-     const membrane=add(g,cub(20,1.8,20,mats.ceramic,-5,-1.4,0));
-     membrane.material=new THREE.MeshStandardMaterial({
-       color:'#e6d7be',transparent:true,opacity:.55,depthWrite:false
-     });
-     membrane.userData.unconnectedReference=true;
-     label(g,'玻片/转移膜位置参考：B32至玻片夹接口缺失',0,18,0);
-   },{explode:[0,80,15]});
-   return;
- }
-
- // 108/109: magnet B02 touches board, T25M is ON magnet and handle faces -X.
- // Photo108 sees magnetic-base branded +Z, photo109 sees T25M branded -Z.
-// T25M is yaw=180° relative to the magnetic base: the SAME X handle,
-// appearing left in the former view and right in the latter.
-makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw:Math.PI*HANDLES.B03.installationYawDeg/180},1,2,-1);
- addPart('B04',ax,73,0,g=>{
-  add(g,cub(65,8,66,mats.dark,0,4,0));
-  // Vertical stage stationary frame vs movable side carriage
-  const movingCarriage=new THREE.Group();g.add(movingCarriage);
-  g.userData.verticalCarriage=movingCarriage;
-  // V25M is an UPRIGHT side-driven stage, not a solid stacked cube.
-  // Photo149: V25M MOVABLE output surface sits lower than its stationary
-  // upright, which continues above the horizontal sleeve mounting plate.
-  // These relative heights are photo-fit only, not full OEM CAD.
-  // The stationary V25M upright EXTENDS ABOVE its movable output plate.
-  // Cutting the whole body to 32mm would remove the top rails seen in 149.
-  // Align web and STEP B04A fixed guide at Y=81..133.
-  add(g,cub(56,52,18,mats.dark,0,34,-10));
-  // Photo108/149: the moving face is BLACK with small mounting holes,
-  // not an unbroken silver slab. Backing is 6mm thick; its 2mm black
-  // skin has real open geometry and exposes dark BLIND-hole bottoms.
-  // 3x4 locations are visual PHOTO PROXIES, not certified OEM pitch.
-  add(movingCarriage,cub(34,49,6,mats.dark,0,32.5,2));
-  const face=shapeRect(34,49);
-  const holePattern=[];
-  for(const x of [-10,0,10])for(const yy of [-12.5,-2.5,7.5,17.5])
-    holePattern.push([x,yy,1.55]);
-  addHoles(face,holePattern);
-  const faceGeo=new THREE.ExtrudeGeometry(face,{
-    depth:2,steps:1,bevelEnabled:false,curveSegments:32
-  });
-  const blackFace=add(movingCarriage,mk(faceGeo,mats.black));
-  blackFace.position.set(0,32.5,5);
-  blackFace.userData.photoFitBlindBores=12;
-  // Embedded face rails, not two disconnected steel posts.
-  for(const x of [-17,17])add(movingCarriage,cub(2.5,38,1.2,mats.silver,x,31,7.5));
-  // Photo108: small SIDE bridge connects the moving guide front
-  // (Z=+7) to the B05 plate side face (X=stage+28). It must NOT be
-  // the old 65x66 slab INSIDE the stationary 56x18 upright.
-  const bracket=add(movingCarriage,cub(25,15,18,mats.dark,15.5,19.5,16));
-  bracket.userData.movingSideBridge=true;
-  // Photos108/149: V25M micrometer is vertical and OUTSIDE the
-  // left upright, not penetrating its solid body. Old V30 micrometer
-  // overlapped the stationary guide by ~1456 mm³ in STEP.
-  // An annular Ø13.2 guide plus a small tangent bracket supports the
-  // shaft. True coupling/thread is still a photo-fit candidate.
-  const collar=add(g,sleeve(9,6.6,10,mats.dark,-39,36,0,'y'));
-  collar.userData.realMicrometerClearanceBore=true;
-  const support=add(g,cub(5,10,4,mats.dark,-30.5,36,-2));
-  support.userData.micrometerGuideSupportCandidate=true;
-  const verticalShaft=add(g,cyl(6.5,40,mats.silver,-39,49,0));
-  verticalShaft.userData.micrometerOutsideUpright=true;
-  add(g,cyl(9,17,mats.silver,-39,77.5,0));
-  addJointHeads(g,'B04',7.95,[[-25,-24],[-25,24],[25,-24],[25,24]],{headR:2.5});
-  label(g,'GCM-V25M · 竖直测微头 +Y',0,89,0);
- },{explode:[-24,30,0],moveFilm:true});
- // A direct cantilever replaces the unsupported 85mm vertical post,
- // rearward 249mm return bar and second hanging post. Attachment is
- // a candidate because the actual fixture screws are unmeasured.
- const rack=auditB149(B149);
- // The old V22 150mm straight cantilever/B26 hanger math is NOT
- // the photographed PHUC+two-bar structure. Keep only the clamp's
- // horizontal placement; derive all remaining datums from B149.
- const link={clampWorldX:rack.glassHolderWorldX,mountY:rack.supportPlateBottomY,
-   loadPath:'B33→B25→PHUC-1→B28→side-M6-candidate→GCM-1302M',
-   physicalAcceptance:false};
- // B05 is a side-mounted, photo-fit carriage plate. The load path is
- // decomposed into selected elements; B26 represents ONLY an unverified
- // direct M6 rod-end interface, never a floating connector block.
- // Photo149 has a BLACK thin plate with a long cylindrical sleeve
- // seated directly above it. No separate Ø36 PHPB-1 circular foot is
- // seen there: drawing that old flange would collide with the holder.
- addPart('B05',rack.b05CenterX,rack.supportPlateBottomY,0,g=>{
-   g.userData.cantileverLink=link;
-   g.userData.photo149FlatPlateOnly=true;
-   add(g,cub(65,rack.supportPlateHeightMm,66,mats.black,
-     0,rack.supportPlateHeightMm/2,0));
-   addJointHeads(g,'B05',rack.supportPlateHeightMm-.05,
-      [[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
-   label(g,'V30照片108：活动导轨侧装B05安装板，避开固定V25M机架',0,28,0);
- },{explode:[-30,55,-13],moveFilm:true,moveFilmVertical:true});
- // Photo149: steel post extends THROUGH a 50mm cylindrical holder
- // and THROUGH B33 square clamp with a threaded tip still exposed.
- // Previous 25mm rod was physically incapable of supporting B33.
- addPart('B27',rack.postAxisX,rack.supportPostBottomY,rack.postAxisZ,g=>{
-   const rod=add(g,cyl(rack.postDiameterMm/2,rack.supportPostLengthMm,mats.steel,
-     0,rack.supportPostLengthMm/2,0,56));
-   rod.userData.candidate100mmFit=true;
-   // Small M6-like terminal witness, not a verified thread pitch.
-   add(g,cyl(3,3,mats.silver,0,rack.supportPostLengthMm+1.5,0,32));
-   label(g,'竖向接杆 Ø12×100 mm（PHSP12-4 尺规候选）',0,114,0);
- },{explode:[-25,55,-13],moveFilm:true,moveFilmVertical:true});
- // Photo149: missing BLACK sleeve: ~4-5 cm tall; Zolix PHSH-2 50mm
- // is a series-length CANDIDATE, no photo-visible SKU.
- addPart('B34',rack.postAxisX,rack.postHolderBottomY,rack.postAxisZ,g=>{
-   add(g,sleeve(rack.postHolderODmm/2,rack.postDiameterMm/2+.08,
-      rack.postHolderHeightMm,mats.black,0,rack.postHolderHeightMm/2,0,'y'));
-   add(g,torus(rack.postHolderODmm/2,.55,mats.dark,0,
-      rack.postHolderHeightMm-.75,0));
-   g.userData.photo149HolderDatums=rack;
-   g.userData.modelConfirmed=false;
-   label(g,'黑色立杆套筒 · PHSH-2 50mm仅候选',0,65,0);
- },{explode:[-23,55,-13],moveFilm:true,moveFilmVertical:true});
- // Photo149 additionally shows a SEPARATE small square connector
- // joining the support post to the first long horizontal Ø12 rod.
- // No identifiable OEM SKU is legible; shape is a two-hole proxy.
- addPart('B33',rack.postAxisX,rack.squareClampCenterY,-7.5,g=>{
-   // Unlike the old pair of FLOATING ROUND rings, photo149 shows ONE
-   // near-square body. Split its 30mm Z-depth into two contacting,
-   // fully bored halves: rear has a vertical Ø12 hole and front has
-   // an orthogonal horizontal Ø12 hole. The hole cylinders are
-   // 15mm apart along Z, avoiding both rod/solid intersections.
-   const rear=add(g,plate(28,15,30,mats.dark,[[0,0,6.05]]));
-   rear.position.set(0,-15,-7.5);
-   rear.userData.photo149TrueVerticalBore=true;
-   const front=add(g,frontXRodBracket(28,30,15,mats.black,
-     0,0,7.5,0,7.5,6.05));
-   front.userData.photo149TrueHorizontalBore=true;
-   thumbKnob(g,0,12,-7.5,'y',3.5);
-   thumbKnob(g,13,0,7.5,'x',3.5);
-   g.userData.unidentifiedModel=true;
-   g.userData.squareBodyEnvelopeMm=[28,30,30];
-   g.userData.separateRealThroughBores=2;
-   label(g,'照片149：独立方夹 · 真Ø12立杆孔/横杆孔（型号待核）',0,27,0);
- },{explode:[-19,54,-12],moveFilm:true,moveFilmVertical:true});
- // Photos 149 and 150 show an actual Zolix PHUC-1, NOT the earlier
- // PHCP-2. Manufacturer drawing: A60, BØ30, C/DØ12, bore pitch E33.
- // Full housing, two rotatable barrel halves, and insertion datums are
- // not vendor-native CAD; the two orthogonal ring cutouts here are
- // presentation proxies until photo/part coordinate registration.
- addPart('B24',rack.phucCenterX,rack.phucCenterY,0,g=>{
-   const oem=V28_OEM_DIMENSIONS.PHUC1;
-   g.userData.phuc1OEM=oem;
-   g.userData.photoMeasured=false;
-   // Photo149 body is ONE continuous cylindrical swivel clamp with
-   // a narrow horizontal assembly seam near mid-height. V30 wrongly
-   // drew two disconnected thick tube rings. This analytic surface
-   // has TWO open Ø12.1 bores with 33mm vertical pitch, matching STEP.
-   const barrel=add(g,phucContinuousTwoBores(
-      oem.outerDiameterBmm/2,oem.lengthAmm,oem.boreCmm/2+.05,
-      oem.boreCenterSpacingEmm,mats.black));
-   barrel.userData.manufacturerConstrainedEnvelope=true;
-   const splitSeam=add(g,torus(oem.outerDiameterBmm/2-.15,.28,
-      mats.ink,0,0,0));
-   splitSeam.userData.unverifiedHousingSplitWidth=true;
-   // Independent upper/lower thumb screws are both photographically visible.
-   thumbKnob(g,0,31,13,'z',5);
-   thumbKnob(g,16,-16.5,0,'x',5);
-   g.userData.verifiedPhotoModel='Zolix PHUC-1';
-   g.userData.oemHoleCenterSpacingMm=oem.boreCenterSpacingEmm;
-   label(g,'PHUC-1 · 厂家 A60 / Ø30 / Ø12×2 / 中心距33mm',2,52,-7);
- },{explode:[-23,58,-13],moveFilm:true,moveFilmVertical:true});
- // First Ø12 rod connects B33 square clamp to PHUC upper hole only;
- // 100mm is a PHOTO FIT and not an identified PHSP part number.
- addPart('B25',rack.upperRodStartX,rack.upperRodY,0,g=>{
-   const rod=add(g,cyl(6,rack.upperRodLengthMm,mats.steel,
-     rack.upperRodLengthMm/2,0,0,60));
-   rod.rotation.z=Math.PI/2;
-   g.userData.photoFitNotOemLength=true;
-   label(g,'首根横杆 Ø12×'+rack.upperRodLengthMm+'mm（照片空间拟合，非型号确认）',32,17,0);
- },{explode:[-20,64,-13],moveFilm:true,moveFilmVertical:true});
- // The second rod is visible through the other PHUC-1 opening in both
- // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
- // Keep it separate in BOM and selection. The glass coupling is unverified.
- addPart('B28',rack.lowerRodStartX,rack.lowerRodY,0,g=>{
-   const d=rack.lowerRodEndX-rack.lowerRodStartX;
-   const output=add(g,cyl(6,d,mats.steel,d/2,0,0,48));
-   output.rotation.z=Math.PI/2;
-   g.userData.candidateLengthMm=d;
-   g.userData.actualPhotoLengthVerified=false;
-   label(g,'下层横杆 Ø12 · 端面抵达夹具侧壁，不穿透夹具',d/2,15,0);
- },{explode:[-14,62,20],moveFilm:true,moveFilmVertical:true});
- // Photo108/150: the lower Ø12 post terminates DIRECTLY at the left
- // side of GCM-1302M. The old large socket and vertical B26 block
- // are absent from the actual apparatus. Small M6 end-stud is a
- // CANDIDATE coupling, not a photo-identified separate adapter.
- addPart('B26',rack.glassHolderSpineLeftX,rack.lowerRodY,0,g=>{
-   const stud=add(g,cyl(rack.threadStubDiameterMm/2,
-      rack.threadStubLengthMm,mats.steel,rack.threadStubLengthMm/2,0,0,32));
-   stud.rotation.z=Math.PI/2;
-   g.userData.interfaceOnly=true;
-   g.userData.photoConfirmedThread=false;
-   label(g,'B26仅是M6接口候选，非可见大型转接件',3,14,0);
- },{explode:[-20,65,2],moveFilm:true,moveFilmVertical:true});
- // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
- // Place plate clamp at glass LEFT edge, away from the sample optical axis.
- // 180 degree yaw changes jaw engagement from leftward to rightward.
- addPart('B06',link.clampWorldX,rack.glassHolderOriginY,0,g=>{
-  // Daheng GCM-13 (1302M candidate): ONE fixed face, ONE moving pressure
-  // plate actuated by TWO screws. Do not create two separate U-shaped jaws.
-  // Manufacturer: L=60, M6 attachment, thickness <=5 mm. Jaw offsets below
-  // are 1mm glass / 1.5mm preview values, not OEM mechanical drawing.
-  const jaw=getPlateHolderJawDatums({
-    holderBaseWorldYmm:rack.glassHolderOriginY,
-    slideCenterWorldYmm:rack.glassCenterWorldY
-  });
-  g.userData.gcmJawDatums=jaw;
-  const sideBoreY=rack.lowerRodY-rack.glassHolderOriginY;
-  // Spine right-side face and the jaw/pressure plate only TOUCH.
-  // V30 fixed width=17mm penetrated B06F by 70mm³ and B06M by
-  // 490mm³; shrink from 17 to 14.5 without shifting the M6 side face.
-  const spine=add(g,frontXRodBracket(14.5,18.5,56,mats.dark,8.25,-11.75,0,
-     sideBoreY,0,rack.threadStubDiameterMm/2+.06));
-  spine.userData.trueM6SideHole=true;
-  add(g,cub(24,5,56,mats.black,-6,-.2,0)); // shared upper screw bridge
-  const lowerTop=jaw.fixedJawTopLocalY;
-  const upperBottom=jaw.movableJawBottomLocalY;
-  add(g,cub(22,4,56,mats.steel,-10,lowerTop-2,0)); // ONE lower fixed face
-  add(g,cub(22,jaw.movablePlateThicknessMm,56,mats.silver,-10,
-    upperBottom+jaw.movablePlateThicknessMm/2,0));
-  // Two independent threaded adjusters push the SAME moving plate.
-  for(const z of jaw.screwZmm){
-    const drive=add(g,cyl(1.7,jaw.screwShaftLengthMm,mats.steel,
-      -10,jaw.screwShaftCenterLocalY,z,24));
-    drive.userData.plateHolderActuator=true;
-    const knob=add(g,cyl(4.2,5,mats.silver,-10,2.8,z,36));
-    knob.userData.plateHolderActuatorKnob=true;
-    const cap=add(g,cyl(3.7,.6,mats.ink,-10,5.2,z,36));
-    cap.userData.plateHolderActuatorKnob=true;
-  }
-  // Photo108: no bulky back-side adapter. Thread depth awaits OEM drawing.
-  addJointHeads(g,'B06',2.25,[[-10,-6],[8,6]],{headR:2.6});
-  label(g,'Daheng GCM-1302M · 共用活动压板 + 双调节螺杆',4,24,0);
- },{explode:[-20,65,5],moveFilm:true,moveFilmVertical:true,facingYaw:Math.PI});
- addPart('B07',rack.glassCenterWorldX,rack.glassCenterWorldY,0,g=>{
-  const sheet=add(g,cub(76,1,26,mats.glass,0,0,0));
-  sheet.userData.glassRightEdgeWorldX=rack.glassRightX;
-  const stamp=add(g,cub(20,1.8,20,mats.ceramic,
-    rack.stampOffsetFromGlassCenterX,-1.4,0));
-  stamp.userData.rightEdgeStamp=true;
-  label(g,'右侧印章对准样品中心；夹具完全位于热台左侧；玻片悬空'+rack.glassToHeaterGapMm.toFixed(1)+'mm / PDMS悬空'+rack.verticalContactDropMm.toFixed(1)+'mm',8,16,0);
- },{explode:[0,80,15],moveFilm:true,moveFilmVertical:true});
-}
-function rotaryB(){
- const sx=CONFIG.B.sampleX, rise=CONFIG.B.sampleBoardRiseMm;
- // The real apparatus has TWO distinct plate layers: metallic common
- // B01 below and a separate BLACK THORLABS hole-grid board under B08.
- // Photos 145 and 150 show the latter's Thorlabs label and edge.
- // 250×300×12 is a PHOTO-FIT coverage candidate, NOT the
- // identifiable 250×300×12.7mm Thorlabs MB2530/M OEM SKU.
- addPart('B35',CONFIG.B.sampleBoardCenterX,20,0,g=>{
-   const w=CONFIG.B.sampleBoardWidthMm,d=CONFIG.B.sampleBoardDepthMm,rise=CONFIG.B.sampleBoardRiseMm;
-   // MB2530/M comparison geometry: 10×12 M6 through-grid, 12.5mm edge phase.
-   // Exact SKU remains unconfirmed; 12mm thickness is retained from ruler fit.
-   const anchors=[[-100,-125],[-100,125],[100,-125],[100,125]];
-   const grid=[];
-   for(let x=-112.5;x<=112.5+1e-6;x+=25)
-     for(let z=-137.5;z<=137.5+1e-6;z+=25)grid.push([x,z,2.5]);
-   const lower=plate(w,d,8.5,mats.black,[...grid,...anchors.map(([x,z])=>[x,z,3.25])]);
-   add(g,lower);
-   const upper=plate(w,d,rise-8.5,mats.black,[...grid,...anchors.map(([x,z])=>[x,z,5.5])]);
-   upper.position.y=8.5;add(g,upper);
-   for(const [x,z] of anchors){
-     const shaft=add(g,cyl(2.5,20,mats.silver,x,-1.5,z));
-     shaft.userData.B35CandidateAnchor=true;
-     const head=add(g,cyl(5,3.5,mats.steel,x,rise-1.75,z));
-     add(g,cyl(2.2,.35,mats.ink,x,rise-.15,z,6));
-     head.userData.B35CandidateAnchorHead=true;
-   }
-   g.userData.boltedAuxiliaryPlate=true;
-   g.userData.candidateGridAlignedBolts=4;
-   g.userData.independentSampleBoard=true;
-   g.userData.boardSkuCandidate='Thorlabs MB2530/M';
-   g.userData.boardSkuVerified=false;
-   g.userData.gridHoleCount=120;
-    g.userData.mountingCounterboreCount=4;
-    g.userData.centralFifthCounterbore=false;
-   g.userData.gridHolePitchMm=25;
-   g.userData.gridEdgeOffsetMm=12.5;
-   g.userData.boardThicknessPhotoFitMm=12;
-   g.userData.officialCandidateThicknessMm=12.7;
-   g.userData.mountingHoleInsetMm=25;
-   g.userData.mountingHoleCount=4;
-   g.userData.centralFifthCounterbore=false;
-   g.userData.anchorHoleCoordinatesWorld=[[-25,-125],[-25,125],[175,-125],[175,125]];
-   g.userData.threadGeometry='M6 through-tapped pattern represented by Ø5mm tap-drill holes';
-   label(g,'B35 · Thorlabs MB2530/M孔系候选 · 250×300×12 photo-fit · M6/25mm贯通网格',0,rise+8,136);
-  });
-  addPart('B08',sx,20+rise,0,g=>{
-    // GCM-1107M OEM base: 4 x Ø6.8 clearance holes on 50mm
-    // square with Ø11.5 x 16mm counterbores. Mounting side shown
-    // as an upper-entry proxy; B35 hole-grid registration is pending.
-    const baseMounts=[...[-25,25].flatMap(x=>
-      [-25,25].map(z=>[x,z]))];
-    const baseFoot=add(g,drilledDisc(47,7,mats.dark,
-      baseMounts.map(([x,z])=>[x,z,3.4])));
-    baseFoot.userData.B08FixedLowerClearanceHoles=true;
-    const baseCounterbore=add(g,drilledDisc(47,16,mats.dark,
-      baseMounts.map(([x,z])=>[x,z,5.75])));
-    baseCounterbore.position.y=7;
-    baseCounterbore.userData.B08FixedUpperCounterbores=true;
-    g.userData.B08BaseMountBoreCount=4;
-    g.userData.B08BaseMountPitchMm=50;
-    g.userData.B08BaseMountClearanceDiaMm=6.8;
-    g.userData.B08BaseCounterboreDiaMm=11.5;
-    g.userData.B08BaseCounterboreDepthMm=16;
-    g.userData.B08CounterboreFaceOrientationVerified=false;
-    // Lower 23mm body stays fixed on B35; the upper circular face
-    // rotates with B41, as on the actual rotation platform.
-    const rotatingDeck=new THREE.Group();
-    g.add(rotatingDeck);
-    rotatingDeck.userData.B08MovingRotaryDeck=true;
-    g.userData.rotatingDeck=rotatingDeck;
-    // The lower B41 stage engages B08 by four recessed screws. The old
-    // solid cylinder with painted rings had NO holes and those screws
-    // physically penetrated its metal.
-    // GCM-1107M OEM drawing: 9-M6 top pattern with 25mm grid.
-    // The STEP reference uses an 8mm BLIND tap-drill proxy above
-    // 2.2mm uncut metal. Thread depth itself is not specified by OEM.
-    const nineTopBores=[...[-25,0,25].flatMap(x=>
-      [-25,0,25].map(z=>[x,z,2.5]))];
-    const rotaryBlindBottom=add(rotatingDeck,cyl(47,2.2,mats.steel,0,24.1,0));
-    rotaryBlindBottom.userData.B08BlindBoreFloorCandidate=true;
-    const rotaryUpper=add(rotatingDeck,drilledDisc(47,8,mats.steel,nineTopBores));
-    rotaryUpper.position.y=25.2;
-    rotaryUpper.userData.B08TrueTopNineBores=true;
-    g.userData.B08TopTrueBoreCount=9;
-    g.userData.B08TopHolePitchMm=25;
-    g.userData.B08TopBoreDiameterCandidateMm=5.0;
-    g.userData.B08TopBlindDepthCandidateMm=8;
-    g.userData.B08TopBorePatternOEMVerified=true;
-    g.userData.B08TopThreadDepthOEMVerified=false;
-    add(rotatingDeck,torus(45,1.0,mats.ink,0,33.35,0));
-    for(const x of [-25,0,25])for(const z of [-25,0,25])
-      circleGuide(rotatingDeck,2.6,33.5,x,z);
-    // The bolts engaging B08's rotating top belong to B41 fixed base.
-    // Do not draw a second, duplicated set on B08.
-    g.userData.B08DuplicateB41Fasteners=0;
-    g.userData.B08BaseToB35BoltsVerified=false;
-    // User-confirmed GCM-1107M has NO external operating handle.
-    label(g,'GCM-1107M · Ø94×33.2 · 无外伸手柄',0,46,0);
- },{explode:[12,0,0],rotateSample:false});
- // B09 is the upper OEM-identified NFP-1462C. B41 is the lower
- // orthogonal single-axis stage visible in ruler photo147; its exact SKU
- // remains unverified and is not silently assigned the NFP model.
- const addSampleLinearStage=(id,baseY,facingYaw,title,modelConfirmed)=>{
-  addPart(id,sx,baseY,0,g=>{
-   const mounting=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
-   const stageBodyMaterial=modelConfirmed?mats.steel:mats.lowerStage;
-   add(g,plate(65,65,6,stageBodyMaterial,mounting));
-   add(g,plate(65,65,5,stageBodyMaterial,mounting.map(p=>[p[0],p[1],5.5]))).position.y=6;
-   // Expose the *real two-stage boundary* at local y=0 of the
-   // upper NFP. This thin dark witness follows the mating face and
-   // does NOT introduce a fictitious vertical gap or support block.
-   if(modelConfirmed){
-     const jointLine=add(g,cub(65.7,.72,65.7,mats.ink,0,.36,0));
-     jointLine.userData.stageXYBoundary=true;
-     jointLine.userData.between='B41/B09';
-     g.userData.stageBoundaryMarkerCount=1;
-   }else{
-     g.userData.stageBoundaryMarkerCount=0;
-   }
-   for(const z of [-31.9,31.9]){
-     const rail=add(g,cub(63,1.0,1.3,mats.dark,0,11.0,z));
-     rail.userData.realCrossedStageCarriageSeam=true;
-   }
-   const slidingTop=new THREE.Group();g.add(slidingTop);g.userData.slidingTop=slidingTop;
-   const tapped=modelConfirmed?[
-     ...[-25,0,25].flatMap(x=>[-25,0,25].map(z=>[x,z,2.5])),
-     ...[-16,16].flatMap(x=>[-16,16].map(z=>[x,z,1.25]))
-   ]:[[-25,-25,2.45],[-25,25,2.45],[25,-25,2.45],[25,25,2.45]];
-   const lower=plate(65,65,2,stageBodyMaterial);
-   lower.position.y=11;lower.userData.sampleStageMovingUnderside=true;
-   add(slidingTop,lower);
-   const drilled=plate(65,65,10,stageBodyMaterial,tapped);drilled.position.y=13;add(slidingTop,drilled);
-   g.userData.fixedBaseHeightMm=11;
-   g.userData.movingStageHeightMm=12;
-   g.userData.stageBodyHeightMm=23;
-   g.userData.stageRole=modelConfirmed?'upper-X':'lower-Y';
-   // 3+4 side-hole rows are retained as photo-fit geometry. For B41
-   // their exact count, diameter and thread are not claimed as OEM data.
-   const addSideBore=(parent,x,y,r,row)=>{
-     const rim=add(parent,sleeve(r+.45,r,.6,mats.silver,x,y,-32.2,'z'));
-     rim.userData.sampleStageSideBore={row,diameterMm:2*r,photoFit:true};
-     rim.userData.NFPPhoto25SideBore={row,diameterMm:2*r,photoFit:true};
-     const bottom=add(parent,cyl(r,.2,mats.black,x,y,-31.3,24));
-     bottom.rotation.x=Math.PI/2;
-     bottom.userData.sampleStageSideBoreBottom=true;
-   };
-   const lowerSide=[[-18,7,1.6],[-4,7,2.0],[11,7,2.6],[22,7,1.6]];
-   const upperSide=[[-22,17.5,1.8],[-8,17.5,1.8],[12,17.5,2.8]];
-   if(modelConfirmed){
-     for(const [x,y,r] of lowerSide)addSideBore(g,x,y,r,'lower');
-     for(const [x,y,r] of upperSide)addSideBore(slidingTop,x,y,r,'upper');
-     g.userData.sideHoleRowsCandidate={fixedLower:4,movingUpper:3};
-     g.userData.nfpPhotoSideHoleCount=7;
-     g.userData.nfpPhotoSideHoleRows={lower:4,upper:3};
-     g.userData.NFPUpperPhotoSideHoleRowHeightMm=17.5;
-   }else{
-     g.userData.sideHoleRowsCandidate=null;
-     g.userData.sideHolePatternAssigned=false;
-   }
-   g.userData.sideHoleThreadsVerified=false;
-   add(g,cub(24,15,30,mats.steel,-45,12,0));
-   add(g,sleeve(4.1,3.8,1,mats.ink,-57,12,0,'x'));
-   const spindleLength=modelConfirmed?82.5:40;
-   const spindleCenter=modelConfirmed?-89.25:-68;
-   const collarLength=modelConfirmed?23:18;
-   const collarCenter=modelConfirmed?-119:-79;
-   const drumCenter=modelConfirmed?-131:-88.5;
-   const spindle=add(g,cyl(3.6,spindleLength,mats.silver,spindleCenter,12,0));spindle.rotation.z=Math.PI/2;
-   add(g,sleeve(9,3.8,collarLength,mats.steel,collarCenter,12,0,'x'));
-   const drum=add(g,sleeve(11,9.2,28,mats.silver,drumCenter,12,0,'x'));
-   drum.userData.stageActuatorHandle={kind:'linear',localAxis:'X'};
-   spindle.userData.stageActuatorStem={kind:'linear',localAxis:'X'};
-   g.userData.axisDirection=facingYaw===Math.PI/2?'+Z':'+X';
-   g.userData.oemModelConfirmed=modelConfirmed;
-   g.userData.envelopeCandidateMm=[65,65,23];
-   if(modelConfirmed)g.userData.NFPMicrometerOverallLengthCandidateMm=177.5;
-   else g.userData.micrometerLengthVisualCandidateMm=135;
-   if(modelConfirmed){
-     for(const x of [-25,0,25])for(const z of [-25,0,25])circleGuide(slidingTop,2.8,23.4,x,z);
-     for(const x of [-16,16])for(const z of [-16,16])circleGuide(slidingTop,1.6,23.42,x,z);
-   }else{
-     for(const x of [-25,25])for(const z of [-25,25])circleGuide(slidingTop,2.8,23.4,x,z);
-     g.userData.B41TopFourM6MountPatternCandidate=true;
-     g.userData.B41TopHolePatternVerified=false;
-   }
-   for(const x of [-25,25])for(const z of [-25,25])circleGuide(g,5.5,11.3,x,z);
-   stageBaseRecessedFasteners(g,id,[[-25,-25],[-25,25],[25,-25],[25,25]]);
-   label(g,modelConfirmed?'NFP 仅单轴 X / 一根测微头':'第二级正交单轴台 · 前向测微头（型号待核）',-38,46,0);
-   label(g,title,0,42,0);
-  },{explode:[0,16,0],rotateSample:true,facingYaw,
-      ...(id==='B09'?{translateSampleDepth:true}:{})});
- };
- addSampleLinearStage('B41',53.2+rise,Math.PI/2,
-   '第二级单轴平移台 · 65×65×23mm候选 · 前向安装90°',false);
- addSampleLinearStage('B09',76.2+rise,Math.PI,
-   'Zolix NFP-1462C · 原厂65×65×23 · 右向X轴',true);
- addPart('B10',sx,99.2+rise,0,g=>{
-   const h=plate(65,65,10,mats.white,[[-25,-25,3.4],[-25,25,3.4],[25,-25,3.4],[25,25,3.4]]);add(g,h);
-   label(g,'白色无机隔热层 ≈10mm',0,22,0);
- },{explode:[-7,36,-8],rotateSample:true,translateSample:true,translateSampleDepth:true});
- addPart('B11',sx,109.2+rise,0,g=>{
-   const corners=[[-25,-25,3.3],[-25,25,3.3],[25,-25,3.3],[25,25,3.3]];
-   // Lower layer with real open underside ceramic pocket
-   add(g,plate(65,65,5.4,mats.steel,corners,[38.6,38.6]));
-   add(g,plate(65,65,.1,mats.steel,[...corners,[0,0,.7]])).position.y=5.4;
-   const cb=corners.map(a=>[a[0],a[1],5.5]);cb.push([0,0,.7]);
-   add(g,plate(65,65,6.5,mats.steel,cb)).position.y=5.5;
-   // V36: the vacuum passage is an INTERNAL bore, not a glowing
-   // hose or a turquoise nozzle protruding through the contact face.
-   // Keep the true center Ø1.4 opening in the drilled upper plate;
-   // the unverified buried duct is represented only by evidence notes.
-   g.userData.vacuumPathInternalNotExternallyVisible=true;
-   label(g,'单中心吸附孔 Ø1.4 mm（候选）/ 底面开腔 / 四沉孔',0,31,0);
- },{explode:[0,61,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
- addPart('B12',sx,109.5+rise,0,g=>{
-   add(g,cub(38,5,38,mats.ceramic,0,2.5,0));
-   // Pair of heater leads exiting the BACK (-Z) of the milled chuck.
-   for(const x of [10,15]){
-      add(g,cub(2,1.5,2,mats.copper,x,2.5,-18.5));
-      add(g,tube([[x,2.5,-19],[x,2.5,-32.5],[x,2.5,-48],[x+1,0,-60]],.55,mats.copper));
-   }
-   label(g,'加热片后侧双引线（孔位候选）',0,12,-18);
- },{explode:[38,74,12],rotateSample:true,translateSample:true,translateSampleDepth:true});
- addPart('B13',sx,114.35+rise,0,g=>{
-    add(g,cyl(.6,1.2,mats.copper,6,.6,0));
-    add(g,tube([[6,.6,0],[6,.6,-19.5],[6,.6,-33],[6,-3,-51]],.34,mats.blue));
- },{explode:[-17,70,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
- addPart('B14',sx,109.2+rise,0,g=>{
-   for(const x of [-25,25])for(const z of [-25,25]){
-      screw(g,x,12.03,z,25); // head surface flush at 12.03; do not mask by blue hole guide
-   }
-   g.userData.fastenerProxies=4;
-   label(g,'4 枚顶部齐平螺钉（仅数量、齐平已确认）',0,45,0);
- },{explode:[0,88,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
- addPart('B15',sx,118.5+rise,0,g=>{
-   // V37: B11's internal vacuum bore must terminate in an OPEN
-   // tubular fitting. The former solid rod plugged the air passage.
-   const fitting=add(g,sleeve(3,1.42,13,mats.silver,0,0,-39,'z'));
-   fitting.userData.trueVacuumAxialBore=true;
-   const shortHose=add(g,tube(
-     [[0,0,-45.5],[0,1,-58],[1,-3,-70],[12,-17,-79]],1.8,mats.rubber));
-   shortHose.userData.lastFlexiblePoint=[12,-17,-79];
-   g.userData.rearVacuumBoreNotBlocked=true;
-   label(g,'B15接头：OD Ø6.0 / 孔径 Ø2.84 / 长13 mm（均为候选）',4,12,-48);
- },{explode:[0,60,-20],rotateSample:true,translateSample:true,translateSampleDepth:true});
- const substrate=cub(24,.6,24,mats.glass,0,121.5+rise,0);currentRoot.add(substrate);sampleSubstrate=substrate;
-}
-function microscopeB(){
- const sx=CONFIG.B.sampleX,sz=CONFIG.B.scopeZ,
-    rise=CONFIG.B.sampleBoardRiseMm;
- // Photo150: microscope post FOOT occupies the BACK of B35.
- // It MUST NOT sit directly on lower silver B01 while the
- // adjacent sample rotary sits 12mm higher on B35.
- addPart('B16',87.5,20+rise,-112.5,g=>{
-   // B-specific evidence: photos108/116 identify the SDPTOP MXFMS;
-   // the 65x65 foot remains the photographed installation adapter,
-   // NOT the manufacturer's separate 320x260 B5 base.
-   const footHolePattern=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
-   const foot=add(g,plate(65,65,12,mats.dark,footHolePattern));
-   foot.userData.trueCandidateMountBores=4;
-   foot.userData.boardThreadedFixingVerified=false;
-   foot.userData.B35GridRegistered=true;
-   // Four M6x20 socket-head candidates: 12mm foot + 8mm nominal B35 engagement.
-   for(const x of [-25,25])for(const z of [-25,25]){
-     const head=screw(g,x,18,z,20);
-     head.userData.B16MountingScrewHead=true;
-   }
-   g.userData.B16MountingScrewCount=4;
-   g.userData.mountingFootCenterWorld=[87.5,-112.5];
-   g.userData.mountingFootGridRegistered=true;
-   // MXFMS maker specification: Ø32 x 280mm post. The custom foot,
-   // post-to-board anchors and exact installed height remain candidates.
-   const post=add(g,cyl(16,280,mats.steel,0,152,0));
-   post.userData.MXFMSPost={diameterMm:32,heightMm:280,manufacturerDimension:true};
-   add(g,sleeve(18.5,16.2,26,mats.dark,0,242,0,'y'));
-   add(g,cub(80,34,34,mats.microscope,-1.5,242,23));
-   const boom=add(g,cub(32,26,125,mats.microscope,-1.5,253,87.5));
-   boom.userData.MXFMSBoomProxy=true;
-   const body=add(g,cub(55,50,55,mats.microscope,-5.5,229,112.5));
-   body.userData.MXFMSBody=true;
-   // MXFMS coaxial coarse/fine focus. Paired controls on both sides;
-   // knob diameters are visual proxies, not measured OEM dimensions.
-   for(const side of [-1,1]){
-     const shaftX=side===1?28:-39;
-     const coarseX=side===1?38.5:-49.5;
-     const fineX=side===1?45:-56;
-     const rot=side*Math.PI/2;
-     const shaft=add(g,cyl(5,12,mats.dark,shaftX,225,108.5));shaft.rotation.z=rot;
-     shaft.userData.MXFMSFocusShaft=true;
-     const coarse=add(g,cyl(28,9,mats.dark,coarseX,225,108.5));coarse.rotation.z=rot;
-     coarse.userData.MXFMSFocusKnob='coarse';
-     const fine=add(g,cyl(15,4,mats.silver,fineX,225,108.5));fine.rotation.z=rot;
-     fine.userData.MXFMSFocusKnob='fine';
-   }
-   // Turret support is offset from the active objective optical axis.
-   // Its exact offset is a photo-fit candidate; the 32mm MXFMS post is OEM.
-   const mount=add(g,cyl(8,44,mats.dark,-23.5,188,112.5));
-   mount.userData.MXFMSNosepieceMount=true;
-   for(const x of [-25,25])for(const z of [-25,25]){
-     const shank=add(g,cyl(3,18,mats.steel,x,3,z));
-     shank.userData.B16CandidateM6Shank=true;
-     const head=add(g,cyl(5,2.5,mats.silver,x,13.25,z));
-     head.userData.B16CandidateFastenerHead=true;
-   }
-   g.userData.nominalFastenerGridAligned=true;
-   g.userData.realThreadEngagementVerified=false;
-   g.userData.MXFMS={model:'MXFMS',manufacturer:'SUNNY / SDPTOP',
-     postDiameterMm:32,postHeightMm:280,coarseTravelMm:32,
-     fineAdjustmentPrecisionMm:0.002,head:'30deg trinocular'};
-   label(g,'SDPTOP MXFMS · Ø32立柱 · 粗/微同轴调焦（安装底座为候选）',-8,303,68);
- },{explode:[0,15,-42]});
- addPart('B17',sx,276+rise,0,g=>{
-   // Photo113 identifies the SDPTOP digital microscope camera.
-   // CTV/relay tube geometry is a generic adjustable adapter proxy.
-   const lower=add(g,cyl(9,10,mats.dark,0,-23,0));
-   lower.userData.cameraAdapterSection=true;
-   const upper=add(g,cyl(12,18,mats.steel,0,-9,0));
-   upper.userData.cameraAdapterSection=true;
-   const camera=add(g,cub(47,48,48,mats.dark,0,24,0));
-   camera.userData.SDPTOPCamera=true;
-   g.userData.cameraAdapterSections=2;
-   label(g,'SDPTOP Digital Microscope Camera · CTV/中继筒接口待核',0,77,0);
- },{explode:[0,95,0]});
- addPart('B18',sx,200+rise,0,g=>{
-   // Photo108/video show the objective changer; OEM MXFMS data specifies
-   // a five-hole inward nosepiece. Port pitch and exact rotation datum
-   // are not measured, so this is a visual/photo-fit reconstruction.
-   const ports=Array.from({length:5},(_,i)=>{
-     const a=i*2*Math.PI/5;
-     return {x:-18+18*Math.cos(a),z:18*Math.sin(a)};
-   });
-   const turretShape=new THREE.Shape();
-   turretShape.absarc(-18,0,28,0,2*Math.PI,false);
-   const centreBore=new THREE.Path();
-   centreBore.absarc(-18,0,8.5,0,2*Math.PI,true);
-   turretShape.holes.push(centreBore);
-   for(const p of ports){
-     const hole=new THREE.Path();
-     hole.absarc(p.x,-p.z,8.5,0,2*Math.PI,true);
-     turretShape.holes.push(hole);
-   }
-   const turretGeo=new THREE.ExtrudeGeometry(turretShape,{
-     depth:13,bevelEnabled:false,curveSegments:48,steps:1
-   });
-   turretGeo.rotateX(-Math.PI/2);
-   const turret=add(g,mk(turretGeo,mats.dark));
-   turret.userData.MXFMSFiveHoleNosepiece=true;
-   const hub=add(g,sleeve(8.5,8,13,mats.dark,-18,6.5,0,'y'));
-   hub.userData.nosepieceCentralHub=true;
-   for(const p of ports){
-     const ring=add(g,sleeve(8.5,8,13,mats.dark,p.x,6.5,p.z,'y'));
-     ring.userData.nosepieceObjectivePort=true;
-   }
-   // Photo110: one 10x / 0.15 / DIC / WD10.8 objective and a separate
-   // OptoSigma-branded objective are visible; the latter's model is unknown.
-   const tenX=add(g,cyl(8,38,mats.steel,0,-18.5,0));
-   tenX.userData.objectiveBarrel=true;
-   tenX.userData.objectiveLabel='10x / 0.15 / DIC / WD10.8';
-   add(g,cyl(9.5,3,mats.dark,0,-1,0));
-   add(g,cyl(6.5,12,mats.black,0,-43.5,0));
-   add(g,cyl(5.2,1.2,mats.glass,0,-50,0));
-   const opto=ports[1];
-   const optoBarrel=add(g,cyl(7.5,36,mats.steel,opto.x,-18,opto.z));
-   optoBarrel.userData.objectiveBarrel=true;
-   optoBarrel.userData.objectiveLabel='OptoSigma · model unknown';
-   add(g,cyl(8.8,3,mats.dark,opto.x,-1.5,opto.z));
-   add(g,cyl(5.8,12,mats.black,opto.x,-42,opto.z));
-   add(g,cyl(4.5,1.2,mats.glass,opto.x,-48.6,opto.z));
-   g.userData.MXFMSObjectivePorts=5;
-   g.userData.installedObjectiveCount=2;
-   label(g,'MXFMS 五孔内倾转换器 · 10×/0.15/DIC/WD10.8 + OptoSigma',-18,27,0);
- },{explode:[16,26,0]});
-}function externalB(){
- // Photos114/117/119 show ONE SILVER METAL CONTROL ENCLOSURE:
- // front YUDIAN PID panel B19, inside MEAN WELL SE-600-48 B21 and
- // an unidentified vented module B23. Earlier versions rendered
- // overlapping, floating stand-alone blocks, despite photo119
- // unambiguously showing a common open metal housing.
- // The enclosure 285×225×125mm, walls 3mm, and internal placements
- // are PHOTO-FIT CANDIDATES, not measured shop or wiring dimensions.
- const controlX=365,controlZ=-150;
- addPart('B36',controlX,0,controlZ,g=>{
-   const w=285,d=225,h=125,t=3;
-   add(g,cub(w,t,d,mats.silver,0,t/2,0));
-   // LEFT feedthrough has a REAL clearance opening for the three
-   // heater/thermocouple visual leads (port location remains candidate).
-   add(g,frontXRodBracket(t,h-t,d,mats.silver,
-     -w/2+t/2,(h+t)/2,0,86,-16,5.3));
-   add(g,cub(t,h-t,d,mats.silver,w/2-t/2,(h+t)/2,0));
-   for(const z of [-d/2+t/2,d/2-t/2])
-     add(g,cub(w-2*t,h-t,t,mats.silver,0,(h+t)/2,z));
-   g.userData.hollowOpenTop=true;
-   g.userData.physicalManufacturerDimensionsKnown=false;
-   label(g,'照片114/119：银色电控箱，内置B21/B23；外廓/配线待核',0,h+15,0);
- },{explode:[75,0,-65]});
- addPart('B19',controlX,20,-28.5,g=>{
-   // Face of B19 touches the FRONT wall of B36 at Z=-37.5,
-   // rather than floating in space as a second 87mm-deep box.
-   add(g,cub(120,80,18,mats.dark,0,40,0));
-   add(g,cub(82,46,2,mats.black,0,50,9.4));
-   label(g,'YUDIAN AI · B36机箱前面板（真实开孔未核）',0,94,12);
- },{explode:[70,10,35]});
- addPart('B21',controlX,3,-190,g=>{
-   // Photo117 clearly identifies this SE-600-48 PSU, and photo119
-   // places it INSIDE the metal control box. Exact 247×127×63.5
-   // is the source-listed hardware envelope.
-   add(g,cub(247,63.5,127,mats.silver,0,31.75,0));
-   for(let i=0;i<18;i++)add(g,cub(3,.5,90,mats.dark,-99+i*11,64,0));
-   label(g,'MEAN WELL SE-600-48 · B36内部',0,91,0);
- },{explode:[85,75,-50]});
- addPart('B23',controlX,3,-77,g=>{
-   // The black perforated module in photo119 is a separate INNER
-   // component, but its function / exact SKU are unknown.
-   add(g,cub(93,38,58,mats.dark,0,19,0));
-   for(let i=-3;i<=3;i++)add(g,cub(4,2,41,mats.ink,i*10,39,0));
-   // Prevent a decorative port from punching through the actual
-   // front steel wall. Dimensions remain photo-fit candidates.
-   add(g,cub(48,13,10,mats.steel,0,16,26));
-   label(g,'照片119：控制箱内部黑色散热模块（型号未识别）',0,53,0);
- },{explode:[85,65,-38]});
- // Photo120 pump and photo115 LED adapter are distinct EXTERNAL devices,
- // not modules stacked in the controller's metal housing.
- addPart('B20',335,0,180,g=>{
-  // V43: user photos 120/123 and the VN-50 family side views agree on a
-  // horizontal cylindrical motor shell, not a rectangular box.
-  // Two visible tie rods sit on the SAME side, above and below the plate.
-  const pumpBase=add(g,cub(200,8,110,mats.black,-10,4,0));
-  pumpBase.userData.pumpBasePlate=true;
-  for(const x of [-81,61])for(const z of [-48,48]){
-    const foot=add(g,cub(28,12,14,mats.dark,x,10,z));
-    foot.userData.pumpMountingFoot=true;
-    const footHole=add(g,cyl(3.1,2,mats.ink,x,16,z));
-    footHole.userData.mountingHoleCandidate=true;
-  }
-  const motorHousing=add(g,cyl(44,150,mats.black,-10,50,0));
-  motorHousing.rotation.z=Math.PI/2;
-  motorHousing.userData.pumpMotorHousing=true;
-  motorHousing.userData.pumpCylindricalHousing=true;
-  const motor=add(g,cyl(28,118,mats.dark,-10,50,0));
-  motor.rotation.z=Math.PI/2;
-  motor.userData.pumpMotorCore=true;
-  for(const x of [-51,7]){
-    const band=add(g,sleeve(46,43,4,mats.silver,x,50,0,'x'));
-    band.userData.pumpHousingBand=true;
-  }
-  const fan=add(g,cyl(42,12,mats.dark,-89,50,0));
-  fan.rotation.z=Math.PI/2;
-  fan.userData.pumpFanCover=true;
-  const fanRing=add(g,sleeve(39,31,1.6,mats.silver,-95,50,0,'x'));
-  fanRing.userData.pumpFanGrille=true;
-  for(const [dy,dz] of [[-24,0],[24,0],[0,-24],[0,24],[-17,-17],[-17,17],[17,-17],[17,17]]){
-    const aperture=add(g,cyl(2.5,14,mats.ink,-89,50+dz,dy,24));
-    aperture.rotation.z=Math.PI/2;
-    aperture.userData.pumpFanAperture=true;
-  }
-  // Two longitudinal tie rods on the same near side, framing the label.
-  for(const y of [30,70]){
-    const rod=add(g,cyl(2.5,140,mats.silver,-10,y,39));
-    rod.rotation.z=Math.PI/2;
-    rod.userData.pumpTieRodCandidate=true;
-    for(const x of [-80,60]){
-      const bracket=add(g,cub(14,18,14,mats.silver,x,y,34));
-      bracket.userData.pumpRodSupport=true;
-    }
-  }
-  // Two finned aluminium heads with a shared upper connecting pipe.
-  for(const x of [-45,30]){
-    const flange=add(g,cub(48,8,48,mats.dark,x,92,0));
-    flange.userData.pumpHeadFlange=true;
-    const head=add(g,cub(42,38,42,mats.pump,x,115,0));
-    head.userData.pumpTwinHead=true;
-    const cap=add(g,cub(44,4,44,mats.silver,x,136,0));
-    cap.userData.pumpHeadCap=true;
-    for(const y of [138.8,140.6,142.4]){
-      const fin=add(g,cub(44,2,44,mats.silver,x,y,0));
-      fin.userData.pumpHeadFin=true;
-    }
-    const bridgeSupport=add(g,cyl(4.2,8,mats.steel,x,138,0));
-    bridgeSupport.userData.pumpHeadBridgeSupport=true;
-  }
-  const bridge=add(g,cyl(4.2,75,mats.silver,-7.5,142,0));
-  bridge.rotation.z=Math.PI/2;
-  bridge.userData.pumpHeadBridge=true;
-  const outlet=add(g,cyl(7,14,mats.steel,-52,143,0));
-  outlet.rotation.z=Math.PI/2;
-  outlet.userData.pumpTopPortCandidate=true;
-  const filterBlock=add(g,cub(18,16,18,mats.copper,50,133,0));
-  filterBlock.userData.pumpFilterCandidate=true;
-  const filterCollar=add(g,cyl(8,4,mats.silver,50,123,0));
-  filterCollar.userData.pumpFilterCandidate=true;
-  const filter=add(g,cyl(7,22,mats.glass,50,111,0));
-  filter.userData.pumpFilterCandidate=true;
-  for(const x of [-80,-75,-20,-5,55,60]){
-    for(const z of [-15,15]){
-      const y=50+Math.sqrt(44*44-z*z)+.25;
-      const vent=add(g,cyl(2.7,1.5,mats.ink,x,y,z,24));
-      vent.userData.ventCandidate=true;
-      vent.userData.pumpTopVent=true;
-    }
-  }
-  for(const x of [-75,-65,25,40,55,60]){
-    for(const y of [40,50,60]){
-      const vent=add(g,cyl(2.1,3,mats.ink,x,y,44,20));
-      vent.rotation.x=Math.PI/2;
-      vent.userData.ventCandidate=true;
-      vent.userData.pumpSideVent=true;
-    }
-  }
-  const nameplate=add(g,cub(48,22,1.2,mats.white,-10,50,44));
-  nameplate.userData.pumpNameplate=true;
-  for(const [y,w] of [[56,30],[52,36],[48,32],[44,28],[40,22]]){
-    const line=add(g,cub(w,1.2,.6,mats.ink,-10,y,44.8));
-    line.userData.pumpNameplateTextLine=true;
-  }
-  const warning=add(g,cub(18,18,1.2,mats.white,35,70,40));
-  warning.userData.pumpWarningPlate=true;
-  const warningRing=add(g,mk(new THREE.RingGeometry(4.2,5.2,32),mats.warningRed));
-  warningRing.position.set(35,70,40.75);
-  warningRing.userData.pumpWarningSymbol=true;
-  const warningSlash=add(g,cub(1.4,12,.6,mats.warningRed,35,70,40.8));
-  warningSlash.rotation.z=-Math.PI/4;
-  warningSlash.userData.pumpWarningSymbol=true;
-  label(g,'VN-50 · 220 V / 230 W · 53 L/min',-10,66,45.2);
-  // G1/4 family thread-datum ring only: not a nozzle or mating adapter.
-  // Ø13.157 major diameter and Ø11.8 female tap-drill are catalogue references;
-  // actual thread gender, port position and seal are not verified on this specimen.
-  const inlet=add(g,sleeve(6.5785,5.9,1.2,mats.silver,73.6,68,0,'x'));
-  inlet.userData.G1QuarterThreadReference=true;
-  inlet.userData.threadMajorDiameterMm=13.157;
-  inlet.userData.femaleTapDrillCandidateMm=11.8;
-  inlet.userData.threadProfileModelled=false;
-  inlet.userData.actualPortSideUnverified=true;
-  g.userData.nameplateModel='VN-50';
-  g.userData.pumpModelReadFromPhoto120=true;
-  g.userData.geometryRevision='V53_VN50_G14_thread_datum_not_a_hose_spigot';
-  g.userData.dimensionsCandidateMm={length:200,width:110,height:150};
-  label(g,'G1/4接口基准环 · Ø13.157 / P1.337 · 内外牙待实测',74,91,0);
- },{explode:[0,0,0]});
- addPart('B22',335,0,65,g=>{
-   add(g,cub(65,48,72,mats.dark,0,24,0));
-   add(g,cub(44,22,4,mats.steel,0,24,37));
-   const plug=add(g,cyl(7,12,mats.steel,33,16,0));plug.rotation.z=Math.PI/2;
-   label(g,'照片115：LED LAMP ADAPTOR（独立于B36机箱）',0,68,0);
- },{explode:[55,0,-20]});
-}
-
-// V36 heating harness: connectivity is VISUAL/MECHANICAL only.
-// Photo119 shows visible braided cables; actual AI terminal pinout,
-// heater supply route, PSU relationship and safety are not verified.
-// A common left feedthrough passes a paired heater lead and one
-// sensor sheath into the photo-fit cabinet, where they terminate
-// at clearly unassigned internal connection zones.
-// V40 pneumatic route: B40 passes behind B19/B36 on a lower service lane, outside the enclosure
-// controller, PSU or unknown control cabinet electronics.
-// Geometrical hose is two-sided wall skin: open lumen and fixed pump
-// inlet; the actual hose diameter/G1/4 barb/thread are unverified.
-function vacuumSupplyB(){
- const path=vacuumHosePath();
- addPart('B40',0,0,0,g=>{
-   const points=path.map(p=>[p.x,p.y,p.z]);
-   const outside=add(g,tube(points,VN50.outerHoseRadiusMm,mats.rubber));
-   outside.userData.dynamicVacuumHose='outer';
-   const innerMaterial=mats.ink.clone();innerMaterial.side=THREE.BackSide;
-   const inside=add(g,tube(points,VN50.innerBoreRadiusMm,innerMaterial));
-   inside.userData.dynamicVacuumHose='inner';
-   g.userData.connectedSource='B15';
-   g.userData.connectedPumpIntake='B20';
-   g.userData.model='VN-50';
-   g.userData.inletOrientationCandidate=true;
-   g.userData.routeBehindControllerB19=true;
-   g.userData.audit=auditVacuumPath();
-   label(g,'B40：B19背后绕行 / 与B37、B38线束分层',350,82,-285);
- },{explode:[0,0,0]});
-}
-function refreshVacuumHoseB(){
- if(platform!=='B')return;
- const pipe=parts.get('B40')?.g;if(!pipe)return;
- const route=vacuumHosePath({sampleShiftMm:sampleShift,
-   sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle});
- const pts=route.map(p=>[p.x,p.y,p.z]);
- pipe.traverse(o=>{
-   if(!o.isMesh||!o.userData.dynamicVacuumHose)return;
-   const rad=o.userData.dynamicVacuumHose==='inner'?
-     VN50.innerBoreRadiusMm:VN50.outerHoseRadiusMm;
-   const next=tube(pts,rad,o.material);
-   o.geometry.dispose();o.geometry=next.geometry;
- });
- const a=auditVacuumPath({sampleShiftMm:sampleShift,
-   sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle});
- pipe.userData.audit=a;
- pipe.userData.lastRoute=route;
-}
-
-function heatingControlHarnessB(){
- const red=new THREE.MeshStandardMaterial({color:'#bb6b4e',metalness:.26,roughness:.5});
- const pale=new THREE.MeshStandardMaterial({color:'#d0c4ab',metalness:.28,roughness:.56});
- const sensorMat=new THREE.MeshStandardMaterial({color:'#929a9e',metalness:.6,roughness:.35});
- addPart('B39',265,3,-116,g=>{
-   add(g,cub(36,16,12,mats.dark,0,8,0));
-   for(const x of [-10,0,10])add(g,cyl(2,1.2,mats.silver,x,16.6,0));
-   g.userData.electricalFunctionUnverified=true;
-   label(g,'箱内端子区域（照片119，端子功能和线序未核）',0,31,0);
- },{explode:[80,40,-35]});
- addPart('B37',0,0,0,g=>{
-   for(const [role,mat,r] of [['heaterA',red,1.1],['heaterB',pale,1.1]]){
-     const m=add(g,tube([[0,0,0],[1,0,0]],r,mat));
-     m.userData.dynamicHarnessLead=role;
-   }
-   // Both leads pass through the SAME bore in the cabinet's left wall.
-   const gland=add(g,sleeve(6.6,5.05,6,mats.black,222.5,86,-166,'x'));
-   gland.userData.feedthroughPortCandidate=true;
-   add(g,tube([[225,84,-168],[235,72,-154],[237,44,-125],
-     [251,25,-117],[255,19.7,-116]],.95,red));
-   add(g,tube([[225,87,-167],[235,75,-151],[237,49,-128],
-     [252,26,-118],[265,19.7,-116]],.95,pale));
-   g.userData.terminatesAtUnassignedTerminalZone=true;
-   label(g,'加热双线：后侧并行线束，端子/供电均未核',185,127,-116);
- },{explode:[0,30,-40]});
- addPart('B38',0,0,0,g=>{
-   const m=add(g,tube([[0,0,0],[1,0,0]],.72,sensorMat));
-   m.userData.dynamicHarnessLead='temperature';
-   add(g,tube([[225,89,-163],[235,103,-150],[265,108,-120],
-     [310,100,-83],[349,78,-43]],.72,sensorMat));
-   g.userData.backPanelTerminalsNotConfirmed=true;
-   label(g,'测温反馈线：与加热功率线分支，输入端子未核',250,145,-140);
- },{explode:[0,40,-30]});
-}
-function refreshHeatingControlHarness(){
- if(platform!=='B')return;
- const angle=sampleAngle*Math.PI/180;
- const ca=Math.cos(angle),sa=Math.sin(angle);
- const travel=stageLocalTranslation(sampleShift,angle);
- const depth=stageLocalDepthTranslation(sampleShiftDepth,angle);
- const source=(x,y,z)=>new THREE.Vector3(
-   CONFIG.B.sampleX+travel.x+depth.x+x*ca+z*sa,
-   y+23,-x*sa+z*ca+travel.z+depth.z);
- const gland=new THREE.Vector3(222.5,86,-166);
- for(const id of ['B37','B38']){
-   const g=parts.get(id)?.g;if(!g)continue;
-   g.traverse(o=>{
-     if(!o.isMesh||!o.userData.dynamicHarnessLead)return;
-     let start,mid,end,rad;
-     if(o.userData.dynamicHarnessLead==='temperature'){
-       start=source(6,100.35,-51);mid=2;end=new THREE.Vector3(222.5,89,-163);rad=.72;
-     }else{
-       const second=o.userData.dynamicHarnessLead==='heaterB';
-       start=source(second?16:11,98.5,-60);mid=second?1:0;
-       end=new THREE.Vector3(222.5,second?87:84,second?-167:-168);rad=1.1;
-     }
-     // V40 B40 vacuum hose uses a lower 70mm service plane. The
-     // three electric branches remain separate above it and are
-     // checked against the hose over the complete sampled motion range.
-     // Raise the three flexible electrical branches above the
-     // B15 vacuum outlet before entering the cabinet feedthrough.
-     const guide=mid===0?
-       [[119,135,-92],[174,130,-140],[207,120,-165]]:
-       mid===1?
-       [[119,140,-97],[174,136,-146],[207,126,-171]]:
-       [[119,138,-102],[174,136,-146],[207,130,-171]];
-     const pts=[start,...guide.map(q=>new THREE.Vector3(...q)),end];
-     // The duct is flexible: its first knot follows sample X/yaw.
-     const curve=new THREE.CatmullRomCurve3(pts);
-     const next=new THREE.TubeGeometry(curve,80,rad,10,false);
-     o.geometry.dispose();o.geometry=next;
-   });
- }
-}
-
-function platformA(){
- const ax=activeAFilmX(),sx=CONFIG.A.sampleX;
- const az=aWorkingPoseMode?A_WORKING_LAYOUT.filmStageZ:0;
- // V79: installed A film-side stack faces the sample. This is the user-
- // confirmed 180° correction of the previous backwards orientation.
- const aFilmYaw=aWorkingPoseMode?Math.PI:0;
- // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
- // not the separate left transfer-arm adjustment stage.
- // New photos137/161 show the factory-marked GCM-5306M 8mm mount
- // below the A rotary. It is a BASE, not an additional rotary axis.
- addPart('A16',sx,20,0,g=>{
-   const p=V28_OEM_DIMENSIONS.GCM5306M;
-   // A16 outline OEM-known; these four anchor centers are candidates.
-   const anchors=[[-28,-25,3.25],[-28,25,3.25],
-                  [22,-25,3.25],[22,25,3.25]];
-   add(g,plate(p.lengthMm,p.widthMm,p.thicknessMm,mats.black,anchors));
-   for(const [x,z] of anchors){
-     const shaft=add(g,cyl(2.5,16,mats.steel,x,0,z));
-     shaft.userData.A16CandidateAnchor=true;
-     const head=add(g,cyl(4.25,2.5,mats.silver,x,6.75,z));
-     head.userData.A16CandidateAnchorHead=true;
-   }
-   g.userData.fourCandidateThreadedAnchors=true;
-   label(g,'GCM-5306M 安装底座 · 112×70×8 mm（非旋转台）',0,24,0);
- },{explode:[0,-6,0]});
- // V38: the A FILM-side is magnetically mounted to ONE A01
- // optical breadboard. This magnetic stand is inferred from the user's
- // assembly rule; photos have NOT confirmed its exact maker or height.
- addPart('A17',ax,20,az,g=>{
-    // A17 top/underside are not legible in the A-photo evidence.
-    // Keep a neutral blank top-interface proxy; do NOT copy B02/GCM-420302M holes.
-    add(g,cub(65,10,65,mats.dark,0,5,0));
-    const top=add(g,plate(65,65,10,mats.dark,[]));
-    top.position.y=10;
-    // Photo194: the lower magnet has a separate small operating lever.
-    const pin=add(g,cyl(2.2,10,mats.steel,-23,7,37.5,24));
-    pin.rotation.x=Math.PI/2;
-    const lever=add(g,cyl(3,8,mats.silver,-23,8,39.5,24));
-    lever.userData.A17Photo194LowerLeverCandidate=true;
-    g.userData.lowerLeverPositionVerified=false;
-    g.userData.magneticFixture=true;
-    g.userData.brandAndHolePatternNotVerified=true;
-    g.userData.oemComparisonSku=null;
-    g.userData.oemModelCandidate=null;
-    g.userData.oemVisualMatchConfidence='unidentified';
-    g.userData.topInterfaceModelled=false;
-    g.userData.oemIdentityVerified=false;
-    g.userData.candidateTopHolePattern=null;
-    g.userData.photo22SideSlotCount=0;
-    g.userData.photo22FrontKnobCount=0;
-    g.userData.photo194LowerLeverCount=1;
-    g.userData.candidateMountHoleMarkers=[];
-    g.userData.topCornerCounterbores=0;
-    label(g,'A17 · 磁吸底座（型号/顶部孔系未知）',0,32,0);
-  },{explode:[-10,0,0],facingYaw:aFilmYaw});
- // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
- makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
- // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
- makeStageBlock('A15',ax,40,az,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,
-   {facingYaw:aFilmYaw},1,2,1);
- // Actual photo 97: A15 dual-axis T25M below upright GCM-VC13M;
- // photo 94: GCM-G40M60L on VC13M, with a SINGLE THIN folded-L
- // plate bolted to G40's movable top. These three images are platform A,
- // not B. All geometries below are photographic silhouettes, not OEM solids.
- addPart('A03',ax,73,az,g=>{
-   // Photo97 footprint has a much narrower upright body than the 65mm
-   // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
-   add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
-   add(g,cub(45,36,16,mats.dark,0,26,-8)); // stationary body ends at output lower-limit local Y=44
-   add(g,cub(44,36,4,mats.black,0,26,5)); // fixed guide ends at lower-limit local Y=44
-   // V65 photo194: the raised A03 plate needs visible continuous side
-   // guides. In V64 the +13mm raised plate sat above a bare fixed upright.
-   // Separate side channels remain fixed; moving tongues are nested with
-   // 0.3mm candidate side clearance and overlap them throughout 0..13mm.
-   for(const sign of [-1,1]){
-     const fixed=add(g,cub(3.4,32,8,mats.black,sign*24,28,-8));
-     fixed.userData.A03StationarySideGuide=sign;
-   }
-   for(const x of [-18,18]){
-     add(g,cub(2.2,35,2,mats.ink,x,27,8));
-     // Captured front-side retaining screw positions are approximate.
-     for(const y of [15,28,42]){
-       const h=add(g,cyl(2.1,1.3,mats.steel,x,y,7.65,12));
-       h.rotation.x=Math.PI/2;h.userData.fastenerProxy=true;
-       add(g,cub(1.9,.45,.15,mats.ink,x,y,8.36));
-     }
-   }
-   // V46: movable VC13M output; previous slider left A03/A04/A05 immobile.
-   // Mechanical collision along the actual 13mm travel remains unqualified.
-   const movingVC13=new THREE.Group();g.add(movingVC13);
-   const outputPlate=add(movingVC13,cub(65,7,65,mats.dark,0,47.5,0));
-   outputPlate.userData.A03MovingOutputPlate=true;
-   // Two tongues descend INTO their stationary side-guide envelopes
-   // and follow ONLY the 13mm moving output, never the A03 housing.
-   for(const sign of [-1,1]){
-     // Captive sliding tongue stays inside the stationary side guide
-     // with 0.3mm side clearance and overlaps the travelling top
-     // plate by 6mm (the earlier 1mm neck looked like a loose rod).
-     const tongue=add(movingVC13,cub(3.4,28,8,mats.dark,
-       sign*27.7,36,-8));
-     tongue.userData.A03MovingTongueTopEngagementMm=6;
-     tongue.userData.A03MovingGuideTongue=sign;
-   }
-   g.userData.verticalCarriage=movingVC13;
-   g.userData.nominalVerticalTravelMm=13;
-   g.userData.motionProxyNotCollisionCertified=true;
-   // VC13M vertical micrometer on face, NOT another horizontal rail.
-   const micrometer=vc13PhotoScrewDatums();
-   // V46: the vertical shaft must be OUTSIDE the 65mm travelling
-   // output plate. Two side rails and a true-bore annular collar
-   // hold the front drive without a solid bar passing through its shaft.
-   for(const x of [-8,8])
-     add(g,cub(3,10,38,mats.black,x,15,24));
-   const frontCollar=add(g,sleeve(9,5.7,4,mats.black,
-     0,15,micrometer.frontZmm,'y'));
-   frontCollar.userData.vc13ExternalDriveSupportCandidate=true;
-   add(g,cyl(2.8,micrometer.stemLengthMm,mats.steel,0,micrometer.stemCenterLocalYmm,micrometer.frontZmm,24));
-   add(g,cyl(6.8,micrometer.drumLengthMm,mats.silver,0,micrometer.drumCenterLocalYmm,micrometer.frontZmm,48));
-   for(let y=32;y<micrometer.drumTopLocalYmm;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,micrometer.frontZmm));
-   addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
-   label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
- },{explode:[-15,18,0],moveFilm:true});
- // Photo94 front view shows TWO approximately 20mm-tall goniometer
- // modules, each with its own drive. Only the upper G40M60L model tag
- // is legible. Never identify the lower as G40M40L without OEM evidence.
- addPart('A04L',ax,124,az,g=>{
-   // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
-   // Photo94 front body has a LOWER cradle, a split rocker top, two
-   // front fastener pairs, and a +X micrometer with a steel thimble.
-   add(g,cub(40,7,40,mats.black,0,3.5,0));
-   add(g,cub(40,7,37,mats.dark,0,10.5,0));
-   for(const x of [-14.1,14.1]){
-     const edge=add(g,cub(10,7,35,mats.black,x,15,0));
-     edge.rotation.z=x<0?.07:-.07;
-   }
-   add(g,cub(40,3,40,mats.dark,0,18.5,0)); // nominal top at Y=20
-   // Photo94: two upper screws in front notch and two front body screws
-   // near right-hand actuator mount. None assigned an unverified thread.
-   for(const x of [-5,5]){
-     const hanging=add(g,cyl(2,8,mats.steel,x,10,21,20));
-     hanging.userData.fastenerProxy=true;
-     add(g,cyl(3,1.5,mats.silver,x,5.3,21,28));
-   }
-   for(const [x,y] of [[-7,5.4],[7,5.4],[-9,12],[9,12]]){
-     const hd=add(g,cyl(2.6,1.4,mats.silver,x,y,21,6));hd.rotation.x=Math.PI/2;
-     hd.userData.fastenerProxy=true;
-     const inset=add(g,cyl(1.3,.2,mats.ink,x,y,22,6));inset.rotation.x=Math.PI/2;
-   }
-   // Two photographs from 2026-11-08 establish TWO orthogonal angular
-   // micrometer directions. The upper G40 is +X; the lower one is
-   // seen nearly end-on from the VC13M face, consistent with +Z.
-   // This is a photo-derived orientation CANDIDATE, not an OEM SKU.
-   add(g,cub(29,15,16,mats.black,0,8,24));
-   const stem=add(g,cyl(5.5,18,mats.steel,0,10,27,40));stem.rotation.x=Math.PI/2;
-   const drum=add(g,cyl(8.3,20,mats.silver,0,10,43,48));drum.rotation.x=Math.PI/2;
-   drum.userData.A04LDriveDrum=true;
-   drum.userData.driveAxisCandidate='+Z';
-   for(let z=35;z<52;z+=3)add(g,torus(8.35,.22,mats.ink,0,10,z));
-   addJointHeads(g,'A04L',14.9,[[-14,-14],[14,14]],{headR:2.6});
-   g.userData.lowerGoniometerSkuUnverified=true;
-   g.userData.photo20261108LowerDriveAxisCandidate='+Z';
-   g.userData.lowerDriveOrthogonalToUpperG40=true;
-   label(g,'双角度实拍推断：下层 +Z 轴与上层 +X 轴正交；型号待核',-4,40,0);
- },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
- addPart('A04',ax,144,az,g=>{
-   // Upper G40M60L label is visually legible in photo94.
-   // Lower partner is not positively identified. G40M60L body:
-   add(g,cub(40,7,40,mats.black,0,3.5,0));
-   add(g,cub(40,7,37,mats.dark,0,10.5,0));
-   for(const x of [-14.1,14.1]){
-     const rocker=add(g,cub(10,7,35,mats.black,x,15,0));
-     rocker.rotation.z=x<0?.07:-.07;
-   }
-   add(g,cub(40,3,40,mats.dark,0,18.5,0));
-   // Photos195/196: the UPPER labelled GCM-G40M60L micrometer is RIGHT (+X).
-   add(g,cub(16,15,29,mats.black,24,8,0));
-   const stem=add(g,cyl(5.5,18,mats.steel,27,10,0,40));stem.rotation.z=Math.PI/2;
-   const drum=add(g,cyl(8.3,20,mats.silver,43,10,0,48));drum.rotation.z=Math.PI/2;
-   drum.userData.A04DriveDrum=true;
-   for(let x=35;x<52;x+=3){
-     const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
-     ring.rotation.y=Math.PI/2;
-   }
-   addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
-   g.userData.upperConfirmedPhoto94='GCM-G40M60L';
-   g.userData.photo196UpperDriveDirection='+X';
-   label(g,'照片196：上层 GCM-G40M60L · 右侧测微 · 40×40×20mm',-4,40,0);
- },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
    topPlateWidth:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketTopWidthMm:undefined,
    leftOverhangMm:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketOverhangMm:undefined,
-   handedness:aWorkingPoseMode?'right':'left',
+   // V79: retain ONE physical left-handed sheet definition and rotate the
+   // complete film branch 180° for the installed transfer orientation.
+   // Do not mirror only the bracket while leaving the stages backwards.
+   handedness:'left',
    verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72,
    sheetFrontZmm:aWorkingPoseMode?0:13});
+ const outwardSign=-1;
  addPart('A05',ax,164,az,g=>{
-   // Photo94 unmistakably shows a BENT sheet, NOT an Ø12 post/rod
-   // and not the 200mm square beam formerly rendered here.
    const localX=aBent.centerX-ax;
-   const leftLocalX=aBent.legX-ax+(aWorkingPoseMode?-aBent.metalThickness/2:aBent.metalThickness/2);
+   const legLocalX=aBent.legX-ax+aBent.metalThickness/2;
    add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
        mats.black,localX,aBent.metalThickness/2,aBent.sheetFrontZ));
    const verticalSheet=add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
        aBent.topPlateDepth,mats.black,
-       leftLocalX,-aBent.verticalLegLength/2,aBent.sheetFrontZ));
+       legLocalX,-aBent.verticalLegLength/2,aBent.sheetFrontZ));
    verticalSheet.userData.A05VerticalSheetWeb=true;
-   // The top plate actually sits ON the G40 top, two photo-visible hex
-   // heads near stage 40mm table; threads/length still unverified.
    for(const xx of aBent.topBoltWorldX){
      const hex=jointHead(g,xx-ax,aBent.metalThickness,aBent.sheetFrontZ,
        {headR:3.1,shankR:1.5,shankL:4});
-     hex.userData.photo94Fastener=true;
-     hex.material=mats.dark; // photo94 black bolt heads seated on black folded sheet
+     hex.userData.photo94Fastener=true;hex.material=mats.dark;
    }
-   // Photos194/196: the L leg ends in a short OUTWARD foot, whose
-   // two wing fasteners are separate A05C components below.
-   // V70 photo194/196: the two butterfly heads are side-by-side
-   // ALONG the OUTWARD foot direction, not front/back Z as in V69.
-   // X length 32 and Z width 14 remain candidate proportions.
-   const footSign=aWorkingPoseMode?1:-1;
-   const footX=leftLocalX+footSign*16;
-   const foot=add(g,plate(32,14,2.5,mats.black,
-     [[-9,0,1.6],[9,0,1.6]]));
+   // V79: the foot is a plain folded support. The previous two VERTICAL
+   // through-bores were an invented consequence of a wrong screw axis.
+   const footX=legLocalX+outwardSign*16;
+   const foot=add(g,plate(32,14,2.5,mats.black,[]));
    foot.position.set(footX,-aBent.verticalLegLength,aBent.sheetFrontZ);
    foot.userData.A05OutwardFootCandidate=true;
-   foot.userData.A05ActualThroughBoreCount=2;
-   foot.userData.A05BoreAxis='X-outward';
-   foot.userData.A05CandidateHolePitchMm=18;
-   foot.userData.A05BoreDiameterCandidateMm=3.2;
+   foot.userData.A05ActualThroughBoreCount=0;
+   foot.userData.A05NoVerticalClampScrewBores=true;
    g.userData.photo94BentSheet=true;
    g.userData.verifiedPhotoBentCorner=true;
    g.userData.photoBracketDatums=aBent;
-   label(g,aWorkingPoseMode?'A05 右折边仅作操作位置候选 · 不是94号实物朝向':'94实拍：薄型L折弯片 / 上部2紧固件；玻片夹端待识别',
-      -24,17,0);
- },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
- // V57: A05 previously ended at an unsupported metal flange, leaving
- // the glass and a possible holder entirely absent from the 3D scene.
- // These are explicit PROXY subassemblies, not identified purchased parts.
- // Both share A05's film translation and VC13M vertical motion.
- const bracketLegLocalX=aBent.legX-ax+(aWorkingPoseMode?-aBent.metalThickness/2:aBent.metalThickness/2);
- const glassLeftX=bracketLegLocalX+34; // V70 starts beyond second wing screw and folded foot
- const glassCenterX=glassLeftX+38;
+   g.userData.installedYawDeg=aWorkingPoseMode?180:0;
+   label(g,aWorkingPoseMode?
+     'A05 · 整套载玻片支路旋转180°后的转移朝向':
+     'A05 · 照片参考朝向（仅用于实拍比对）',-24,17,0);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+
+ const bracketLegLocalX=aBent.legX-ax+aBent.metalThickness/2;
+ // In LOCAL photo coordinates the slide extends farther to -X. The whole
+ // installed film branch is then yawed 180°, placing the PDMS toward +X /
+ // the sample stage. This is a rigid-body rotation, not a mirrored part.
+ const glassNearX=bracketLegLocalX+outwardSign*34;
+ const glassCenterX=glassNearX+outwardSign*38;
  const glassCenterY=-aBent.verticalLegLength+1.0;
+ const clampLengthX=28;
+ const clampCenterX=glassNearX+outwardSign*14;
+
  addPart('A05C',ax,164,az,g=>{
-   // Unverified carrier: top face meets the underside of A05's short
-   // foot at zero-gap contact, rather than overlapping its solid metal.
-   // No separate bar is allowed to penetrate the vertical L web.
-   const sign=aWorkingPoseMode?1:-1;
-   const bores=[[-9,0,1.6],[9,0,1.6]];
    const footBottomY=-aBent.verticalLegLength;
-   const carrierThickness=3;
-   const carrier=add(g,plate(36,27,carrierThickness,mats.dark,bores));
-   carrier.position.set(bracketLegLocalX+sign*16,
-     footBottomY-carrierThickness,aBent.sheetFrontZ);
-   carrier.userData.A05CActualThroughBores=2;
-   carrier.userData.A05CCandidateOnly=true;
-   carrier.userData.A05CFlushToLFoot=true;
-   // Glass is a 76x26x1mm cantilever gripped over its first 10mm.
-   // It should hover above the sample until the transfer approaches.
-   const jawX=bracketLegLocalX+39;
-   const upperJaw=add(g,cub(10,1.2,26,mats.dark,
-     jawX,glassCenterY+1.1,aBent.sheetFrontZ));
-   const lowerJaw=add(g,cub(10,1.2,26,mats.dark,
-     jawX,glassCenterY-1.1,aBent.sheetFrontZ));
-   carrier.userData.A05CClampingProxy=true;
-   for(const m of [upperJaw,lowerJaw]){
-     m.userData.A05CClampingProxy=true;
-     m.userData.A05CActualJaw=true;
+   // Unverified but mechanically coherent side clamp: a support ledge carries
+   // the slide while opposite side rails constrain its two long edges.
+   const neck=add(g,cub(5,2.5,14,mats.dark,
+     bracketLegLocalX+outwardSign*32.5,footBottomY-1.25,aBent.sheetFrontZ));
+   neck.userData.A05CBracketNeck=true;
+   const ledge=add(g,cub(clampLengthX,1,30,mats.dark,
+     clampCenterX,glassCenterY-1,aBent.sheetFrontZ));
+   ledge.userData.A05CSupportLedge=true;
+   const fixedRail=add(g,cub(clampLengthX,3,2,mats.dark,
+     clampCenterX,glassCenterY,aBent.sheetFrontZ-14));
+   fixedRail.userData.A05CFixedSideRail=true;
+   const pressureRail=add(g,cub(clampLengthX,3,2,mats.silver,
+     clampCenterX,glassCenterY,aBent.sheetFrontZ+14));
+   pressureRail.userData.A05CPressureRail=true;
+   // Two threaded bosses receive screws whose AXES run along scene Z,
+   // exactly parallel to the 26mm glass short edge.
+   const screwXOffsets=[5,23];
+   for(const q of screwXOffsets){
+     const sxLocal=glassNearX+outwardSign*q;
+     const boss=add(g,cub(7,7,7,mats.dark,
+       sxLocal,glassCenterY,aBent.sheetFrontZ+18.5));
+     boss.userData.A05CSideScrewBoss=true;
    }
-   upperJaw.userData.A05CUpperJaw=true;
-   lowerJaw.userData.A05CLowerJaw=true;
-   // Edge cheek joins the two jaws to the lower carrier without
-   // intruding into the glass: slide terminates at sheetFrontZ+13,
-   // cheek starts at that exact Z face and extends outward.
-   const backSpine=add(g,cub(10,5.7,2,mats.dark,
-     jawX,glassCenterY-1.15,aBent.sheetFrontZ+14));
-   backSpine.userData.A05CBackSpineProxy=true;
-   g.userData.A05CClampingStackType='flush foot / carrier / back spine / two jaws / glass';
-   // Two butterfly fasteners are separate A05CS assembly, not an
-   // invented integral part of the unidentified clamping jaws.
+   g.userData.A05CClampingStackType='support ledge + fixed rail + moving pressure rail';
    g.userData.unverifiedClampMechanism=true;
-   g.userData.footToCarrierNominalGapMm=0;
-   g.userData.carrierThicknessMm=3;
-   g.userData.glassGripLengthMmCandidate=10;
-   g.userData.jawGapCandidateMm=1;
+   g.userData.glassGripLengthMmCandidate=clampLengthX;
+   g.userData.screwAxisParallelToGlassShortEdge=true;
    g.userData.actualClampOEM=false;
-   label(g,'A05C · 两枚蝶形紧固件（照片194/196），玻片夹型号/孔位仍未知',
-     bracketLegLocalX+5,18,aBent.sheetFrontZ);
- },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
+   label(g,'A05C · 侧向压紧结构：螺杆轴线 ∥ 玻片26mm短边（尺寸待实测）',
+     clampCenterX,18,aBent.sheetFrontZ);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+
  addPart('A05CS',ax,164,az,g=>{
-   const side=aWorkingPoseMode?1:-1;
-   for(const outwardOffset of [7,25]){
-     const screwX=bracketLegLocalX+side*outwardOffset;
-     // Screw seat on A05 foot top (was floating 4.5mm above).
-     // Shaft continues through foot/carrier bores and 3.5mm below.
-     const footBottomY=-aBent.verticalLegLength;
-     const shaft=add(g,cyl(1.4,6,mats.steel,
-       screwX,footBottomY-.5,aBent.sheetFrontZ));
+   const screwXOffsets=[5,23];
+   for(const q of screwXOffsets){
+     const screwX=glassNearX+outwardSign*q;
+     // Shaft runs along local Z / glass short-edge direction. Its inner end
+     // engages the pressure rail; it never passes vertically through A05.
+     const shaft=add(g,cyl(1.4,20,mats.steel,
+       screwX,glassCenterY,aBent.sheetFrontZ+24));
+     shaft.rotation.x=Math.PI/2;
      shaft.userData.A05CSCandidateShank=true;
-     const head=add(g,cyl(2.8,2,mats.silver,
-       screwX,footBottomY+3.5,aBent.sheetFrontZ));
-     head.userData.A05CSFootSeatedHead=true;
-     head.userData.A05CSOutwardOffsetMm=outwardOffset;
-     head.userData.photo194WingFastenerCandidate=true;
-     // Photo-approved reference: the butterfly ears are rotated 90° into
-     // the L-foot outward X direction, not fore/aft Z. The shorter
-     // ears leave clearance to the upright web beside the inner bolt.
+     shaft.userData.A05CSShaftAxis='glass-short-edge-Z';
+     shaft.userData.A05CSContactsPressureRail=true;
+     const hub=add(g,cyl(3.0,3,mats.silver,
+       screwX,glassCenterY,aBent.sheetFrontZ+35.5));
+     hub.rotation.x=Math.PI/2;
+     hub.userData.A05CSScrewHead=true;
+     hub.userData.photo194WingFastenerCandidate=true;
      for(const wingSide of [-1,1]){
-       const wing=add(g,cub(4.2,3.8,1.6,mats.steel,
-         screwX+wingSide*2.65,footBottomY+5,aBent.sheetFrontZ));
-       wing.rotation.z=wingSide*.35;
-       wing.userData.A05CSWingEarPlane='X-outward';
+       const wing=add(g,cub(5,2.8,1.6,mats.steel,
+         screwX+wingSide*3.0,glassCenterY,aBent.sheetFrontZ+37));
+       wing.rotation.z=wingSide*.3;
+       wing.userData.A05CSWingEarPlane='perpendicular-to-Z-shaft';
      }
    }
    g.userData.visibleWingFastenerCount=2;
-   g.userData.wingHeadPlane='X-outward';
-   g.userData.belowFootTailMmCandidate=3.5;
+   g.userData.screwShaftAxis='scene-Z / parallel to 26mm glass short edge';
+   g.userData.screwPitchAlongGlassLengthMmCandidate=18;
    g.userData.realOEMThreadVerified=false;
-   label(g,'A05CS · 两枚蝶形紧固件 / 194、196 实拍；螺纹候选',0,15,0);
- },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
+   label(g,'A05CS · 2枚侧向夹紧螺钉 · 轴线平行玻片短边',clampCenterX,16,aBent.sheetFrontZ+38);
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+
  addPart('A05G',ax,164,az,g=>{
-   // Typical 76x26x1mm glass slide extends to the RIGHT of the
-   // external holder. Put the PDMS stamp near its right edge so the
-   // jaw can remain outside the heater envelope in an eventual
-   // physically registered transfer pose.
    const slide=add(g,cub(76,1,26,mats.glass,
      glassCenterX,glassCenterY,aBent.sheetFrontZ));
    slide.userData.candidateStandardSlide=[76,26,1];
-   const pdmsX=glassLeftX+68;
+   slide.userData.glassShortEdgeAxisLocal='Z';
+   const pdmsX=glassNearX+outwardSign*68;
    const stamp=add(g,cub(8,1.8,8,mats.ceramic,
      pdmsX,glassCenterY-1.4,aBent.sheetFrontZ));
    stamp.userData.A05GStampRightMarginMm=4;
+   stamp.userData.A05GTransferTarget='A07W';
    g.userData.stampAtRightGlassEdge=true;
    g.userData.clampLeftOutsideHeaterCandidate=true;
    g.userData.glassToHolderPhysicallyVerified=false;
-   g.userData.unregisteredGlobalPose=true;
-   label(g,aWorkingPoseMode?'A05G · 玻片右侧印章落于热台上方（几何候选；未实物配准）':'A05G · 76×26×1mm玻片候选 / 右端印章 / A07全局未配准',
+   g.userData.unregisteredGlobalPose=false;
+   g.userData.requiredInstalledTransferElement=true;
+   label(g,aWorkingPoseMode?
+     'A05G · 76×26×1mm玻片候选 · 180°整机转向后PDMS朝向样品':
+     'A05G · 实物装配必需玻片；当前为照片参考朝向',
      glassCenterX,15,aBent.sheetFrontZ);
- },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true});
- // V79: A05G glass is a required element of a transfer station. It remains
- // visible in the installed model even when a comparison photograph does not
- // show its transparent outline clearly. Clamp dimensions remain unverified.
+ },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+ // V79: glass is part of the installed transfer mechanism. Exact clamp SKU,
+ // thread and slide dimensions remain pending physical measurement.
  addPart('A06',sx,28,0,g=>{
   // Photos17/18/20: rotary cylinder does not exceed the 65mm upper
   // square plate. V47 Ø94 was geometrically disproportionate.
