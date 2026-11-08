@@ -118,6 +118,12 @@ export function mountPhotoEvidence(container,platform,partId){
   caption.append(el('strong','', '照片 '+ref.id),el('span','',ref.title));
   const foot=el('p','photo-caption-desc',ref.description||'按原始照片编号核查零件位置和装配关系。');
   card.append(tile,caption,foot);
+  // Each bundled A photo now links to its OWN real-Three.js capture.
+  if(platform==='A'&&/^(191|192|193|194|195|196)$/.test(ref.id)){
+   const link=el('a','photo-comparison-link','本张实拍与模型截图逐图对照');
+   link.href='./photo-review.html#photo'+ref.id;
+   card.append(link);
+  }
   if(!ref.src){
    const upload=el('button','photo-local-import','在本机补充此编号原图');
    upload.type='button';
@@ -154,6 +160,12 @@ export function mountPhotoBOMCell(td,platform,partId){
  const attached=attachPhotoToTile({tile,ref:first,compact:true});
  const count=el('span','bom-photo-ids',refs.map(p=>p.id).join(' / '));
  td.append(tile,count);
+ if(platform==='A'&&/^(191|192|193|194|195|196)$/.test(first.id)){
+  const link=el('a','photo-comparison-link','实拍↔模型');
+  link.href='./photo-review.html#photo'+first.id;
+  link.addEventListener('click',event=>event.stopPropagation());
+  td.append(link);
+ }
  tile.addEventListener('click',event=>event.stopPropagation());
  td.dataset.photoEmbeddedCount=String(refs.filter(r=>r.src).length);
  return {first,attached};
