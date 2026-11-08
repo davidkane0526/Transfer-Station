@@ -12,11 +12,13 @@ assert(a.projectedA04PlusXFromCamera1<-.95,
   'Photo1 upper +X G40 micrometer should project LEFT, screen-right is -X');
 assert(a.projectedA04PlusXFromCamera2>.65,
   'Photo2 upper +X G40 and A15 X micrometers should project RIGHT');
-assert(a.projectedA04LMinusXFromCamera2<-.65,
-  'Photo2 independent lower -X G40 micrometer should project LEFT');
+assert(a.projectedA04LPlusZFromCamera2<-.60,
+  'Photo2 independent lower +Z G40 micrometer should project LEFT');
 assert(a.projectedA15DepthPlusZFromCamera2<-.60,
   'Photo2 independent +Z bottom micrometer must appear LEFT, not cloned from X');
-assert(a.azimuthSeparationCandidateDeg>120&&a.azimuthSeparationCandidateDeg<160,
+assert(a.projectedA04LPlusZFromCamera1<-.20,
+  'Photo1 lower +Z goniometer also projects LEFT from the screen-facing oblique view');
+assert(a.azimuthSeparationCandidateDeg>110&&a.azimuthSeparationCandidateDeg<145,
   'Two different photo views cannot be represented by the same camera or a 30-degree copy');
 assert.equal(a.physicallyExactCameraAngleVerified,false);
 assert.equal(a.photographyToCADWorldRegistrationVerified,false);
