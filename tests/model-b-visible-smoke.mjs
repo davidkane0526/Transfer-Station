@@ -617,7 +617,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V76.*左折边/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V77.*左折边/,
    'A must initially show the photo-evidence shape, not an invented mirror');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
