@@ -653,12 +653,15 @@ def make_a():
     lower_lever=vy(2.2,10,ax-23,32.5,27).fuse(vz(3,8,ax-23,39.5,24))
     add('A','A17L','photo194_lower_magnet_lever_UNVERIFIED',lower_lever,'C')
     stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y',photo_top_bores=True)
-    front=box(42,1.5,12,ax,33.25,53).cut(box(26,1.6,4,ax,33.25,57))
+    # Nov 08 screen-behind view shows A15 silver slot on the -Y
+    # side of the XY stage, OPPOSITE the +Y VC13M front spindle.
+    # WebGL: -Z; STEP: -Y (its Z axis denotes height).
+    front=box(42,1.5,12,ax,-33.25,53).cut(box(26,1.6,4,ax,-33.25,57))
     add('A','A15F','photo194_A15_front_slotted_plate_candidate',front,'P')
     for i,xx in enumerate((ax-17,ax+17),1):
         add('A',f'A15FS{i}','photo194_A15_front_face_fastener_candidate',
-            vy(2.2,1.5,xx,33.25,55),'C')
-    ctrl=vy(1.8,9,ax,34,59).fuse(vy(5.2,7,ax,43,59))
+            vy(2.2,1.5,xx,-33.25,55),'C')
+    ctrl=vy(1.8,9,ax,-34,59).fuse(vy(5.2,7,ax,-43,59))
     add('A','A15FK','photo194_A15_front_control_UNVERIFIED',ctrl,'C')
     # Photo 97: vertical slide/upright carriage, not a solid block.
     # V46: relocate the VC13 vertical drive beyond the ±32.5mm
