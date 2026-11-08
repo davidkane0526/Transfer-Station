@@ -905,6 +905,41 @@ CAD_REVISION='V77'
 # Four A legacy study solids remain available separately, but are NOT
 # installed on the user-approved photographed bare wing-screw bracket.
 UNINSTALLED_A_STUDY_IDS=frozenset({'A05C','A05CU','A05G','A05GP'})
+def _approved_a_photo_solid(key,shape):
+    """Assembly A uses user-approved ORIGINAL left-return photo bracket.
+    Study component STEP files still preserve the old RIGIDLY SEPARATE
+    V58 right-return operation hypothesis for ongoing parametric audits.
+    """
+    ax=-116
+    web_x=ax-48+1.25
+    foot_bottom=164-72
+    if key=='A05':
+        sheet=box(75,12,2.5,ax-10.5,13,164).fuse(
+            box(2.5,12,72,web_x,13,foot_bottom))
+        foot=box(32,14,2.5,web_x-16,13,foot_bottom)
+        for delta in (7,25):
+            foot=foot.cut(vz(1.6,2.7,web_x-delta,13,foot_bottom-.1))
+        result=sheet.fuse(foot)
+        assert result.isValid()
+        return result
+    if key in ('A05CS1','A05CS2'):
+        dx=7 if key=='A05CS1' else 25
+        x=web_x-dx
+        shank=vz(1.4,6,x,13,foot_bottom-3.5)
+        hub=vz(2.8,2,x,13,foot_bottom+2.5)
+        wings=[box(4.6,1.6,3.8,x+sgn*3,13,foot_bottom+3.1)
+               for sgn in (-1,1)]
+        result=shank.fuse(hub,*wings)
+        assert result.isValid()
+        assert result.intersect(_approved_a_photo_solid('A05',shape)).Volume()<1e-4
+        return result
+    # The photo stack uses CONFIG.A.armX=-116 whereas the deprecated
+    # operation simulation uses -82.75. Apply an X-only rigid move to
+    # every real film-side component, preserving its internal axes.
+    if key.startswith(('A17','A15','A03','A04','A05')):
+        return shape.translate(Vector(ax-(-82.75),0,0))
+    return shape
+
 def export(sys):
     assembly=cq.Assembly(name='Transfer_Station_'+sys+'_'+CAD_REVISION)
     published=[p for p in PARTS[sys] if sys!='A' or p[0] not in UNINSTALLED_A_STUDY_IDS]
@@ -921,7 +956,12 @@ def export(sys):
     for key,name,grade,shape in published:
         props={'name':key+'__'+name}
         if key in evidence_colors: props['color']=evidence_colors[key]
-        assembly.add(shape,**props)
+        installed=_approved_a_photo_solid(key,shape) if sys=='A' else shape
+        if key=='A05':
+            props['name']='A05__photo_left_return_L_without_glass'
+        if key.startswith('A05CS'):
+            props['name']=key+'__photo_two_wing_fasteners_X_rotated_90deg'
+        assembly.add(installed,**props)
     target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_'+CAD_REVISION+'.step')
     assembly.save(str(target))
     solids=cq.importers.importStep(str(target)).solids().vals()
@@ -936,6 +976,8 @@ def export(sys):
                 w.writerow([key,name,'not installed on user-approved bare A bracket'])
     return dict(system=sys,assembly_components=len(published),
                 excluded_uninstalled=[p[0] for p in excluded],
+                approved_installed_shape='photo_left_return_L_no_glass_2_X_wing_nuts' if sys=='A' else 'manufacturer_and_photo_B',
+                photo_A_stage_center_x_mm=-116 if sys=='A' else None,
                 study_solids_available=len(PARTS[sys]),step_solids=len(solids),
                 size_bytes=target.stat().st_size)
 if __name__=='__main__':
