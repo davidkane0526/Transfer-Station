@@ -1692,39 +1692,47 @@ report['B_microscope_MXFMS_photo_fit']={
 tipbb=part(B,'B18A')[0].BoundingBox()
 glass=part(B,'B07')[0].BoundingBox()
 check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide collision')
-# The uploaded COMPLETE STEP must be the user-approved BARE
-# photo-left-return machine, not the deprecated right-return simulation
-# that included an unphotographed 76mm glass slide and fabricated jaws.
+# V79 COMPLETE STEP must contain the transfer glass and side clamp.
+# The old V77 export override deliberately removed them; that behavior is now
+# a regression failure because it produced a non-functional transfer station.
 import csv
 verification=json.loads((ROOT/'build'/'verification.json').read_text())
 a_complete=next(x for x in verification if x['system']=='A')
-omitted={'A05C','A05CU','A05G','A05GP'}
-check(set(a_complete['excluded_uninstalled'])==omitted,
-      'V77 complete A STEP must exclude all four uninstalled twin-jaw/glass/PDMS study solids')
-check(a_complete['approved_installed_shape']=='photo_left_return_L_no_glass_2_X_wing_nuts',
-      'V77 official A STEP exports original left-return plate, not mirrored candidate')
-check(a_complete['photo_A_stage_center_x_mm']==-116,
-      'V77 installed A magnet and vertical goniometer stack must match original photo -116mm X')
+check(a_complete['excluded_uninstalled']==[],
+      'V79 complete A STEP must not exclude required clamp/glass/PDMS components')
+check(a_complete['approved_installed_shape']=='rigid_180deg_film_chain_with_glass_short_edge_side_clamp',
+      'V79 official A STEP must use the rigid-180 installed film-chain definition')
+check(abs(a_complete['photo_A_stage_center_x_mm']-(-82.75))<.001,
+      'V79 installed A film datum must remain X=-82.75mm')
 with (ROOT/'build'/'platform_A'/'part_levels.csv').open(encoding='utf-8-sig',newline='') as f:
     installed_ids={row['id'] for row in csv.DictReader(f)}
-check(not installed_ids.intersection(omitted),
-      'V77 installed A part-level BOM cannot list absent glass/PDMS/imaginary clamp')
-check({'A05','A05CS1','A05CS2'}.issubset(installed_ids),
-      'V77 installed A must still retain the real folded bracket + pair of fastening screws')
-with (ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv').open(encoding='utf-8-sig',newline='') as f:
-    research_ids={row['id'] for row in csv.DictReader(f)}
-check(research_ids==omitted,
-      'V77 uninstalled study geometries must be marked clearly, not silently lost')
-report['V77_A_user_approved_installed_assembly']={
-    'photo_first_left_return':True,
-    'installed_photo_bracket_butterfly_screws':['A05','A05CS1','A05CS2'],
-    'installed_glass':False,
-    'installed_hypothetical_jaws':False,
-    'wing_orientation':'X-outward rotated 90deg',
-    'excluded_study_solids':sorted(omitted),
-    'real_clamp_thread_dimensions_verified':False}
-report['checks_passed']=len(report['checks'])
-report['geometry_status']='passed'
-report['status']='proxy_geometry_only__physical_acceptance_pending'
-(ROOT/'build'/'interface_validation.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
-print(json.dumps(report,indent=2,ensure_ascii=False))
+required={'A05','A05C','A05CU','A05CS1','A05CS2','A05G','A05GP'}
+check(required.issubset(installed_ids),
+      'V79 installed A part-level BOM must include bracket, side clamp, glass and PDMS')
+check('A15FK' not in installed_ids,
+      'V79 installed A part-level BOM must not resurrect floating A15FK control')
+study_csv=ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv'
+research_ids=set()
+if study_csv.exists():
+    with study_csv.open(encoding='utf-8-sig',newline='') as f:
+        research_ids={row['id'] for row in csv.DictReader(f)}
+check(not research_ids,
+      'V79 has no hidden V77 no-glass study override in official A export')
+report['V79_A_user_corrected_installed_assembly']={
+    'local_sheet_definition':'left-handed single source geometry',
+    'complete_film_chain_yaw_deg':180,
+    'installed_transfer_parts':sorted(required),
+    'installed_glass':True,
+    'installed_side_pressure_rail':True,
+    'side_screw_axis':'parallel to glass 26mm short edge',
+    'vertical_folded_foot_clamp_bores':0,
+    'floating_A15FK_present':False,
+    'real_clamp_thread_dimensions_verified':False,
+    'A18_vendor_model_verified':False}
+(ROOT/'build'/'interface_validation.json').write_text(
+    json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps({'checks':len(report['checks']),
+                  'passed':sum(1 for c in report['checks'] if c['passed']),
+                  'scope':report['scope'],
+                  'A_V79':report['V79_A_user_corrected_installed_assembly']},
+                 ensure_ascii=False))
