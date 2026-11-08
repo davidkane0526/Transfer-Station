@@ -894,8 +894,8 @@ try{
  assert.deepEqual(aComplete.glassSizeMm,[76,26,1]);
  assert.equal(aComplete.stampRightMarginMm,4);
  assert.equal(aComplete.stampAtRightEdge,true);
- assert.equal(aComplete.clampRelativeToHeaterNotRegistered,true,
-   'The provisional film holder must never be mislabelled as a registered physical transfer pose');
+ assert.equal(aComplete.glassRequiredForTransfer,true);
+ assert.equal(aComplete.screwAxisParallelGlassShortEdge,true);
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('A05C');
  const aClampRow=page.locator('#bom-body tr').filter({hasText:/^\s*A05C\b/});
@@ -918,7 +918,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/工程几何假设/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V79当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
