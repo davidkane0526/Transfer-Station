@@ -630,6 +630,23 @@ try{
  assert.equal(photoTruth.fabricatedClampVisible,false);
  assert.equal(photoTruth.unphotographedGlassVisible,false);
  assert.equal(photoTruth.actualClampManufacturerConfirmed,false);
+ const approvedBare=await page.evaluate(()=>window.__platformABareClampProbe?.());
+ assert.equal(approvedBare?.available,true);
+ assert.equal(approvedBare.visibleGlass,false);
+ assert.equal(approvedBare.visibleFabricatedJaws,false);
+ assert.equal(approvedBare.visibleWingScrewCount,2);
+ assert.equal(approvedBare.wingEarCount,4);
+ assert.equal(approvedBare.actualFootBores,2);
+ assert.equal(approvedBare.wingPairPitchXMm,18);
+ assert.equal(approvedBare.wingPairPitchZMm,0);
+ assert.equal(approvedBare.wingEarPlane,'X-outward');
+ assert.equal(approvedBare.wingToUprightOverlapMm3,0,
+   '90° wing ears still clip L-web');
+ assert.equal(approvedBare.headFootMaxGapMm,0,
+   'Both butterfly screws must physically seat against the foot');
+ assert.equal(approvedBare.actualWingNutOEMVerified,false);
+ assert.equal(await page.locator('#btn-a-working-pose').isVisible(),false,
+   'Discredited mirrored transfer hypothesis must not be exposed as a second rig');
  assert.equal(await page.locator('#film-drop').isDisabled(),true,
    'Static photograph-only pose must not simulate an unregistered 13mm glass descent');
  assert.equal(photoTruth.vc13CarriageMeshLiftMm,0,
@@ -788,8 +805,8 @@ try{
   const aClampChain=await page.evaluate(()=>window.__modelAClampChainProbe?.());
   assert.equal(aClampChain?.available,true,'A05-C-G mesh chain probe absent');
   assert.equal(aClampChain.pose,'candidate');
-  assert.equal(aClampChain.clampRendered,true);
-  assert.equal(aClampChain.glassRendered,true);
+  assert.equal(aClampChain.clampRendered,false,'Unphotographed jaws must never be installed in public A');
+  assert.equal(aClampChain.glassRendered,false,'The approved A reference has NO installed glass');
   assert.equal(aClampChain.footCarrierGapMm,0,
     'A05 foot and A05C carrier must mate flush, not overlap');
   assert.equal(aClampChain.carrierSpineGapMm,0,
@@ -803,7 +820,11 @@ try{
     'A05 L-web/foot and A05C carrier still interpenetrate');
   assert.equal(aClampChain.jawGlassOverlapMm3,0,
     'Glass must be clamped on faces, not penetrated by metal jaws');
-  assert.equal(aClampChain.workingChainContinuous,true,
+  const bareAgain=await page.evaluate(()=>window.__platformABareClampProbe?.());
+ assert.equal(bareAgain.visibleGlass,false);
+ assert.equal(bareAgain.visibleFabricatedJaws,false);
+ assert.equal(bareAgain.wingEarPlane,'X-outward');
+ assert.equal(aClampChain.workingChainContinuous,true,
     'No actual support chain exists from the A05 folded sheet through A05C to glass');
   assert.equal(aClampChain.physicalTransferAssemblyAccepted,false,
     'Geometry-only clamp closure cannot certify unphotographed OEM jaws');
@@ -935,8 +956,8 @@ try{
    'Fastener must stay outside undrilled glass candidate');
  assert.equal(photoAxis.foldedFootOutsideGlass,true,
    'A05 glass must start after the folded foot, not overlap it');
- assert.equal(photoAxis.glassCandidateVisible,true);
- assert.equal(photoAxis.fabricatedJawsVisible,true);
+ assert.equal(photoAxis.glassCandidateVisible,false);
+ assert.equal(photoAxis.fabricatedJawsVisible,false);
  assert.equal(photoAxis.photo194196ActuallyShowsMountedSlide,false);
  assert.equal(photoAxis.physicalClampLoadPathVerified,false);
  assert.equal(foot.actualOEMThreadsVerified,false);
@@ -1086,8 +1107,8 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'candidate');
  const resumed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
- assert.equal(resumed.glassCandidateVisible,true);
- assert.equal(resumed.fabricatedJawsVisible,true);
+ assert.equal(resumed.glassCandidateVisible,false);
+ assert.equal(resumed.fabricatedJawsVisible,false);
  const front194=await page.evaluate(()=>window.__platformAStageFrontProbe?.());
  assert.equal(front194?.available,true);
  assert.equal(front194?.frontPlateAboveMagnet,true);
