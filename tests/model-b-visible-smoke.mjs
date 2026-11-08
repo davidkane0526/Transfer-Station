@@ -718,6 +718,29 @@ try{
     'No actual support chain exists from the A05 folded sheet through A05C to glass');
   assert.equal(aClampChain.physicalTransferAssemblyAccepted,false,
     'Geometry-only clamp closure cannot certify unphotographed OEM jaws');
+ // Screenshot-level checks: previously visible detached or
+ // clipping assemblies are tested using actual world-space meshes.
+ const dA=await page.evaluate(()=>window.__modelADetailMountProbe?.());
+ assert.equal(dA?.available,true,'Missing A detail mount mesh probe');
+ assert.equal(dA.pose,'candidate');
+ assert.equal(dA.lampSupportPresent,true);
+ assert.equal(dA.lampMountToHeadSideGapMm,0,
+   'Thorlabs lamp fixing face is detached from microscope');
+ assert.equal(dA.lampSupportStartSurfaceGapMm,0);
+ assert.equal(dA.lampSupportToBulbRearGapMm,0);
+ assert.equal(dA.lampOpticsParkingOffsetDifferenceMm,0,
+   'A11 lamp must follow the A18 microscope focus parking group');
+ assert(dA.g40RightDrumToBendWebClearanceMm>=4,
+   'G40 micrometer still cuts into bent L bracket');
+ assert.equal(dA.g40DrumBendOverlapVolumeAabbMm3,0);
+ assert(dA.sampleMicrometerStemDrumEngagementMm>=2.9,
+   'A06 angular stem must enter its detached-looking knob');
+ assert.equal(dA.wingFastenerCount,2);
+ assert.equal(dA.maxWingHeadFloatGapMm,0,
+   'Two butterfly fastener heads float above the A05 foot');
+ assert.deepEqual(dA.A03TonguePlateOverlapMm,[6,6],
+   'VC13M two grey guide posts still lack real engagement');
+ assert.equal(dA.physicalPhotoFitCertified,false);
  // A02 and A15 are DIFFERENT physical stages and must use different
  // sliders. Previously the sample A02 top moved with filmShift instead.
  const aZero=await page.evaluate(()=>window.__modelAKinematicProbe?.());
