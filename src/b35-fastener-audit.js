@@ -119,3 +119,50 @@ export function auditB35MicroscopeFasteners({
     ]
   };
 }
+
+// V72: unlike B16's four foot holes, the B08 OEM four-hole phase does
+// NOT land on the current B35 MB2530/M candidate M6 grid. Quantify this
+// before anyone interprets touching 3D surfaces as a bolted joint.
+// 50mm B08 pitch is OEM; 82/0 sample center and B35 origin are scene-fit.
+export function auditB08ToB35Mount({
+  rotaryCenterX=82,rotaryCenterZ=0,rotaryMountPitchMm=50,
+  boardCenterX=75,boardCenterZ=0,
+  boardWidthMm=250,boardDepthMm=300,
+  boardPitchMm=25,boardEdgeOffsetMm=12.5
+}={}){
+  const values=[rotaryCenterX,rotaryCenterZ,rotaryMountPitchMm,boardCenterX,
+    boardCenterZ,boardWidthMm,boardDepthMm,boardPitchMm,boardEdgeOffsetMm];
+  if(!values.every(Number.isFinite)||rotaryMountPitchMm<=0||boardPitchMm<=0||
+     boardWidthMm<=0||boardDepthMm<=0||boardEdgeOffsetMm<=0||
+     boardEdgeOffsetMm*2>=Math.min(boardWidthMm,boardDepthMm))
+    throw new RangeError('Invalid B08/B35 grid candidate');
+  const xs=range(-boardWidthMm/2+boardEdgeOffsetMm,
+    boardWidthMm/2-boardEdgeOffsetMm,boardPitchMm).map(x=>round(x+boardCenterX));
+  const zs=range(-boardDepthMm/2+boardEdgeOffsetMm,
+    boardDepthMm/2-boardEdgeOffsetMm,boardPitchMm).map(z=>round(z+boardCenterZ));
+  const grid=xs.flatMap(x=>zs.map(z=>({x,z})));
+  const half=rotaryMountPitchMm/2;
+  const anchors=[-half,half].flatMap(x=>[-half,half].map(z=>({
+    x:round(rotaryCenterX+x),z:round(rotaryCenterZ+z)})));
+  const closest=anchors.map(p=>{
+    const n=grid.reduce((best,q)=>{
+      const d=Math.hypot(q.x-p.x,q.z-p.z);
+      return !best||d<best.distanceMm?{x:q.x,z:q.z,distanceMm:d}:best;
+    },null);
+    return {rotaryHole:[p.x,p.z],nearestGridHole:[n.x,n.z],
+      mismatchMm:round(n.distanceMm)};
+  });
+  const maxMismatchMm=round(Math.max(...closest.map(q=>q.mismatchMm)));
+  return Object.freeze({
+    rotaryMountPattern:'4 x Ø6.8 / Ø11.5 x 16 counterbore, 50x50mm OEM',
+    boardGridModel:'MB2530/M 25mm grid, 12.5mm edge phase candidate',
+    originalBoardModelConfirmed:false,
+    rotaryCenterWorldMm:[rotaryCenterX,rotaryCenterZ],
+    mountingHolePairs:closest,
+    maxMismatchMm,
+    candidateGridDirectFit:maxMismatchMm<=.01,
+    currentSceneBoltedJointAccepted:false,
+    realMachineMountVerified:false,
+    note:'A mismatch in the current model only. Do not shift the optical axis or fabricate an adapter without photographed/verified mounting evidence.'
+  });
+}
