@@ -480,6 +480,56 @@ window.__modelAPhoto194Probe=()=>{
      actualManufacturerClampVerified:false,
      physicalTransferAssemblyAccepted:false};
  };
+ // V75 photographic-detail regression: inspect ACTUAL mesh surfaces
+ // of the five previously floating/clipping features, independent of
+ // BOM presence, labels or screenshot camera angle.
+ window.__modelADetailMountProbe=()=>{
+   if(platform!=='A')return {available:false};
+   const root=id=>parts.get(id)?.g;
+   const mesh=(id,tag)=>root(id)?.children.find(o=>o.isMesh&&o.userData[tag]);
+   const gA11=root('A11'),gA18=root('A18');
+   const lamp=gA11?.children.find(o=>o.isMesh);
+   const housing=gA18?.children.find(o=>o.isMesh);
+   const bend=mesh('A05','A05VerticalSheetWeb');
+   const drum=mesh('A04','A04DriveDrum');
+   const foot=mesh('A05','A05OutwardFootCandidate');
+   const screws=root('A05CS')?.children.filter(o=>o.userData.A05CSFootSeatedHead);
+   const sampleStem=mesh('A06','A06CoupledMicrometerStem');
+   const sampleDrum=mesh('A06','A06RightAngularMicrometer');
+   const support=mesh('A11','A11PhysicallyConnectedSupportProxy');
+   const mount=mesh('A11','A11A18SideMountProxy');
+   if(![lamp,housing,bend,drum,foot,sampleStem,sampleDrum,support,mount].every(Boolean)||
+      screws?.length!==2)return {available:false};
+   currentRoot.updateWorldMatrix(true,true);
+   const box=o=>new THREE.Box3().setFromObject(o);
+   const d=(v)=>Number(v.toFixed(3));
+   const a=box(lamp),h=box(housing),b=box(bend),m=box(drum);
+   const f=box(foot),shaft=box(sampleStem),knob=box(sampleDrum);
+   const mountBox=box(mount);
+   const lampMountStart=gA11.localToWorld(new THREE.Vector3(-24,17,-35));
+   const lampMountEnd=gA11.localToWorld(new THREE.Vector3(0,13,-16));
+   const opticalParkA11=d(gA11.position.y-parts.get('A11').base.y);
+   const opticalParkA18=d(gA18.position.y-parts.get('A18').base.y);
+   return {available:true,pose:aWorkingPoseMode?'candidate':'photo94',
+     lampSupportPresent:true,lampMountMethodVerified:false,
+     lampMountToHeadSideGapMm:d(mountBox.min.x-h.max.x),
+     lampSupportStartSurfaceGapMm:d(lampMountStart.x-h.max.x-3),
+     lampSupportToBulbRearGapMm:d(a.min.z-lampMountEnd.z-3),
+     lampOpticsParkingOffsetDifferenceMm:d(opticalParkA11-opticalParkA18),
+     g40RightDrumToBendWebClearanceMm:d(b.min.x-m.max.x),
+     g40DrumBendOverlapVolumeAabbMm3:(()=>{
+       const shared=b.clone().intersect(m);
+       if(shared.isEmpty())return 0;
+       const sz=new THREE.Vector3();shared.getSize(sz);
+       return d(sz.x*sz.y*sz.z);
+     })(),
+     sampleMicrometerStemDrumEngagementMm:d(shaft.max.x-knob.min.x),
+     sampleMicrometerStemOuterBlockVerified:false,
+     wingFastenerCount:screws.length,
+     maxWingHeadFloatGapMm:d(Math.max(...screws.map(o=>box(o).min.y-f.max.y))),
+     A03TonguePlateOverlapMm:window.__modelAVerticalGuideProbe?.().tonguePlateOverlapMm??null,
+     physicalPhotoFitCertified:false};
+ };
  window.__modelAContactProbe=()=>{
  if(platform!=='A')return {available:false};
  const child=(id,tag)=>parts.get(id)?.g.children.find(o=>o.isMesh&&o.userData[tag]);
