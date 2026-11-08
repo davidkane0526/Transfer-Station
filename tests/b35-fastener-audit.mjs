@@ -48,7 +48,7 @@ assert.equal(rotary.currentSceneBoltedJointAccepted,false);
 assert.equal(rotary.realMachineMountVerified,false);
 assert.equal(rotary.mountingHolePairs.length,4);
 assert(Math.abs(rotary.maxMismatchMm-Math.hypot(5.5,12.5))<.002,
-  'B08's four OEM base holes do not coincide with B35 photo-fit grid');
+  "B08's four OEM base holes do not coincide with B35 photo-fit grid");
 const hypothetical=auditB08ToB35Mount({rotaryCenterX:87.5,rotaryCenterZ:12.5});
 assert.equal(hypothetical.maxMismatchMm,0,
   'The checker must recognize a grid-compatible hypothetical pose, without relocating the optical axis');
