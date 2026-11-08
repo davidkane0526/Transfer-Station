@@ -3078,31 +3078,29 @@ function platformA(){
   add(g,cyl(15,12,mats.silver,0,0,0));
   label(g,'Daheng Imaging 工业相机',0,72,0);
  },{explode:[0,92,0]});
- addPart('A11',155,184,60,g=>{
-  // Thorlabs MWWHL4 actual heat-sink housing Ø30.5mm, SM1 female port.
-  // SM1RC slip ring is a vendor-supported mounting OPTION, not yet
-  // identified in the user's actual installed photograph.
-  const ledBody=add(g,cyl(15.25,33,mats.dark,0,16.5,0));
-  ledBody.userData.A11OEMHousingDiameterMm=30.5;
-  add(g,cyl(11,8,mats.ceramic,0,35,0));
-  const slipRing=add(g,sleeve(17.5,15.35,8,mats.black,0,30,0,'y'));
-  slipRing.userData.A11OEMSlipRingCandidate=true;
-  g.userData.A11RingModel='SM1RC (vendor-supported option, NOT photographed confirmation)';
-  // V75: former 80mm slanted rod ended without an actual mount.
-  // Keep the lamp attached to the A18 housing-side surface through
-  // a continuous flexible support proxy (real fixing remains UNKNOWN).
-  // A18 right face is world x=128; root at x=131 with a
-  // Ø6 flexible rod makes TANGENT solid contact (no deep penetration).
-  // Lamp rear face is world z=47; rod ends z=44 with radius 3.
-  const lampMountPoints=[[-24,17,-35],[-19,20,-30],[-10,27,-26],
-    [-3,29,-23],[0,30,-20.5]];
-  const gooseneck=add(g,tube(lampMountPoints,3,mats.steel));
-  gooseneck.userData.A11PhysicallyConnectedSupportProxy=true;
-  const rootCollar=add(g,cyl(5,1.2,mats.black,-26.4,17,-35,28));
-  rootCollar.rotation.z=Math.PI/2;
-  rootCollar.userData.A11A18SideMountProxy=true;
-  g.userData.A11MountingMethodVerified=false;
-  label(g,'Thorlabs MWWHL4 LED',0,59,0);
+ addPart('A11',sx+50,220,0,g=>{
+   // Thorlabs MWWHL4 vendor geometry: Ø30.5mm heat sink, approximately
+   // 60mm overall axial envelope, internal SM1 thread at the optical end.
+   // V79 removes the invented flexible support that made a black cylinder
+   // hang below a fictitious A18 horizontal tube.
+   const adapter=add(g,sleeve(17.5,15.35,6,mats.black,3,0,0,'x'));
+   adapter.userData.A11OEMSlipRingCandidate=true;
+   const ledBody=add(g,cyl(15.25,60.4,mats.dark,36.2,0,0,72));
+   ledBody.rotation.z=Math.PI/2;
+   ledBody.userData.A11OEMHousingDiameterMm=30.5;
+   ledBody.userData.A11OEMHousingLengthMm=60.4;
+   for(let x=10;x<=58;x+=4.8){
+     const fin=add(g,cyl(15.75,1.1,mats.black,x,0,0,72));
+     fin.rotation.z=Math.PI/2;fin.userData.A11HeatSinkFin=true;
+   }
+   const emitter=add(g,cyl(10.8,2.5,mats.ceramic,67.65,0,0,48));
+   emitter.rotation.z=Math.PI/2;emitter.userData.A11EmitterFace=true;
+   // Electrical lead only. It is NOT a mechanical gooseneck support.
+   const cable=add(g,tube([[43,-14,0],[44,-22,3],[48,-30,8],[55,-38,12]],2.2,mats.black));
+   cable.userData.A11ElectricalCable=true;
+   g.userData.A11MountingMethodVerified=false;
+   g.userData.A11NoInventedGooseneckSupport=true;
+   label(g,'Thorlabs MWWHL4 · Ø30.5mm散热壳 / SM1接口；安装转接待核',35,28,0);
  },{explode:[22,20,22]});
  addPart('A12',262,20,-80,g=>{
   add(g,cub(60,104,73,mats.dark,0,52,0));
@@ -3121,55 +3119,61 @@ function platformA(){
    label(g,'SM2接口候选镜筒 · 长66mm含6mm装配重叠 / 相机端未认证',0,80,0);
  },{explode:[0,25,0]});
  addPart('A18',sx,200,0,g=>{
-   // Photo191/192: black microscope head, horizontal tube and bilateral focus drums.
-   // Dimensions are photo-proportioned candidates, not OEM data.
-   add(g,cub(100,70,88,mats.dark,0,0,0));
-   add(g,cub(86,4,78,mats.black,0,-31,0));
-   add(g,cyl(22,18,mats.black,0,44,0));
-   const opticalArm=add(g,cyl(16,160,mats.black,80,40,0));opticalArm.rotation.z=Math.PI/2;
-   opticalArm.userData.A18HorizontalTubeCandidate=true;
-   for(const x of [20,115,135]){
-     const collar=add(g,torus(16.4,.65,mats.ink,x,40,0));collar.rotation.y=Math.PI/2;
-   }
+   // V79: keep only topology supported by photos191-193: a compact focus
+   // body, direct top optical port, direct bottom nosepiece interface, and
+   // coaxial focus controls. The previous Ø32×160mm horizontal black tube
+   // had no identified vendor drawing and is removed.
+   const body=add(g,cub(92,70,88,mats.dark,0,0,0));
+   body.userData.A18PhotoConstrainedMainBody=true;
+   const front=add(g,cub(78,54,4,mats.black,0,0,46));
+   front.userData.A18FrontFace=true;
+   const topCollar=add(g,cyl(22,8,mats.black,0,39,0,64));
+   topCollar.userData.A18TopOpticalInterface=true;
+   const bottomCollar=add(g,cyl(31,8,mats.black,0,-39,0,64));
+   bottomCollar.userData.A18NosepieceInterface=true;
    for(const sign of [-1,1]){
-     const coarse=add(g,cyl(25,18,mats.black,sign*59,-2,0));coarse.rotation.z=Math.PI/2;
-     coarse.userData.A18CoarseFocusKnob=true;
-     const fine=add(g,cyl(16,6,mats.silver,sign*71,-2,0));fine.rotation.z=Math.PI/2;
-     fine.userData.A18FineFocusKnob=true;
-     for(let i=0;i<8;i++){
-       const groove=add(g,torus(25,.35,mats.ink,sign*(52+i*2),-2,0));groove.rotation.y=Math.PI/2;
+     const coarse=add(g,cyl(25,18,mats.black,sign*55,0,0,64));
+     coarse.rotation.z=Math.PI/2;coarse.userData.A18CoarseFocusKnob=true;
+     const fine=add(g,cyl(15.5,8,mats.silver,sign*68,0,0,64));
+     fine.rotation.z=Math.PI/2;fine.userData.A18FineFocusKnob=true;
+     for(let q=0;q<7;q++){
+       const ring=add(g,torus(25.1,.28,mats.ink,sign*(48+q*2.2),0,0));
+       ring.rotation.y=Math.PI/2;
      }
    }
-   const lockLever=add(g,cyl(3.5,24,mats.black,68,20,0));lockLever.rotation.z=-Math.PI/5;
-   g.userData.microscopeHeadModelUnverified=true;g.userData.focusKnobPairCount=2;
-   label(g,'A18 显微镜主机头 / 双侧调焦 · 型号待识别',0,48,0);
+   g.userData.microscopeHeadModelUnverified=true;
+   g.userData.focusKnobPairCount=2;
+   g.userData.removedUnsupportedHorizontalTube=true;
+   g.userData.vendorIdentificationPending=true;
+   label(g,'A18 主机调焦单元 · 照片约束拓扑；厂商/型号待识别',0,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
-   // Only the two photographed installed objectives are drawn.
-   add(g,cyl(36,10,mats.black,0,0,0));
+   const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
+   turret.userData.A19TurretEnvelopeCandidate=true;
    add(g,torus(34,1,mats.steel,0,0,0));
-   add(g,cyl(18,5,mats.dark,0,7.5,0));
-   // V66 photo191-193: the LEFT installed objective projects obliquely
-   // toward the left; the central/right working objective is near vertical.
-   // The old pair of parallel vertical tubes was visually/optically wrong.
-   // 22.5° is a photo-proportioned display candidate, NOT OEM turret indexing.
+   const neck=add(g,cyl(18,5,mats.dark,0,7.5,0,64));
+   neck.userData.A19A18MountNeck=true;
    const objective=(x,angle,labelText,bandMat,side)=>{
      const pivot=new THREE.Group();pivot.position.set(x,-5,0);
-     pivot.rotation.z=angle;g.add(pivot);
-     pivot.userData.A19ObjectivePivot=side;
-     const barrel=add(pivot,cyl(11.5,39,mats.black,0,-19.5,0));
-     barrel.userData.objectiveLabel=labelText;
-     barrel.userData.A19ObjectiveBarrel=side;
-     const band=add(pivot,cyl(12.8,2,bandMat,0,-38,0));
+     pivot.rotation.z=angle;g.add(pivot);pivot.userData.A19ObjectivePivot=side;
+     const upper=add(pivot,cyl(11.5,14,mats.black,0,-7,0,56));
+     upper.userData.objectiveLabel=labelText;upper.userData.A19ObjectiveBarrel=side;
+     const mid=add(pivot,cyl(10,16,mats.dark,0,-22,0,56));
+     mid.userData.A19ObjectiveBarrelMid=side;
+     const nose=add(pivot,cyl(8.2,9,mats.black,0,-34.5,0,56));
+     nose.userData.A19ObjectiveNose=side;
+     const band=add(pivot,cyl(12.4,2,bandMat,0,-30,0,56));
      band.userData.A19ObjectiveBand=side;
-     const lens=add(pivot,cyl(7.5,1.2,mats.glass,0,-39.5,0));
+     const lens=add(pivot,cyl(6.8,1.2,mats.glass,0,-39.5,0,48));
      lens.userData.objectiveOpticProxy=true;
      return pivot;
    };
-   objective(-18,-Math.PI/8,'JH-TOP MPLAN 5x/0.10?',mats.copper,'left');
-   objective(18,0,'Olympus PlanFL 10x/0.40?',mats.silver,'center');
-   g.userData.installedObjectiveCount=2;g.userData.objectiveTurretPortCountUnverified=true;
-   label(g,'A19 物镜转换盘 · 5×与10×物镜（铭牌待复核）',0,22,0);
+   objective(-18,-Math.PI/8,'JH-TOP MPLAN 5x/0.10? · 铭牌待复核',mats.copper,'left');
+   objective(18,0,'Olympus/Evident PlanFL 10x/0.40? · 铭牌待复核',mats.silver,'center');
+   g.userData.installedObjectiveCount=2;
+   g.userData.objectiveTurretPortCountUnverified=true;
+   g.userData.objectiveDimensionsArePhotoCandidates=true;
+   label(g,'A19 转换盘 + 两支实拍物镜 · 外形细化 / 型号仍待复核',0,22,0);
  },{explode:[0,22,0]});
  addPart('A20',sx,323,0,g=>{
    const points=[[18,44,0],[22,65,-12],[40,80,-24],[60,72,-22],[74,50,-8],[80,22,8],[76,-18,18]];
