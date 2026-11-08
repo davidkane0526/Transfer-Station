@@ -95,7 +95,15 @@ def rot(sys,key,x,y,z,grade,radius=47,lock_radius=8):
     # B uses its historical Ø94 candidate. A photo17/20/21/23 ruler
     # silhouette is distinctly narrower than the 65mm top-plate.
     # V48 only A uses Ø66 candidate, bounded [55,75]mm; SKU unknown.
-    add(sys,key,'rotary_lower_radius_'+str(radius),vz(radius,23,x,y,z),grade)
+    lower=vz(radius,23,x,y,z)
+    if key=='B08':
+        # GCM-1107M OEM: four Ø6.8 clearance bores on 50mm square,
+        # four Ø11.5 x 16 deep counterbores. Orientation of the
+        # counterbore entry remains an installation proxy.
+        base_four=[(x+dx,y+dy) for dx in (-25,25) for dy in (-25,25)]
+        lower=cut(lower,base_four,6.8,23,z)
+        lower=cut(lower,base_four,11.5,16,z+7)
+    add(sys,key,'rotary_lower_radius_'+str(radius),lower,grade)
     pitch=25 if radius>=40 else 16
     top=vz(radius,10.2,x,y,z+23)
     top=cut(top,[(x+dx,y+dy) for dx in (-pitch,0,pitch) for dy in (-pitch,0,pitch)],5,8,z+25.2)
