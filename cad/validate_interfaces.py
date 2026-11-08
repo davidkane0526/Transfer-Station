@@ -801,9 +801,11 @@ for i,dx in enumerate((-14,14),1):
     check(abs(center-(-82.75+dx))<.02,'V58 G40 head pair follows moved film unit')
 for i in (1,2):
     wing=part(A,f'A05CS{i}')[0]
-    check(wing.isValid() and wing.BoundingBox().ylen>14 and
-          wing.BoundingBox().xlen<8,
-          'V70 butterfly heads retain two wings across front/back, clear of A05 vertical leg')
+    check(wing.isValid() and wing.BoundingBox().xlen>10.5 and
+          wing.BoundingBox().ylen<6.1,
+          'V77 butterfly heads rotated 90deg into X-outward plane, not Z/front-back')
+    check(wing.intersect(a_sheet).Volume()<1e-4,
+          'V77 rotated butterfly ears must stay outside the upright and folded foot')
 check(asheet_bb.ylen>=14-.02,
       'V70 outward foot has short 14mm front-back span, not false 26mm screw depth')
 # V63 physically test both hollow bores and solid material between them.
@@ -830,6 +832,8 @@ check(a_sheet.intersect(solid_axis).Volume()>6,
 report['V70_A05_outward_screw_axis']={
     'photo_sources':['194','196'],'bore_count':2,
     'screw_axis':'X-outward, NOT previously Z front-back',
+    'wing_ear_plane':'X-outward, rotated 90deg from legacy Z-oriented wings',
+    'installed_glass_in_complete_STEP':False,
     'foot_length_X_mm_candidate':32,
     'foot_width_Y_mm_candidate':14,
     'bore_diameter_mm_candidate':3.2,'screw_diameter_mm_candidate':2.8,
