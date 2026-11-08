@@ -60,6 +60,7 @@ jobs:
           node tests/platform-a-assembly-audit.mjs
           node --check src/a-working-layout.js
           node tests/a-working-layout.mjs
+          node tests/a-photo-angle-registration.mjs
           node --check src/b-physical-audit.js
           node tests/b-profile-audit.mjs
           node --check src/interface-evidence.js
@@ -87,12 +88,16 @@ jobs:
         run: |
           mkdir -p assets/photo-review
           for name in \
+            Transfer-Station-A-20261108-MonitorFront.png \
+            Transfer-Station-A-20261108-MonitorLeft.png \
             Transfer-Station-A-Photo191-Overview.png \
             Transfer-Station-A-Photo192-Side.png \
             Transfer-Station-A-Photo193-Front.png \
             Transfer-Station-A-Photo194-FilmUpper.png \
             Transfer-Station-A-Photo195-FilmLower.png \
-            Transfer-Station-A-Photo196-G40.png; do
+            Transfer-Station-A-Photo196-G40.png
+            Transfer-Station-A-20261108-MonitorFront.png
+            Transfer-Station-A-20261108-MonitorLeft.png; do
             test -s "$name" || { echo "::error::A real-photo matching render is missing: $name"; exit 1; }
             cp "$name" assets/photo-review/
           done
@@ -121,6 +126,8 @@ jobs:
             Transfer-Station-A-Photo194-FilmUpper.png
             Transfer-Station-A-Photo195-FilmLower.png
             Transfer-Station-A-Photo196-G40.png
+            Transfer-Station-A-20261108-MonitorFront.png
+            Transfer-Station-A-20261108-MonitorLeft.png
             Transfer-Station-ModelA-5306M-Base.png
             Transfer-Station-V66-A-Front-Assembly.png
             Transfer-Station-V70-A-Photo-Bare-Foot.png
