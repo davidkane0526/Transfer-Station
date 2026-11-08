@@ -2950,8 +2950,8 @@ function platformA(){
      // the L-foot outward X direction, not fore/aft Z. The shorter
      // ears leave clearance to the upright web beside the inner bolt.
      for(const wingSide of [-1,1]){
-       const wing=add(g,cub(4.6,3.8,1.6,mats.steel,
-         screwX+wingSide*3,footBottomY+5,aBent.sheetFrontZ));
+       const wing=add(g,cub(4.2,3.8,1.6,mats.steel,
+         screwX+wingSide*2.65,footBottomY+5,aBent.sheetFrontZ));
        wing.rotation.z=wingSide*.35;
        wing.userData.A05CSWingEarPlane='X-outward';
      }
