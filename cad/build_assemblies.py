@@ -767,10 +767,12 @@ def make_a():
         screw_x=bracket_leg_x+dx
         shank=vz(1.4,6,screw_x,0,leg_bottom-3.5)
         hub=vz(2.8,2,screw_x,0,leg_bottom+2.5)
-        # Wing handles orient along front/back; in-plane X blades would
-        # clip the L upright near the first fastener in this photo pose.
-        wings=[box(1.6,7,3.8,screw_x,
-                   sgn*4.8,leg_bottom+3.1) for sgn in (-1,1)]
+        # User-approved reference: both butterfly wings are rotated
+        # 90 degrees into the same X-outward plane as the two bolts.
+        # 4.6mm short ears leave 0.45mm outside the 2.5mm upright
+        # while their inner tips intersect the screw hub mechanically.
+        wings=[box(4.6,1.6,3.8,screw_x+sgn*3,
+                   0,leg_bottom+3.1) for sgn in (-1,1)]
         add('A',f'A05CS{i}','photo194_two_butterfly_head_screws_THREAD_UNKNOWN',
             shank.fuse(hub,*wings),'C')
     add('A','A05G','standard_76x26x1mm_glass_POSITION_CANDIDATE',
