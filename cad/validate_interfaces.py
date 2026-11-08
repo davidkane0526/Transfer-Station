@@ -613,9 +613,9 @@ check(abs(arot.xlen-66)<.02 and abs(arot.ylen-66)<.02,
 a06_right_stem=part(A,'A06C')[0].BoundingBox()
 a06_right_knob=part(A,'A06D')[0].BoundingBox()
 a06_front_lock=part(A,'A06B')[0].BoundingBox()
-check(abs(a06_right_stem.xmin-(78+33))<.02 and
-      abs(a06_right_stem.xmax-a06_right_knob.xmin)<.02,
-      'V48 A06 right angular micrometer stem must meet drum without gap')
+check(abs(a06_right_stem.xmin-(78+30))<.02 and
+      2.9<a06_right_stem.xmax-a06_right_knob.xmin<3.1,
+      'V75 A06 angular micrometer shaft must ENGAGE inside drum by 3mm, not float at a zero-area face')
 check(abs(a06_front_lock.ymin-33)<.02,
       'V48 front short A06 lock must independently attach to circular rim')
 check(a06_right_knob.xmin>arot.xmax,
