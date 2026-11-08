@@ -579,6 +579,24 @@ window.__modelAPhoto194Probe=()=>{
    const a15Stems=gA15?.children.filter(o=>o.userData.stageActuatorStem)??[];
    const a15Collars=gA15?.children.filter(o=>o.userData.stageActuatorCollar)??[];
    const a15Supports=gA15?.children.filter(o=>o.userData.stageActuatorSupport)??[];
+   const sep=(a,b)=>{
+     const A=box(a),B=box(b);
+     const dx=Math.max(0,A.min.x-B.max.x,B.min.x-A.max.x);
+     const dy=Math.max(0,A.min.y-B.max.y,B.min.y-A.max.y);
+     const dz=Math.max(0,A.min.z-B.max.z,B.min.z-A.max.z);
+     return d(Math.hypot(dx,dy,dz));
+   };
+   const chainGaps={};
+   for(const axis of ['X','depth']){
+     const support=a15Supports.find(o=>o.userData.stageActuatorSupport?.localAxis===axis);
+     const stem=a15Stems.find(o=>o.userData.stageActuatorStem?.localAxis===axis);
+     const collar=a15Collars.find(o=>o.userData.stageActuatorCollar?.localAxis===axis);
+     const handle=a15Handles.find(o=>o.userData.stageActuatorHandle?.localAxis===axis);
+     chainGaps[axis]=[support&&stem?sep(support,stem):null,
+       stem&&collar?sep(stem,collar):null,collar&&handle?sep(collar,handle):null];
+   }
+   const a15ActuatorChainsContinuous=Object.values(chainGaps).every(gaps=>
+     gaps.every(v=>v!==null&&v<=.02));
    return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
      lampOEMDiameterMm:lamp.userData.A11OEMHousingDiameterMm,
      lampElectricalCablePresent:Boolean(cable),
@@ -587,6 +605,7 @@ window.__modelAPhoto194Probe=()=>{
      A18VendorIdentificationPending:Boolean(gA18.userData.vendorIdentificationPending),
      A15LinearHandleCount:a15Handles.length,A15StemCount:a15Stems.length,
      A15CollarCount:a15Collars.length,A15SupportCount:a15Supports.length,
+     A15ActuatorChainGapsMm:chainGaps,A15ActuatorChainsContinuous:a15ActuatorChainsContinuous,
      A15FloatingCentralControlCount:gA15.children.filter(o=>o.userData.A15Photo194SlotControlKnob).length,
      clampScrewCount:screwHeads.length,
      clampScrewAxesParallelShortEdge:screwShafts.every(o=>{
