@@ -729,9 +729,39 @@ a07_front=part(A,'A07F')[0]
 slot_probe=box_probe(18,2.2,3,78,33.5,92)
 check(a07_front.intersect(slot_probe).Volume()<1e-4,
       'V59 A07 front adjustment plate has an actual open horizontal slot')
-a18=part(A,'A18')[0].BoundingBox();a18r=part(A,'A18R')[0].BoundingBox()
+a18=part(A,'A18')[0].BoundingBox()
 a19=part(A,'A19')[0].BoundingBox()
 o1=part(A,'A19O1')[0].BoundingBox();o2=part(A,'A19O2')[0].BoundingBox()
+check(abs(a18.xlen-92)<.02 and abs(a18.ylen-88)<.02 and
+      abs(a18.zmin-165)<.02 and abs(a18.zmax-235)<.02,
+      'V79 microscope focus body uses compact photo-constrained 92x88x70 envelope')
+check(not (A/'A18R.step').exists(),
+      'V79 unsupported 160mm horizontal microscope tube must remain deleted')
+check(not (A/'A11M.step').exists(),
+      'V79 invented MWWHL4 mechanical gooseneck support must remain deleted')
+a11=part(A,'A11')[0].BoundingBox()
+check(abs(a11.ylen-31.5)<1.0 and abs(a11.zlen-31.5)<1.0 and
+      abs(a11.xlen-60.4)<.2,
+      'V79 MWWHL4 uses vendor-constrained Ø30.5mm-class finned axial envelope')
+check(abs(a19.zmin-155)<.02 and abs(a19.zmax-165)<.02,
+      'V79 objective turret remains a distinct 10mm component below microscope head')
+check(110.6+2<o1.zmin<121 and o1.zmax<=160 and
+      abs(o2.zmin-116)<.02 and abs(o2.zmax-155)<.02 and
+      o1.xmin<78-18-12 and abs(o2.xmin-(78+18-11.5))<.02,
+      'V79 two photographed objectives remain distinct and above sample while left objective is inclined')
+check(abs(part(A,'A19R1')[0].BoundingBox().xmin-
+          part(A,'A19O1')[0].BoundingBox().xmin)<15,
+      'V79 left color band follows the same tilted objective axis')
+report['V79_A_microscope_cleanup']={
+    'photo_refs':['191','192','193'],
+    'A18_vendor_and_model_verified':False,
+    'removed_unsupported_horizontal_tube':True,
+    'removed_invented_MWWHL4_gooseneck_support':True,
+    'MWWHL4_diameter_mm_vendor':30.5,
+    'outboard_objective_inclination_candidate_deg':22.5,
+    'center_objective_vertical_candidate_deg':0,
+    'objective_text_reading_fully_verified':False,
+    'full_turret_indexing_and_working_distance_verified':False}
 a20=part(A,'A20')[0].BoundingBox()
 check(abs(a18.zmin-165)<.02 and abs(a18.zmax-235)<.02,
       'V59 microscope head occupies the photo-proportioned 70mm vertical envelope')
