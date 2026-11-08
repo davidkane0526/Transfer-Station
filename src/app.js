@@ -503,18 +503,18 @@ window.__modelAPhoto194Probe=()=>{
    currentRoot.updateWorldMatrix(true,true);
    const box=o=>new THREE.Box3().setFromObject(o);
    const d=(v)=>{const n=Number(v.toFixed(3));return Object.is(n,-0)?0:n;};
-   const a=box(lamp),h=box(housing),b=box(bend),m=box(drum);
+   const a=box(mesh('A11','A11OEMSlipRingCandidate')??lamp),h=box(housing),b=box(bend),m=box(drum);
    const f=box(foot),shaft=box(sampleStem),knob=box(sampleDrum);
    const mountBox=box(mount);
    const lampMountStart=gA11.localToWorld(new THREE.Vector3(-24,17,-35));
-   const lampMountEnd=gA11.localToWorld(new THREE.Vector3(0,13,-16));
+   const lampMountEnd=gA11.localToWorld(new THREE.Vector3(0,30,-20.5));
    const opticalParkA11=d(gA11.position.y-parts.get('A11').base.y);
    const opticalParkA18=d(gA18.position.y-parts.get('A18').base.y);
    return {available:true,pose:aWorkingPoseMode?'candidate':'photo94',
      lampSupportPresent:true,lampMountMethodVerified:false,
      lampMountToHeadSideGapMm:d(mountBox.min.x-h.max.x),
      lampSupportStartSurfaceGapMm:d(lampMountStart.x-h.max.x-3),
-     lampSupportToBulbRearGapMm:d(a.min.z-lampMountEnd.z-3),
+     lampSupportToBulbRearGapMm:d(a.min.z-lampMountEnd.z-3), // support->SM1RC rear face
      lampOpticsParkingOffsetDifferenceMm:d(opticalParkA11-opticalParkA18),
      g40RightDrumToBendWebClearanceMm:d(b.min.x-m.max.x),
      g40DrumBendOverlapVolumeAabbMm3:(()=>{
@@ -3014,15 +3014,23 @@ function platformA(){
   label(g,'Daheng Imaging 工业相机',0,72,0);
  },{explode:[0,92,0]});
  addPart('A11',155,184,60,g=>{
-  add(g,cyl(13,33,mats.silver,0,16.5,0));add(g,cyl(11,8,mats.ceramic,0,35,0));
+  // Thorlabs MWWHL4 actual heat-sink housing Ø30.5mm, SM1 female port.
+  // SM1RC slip ring is a vendor-supported mounting OPTION, not yet
+  // identified in the user's actual installed photograph.
+  const ledBody=add(g,cyl(15.25,33,mats.dark,0,16.5,0));
+  ledBody.userData.A11OEMHousingDiameterMm=30.5;
+  add(g,cyl(11,8,mats.ceramic,0,35,0));
+  const slipRing=add(g,sleeve(17.5,15.35,8,mats.black,0,30,0,'y'));
+  slipRing.userData.A11OEMSlipRingCandidate=true;
+  g.userData.A11RingModel='SM1RC (vendor-supported option, NOT photographed confirmation)';
   // V75: former 80mm slanted rod ended without an actual mount.
   // Keep the lamp attached to the A18 housing-side surface through
   // a continuous flexible support proxy (real fixing remains UNKNOWN).
   // A18 right face is world x=128; root at x=131 with a
   // Ø6 flexible rod makes TANGENT solid contact (no deep penetration).
   // Lamp rear face is world z=47; rod ends z=44 with radius 3.
-  const lampMountPoints=[[-24,17,-35],[-19,17,-28],[-10,19,-24],
-    [-3,17,-19],[0,13,-16]];
+  const lampMountPoints=[[-24,17,-35],[-19,20,-30],[-10,27,-26],
+    [-3,29,-23],[0,30,-20.5]];
   const gooseneck=add(g,tube(lampMountPoints,3,mats.steel));
   gooseneck.userData.A11PhysicallyConnectedSupportProxy=true;
   const rootCollar=add(g,cyl(5,1.2,mats.black,-26.4,17,-35,28));
