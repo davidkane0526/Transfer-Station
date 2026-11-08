@@ -64,10 +64,20 @@ microscope:{name:'显微镜 / 相机 / 物镜',color:'#a7c8f2'},
 illumination:{name:'照明',color:'#ffdf80'},
 vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
-let platform='B', bPhoto94Mode=false, aWorkingPoseMode=true, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
+let platform='B', bPhoto94Mode=false, aWorkingPoseMode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
     filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleShiftDepth=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 // Read-only platform state for automated browser QA.
 window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',aPose:platform==='A'?(aWorkingPoseMode?'candidate':'photo94'):null,partCount:parts.size});
+ // Photo-referenced A is the default view, not an unverified mirror.
+ window.__platformAPhotoTruthProbe=()=>platform==='A'?{
+  available:true,photoMode:!aWorkingPoseMode,
+  filmStageX:activeAFilmX(),VC13InitialLiftMm:aWorkingPoseMode?13:0,
+  bracketMirroredFromPhoto:aWorkingPoseMode,
+  fabricatedClampVisible:Boolean(parts.get('A05C')?.g.visible),
+  unphotographedGlassVisible:Boolean(parts.get('A05G')?.g.visible),
+  actualClampManufacturerConfirmed:false,
+  directPhotoIds:['191','192','193','194','195','196']
+ }:{available:false};
 const activeAFilmX=()=>aWorkingPoseMode?A_WORKING_LAYOUT.filmStageX:CONFIG.A.armX;
 window.__platformAWorkingPoseProbe=()=>platform==='A'?{
  available:true,mode:aWorkingPoseMode?'candidate':'photo94',
@@ -3439,10 +3449,10 @@ function updateTransforms(){
   const travelX=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
   const travelZ=rotateSample?stageLocalDepthTranslation(sz,angle):{x:0,z:sz};
   const dx=travelX.x+travelZ.x,dz=travelX.z+travelZ.z;
-  // Platform A default pose is a CANDIDATE 13mm-Raised VC13M output.
+  // Only selected unverified working pose has a 13mm raised VC13M output.
   // Downward preview approaches the original static STEP lower-limit
   // without forcing the output plate through the stationary upright.
-  const aLift=platform==='A'?13:0;
+  const aLift=platform==='A'&&aWorkingPoseMode?13:0;
   // V68: the original raised A05G slide intersects the modelled A19
   // objectives. Retract the COMPLETE optical stack, including the
   // microscope carriage, as a conservative visual parking hypothesis.
@@ -3567,9 +3577,9 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V70 / '+(aWorkingPoseMode?
+   '平台 A · V76 / '+(aWorkingPoseMode?
     '右折边操作位置候选（未实物验证）/ 玻片印章对准A07 / 夹具避开热台 / A17型号未知':
-    '照片94原始左折边朝向 / A05C夹具+A05G玻片 / 全局未配准');
+    '照片94左折边 / 无实物依据的夹具及玻片已隐藏 / VC13零位 / 全局未配准');
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B样品侧从下至上为B35→B08（无外伸手柄）→B41（前向Z单轴、型号待核）→B09（右向X单轴NFP-1462C）→B10隔热层→B11真空加热台。B41与B09分别具有独立活动滑块和测微头，构成正交XY平移。B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 Ø12×112mm场景拟合立杆（实物长度待核）→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
   'A装配：唯一A01面包板→A17未知磁座（磁吸）→A15独立XY双轴T25M→A03独立Z轴VC13M→A04L/A04双摆角机构→A05薄型L片→A05C独立夹持器候选→A05G 76×26×1mm玻片+右缘PDMS。样品侧：A16 GCM-5306M螺栓底座→A06 Ø66候选旋转台→A02单轴T25M→A07三层样品座。'+(aWorkingPoseMode?'目前采用右折边、短折腿的工作位置候选；水平夹具退在A07热台外、PDMS名义中心对准样品顶面，13mm下降接触仅为几何推演。照片94原方向保留在切换按钮中，未被此构型替代。':'目前显示照片94原始左折边局部轮廓，A与样品全局距离仍不匹配，不能据此转移。')+'A05C、A17具体型号/孔位、底座真实安装朝向和显微镜工作距离均未确认。V70将膜侧操作候选左移24mm，使玻片起点避开两颗翼形螺钉；不代表实物已配准。';
@@ -3795,7 +3805,7 @@ function switchPlatform(next){
   resetScene();updatePhotoScope();
 }
 $('show-b').onclick=()=>switchPlatform('B');
-$('show-a').onclick=()=>switchPlatform('A');
+$('show-a').onclick=()=>{aWorkingPoseMode=false;switchPlatform('A');};
 $('btn-a-working-pose').onclick=()=>{
  aWorkingPoseMode=true;switchPlatform('A');
 };
@@ -3803,7 +3813,7 @@ $('btn-a-photo-pose').onclick=()=>{
  aWorkingPoseMode=false;switchPlatform('A');
 };
 $('btn-b-user-photos').onclick=()=>{bPhoto94Mode=false;switchPlatform('B');};
-$('btn-b-archive').onclick=()=>{bPhoto94Mode=false;switchPlatform('A');};
+$('btn-b-archive').onclick=()=>{bPhoto94Mode=false;aWorkingPoseMode=false;switchPlatform('A');};
 $('btn-photo947').onclick=()=>focusPhoto947('94');
 $('btn-photo94').onclick=()=>focusPhoto947('94');
 $('btn-photo95').onclick=()=>focusPhoto947('95');
