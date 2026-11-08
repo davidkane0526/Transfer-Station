@@ -677,11 +677,11 @@ def make_a():
     # Separate inner moving tongues touch the OUTPUT, but maintain
     # side clearance to the channels across the nominal 0..13mm travel.
     for sign in (-1,1):
-        vc13=vc13.fuse(box(3,8,32,ax+sign*29,0,85))
+        vc13=vc13.fuse(box(3.4,8,32,ax+sign*24,0,85))
     add('A','A03','VC13M_FIXED_UPRIGHT_with_2_side_channels_CANDIDATE',vc13)
     moving=box(65,65,7,ax,0,117)
     for sign in (-1,1):
-        moving=moving.fuse(box(3.4,8,24,ax+sign*34,0,95))
+        moving=moving.fuse(box(3.4,8,28,ax+sign*27.7,0,95))
     add('A','A03T','VC13M_OUTPUT_with_2_telescopic_guides_LOWER_POSE',
         moving,'C')
     add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,40,98),'P')
@@ -851,8 +851,8 @@ def make_a():
     add('A','A09','Daheng_camera',box(50,44,45,cx,0,323),'P')
     add('A','A11','MWWHL4',vz(13,33,155,60,184),'P')
     add('A','A11M','MWWHL4_side_gooseneck_to_A18_UNVERIFIED',
-        cable_path([(128,24,200),(133,32,201),(139,43,203),
-                    (142,55,199),(142,60,197)],3),'C')
+        cable_path([(131,25,201),(136,32,201),(145,36,203),
+                    (152,41,201),(155,44,197)],3),'C')
     add('A','A12','LEDD1B',box(60,73,104,262,-80,20),'P')
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
     # TTL200-A uses EXTERNAL SM2 both ends, whereas the previously
