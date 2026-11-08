@@ -617,9 +617,38 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V70.*A17/,
-  'The initial platform A view must identify the unverified working hypothesis');
+ assert.match(await page.locator('#platform-caption').innerText(),/V76.*左折边/,
+   'A must initially show the photo-evidence shape, not an invented mirror');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
+ assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
+ const photoTruth=await page.evaluate(()=>window.__platformAPhotoTruthProbe?.());
+ assert.equal(photoTruth?.photoMode,true,
+   'Default A photo view must not be the mirrored operation hypothesis');
+ assert.equal(photoTruth.VC13InitialLiftMm,0,
+   'Photo mode cannot invent the 13mm vertical gap that made VC13M appear floating');
+ assert.equal(photoTruth.bracketMirroredFromPhoto,false);
+ assert.equal(photoTruth.fabricatedClampVisible,false);
+ assert.equal(photoTruth.unphotographedGlassVisible,false);
+ assert.equal(photoTruth.actualClampManufacturerConfirmed,false);
+ // Capture evidence-view geometry after real THREE.js frames, not mock images.
+ // Views are approximate camera orientations, NOT pixel-registered metrology.
+ const photoShot=async(filename,buttonId)=>{
+   await page.locator(buttonId).evaluate(el=>el.click());
+   await page.waitForTimeout(220);
+   const box=await page.locator('#viewer').boundingBox();
+   assert(box&&box.width>=300&&box.height>=300);
+   await page.screenshot({path:filename,
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ };
+ await photoShot('Transfer-Station-A-Photo191-Overview.png','#btn-iso');
+ await photoShot('Transfer-Station-A-Photo192-Side.png','#btn-rear');
+ await photoShot('Transfer-Station-A-Photo193-Front.png','#btn-front');
+ await photoShot('Transfer-Station-A-Photo194-FilmUpper.png','#btn-photo94');
+ await photoShot('Transfer-Station-A-Photo195-FilmLower.png','#btn-photo97');
+ await photoShot('Transfer-Station-A-Photo196-G40.png','#btn-photo94');
+ // Switch explicitly to hypothesis only for the EXISTING transfer tests.
+ await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
  const finiteA=await page.evaluate(()=>window.__sceneFiniteGeometryProbe?.());
  assert.equal(finiteA.available,true);
