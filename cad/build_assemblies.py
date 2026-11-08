@@ -696,11 +696,16 @@ def make_a():
     # The older one-piece A04 envelope was 20mm too short.
     add('A','A04L','LOWER_G40_GONIOMETER_SKU_UNKNOWN_20mm_PHOTO_CANDIDATE',
         box(40,40,20,ax,0,124),'C')
-    # Photo195: independent lower goniometer micrometer points LEFT (-X).
-    add('A','A04LM','LOWER_G40_left_micrometer_photo195_CANDIDATE',
-        vx(5,22,ax-42,0,134),'C')
-    add('A','A04LK','LOWER_G40_left_knob_photo195_CANDIDATE',
-        vx(8.5,15,ax-57,0,134),'C')
+    # Nov 08 TWO photo views: the LOWER angular micrometer is
+    # orthogonal (+Y depth in STEP) to the UPPER +X micrometer.
+    # WebGL uses +Z for this same direction. An engaged side mount
+    # joins it to the lower block, no unsupported floating knob.
+    add('A','A04LS','LOWER_G40_depth_drive_support_UNVERIFIED',
+        box(29,16,15,ax,24,132),'C')
+    add('A','A04LM','LOWER_G40_plus_depth_micrometer_20261108_CANDIDATE',
+        vy(5.5,18,ax,27,134),'C')
+    add('A','A04LK','LOWER_G40_plus_depth_knob_20261108_CANDIDATE',
+        vy(8.3,20,ax,43,134),'C')
     add('A','A04','UPPER_G40M60L_LABEL_PHOTO94_40x40x20',
         box(40,40,20,ax,0,144),'P')
     add('A','A04M','UPPER_G40M60L_right_micrometer_photo191_196',
