@@ -993,6 +993,17 @@ try{
  assert.equal(guideBefore.tonguesTouchMovingPlate,true);
  assert.equal(guideBefore.actualTravelInGuideEnvelope,true);
  assert.equal(guideBefore.outputLiftMm,13);
+ assert.equal(guideBefore.vendorModel,'Daheng GCM-VC13M');
+ assert.deepEqual(guideBefore.vendorPlatformMm,[65,65]);
+ assert.equal(guideBefore.vendorTravelMm,13);
+ assert.equal(guideBefore.vendorBearingType,'crossed-roller');
+ assert.equal(guideBefore.vendorSideTowerCount,2,
+   'VC13M must show the two open-frame uprights visible in vendor imagery');
+ assert.equal(guideBefore.centralDriveStemCount,1,
+   'VC13M must use one central vertical micrometer, not an external floating control');
+ assert.equal(guideBefore.legacySolidWallCount,0,
+   'The old tall solid-wall VC13 surrogate must never return');
+ assert.equal(guideBefore.vendorOpenFrameTopologyApplied,true);
  assert.equal(guideBefore.manufacturerGuideProfileVerified,false);
  const aBefore=await page.evaluate(()=>window.__modelAKinematicProbe?.());
  assert(aBefore?.available,'A viewer kinematic witness missing');
