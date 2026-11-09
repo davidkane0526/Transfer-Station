@@ -668,29 +668,39 @@ def make_a():
     # V79: remove the detached A15FK cylinder. The photograph supports
     # the slotted face and two fasteners; the old free-standing control had
     # no verified mechanical linkage and produced the persistent floating knob.
-    # V80: Daheng lists GCM-T25M2L + GCM-VC13M at a 126mm
-    # reference top height in GCM-901602M. The user's physical order is
-    # reversed, but the additive rigid-body height is still a useful
-    # envelope check. Model the full 13mm stroke around that reference:
-    # lower endpoint = 119.5mm above A15 bottom, upper = 132.5mm.
+    # V83: Daheng GCM-VC13M vendor topology. The catalog fixes 65x65mm
+    # platform, 13mm travel, crossed-roller guide class and a CENTRAL
+    # vertical micrometer. Preserve V80's 126mm T25M2L+VC13M additive
+    # envelope check, but replace the old solid-wall silhouette with an
+    # open two-upright frame matching the manufacturer product image.
     vc13_lower_top=40+119.5
-    vc13_local_top=vc13_lower_top-73
     fixed_top=vc13_lower_top-7
-    front_drive_bracket=box(14,43,8,ax,19.5,118).cut(
-        vz(5.8,8,ax,40,118))
-    vc13=(box(65,65,8,ax,0,73)
-          .fuse(box(45,17,fixed_top-81,ax,-9,81))
-          .fuse(front_drive_bracket))
-    for sign in (-1,1):
-        vc13=vc13.fuse(box(3.4,8,fixed_top-81,ax+sign*24,0,81))
-    add('A','A03','VC13M_FIXED_UPRIGHT_HEIGHT_CROSSCHECKED_TO_901602_ENVELOPE',vc13)
+    base=box(65,65,8,ax,0,73)
+    # Two side towers + rear spine form one connected stationary frame.
+    left=box(8,40,fixed_top-81,ax-20,-2,81)
+    right=box(8,40,fixed_top-81,ax+20,-2,81)
+    rear=box(44,8,fixed_top-81,ax,-18,81)
+    # External guide rails are display/kinematic proxies; exact crossed-
+    # roller internal cross-section is not published in readable evidence.
+    guide_l=box(3.4,8,fixed_top-81,ax-24,6,81)
+    guide_r=box(3.4,8,fixed_top-81,ax+24,6,81)
+    # Central micrometer support bridge at the front. Bore axis is Z.
+    drive_support=box(40,12,6,ax,18,119).cut(vz(4.4,6.2,ax,22,118.9))
+    vc13=base.fuse(left,right,rear,guide_l,guide_r,drive_support).clean()
+    add('A','A03','GCM_VC13M_VENDOR_OPEN_FRAME_65x65_13mm_CROSSED_ROLLER',vc13,'D')
+
     moving=box(65,65,7,ax,0,fixed_top)
     for sign in (-1,1):
-        moving=moving.fuse(box(3.4,8,28,ax+sign*27.7,0,vc13_lower_top-28))
+        moving=moving.fuse(box(3.4,8,28,ax+sign*27.7,6,vc13_lower_top-28))
     add('A','A03T','VC13M_OUTPUT_LOWER_ENDPOINT_119p5mm_PAIR_HEIGHT',
-        moving,'C')
-    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,40,111),'P')
-    add('A','A03K','VC13M_vertical_knob',vz(8.5,18,ax,40,146),'P')
+        moving.clean(),'C')
+
+    # Central vertical spindle and drum stay within the 65mm footprint
+    # (scene local depth +22mm), unlike the old +40mm invented external wall.
+    add('A','A03M','VC13M_CENTRAL_VERTICAL_MICROMETER_STEM_VENDOR_TOPOLOGY',
+        vz(2.8,24,ax,22,109),'P')
+    add('A','A03K','VC13M_CENTRAL_VERTICAL_MICROMETER_DRUM_VENDOR_TOPOLOGY',
+        vz(6.8,20,ax,22,133),'P')
     # Photo94: 40mm-wide front silhouette has TWO ~20mm thick
     # independent sections. Upper is visibly marked GCM-G40M60L.
     # Lower has its own rightward micrometer; G40M40L is a manufacturer
