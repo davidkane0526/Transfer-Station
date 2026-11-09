@@ -736,14 +736,28 @@ a07_front=part(A,'A07F')[0]
 slot_probe=box_probe(18,2.2,3,78,33.5,92)
 check(a07_front.intersect(slot_probe).Volume()<1e-4,
       'V59 A07 front adjustment plate has an actual open horizontal slot')
-a18=part(A,'A18')[0].BoundingBox()
+a18_shape=part(A,'A18')[0]
+a18=a18_shape.BoundingBox()
 a19=part(A,'A19')[0].BoundingBox()
 o1=part(A,'A19O1')[0].BoundingBox();o2=part(A,'A19O2')[0].BoundingBox()
-check(abs(a18.xlen-92)<.02 and abs(a18.ylen-88)<.02 and
+check(abs(a18.xlen-84)<.02 and abs(a18.ylen-88)<.02 and
       abs(a18.zmin-165)<.02 and abs(a18.zmax-235)<.02,
-      'V79 microscope focus body uses compact photo-constrained 92x88x70 envelope')
+      'V81 microscope focus body uses stepped photo-constrained max 84x88x70 envelope')
 check(not (A/'A18R.step').exists(),
-      'V79 unsupported 160mm horizontal microscope tube must remain deleted')
+      'V81 unsupported 160mm horizontal microscope tube must remain deleted')
+for side,hub_key,coarse_key,fine_key in (
+    ('left','A18HL','A18FL','A18FLL'),
+    ('right','A18HR','A18FR','A18FRL')):
+    hub=part(A,hub_key)[0];coarse=part(A,coarse_key)[0];fine=part(A,fine_key)[0]
+    check(a18_shape.intersect(hub).Volume()>100,
+          f'V81 {side} focus hub must engage A18 body, not float')
+    check(hub.intersect(coarse).Volume()>100,
+          f'V81 {side} focus hub must engage coarse wheel')
+    check(coarse.distance(fine)<.02,
+          f'V81 {side} coarse/fine focus wheels must be contiguous')
+check(abs(part(A,'A18FL')[0].BoundingBox().xlen-
+          part(A,'A18FR')[0].BoundingBox().xlen)<.02,
+      'V81 bilateral coarse focus wheels must use symmetric candidate lengths')
 check(not (A/'A11M.step').exists(),
       'V79 invented MWWHL4 mechanical gooseneck support must remain deleted')
 a11=part(A,'A11')[0].BoundingBox()
@@ -759,9 +773,17 @@ check(110.6+2<o1.zmin<121 and o1.zmax<=160 and
 check(abs(part(A,'A19R1')[0].BoundingBox().xmin-
           part(A,'A19O1')[0].BoundingBox().xmin)<15,
       'V79 left color band follows the same tilted objective axis')
-report['V79_A_microscope_cleanup']={
+report['V81_A_microscope_vendor_constrained_cleanup']={
     'photo_refs':['191','192','193'],
     'A18_vendor_and_model_verified':False,
+    'A18_body_max_envelope_mm':[84,88,70],
+    'A18_body_stepped_segment_count':3,
+    'A18_bilateral_focus_chain_continuous':True,
+    'MGZ30_candidate_only':True,
+    'MGZ30_vendor_Z_travel_mm':30,
+    'MGZ30_vendor_post_diameter_mm':38.1,
+    'MCT_LMP2_direct_identity_rejected':True,
+    'MCT_LMP2_vendor_envelope_mm':[211.5,130,58.8],
     'removed_unsupported_horizontal_tube':True,
     'removed_invented_MWWHL4_gooseneck_support':True,
     'MWWHL4_diameter_mm_vendor':30.5,
@@ -770,6 +792,7 @@ report['V79_A_microscope_cleanup']={
     'outboard_objective_inclination_candidate_deg':22.5,
     'center_objective_vertical_candidate_deg':0,
     'objective_text_reading_fully_verified':False,
+    'objective_exact_magnification_and_NA_claim_removed':True,
     'full_turret_indexing_and_working_distance_verified':False}
 a20=part(A,'A20')[0].BoundingBox()
 check(part(A,'A20')[0].isValid() and a20.zmax>390,
