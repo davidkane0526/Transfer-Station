@@ -885,8 +885,13 @@ def make_a():
     # preserving the rear Y=-44 mounting plane that mates to A10.
     # MGZ30 is comparison-only; MCT-LMP2 direct identity is rejected by its
     # 211.5x130x58.8mm vendor envelope and dense front-hole pattern.
-    a18_body=(box(84,88,38,cx,0,179)
+    # A 34mm-wide continuous internal/rear spine overlaps all three
+    # stepped shells. This prevents STEP export from degenerating into three
+    # merely face-touching solids while leaving the external silhouette unchanged.
+    a18_core=box(34,88,70,cx,0,165)
+    a18_body=(a18_core
               .fuse(box(70,88,18,cx,0,165),
+                    box(84,88,38,cx,0,179),
                     box(76,88,14,cx,0,221)).clean())
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
