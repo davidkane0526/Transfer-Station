@@ -62,17 +62,28 @@ export const V48_RULER_EVIDENCE=Object.freeze({
       magneticFootModelConfirmed:false,
       photoOf420302MNameplateInThisGroup:false,
       A17:Object.freeze({
-        sideSlotVisible:true,frontKnurledControlVisible:true,
-        lowerPanelFastenersVisible:2,topCornerCounterboresVisible:0,
+        // V86 evidence-ledger cleanup: photos194/195 resolved the old V48
+        // layer attribution. The silver slot/front central control belongs
+        // to A15, NOT the lower A17 magnetic base.
+        sideSlotVisibleOnA17:false,
+        silverSlotReassignedToA15:true,
+        frontKnurledControlVisibleOnA17:false,
+        lowerSideSwitchVisible:true,
+        lowerPanelFastenersVisible:0,
+        topCornerCounterboresVisible:0,
         photo23TopCornerCounterboresOnA15:true,
-        exactSlotDimensionsMeasured:false,controlFunctionIdentified:false,
-        magneticSwitchIdentified:false,manufacturerSkuVerified:false,
-        independentAVisualMatchToCatalog:false,
-        modelCandidate:null,
-        modelCandidateConfidence:'unidentified',
-        candidateTopHolePattern:null,
+        exactSwitchDimensionsMeasured:false,
+        magneticSwitchFunctionPhysicallyVerified:false,
+        manufacturerSkuVerified:false,
+        independentAVisualMatchToCatalog:true,
+        modelCandidate:'CORZC PTDB65',
+        modelCandidateConfidence:'envelope-and-side-switch-only',
+        candidateEnvelopeMm:[65,65,20],
+        candidateMagneticForceKg:32,
+        candidateTopHolePattern:Object.freeze({M6:1,M4:8,M3:4,total:13}),
         candidateHolePatternAppliedToModel:false,
-        comparisonToB_GCM420302MAllowed:false
+        comparisonToB_GCM420302MAllowed:false,
+        note:'PTDB65 is comparison evidence only; A15 hides the actual A17 top face'
       }),
       filmToSampleCommonXYCoordinatesMeasured:false
     })
