@@ -11,13 +11,18 @@ assert.equal(original.verticalLegLength,72);
 // V79 keeps ONE left-handed physical sheet definition. Installation is a
 // rigid 180° yaw of the whole film branch, never a mirrored A05-only model.
 const local=photo94BracketCandidate({
-  stageCenterX:A_WORKING_LAYOUT.filmStageX,stageTopY:164,
+  stageCenterX:A_WORKING_LAYOUT.filmStageX,stageTopY:A_WORKING_LAYOUT.bracketTopWorldYmm,
   topPlateWidth:A_WORKING_LAYOUT.lBracketTopWidthMm,
   leftOverhangMm:A_WORKING_LAYOUT.lBracketOverhangMm,
   handedness:'left',verticalLegLength:A_WORKING_LAYOUT.lLegLengthMm
 });
 assert.equal(local.legX,A_WORKING_LAYOUT.filmStageX-60);
 assert.equal(local.verticalLegBottomY,111.9);
+assert.equal(A_WORKING_LAYOUT.a15Vc13CatalogReferenceHeightMm,126);
+assert.equal(A_WORKING_LAYOUT.a15Vc13LowerPoseHeightMm,119.5);
+assert.equal(A_WORKING_LAYOUT.a15Vc13InstalledOrderMatchesGCM901602,false);
+assert.equal(A_WORKING_LAYOUT.bracketTopWorldYmm,199.5);
+assert.equal(A_WORKING_LAYOUT.lLegLengthMm,87.6);
 assert.equal(A_WORKING_LAYOUT.installedFilmYawDeg,180);
 assert.equal(A_WORKING_LAYOUT.localBracketHandedness,'left');
 
@@ -29,6 +34,10 @@ assert.equal(nominal.basesSeparate,true);
 assert.equal(nominal.footprintGapMm,72.25);
 assert.equal(nominal.localHandedness,'left');
 assert.equal(nominal.installedFilmYawDeg,180);
+assert.equal(nominal.a15Vc13CatalogReferenceHeightMm,126);
+assert.equal(nominal.a15Vc13LowerPoseHeightMm,119.5);
+assert.equal(nominal.a15Vc13InstalledOrderMatchesGCM901602,false);
+assert.equal(nominal.catalogReferenceHeightIsMotionZero,false);
 assert.equal(nominal.glassLeftX,10);
 assert.equal(nominal.glassRightX,86);
 assert.equal(nominal.stampCenterX,78);
@@ -79,4 +88,4 @@ assert.throws(()=>auditAWorkingLayout({filmDropMm:14}),/Invalid/);
 assert.equal(nominal.filmStageX,-82.75);
 assert.equal(nominal.fullCandidateClampAssemblyCertified,false);
 assert.equal(nominal.usableForMachining,false);
-console.log('V79 platform A: rigid 180deg film chain, required glass, short-edge side screws and descent gating: PASS');
+console.log('V80 platform A: 126mm T25M2L+VC13M envelope, rigid 180deg film chain and short-edge clamp: PASS');
