@@ -1,4 +1,4 @@
-// V79: platform-A installed transfer layout.
+// V80: platform-A installed transfer layout with vendor-height cross-check.
 // The photographed A05 sheet is defined once in its local LEFT-handed form.
 // The COMPLETE film-side chain A17→A15→A03→A04L→A04→A05→clamp→glass
 // is then installed with a 180° yaw, rather than mirroring only A05.
@@ -89,7 +89,7 @@ export function auditAWorkingLayout({
   const candidateCanLower=basesSeparate&&clipOutsideHeater&&
     stampInsideHeaterBoundingBox&&stampInsideSampleChipFootprint&&verticalStampGapMm>=-1e-8;
   return Object.freeze({
-    verification:'V79 rigid-180 installed geometry candidate; dimensions still require physical validation',
+    verification:'V80 vendor-height-crosschecked rigid-180 installed geometry candidate; dimensions still require physical validation',
     photoReferenceUsesSameUnmirroredSheet:true,
     actualStagePosePhotoRegistered:false,
     A17SkuVerified:false,A05CClampSkuVerified:false,

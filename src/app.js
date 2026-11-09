@@ -3450,8 +3450,9 @@ function updateDetail(part){
  const aRigHtml=aRigAudit?(aWorkingPoseMode?
    '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
    ' data-gap-mm="'+aRigAudit.clampHeaterClearanceMm+'">'+
-   '<b>V79 当前安装方向 · 整套膜侧刚体旋转180°</b><p>A17→A15→A03→A04L→A04→A05→夹具→玻片保持同一刚体链，'+
+   '<b>V80 当前安装方向 · 厂家高度包络校正 + 整套膜侧刚体旋转180°</b><p>A17→A15→A03→A04L→A04→A05→夹具→玻片保持同一刚体链，'+
    '不是只镜像末端支架。玻片76×26×1 mm为当前尺寸候选；两枚夹紧螺杆轴线平行26 mm短边。'+
+   'A15+VC13M以同部件厂家组合126mm参考总高作包络交叉校核（标准组合顺序与实机相反，不作型号认定）；当前模型下端高度'+aRigAudit.a15Vc13LowerPoseHeightMm+' mm。'+
    'PDMS中心X='+aRigAudit.stampCenterX+' mm；A17/A16底座包络间隔 '+aRigAudit.footprintGapMm+
    ' mm；夹具至热台名义边缘间隔 '+aRigAudit.clampHeaterClearanceMm+
    ' mm；PDMS垂直间隙 '+aRigAudit.verticalStampGapMm+
@@ -3696,12 +3697,12 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V79 / '+(aWorkingPoseMode?
+   '平台 A · V80 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
   bPhoto94Mode?'94/95/97属于平台A，不用于B物理总装。':'平台B样品侧从下至上为B35→B08（无外伸手柄）→B41（前向Z单轴、型号待核）→B09（右向X单轴NFP-1462C）→B10隔热层→B11真空加热台。B41与B09分别具有独立活动滑块和测微头，构成正交XY平移。B35按Thorlabs MB2530/M孔系候选重建：10×12共120个M6贯通孔，25mm节距、首孔距边12.5mm，四角沉孔距边25mm。板中心X=75mm后，四角安装孔(-25/175, ±125)落在B01候选25mm网格；B16脚座中心87.5/-112.5mm，四个50mm方形Ø6.5孔与B35网格零误差配准。厚度仍按照片拟合12mm，官方MB2530/M为12.7mm，精确SKU未确认；B01螺纹与承载连接仍待实测。B02→B03双轴台→B04 V25M→B05薄板→B34 50mm黑套筒候选→B27 Ø12×112mm场景拟合立杆（实物长度待核）→B33方夹→B25首根横杆→B24 PHUC-1→B28第二横杆→B06 GCM-1302M夹具。B40从B36左侧绕至机箱后方（B19温控器背侧），再绕右侧连接VN-50；后侧管路降至70mm服务高度，与B37加热双线、B38测温线保持分层。杆长、孔位及VN-50泵端接口尚待验收。':
-  '平台A当前安装：A01→A17未知磁座→A15双轴T25M→A03 VC13M→A04L/A04双摆角台→A05折弯支架→A05C侧向夹具→A05G玻片/PDMS。整套载玻片支路以同一基准整体旋转180°朝向样品，不再只镜像末端支架。A05CS两枚螺杆轴线沿场景Z，即平行玻片26mm短边，并通过压紧条夹持；旧版竖直穿底脚孔已删除。样品侧：A16 GCM-5306M→A06旋转台→A02平移台→A07。A05夹具SKU、A17孔系、A06/A02精确型号及光学工作距离仍待实测。';
+  '平台A当前安装：A01→A17未知磁座→A15双轴T25M→A03 VC13M→A04L/A04双摆角台→A05折弯支架。V80用大恒同部件组合的126mm参考总高交叉校核A15+A03包络，但标准组合上下顺序与实机照片相反，因此不作901602M型号认定。A05折腿随上游高度修正为87.6mm派生候选，以保持13mm下降后的既定接触面。后续链为→A05C侧向夹具→A05G玻片/PDMS。整套载玻片支路以同一基准整体旋转180°朝向样品，不再只镜像末端支架。A05CS两枚螺杆轴线沿场景Z，即平行玻片26mm短边，并通过压紧条夹持；旧版竖直穿底脚孔已删除。样品侧：A16 GCM-5306M→A06旋转台→A02平移台→A07。A05夹具SKU、A17孔系、A06/A02精确型号及光学工作距离仍待实测。';
  focus('iso');
  updateTable();
 }
@@ -3855,7 +3856,8 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V79当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V80当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+       '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
        ' mm，夹具/热台边缘名义间隔 '+a.clampHeaterClearanceMm+
@@ -3908,7 +3910,7 @@ function switchPlatform(next){
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
   $('film-drop-label').textContent=next==='A'?
-    'VC13M竖直台 · V79含玻片/PDMS接触预览':
+    'VC13M竖直台 · V80厂家高度校正 / 含玻片PDMS接触预览':
     '玻片竖直下降 · V25M（13mm接触预览）';
   $('sample-move-label').textContent=next==='A'?
     '样品侧 A02 · GCM-T25M（后缀待核）· X平移':
@@ -3919,7 +3921,7 @@ function switchPlatform(next){
   $('film-drop').max='0';
   $('film-drop').value='0';
   $('film-drop-value').textContent='0.0 mm';
-  // Photo-reference mode is comparison-only; the V79 installed pose contains
+  // Photo-reference mode is comparison-only; the V80 installed pose contains
   // the required glass/PDMS and may run the geometry-only descent preview.
   $('film-drop').disabled=next==='A'&&!aWorkingPoseMode;
   $('film-drop').title=next==='A'&&!aWorkingPoseMode?
