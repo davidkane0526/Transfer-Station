@@ -28,10 +28,23 @@ export const V48_RULER_EVIDENCE=Object.freeze({
     sampleAssembly:Object.freeze({
       base:'A16 GCM-5306M mounting base, 112x70x8 mm (NOT rotation stage)',
       basePhoto:'17 (upside-down GCM-5306M label), 18',
-      rotation:'A06 cylindrical goniometric rotation stage; exact GCM-11 SKU unseen',
+      rotation:'A06 cylindrical rotation stage; exact GCM-11 SKU unseen',
       rotationDiameterCandidateMm:66,
       rotationDiameterPlausibleRangeMm:[55,75],
       rotationDiameterManufacturerVerified:false,
+      rotationVendorCandidates:Object.freeze({
+        GCM1101M:Object.freeze({
+          manufacturer:'Daheng',overallWidthMm:92,fineAdjustmentDeg:4,
+          resolutionArcMin:10,geometryApplied:false,
+          assessment:'manufacturer width conflicts with 55–75mm ruler/photo diameter envelope'
+        }),
+        GCM1102M:Object.freeze({
+          manufacturer:'Daheng',overallDiameterMm:66,heightMm:21,
+          platformMm:[32,32],fineAdjustmentDeg:5,resolutionArcMin:10,
+          geometryApplied:false,
+          assessment:'diameter matches photo-fit, but direct 21mm-height substitution breaks sample-stack ruler height'
+        })
+      }),
       angularMicrometerOnRight:true,
       shortRotationLockAtFront:true,
       separatedFromA02LinearLeftMicrometer:true,
@@ -117,6 +130,21 @@ export function auditV48RulerRegistration({
     sampleTopWithinVisibleRulerRange:aboveBoardMm>=ruler.min&&aboveBoardMm<=ruler.max,
     rotaryDiameterMm:candidateRotaryDiameterMm,
     plausibleRotationSize:candidateRotaryDiameterMm>=55&&candidateRotaryDiameterMm<=75,
+    GCM1101MWidthMm:92,
+    GCM1101MWithinPhotoDiameterEnvelope:92>=55&&92<=75,
+    GCM1102MDiameterMm:66,
+    GCM1102MHeightMm:21,
+    GCM1102MDiameterMatchesPhotoFit:Math.abs(candidateRotaryDiameterMm-66)<.01,
+    GCM1102MDirectSubstitutionTopAboveBoardMm:Number(
+      (sampleBaseMm+21+sampleTranslationMm+sampleLowerMm+sampleInterlayerMm+sampleTopMm).toFixed(1)),
+    GCM1102MDirectSubstitutionWithinRulerRange:
+      (sampleBaseMm+21+sampleTranslationMm+sampleLowerMm+sampleInterlayerMm+sampleTopMm)>=ruler.min&&
+      (sampleBaseMm+21+sampleTranslationMm+sampleLowerMm+sampleInterlayerMm+sampleTopMm)<=ruler.max,
+    GCM1102MMinimumMissingStackHeightMm:Number(Math.max(0,ruler.min-
+      (sampleBaseMm+21+sampleTranslationMm+sampleLowerMm+sampleInterlayerMm+sampleTopMm)).toFixed(1)),
+    GCM1102MNominalMissingStackHeightMm:Number(Math.max(0,ruler.nominal-
+      (sampleBaseMm+21+sampleTranslationMm+sampleLowerMm+sampleInterlayerMm+sampleTopMm)).toFixed(1)),
+    A06VendorGeometryApplied:false,
     sampleTopPlateNominalMm:65,
     sampleLayerHeightsMm:[sampleLowerMm,sampleInterlayerMm,sampleTopMm],
     bMagnetNamedButAMagnetUnknown:
