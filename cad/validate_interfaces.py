@@ -583,6 +583,21 @@ report['V62_A15_front_slot_A17_lower_lever']={
   'A15_front_plate_screw_count':2,'A15_control_count':0,
   'A17_lower_lever_count':1,'A17_duplicate_slot_count':0,
   'OEM_dimensions_and_threads_verified':False}
+check(a17_body.distance(a17_control)<.02,
+      'V82 A17 side magnetic switch proxy must touch its 65mm base, never float')
+report['V82_A17_PTDB65_comparison_boundary']={
+    'physical_A17_sku_verified':False,
+    'comparison_vendor':'CORZC',
+    'comparison_sku':'PTDB65',
+    'comparison_envelope_mm':[65,65,20],
+    'comparison_magnetic_force_kg':32,
+    'comparison_top_holes':{'M6':1,'M4':8,'M3':4},
+    'comparison_side_switch':True,
+    'comparison_hole_map_modelled':False,
+    'A17_actual_modelled_top_hole_count':0,
+    'side_switch_contacting_body':True,
+    'reason':'A15 hides the real A17 top face; envelope/switch similarity cannot prove SKU or hole map'
+}
 # V49: photos25/26 show two side-hole rows on the B09 NFP-1462C body.
 # Their exact coordinates, diameters and thread forms are NOT in the readable
 # OEM drawing; validate only the seven photo-fit blind recesses.
@@ -705,6 +720,11 @@ report['V48_A_sample_height_ruler']={
     'A06_right_angular_micrometer_count':1,
     'A06_front_lock_count':1,
     'A06_actual_rotation_sku_identified':False,
+    'A06_vendor_candidate_shortlist':['GCM-1101M','GCM-1102M'],
+    'GCM1101_vendor_fine_adjustment_deg':4,
+    'GCM1101_vendor_resolution_arcmin':10,
+    'GCM1101_with_T25M2L_published_combination':True,
+    'A06_vendor_geometry_applied':False,
     'A07_top_4_blind_screw_head_locations_qualified':False
 }
 check(part(A,'A15B')[0].BoundingBox().xmin>=a15.xmax-.02,
@@ -797,13 +817,21 @@ report['V81_A_microscope_vendor_constrained_cleanup']={
 a20=part(A,'A20')[0].BoundingBox()
 check(part(A,'A20')[0].isValid() and a20.zmax>390,
       'V59 camera cable is a continuous valid routed solid above the camera')
-report['V47_A04_photo94_two_goniometers']={
+report['V82_A04_vendor_pairing_candidate']={
     'independent_goniometer_envelopes':2,
     'lower_sku_photographically_verified':False,
+    'lower_vendor_candidate':'GCM-G40M40L',
+    'lower_vendor_platform_mm':[40,40],
+    'lower_vendor_thickness_mm':20,
+    'lower_vendor_rotation_center_mm':40,
+    'lower_vendor_travel_deg':7,
     'upper_sku_label_photographically_verified':'GCM-G40M60L',
-    'lower_compare_only_sku':'GCM-G40M40L',
-    'lower_upper_nominal_heights_mm':[20,20],
-    'a05_height_restored_mm':20,
+    'upper_vendor_platform_mm':[40,40],
+    'upper_vendor_thickness_mm':20,
+    'upper_vendor_rotation_center_mm':60,
+    'upper_vendor_travel_deg':5,
+    'vendor_catalog_allows_pairing':True,
+    'current_candidate_axes_orthogonal':True,
     'true_joint_bolt_patterns_verified':False
 }
 check(abs((a15.xmin+a15.xmax)/2-(a02.xmin+a02.xmax)/2)>100,
