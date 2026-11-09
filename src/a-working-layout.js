@@ -5,7 +5,7 @@
 export const A_WORKING_LAYOUT=Object.freeze({
   filmStageX:-82.75, filmStageZ:0, sampleCenterX:78,
   localBracketHandedness:'left', installedFilmYawDeg:180,
-  lBracketOverhangMm:60, lBracketTopWidthMm:87, lLegLengthMm:52.1,
+  lBracketOverhangMm:60, lBracketTopWidthMm:87, lLegLengthMm:87.6,
   metalThicknessMm:2.5,
   glassLengthMm:76, glassWidthMm:26, glassThicknessMm:1,
   glassNearFromLegMm:34, clampLengthMm:28,
@@ -15,7 +15,15 @@ export const A_WORKING_LAYOUT=Object.freeze({
   magnetFootprintMm:65, sampleBaseFootprintXmm:112,
   heaterFootprintMm:65, sampleChipFootprintMm:28, heaterTopWorldYmm:109.2,
   sampleChipTopWorldYmm:110.6,
-  bracketTopWorldYmm:164, initialVC13LiftMm:13,
+  // Daheng GCM-901602M catalog combines the same T25M2L+VC13M parts at
+  // 126mm reference top height. The user's installed order is reversed
+  // (T25 below VC13), so 126mm is used only as an additive envelope datum,
+  // NOT as proof of the stock 901602M assembly orientation. A 13mm full
+  // stroke is modelled about that reference: lower endpoint 119.5mm.
+  a15Vc13CatalogReferenceHeightMm:126,
+  a15Vc13InstalledOrderMatchesGCM901602:false,
+  a15Vc13LowerPoseHeightMm:119.5,
+  bracketTopWorldYmm:199.5, initialVC13LiftMm:13,
   opticalParkingLiftMm:18, // display-only until real focus mechanism is identified
   maximumFilmTravelMm:12.5, maximumSampleTravelMm:12.5,
   clearanceReserveMm:0.5
@@ -88,6 +96,10 @@ export function auditAWorkingLayout({
     filmStageX:d.filmStageX,filmStageZ:d.filmStageZ,sampleStageX:d.sampleCenterX,
     localHandedness:d.localBracketHandedness,installedFilmYawDeg:d.installedFilmYawDeg,
     bracketVerticalLegMm:d.lLegLengthMm,
+    a15Vc13CatalogReferenceHeightMm:d.a15Vc13CatalogReferenceHeightMm,
+    a15Vc13InstalledOrderMatchesGCM901602:d.a15Vc13InstalledOrderMatchesGCM901602,
+    a15Vc13LowerPoseHeightMm:d.a15Vc13LowerPoseHeightMm,
+    catalogReferenceHeightIsMotionZero:false,
     stampCenterX:n2(stampCenterX),stampCenterZ:n2(stampCenterZ),
     glassLeftX:n2(glassLeftX),glassRightX:n2(glassRightX),
     clampLeftX:n2(clampLeftX),clampRightX:n2(clampRightX),
