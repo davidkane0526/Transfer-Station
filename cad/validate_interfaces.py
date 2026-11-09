@@ -728,22 +728,52 @@ for i in range(1,5):
     head=part(A,f'A07S{i}')[0]
     check(abs(head.BoundingBox().zmax-108.6)<.02,
           'V48 silver top screw HEAD must be recessed, not floating above sample')
-report['V48_A_sample_height_ruler']={
+# V85 vendor conflict audit. GCM-1102M's Ø66 drawing agrees with the
+# photo-fit A06 diameter, unlike 92mm-class GCM-1101M. However, replacing
+# the current 33.2mm rotary stack contribution by the vendor 21mm height
+# would lower the ruler-constrained sample top by 12.2mm.
+gcm1102_direct_top_above_board=8+21+20+9+7+12
+check(gcm1102_direct_top_above_board==77,
+      'V85 GCM-1102M direct 21mm substitution arithmetic')
+check(not (87<=gcm1102_direct_top_above_board<=93),
+      'V85 do not auto-apply GCM-1102M height: direct substitution must remain inconsistent with ruler photos')
+report['V85_A06_vendor_candidate_vs_ruler_stack']={
     'photo_references':['17','18','19','20','21'],
     'board_top_z_mm':20,
     'photo_top_above_board_mm_estimate':[87,93],
     'scene_top_above_board_mm':round(aheat.zmax-20,1),
     'A07_layers_mm':[9,7,12],
     'A07_middle_layer_material_identified':False,
-    'A06_rotary_diameter_candidate_mm':66,
+    'A06_scene_rotary_diameter_mm':66,
+    'A06_scene_rotary_stack_height_mm':33.2,
+    'A06_actual_rotation_sku_identified':False,
+    'GCM1101M':{
+        'vendor_width_mm':92,
+        'fine_adjustment_deg':4,
+        'resolution_arcmin':10,
+        'within_photo_diameter_envelope_55_75mm':False,
+        'geometry_applied':False
+    },
+    'GCM1102M':{
+        'vendor_diameter_mm':66,
+        'vendor_height_mm':21,
+        'vendor_platform_mm':[32,32],
+        'fine_adjustment_deg':5,
+        'resolution_arcmin':10,
+        'diameter_matches_scene_photo_fit':True,
+        'direct_substitution_top_above_board_mm':gcm1102_direct_top_above_board,
+        'direct_substitution_within_ruler_range':False,
+        'minimum_missing_stack_height_mm':10,
+        'nominal_missing_stack_height_mm':13,
+        'geometry_applied':False,
+        'candidate_priority':'high diameter match / unresolved height stack'
+    },
+    'possible_explanations':['A06 is not GCM-1102M',
+                             'an unmodelled 10-16mm adapter/support layer exists',
+                             'one or more prior photo-fit layer heights must be remeasured'],
+    'vendor_geometry_may_override_ruler_evidence':False,
     'A06_right_angular_micrometer_count':1,
     'A06_front_lock_count':1,
-    'A06_actual_rotation_sku_identified':False,
-    'A06_vendor_candidate_shortlist':['GCM-1101M','GCM-1102M'],
-    'GCM1101_vendor_fine_adjustment_deg':4,
-    'GCM1101_vendor_resolution_arcmin':10,
-    'GCM1101_with_T25M2L_published_combination':True,
-    'A06_vendor_geometry_applied':False,
     'A07_top_4_blind_screw_head_locations_qualified':False
 }
 check(part(A,'A15B')[0].BoundingBox().xmin>=a15.xmax-.02,
