@@ -89,7 +89,7 @@ part("A07W","sample","样品片 / 载片（独立于金属样品座）","未知"
 part("A08","microscope","无限远校正管镜","Thorlabs","TTL200-A","焦距200mm；厂家镜体长28mm；两端SM2外螺纹","D","光学系统中的200mm焦距管镜。V45不再将85mm长的镜筒代理误标为TTL200-A镜体；实际镜体与连接套筒分为A08/A14。","管镜两端为SM2外螺纹（2.035in-40），适配镜筒与相机接口尚待核实；28mm镜体长度与成像所需光程不可混淆。","82；Thorlabs TTL200-A 官方管镜资料","询价"),
 part("A09","microscope","工业相机","Daheng Imaging","型号未读清","45×45×40 (代理)","P","通过转接组件连接 TTL200-A。","相机实际接口类型未知。","78","询价"),
 part("A10","microscope","显微镜立柱、底脚及支撑臂","未知","拼装支架","候选底脚72×65×14mm、立柱Ø26×372mm、横臂34×86×25mm及Ø26.6通孔（均非原厂尺寸）","C","照片191–193显示显微镜主体由独立立柱和横向支撑臂承托。V59延长立柱以连接相机/镜筒高度，并保留四个Ø5.5mm候选M5安装孔及独立螺钉；孔中心仍按A01候选25mm网格布置。","立柱长度、底脚型号、支撑臂接口和M5螺钉尺寸均未由厂家证实。V74已消除横臂原先伸入A18机头约40mm的实体穿透，改为端面接触；头部连接螺纹仍未知。当前孔系仅在代理A01/A10中几何一致，实际面包板攻丝规格、有效啮合及承载弯矩未经认证，不能作为原厂加工安装图。","78、82、191、192、193","询价"),
-part("A11","illumination","暖白光 LED","Thorlabs","MWWHL4","Ø30.5 mm散热壳；SM1内螺纹接口；约60.4mm轴向家族外形用于当前CAD约束","D/P","V79按Thorlabs原厂Mounted LED外形重建为有散热鳍片的Ø30.5mm圆柱模块，并保留SM1RC式滑环作为安装候选。旧版把一根自创鹅颈杆连接到A18，造成图2所示悬挂黑圆筒，该机械支架已从WebGL和STEP删除；现在仅保留明确标为电气线缆的柔性线。","MWWHL4本体规格来自Thorlabs，但用户实物究竟采用SM1RC、何种支架以及其相对显微镜的位置仍未由照片/图纸闭合。60.4mm为同系列原厂机械图约束用于当前包络，不作为本机安装长度验收。","84、85；Thorlabs MWWHL4 / Mounted LEDs / SM1RC原厂资料","询价"),
+part("A11","illumination","暖白光 LED","Thorlabs","MWWHL4","Ø30.5 × 60.1 mm；SM1 (1.035-40) 内螺纹深6 mm（原厂图MTN006388）","D","V79按Thorlabs原厂机械图重建散热壳体，发光面不再伸出60.1mm总包络；SM1RC仅保留为可选安装环。旧版自创鹅颈支架和悬挂黑圆筒均已从WebGL与STEP删除，仅保留电气线缆。","MWWHL4本体尺寸现由原厂机械图约束。用户实机采用何种SM1安装环/支架、安装角度和相对显微镜位置仍需照片或实测闭合，不能把候选SM1RC当成已安装部件。","84、85；Thorlabs MWWHL4 MTN006388机械图 / Mounted LEDs","询价"),
 part("A12","external","LED 电流驱动","Thorlabs","LEDD1B","约 60×73×104 (待核实方向)","P","LED 电流控制器。","物理外廓为代理，非真实端子图。","86、88","询价"),
 part("A13","external","固态继电器","DELIXI","CDG1-1DD/25A","外廓为代理","P","控制系统内固态功率开关。","接线只可由电气图确认。","91","询价"),
 part("A14","microscope","SM2接续镜筒及相机转接接口（型号未识别）","未知","SM2镜筒/接口组合待定，不是SM1CP2","Ø56外廓 / Ø52.2候选内孔 / 长66mm、6mm轴向重叠（场景候选）","C","TTL200-A原厂上下两端为SM2外螺纹，SM1CP2实为SM1封口端盖，不可能是与TTL200-A直接匹配的镜筒。V45取消错配的SM1CP2，另以有真实空腔的66mm候选接续管将28mm管镜壳体与相机包络接触。","长度66mm及名义6mm插入量、内螺纹牙型、相机端C-Mount/其他安装接口、传感器距离均未实测；当前不具备光学或机械验收资格。","82、83；Thorlabs TTL200-A/SM1CP2 官方资料","询价"),
@@ -103,5 +103,7 @@ part("A20","microscope","显微镜相机连接线","未知","相机数据线/电
 export const SOURCE_LINKS=[
 ["Zolix NFP-1462C 原厂产品资料","https://www.zolix-group.com/product/specification/179.html"],
 ["Zolix NFP 机械图 PDF","https://www.zolix.com.cn/filespath/files/ManualControl/ManualStages-en/NFP.pdf"],
-["Daheng Optics 光机目录","https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf"]
+["Daheng Optics 光机目录","https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf"],
+["Thorlabs MWWHL4 原厂产品页","https://www.thorlabs.com/item.cfm?partnumber=MWWHL4"],
+["Evident / Olympus BXFM-F 原厂机械规格","https://evidentscientific.com/en/products/upright/bx53m"]
 ];
