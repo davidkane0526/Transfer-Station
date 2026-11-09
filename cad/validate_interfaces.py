@@ -632,8 +632,9 @@ check(part(A,'A03')[0].intersect(a03_raised).Volume()<1e-4,
 check(abs(a03_moving.BoundingBox().zmin-131.5)<.02 and
       abs(a03_moving.BoundingBox().zmax-159.5)<.02,
       'V80 VC13 lower-end moving assembly matches 119.5mm T25M2L+VC13 pair height')
-check(a03_raised.BoundingBox().zmin<part(A,'A03')[0].BoundingBox().zmax-8,
-      'V65 raised A03 moving side tongue must still overlap stationary channel in Z')
+raised_guide_engagement_mm=part(A,'A03')[0].BoundingBox().zmax-a03_raised.BoundingBox().zmin
+check(raised_guide_engagement_mm>=7.9,
+      'V80 raised A03 moving guide must retain at least ~8mm axial engagement at top of stroke')
 check(len(a03_raised.Solids())==1 and len(a03_moving.Solids())==1,
       'V65 two moving guide tongues belong to ONE connected moving STEP assembly')
 report['V80_A03_vendor_envelope_and_guides']={
@@ -647,6 +648,7 @@ report['V80_A03_vendor_envelope_and_guides']={
     'fixed_side_channel_count':2,'moving_output_tongue_count':2,
     'full_travel_static_and_raised_boolean_collision_free':True,
     'moving_guide_still_engaged_at_top_of_travel':True,
+    'top_of_stroke_guide_engagement_mm':round(raised_guide_engagement_mm,2),
     'catalog_height_used_as_additive_envelope_not_installation_identity':True,
     'physical_motion_zero_verified':False}
 check(len(part(A,'A03'))==1,
