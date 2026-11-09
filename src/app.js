@@ -945,6 +945,16 @@ window.__modelAKinematicProbe=()=>{
     a15TopCounterboreCount:parts.get('A15')?.g.userData.A15Photo23TopCounterboreCount??0,
     a15RecessedHeadCount:parts.get('A15')?.g.userData.A15Photo23RecessedHeadCount??0,
     a17OemComparisonSku:magnet.userData.oemComparisonSku??null,
+    a17OemCandidate:magnet.userData.oemModelCandidate??null,
+    a17OemVisualMatchConfidence:magnet.userData.oemVisualMatchConfidence??null,
+    a17CandidateTopHolePatternModelled:magnet.userData.candidateTopHolePattern?.modelled??null,
+    a17CandidateEnvelopeMm:magnet.userData.oemCandidateEnvelopeMm??null,
+    lowerGoniometerOemCandidate:lowerTilt.userData.oemCandidate??null,
+    lowerGoniometerOemCandidateConfirmed:lowerTilt.userData.oemCandidateConfirmed??null,
+    lowerGoniometerVendorRotationCenterMm:lowerTilt.userData.vendorRotationCenterMm??null,
+    lowerGoniometerVendorTravelDeg:lowerTilt.userData.vendorTravelDeg??null,
+    sampleRotaryVendorCandidates:rotarySample.userData.vendorCandidateShortlist??null,
+    sampleRotaryVendorGeometryApplied:rotarySample.userData.candidateGeometryOverriddenByVendorDrawing??null,
     a10ActualFootBoresOpen:a10Open,
     a10CandidateBoltHeadCount:a10Heads,
     a10ActualManufacturerAnchorVerified:false,
@@ -2758,26 +2768,34 @@ function platformA(){
     add(g,cub(65,10,65,mats.dark,0,5,0));
     const top=add(g,plate(65,65,10,mats.dark,[]));
     top.position.y=10;
-    // Photo194: the lower magnet has a separate small operating lever.
-    const pin=add(g,cyl(2.2,10,mats.steel,-23,7,37.5,24));
-    pin.rotation.x=Math.PI/2;
-    const lever=add(g,cyl(3,8,mats.silver,-23,8,39.5,24));
+    // V82: CORZC PTDB65 is an OEM comparison only. Its 65×65×20 mm
+    // envelope and side magnetic switch match the visible A17 topology,
+    // but A15 hides the real top face. Therefore the PTDB65 top-hole map
+    // is recorded as metadata and is deliberately NOT cut into the model.
+    const switchPad=add(g,cub(10,10,2.5,mats.black,-23,7,33.75));
+    switchPad.userData.A17SideSwitchMountCandidate=true;
+    const axle=add(g,cyl(2.2,7,mats.steel,-23,7,36.5,24));
+    axle.rotation.x=Math.PI/2;
+    const lever=add(g,cyl(3.2,9,mats.silver,-23,8.5,39.5,24));
     lever.userData.A17Photo194LowerLeverCandidate=true;
+    lever.userData.A17PTDB65StyleSideSwitchComparison=true;
     g.userData.lowerLeverPositionVerified=false;
     g.userData.magneticFixture=true;
     g.userData.brandAndHolePatternNotVerified=true;
-    g.userData.oemComparisonSku=null;
-    g.userData.oemModelCandidate=null;
-    g.userData.oemVisualMatchConfidence='unidentified';
+    g.userData.oemComparisonSku='CORZC PTDB65';
+    g.userData.oemModelCandidate='PTDB65';
+    g.userData.oemVisualMatchConfidence='envelope-and-side-switch-only';
+    g.userData.oemCandidateEnvelopeMm=[65,65,20];
+    g.userData.oemCandidateMagneticForceKg=32;
     g.userData.topInterfaceModelled=false;
     g.userData.oemIdentityVerified=false;
-    g.userData.candidateTopHolePattern=null;
+    g.userData.candidateTopHolePattern={M6:1,M4:8,M3:4,total:13,modelled:false};
     g.userData.photo22SideSlotCount=0;
     g.userData.photo22FrontKnobCount=0;
     g.userData.photo194LowerLeverCount=1;
     g.userData.candidateMountHoleMarkers=[];
     g.userData.topCornerCounterbores=0;
-    label(g,'A17 · 磁吸底座（型号/顶部孔系未知）',0,32,0);
+    label(g,'A17 · 65×65×20磁座 · PTDB65仅外形/侧开关候选，顶面孔系未建模',0,32,0);
   },{explode:[-10,0,0],facingYaw:aFilmYaw});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
@@ -2880,10 +2898,20 @@ function platformA(){
    drum.userData.driveAxisCandidate='+Z';
    for(let z=35;z<52;z+=3)add(g,torus(8.35,.22,mats.ink,0,10,z));
    addJointHeads(g,'A04L',14.9,[[-14,-14],[14,14]],{headR:2.6});
+   // V82: Daheng catalog explicitly pairs GCM-G40M40L with G40M60L.
+   // Lower engraving is not readable in the user's photo, so this remains
+   // a high-confidence pairing candidate, not a claimed photo identification.
    g.userData.lowerGoniometerSkuUnverified=true;
+   g.userData.oemCandidate='Daheng GCM-G40M40L';
+   g.userData.oemCandidateConfirmed=false;
+   g.userData.vendorPlatformMm=[40,40];
+   g.userData.vendorThicknessMm=20;
+   g.userData.vendorRotationCenterMm=40;
+   g.userData.vendorTravelDeg=7;
+   g.userData.vendorPairingWithG40M60L=true;
    g.userData.photo20261108LowerDriveAxisCandidate='+Z';
    g.userData.lowerDriveOrthogonalToUpperG40=true;
-   label(g,'双角度实拍推断：下层 +Z 轴与上层 +X 轴正交；型号待核',-4,40,0);
+   label(g,'A04L · GCM-G40M40L厂家配对候选 · 40×40×20 / R40 / ±7°；铭牌待核',-4,40,0);
  },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  addPart('A04',ax,aUpperG40Y,az,g=>{
    // Upper G40M60L label is visually legible in photo94.
@@ -3065,9 +3093,16 @@ function platformA(){
   addJointHeads(g,'A06',33.15,[[-16,-16],[-16,16],[16,-16],[16,16]],{headR:2.5});
   g.userData.photo48CandidateRotaryDiameterMm=66;
   g.userData.rotaryManufacturerSkuConfirmed=false;
+  g.userData.vendorCandidateShortlist=['Daheng GCM-1101M','Daheng GCM-1102M'];
+  g.userData.GCM1101FineAdjustmentDeg=4;
+  g.userData.GCM1101ResolutionArcMin=10;
+  g.userData.GCM1101T25M2LCombinationPublished=true;
+  // Do not replace the ruler/photo-fit Ø66 envelope with a vendor drawing
+  // until the real A06 face/label is identified.
+  g.userData.candidateGeometryOverriddenByVendorDrawing=false;
   g.userData.shortFrontLockCount=1;
   g.userData.rightAngularMicrometerCount=1;
-  label(g,'A06旋转台 · 右侧角度测微+前侧锁杆 · Ø66候选',0,54,0);
+  label(g,'A06旋转台 · Ø66仍按尺图候选；GCM-1101M/1102M仅厂商对照',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,81.2,0,g=>{
   // Original photos17–21 and a steel ruler show the silver top at
