@@ -876,6 +876,24 @@ try{
  assert.match(dA.A18VendorCandidateDecision,/none confirmed/);
  assert.equal(dA.A18MCTLMP2DirectIdentityRejected,true);
  assert.deepEqual(dA.A18MCTLMP2VendorEnvelopeMm,[211.5,130,58.8]);
+ // V84: the same candidate boundary must be visible to a user selecting A18,
+ // not hidden only in QA metadata or markdown documentation.
+ await page.locator('#open-bom').evaluate(el=>el.click());
+ await page.locator('#bom-query').fill('A18');
+ const a18Row=page.locator('#bom-body tr').filter({hasText:/^\s*A18\b/});
+ assert.equal(await a18Row.count(),1);
+ await a18Row.evaluate(el=>el.click());
+ const a18VendorCard=page.locator('#a18-vendor-comparison');
+ assert.equal(await a18VendorCard.getAttribute('data-confirmed'),'false');
+ assert.equal(await a18VendorCard.getAttribute('data-mgz30-applied'),'false');
+ assert.equal(await a18VendorCard.getAttribute('data-boli-applied'),'false');
+ const a18VendorText=await a18VendorCard.innerText();
+ assert.match(a18VendorText,/MGZ30 \/ T-Scope/);
+ assert.match(a18VendorText,/SA02041502/);
+ assert.match(a18VendorText,/SA08041102/);
+ assert.match(a18VendorText,/未实测/);
+ assert.match(a18VendorText,/不允许厂商候选自动覆盖三维实体/);
+ await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  assert.equal(dA.A15LinearHandleCount,2);
  assert.equal(dA.A15StemCount,2);
  assert.equal(dA.A15CollarCount,2);
