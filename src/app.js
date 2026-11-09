@@ -3646,6 +3646,21 @@ function updateDetail(part){
    aRigAudit.optimisticResidualHorizontalGapMm+
    'mm的场景X缺口（不是实物测量），翻转假设也未证实。'+
    'A05C夹具、A17磁座型号/孔位及绝对位置均未知；不能据此加工。</p></div>'):'';
+ const a06VendorHtml=(platform==='A'&&part.id==='A06')?(()=>{
+   const a=auditV48RulerRegistration();
+   return '<div class="field" id="a06-vendor-conflict" data-gcm1102-applied="false" '+
+     'data-diameter-match="'+a.GCM1102MDiameterMatchesPhotoFit+'" '+
+     'data-direct-height-fit="'+a.GCM1102MDirectSubstitutionWithinRulerRange+'">'+
+     '<b>A06 厂商尺寸 × 实物尺照冲突（V85）</b><p>'+
+     '<b>GCM-1102M：</b>厂家Ø66、约21mm高、32×32mm台面、±5°微调；Ø66与照片17/20/21和当前模型完全吻合，因此是当前最高优先级候选。'+
+     '但若直接用21mm替换当前33.2mm堆栈贡献，样品顶面距面包板只剩'+
+     a.GCM1102MDirectSubstitutionTopAboveBoardMm+'mm，低于照片17/18尺读87–93mm。'+
+     '至少还缺'+a.GCM1102MMinimumMissingStackHeightMm+'mm，按90mm中心值约缺'+
+     a.GCM1102MNominalMissingStackHeightMm+'mm。<br>'+
+     '<b>GCM-1101M：</b>厂家约92mm级外宽，超出A06照片55–75mm合理包络，优先级显著降低。<br>'+
+     '<b>当前决定：</b>保留Ø66场景外径和现有高度链，不套用GCM-1102M的21mm高度。'+
+     '需要确认A06铭牌/底面、或找到实物中额外约10–16mm接口层后才能改实体。</p></div>';
+ })():'';
  const a18VendorHtml=(platform==='A'&&part.id==='A18')?(()=>{
    const a18=parts.get('A18')?.g;
    const boli=a18?.userData.Boli76x25Candidates??[];
@@ -3673,7 +3688,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+b08FitHtml+aRigHtml+a18VendorHtml+photo94QAHtml+photo95QAHtml+
+ hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+b08FitHtml+aRigHtml+a06VendorHtml+a18VendorHtml+photo94QAHtml+photo95QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
