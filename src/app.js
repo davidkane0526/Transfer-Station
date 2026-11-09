@@ -611,6 +611,25 @@ window.__modelAPhoto194Probe=()=>{
    }
    const a15ActuatorChainsContinuous=Object.values(chainGaps).every(gaps=>
      gaps.every(v=>v!==null&&v<=.02));
+   const a18Segments=gA18?.children.filter(o=>o.userData.A18BodySegment)??[];
+   const a18Hubs=gA18?.children.filter(o=>o.userData.A18FocusHub!==undefined)??[];
+   const a18Coarse=gA18?.children.filter(o=>o.userData.A18CoarseFocusKnob!==undefined)??[];
+   const a18Fine=gA18?.children.filter(o=>o.userData.A18FineFocusKnob!==undefined)??[];
+   const a18FocusGaps={};
+   for(const sign of [-1,1]){
+     const hub=a18Hubs.find(o=>o.userData.A18FocusHub===sign);
+     const coarse=a18Coarse.find(o=>o.userData.A18CoarseFocusKnob===sign);
+     const fine=a18Fine.find(o=>o.userData.A18FineFocusKnob===sign);
+     a18FocusGaps[String(sign)]=[
+       housing&&hub?sep(housing,hub):null,
+       hub&&coarse?sep(hub,coarse):null,
+       coarse&&fine?sep(coarse,fine):null
+     ];
+   }
+   const a18FocusChainsContinuous=Object.values(a18FocusGaps).every(gaps=>
+     gaps.every(v=>v!==null&&v<=.02));
+   const a18MaxBodyWidthMm=a18Segments.length?
+     d(Math.max(...a18Segments.map(o=>size(o).x))):null;
    return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
      lampOEMDiameterMm:lamp.userData.A11OEMHousingDiameterMm,
      lampOEMLengthMm:lamp.userData.A11OEMHousingLengthMm,
@@ -619,6 +638,18 @@ window.__modelAPhoto194Probe=()=>{
      inventedLampGooseneckPresent:gA11.children.some(o=>o.userData.A11PhysicallyConnectedSupportProxy),
      unsupportedA18HorizontalTubePresent:gA18.children.some(o=>o.userData.A18HorizontalTubeCandidate),
      A18VendorIdentificationPending:Boolean(gA18.userData.vendorIdentificationPending),
+     A18BodySegmentCount:a18Segments.length,
+     A18MaxBodyWidthMm:a18MaxBodyWidthMm,
+     A18FocusHubCount:a18Hubs.length,
+     A18CoarseKnobCount:a18Coarse.length,
+     A18FineKnobCount:a18Fine.length,
+     A18FocusChainGapsMm:a18FocusGaps,
+     A18FocusChainsContinuous:a18FocusChainsContinuous,
+     A18MGZ30CandidateOnly:Boolean(gA18.userData.MGZ30CandidateOnly),
+     A18MGZ30VendorTravelMm:gA18.userData.MGZ30VendorTravelMm,
+     A18MGZ30VendorPostDiameterMm:gA18.userData.MGZ30VendorPostDiameterMm,
+     A18MCTLMP2DirectIdentityRejected:Boolean(gA18.userData.MCTLMP2DirectIdentityRejected),
+     A18MCTLMP2VendorEnvelopeMm:gA18.userData.MCTLMP2VendorEnvelopeMm,
      A15LinearHandleCount:a15Handles.length,A15StemCount:a15Stems.length,
      A15CollarCount:a15Collars.length,A15SupportCount:a15Supports.length,
      A15ActuatorChainGapsMm:chainGaps,A15ActuatorChainsContinuous:a15ActuatorChainsContinuous,
@@ -3164,33 +3195,45 @@ function platformA(){
    label(g,'SM2接口候选镜筒 · 长66mm含6mm装配重叠 / 相机端未认证',0,80,0);
  },{explode:[0,25,0]});
  addPart('A18',sx,200,0,g=>{
-   // V79: keep only topology supported by photos191-193: a compact focus
-   // body, direct top optical port, direct bottom nosepiece interface, and
-   // coaxial focus controls. The previous Ø32×160mm horizontal black tube
-   // had no identified vendor drawing and is removed.
-   const body=add(g,cub(92,70,88,mats.dark,0,0,0));
-   body.userData.A18PhotoConstrainedMainBody=true;
-   const front=add(g,cub(78,54,4,mats.black,0,0,46));
+   // V81: photos191-193 support a compact stepped focus body with bilateral
+   // coaxial controls. Similar catalog products are comparison evidence only.
+   // Keep the rear Z=-44 mounting plane attached to A10's bored boom.
+   const bodyMid=add(g,cub(84,38,88,mats.dark,0,2,0));
+   bodyMid.userData.A18PhotoConstrainedMainBody=true;
+   bodyMid.userData.A18BodySegment='middle';
+   bodyMid.userData.A18RearMountFaceBody=true;
+   const bodyLower=add(g,cub(70,18,88,mats.dark,0,-26,0));
+   bodyLower.userData.A18BodySegment='lower';
+   const bodyUpper=add(g,cub(76,14,88,mats.dark,0,28,0));
+   bodyUpper.userData.A18BodySegment='upper';
+   const front=add(g,cub(70,44,4,mats.black,0,1,46));
    front.userData.A18FrontFace=true;
    const topCollar=add(g,cyl(22,8,mats.black,0,39,0,64));
    topCollar.userData.A18TopOpticalInterface=true;
-   const bottomCollar=add(g,cyl(31,8,mats.black,0,-39,0,64));
+   const bottomCollar=add(g,cyl(24,8,mats.black,0,-39,0,64));
    bottomCollar.userData.A18NosepieceInterface=true;
    for(const sign of [-1,1]){
-     const coarse=add(g,cyl(25,18,mats.black,sign*55,0,0,64));
-     coarse.rotation.z=Math.PI/2;coarse.userData.A18CoarseFocusKnob=true;
-     const fine=add(g,cyl(15.5,8,mats.silver,sign*68,0,0,64));
-     fine.rotation.z=Math.PI/2;fine.userData.A18FineFocusKnob=true;
-     for(let q=0;q<7;q++){
-       const ring=add(g,torus(25.1,.28,mats.ink,sign*(48+q*2.2),0,0));
-       ring.rotation.y=Math.PI/2;
+     const hub=add(g,cyl(9,12,mats.dark,sign*45,0,0,64));
+     hub.rotation.z=Math.PI/2;hub.userData.A18FocusHub=sign;
+     const coarse=add(g,cyl(18,14,mats.black,sign*56,0,0,64));
+     coarse.rotation.z=Math.PI/2;coarse.userData.A18CoarseFocusKnob=sign;
+     const fine=add(g,cyl(11,8,mats.silver,sign*67,0,0,64));
+     fine.rotation.z=Math.PI/2;fine.userData.A18FineFocusKnob=sign;
+     for(let q=0;q<6;q++){
+       const ring=add(g,torus(18.08,.24,mats.ink,sign*(50.5+q*2.3),0,0));
+       ring.rotation.y=Math.PI/2;ring.userData.A18CoarseFocusKnurl=sign;
      }
    }
    g.userData.microscopeHeadModelUnverified=true;
    g.userData.focusKnobPairCount=2;
    g.userData.removedUnsupportedHorizontalTube=true;
    g.userData.vendorIdentificationPending=true;
-   label(g,'A18 主机调焦单元 · 照片约束拓扑；厂商/型号待识别',0,52,0);
+   g.userData.MGZ30CandidateOnly=true;
+   g.userData.MGZ30VendorTravelMm=30;
+   g.userData.MGZ30VendorPostDiameterMm=38.1;
+   g.userData.MCTLMP2DirectIdentityRejected=true;
+   g.userData.MCTLMP2VendorEnvelopeMm=[211.5,130,58.8];
+   label(g,'A18 调焦主体 · V81照片轮廓细化 / 厂商型号仍待识别',0,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
    const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
@@ -3213,8 +3256,8 @@ function platformA(){
      lens.userData.objectiveOpticProxy=true;
      return pivot;
    };
-   objective(-18,-Math.PI/8,'JH-TOP MPLAN 5x/0.10? · 铭牌待复核',mats.copper,'left');
-   objective(18,0,'Olympus/Evident PlanFL 10x/0.40? · 铭牌待复核',mats.silver,'center');
+   objective(-18,-Math.PI/8,'JH-TOP MPLAN family? · 精确SKU/倍率/NA待复核',mats.copper,'left');
+   objective(18,0,'Olympus/Evident PlanFL family? · 精确SKU/倍率/NA待复核',mats.silver,'center');
    g.userData.installedObjectiveCount=2;
    g.userData.objectiveTurretPortCountUnverified=true;
    g.userData.objectiveDimensionsArePhotoCandidates=true;
@@ -3463,6 +3506,11 @@ function updateDetail(part){
    aRigAudit.optimisticResidualHorizontalGapMm+
    'mm的场景X缺口（不是实物测量），翻转假设也未证实。'+
    'A05C夹具、A17磁座型号/孔位及绝对位置均未知；不能据此加工。</p></div>'):'';
+ const a18VendorHtml=(platform==='A'&&part.id==='A18')?
+   '<div class="field" id="a18-vendor-comparison" data-confirmed="false"><b>A18 厂商候选排查（V81）</b><p>'+
+   'Thorlabs MGZ30：30 mm Z行程、Ø1.5英寸立柱安装、同轴粗/细调焦并带五物镜转换盘，拓扑相似，但照片191–193没有可读Thorlabs型号/五孔接口证据，因此仅列候选，不能直接套用其机械图。'+
+   'MCT-LMP2：厂家外形211.5×130×58.8 mm、40 mm行程，前板16×M6及3×Ø10.5通孔；当前照片未显示这种尺度/孔阵，排除直接作为A18身份。'+
+   '当前A18仍为照片约束C级复原，必须由高清铭牌或可匹配的原厂孔位图升级。</p></div>':'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
  '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
@@ -3471,7 +3519,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+b08FitHtml+aRigHtml+photo94QAHtml+photo95QAHtml+
+ hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+b08FitHtml+aRigHtml+a18VendorHtml+photo94QAHtml+photo95QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
@@ -3697,7 +3745,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V80 / '+(aWorkingPoseMode?
+   '平台 A · V81 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -3856,7 +3904,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V80当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V81当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
