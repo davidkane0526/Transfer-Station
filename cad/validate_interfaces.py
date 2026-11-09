@@ -658,7 +658,7 @@ check(len(a03_raised.Solids())==1 and len(a03_moving.Solids())==1,
 # V83 actual-solid check: the middle of the VC13M must remain open.
 # This rejects the old 45x71.5mm solid-wall surrogate while allowing the
 # rear spine, two side towers, guide rails and central micrometer support.
-a03_open_center=box_probe(20,20,50,ax,0,90)
+a03_open_center=box_probe(20,20,50,-82.75,0,90)
 check(part(A,'A03')[0].intersect(a03_open_center).Volume()<1e-4,
       'V83 GCM-VC13M vendor topology requires an open central frame, not a tall solid wall')
 report['V83_A03_vendor_topology_and_guides']={
