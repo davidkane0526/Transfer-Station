@@ -976,6 +976,21 @@ window.__modelAKinematicProbe=()=>{
     lowerGoniometerVendorTravelDeg:lowerTilt.userData.vendorTravelDeg??null,
     sampleRotaryVendorCandidates:rotarySample.userData.vendorCandidateShortlist??null,
     sampleRotaryVendorGeometryApplied:rotarySample.userData.candidateGeometryOverriddenByVendorDrawing??null,
+    sampleRotaryGCM1101VendorWidthMm:rotarySample.userData.GCM1101VendorWidthMm??null,
+    sampleRotaryGCM1101RejectedByPhotoDiameterEnvelope:Boolean(rotarySample.userData.GCM1101RejectedByPhotoDiameterEnvelope),
+    sampleRotaryGCM1102VendorDiameterMm:rotarySample.userData.GCM1102VendorDiameterMm??null,
+    sampleRotaryGCM1102VendorHeightMm:rotarySample.userData.GCM1102VendorHeightMm??null,
+    sampleRotaryGCM1102VendorPlatformMm:rotarySample.userData.GCM1102VendorPlatformMm??null,
+    sampleRotaryGCM1102DiameterMatchesPhotoFit:Boolean(rotarySample.userData.GCM1102DiameterMatchesPhotoFit),
+    sampleRotaryGCM1102DirectSubstitutionSampleTopAboveBoardMm:
+      rotarySample.userData.GCM1102DirectSubstitutionSampleTopAboveBoardMm??null,
+    sampleRotaryGCM1102DirectSubstitutionWithinRulerRange:
+      Boolean(rotarySample.userData.GCM1102DirectSubstitutionWithinRulerRange),
+    sampleRotaryGCM1102MinimumMissingStackHeightMm:
+      rotarySample.userData.GCM1102MinimumMissingStackHeightMm??null,
+    sampleRotaryGCM1102NominalMissingStackHeightMm:
+      rotarySample.userData.GCM1102NominalMissingStackHeightMm??null,
+    sampleRotaryGCM1102CandidatePriority:rotarySample.userData.GCM1102CandidatePriority??null,
     a10ActualFootBoresOpen:a10Open,
     a10CandidateBoltHeadCount:a10Heads,
     a10ActualManufacturerAnchorVerified:false,
@@ -3139,16 +3154,30 @@ function platformA(){
   addJointHeads(g,'A06',33.15,[[-16,-16],[-16,16],[16,-16],[16,16]],{headR:2.5});
   g.userData.photo48CandidateRotaryDiameterMm=66;
   g.userData.rotaryManufacturerSkuConfirmed=false;
-  g.userData.vendorCandidateShortlist=['Daheng GCM-1101M','Daheng GCM-1102M'];
+  g.userData.vendorCandidateShortlist=['Daheng GCM-1102M','Daheng GCM-1101M'];
+  g.userData.GCM1101VendorWidthMm=92;
   g.userData.GCM1101FineAdjustmentDeg=4;
   g.userData.GCM1101ResolutionArcMin=10;
   g.userData.GCM1101T25M2LCombinationPublished=true;
-  // Do not replace the ruler/photo-fit Ø66 envelope with a vendor drawing
-  // until the real A06 face/label is identified.
+  g.userData.GCM1101RejectedByPhotoDiameterEnvelope=true;
+  g.userData.GCM1102VendorDiameterMm=66;
+  g.userData.GCM1102VendorHeightMm=21;
+  g.userData.GCM1102VendorPlatformMm=[32,32];
+  g.userData.GCM1102FineAdjustmentDeg=5;
+  g.userData.GCM1102ResolutionArcMin=10;
+  g.userData.GCM1102DiameterMatchesPhotoFit=true;
+  g.userData.GCM1102DirectSubstitutionSampleTopAboveBoardMm=77;
+  g.userData.GCM1102DirectSubstitutionWithinRulerRange=false;
+  g.userData.GCM1102MinimumMissingStackHeightMm=10;
+  g.userData.GCM1102NominalMissingStackHeightMm=13;
+  g.userData.GCM1102CandidatePriority='high-diameter-match / unresolved-height-stack';
+  // V85: do NOT replace the current 33.2mm stack contribution by the
+  // 21mm vendor stage until the missing 10–16mm physical layer/interface
+  // is found in photographs or measurement.
   g.userData.candidateGeometryOverriddenByVendorDrawing=false;
   g.userData.shortFrontLockCount=1;
   g.userData.rightAngularMicrometerCount=1;
-  label(g,'A06旋转台 · Ø66仍按尺图候选；GCM-1101M/1102M仅厂商对照',0,54,0);
+  label(g,'A06 · GCM-1102M高优先级候选：Ø66吻合，但21mm高度与尺照堆栈冲突',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,81.2,0,g=>{
   // Original photos17–21 and a steel ruler show the silver top at
