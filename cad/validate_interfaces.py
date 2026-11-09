@@ -740,8 +740,8 @@ check(not (A/'A11M.step').exists(),
       'V79 invented MWWHL4 mechanical gooseneck support must remain deleted')
 a11=part(A,'A11')[0].BoundingBox()
 check(abs(a11.ylen-31.5)<1.0 and abs(a11.zlen-31.5)<1.0 and
-      abs(a11.xlen-60.4)<.2,
-      'V79 MWWHL4 uses vendor-constrained Ø30.5mm-class finned axial envelope')
+      abs(a11.xlen-60.1)<.12,
+      'V79 MWWHL4 uses OEM drawing Ø30.5 x 60.1mm axial envelope')
 check(abs(a19.zmin-155)<.02 and abs(a19.zmax-165)<.02,
       'V79 objective turret remains a distinct 10mm component below microscope head')
 check(110.6+2<o1.zmin<121 and o1.zmax<=160 and
@@ -757,6 +757,8 @@ report['V79_A_microscope_cleanup']={
     'removed_unsupported_horizontal_tube':True,
     'removed_invented_MWWHL4_gooseneck_support':True,
     'MWWHL4_diameter_mm_vendor':30.5,
+    'MWWHL4_length_mm_vendor':60.1,
+    'MWWHL4_SM1_internal_thread_depth_mm_vendor':6,
     'outboard_objective_inclination_candidate_deg':22.5,
     'center_objective_vertical_candidate_deg':0,
     'objective_text_reading_fully_verified':False,
