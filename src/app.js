@@ -2879,15 +2879,15 @@ function platformA(){
    }
    const collar=add(g,sleeve(8.5,4.4,5,mats.black,0,supportY,driveZ,'y'));
    collar.userData.vc13ExternalDriveSupportCandidate=true;
-   const stem=add(g,cyl(2.8,31,mats.steel,0,51,driveZ,24));
+   const stem=add(g,cyl(2.8,24,mats.steel,0,48,driveZ,24));
    stem.userData.A03CentralVerticalStem=true;
-   const drum=add(g,cyl(6.8,20,mats.silver,0,69,driveZ,48));
+   const drum=add(g,cyl(6.8,20,mats.silver,0,70,driveZ,48));
    drum.userData.A03CentralVerticalDrum=true;
-   for(let y=61;y<=77;y+=2.7){
+   for(let y=62;y<=78;y+=2.7){
      const ring=add(g,torus(6.85,.20,mats.ink,0,y,driveZ));
      ring.userData.A03MicrometerKnurl=true;
    }
-   const cap=add(g,cyl(4.7,4,mats.black,0,81,driveZ,32));
+   const cap=add(g,cyl(4.7,4,mats.black,0,82,driveZ,32));
    cap.userData.A03MicrometerTopCapCandidate=true;
 
    addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
