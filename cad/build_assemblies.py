@@ -880,26 +880,29 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
 
-    # V79 A18/A19: photo191-193 support a compact focus body, direct
-    # upper optical interface, lower turret interface and bilateral focus
-    # controls. The old Ø32x160mm horizontal tube had no manufacturer
-    # drawing or photo-grounded mechanical role and is REMOVED.
-    add('A','A18','MICROSCOPE_FOCUS_BODY_92x88x70_PHOTO_TOPOLOGY',
-        box(92,88,70,cx,0,165),'C')
+    # V81 A18: photos191-193 + V80 real renders show the single 92mm-wide
+    # rectangular proxy is too crude. Rebuild a stepped photo envelope while
+    # preserving the rear Y=-44 mounting plane that mates to A10.
+    # MGZ30 is comparison-only; MCT-LMP2 direct identity is rejected by its
+    # 211.5x130x58.8mm vendor envelope and dense front-hole pattern.
+    a18_body=(box(84,88,38,cx,0,179)
+              .fuse(box(70,88,18,cx,0,165),
+                    box(76,88,14,cx,0,221)).clean())
+    add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
+        a18_body,'C')
     add('A','A18F','MICROSCOPE_FRONT_FACE_PHOTO_PROXY',
-        box(78,4,54,cx,46,173),'C')
+        box(70,4,44,cx,46,178),'C')
     add('A','A18T','MICROSCOPE_TOP_OPTICAL_COLLAR_PROXY',
         vz(22,8,cx,0,235),'C')
     add('A','A18N','MICROSCOPE_BOTTOM_NOSEPIECE_INTERFACE_PROXY',
-        vz(31,8,cx,0,157),'C')
-    add('A','A18FL','MICROSCOPE_LEFT_COARSE_FOCUS_DRUM_PROXY',
-        vx(25,18,cx-64,0,200),'C')
-    add('A','A18FR','MICROSCOPE_RIGHT_COARSE_FOCUS_DRUM_PROXY',
-        vx(25,18,cx+46,0,200),'C')
-    add('A','A18FLL','MICROSCOPE_LEFT_FINE_FOCUS_KNOB_PROXY',
-        vx(15.5,8,cx-72,0,200),'C')
-    add('A','A18FRL','MICROSCOPE_RIGHT_FINE_FOCUS_KNOB_PROXY',
-        vx(15.5,8,cx+64,0,200),'C')
+        vz(24,8,cx,0,157),'C')
+    # Continuous left/right focus chains: body -> hub -> coarse -> fine.
+    add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,cx-51,0,200),'C')
+    add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,cx+39,0,200),'C')
+    add('A','A18FL','LEFT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,cx-63,0,200),'C')
+    add('A','A18FR','RIGHT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,cx+49,0,200),'C')
+    add('A','A18FLL','LEFT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,cx-71,0,200),'C')
+    add('A','A18FRL','RIGHT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,cx+63,0,200),'C')
 
     add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PHOTO_ENVELOPE',
         vz(36,10,cx,0,155),'C')
@@ -914,9 +917,9 @@ def make_a():
     center_obj=vz(11.5,14,cx+18,0,141).fuse(
         vz(10,16,cx+18,0,125),
         vz(8.2,9,cx+18,0,116))
-    add('A','A19O1','JHTOP_MPLAN_5x010_LEFT_INCLINED_PHOTO_CANDIDATE',
+    add('A','A19O1','JHTOP_MPLAN_FAMILY_LEFT_INCLINED_PHOTO_CANDIDATE',
         left_tilt(left_obj),'C')
-    add('A','A19O2','PLANFL_10x040_CENTER_VERTICAL_TEXT_READING_UNVERIFIED',
+    add('A','A19O2','PLANFL_FAMILY_CENTER_VERTICAL_TEXT_READING_UNVERIFIED',
         center_obj,'C')
     add('A','A19R1','LEFT_INCLINED_OBJECTIVE_COLOR_BAND_PROXY',
         left_tilt(vz(12.4,2,cx-18,0,124)),'C')
@@ -925,11 +928,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V80'
+CAD_REVISION='V81'
 UNINSTALLED_A_STUDY_IDS=frozenset()
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
-    """V80 installed A: vendor-height-corrected stack with one rigid 180° film-chain yaw.
+    """V81 installed A: vendor-height-corrected film chain + photo-refined microscope.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """
