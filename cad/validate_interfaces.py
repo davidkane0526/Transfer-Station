@@ -652,19 +652,34 @@ check(raised_guide_engagement_mm>=7.9,
       'V80 raised A03 moving guide must retain at least ~8mm axial engagement at top of stroke')
 check(len(a03_raised.Solids())==1 and len(a03_moving.Solids())==1,
       'V65 two moving guide tongues belong to ONE connected moving STEP assembly')
-report['V80_A03_vendor_envelope_and_guides']={
-    'photo_refs':['194','195'],
+# V83 actual-solid check: the middle of the VC13M must remain open.
+# This rejects the old 45x71.5mm solid-wall surrogate while allowing the
+# rear spine, two side towers, guide rails and central micrometer support.
+a03_open_center=box_probe(20,20,50,ax,0,90)
+check(part(A,'A03')[0].intersect(a03_open_center).Volume()<1e-4,
+      'V83 GCM-VC13M vendor topology requires an open central frame, not a tall solid wall')
+report['V83_A03_vendor_topology_and_guides']={
+    'photo_refs':['97','194','195'],
+    'vendor_model':'Daheng GCM-VC13M',
+    'vendor_platform_mm':[65,65],
+    'vendor_travel_mm':13,
+    'vendor_bearing':'crossed-roller',
+    'vendor_load_capacity_kg':3,
+    'vendor_weight_kg':0.39,
     'vendor_crosscheck':'Daheng GCM-901602M uses the same T25M2L + VC13M parts',
     'catalog_reference_pair_height_mm':126,
     'catalog_stock_order_matches_user_order':False,
     'model_full_VC13_stroke_mm':13,
     'model_lower_pair_height_mm':119.5,
     'model_upper_pair_height_mm':132.5,
+    'stationary_topology':'open two-upright frame + rear spine + central vertical micrometer',
+    'legacy_solid_wall_removed':True,
     'fixed_side_channel_count':2,'moving_output_tongue_count':2,
     'full_travel_static_and_raised_boolean_collision_free':True,
     'moving_guide_still_engaged_at_top_of_travel':True,
     'top_of_stroke_guide_engagement_mm':round(raised_guide_engagement_mm,2),
     'catalog_height_used_as_additive_envelope_not_installation_identity':True,
+    'internal_crossed_roller_section_verified':False,
     'physical_motion_zero_verified':False}
 check(len(part(A,'A03'))==1,
       'A03 bracket plus fixed carriage must be ONE connected STEP solid')
@@ -672,10 +687,11 @@ check(part(A,'A03')[0].intersect(part(A,'A03M')[0]).Volume()<1e-4,
       'A03 vertical micrometer shaft must pass cleanly through bored external support')
 check(part(A,'A03')[0].intersect(part(A,'A03K')[0]).Volume()<1e-4,
       'A03 knob must clear the fixed body')
-report['V46_A03_external_drive_and_moving_plate']={
-    'micrometer_front_offset_mm':40,
-    'shaft_outer_radius_mm':5.5,
-    'support_bore_radius_mm':5.8,
+report['V83_A03_central_drive_and_moving_plate']={
+    'micrometer_depth_offset_mm':22,
+    'shaft_outer_radius_mm':2.8,
+    'support_bore_radius_mm':4.4,
+    'drive_inside_65mm_platform_footprint':True,
     'moving_plate_is_independent_STEP_solid':True,
     'stationary_to_lower_plate_face_contact':True,
     'full_13mm_motion_collision_certified':False,
