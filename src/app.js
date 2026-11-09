@@ -613,6 +613,8 @@ window.__modelAPhoto194Probe=()=>{
      gaps.every(v=>v!==null&&v<=.02));
    return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
      lampOEMDiameterMm:lamp.userData.A11OEMHousingDiameterMm,
+     lampOEMLengthMm:lamp.userData.A11OEMHousingLengthMm,
+     lampSM1ThreadDepthMm:lamp.userData.A11SM1InternalThreadDepthMm,
      lampElectricalCablePresent:Boolean(cable),
      inventedLampGooseneckPresent:gA11.children.some(o=>o.userData.A11PhysicallyConnectedSupportProxy),
      unsupportedA18HorizontalTubePresent:gA18.children.some(o=>o.userData.A18HorizontalTubeCandidate),
@@ -3118,15 +3120,19 @@ function platformA(){
    // hang below a fictitious A18 horizontal tube.
    const adapter=add(g,sleeve(17.5,15.35,6,mats.black,3,0,0,'x'));
    adapter.userData.A11OEMSlipRingCandidate=true;
-   const ledBody=add(g,cyl(15.25,60.4,mats.dark,36.2,0,0,72));
+   // Thorlabs MWWHL4 mechanical drawing MTN006388: Ø30.5 mm housing,
+   // 60.1 mm total axial envelope, SM1 internal thread depth 6 mm.
+   const ledBody=add(g,cyl(15.25,60.1,mats.dark,36.05,0,0,72));
    ledBody.rotation.z=Math.PI/2;
    ledBody.userData.A11OEMHousingDiameterMm=30.5;
-   ledBody.userData.A11OEMHousingLengthMm=60.4;
+   ledBody.userData.A11OEMHousingLengthMm=60.1;
+   ledBody.userData.A11SM1InternalThreadDepthMm=6;
    for(let x=10;x<=58;x+=4.8){
      const fin=add(g,cyl(15.75,1.1,mats.black,x,0,0,72));
      fin.rotation.z=Math.PI/2;fin.userData.A11HeatSinkFin=true;
    }
-   const emitter=add(g,cyl(10.8,2.5,mats.ceramic,67.65,0,0,48));
+   // Keep the emitter face INSIDE the documented 60.1 mm envelope.
+   const emitter=add(g,cyl(10.8,.2,mats.ceramic,66.0,0,0,48));
    emitter.rotation.z=Math.PI/2;emitter.userData.A11EmitterFace=true;
    // Electrical lead only. It is NOT a mechanical gooseneck support.
    const cable=add(g,tube([[43,-14,0],[44,-22,3],[48,-30,8],[55,-38,12]],2.2,mats.black));
