@@ -639,9 +639,10 @@ def make_b():
 def make_a():
     board('A')
     ax,cx=-82.75,78
-    # V58 CAD exports ONLY the labelled working-layout candidate.
-    # The original photographed left-return arm remains in the web viewer.
-    # This X position, mirrored fold and 52.1mm leg are NOT OEM dimensions.
+    # V80 uses Daheng's GCM-901602M catalog only as an additive height
+    # cross-check for the same GCM-T25M2L + GCM-VC13M pair. The user's
+    # installed order is reversed relative to the stock 901602M image, so
+    # this does NOT claim that the user's assembly is a stock GCM-901602M.
     # A photo 100 shows sample-side T25M above rotary; A photo 97 shows a
     # SECOND T25M below VC13M. Both physically exist.
     stage('A','A02',cx,0,61.2,'-X')
@@ -664,69 +665,69 @@ def make_a():
     # V79: remove the detached A15FK cylinder. The photograph supports
     # the slotted face and two fasteners; the old free-standing control had
     # no verified mechanical linkage and produced the persistent floating knob.
-    # Photo 97: vertical slide/upright carriage, not a solid block.
-    # V46: relocate the VC13 vertical drive beyond the ±32.5mm
-    # moving platform envelope. The front bracket spans the stationary
-    # upright to y=40 and has a TRUE bored hole for the vertical shaft.
-    front_drive_bracket=box(14,43,8,ax,19.5,96).cut(
-        vz(5.8,8,ax,40,96))
-    # Fixed rails end at Z117. The photo-fit moving output A03T
-    # touches their upper face at its lowest proposed static pose,
-    # but is NOT fused to the stationary upright. This is necessary
-    # for motion-aware STEP assembly and future travel collision tests.
+    # V80: Daheng lists GCM-T25M2L + GCM-VC13M at a 126mm
+    # reference top height in GCM-901602M. The user's physical order is
+    # reversed, but the additive rigid-body height is still a useful
+    # envelope check. Model the full 13mm stroke around that reference:
+    # lower endpoint = 119.5mm above A15 bottom, upper = 132.5mm.
+    vc13_lower_top=40+119.5
+    vc13_local_top=vc13_lower_top-73
+    fixed_top=vc13_lower_top-7
+    front_drive_bracket=box(14,43,8,ax,19.5,118).cut(
+        vz(5.8,8,ax,40,118))
     vc13=(box(65,65,8,ax,0,73)
-          .fuse(box(45,17,36,ax,-9,81))
+          .fuse(box(45,17,fixed_top-81,ax,-9,81))
           .fuse(front_drive_bracket))
-    # V65: fixed outer channels overlap the stationary body at x=+/-28.
-    # Separate inner moving tongues touch the OUTPUT, but maintain
-    # side clearance to the channels across the nominal 0..13mm travel.
     for sign in (-1,1):
-        vc13=vc13.fuse(box(3.4,8,32,ax+sign*24,0,85))
-    add('A','A03','VC13M_FIXED_UPRIGHT_with_2_side_channels_CANDIDATE',vc13)
-    moving=box(65,65,7,ax,0,117)
+        vc13=vc13.fuse(box(3.4,8,fixed_top-81,ax+sign*24,0,81))
+    add('A','A03','VC13M_FIXED_UPRIGHT_HEIGHT_CROSSCHECKED_TO_901602_ENVELOPE',vc13)
+    moving=box(65,65,7,ax,0,fixed_top)
     for sign in (-1,1):
-        moving=moving.fuse(box(3.4,8,28,ax+sign*27.7,0,95))
-    add('A','A03T','VC13M_OUTPUT_with_2_telescopic_guides_LOWER_POSE',
+        moving=moving.fuse(box(3.4,8,28,ax+sign*27.7,0,vc13_lower_top-28))
+    add('A','A03T','VC13M_OUTPUT_LOWER_ENDPOINT_119p5mm_PAIR_HEIGHT',
         moving,'C')
-    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,40,98),'P')
-    add('A','A03K','VC13M_vertical_knob',vz(8.5,15,ax,40,133),'P')
+    add('A','A03M','VC13M_vertical_micrometer',vz(5.5,35,ax,40,111),'P')
+    add('A','A03K','VC13M_vertical_knob',vz(8.5,18,ax,40,146),'P')
     # Photo94: 40mm-wide front silhouette has TWO ~20mm thick
     # independent sections. Upper is visibly marked GCM-G40M60L.
     # Lower has its own rightward micrometer; G40M40L is a manufacturer
     # pairing comparison ONLY, not yet readable from the user photo.
     # The older one-piece A04 envelope was 20mm too short.
     add('A','A04L','LOWER_G40_GONIOMETER_SKU_UNKNOWN_20mm_PHOTO_CANDIDATE',
-        box(40,40,20,ax,0,124),'C')
+        box(40,40,20,ax,0,159.5),'C')
     # Nov 08 TWO photo views: the LOWER angular micrometer is
     # orthogonal (+Y depth in STEP) to the UPPER +X micrometer.
     # WebGL uses +Z for this same direction. An engaged side mount
     # joins it to the lower block, no unsupported floating knob.
     add('A','A04LS','LOWER_G40_depth_drive_support_UNVERIFIED',
-        box(29,16,15,ax,24,132),'C')
+        box(29,16,15,ax,24,167.5),'C')
     add('A','A04LM','LOWER_G40_plus_depth_micrometer_20261108_CANDIDATE',
-        vy(5.5,18,ax,27,134),'C')
+        vy(5.5,18,ax,27,169.5),'C')
     add('A','A04LK','LOWER_G40_plus_depth_knob_20261108_CANDIDATE',
-        vy(8.3,20,ax,43,134),'C')
+        vy(8.3,20,ax,43,169.5),'C')
     add('A','A04','UPPER_G40M60L_LABEL_PHOTO94_40x40x20',
-        box(40,40,20,ax,0,144),'P')
+        box(40,40,20,ax,0,179.5),'P')
     add('A','A04M','UPPER_G40M60L_right_micrometer_photo191_196',
-        vx(5,22,ax+20,0,154),'P')
+        vx(5,22,ax+20,0,189.5),'P')
     add('A','A04K','UPPER_G40M60L_right_knob_photo191_196',
-        vx(8.5,15,ax+42,0,154),'P')
+        vx(8.5,15,ax+42,0,189.5),'P')
     # V79: build ONE left-handed local A05 transfer end, then rotate the
     # COMPLETE film-side branch 180° during complete-assembly export.
     # This avoids the old error of mirroring only the bracket.
-    leg_len=52.1
-    leg_bottom=164-leg_len
+    # Lowered transfer pose must retain the proven contact plane at z=111.9.
+    # Raising the vendor-constrained VC13/G40 stack therefore lengthens the
+    # custom folded leg instead of moving the glass through the sample.
+    leg_len=87.6
+    leg_bottom=199.5-leg_len
     bracket_leg_x=ax-60+1.25
     foot=box(32,14,2.5,bracket_leg_x-16,0,leg_bottom)
-    sheet=box(87,12,2.5,ax-16.5,0,164).fuse(
+    sheet=box(87,12,2.5,ax-16.5,0,199.5).fuse(
         box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),foot)
     add('A','A05','LEFT_LOCAL_BENT_SHEET_FOR_RIGID_180_INSTALLED_ROTATION',
         sheet,'C')
     for i,dx in enumerate((-14,14),1):
         add('A',f'A05S{i}','two_candidate_sheet_top_fastener_heads',
-            vz(3.1,2,ax+dx,0,166.5),'C')
+            vz(3.1,2,ax+dx,0,202.0),'C')
 
     # Required glass extends outward in local -X. After the common 180°
     # yaw its PDMS lies toward world +X / A07 sample side.
