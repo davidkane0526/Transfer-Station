@@ -10,6 +10,19 @@ assert.equal(a.sampleTopWithinVisibleRulerRange,true);
 assert.deepEqual(a.sampleLayerHeightsMm,[9,7,12]);
 assert.equal(a.rotaryDiameterMm,66);
 assert.equal(a.plausibleRotationSize,true);
+assert.equal(a.GCM1101MWidthMm,92);
+assert.equal(a.GCM1101MWithinPhotoDiameterEnvelope,false,
+  'GCM-1101M is too wide for the ruler/photo-constrained A06 envelope');
+assert.equal(a.GCM1102MDiameterMm,66);
+assert.equal(a.GCM1102MHeightMm,21);
+assert.equal(a.GCM1102MDiameterMatchesPhotoFit,true,
+  'GCM-1102M is the first vendor candidate whose published diameter matches the A06 photo fit');
+assert.equal(a.GCM1102MDirectSubstitutionTopAboveBoardMm,77);
+assert.equal(a.GCM1102MDirectSubstitutionWithinRulerRange,false,
+  'Direct 21mm GCM-1102M substitution would violate the 87–93mm sample-top ruler evidence');
+assert.equal(a.GCM1102MMinimumMissingStackHeightMm,10);
+assert.equal(a.GCM1102MNominalMissingStackHeightMm,13);
+assert.equal(a.A06VendorGeometryApplied,false);
 assert.equal(a.bMagnetNamedButAMagnetUnknown,true);
 assert.equal(a.certifiedForMachining,false);
 assert.equal(a.exactOpticalAxisRegistered,false);
@@ -26,6 +39,10 @@ assert.equal(e.B.nfpSideHoles.movingUpperRowCount,3);
 assert.equal(e.B.nfpSideHoles.threadsVerified,false);
 assert.equal(e.A.sampleAssembly.basePhoto,'17 (upside-down GCM-5306M label), 18');
 assert.equal(e.A.sampleAssembly.rotationDiameterManufacturerVerified,false);
+assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1101M.overallWidthMm,92);
+assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1102M.overallDiameterMm,66);
+assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1102M.heightMm,21);
+assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1102M.geometryApplied,false);
 assert.deepEqual(e.A.sampleAssembly.nominalLayerThicknessMm,[9,7,12]);
 assert.equal(HANDLES.A02.direction,'-X');
 assert.equal(HANDLES.A06.micrometerDirection,'+X');
