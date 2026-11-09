@@ -587,6 +587,7 @@ window.__modelAPhoto194Probe=()=>{
    const mesh=(id,tag)=>root(id)?.children.find(o=>o.isMesh&&o.userData[tag]);
    const gA11=root('A11'),gA18=root('A18'),gA15=root('A15'),gS=root('A05CS');
    const lamp=gA11?.children.find(o=>o.userData.A11OEMHousingDiameterMm!==undefined);
+   const lampRing=gA11?.children.find(o=>o.userData.A11OEMSlipRingCandidate);
    const cable=gA11?.children.find(o=>o.userData.A11ElectricalCable);
    const housing=gA18?.children.find(o=>o.userData.A18PhotoConstrainedMainBody);
    const bend=mesh('A05','A05VerticalSheetWeb');
@@ -595,7 +596,7 @@ window.__modelAPhoto194Probe=()=>{
    const sampleDrum=mesh('A06','A06RightAngularMicrometer');
    const screwHeads=gS?.children.filter(o=>o.userData.A05CSScrewHead)??[];
    const screwShafts=gS?.children.filter(o=>o.userData.A05CSCandidateShank)??[];
-   if(![lamp,cable,housing,bend,drum,sampleStem,sampleDrum].every(Boolean)||
+   if(![lamp,lampRing,cable,housing,bend,drum,sampleStem,sampleDrum].every(Boolean)||
       screwHeads.length!==2||screwShafts.length!==2)return {available:false};
    currentRoot.updateWorldMatrix(true,true);
    const box=o=>new THREE.Box3().setFromObject(o);
@@ -645,10 +646,33 @@ window.__modelAPhoto194Probe=()=>{
      gaps.every(v=>v!==null&&v<=.02));
    const a18MaxBodyWidthMm=a18Segments.length?
      d(Math.max(...a18Segments.map(o=>size(o).x))):null;
+   const volumeOverlap=(a,b)=>{
+     const q=box(a).clone().intersect(box(b)),v=new THREE.Vector3();
+     if(q.isEmpty())return 0;q.getSize(v);return d(v.x*v.y*v.z);
+   };
+   const a18BodyBox=new THREE.Box3();
+   a18Segments.forEach(o=>a18BodyBox.union(box(o)));
+   const ringBox=box(lampRing),lampBox=box(lamp);
+   const ringToBodyGapMm=d(Math.max(0,ringBox.min.x-a18BodyBox.max.x,
+     a18BodyBox.min.x-ringBox.max.x));
+   const rightFocusMeshes=[
+     ...a18Hubs.filter(o=>o.userData.A18FocusHub===1),
+     ...a18Coarse.filter(o=>o.userData.A18CoarseFocusKnob===1),
+     ...a18Fine.filter(o=>o.userData.A18FineFocusKnob===1)
+   ];
+   const lampRingRightFocusOverlapMm3=d(rightFocusMeshes.reduce(
+     (sum,o)=>sum+volumeOverlap(lampRing,o),0));
+   const lampBodyRightFocusOverlapMm3=d(rightFocusMeshes.reduce(
+     (sum,o)=>sum+volumeOverlap(lamp,o),0));
    return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
      lampOEMDiameterMm:lamp.userData.A11OEMHousingDiameterMm,
      lampOEMLengthMm:lamp.userData.A11OEMHousingLengthMm,
      lampSM1ThreadDepthMm:lamp.userData.A11SM1InternalThreadDepthMm,
+     lampCandidateRingPresent:Boolean(lampRing),
+     lampRingToA18BodyGapMm:ringToBodyGapMm,
+     lampRingRightFocusOverlapMm3,
+     lampBodyRightFocusOverlapMm3,
+     lampMountingMethodVerified:Boolean(gA11.userData.A11MountingMethodVerified),
      lampElectricalCablePresent:Boolean(cable),
      inventedLampGooseneckPresent:gA11.children.some(o=>o.userData.A11PhysicallyConnectedSupportProxy),
      unsupportedA18HorizontalTubePresent:gA18.children.some(o=>o.userData.A18HorizontalTubeCandidate),
