@@ -20,7 +20,10 @@ try{
  assert(rect&&rect.width>=400&&rect.height>=400);
  // Capture a reviewable model BEFORE the long mechanical test suite.
  // Even a later failed assertion must not erase all visual evidence.
- await page.screenshot({path:'Transfer-Station-ModelB-Full-Assembly.png'});
+ await page.screenshot({
+   path:'Transfer-Station-ModelB-Full-Assembly.png',
+   animations:'disabled',timeout:30000
+ });
  await page.locator('#btn-sample-stack').evaluate(el=>el.click());
  await page.waitForTimeout(300);
  const earlySampleBox=await page.locator('#viewer').boundingBox();
