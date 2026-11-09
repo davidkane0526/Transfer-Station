@@ -483,6 +483,14 @@ window.__modelAVerticalGuideProbe=()=>{
    travelMm:stage.userData.nominalVerticalTravelMm,
    outputLiftMm:stage.userData.verticalCarriage.position.y,
    actualTravelInGuideEnvelope:pairs.every(p=>p.noGuideClash&&p.engaged),
+   vendorModel:stage.userData.vendorModel,
+   vendorPlatformMm:stage.userData.vendorPlatformMm,
+   vendorTravelMm:stage.userData.vendorTravelMm,
+   vendorBearingType:stage.userData.vendorBearingType,
+   vendorSideTowerCount:stage.children.filter(o=>o.userData.A03VendorSideTower).length,
+   centralDriveStemCount:stage.children.filter(o=>o.userData.A03CentralVerticalStem).length,
+   legacySolidWallCount:stage.children.filter(o=>o.userData.A03LegacySolidWall).length,
+   vendorOpenFrameTopologyApplied:Boolean(stage.userData.vendorOpenFrameTopologyApplied),
    manufacturerGuideProfileVerified:false};
 };
 window.__modelAPhoto194Probe=()=>{
