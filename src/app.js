@@ -2807,59 +2807,84 @@ function platformA(){
  // plate bolted to G40's movable top. These three images are platform A,
  // not B. All geometries below are photographic silhouettes, not OEM solids.
  addPart('A03',ax,73,az,g=>{
-   // Photo97 footprint has a much narrower upright body than the 65mm
-   // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
-   add(g,cub(65,8,60,mats.black,0,4,0)); // 65x65 mounting face on A15
-   // V80: the former 44mm-high VC13 proxy was incompatible with Daheng's
-   // 126mm T25M2L+VC13M catalog envelope. Keep the user's reversed stack
-   // order, but restore the VC13 body to the additive envelope height.
-   add(g,cub(45,71.5,16,mats.dark,0,43.75,-8)); // local Y 8..79.5
-   add(g,cub(44,71.5,4,mats.black,0,43.75,5));
+   // V83: Daheng GCM-VC13M vendor topology. OEM data fixes the 65×65mm
+   // platform, 13mm travel, crossed-roller guide class and central vertical
+   // micrometer. Exact internal bearing cross-sections remain unmeasured.
+   const base=add(g,cub(65,8,65,mats.black,0,4,0));
+   base.userData.A03VendorBasePlate=true;
+
+   // Manufacturer imagery shows an OPEN centre with two upright guide
+   // structures, not the former 45×71.5mm solid black wall.
    for(const sign of [-1,1]){
-     const fixed=add(g,cub(3.4,70,8,mats.black,sign*24,43,-8));
+     const tower=add(g,cub(8,70,40,mats.dark,sign*20,43,-2));
+     tower.userData.A03VendorSideTower=sign;
+   }
+   const rearSpine=add(g,cub(44,70,8,mats.black,0,43,-18));
+   rearSpine.userData.A03VendorRearSpine=true;
+
+   // Travel rails retain the already validated 0.3mm side clearance and
+   // remain explicitly proxy geometry because the readable vendor source
+   // does not expose the crossed-roller internal section.
+   for(const sign of [-1,1]){
+     const fixed=add(g,cub(3.4,70,8,mats.black,sign*24,43,6));
      fixed.userData.A03StationarySideGuide=sign;
    }
-   for(const x of [-18,18]){
-     add(g,cub(2.2,66,2,mats.ink,x,41,8));
-     for(const y of [22,42,62]){
-       const h=add(g,cyl(2.1,1.3,mats.steel,x,y,7.65,12));
-       h.rotation.x=Math.PI/2;h.userData.fastenerProxy=true;
-       add(g,cub(1.9,.45,.15,mats.ink,x,y,8.36));
-     }
+   for(const sign of [-1,1])for(const y of [24,44,64]){
+     const h=add(g,cyl(2.0,1.2,mats.steel,sign*20,y,18.2,16));
+     h.rotation.x=Math.PI/2;
+     h.userData.fastenerProxy=true;
+     h.userData.A03TowerFastenerCandidate=true;
    }
+
    // Lower endpoint: A15 bottom -> VC13 output top = 119.5mm.
-   // The WebGL installed pose raises this moving group by 13mm.
+   // Installed transfer pose lifts this moving group through the full 13mm.
    const movingVC13=new THREE.Group();g.add(movingVC13);
    const outputPlate=add(movingVC13,cub(65,7,65,mats.dark,0,83,0));
    outputPlate.userData.A03MovingOutputPlate=true;
    outputPlate.userData.A15VC13CatalogReferenceHeightMm=126;
    outputPlate.userData.A15VC13LowerPoseHeightMm=119.5;
+   outputPlate.userData.A03VendorPlatformMm=[65,65];
    for(const sign of [-1,1]){
      const tongue=add(movingVC13,cub(3.4,28,8,mats.dark,
-       sign*27.7,72,-8));
+       sign*27.7,72,6));
      tongue.userData.A03MovingTongueTopEngagementMm=7;
      tongue.userData.A03MovingGuideTongue=sign;
    }
    g.userData.verticalCarriage=movingVC13;
    g.userData.nominalVerticalTravelMm=13;
+   g.userData.vendorModel='Daheng GCM-VC13M';
+   g.userData.vendorPlatformMm=[65,65];
+   g.userData.vendorTravelMm=13;
+   g.userData.vendorBearingType='crossed-roller';
+   g.userData.vendorLoadCapacityKg=3;
+   g.userData.vendorWeightKg=.39;
+   g.userData.vendorOpenFrameTopologyApplied=true;
+   g.userData.vendorInternalRailSectionVerified=false;
    g.userData.motionProxyNotCollisionCertified=true;
-   // VC13M vertical micrometer on face, NOT another horizontal rail.
-   const micrometer=vc13PhotoScrewDatums({
-     topPlaneLocalYmm:86.5,drumCenterLocalYmm:68,drumLengthMm:18,
-     stemCenterLocalYmm:53,stemLengthMm:30,frontZmm:40
-   });
-   // Front micrometer remains outside the 65mm moving plate and is
-   // supported continuously along the taller VC13 body.
-   for(const x of [-8,8])
-     add(g,cub(3,66,38,mats.black,x,41,24));
-   const frontCollar=add(g,sleeve(9,5.7,4,mats.black,
-     0,micrometer.stemCenterLocalYmm,micrometer.frontZmm,'y'));
-   frontCollar.userData.vc13ExternalDriveSupportCandidate=true;
-   add(g,cyl(2.8,micrometer.stemLengthMm,mats.steel,0,micrometer.stemCenterLocalYmm,micrometer.frontZmm,24));
-   add(g,cyl(6.8,micrometer.drumLengthMm,mats.silver,0,micrometer.drumCenterLocalYmm,micrometer.frontZmm,48));
-   for(let y=32;y<micrometer.drumTopLocalYmm;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,micrometer.frontZmm));
+
+   // Central vertical micrometer stays INSIDE the 65mm footprint as in the
+   // Daheng product image. V80's z=40 external black support wall is removed.
+   const driveZ=22,supportY=51;
+   for(const sign of [-1,1]){
+     const arm=add(g,cub(14,6,12,mats.black,sign*13,supportY,driveZ));
+     arm.userData.A03CentralDriveBridgeArm=sign;
+   }
+   const collar=add(g,sleeve(8.5,4.4,5,mats.black,0,supportY,driveZ,'y'));
+   collar.userData.vc13ExternalDriveSupportCandidate=true;
+   const stem=add(g,cyl(2.8,31,mats.steel,0,51,driveZ,24));
+   stem.userData.A03CentralVerticalStem=true;
+   const drum=add(g,cyl(6.8,20,mats.silver,0,69,driveZ,48));
+   drum.userData.A03CentralVerticalDrum=true;
+   for(let y=61;y<=77;y+=2.7){
+     const ring=add(g,torus(6.85,.20,mats.ink,0,y,driveZ));
+     ring.userData.A03MicrometerKnurl=true;
+   }
+   const cap=add(g,cyl(4.7,4,mats.black,0,81,driveZ,32));
+   cap.userData.A03MicrometerTopCapCandidate=true;
+
    addJointHeads(g,'A03',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
-   label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
+   label(g,'Daheng GCM-VC13M · 65×65 / 13mm · 开放双导向柱 + 中央竖直测微',
+     0,96,0);
  },{explode:[-15,18,0],moveFilm:true});
  // Photo94 front view shows TWO approximately 20mm-tall goniometer
  // modules, each with its own drive. Only the upper G40M60L model tag
