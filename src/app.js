@@ -1688,7 +1688,7 @@ function filmB(){
    add(g,cyl(6.8,micrometer.drumLengthMm,mats.silver,0,micrometer.drumCenterLocalYmm,micrometer.frontZmm,48));
    for(let y=32;y<micrometer.drumTopLocalYmm;y+=3) add(g,torus(6.85,.22,mats.ink,0,y,micrometer.frontZmm));
    addJointHeads(g,'B30',7.9,[[-24,-24],[-24,24],[24,-24],[24,24]],{headR:2.6});
-   label(g,'GCM-VC13M · 前置竖直测微头（照片97）',0,80,0);
+   label(g,'GCM-VC13M · 65×65 / 13mm行程 · 高度按T25M2L+VC13M官方组合交叉校核',0,112,0);
  },{explode:[-15,18,0],moveFilm:true,facingYaw:aFilmYaw});
  addPart('B31',ax,124,0,g=>{
    // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
@@ -2683,6 +2683,15 @@ function platformA(){
  // V79: installed A film-side stack faces the sample. This is the user-
  // confirmed 180° correction of the previous backwards orientation.
  const aFilmYaw=aWorkingPoseMode?Math.PI:0;
+ // V80 vertical datum: Daheng's GCM-901602M catalog uses the same
+ // GCM-T25M2L + GCM-VC13M pair and lists 126mm reference top height.
+ // User photos show the pair in the opposite order, so we use the height
+ // only as an additive envelope cross-check. With the full 13mm VC13 stroke
+ // centered on that catalog reference, the lower endpoint is 119.5mm.
+ const a15Vc13LowerTopY=40+119.5; // 159.5 mm world Y
+ const aLowerG40Y=a15Vc13LowerTopY;
+ const aUpperG40Y=aLowerG40Y+20;
+ const aBracketTopY=aUpperG40Y+20; // 199.5 mm
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
  // not the separate left transfer-arm adjustment stage.
  // New photos137/161 show the factory-marked GCM-5306M 8mm mount
@@ -2744,54 +2753,51 @@ function platformA(){
  addPart('A03',ax,73,az,g=>{
    // Photo97 footprint has a much narrower upright body than the 65mm
    // lower T25M. The GCM-VC13M platform is 65×65 (VC10M is 45×45).
-   add(g,cub(65,8,60,mats.black,0,4,0)); // bottom flange on A15 (Y=53)
-   add(g,cub(45,36,16,mats.dark,0,26,-8)); // stationary body ends at output lower-limit local Y=44
-   add(g,cub(44,36,4,mats.black,0,26,5)); // fixed guide ends at lower-limit local Y=44
-   // V65 photo194: the raised A03 plate needs visible continuous side
-   // guides. In V64 the +13mm raised plate sat above a bare fixed upright.
-   // Separate side channels remain fixed; moving tongues are nested with
-   // 0.3mm candidate side clearance and overlap them throughout 0..13mm.
+   add(g,cub(65,8,60,mats.black,0,4,0)); // 65x65 mounting face on A15
+   // V80: the former 44mm-high VC13 proxy was incompatible with Daheng's
+   // 126mm T25M2L+VC13M catalog envelope. Keep the user's reversed stack
+   // order, but restore the VC13 body to the additive envelope height.
+   add(g,cub(45,71.5,16,mats.dark,0,43.75,-8)); // local Y 8..79.5
+   add(g,cub(44,71.5,4,mats.black,0,43.75,5));
    for(const sign of [-1,1]){
-     const fixed=add(g,cub(3.4,32,8,mats.black,sign*24,28,-8));
+     const fixed=add(g,cub(3.4,70,8,mats.black,sign*24,43,-8));
      fixed.userData.A03StationarySideGuide=sign;
    }
    for(const x of [-18,18]){
-     add(g,cub(2.2,35,2,mats.ink,x,27,8));
-     // Captured front-side retaining screw positions are approximate.
-     for(const y of [15,28,42]){
+     add(g,cub(2.2,66,2,mats.ink,x,41,8));
+     for(const y of [22,42,62]){
        const h=add(g,cyl(2.1,1.3,mats.steel,x,y,7.65,12));
        h.rotation.x=Math.PI/2;h.userData.fastenerProxy=true;
        add(g,cub(1.9,.45,.15,mats.ink,x,y,8.36));
      }
    }
-   // V46: movable VC13M output; previous slider left A03/A04/A05 immobile.
-   // Mechanical collision along the actual 13mm travel remains unqualified.
+   // Lower endpoint: A15 bottom -> VC13 output top = 119.5mm.
+   // The WebGL installed pose raises this moving group by 13mm.
    const movingVC13=new THREE.Group();g.add(movingVC13);
-   const outputPlate=add(movingVC13,cub(65,7,65,mats.dark,0,47.5,0));
+   const outputPlate=add(movingVC13,cub(65,7,65,mats.dark,0,83,0));
    outputPlate.userData.A03MovingOutputPlate=true;
-   // Two tongues descend INTO their stationary side-guide envelopes
-   // and follow ONLY the 13mm moving output, never the A03 housing.
+   outputPlate.userData.A15VC13CatalogReferenceHeightMm=126;
+   outputPlate.userData.A15VC13LowerPoseHeightMm=119.5;
    for(const sign of [-1,1]){
-     // Captive sliding tongue stays inside the stationary side guide
-     // with 0.3mm side clearance and overlaps the travelling top
-     // plate by 6mm (the earlier 1mm neck looked like a loose rod).
      const tongue=add(movingVC13,cub(3.4,28,8,mats.dark,
-       sign*27.7,36,-8));
-     tongue.userData.A03MovingTongueTopEngagementMm=6;
+       sign*27.7,72,-8));
+     tongue.userData.A03MovingTongueTopEngagementMm=7;
      tongue.userData.A03MovingGuideTongue=sign;
    }
    g.userData.verticalCarriage=movingVC13;
    g.userData.nominalVerticalTravelMm=13;
    g.userData.motionProxyNotCollisionCertified=true;
    // VC13M vertical micrometer on face, NOT another horizontal rail.
-   const micrometer=vc13PhotoScrewDatums();
-   // V46: the vertical shaft must be OUTSIDE the 65mm travelling
-   // output plate. Two side rails and a true-bore annular collar
-   // hold the front drive without a solid bar passing through its shaft.
+   const micrometer=vc13PhotoScrewDatums({
+     topPlaneLocalYmm:86.5,drumCenterLocalYmm:68,drumLengthMm:18,
+     stemCenterLocalYmm:53,stemLengthMm:30,frontZmm:40
+   });
+   // Front micrometer remains outside the 65mm moving plate and is
+   // supported continuously along the taller VC13 body.
    for(const x of [-8,8])
-     add(g,cub(3,10,38,mats.black,x,15,24));
+     add(g,cub(3,66,38,mats.black,x,41,24));
    const frontCollar=add(g,sleeve(9,5.7,4,mats.black,
-     0,15,micrometer.frontZmm,'y'));
+     0,micrometer.stemCenterLocalYmm,micrometer.frontZmm,'y'));
    frontCollar.userData.vc13ExternalDriveSupportCandidate=true;
    add(g,cyl(2.8,micrometer.stemLengthMm,mats.steel,0,micrometer.stemCenterLocalYmm,micrometer.frontZmm,24));
    add(g,cyl(6.8,micrometer.drumLengthMm,mats.silver,0,micrometer.drumCenterLocalYmm,micrometer.frontZmm,48));
@@ -2802,7 +2808,7 @@ function platformA(){
  // Photo94 front view shows TWO approximately 20mm-tall goniometer
  // modules, each with its own drive. Only the upper G40M60L model tag
  // is legible. Never identify the lower as G40M40L without OEM evidence.
- addPart('A04L',ax,124,az,g=>{
+ addPart('A04L',ax,aLowerG40Y,az,g=>{
    // Vendor G40M60L: 40×40×20mm, rotation center R=60mm.
    // Photo94 front body has a LOWER cradle, a split rocker top, two
    // front fastener pairs, and a +X micrometer with a steel thimble.
@@ -2841,7 +2847,7 @@ function platformA(){
    g.userData.lowerDriveOrthogonalToUpperG40=true;
    label(g,'双角度实拍推断：下层 +Z 轴与上层 +X 轴正交；型号待核',-4,40,0);
  },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
- addPart('A04',ax,144,az,g=>{
+ addPart('A04',ax,aUpperG40Y,az,g=>{
    // Upper G40M60L label is visually legible in photo94.
    // Lower partner is not positively identified. G40M60L body:
    add(g,cub(40,7,40,mats.black,0,3.5,0));
@@ -2865,7 +2871,7 @@ function platformA(){
    g.userData.photo196UpperDriveDirection='+X';
    label(g,'照片196：上层 GCM-G40M60L · 右侧测微 · 40×40×20mm',-4,40,0);
  },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
- const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:164,
+ const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:aBracketTopY,
    topPlateWidth:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketTopWidthMm:undefined,
    leftOverhangMm:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketOverhangMm:undefined,
    // V79: use one left-handed sheet definition. The installed transfer
@@ -2874,7 +2880,7 @@ function platformA(){
    verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72,
    sheetFrontZmm:aWorkingPoseMode?0:13});
  const outwardSign=-1;
- addPart('A05',ax,164,az,g=>{
+ addPart('A05',ax,aBracketTopY,az,g=>{
    const localX=aBent.centerX-ax;
    const legLocalX=aBent.legX-ax+aBent.metalThickness/2;
    add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
@@ -2914,7 +2920,7 @@ function platformA(){
  const clampLengthX=28;
  const clampCenterX=glassNearX+outwardSign*14;
 
- addPart('A05C',ax,164,az,g=>{
+ addPart('A05C',ax,aBracketTopY,az,g=>{
    const footBottomY=-aBent.verticalLegLength;
    const neck=add(g,cub(5,2.5,14,mats.dark,
      bracketLegLocalX+outwardSign*32.5,footBottomY-1.25,aBent.sheetFrontZ));
@@ -2943,7 +2949,7 @@ function platformA(){
      clampCenterX,18,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
- addPart('A05CS',ax,164,az,g=>{
+ addPart('A05CS',ax,aBracketTopY,az,g=>{
    for(const q of [5,23]){
      const screwX=glassNearX+outwardSign*q;
      // Cylinder default axis is local Y; rotate it onto local Z so the
@@ -2974,7 +2980,7 @@ function platformA(){
      clampCenterX,16,aBent.sheetFrontZ+38);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
- addPart('A05G',ax,164,az,g=>{
+ addPart('A05G',ax,aBracketTopY,az,g=>{
    const slide=add(g,cub(76,1,26,mats.glass,
      glassCenterX,glassCenterY,aBent.sheetFrontZ));
    slide.userData.candidateStandardSlide=[76,26,1];
