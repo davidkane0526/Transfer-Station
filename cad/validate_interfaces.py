@@ -1108,7 +1108,12 @@ check(abs(a_head.BoundingBox().ymin-a_support_boom.BoundingBox().ymax)<.02,
 check(a_support_boom.intersect(a_head).Volume()<1e-4,
       'V74 microscope support beam must not penetrate microscope housing')
 check(a_support_boom.distance(a_head)<.02,
-      'V74 support beam must contact A18 housing, not float behind it')
+      'V81 support beam must contact A18 housing, not float behind it')
+boom_bb=a_support_boom.BoundingBox();head_bb=a_head.BoundingBox()
+a10_a18_face_area=max(0,min(boom_bb.xmax,head_bb.xmax)-max(boom_bb.xmin,head_bb.xmin))*\
+                  max(0,min(boom_bb.zmax,head_bb.zmax)-max(boom_bb.zmin,head_bb.zmin))
+check(a10_a18_face_area>=800,
+      'V81 A10/A18 rear joint must retain >=800mm2 physical face contact')
 check(abs(a_support_boom.BoundingBox().zmin-207.5)<.02 and
       abs(a_support_boom.BoundingBox().zmax-232.5)<.02,
       'V74 A10 boom vertical datum must match browser model')
@@ -1116,6 +1121,7 @@ report['V69_A10_post_support_collision']={
     'post_outer_diameter_mm_candidate':26,
     'boom_clearance_bore_mm_candidate':26.6,
     'boom_post_boolean_intersection_mm3':0,
+    'A10_A18_rear_mating_face_area_mm2':round(a10_a18_face_area,1),
     'boom_raised_18mm_clearance':True,
     'boomhousing_rear_face_gap_mm':0,
     'boomhousing_solid_intersection_mm3':0,
