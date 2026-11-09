@@ -942,7 +942,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V80当前安装方向/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V81当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
