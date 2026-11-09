@@ -561,9 +561,11 @@ check(a15_front.intersect(slot_probe).Volume()<1e-4,
       'V62 A15 photo194 front face is truly slotted')
 check(a15_front.BoundingBox().zmin>amagnet.zmax+10,
       'V62 A15 silver slot higher than A17 magnet')
+a03_drive_y=(part(A,'A03M')[0].BoundingBox().ymin+
+              part(A,'A03M')[0].BoundingBox().ymax)/2
 check(a15_front.BoundingBox().ymax<-32 and
-      part(A,'A03M')[0].BoundingBox().ymin>33,
-      '2026-11-08 two photo sides: A15 silver slot -Y / VC13 micrometer +Y')
+      0<a03_drive_y<32.5,
+      'V83 A15 silver slot stays -Y while VC13M central micrometer sits on +Y inside the 65mm platform footprint')
 check(not (A/'A15FK.step').exists(),
       'V79 remove unsupported floating A15 central control cylinder')
 for i in (1,2):
@@ -579,7 +581,8 @@ for legacy in ('A17P','A17S1','A17S2'):
           'V62 no false magnet silver slot '+legacy)
 report['V62_A15_front_slot_A17_lower_lever']={
   'photo':['194','195','2026-11-08-screen-front'],'A15_front_open_slot':True,
-   'slot_face_axis_in_CAD':'-Y opposite VC13M +Y face',
+   'slot_face_axis_in_CAD':'-Y opposite VC13M central +Y micrometer',
+   'VC13M_micrometer_inside_65mm_footprint':True,
   'A15_front_plate_screw_count':2,'A15_control_count':0,
   'A17_lower_lever_count':1,'A17_duplicate_slot_count':0,
   'OEM_dimensions_and_threads_verified':False}
