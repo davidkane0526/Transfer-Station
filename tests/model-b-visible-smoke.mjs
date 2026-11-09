@@ -854,6 +854,26 @@ try{
    'MGZ30 remains topology comparison only; no auto-identification');
  assert.equal(dA.A18MGZ30VendorTravelMm,30);
  assert.equal(dA.A18MGZ30VendorPostDiameterMm,38.1);
+ assert.equal(dA.A18MGZ30VendorTurretPorts,5);
+ assert.equal(dA.A18MGZ30VendorTurretThread,'M26×36 TPI');
+ assert.equal(dA.A18MGZ30SupportsSM1SM2,true);
+ assert.equal(dA.A18MGZ30GeometryApplied,false,
+   'MGZ30 vendor geometry cannot replace the photo-constrained A18 before identity is verified');
+ assert.equal(dA.A18Boli76x25Candidates.length,3);
+ assert(dA.A18Boli76x25Candidates.every(c=>c.postDiameterMm===25&&c.holderDiameterMm===76));
+ assert.equal(dA.A18Boli76x25Candidates.find(c=>c.sku==='SA02041502').centerDistanceMm,156);
+ assert.equal(dA.A18Boli76x25Candidates.find(c=>c.sku==='SA08041102').centerDistanceMm,140);
+ assert.equal(dA.A18BoliFocusRackGeometryApplied,false,
+   '25mm-post rack candidates are comparison evidence only');
+ assert.equal(dA.A18CurrentScenePostDiameterMm,26);
+ assert.equal(dA.A18CurrentScenePostDiameterMeasured,false,
+   'Current Ø26 A10 post is a scene fit, not a physical ruler measurement');
+ assert.equal(dA.A18CurrentScenePostToOpticalAxisMm,112);
+ assert.equal(dA.A18CurrentScenePostToOpticalAxisMeasured,false,
+   'Current 112mm post-to-axis distance is not allowed to hard-reject a vendor candidate');
+ assert.equal(dA.A18Visible76mmScopeRingConfirmed,false);
+ assert.equal(dA.A18FullFivePortTurretConfirmed,false);
+ assert.match(dA.A18VendorCandidateDecision,/none confirmed/);
  assert.equal(dA.A18MCTLMP2DirectIdentityRejected,true);
  assert.deepEqual(dA.A18MCTLMP2VendorEnvelopeMm,[211.5,130,58.8]);
  assert.equal(dA.A15LinearHandleCount,2);
