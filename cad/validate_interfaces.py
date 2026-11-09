@@ -620,8 +620,8 @@ check(abs(a03_top.zmax-a04_lower.zmin)<.02,
       'V47 VC13 moving plate supports LOWER G40-class module')
 check(abs(a04_lower.zmax-a04.zmin)<.02,
       'V47 two independent goniometers stack 20mm + 20mm without gap')
-check(abs(a04.zmax-164)<.02 and abs(a04_lower.zmax-144)<.02,
-      'V47 upper labeled G40M60L must be above lower unmarked module')
+check(abs(a04.zmax-199.5)<.02 and abs(a04_lower.zmax-179.5)<.02,
+      'V80 upper labeled G40M60L follows vendor-height-corrected VC13 stack')
 check(abs(a04_lower.zlen-20)<.02 and abs(a04.zlen-20)<.02,
       'V47 photo94 double-stage proxy must preserve separate 20mm heights')
 check(part(A,'A03')[0].intersect(a03_moving).Volume()<1e-4,
@@ -629,20 +629,26 @@ check(part(A,'A03')[0].intersect(a03_moving).Volume()<1e-4,
 a03_raised=a03_moving.translate(Vector(0,0,13))
 check(part(A,'A03')[0].intersect(a03_raised).Volume()<1e-4,
       'V65 full 13mm A03 stroke must NOT cause moving guide/outer channel solid overlap')
-check(abs(a03_moving.BoundingBox().zmin-95)<.02 and
-      abs(a03_moving.BoundingBox().zmax-124)<.02,
-      'V65 moving side tongues descend below output plate and remain physically joined')
+check(abs(a03_moving.BoundingBox().zmin-131.5)<.02 and
+      abs(a03_moving.BoundingBox().zmax-159.5)<.02,
+      'V80 VC13 lower-end moving assembly matches 119.5mm T25M2L+VC13 pair height')
 check(a03_raised.BoundingBox().zmin<part(A,'A03')[0].BoundingBox().zmax-8,
       'V65 raised A03 moving side tongue must still overlap stationary channel in Z')
 check(len(a03_raised.Solids())==1 and len(a03_moving.Solids())==1,
       'V65 two moving guide tongues belong to ONE connected moving STEP assembly')
-report['V65_A03_floating_output_repair']={
-    'photo_refs':['194','195'],'fixed_side_channel_count':2,
-    'moving_output_tongue_count':2,'travel_mm_nominal':13,
+report['V80_A03_vendor_envelope_and_guides']={
+    'photo_refs':['194','195'],
+    'vendor_crosscheck':'Daheng GCM-901602M uses the same T25M2L + VC13M parts',
+    'catalog_reference_pair_height_mm':126,
+    'catalog_stock_order_matches_user_order':False,
+    'model_full_VC13_stroke_mm':13,
+    'model_lower_pair_height_mm':119.5,
+    'model_upper_pair_height_mm':132.5,
+    'fixed_side_channel_count':2,'moving_output_tongue_count':2,
     'full_travel_static_and_raised_boolean_collision_free':True,
     'moving_guide_still_engaged_at_top_of_travel':True,
-    'candidate_channel_width_mm':3,'clearance_candidate_mm':1.3,
-    'factory_guide_dimensions_verified':False}
+    'catalog_height_used_as_additive_envelope_not_installation_identity':True,
+    'physical_motion_zero_verified':False}
 check(len(part(A,'A03'))==1,
       'A03 bracket plus fixed carriage must be ONE connected STEP solid')
 check(part(A,'A03')[0].intersect(part(A,'A03M')[0]).Volume()<1e-4,
@@ -859,12 +865,12 @@ check(not (B/'B06S3.step').exists(),
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
 ax=-82.75
-leg_bottom=164-52.1
+leg_bottom=199.5-87.6
 leg_x=ax-60+1.25
 check(abs(asheet_bb.xmin+173.5)<.02 and abs(asheet_bb.xmax+55.75)<.02,
       'V79 A05 local sheet/foot remains one LEFT-handed definition before rigid yaw')
-check(abs(asheet_bb.zmin-leg_bottom)<.02 and abs(asheet_bb.zmax-166.5)<.02,
-      'V79 52.1mm candidate leg joins G40 top and the glass support height')
+check(abs(asheet_bb.zmin-leg_bottom)<.02 and abs(asheet_bb.zmax-202.0)<.02,
+      'V80 87.6mm derived leg joins corrected G40 top while preserving glass contact plane')
 check(a_sheet.distance(part(A,'A04')[0])<.05,
       'V79 A05 sheet rests on the independent upper G40 stage')
 for i,dx in enumerate((-14,14),1):
@@ -994,6 +1000,10 @@ check(abs(a_chip.BoundingBox().xlen-28)<.02 and
       abs(a_chip.BoundingBox().zlen-1.4)<.02,
       'V79 sample chip proxy remains 28x28x1.4mm')
 report['V79_A_installed_geometry']={
+    'A15_VC13_catalog_reference_pair_height_mm':126,
+    'A15_VC13_stock_GCM901602_order_matches_user_order':False,
+    'A15_VC13_model_lower_pair_height_mm':119.5,
+    'A05_derived_leg_length_mm':87.6,
     'part_chain':['A17','A15','A03','A04L','A04','A05','A05C',
                   'A05CU','A05CS1','A05CS2','A05G','A05GP'],
     'A17_A16_footprint_gap_mm':round(a_base_gap,2),
@@ -1037,8 +1047,8 @@ check(abs(a_base.xlen-112)<.02 and abs(a_base.ylen-70)<.02 and abs(a_base.zlen-8
 check(abs(a_base.zmin-a_board.zmax)<.02 and abs(a_rot_lower.zmin-a_base.zmax)<.02,
       'A GCM-5306M is UNDER rotary, not counted as the rotary itself')
 a_tilt=part(A,'A04')[0].BoundingBox()
-check(abs(a_tilt.zmax-164)<.02,
-      'V47 A04 is upper of 2x20mm G40-class stack; A05 touches top z164')
+check(abs(a_tilt.zmax-199.5)<.02,
+      'V80 A04 is upper of 2x20mm G40-class stack; A05 touches corrected top z199.5')
 # V79 complete STEP applies the same rigid 180° film-chain yaw validated above.
 # Contact/clearance checks below therefore use installed world-space clamp/PDMS.
 a_heater=part(A,'A07')[0].BoundingBox()
