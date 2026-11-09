@@ -929,8 +929,14 @@ try{
  // output, while A03 body and magnet remain fixed to their base.
  const mechA=await page.evaluate(()=>window.__modelAPhoto194Probe?.());
  assert.equal(mechA.available,true);
- assert.equal(mechA.upperDrive,'+X','Photo196 upper G40 knob must be on the RIGHT');
- assert.equal(mechA.lowerDrive,'-X','Photo195 lower goniometer knob must be on the LEFT');
+ assert.equal(mechA.upperDriveLocal,'+X',
+   'G40M60L actuator remains on the OEM/photo-supported local +X side');
+ assert.equal(mechA.lowerDriveLocal,'+Z',
+   'Lower goniometer actuator remains orthogonal to the upper G40 local axis');
+ assert.equal(mechA.installedFilmBranchYawDeg,180,
+   'Installed transfer assembly must preserve the user-corrected rigid 180° yaw');
+ assert.equal(mechA.upperDriveWorld,'-X',
+   'Rigid 180° yaw must reverse world X without mirroring the hardware itself');
  assert.equal(mechA.wingFastenerCount,2,'Photo194/196 require two wing fasteners');
  const foot=await page.evaluate(()=>window.__modelA05FootBoreProbe?.());
  assert.equal(foot.available,true);
