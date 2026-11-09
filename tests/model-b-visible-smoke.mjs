@@ -829,6 +829,8 @@ try{
  assert.equal(dA?.available,true,'Missing A detail mount mesh probe');
  assert.equal(dA.pose,'installed180');
  assert.equal(dA.lampOEMDiameterMm,30.5);
+ assert.equal(dA.lampOEMLengthMm,60.1);
+ assert.equal(dA.lampSM1ThreadDepthMm,6);
  assert.equal(dA.lampElectricalCablePresent,true);
  assert.equal(dA.inventedLampGooseneckPresent,false,
    'Old invented MWWHL4 mechanical gooseneck must stay deleted');
