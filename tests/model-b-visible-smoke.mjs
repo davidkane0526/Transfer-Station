@@ -1075,9 +1075,21 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.deepEqual(aBefore.sampleLayersMm,[9,7,12]);
  assert.equal(aBefore.sampleRotaryDiameterMm,66);
  assert.deepEqual(aBefore.sampleRotaryVendorCandidates,
-   ['Daheng GCM-1101M','Daheng GCM-1102M']);
+   ['Daheng GCM-1102M','Daheng GCM-1101M']);
  assert.equal(aBefore.sampleRotaryVendorGeometryApplied,false,
-   'A06 vendor drawing must not overwrite the ruler/photo-fit envelope before SKU identification');
+   'A06 vendor drawing must not overwrite ruler evidence before the missing height is resolved');
+ assert.equal(aBefore.sampleRotaryGCM1101VendorWidthMm,92);
+ assert.equal(aBefore.sampleRotaryGCM1101RejectedByPhotoDiameterEnvelope,true);
+ assert.equal(aBefore.sampleRotaryGCM1102VendorDiameterMm,66);
+ assert.equal(aBefore.sampleRotaryGCM1102VendorHeightMm,21);
+ assert.deepEqual(aBefore.sampleRotaryGCM1102VendorPlatformMm,[32,32]);
+ assert.equal(aBefore.sampleRotaryGCM1102DiameterMatchesPhotoFit,true);
+ assert.equal(aBefore.sampleRotaryGCM1102DirectSubstitutionSampleTopAboveBoardMm,77);
+ assert.equal(aBefore.sampleRotaryGCM1102DirectSubstitutionWithinRulerRange,false,
+   'A Ø66 diameter match alone cannot justify dropping the stack from 89.2mm to 77mm');
+ assert.equal(aBefore.sampleRotaryGCM1102MinimumMissingStackHeightMm,10);
+ assert.equal(aBefore.sampleRotaryGCM1102NominalMissingStackHeightMm,13);
+ assert.match(aBefore.sampleRotaryGCM1102CandidatePriority,/unresolved-height-stack/);
  assert.equal(aBefore.sampleRotaryRightAngularMicrometerCount,1);
  assert.equal(aBefore.sampleRotaryShortFrontLockCount,1);
  assert.equal(aBefore.sampleTopAboveBoardMm,89.2);
