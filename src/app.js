@@ -400,9 +400,16 @@ window.__modelAOpticalClearanceProbe=()=>{
    boomNearbyMetal=boreRay(postPos.x,postPos.z+22)>0;
  }
  const headRoot=parts.get('A18')?.g;
-  const headHousing=headRoot?.children.find(o=>o.isMesh);
+  const headSegments=headRoot?.children.filter(o=>o.isMesh&&o.userData.A18BodySegment)??[];
   const boomBounds=boomShell?new THREE.Box3().setFromObject(boomShell):null;
-  const housingBounds=headHousing?new THREE.Box3().setFromObject(headHousing):null;
+  // V81 stepped body: A10 contacts the continuous central rear strip across
+  // all three vertically contiguous body segments. Measure their union,
+  // not only the first visual segment.
+  const housingBounds=headSegments.length?(()=>{
+    const b=new THREE.Box3();
+    for(const o of headSegments)b.union(new THREE.Box3().setFromObject(o));
+    return b;
+  })():null;
   const boomFrontGapMm=boomBounds&&housingBounds?
     Number((housingBounds.min.z-boomBounds.max.z).toFixed(3)):null;
   const boomFaceAreaMm2=boomBounds&&housingBounds?
