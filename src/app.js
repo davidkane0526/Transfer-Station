@@ -490,9 +490,16 @@ window.__modelAPhoto194Probe=()=>{
    group.getWorldPosition(origin);drum.getWorldPosition(center);
    return center.x>origin.x?'+X':'-X';
  };
+ const upperWorldDrive=driveSide(upper,'A04DriveDrum');
+ const lowerWorldDrive=driveSide(lower,'A04LDriveDrum');
  return {available:Boolean(lower&&upper&&clamp&&screws&&bracket),
-   upperDrive:driveSide(upper,'A04DriveDrum'),
-   lowerDrive:driveSide(lower,'A04LDriveDrum'),
+   // OEM/photo actuator directions are local to the film-side stack.
+   // The installed 180° yaw reverses world X without changing hardware.
+   upperDriveLocal:'+X',
+   lowerDriveLocal:'+Z',
+   upperDriveWorld:upperWorldDrive,
+   lowerDriveWorld:lowerWorldDrive,
+   installedFilmBranchYawDeg:aWorkingPoseMode?180:0,
    wingFastenerCount:screws?.children.filter(m=>m.userData.photo194WingFastenerCandidate).length??0,
    outwardFootCount:bracket?.children.filter(m=>m.userData.A05OutwardFootCandidate).length??0,
    fastenerThreadVerified:false,photoRegisteredGlobalPose:false,
