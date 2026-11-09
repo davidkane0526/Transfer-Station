@@ -650,9 +650,12 @@ def make_a():
     # A15 must rest on the actual magnetic base, not on naked board.
     # Photo194: face slot is on A15, not the lowest A17 magnet.
     mag=box(65,65,20,ax,0,20)
-    add('A','A17','unknown_magnetic_base_top_hole_map_unobserved',mag,'C')
-    lower_lever=vy(2.2,10,ax-23,32.5,27).fuse(vz(3,8,ax-23,39.5,24))
-    add('A','A17L','photo194_lower_magnet_lever_UNVERIFIED',lower_lever,'C')
+    # V82: PTDB65 is comparison evidence only. Its 65x65x20 envelope and
+    # side magnetic switch match the visible layer, but A15 hides A17's top
+    # surface, so NO PTDB65 M6/M4/M3 hole map is cut into this solid.
+    add('A','A17','65x65x20_MAGNET_BASE_PTDB65_ENVELOPE_COMPARISON_NO_TOP_HOLES',mag,'C')
+    side_switch=vy(2.2,10,ax-23,32.5,27).fuse(vz(3.2,9,ax-23,39.5,24))
+    add('A','A17L','PTDB65_STYLE_SIDE_SWITCH_COMPARISON_IDENTITY_UNVERIFIED',side_switch,'C')
     stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y',photo_top_bores=True)
     # Nov 08 screen-behind view shows A15 silver slot on the -Y
     # side of the XY stage, OPPOSITE the +Y VC13M front spindle.
@@ -693,7 +696,7 @@ def make_a():
     # Lower has its own rightward micrometer; G40M40L is a manufacturer
     # pairing comparison ONLY, not yet readable from the user photo.
     # The older one-piece A04 envelope was 20mm too short.
-    add('A','A04L','LOWER_G40_GONIOMETER_SKU_UNKNOWN_20mm_PHOTO_CANDIDATE',
+    add('A','A04L','GCM_G40M40L_VENDOR_PAIRING_CANDIDATE_R40_PM7_NOT_PHOTO_CONFIRMED',
         box(40,40,20,ax,0,159.5),'C')
     # Nov 08 TWO photo views: the LOWER angular micrometer is
     # orthogonal (+Y depth in STEP) to the UPPER +X micrometer.
@@ -780,6 +783,9 @@ def make_a():
     for i,(x,y) in enumerate(abolt,1):
         screw=vz(2.5,16,x,y,12).fuse(vz(4.25,2.5,x,y,25.5))
         add('A',f'A16S{i}','A16_to_single_A01_grid_anchor_CANDIDATE',screw,'C')
+    # V82: keep the ruler/photo-fit Ø66 x 33.2 envelope. Daheng GCM-1101M
+    # and GCM-1102M are vendor comparison candidates only; neither drawing
+    # matches enough photographed features to replace this geometry safely.
     rot('A','A06',cx,0,28,'I',radius=33,lock_radius=4.5)
     # Photo17/18/20/21: RIGHT side of A06 has a LONG horizontal
     # silver angular micrometer, in addition to the SHORT front lock.
