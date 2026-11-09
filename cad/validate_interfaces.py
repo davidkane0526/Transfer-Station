@@ -812,15 +812,35 @@ check(110.6+2<o1.zmin<121 and o1.zmax<=160 and
 check(abs(part(A,'A19R1')[0].BoundingBox().xmin-
           part(A,'A19O1')[0].BoundingBox().xmin)<15,
       'V79 left color band follows the same tilted objective axis')
-report['V81_A_microscope_vendor_constrained_cleanup']={
+report['V84_A_microscope_vendor_candidate_matrix']={
     'photo_refs':['191','192','193'],
     'A18_vendor_and_model_verified':False,
-    'A18_body_max_envelope_mm':[84,88,70],
-    'A18_body_stepped_segment_count':3,
-    'A18_bilateral_focus_chain_continuous':True,
-    'MGZ30_candidate_only':True,
-    'MGZ30_vendor_Z_travel_mm':30,
-    'MGZ30_vendor_post_diameter_mm':38.1,
+    'current_photo_constrained_body_envelope_mm':[84,88,70],
+    'current_photo_constrained_body_geometry_retained':True,
+    'current_scene_A10_post_diameter_mm':26,
+    'current_scene_A10_post_diameter_physically_measured':False,
+    'current_scene_post_to_optical_axis_mm':112,
+    'current_scene_post_to_optical_axis_physically_measured':False,
+    'MGZ30':{
+        'candidate_only':True,
+        'vendor_Z_travel_mm':30,
+        'vendor_post_diameter_mm':38.1,
+        'vendor_turret_ports':5,
+        'vendor_turret_thread':'M26x36 TPI',
+        'supports_30mm_cage_SM1_SM2':True,
+        'geometry_applied_to_A18':False,
+        'five_port_turret_confirmed_in_user_photo':False
+    },
+    'Boli_ViewSolutions_25mm_post_family':[
+        {'sku':'SA08041302','post_diameter_mm':25,'holder_diameter_mm':76,
+         'center_distance_mm':None,'coaxial_fine_focus':True},
+        {'sku':'SA02041502','post_diameter_mm':25,'holder_diameter_mm':76,
+         'center_distance_mm':156,'coaxial_fine_focus':True},
+        {'sku':'SA08041102','post_diameter_mm':25,'holder_diameter_mm':76,
+         'center_distance_mm':140,'coaxial_fine_focus':False}
+    ],
+    'Boli_ViewSolutions_geometry_applied_to_A18':False,
+    'visible_76mm_scope_ring_confirmed':False,
     'MCT_LMP2_direct_identity_rejected':True,
     'MCT_LMP2_vendor_envelope_mm':[211.5,130,58.8],
     'removed_unsupported_horizontal_tube':True,
@@ -832,7 +852,9 @@ report['V81_A_microscope_vendor_constrained_cleanup']={
     'center_objective_vertical_candidate_deg':0,
     'objective_text_reading_fully_verified':False,
     'objective_exact_magnification_and_NA_claim_removed':True,
-    'full_turret_indexing_and_working_distance_verified':False}
+    'full_turret_indexing_and_working_distance_verified':False,
+    'candidate_geometry_may_replace_photo_model_without_new_evidence':False
+}
 a20=part(A,'A20')[0].BoundingBox()
 check(part(A,'A20')[0].isValid() and a20.zmax>390,
       'V59 camera cable is a continuous valid routed solid above the camera')
