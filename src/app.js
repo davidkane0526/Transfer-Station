@@ -663,6 +663,19 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30CandidateOnly:Boolean(gA18.userData.MGZ30CandidateOnly),
      A18MGZ30VendorTravelMm:gA18.userData.MGZ30VendorTravelMm,
      A18MGZ30VendorPostDiameterMm:gA18.userData.MGZ30VendorPostDiameterMm,
+     A18MGZ30VendorTurretPorts:gA18.userData.MGZ30VendorTurretPorts,
+     A18MGZ30VendorTurretThread:gA18.userData.MGZ30VendorTurretThread,
+     A18MGZ30SupportsSM1SM2:Boolean(gA18.userData.MGZ30SupportsSM1SM2),
+     A18MGZ30GeometryApplied:Boolean(gA18.userData.MGZ30GeometryApplied),
+     A18Boli76x25Candidates:gA18.userData.Boli76x25Candidates,
+     A18BoliFocusRackGeometryApplied:Boolean(gA18.userData.BoliFocusRackGeometryApplied),
+     A18CurrentScenePostDiameterMm:gA18.userData.currentScenePostDiameterMm,
+     A18CurrentScenePostDiameterMeasured:Boolean(gA18.userData.currentScenePostDiameterMeasured),
+     A18CurrentScenePostToOpticalAxisMm:gA18.userData.currentScenePostToOpticalAxisMm,
+     A18CurrentScenePostToOpticalAxisMeasured:Boolean(gA18.userData.currentScenePostToOpticalAxisMeasured),
+     A18Visible76mmScopeRingConfirmed:Boolean(gA18.userData.visible76mmScopeRingConfirmed),
+     A18FullFivePortTurretConfirmed:Boolean(gA18.userData.fullFivePortTurretConfirmed),
+     A18VendorCandidateDecision:gA18.userData.vendorCandidateDecision,
      A18MCTLMP2DirectIdentityRejected:Boolean(gA18.userData.MCTLMP2DirectIdentityRejected),
      A18MCTLMP2VendorEnvelopeMm:gA18.userData.MCTLMP2VendorEnvelopeMm,
      A15LinearHandleCount:a15Handles.length,A15StemCount:a15Stems.length,
@@ -3303,12 +3316,35 @@ function platformA(){
    g.userData.focusKnobPairCount=2;
    g.userData.removedUnsupportedHorizontalTube=true;
    g.userData.vendorIdentificationPending=true;
+   // V84: auditable manufacturer-candidate matrix. None of these
+   // candidates is allowed to overwrite the photo-constrained mesh until
+   // the post diameter, turret interfaces and optical-axis offset are measured.
    g.userData.MGZ30CandidateOnly=true;
    g.userData.MGZ30VendorTravelMm=30;
    g.userData.MGZ30VendorPostDiameterMm=38.1;
+   g.userData.MGZ30VendorTurretPorts=5;
+   g.userData.MGZ30VendorTurretThread='M26×36 TPI';
+   g.userData.MGZ30SupportsSM1SM2=true;
+   g.userData.MGZ30GeometryApplied=false;
+   g.userData.Boli76x25Candidates=[
+     {sku:'SA08041302',postDiameterMm:25,holderDiameterMm:76,
+      centerDistanceMm:null,coaxialFineFocus:true},
+     {sku:'SA02041502',postDiameterMm:25,holderDiameterMm:76,
+      centerDistanceMm:156,coaxialFineFocus:true},
+     {sku:'SA08041102',postDiameterMm:25,holderDiameterMm:76,
+      centerDistanceMm:140,coaxialFineFocus:false}
+   ];
+   g.userData.BoliFocusRackGeometryApplied=false;
+   g.userData.currentScenePostDiameterMm=26;
+   g.userData.currentScenePostDiameterMeasured=false;
+   g.userData.currentScenePostToOpticalAxisMm=112;
+   g.userData.currentScenePostToOpticalAxisMeasured=false;
+   g.userData.visible76mmScopeRingConfirmed=false;
+   g.userData.fullFivePortTurretConfirmed=false;
    g.userData.MCTLMP2DirectIdentityRejected=true;
    g.userData.MCTLMP2VendorEnvelopeMm=[211.5,130,58.8];
-   label(g,'A18 调焦主体 · V81照片轮廓细化 / 厂商型号仍待识别',0,52,0);
+   g.userData.vendorCandidateDecision='MGZ30 topology-high; 25mm-post racks compared; none confirmed';
+   label(g,'A18 调焦主体 · V84厂商候选矩阵 / MGZ30等均未确认',0,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
    const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
