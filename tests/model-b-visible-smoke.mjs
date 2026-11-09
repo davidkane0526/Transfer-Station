@@ -1000,8 +1000,13 @@ try{
    'A17 must not inherit B02/GCM-420302M 13-hole pattern without A17 top-side evidence');
  assert.equal(aBefore.a17PhotographedSkuVerified,false,
    'A17 manufacturer SKU remains unidentified');
- assert.equal(aBefore.a17OemComparisonSku,null,
-   'A17 must not claim a GCM-420302M comparison SKU from front-panel appearance alone');
+ assert.equal(aBefore.a17OemComparisonSku,'CORZC PTDB65',
+   'A17 may record PTDB65 only as an envelope/side-switch comparison candidate');
+ assert.equal(aBefore.a17OemCandidate,'PTDB65');
+ assert.equal(aBefore.a17OemVisualMatchConfidence,'envelope-and-side-switch-only');
+ assert.deepEqual(aBefore.a17CandidateEnvelopeMm,[65,65,20]);
+ assert.equal(aBefore.a17CandidateTopHolePatternModelled,false,
+   'PTDB65 13-hole top pattern must NOT be copied onto A17 while its real top is hidden');
  assert.equal(aBefore.a17SideSlotCount,0,'Photo194 silver slot is on A15, not A17');
  assert.equal(aBefore.a17FrontKnobCount,0,'A17 has no duplicate A15 slot knob');
  assert.equal(aBefore.a17TopCounterboreCount,0);
@@ -1010,11 +1015,20 @@ try{
  // The catalogue comparison is intentionally recorded as a candidate, not a confirmed SKU.
 assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
   'Photo94 requires two vertically stacked distinct 20mm goniometer modules');
+ assert.equal(aBefore.lowerGoniometerOemCandidate,'Daheng GCM-G40M40L');
+ assert.equal(aBefore.lowerGoniometerOemCandidateConfirmed,false,
+   'Vendor-paired G40M40L is not a readable photo identification');
+ assert.equal(aBefore.lowerGoniometerVendorRotationCenterMm,40);
+ assert.equal(aBefore.lowerGoniometerVendorTravelDeg,7);
  assert.equal(aBefore.a17PhotographedSkuVerified,false);
  assert.equal(aBefore.bMagnetPhotographedSkuVerified,true);
  assert.equal(aBefore.bMagnetSkuMustNotBeAttributedToA,true);
  assert.deepEqual(aBefore.sampleLayersMm,[9,7,12]);
  assert.equal(aBefore.sampleRotaryDiameterMm,66);
+ assert.deepEqual(aBefore.sampleRotaryVendorCandidates,
+   ['Daheng GCM-1101M','Daheng GCM-1102M']);
+ assert.equal(aBefore.sampleRotaryVendorGeometryApplied,false,
+   'A06 vendor drawing must not overwrite the ruler/photo-fit envelope before SKU identification');
  assert.equal(aBefore.sampleRotaryRightAngularMicrometerCount,1);
  assert.equal(aBefore.sampleRotaryShortFrontLockCount,1);
  assert.equal(aBefore.sampleTopAboveBoardMm,89.2);
