@@ -3617,11 +3617,25 @@ function updateDetail(part){
    aRigAudit.optimisticResidualHorizontalGapMm+
    'mm的场景X缺口（不是实物测量），翻转假设也未证实。'+
    'A05C夹具、A17磁座型号/孔位及绝对位置均未知；不能据此加工。</p></div>'):'';
- const a18VendorHtml=(platform==='A'&&part.id==='A18')?
-   '<div class="field" id="a18-vendor-comparison" data-confirmed="false"><b>A18 厂商候选排查（V81）</b><p>'+
-   'Thorlabs MGZ30：30 mm Z行程、Ø1.5英寸立柱安装、同轴粗/细调焦并带五物镜转换盘，拓扑相似，但照片191–193没有可读Thorlabs型号/五孔接口证据，因此仅列候选，不能直接套用其机械图。'+
-   'MCT-LMP2：厂家外形211.5×130×58.8 mm、40 mm行程，前板16×M6及3×Ø10.5通孔；当前照片未显示这种尺度/孔阵，排除直接作为A18身份。'+
-   '当前A18仍为照片约束C级复原，必须由高清铭牌或可匹配的原厂孔位图升级。</p></div>':'';
+ const a18VendorHtml=(platform==='A'&&part.id==='A18')?(()=>{
+   const a18=parts.get('A18')?.g;
+   const boli=a18?.userData.Boli76x25Candidates??[];
+   const boliText=boli.map(c=>c.sku+'：Ø'+c.postDiameterMm+'立柱 / Ø'+
+     c.holderDiameterMm+'镜体'+(c.centerDistanceMm?
+     ' / 中心距'+c.centerDistanceMm+'mm':' / 中心距待核')+
+     (c.coaxialFineFocus?' / 粗微同轴':' / 粗调')).join('；');
+   return '<div class="field" id="a18-vendor-comparison" data-confirmed="false" '+
+     'data-mgz30-applied="'+Boolean(a18?.userData.MGZ30GeometryApplied)+'" '+
+     'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'">'+
+     '<b>A18 厂商候选矩阵（V84）</b><p>'+
+     '<b>Thorlabs MGZ30 / T-Scope：</b>厂家30mm Z行程、Ø38.1mm立柱、5孔M26×36 TPI转盘，并支持30mm cage / SM1 / SM2。'+
+     '与当前双侧粗微调和TTL200-A光路拓扑相容，但实物未确认Ø38.1mm立柱、完整5孔转盘或Thorlabs标识，故几何未套用。<br>'+
+     '<b>25mm立柱 / Ø76镜体调焦架：</b>'+esc(boliText)+'。'+
+     '当前场景Ø26mm立柱和约112mm立柱—光轴距离均未实测，不能据此选中或排除该系列；照片也未确认Ø76mm大抱环，故几何未套用。<br>'+
+     '<b>MCT-LMP2：</b>厂家211.5×130×58.8mm、40mm行程及密集前板孔阵与照片不符，继续排除直接身份。<br>'+
+     '<b>升级条件：</b>需要A18后侧高清图/Logo、立柱直径尺图、立柱—光轴距离、转盘底视图或原始高清191–193。'+
+     '在此之前继续使用照片约束A18，不允许厂商候选自动覆盖三维实体。</p></div>';
+ })():'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
  '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
