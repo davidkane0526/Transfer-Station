@@ -24,6 +24,14 @@ assert(b41.some(x=>x.id==='B-ROTARY-CROSSED-XY'),'B41 newly inserted lower stage
 assert(b41.some(x=>x.missing.some(v=>v.includes('确切SKU'))),'B41 exact OEM identification remains unverified');
 assert(!INTERFACES.some(x=>x.id==='B-ROTARY-NFP'),'Obsolete direct B08-B09 interface must not remain');
 assert(interfaceEvidence('A','A17').some(x=>x.id==='A-MAGNET-T25M'),'A17 unverified magnetic-to-T25M joint omitted');
+const a17joint=interfaceEvidence('A','A17').find(x=>x.id==='A-MAGNET-T25M');
+assert.match(a17joint.known,/长槽.*属于上方A15|银色长槽.*属于上方A15/,
+  'V86 live interface evidence must assign the silver slot to A15, not A17');
+assert.match(a17joint.known,/PTDB65/);
+assert.match(a17joint.known,/13孔.*不能|不能复制.*13孔/,
+  'PTDB65 hidden top-hole map must remain unmodelled candidate metadata');
+assert(!/A17前侧狭槽/.test(a17joint.known),
+  'Obsolete V48 A17-slot attribution must never return to live interface evidence');
 assert(interfaceEvidence('A','A05C').some(x=>x.id==='A-GLASS-END'),'A05 candidate glass clamp must carry an unresolved interface');
 assert(interfaceEvidence('A','A16').some(x=>x.id==='A-SAMPLE'),'A16 mounting base must be part of the real sample-side assembly audit');
 assert(b09.some(x=>x.id==='B-CHUCK-FASTENERS'),'Upper fastener interface omitted');
