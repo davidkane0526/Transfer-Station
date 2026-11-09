@@ -629,7 +629,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V80.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V81.*整体旋转180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -841,6 +841,21 @@ try{
  assert.equal(dA.unsupportedA18HorizontalTubePresent,false,
    'Old unexplained 160mm A18 black horizontal tube must stay deleted');
  assert.equal(dA.A18VendorIdentificationPending,true);
+ assert.equal(dA.A18BodySegmentCount,3,
+   'A18 must be a stepped photo-constrained body, not one oversized black box');
+ assert.equal(dA.A18MaxBodyWidthMm,84);
+ assert.equal(dA.A18FocusHubCount,2);
+ assert.equal(dA.A18CoarseKnobCount,2);
+ assert.equal(dA.A18FineKnobCount,2);
+ assert.equal(dA.A18FocusChainsContinuous,true,
+   'Both A18 focus controls must form body→hub→coarse→fine continuous chains');
+ assert.deepEqual(dA.A18FocusChainGapsMm,{'-1':[0,0,0],'1':[0,0,0]});
+ assert.equal(dA.A18MGZ30CandidateOnly,true,
+   'MGZ30 remains topology comparison only; no auto-identification');
+ assert.equal(dA.A18MGZ30VendorTravelMm,30);
+ assert.equal(dA.A18MGZ30VendorPostDiameterMm,38.1);
+ assert.equal(dA.A18MCTLMP2DirectIdentityRejected,true);
+ assert.deepEqual(dA.A18MCTLMP2VendorEnvelopeMm,[211.5,130,58.8]);
  assert.equal(dA.A15LinearHandleCount,2);
  assert.equal(dA.A15StemCount,2);
  assert.equal(dA.A15CollarCount,2);
