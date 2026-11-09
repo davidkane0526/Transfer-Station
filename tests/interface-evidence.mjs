@@ -33,7 +33,21 @@ assert.match(a17joint.known,/13孔.*不能|不能复制.*13孔/,
 assert(!/A17前侧狭槽/.test(a17joint.known),
   'Obsolete V48 A17-slot attribution must never return to live interface evidence');
 assert(interfaceEvidence('A','A05C').some(x=>x.id==='A-GLASS-END'),'A05 candidate glass clamp must carry an unresolved interface');
+const aGlass=interfaceEvidence('A','A05C').find(x=>x.id==='A-GLASS-END');
+assert.match(aGlass.known,/已作为当前转移装配中的几何候选/,
+  'A05C live ledger must not revert to the obsolete "not installed" state');
+assert.match(aGlass.known,/螺杆.*平行.*玻片短边/);
+assert.match(aGlass.known,/GCM-13.*功能.*对照/,
+  'Daheng GCM-13 may be a mechanism comparison only, never an identified A05C SKU');
+assert(!/A05C未安装/.test(aGlass.evidence));
 assert(interfaceEvidence('A','A16').some(x=>x.id==='A-SAMPLE'),'A16 mounting base must be part of the real sample-side assembly audit');
+const aSample=interfaceEvidence('A','A06').find(x=>x.id==='A-SAMPLE');
+assert.match(aSample.known,/GCM-1102M/);
+assert.match(aSample.known,/Ø66/);
+assert.match(aSample.known,/89\.2mm.*77mm/,
+  'A06 live ledger must retain the GCM-1102M diameter match and unresolved height conflict');
+assert(aSample.missing.some(x=>x.includes('10–16mm')),
+  'A06 unresolved adapter/support height must remain an explicit acceptance gap');
 assert(b09.some(x=>x.id==='B-CHUCK-FASTENERS'),'Upper fastener interface omitted');
 assert(b09.some(x=>x.missing.some(s=>s.includes('攻丝孔组'))),
   'Vendor clearance holes must never silently become tapped upper fastener holes');
