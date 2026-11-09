@@ -856,13 +856,15 @@ def make_a():
     slip_inner=vx(15.35,6.2,led_root_x-.1,0,led_z)
     add('A','A11R','SM1RC_STYLE_SLIP_RING_OPTION_UNCONFIRMED',
         slip_outer.cut(slip_inner),'C')
-    led=vx(15.25,60.4,led_root_x+6,0,led_z)
+    # Thorlabs MWWHL4 drawing MTN006388: Ø30.5 x 60.1 mm total envelope.
+    led=vx(15.25,60.1,led_root_x+6,0,led_z)
     for q in [10+4.8*i for i in range(11)]:
         led=led.fuse(vx(15.75,1.1,led_root_x+q-.55,0,led_z))
-    add('A','A11','MWWHL4_OEM_DIAMETER_FINNED_HOUSING_60p4_FAMILY_ENVELOPE',
+    add('A','A11','MWWHL4_OEM_O30p5_x_60p1_SM1_DEPTH6',
         led,'D')
-    add('A','A11E','MWWHL4_emitter_face_PROXY',
-        vx(10.8,2.5,led_root_x+66.4,0,led_z),'C')
+    # Emitter face stays inside the documented 60.1mm housing envelope.
+    add('A','A11E','MWWHL4_emitter_face_WITHIN_OEM_ENVELOPE',
+        vx(10.8,.2,led_root_x+65.9,0,led_z),'C')
     led_cable=cable_path([
         (led_root_x+43,0,led_z-14),
         (led_root_x+44,3,led_z-22),
