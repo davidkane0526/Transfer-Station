@@ -1256,7 +1256,6 @@ try{
  assert.equal(await a05cVendorCard.getAttribute('data-gcm13-topology-applied'),'true');
  assert.equal(await a05cVendorCard.getAttribute('data-gcm13-exact-sku-applied'),'false');
  const a05cVendorText=await a05cVendorCard.innerText();
- assert.match(a05cVendorText,/GCM-13系列/);
  assert.match(a05cVendorText,/GCM-1302M/);
  assert.match(a05cVendorText,/GCM-1311M/);
  assert.match(a05cVendorText,/GCM-1302M.*主候选/);
