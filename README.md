@@ -1,5 +1,12 @@
 # Transfer Station
 
+## V104 · 版本链统一
+
+- UI标题从V102同步到V104。
+- STEP `CAD_REVISION` 从V95同步到V104。
+- GitHub Actions STEP工件名同步为 `Transfer-Station-V104-STEP-CAD`。
+- 本次只修版本标识，不改变任何机械几何。
+
 ## V104 · A05 可见性测试删除错误的“必须穿玻片”前提
 
 - V102已经找到4/4目标直接可见的上方斜视角；该视角下固定夹爪视线并不穿过A05G玻片，因此旧测试“必须记录跳过A05G”本身是错误前提。
