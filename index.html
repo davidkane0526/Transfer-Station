@@ -93,8 +93,8 @@
 <footer class="bottom"><span>mm</span></footer>
 <div class="drawer" id="bom-drawer" role="dialog" aria-modal="true" aria-label="整机零件清单"><div class="modal">
 <div class="modal-head"><h2 id="bom-heading">零件 BOM</h2><div class="buttons"><button id="export-csv">导出完整 BOM.csv</button><button id="close-bom">关闭</button></div></div>
- <div class="bom-tools"><input id="bom-query" class="search" placeholder="型号 / 零件 / 供应商 / 替代品牌搜索" aria-label="在BOM中搜索"><select id="bom-sort" aria-label="BOM排序"><option value="id">零件编号</option><option value="name">零件名称</option><option value="maker">厂家</option><option value="level">证据等级</option><option value="price-desc">价格从高到低（不跨币种比较）</option><option value="price-asc">价格从低到高（不跨币种比较）</option></select><label class="price-only"><input id="priced-only" type="checkbox">只看有公开价</label></div>
+ <div class="bom-tools"><input id="bom-query" class="search" placeholder="型号 / 零件 / 供应商 / 替代品牌搜索" aria-label="在BOM中搜索"><select id="bom-sort" aria-label="BOM排序"><option value="id">零件编号</option><option value="name">零件名称</option><option value="maker">厂家</option><option value="price-desc">价格从高到低</option><option value="price-asc">价格从低到高</option></select><label class="price-only"><input id="priced-only" type="checkbox">只看有公开价</label></div>
  <div class="bom-summary" id="bom-summary" aria-live="polite"></div>
 
-<div class="table-wrap"><table><thead><tr><th>ID</th><th>子系统</th><th>零件 / 类别</th><th>原厂 / 型号</th><th>数量</th><th>尺寸(mm)</th><th>证据</th><th>材料 / 替代厂商</th><th>单价和币种</th><th>小计</th><th>价格来源 / 日期</th><th>原厂图纸 / CAD</th><th>照片</th></tr></thead><tbody id="bom-body"></tbody></table></div></div></div>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>子系统</th><th>零件 / 类别</th><th>原厂 / 型号</th><th>数量</th><th>尺寸(mm)</th><th>材料 / 替代厂商</th><th>单价和币种</th><th>小计</th><th>价格来源 / 日期</th><th>原厂图纸 / CAD</th><th>照片</th></tr></thead><tbody id="bom-body"></tbody></table></div></div></div>
 <script type="module" src="./src/app.js"></script></body></html>

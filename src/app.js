@@ -4404,13 +4404,10 @@ function summaryBOM(rows){
    const strong=document.createElement('strong');strong.textContent=number;
    const sm=document.createElement('span');sm.textContent=desc;b.append(strong,sm);dst.append(b);
  };
- card(String(rows.length),'当前平台零件类别 / 行数');
- card(String(sum.priced),'有公开参考价格');
- card(String(sum.unpriced),'待询价零件行数');
- for(const c of sum.currencies)card(c.currency+' '+c.amount.toFixed(2),'有价零件已知小计 · '+c.rows+' 行');
- const n=document.createElement('div');n.className='bom-note';
- n.textContent='仅汇总已有公开报价；不同币种不合并。';
- dst.append(n);
+ card(String(rows.length),'零件');
+ card(String(sum.priced),'有价格');
+ card(String(sum.unpriced),'待询价');
+ for(const c of sum.currencies)card(c.currency+' '+c.amount.toFixed(2),'小计 · '+c.rows+' 行');
 }
 function sortedBOM(rows){
  const sort=$('bom-sort').value;
@@ -4447,8 +4444,6 @@ function updateTable(){
   cell(part.id);cell(groups[part.group].name);
   cell(part.name+'\n'+(part.category||''));cell(part.maker+' / '+part.model);
   cell(String(part.qty||1)+' '+(part.unit||'件'));cell(part.dims);
-  const b=cell();const badge=document.createElement('span');
-  badge.className='status '+part.level;badge.textContent=part.level;b.append(badge);
   const materialCell=cell(part.material||'未定');
   for(const alt of part.alternatives||[]){
     const sp=document.createElement('span');sp.className='bom-alt';
