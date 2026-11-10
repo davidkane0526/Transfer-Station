@@ -1257,6 +1257,12 @@ try{
  assert.equal(aBefore.a17A15BottomMountPatternVerified,false);
  assert.equal(aBefore.a17GCM901604FourM6CannotProveA15ToA17Interface,true);
  assert.equal(aBefore.a17BvsCMechanicalDiscriminationClosed,false);
+ assert.deepEqual(aBefore.a17DahengStandardA15MountPatternCandidate,{clearanceHoleDiameterMm:7,counterboreDiameterMm:11,pitchMm:[50,50],fastener:'M6',source:'GCM-901604M standard combination drawing'});
+ assert.equal(aBefore.a17MBS65BHas25mmM6Grid,true);
+ assert.equal(aBefore.a17MBS65BContains50x50FourM6Subset,true);
+ assert.equal(aBefore.a17MBS65COnlyOneM6,true);
+ assert.match(aBefore.a17MBS65BConditionalInterfacePriority,/preferred-if-real-A15/);
+ assert.equal(aBefore.a17ConditionalInterfaceCompatibilityDoesNotProveIdentity,true);
  assert.equal(aBefore.a17FrontLabelPlaqueCount,1,
    'Photo194 visible front label plaque must be actual WebGL geometry');
  assert.equal(aBefore.a17FrontLabelTextReadable,false,

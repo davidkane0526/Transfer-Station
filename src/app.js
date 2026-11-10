@@ -1090,6 +1090,12 @@ window.__modelAKinematicProbe=()=>{
     a17A15BottomMountPatternVerified:Boolean(magnet.userData.A15BottomMountPatternVerified),
     a17GCM901604FourM6CannotProveA15ToA17Interface:Boolean(magnet.userData.GCM901604FourM6CannotProveA15ToA17Interface),
     a17BvsCMechanicalDiscriminationClosed:Boolean(magnet.userData.MBS65BvsCMechanicalDiscriminationClosed),
+    a17DahengStandardA15MountPatternCandidate:magnet.userData.DahengStandardA15MountPatternCandidate??null,
+    a17MBS65BHas25mmM6Grid:Boolean(magnet.userData.MBS65BHas25mmM6Grid),
+    a17MBS65BContains50x50FourM6Subset:Boolean(magnet.userData.MBS65BContains50x50FourM6Subset),
+    a17MBS65COnlyOneM6:Boolean(magnet.userData.MBS65COnlyOneM6),
+    a17MBS65BConditionalInterfacePriority:magnet.userData.MBS65BConditionalInterfacePriority??null,
+    a17ConditionalInterfaceCompatibilityDoesNotProveIdentity:Boolean(magnet.userData.conditionalInterfaceCompatibilityDoesNotProveIdentity),
     a17FrontLabelPlaqueCount:magnet.children.filter(o=>o.userData.A17Photo194FrontLabelPlaque).length,
     a17FrontLabelTextReadable:Boolean(magnet.userData.frontLabelTextReadable),
     a17ExactVariantVerified:Boolean(magnet.userData.exactVariantVerified),
@@ -2970,6 +2976,13 @@ function platformA(){
     g.userData.A15BottomMountPatternVerified=false;
     g.userData.GCM901604FourM6CannotProveA15ToA17Interface=true;
     g.userData.MBS65BvsCMechanicalDiscriminationClosed=false;
+    // V103 conditional interface ranking, never identity proof.
+    g.userData.DahengStandardA15MountPatternCandidate={clearanceHoleDiameterMm:7,counterboreDiameterMm:11,pitchMm:[50,50],fastener:'M6',source:'GCM-901604M standard combination drawing'};
+    g.userData.MBS65BHas25mmM6Grid=true;
+    g.userData.MBS65BContains50x50FourM6Subset=true;
+    g.userData.MBS65COnlyOneM6=true;
+    g.userData.MBS65BConditionalInterfacePriority='preferred-if-real-A15-uses-standard-4xM6-50x50-pattern';
+    g.userData.conditionalInterfaceCompatibilityDoesNotProveIdentity=true;
     g.userData.frontLabelPlaquePhotoConfirmed=true;
     g.userData.frontLabelTextReadable=false;
     g.userData.exactVariantVerified=false;

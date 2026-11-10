@@ -32,6 +32,10 @@ assert.match(a17joint.known,/PTDB65/);
 assert.match(a17joint.known,/LBTEK MB65/);
 assert.match(a17joint.known,/13孔.*不能|不能复制.*13孔/,
   'PTDB65 hidden top-hole map must remain unmodelled candidate metadata');
+assert.match(a17joint.known,/4×Ø7\/Ø11.*50×50/);
+assert.match(a17joint.known,/MBS-65B.*25mm.*九孔M6.*50×50/);
+assert.match(a17joint.known,/MBS-65C.*1个M6/);
+assert.match(a17joint.known,/兼容性不能证明A17型号/);
 assert(!/A17前侧狭槽/.test(a17joint.known),
   'Obsolete V48 A17-slot attribution must never return to live interface evidence');
 assert(interfaceEvidence('A','A05C').some(x=>x.id==='A-GLASS-END'),'A05 candidate glass clamp must carry an unresolved interface');

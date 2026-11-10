@@ -605,10 +605,20 @@ report['V94_A17_Oeabt_MBS65_family_candidate']={
     'photo_left_silver_switch_visible':True,
     'vendor_family_envelope_mm':[65.2,65.2,20],
     'current_model_envelope_mm':[65,65,20],
-    'vendor_holding_force_N':158,
+    'vendor_holding_force_current_product_page_N':132,
+    'vendor_holding_force_2024_2025_catalog_N':158,
+    'holding_force_vendor_revision_conflict':True,
     'candidate_variants':{
-      'MBS-65B':{'M4':4,'M6':9},
+      'MBS-65B':{'M4':4,'M6':9,'M6_grid_pitch_mm':25},
       'MBS-65C':{'M4':12,'M6':1}
+    },
+    'conditional_interface_ranking':{
+      'Daheng_standard_candidate':{'clearance_hole_diameter_mm':7,'counterbore_diameter_mm':11,'pitch_mm':[50,50],'fastener':'M6'},
+      'MBS-65B_contains_50x50_four_M6_subset':True,
+      'MBS-65C_has_only_one_M6':True,
+      'preferred_variant_if_real_A15_uses_standard_pattern':'MBS-65B',
+      'real_A15_bottom_pattern_verified':False,
+      'compatibility_proves_identity':False
     },
     'candidate_hole_map_modelled':False,
     'A17_actual_modelled_top_hole_count':0,

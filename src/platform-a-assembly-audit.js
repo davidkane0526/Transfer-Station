@@ -85,6 +85,13 @@ export function auditPlatformAAssembly({
     a17A15BottomMountPatternVerified:false,
     a17GCM901604FourM6CannotProveA15ToA17Interface:true,
     a17BvsCMechanicalDiscriminationClosed:false,
+    a17DahengStandardMountPatternCandidate:{clearanceHoleDiameterMm:7,counterboreDiameterMm:11,pitchMm:[50,50],fastener:'M6'},
+    a17MBS65BHas25mmM6Grid:true,
+    a17MBS65BContains50x50FourM6Subset:true,
+    a17MBS65COnlyOneM6:true,
+    a17ConditionalInterfacePreferredVariant:'MBS-65B',
+    a17ConditionalInterfacePreferenceRequiresUnverifiedStandardA15BottomPattern:true,
+    a17ConditionalInterfaceCompatibilityDoesNotProveIdentity:true,
     a17FrontLabelPlaquePhotoConfirmed:true,
     a17FrontLabelTextReadable:false,
     a17ExactVariantVerified:false,
@@ -129,6 +136,6 @@ export function auditPlatformAAssembly({
     functionalTransferAccepted:false,
     missing:['A05 exact lower-jaw OEM profile & hidden fixing-thread interface','A17 exact MBS-65B/C suffix & hidden top mounting pitch',
       'photo-registered film-stage/thermal-stage relative origin (current -82.75mm is contact-constraint solution)','physical A05→glass→PDMS vertical stack validation (current 87.6mm leg is contact-constraint solution)'],
-    note:'V99 makes the 87.6mm A05 leg explicit as a lowered-PDMS contact-constraint solution, not a measured fabrication dimension. V98 makes -82.75mm an explicit rigid-180 PDMS-to-A07 contact-constraint solution, not a measured/photo-registered installation coordinate. V97 records the Oeabt MBS-65 holding-force revision conflict (current page 132N vs 2024/2025 catalogs 158N) and explicitly rejects using the GCM-901604M combination drawing as proof of the hidden A15-to-A17 mounting pattern. V95 explicitly models the A05 fixed lower jaw and hard-checks a 26mm clear span matching the candidate glass short edge, while exact GCM-1302M/1311M profile and hidden fixing thread remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
+    note:'V103 conditionally ranks MBS-65B above MBS-65C only if the hidden real A15 bottom uses the Daheng standard 4xM6/50x50 mounting pattern; compatibility does not close the A17 variant. V99 makes the 87.6mm A05 leg explicit as a lowered-PDMS contact-constraint solution, not a measured fabrication dimension. V98 makes -82.75mm an explicit rigid-180 PDMS-to-A07 contact-constraint solution, not a measured/photo-registered installation coordinate. V97 records the Oeabt MBS-65 holding-force revision conflict (current page 132N vs 2024/2025 catalogs 158N) and explicitly rejects using the GCM-901604M combination drawing as proof of the hidden A15-to-A17 mounting pattern. V95 explicitly models the A05 fixed lower jaw and hard-checks a 26mm clear span matching the candidate glass short edge, while exact GCM-1302M/1311M profile and hidden fixing thread remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
   });
 }
