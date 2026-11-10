@@ -23,7 +23,7 @@ import {suctionDimension,auditVacuumInterfaceFit} from './pneumatic-dimensions.j
 import {auditB35MicroscopeFasteners,auditB08ToB35Mount} from './b35-fastener-audit.js';
 import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
 import {A_WORKING_LAYOUT,auditAWorkingLayout} from './a-working-layout.js';
-import {aPhotoCameraPose,aPhotoOrientationEvidence} from './a-photo-angle-registration.js';
+import {A20261108PhotoAngles,aPhotoCameraPose,aPhotoOrientationEvidence} from './a-photo-angle-registration.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -116,8 +116,8 @@ window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':
    a15DrumsVsMagnetOverlapMm3:actuatorMagnetOverlap,
    falseAabbGapFromWholeA15Mm:gap(a17,a15),
    bracketMirroredFromPhoto:false,
-   filmBranchInstalledYawDeg:aWorkingPoseMode?180:0,
-   transferFacingInstalledPose:Boolean(aWorkingPoseMode),
+   filmBranchInstalledYawDeg:180,
+   transferFacingInstalledPose:true,
    fabricatedClampVisible:Boolean(parts.get('A05C')?.g.visible),
    unphotographedGlassVisible:Boolean(parts.get('A05G')?.g.visible),
    actualClampManufacturerConfirmed:false,photographicMountsAccepted:false,
@@ -191,27 +191,20 @@ window.__platformACompletenessProbe=()=>{
  if(!clamp||!screws||!slide||!bracket)return {available:false};
  const stamp=slide.children.find(o=>o.userData.A05GStampRightMarginMm!==undefined);
  const glass=slide.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
- return {
-  available:true,
-  separateClampAndGlassParts:clamp!==slide,
-  clampProxyUnverified:Boolean(clamp.userData.unverifiedClampMechanism),
-  actualClampOEMConfirmed:Boolean(clamp.userData.actualClampOEM),
-  glassSizeMm:glass?.userData.candidateStandardSlide??null,
-  stampRightMarginMm:stamp?.userData.A05GStampRightMarginMm??null,
-  stampAtRightEdge:Boolean(slide.userData.stampAtRightGlassEdge),
-  aPose:aWorkingPoseMode?'installed180':'photo-reference',
-  localSheetHandedness:bracket.userData.photoBracketDatums?.handedness??null,
-  installedFilmYawDeg:aWorkingPoseMode?180:0,
+ return {available:true,separateClampAndGlassParts:clamp!==slide,clampProxyUnverified:true,
+  actualClampOEMConfirmed:false,glassSizeMm:glass?.userData.candidateStandardSlide??null,
+  stampRightMarginMm:stamp?.userData.A05GStampRightMarginMm??null,stampAtRightEdge:Boolean(slide.userData.stampAtRightGlassEdge),
+  aPose:aWorkingPoseMode?'installed180':'photo-reference',localSheetHandedness:bracket.userData.photoBracketDatums?.handedness??null,
+  installedFilmYawDeg:180,photoAndWorkingSharePhysicalOrientation:true,
   sheetLegLengthMm:bracket.userData.photoBracketDatums?.verticalLegLength??null,
   clampScrewProxyCount:screws.children.filter(m=>m.userData.photo194WingFastenerCandidate).length,
   glassRequiredForTransfer:Boolean(slide.userData.requiredInstalledTransferElement),
-  screwAxisParallelGlassShortEdge:Boolean(clamp.userData.screwAxisParallelToGlassShortEdge),
+  screwAxisVertical:Boolean(clamp.userData.screwAxisVertical),
+  screwPairLineParallelGlassShortEdge:Boolean(clamp.userData.screwPairLineParallelToGlassShortEdge),
+  photo5VerticalWingScrewTopologyApplied:Boolean(clamp.userData.photo5VerticalWingScrewTopologyApplied),
   gcm13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
-  gcm13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
-  gcm13ThreadCarrierCount:clamp.children.filter(o=>o.userData.A05CGCM13ThreadCarrier).length,
   gcm13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),
-  clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y
- };
+  clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y};
 };
 // Physical mesh-based photo195/196 test: do NOT trust metadata alone.
 // Projection QA uses real rendered geometries, not hard-coded pixel placement.
@@ -253,136 +246,82 @@ window.__platformAStageFrontProbe=()=>{
 };
 window.__platformABareClampProbe=()=>{
  if(platform!=='A')return {available:false};
- const sheet=parts.get('A05')?.g,clamp=parts.get('A05C')?.g,
-   screws=parts.get('A05CS')?.g,glassRoot=parts.get('A05G')?.g;
+ const sheet=parts.get('A05')?.g,clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g,glassRoot=parts.get('A05G')?.g;
  const foot=sheet?.children.find(o=>o.userData.A05OutwardFootCandidate);
+ const blade=clamp?.children.find(o=>o.userData.A05CLowerClampBlade);
  const shafts=screws?.children.filter(o=>o.userData.A05CSCandidateShank)??[];
  const heads=screws?.children.filter(o=>o.userData.A05CSScrewHead)??[];
- const pressure=clamp?.children.find(o=>o.userData.A05CPressureRail);
- const fixedJaw=clamp?.children.find(o=>o.userData.A05CLowerFixedJaw);
  const slide=glassRoot?.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
- if(!foot||shafts.length!==2||heads.length!==2||!pressure||!fixedJaw||!slide)return {available:false};
+ if(!foot||!blade||shafts.length!==2||heads.length!==2||!slide)return {available:false};
  currentRoot.updateWorldMatrix(true,true);
- const bb=o=>new THREE.Box3().setFromObject(o);
- const sz=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
- const shaftSizes=shafts.map(sz);
- const glassBox=bb(slide),pressureBox=bb(pressure),fixedJawBox=bb(fixedJaw);
- const fixedCenterZ=(fixedJawBox.min.z+fixedJawBox.max.z)/2;
- const pressureCenterZ=(pressureBox.min.z+pressureBox.max.z)/2;
- const lowBox=fixedCenterZ<pressureCenterZ?fixedJawBox:pressureBox;
- const highBox=fixedCenterZ<pressureCenterZ?pressureBox:fixedJawBox;
- const actualJawInnerClearSpanMm=Number((highBox.min.z-lowBox.max.z).toFixed(2));
- const actualGlassShortEdgeMm=Number((glassBox.max.z-glassBox.min.z).toFixed(2));
- const screwGlassOverlap=shafts.reduce((sum,o)=>{
-   const q=bb(o).clone().intersect(glassBox);if(q.isEmpty())return sum;
-   const v=new THREE.Vector3();q.getSize(v);return sum+v.x*v.y*v.z;
- },0);
- const screwPressureEngaged=shafts.every(o=>!bb(o).clone().intersect(pressureBox).isEmpty());
+ const bb=o=>new THREE.Box3().setFromObject(o),sz=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
+ const shaftSizes=shafts.map(sz),glassBox=bb(slide),bladeBox=bb(blade),footBox=bb(foot);
+ const screwGlassOverlap=shafts.reduce((sum,o)=>{const q=bb(o).clone().intersect(glassBox);if(q.isEmpty())return sum;
+  const v=new THREE.Vector3();q.getSize(v);return sum+v.x*v.y*v.z;},0);
+ const hp=heads.map(o=>o.getWorldPosition(new THREE.Vector3()));
  const stamp=glassRoot.children.find(o=>o.userData.A05GStampRightMarginMm!==undefined);
- const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();
- stamp?.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
- return {available:true,
-   visibleGlass:glassRoot.visible,visibleClamp:clamp.visible,
-   visibleWingScrewCount:heads.length,shaftCount:shafts.length,
-   actualFootBores:foot.userData.A05ActualThroughBoreCount,
-   screwAxesParallelGlassShortEdge:shaftSizes.every(v=>v.z>v.x*4&&v.z>v.y*4),
-   glassShortEdgeWorldAxis:'Z',
-   screwPitchAlongGlassLengthMm:Number(Math.abs(
-     heads[0].getWorldPosition(new THREE.Vector3()).x-
-     heads[1].getWorldPosition(new THREE.Vector3()).x).toFixed(2)),
-   screwPressureEngaged,screwGlassOverlapMm3:Number(screwGlassOverlap.toFixed(4)),
-   lowerFixedJawCount:clamp.children.filter(o=>o.userData.A05CLowerFixedJaw).length,
-   actualJawInnerClearSpanMm,actualGlassShortEdgeMm,
-   actualJawInnerClearSpanMatchesGlassShortEdge:Math.abs(actualJawInnerClearSpanMm-actualGlassShortEdgeMm)<.01,
-   gcm13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
-   gcm13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
-   gcm13ThreadCarrierCount:clamp.children.filter(o=>o.userData.A05CGCM13ThreadCarrier).length,
-   gcm13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),
-   installedYawDeg:sheet.userData.installedYawDeg??0,
-   stampToSampleCenterXmm:stamp?Number((stampPos.x-samplePos.x).toFixed(2)):null,
-   approvedDisplay:'A05 folded sheet + side clamp + required glass + PDMS',
-   actualClampOEMVerified:false,actualWingNutOEMVerified:false};
+ const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();stamp?.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
+ return {available:true,visibleGlass:glassRoot.visible,visibleClamp:clamp.visible,visibleWingScrewCount:heads.length,shaftCount:shafts.length,
+  actualFootBores:foot.userData.A05ActualThroughBoreCount,screwAxesVertical:shaftSizes.every(v=>v.y>v.x*4&&v.y>v.z*4),
+  screwPairLineParallelGlassShortEdge:Math.abs(hp[0].x-hp[1].x)<.05&&Math.abs(hp[0].z-hp[1].z)>10,
+  screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(hp[0].z-hp[1].z).toFixed(2)),
+  screwBladeEngaged:shafts.every(o=>!bb(o).clone().intersect(bladeBox).isEmpty()),
+  screwGlassOverlapMm3:Number(screwGlassOverlap.toFixed(4)),glassUpperFootGapMm:Number((footBox.min.y-glassBox.max.y).toFixed(3)),
+  glassLowerBladeGapMm:Number((glassBox.min.y-bladeBox.max.y).toFixed(3)),
+  photo5VerticalWingScrewTopologyApplied:Boolean(clamp.userData.photo5VerticalWingScrewTopologyApplied),
+  gcm13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
+  gcm13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),installedYawDeg:sheet.userData.installedYawDeg??0,
+  stampToSampleCenterXmm:stamp?Number((stampPos.x-samplePos.x).toFixed(2)):null,
+  actualClampOEMVerified:false,actualWingNutOEMVerified:false};
 };
 window.__modelA05PhotoEvidenceProbe=()=>{
  if(platform!=='A')return {available:false};
- const screws=parts.get('A05CS')?.g,clamp=parts.get('A05C')?.g,
-   glassRoot=parts.get('A05G')?.g,sheet=parts.get('A05')?.g;
+ const screws=parts.get('A05CS')?.g,clamp=parts.get('A05C')?.g,glassRoot=parts.get('A05G')?.g,sheet=parts.get('A05')?.g;
  const foot=sheet?.children.find(m=>m.userData.A05OutwardFootCandidate);
  const heads=screws?.children.filter(m=>m.userData.photo194WingFastenerCandidate)??[];
  const shafts=screws?.children.filter(m=>m.userData.A05CSCandidateShank)??[];
  const slide=glassRoot?.children.find(m=>Array.isArray(m.userData.candidateStandardSlide));
- const pressure=clamp?.children.find(m=>m.userData.A05CPressureRail);
- if(!foot||heads.length!==2||shafts.length!==2||!slide||!pressure)return {available:false};
+ const blade=clamp?.children.find(m=>m.userData.A05CLowerClampBlade);
+ if(!foot||heads.length!==2||shafts.length!==2||!slide||!blade)return {available:false};
  currentRoot.updateWorldMatrix(true,true);
  const bb=o=>new THREE.Box3().setFromObject(o),size=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
- const glassBox=bb(slide);
- const collisions=shafts.filter(m=>!bb(m).clone().intersect(glassBox).isEmpty());
- const positions=heads.map(m=>m.getWorldPosition(new THREE.Vector3()));
- return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
-   visibleFastenerCount:heads.length,
-   fastenerShaftAxis:'Z / parallel to glass 26mm short edge',
-   actualShaftGeometryParallelShortEdge:shafts.every(m=>{
-     const v=size(m);return v.z>v.x*4&&v.z>v.y*4;
-   }),
-   screwPitchAlongGlassLengthMm:Number(Math.abs(positions[1].x-positions[0].x).toFixed(2)),
-   fastenerGlassCollisionCount:collisions.length,
-   glassCandidateVisible:glassRoot.visible,sideClampVisible:clamp.visible,
-   verticalFootBoreCount:foot.userData.A05ActualThroughBoreCount,
-   completeFilmBranchYawDeg:aWorkingPoseMode?180:0,
-   photo194196ConfirmsTwoFasteners:true,
-   photoDoesNotDefineThreadOrClampSku:true,
-   GCM13FamilyFunctionalMatch:Boolean(clamp.userData.GCM13FamilyFunctionalMatch),
-   GCM13VendorMaxPlateThicknessMm:clamp.userData.GCM13VendorMaxPlateThicknessMm??null,
-   GCM13VendorAdjustmentThreadCount:clamp.userData.GCM13VendorAdjustmentThreadCount??null,
-   GCM13VendorMiddleMovingPlate:Boolean(clamp.userData.GCM13VendorMiddleMovingPlate),
-   GCM13Candidates:clamp.userData.GCM13Candidates??[],
-   GCM13GeometryApplied:Boolean(clamp.userData.GCM13GeometryApplied),
-   GCM13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
-   GCM13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),
-   GCM13PrimaryCandidateMountThread:clamp.userData.GCM13PrimaryCandidateMountThread??null,
-   GCM13BottomMountInterfaceModelled:Boolean(clamp.userData.GCM13BottomMountInterfaceModelled),
-   GCM13LowerFixedJawModelled:Boolean(clamp.userData.A05CLowerFixedJawModelled),
-   GCM13GlassShortEdgeConstraintMm:clamp.userData.A05CGlassShortEdgeConstraintMm??null,
-   GCM13InnerClearSpanMm:clamp.userData.A05CInnerClearSpanMm??null,
-   GCM13InnerClearSpanMatchesGlassShortEdge:Boolean(clamp.userData.A05CInnerClearSpanMatchesGlassShortEdge),
-   GCM13VendorDrawingProfiles:clamp.userData.GCM13VendorDrawingProfiles??null,
-   GCM13PrimaryCandidateSku:clamp.userData.GCM13PrimaryCandidateSku??null,
-   GCM1302TwoSameDirectionAdjustersMatchObservedTopology:Boolean(clamp.userData.GCM1302TwoSameDirectionAdjustersMatchObservedTopology),
-   GCM1311DistinctCompactControlLayout:Boolean(clamp.userData.GCM1311DistinctCompactControlLayout),
-   GCM1302VendorStudyAvailable:Boolean(clamp.userData.GCM1302VendorStudyAvailable),
-   GCM1302VendorStudyInstalled:Boolean(clamp.userData.GCM1302VendorStudyInstalled),
-   GCM1302VendorStudyExactGeometry:Boolean(clamp.userData.GCM1302VendorStudyExactGeometry),
-   GCM1302StudyFixedBodyCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy)
-     .flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyFixedBody).length,
-   GCM1302StudyMovingJawCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy)
-     .flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyMovingJaw).length,
-   GCM1302StudyAdjustmentScrewCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy)
-     .flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyAdjustmentScrew).length,
-   GCM13VendorProfilesAreDistinct:Boolean(clamp.userData.GCM13VendorProfilesAreDistinct),
-   GCM13Shared26mmDimensionDoesNotProveSku:Boolean(clamp.userData.GCM13Shared26mmDimensionDoesNotProveSku),
-   GCM13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
-   GCM13ThreadCarrierCount:clamp.children.filter(o=>o.userData.A05CGCM13ThreadCarrier).length,
-   currentGripLengthMmCandidate:clamp.userData.glassGripLengthMmCandidate??null,
-   currentGripLengthIsFullOEMLength:Boolean(clamp.userData.glassGripLengthIsFullOEMLength),
-   glassClampOEMVerified:false};
+ const glassBox=bb(slide),positions=heads.map(m=>m.getWorldPosition(new THREE.Vector3()));
+ return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',visibleFastenerCount:heads.length,
+  fastenerShaftAxis:'Y / vertical through folded foot',actualShaftGeometryVertical:shafts.every(m=>{const v=size(m);return v.y>v.x*4&&v.y>v.z*4;}),
+  fastenerPairLineAxis:'Z / parallel to glass 26mm short edge',actualPairLineParallelShortEdge:Math.abs(positions[0].x-positions[1].x)<.05,
+  screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(positions[1].z-positions[0].z).toFixed(2)),
+  fastenerGlassCollisionCount:shafts.filter(m=>!bb(m).clone().intersect(glassBox).isEmpty()).length,
+  glassCandidateVisible:glassRoot.visible,clampBladeVisible:clamp.visible,verticalFootBoreCount:foot.userData.A05ActualThroughBoreCount,
+  completeFilmBranchYawDeg:180,photo1CanonicalOrientation:true,photo23AreRotatedSideViews:true,photo5ShowsVerticalWingScrews:true,
+  GCM13FamilyFunctionalMatch:Boolean(clamp.userData.GCM13FamilyFunctionalMatch),
+  GCM13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
+  GCM13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),
+  GCM13Candidates:clamp.userData.GCM13Candidates??[],GCM13GeometryApplied:Boolean(clamp.userData.GCM13GeometryApplied),
+  GCM13VendorDrawingProfiles:clamp.userData.GCM13VendorDrawingProfiles??null,GCM13PrimaryCandidateSku:clamp.userData.GCM13PrimaryCandidateSku??null,
+  GCM1302VendorStudyAvailable:Boolean(clamp.userData.GCM1302VendorStudyAvailable),
+  GCM1302VendorStudyInstalled:Boolean(clamp.userData.GCM1302VendorStudyInstalled),GCM1302VendorStudyExactGeometry:Boolean(clamp.userData.GCM1302VendorStudyExactGeometry),
+  GCM1302StudyFixedBodyCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy).flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyFixedBody).length,
+  GCM1302StudyMovingJawCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy).flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyMovingJaw).length,
+  GCM1302StudyAdjustmentScrewCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy).flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyAdjustmentScrew).length,
+  currentGripLengthMmCandidate:clamp.userData.glassGripLengthMmCandidate??null,glassClampOEMVerified:false};
 };
 window.__modelA05FootBoreProbe=()=>{
  if(platform!=='A')return {available:false};
  const sheet=parts.get('A05')?.g,screws=parts.get('A05CS')?.g,clamp=parts.get('A05C')?.g;
  const foot=sheet?.children.find(m=>m.userData.A05OutwardFootCandidate);
  const shafts=screws?.children.filter(m=>m.userData.A05CSCandidateShank)??[];
- const pressure=clamp?.children.find(m=>m.userData.A05CPressureRail);
- if(!foot||shafts.length!==2||!pressure)return {available:false};
+ const heads=screws?.children.filter(m=>m.userData.A05CSScrewHead)??[];
+ const blade=clamp?.children.find(m=>m.userData.A05CLowerClampBlade);
+ if(!foot||shafts.length!==2||heads.length!==2||!blade)return {available:false};
  currentRoot.updateWorldMatrix(true,true);
  const bb=o=>new THREE.Box3().setFromObject(o),size=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
- return {available:true,
-   verticalClampBoresRemoved:foot.userData.A05ActualThroughBoreCount===0,
-   boreCount:foot.userData.A05ActualThroughBoreCount,
-   shaftCount:shafts.length,
-   shaftAxesParallelGlassShortEdge:shafts.every(m=>{const v=size(m);return v.z>v.y*4&&v.z>v.x*4}),
-   shaftsEngagePressureRail:shafts.every(m=>!bb(m).clone().intersect(bb(pressure)).isEmpty()),
-   independentFastenerPart:sheet!==screws&&clamp!==screws,
-   actualOEMThreadsVerified:false};
+ const hp=heads.map(o=>o.getWorldPosition(new THREE.Vector3()));
+ return {available:true,verticalClampBoresPresent:foot.userData.A05ActualThroughBoreCount===2,boreCount:foot.userData.A05ActualThroughBoreCount,
+  shaftCount:shafts.length,shaftAxesVertical:shafts.every(m=>{const v=size(m);return v.y>v.z*4&&v.y>v.x*4;}),
+  screwPairLineParallelGlassShortEdge:Math.abs(hp[0].x-hp[1].x)<.05,
+  screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(hp[0].z-hp[1].z).toFixed(2)),
+  shaftsEngageLowerBlade:shafts.every(m=>!bb(m).clone().intersect(bb(blade)).isEmpty()),
+  independentFastenerPart:sheet!==screws&&clamp!==screws,actualOEMThreadsVerified:false};
 };
 window.__modelAObjectiveOrientationProbe=()=>{
  if(platform!=='A')return {available:false};
@@ -565,7 +504,7 @@ window.__modelAPhoto194Probe=()=>{
    lowerDriveLocal:'+Z',
    upperDriveWorld:upperWorldDrive,
    lowerDriveWorld:lowerWorldDrive,
-   installedFilmBranchYawDeg:aWorkingPoseMode?180:0,
+   installedFilmBranchYawDeg:180,
    wingFastenerCount:screws?.children.filter(m=>m.userData.photo194WingFastenerCandidate).length??0,
    outwardFootCount:bracket?.children.filter(m=>m.userData.A05OutwardFootCandidate).length??0,
    fastenerThreadVerified:false,photoRegisteredGlobalPose:false,
@@ -575,59 +514,29 @@ window.__modelAPhoto194Probe=()=>{
  // Zero clearance on a designed mating plane is intentional.
  // Solid-solid overlap elsewhere is not accepted as mechanical support.
  window.__modelAClampChainProbe=()=>{
-   if(platform!=='A')return {available:false};
-   const get=(id,tag)=>parts.get(id)?.g.children.find(o=>o.userData[tag]);
-   const foot=get('A05','A05OutwardFootCandidate');
-   const neck=get('A05C','A05CBracketNeck');
-   const ledge=get('A05C','A05CSupportLedge');
-   const fixed=get('A05C','A05CFixedSideRail');
-   const pressure=get('A05C','A05CPressureRail');
-   const glass=get('A05G','candidateStandardSlide');
-   const stamp=parts.get('A05G')?.g.children.find(o=>o.userData.A05GTransferTarget);
-   const shafts=parts.get('A05CS')?.g.children.filter(o=>o.userData.A05CSCandidateShank)??[];
-   if(![foot,neck,ledge,fixed,pressure,glass,stamp].every(Boolean)||shafts.length!==2)
-     return {available:false};
-   currentRoot.updateWorldMatrix(true,true);
-   const bb=o=>new THREE.Box3().setFromObject(o);
-   const v=(a,b)=>{const q=a.clone().intersect(b),sz=new THREE.Vector3();
-     if(q.isEmpty())return 0;q.getSize(sz);return Number((sz.x*sz.y*sz.z).toFixed(4));};
-   const r=x=>{const n=Number(x.toFixed(3));return Object.is(n,-0)?0:n;};
-   const B={foot:bb(foot),neck:bb(neck),ledge:bb(ledge),fixed:bb(fixed),
-     pressure:bb(pressure),glass:bb(glass)};
-   const glassSupportGapMm=r(B.glass.min.y-B.ledge.max.y);
-   // A rigid 180° yaw swaps which named rail appears on world +Z/-Z.
-   // Measure nearest opposing SHORT-EDGE faces instead of assuming a fixed
-   // world-axis ordering. A negative directional gap here used to report
-   // a false -28mm "penetration" despite exact face contact.
-   const shortEdgeFaceGap=(rail,glass)=>r(Math.min(
-     Math.abs(rail.max.z-glass.min.z),
-     Math.abs(rail.min.z-glass.max.z)));
-   const fixedGlassGapMm=shortEdgeFaceGap(B.fixed,B.glass);
-   const pressureGlassGapMm=shortEdgeFaceGap(B.pressure,B.glass);
-   const screwPressureOverlapMm3=shafts.reduce((n,o)=>n+v(bb(o),B.pressure),0);
-   const screwGlassOverlapMm3=shafts.reduce((n,o)=>n+v(bb(o),B.glass),0);
-   const shaftSizes=shafts.map(o=>{const q=new THREE.Vector3();bb(o).getSize(q);return q;});
-   const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();
-   stamp.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
-   const stampToSampleCenterXmm=r(stampPos.x-samplePos.x);
-   const stampToSampleCenterZmm=r(stampPos.z-samplePos.z);
-   const sideClampGeometricallyCoherent=
-     Math.abs(glassSupportGapMm)<.02&&Math.abs(fixedGlassGapMm)<.02&&
-     Math.abs(pressureGlassGapMm)<.02&&screwPressureOverlapMm3>0&&
-     screwGlassOverlapMm3<.001&&
-     shaftSizes.every(q=>q.z>q.x*4&&q.z>q.y*4);
-   return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',
-     clampRendered:parts.get('A05C')?.g.visible??false,
-     glassRendered:parts.get('A05G')?.g.visible??false,
-     glassSupportGapMm,fixedGlassGapMm,pressureGlassGapMm,
-     screwPressureOverlapMm3:Number(screwPressureOverlapMm3.toFixed(4)),
-     screwGlassOverlapMm3:Number(screwGlassOverlapMm3.toFixed(4)),
-     screwAxis:'scene-Z / glass short edge',
-     installedFilmBranchYawDeg:aWorkingPoseMode?180:0,
-     stampToSampleCenterXmm,stampToSampleCenterZmm,
-     sideClampGeometricallyCoherent,
-     actualManufacturerClampVerified:false,
-     physicalTransferAssemblyAccepted:false};
+  if(platform!=='A')return {available:false};
+  const get=(id,tag)=>parts.get(id)?.g.children.find(o=>o.userData[tag]);
+  const upper=get('A05','A05OutwardFootCandidate'),blade=get('A05C','A05CLowerClampBlade'),glass=get('A05G','candidateStandardSlide');
+  const stamp=parts.get('A05G')?.g.children.find(o=>o.userData.A05GTransferTarget);
+  const shafts=parts.get('A05CS')?.g.children.filter(o=>o.userData.A05CSCandidateShank)??[];
+  const heads=parts.get('A05CS')?.g.children.filter(o=>o.userData.A05CSScrewHead)??[];
+  if(![upper,blade,glass,stamp].every(Boolean)||shafts.length!==2||heads.length!==2)return {available:false};
+  currentRoot.updateWorldMatrix(true,true);
+  const bb=o=>new THREE.Box3().setFromObject(o),vol=(a,b)=>{const q=a.clone().intersect(b),s=new THREE.Vector3();if(q.isEmpty())return 0;q.getSize(s);return s.x*s.y*s.z;};
+  const U=bb(upper),B=bb(blade),G=bb(glass),r=x=>Number(x.toFixed(3));
+  const glassUpperFootGapMm=r(U.min.y-G.max.y),glassLowerBladeGapMm=r(G.min.y-B.max.y);
+  const screwBladeOverlapMm3=shafts.reduce((n,o)=>n+vol(bb(o),B),0),screwGlassOverlapMm3=shafts.reduce((n,o)=>n+vol(bb(o),G),0);
+  const sizes=shafts.map(o=>{const s=new THREE.Vector3();bb(o).getSize(s);return s;}),hp=heads.map(o=>o.getWorldPosition(new THREE.Vector3()));
+  const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();stamp.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
+  const photoClampGeometricallyCoherent=Math.abs(glassUpperFootGapMm)<.02&&Math.abs(glassLowerBladeGapMm)<.02&&screwBladeOverlapMm3>0&&
+   screwGlassOverlapMm3<.001&&sizes.every(s=>s.y>s.x*4&&s.y>s.z*4)&&Math.abs(hp[0].x-hp[1].x)<.05;
+  return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',clampRendered:parts.get('A05C')?.g.visible??false,
+   glassRendered:parts.get('A05G')?.g.visible??false,glassUpperFootGapMm,glassLowerBladeGapMm,
+   screwBladeOverlapMm3:Number(screwBladeOverlapMm3.toFixed(4)),screwGlassOverlapMm3:Number(screwGlassOverlapMm3.toFixed(4)),
+   screwAxis:'scene-Y / vertical',screwPairLine:'scene-Z / glass short edge',
+   screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(hp[0].z-hp[1].z).toFixed(2)),installedFilmBranchYawDeg:180,
+   stampToSampleCenterXmm:r(stampPos.x-samplePos.x),stampToSampleCenterZmm:r(stampPos.z-samplePos.z),
+   photoClampGeometricallyCoherent,actualManufacturerClampVerified:false,physicalTransferAssemblyAccepted:false};
  };
  // V75 photographic-detail regression: inspect ACTUAL mesh surfaces
  // of the five previously floating/clipping features, independent of
@@ -2967,7 +2876,7 @@ function platformA(){
  const az=aWorkingPoseMode?A_WORKING_LAYOUT.filmStageZ:0;
  // V79: installed A film-side stack faces the sample. This is the user-
  // confirmed 180° correction of the previous backwards orientation.
- const aFilmYaw=aWorkingPoseMode?Math.PI:0;
+ const aFilmYaw=Math.PI;
  // V80 vertical datum: Daheng's GCM-901602M catalog uses the same
  // GCM-T25M2L + GCM-VC13M pair and lists 126mm reference top height.
  // User photos show the pair in the opposite order, so we use the height
@@ -3230,13 +3139,12 @@ function platformA(){
    label(g,'A04 GCM-G40M60L',-4,40,0);
  },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:aBracketTopY,
-   topPlateWidth:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketTopWidthMm:undefined,
-   leftOverhangMm:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketOverhangMm:undefined,
-   // V79: use one left-handed sheet definition. The installed transfer
-   // assembly is obtained by rotating the COMPLETE film branch 180°.
+   topPlateWidth:A_WORKING_LAYOUT.lBracketTopWidthMm,
+   leftOverhangMm:A_WORKING_LAYOUT.lBracketOverhangMm,
+   // V130: photo reference and work share one physical geometry.
    handedness:'left',
-   verticalLegLength:aWorkingPoseMode?A_WORKING_LAYOUT.lLegLengthMm:72,
-   sheetFrontZmm:aWorkingPoseMode?0:13});
+   verticalLegLength:A_WORKING_LAYOUT.lLegLengthMm,
+   sheetFrontZmm:0});
  const outwardSign=-1;
  addPart('A05',ax,aBracketTopY,az,g=>{
    const localX=aBent.centerX-ax;
@@ -3244,211 +3152,116 @@ function platformA(){
    add(g,cub(aBent.topPlateWidth,aBent.metalThickness,aBent.topPlateDepth,
        mats.black,localX,aBent.metalThickness/2,aBent.sheetFrontZ));
    const verticalSheet=add(g,cub(aBent.metalThickness,aBent.verticalLegLength,
-       aBent.topPlateDepth,mats.black,legLocalX,
-       -aBent.verticalLegLength/2,aBent.sheetFrontZ));
+       aBent.topPlateDepth,mats.black,legLocalX,-aBent.verticalLegLength/2,aBent.sheetFrontZ));
    verticalSheet.userData.A05VerticalSheetWeb=true;
    for(const xx of aBent.topBoltWorldX){
-     const hex=jointHead(g,xx-ax,aBent.metalThickness,aBent.sheetFrontZ,
-       {headR:3.1,shankR:1.5,shankL:4});
+     const hex=jointHead(g,xx-ax,aBent.metalThickness,aBent.sheetFrontZ,{headR:3.1,shankR:1.5,shankL:4});
      hex.userData.photo94Fastener=true;hex.material=mats.dark;
    }
-   // V79: plain folded support. The former two VERTICAL bores existed only
-   // because the clamp screws had been modelled on the wrong axis.
    const footX=legLocalX+outwardSign*16;
-   const foot=add(g,plate(32,14,2.5,mats.black,[]));
+   const screwX=legLocalX+outwardSign*8;
+   const screwZ=[-6.5,6.5];
+   const foot=add(g,plate(32,26,2.5,mats.black,screwZ.map(z=>[screwX-footX,z,1.8])));
    foot.position.set(footX,-aBent.verticalLegLength,aBent.sheetFrontZ);
    foot.userData.A05OutwardFootCandidate=true;
-   foot.userData.A05ActualThroughBoreCount=0;
-   foot.userData.A05NoVerticalClampScrewBores=true;
-   g.userData.photo94BentSheet=true;
-   g.userData.verifiedPhotoBentCorner=true;
-   g.userData.photoBracketDatums=aBent;
-   g.userData.installedYawDeg=aWorkingPoseMode?180:0;
-   label(g,aWorkingPoseMode?
-     'A05 · 载玻片支路整体旋转180°后的转移朝向':
-     'A05 · 照片参考朝向',-24,17,0);
+   foot.userData.A05ActualThroughBoreCount=2;
+   foot.userData.A05VerticalWingScrewBores=true;
+   foot.userData.A05ScrewPairLineAxis='local-Z / glass-short-edge';
+   g.userData.photo94BentSheet=true;g.userData.verifiedPhotoBentCorner=true;
+   g.userData.photoBracketDatums=aBent;g.userData.installedYawDeg=180;
+   g.userData.photo1CanonicalOrientation=true;
+   label(g,'A05 · 图1基准 / 图5竖直蝶形螺钉',-24,17,0);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
  const bracketLegLocalX=aBent.legX-ax+aBent.metalThickness/2;
- // Local slide extends farther toward -X. With installed yaw=180° this
- // becomes +X in world coordinates, so the PDMS points toward A07.
- const glassNearX=bracketLegLocalX+outwardSign*34;
+ const glassNearX=bracketLegLocalX+outwardSign*12;
  const glassCenterX=glassNearX+outwardSign*38;
- const glassCenterY=-aBent.verticalLegLength+1.0;
- const clampLengthX=28;
- const clampCenterX=glassNearX+outwardSign*14;
- // V95: both Daheng GCM-130M and GCM-1311M vendor drawings contain a
- // 26mm transverse dimension. This does not identify a SKU; it anchors
- // the real clear span to the candidate 26mm glass short edge.
- const glassShortEdgeMm=26;
- const clampRailThicknessMm=2;
- const clampRailCenterOffsetZ=glassShortEdgeMm/2+clampRailThicknessMm/2;
+ const footBottomY=-aBent.verticalLegLength;
+ const glassCenterY=footBottomY-0.5;
+ const clampGripLengthX=28,clampBladeLengthX=40;
+ const clampBladeCenterX=bracketLegLocalX+outwardSign*20;
+ const screwX=bracketLegLocalX+outwardSign*8;
+ const screwZ=[-6.5,6.5];
 
  addPart('A05C',ax,aBracketTopY,az,g=>{
-   const footBottomY=-aBent.verticalLegLength;
-   const neck=add(g,cub(5,2.5,14,mats.dark,
-     bracketLegLocalX+outwardSign*32.5,footBottomY-1.25,aBent.sheetFrontZ));
-   neck.userData.A05CBracketNeck=true;
-   const ledge=add(g,cub(clampLengthX,1,30,mats.dark,
-     clampCenterX,glassCenterY-1,aBent.sheetFrontZ));
-   ledge.userData.A05CSupportLedge=true;
-   const fixedRail=add(g,cub(clampLengthX,3,clampRailThicknessMm,mats.dark,
-     clampCenterX,glassCenterY,aBent.sheetFrontZ-clampRailCenterOffsetZ));
-   fixedRail.userData.A05CFixedSideRail=true;
-   fixedRail.userData.A05CLowerFixedJaw=true;
-   fixedRail.userData.GCM13FamilyTopologyRole='fixed-lower-jaw';
-   const pressureRail=add(g,cub(clampLengthX,3,clampRailThicknessMm,mats.silver,
-     clampCenterX,glassCenterY,aBent.sheetFrontZ+clampRailCenterOffsetZ));
-   pressureRail.userData.A05CPressureRail=true;
-   pressureRail.userData.A05CMovingMiddlePlate=true;
-   pressureRail.userData.GCM13FamilyTopologyRole='moving-middle-plate';
-   for(const q of [5,23]){
-     const sxLocal=glassNearX+outwardSign*q;
-     const boss=add(g,cub(7,7,7,mats.dark,
-       sxLocal,glassCenterY,aBent.sheetFrontZ+18.5));
-     boss.userData.A05CSideScrewBoss=true;
-     boss.userData.A05CGCM13AdjustmentThreadBoss=true;
-   }
-   // V90: GCM-13 manufacturer topology has two adjustment threads carried
-   // by one fixed member and both push the same middle moving plate. Keep
-   // the current 28mm photo-fit span, but make that topology physically
-   // visible without copying an unverified 52/60mm exact SKU envelope.
-   const threadedCarrier=add(g,cub(clampLengthX,5,4,mats.dark,
-     clampCenterX,glassCenterY,aBent.sheetFrontZ+18.5));
-   threadedCarrier.userData.A05CGCM13ThreadCarrier=true;
-   threadedCarrier.userData.GCM13FamilyTopologyRole='two-thread-fixed-carrier';
+   const blade=add(g,cub(clampBladeLengthX,1.5,26,mats.dark,
+     clampBladeCenterX,footBottomY-1.75,aBent.sheetFrontZ));
+   blade.userData.A05CLowerClampBlade=true;
+   blade.userData.A05CLowerFixedJaw=true;
+   blade.userData.A05CPhoto5LowerLayer=true;
 
-   // V113: separate Daheng GCM-1302M family study. Manufacturer drawing
-   // constrains L=60, body depth=26, height=24, moving-jaw thickness=7,
-   // adjustment extension=29 and bottom interface A=M6. The two knob
-   // positions are illustrative because their longitudinal pitch is not
-   // dimensioned in the available drawing. This study is hidden and must
-   // never replace the installed photo-fit clamp without new identity evidence.
-   const gcm1302Study=new THREE.Group();
-   gcm1302Study.visible=false;g.add(gcm1302Study);
-   const studyY=footBottomY+12;
-   const studyFixed=add(gcm1302Study,cub(60,24,14,mats.dark,
-     clampCenterX,studyY,aBent.sheetFrontZ-6));
-   studyFixed.userData.GCM1302StudyFixedBody=true;
-   const studyMoving=add(gcm1302Study,cub(60,24,7,mats.silver,
-     clampCenterX,studyY,aBent.sheetFrontZ+9.5));
-   studyMoving.userData.GCM1302StudyMovingJaw=true;
+   // GCM-1302M is retained only as a hidden comparison study.
+   const study=new THREE.Group();study.visible=false;g.add(study);
+   const studyY=footBottomY+12,studyX=glassNearX+outwardSign*14;
+   const sf=add(study,cub(60,24,14,mats.dark,studyX,studyY,aBent.sheetFrontZ-6));
+   sf.userData.GCM1302StudyFixedBody=true;
+   const sm=add(study,cub(60,24,7,mats.silver,studyX,studyY,aBent.sheetFrontZ+9.5));
+   sm.userData.GCM1302StudyMovingJaw=true;
    for(const dx of [-15,15]){
-     const x=clampCenterX+dx;
-     const shaft=add(gcm1302Study,cyl(2.5,29,mats.steel,
-       x,studyY,aBent.sheetFrontZ+27.5));
-     shaft.rotation.x=Math.PI/2;
-     shaft.userData.GCM1302StudyAdjustmentScrew=true;
-     const knob=add(gcm1302Study,cyl(5,10,mats.silver,
-       x,studyY,aBent.sheetFrontZ+47));
-     knob.rotation.x=Math.PI/2;
-     knob.userData.GCM1302StudyHandKnob=true;
+     const x=studyX+dx;
+     const ss=add(study,cyl(2.5,29,mats.steel,x,studyY,aBent.sheetFrontZ+27.5));
+     ss.rotation.x=Math.PI/2;ss.userData.GCM1302StudyAdjustmentScrew=true;
+     const kn=add(study,cyl(5,10,mats.silver,x,studyY,aBent.sheetFrontZ+47));
+     kn.rotation.x=Math.PI/2;kn.userData.GCM1302StudyHandKnob=true;
    }
-   gcm1302Study.userData.GCM1302VendorStudy=true;
-   gcm1302Study.userData.installedByDefault=false;
-   gcm1302Study.userData.exactVendorGeometry=false;
-   gcm1302Study.userData.vendorEnvelopeLHDmm=[60,24,26];
-   gcm1302Study.userData.vendorMovingJawThicknessMm=7;
-   gcm1302Study.userData.vendorAdjustmentExtensionMm=29;
-   gcm1302Study.userData.vendorMountThread='M6';
-   gcm1302Study.userData.maxPlateThicknessMm=5;
-   gcm1302Study.userData.illustrativeScrewPitchMm=30;
-   gcm1302Study.userData.screwPitchDimensionedByVendor=false;
-
-   g.userData.A05CClampingStackType='support ledge + explicit fixed lower jaw + GCM-13-family moving middle plate';
-   g.userData.A05CLowerFixedJawModelled=true;
-   g.userData.A05CGlassShortEdgeConstraintMm=glassShortEdgeMm;
-   g.userData.A05CClampRailThicknessMm=clampRailThicknessMm;
-   g.userData.A05CInnerClearSpanMm=glassShortEdgeMm;
-   g.userData.A05CInnerClearSpanMatchesGlassShortEdge=true;
-   g.userData.unverifiedClampMechanism=true;
-   g.userData.glassGripLengthMmCandidate=clampLengthX;
-   g.userData.glassGripLengthIsFullOEMLength=false;
-   g.userData.screwAxisParallelToGlassShortEdge=true;
-   // V88: Daheng GCM-13 is a strong functional-family match. Vendor data
-   // explicitly describes two hand-adjustment threads pushing a middle
-   // moving plate. Exact SKU remains unverified, so no vendor geometry is
-   // applied to the current photo-constrained clamp mesh.
-   g.userData.GCM13FamilyFunctionalMatch=true;
-   g.userData.GCM13VendorMaxPlateThicknessMm=5;
-   g.userData.GCM13VendorAdjustmentThreadCount=2;
-   g.userData.GCM13VendorMiddleMovingPlate=true;
-   g.userData.GCM13FamilyTopologyApplied=true;
-   g.userData.GCM13ExactSkuGeometryApplied=false;
-   g.userData.GCM13PrimaryCandidateMountThread='M6';
-   // Photos194/196 do not expose the bottom interface. Do not fabricate a
-   // mounting bore/stud merely because both primary catalogue candidates use M6.
-   g.userData.GCM13BottomMountInterfaceModelled=false;
+   Object.assign(study.userData,{GCM1302VendorStudy:true,installedByDefault:false,exactVendorGeometry:false,
+     vendorEnvelopeLHDmm:[60,24,26],vendorMovingJawThicknessMm:7,vendorAdjustmentExtensionMm:29,
+     vendorMountThread:'M6',maxPlateThicknessMm:5,screwPitchDimensionedByVendor:false});
+   Object.assign(g.userData,{
+     A05CClampingStackType:'photo-5 folded-foot upper member + lower clamp blade',
+     A05CLowerFixedJawModelled:true,A05CGlassShortEdgeConstraintMm:26,
+     unverifiedClampMechanism:true,glassGripLengthMmCandidate:clampGripLengthX,
+     glassGripLengthIsFullOEMLength:false,screwAxisVertical:true,
+     screwPairLineParallelToGlassShortEdge:true,photo5VerticalWingScrewTopologyApplied:true,
+     GCM13FamilyFunctionalMatch:false,GCM13VendorMaxPlateThicknessMm:5,
+     GCM13VendorAdjustmentThreadCount:2,GCM13VendorMiddleMovingPlate:true,
+     GCM13FamilyTopologyApplied:false,GCM13ExactSkuGeometryApplied:false,
+     GCM13PrimaryCandidateMountThread:'M6',GCM13BottomMountInterfaceModelled:false,
+     GCM13VendorProfilesAreDistinct:true,GCM13Shared26mmDimensionDoesNotProveSku:true,
+     GCM13PrimaryCandidateSku:'GCM-1302M',GCM1302VendorStudyAvailable:true,
+     GCM1302VendorStudyInstalled:false,GCM1302VendorStudyExactGeometry:false,
+     GCM13GeometryApplied:false,actualClampOEM:false});
    g.userData.GCM13VendorDrawingProfiles={
-     GCM130M:{bodyDepthMm:26,adjustmentExtensionMm:29,movingJawThicknessMm:7,
-       bodyHeightMm:24,covers:['GCM-1301M','GCM-1302M']},
-     GCM1311M:{drawingDimensionsMm:[44,26,5.5,33,40],covers:['GCM-1311M']}
-   };
-   g.userData.GCM13VendorProfilesAreDistinct=true;
-   g.userData.GCM13Shared26mmDimensionDoesNotProveSku=true;
-   g.userData.GCM13PrimaryCandidateSku='GCM-1302M';
-   g.userData.GCM1302TwoSameDirectionAdjustersMatchObservedTopology=true;
-   g.userData.GCM1311DistinctCompactControlLayout=true;
-   g.userData.GCM1302VendorStudyAvailable=true;
-   g.userData.GCM1302VendorStudyInstalled=false;
-   g.userData.GCM1302VendorStudyExactGeometry=false;
+     GCM130M:{bodyDepthMm:26,adjustmentExtensionMm:29,movingJawThicknessMm:7,bodyHeightMm:24,covers:['GCM-1301M','GCM-1302M']},
+     GCM1311M:{drawingDimensionsMm:[44,26,5.5,33,40],covers:['GCM-1311M']}};
    g.userData.GCM13Candidates=[
-     {sku:'GCM-1302M',mountThread:'M6',Lmm:60,weightG:105,priority:'primary-topology-match'},
-     {sku:'GCM-1311M',mountThread:'M6',Lmm:52,weightG:105,priority:'secondary-distinct-control-layout'},
-     {sku:'GCM-1301M',mountThread:'M6',Lmm:100,weightG:155,priority:'low-longer-than-slide'},
-     {sku:'GCM-1312M',mountThread:'M4',Lmm:85,weightG:55,priority:'secondary-different-outline'}
-   ];
-   g.userData.GCM13GeometryApplied=false;
-   g.userData.actualClampOEM=false;
-   label(g,'A05C 玻片夹',
-     clampCenterX,18,aBent.sheetFrontZ);
+     {sku:'GCM-1302M',mountThread:'M6',Lmm:60,weightG:105,priority:'study-only-topology-mismatch'},
+     {sku:'GCM-1311M',mountThread:'M6',Lmm:52,weightG:105,priority:'study-only'},
+     {sku:'GCM-1301M',mountThread:'M6',Lmm:100,weightG:155,priority:'low'},
+     {sku:'GCM-1312M',mountThread:'M4',Lmm:85,weightG:55,priority:'low'}];
+   label(g,'A05C 图5下夹片（型号待识别）',clampBladeCenterX,15,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
  addPart('A05CS',ax,aBracketTopY,az,g=>{
-   for(const q of [5,23]){
-     const screwX=glassNearX+outwardSign*q;
-     // Cylinder default axis is local Y; rotate it onto local Z so the
-     // screw shaft is parallel to the glass short edge.
-     const shaft=add(g,cyl(1.4,20,mats.steel,
-       screwX,glassCenterY,aBent.sheetFrontZ+24));
-     shaft.rotation.x=Math.PI/2;
-     shaft.userData.A05CSCandidateShank=true;
-     shaft.userData.A05CSShaftAxis='glass-short-edge-Z';
-     shaft.userData.A05CSContactsPressureRail=true;
-     shaft.userData.GCM13AdjustmentScrewTopology=true;
-     const hub=add(g,cyl(3.0,3,mats.silver,
-       screwX,glassCenterY,aBent.sheetFrontZ+35.5));
-     hub.rotation.x=Math.PI/2;
-     hub.userData.A05CSScrewHead=true;
-     hub.userData.photo194WingFastenerCandidate=true;
+   for(const zOff of screwZ){
+     const z=aBent.sheetFrontZ+zOff;
+     const shaft=add(g,cyl(1.4,10,mats.steel,screwX,footBottomY+0.5,z));
+     shaft.userData.A05CSCandidateShank=true;shaft.userData.A05CSShaftAxis='vertical-Y';
+     shaft.userData.A05CSContactsLowerBlade=true;
+     const hub=add(g,cyl(3,3,mats.silver,screwX,footBottomY+7,z));
+     hub.userData.A05CSScrewHead=true;hub.userData.photo194WingFastenerCandidate=true;
      for(const wingSide of [-1,1]){
-       const wing=add(g,cub(5,2.8,1.6,mats.steel,
-         screwX+wingSide*3.0,glassCenterY,aBent.sheetFrontZ+37));
-       wing.rotation.z=wingSide*.3;
-       wing.userData.A05CSWingEarPlane='perpendicular-to-Z-shaft';
+       const wing=add(g,cub(5,1.8,2.4,mats.steel,screwX+wingSide*3,footBottomY+8.3,z));
+       wing.rotation.y=wingSide*.3;wing.userData.A05CSWingEarPlane='horizontal-about-vertical-shaft';
      }
    }
    g.userData.visibleWingFastenerCount=2;
-   g.userData.screwShaftAxis='scene-Z / parallel to 26mm glass short edge';
-   g.userData.screwPitchAlongGlassLengthMmCandidate=18;
+   g.userData.screwShaftAxis='scene-Y / vertical through A05 folded foot';
+   g.userData.screwPairLine='scene-Z / parallel to 26mm glass short edge';
+   g.userData.screwPitchAcrossGlassShortEdgeMmCandidate=13;
    g.userData.realOEMThreadVerified=false;
-   label(g,'A05CS 夹紧螺钉',clampCenterX,16,aBent.sheetFrontZ+38);
+   label(g,'A05CS 图5竖直蝶形螺钉',screwX,16,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
  addPart('A05G',ax,aBracketTopY,az,g=>{
-   const slide=add(g,cub(76,1,26,mats.glass,
-     glassCenterX,glassCenterY,aBent.sheetFrontZ));
-   slide.userData.candidateStandardSlide=[76,26,1];
-   slide.userData.glassShortEdgeAxisLocal='Z';
+   const slide=add(g,cub(76,1,26,mats.glass,glassCenterX,glassCenterY,aBent.sheetFrontZ));
+   slide.userData.candidateStandardSlide=[76,26,1];slide.userData.glassShortEdgeAxisLocal='Z';
    const pdmsX=glassNearX+outwardSign*68;
-   const stamp=add(g,cub(8,1.8,8,mats.ceramic,
-     pdmsX,glassCenterY-1.4,aBent.sheetFrontZ));
-   stamp.userData.A05GStampRightMarginMm=4;
-   stamp.userData.A05GTransferTarget='A07W';
-   g.userData.stampAtRightGlassEdge=true;
-   g.userData.glassToHolderPhysicallyVerified=false;
-   g.userData.requiredInstalledTransferElement=true;
-   g.userData.unregisteredGlobalPose=false;
+   const stamp=add(g,cub(8,1.8,8,mats.ceramic,pdmsX,glassCenterY-1.4,aBent.sheetFrontZ));
+   stamp.userData.A05GStampRightMarginMm=4;stamp.userData.A05GTransferTarget='A07W';
+   g.userData.stampAtRightGlassEdge=true;g.userData.glassToHolderPhysicallyVerified=false;
+   g.userData.requiredInstalledTransferElement=true;g.userData.unregisteredGlobalPose=false;
+   g.userData.canonicalDirectionWorld='+X / right';
    label(g,'A05G 载玻片 / PDMS',glassCenterX,15,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  // V79: glass is part of the installed transfer mechanism. Exact clamp SKU,
@@ -4639,8 +4452,8 @@ function _auditAnyVisibleSurface(targetObj,allowedRoots){
 }
 function _a05AuditTargets(){
  const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g,glassRoot=parts.get('A05G')?.g;
- const fixed=clamp?.children.find(o=>o.userData.A05CLowerFixedJaw);
- const pressure=clamp?.children.find(o=>o.userData.A05CMovingMiddlePlate);
+ const fixed=parts.get('A05')?.g.children.find(o=>o.userData.A05OutwardFootCandidate);
+ const pressure=clamp?.children.find(o=>o.userData.A05CLowerClampBlade);
  const heads=screws?.children.filter(o=>o.userData.A05CSScrewHead)??[];
  if(!clamp||!screws||!glassRoot||!fixed||!pressure||heads.length!==2)return null;
  return {clamp,screws,glassRoot,fixed,pressure,heads};
@@ -5114,6 +4927,7 @@ $('btn-photo97').onclick=()=>focusPhoto947('97');
  }
  $('btn-a-photo-monitor-front').onclick=()=>focus20261108APhoto('monitorBehind');
  $('btn-a-photo-monitor-side').onclick=()=>focus20261108APhoto('monitorLeft');
+  $('btn-a-photo-monitor-opposite').onclick=()=>focus20261108APhoto('monitorRight');
  window.__a20261108PhotoViewProbe=()=>{
    if(platform!=='A'||!currentA20261108PhotoAngle)return {available:false};
    currentRoot.updateWorldMatrix(true,true);
@@ -5153,6 +4967,8 @@ $('btn-photo97').onclick=()=>focusPhoto947('97');
      viewedStageFace:frontSide,
      scenePartCount:parts.size,
      photoConstraints:aPhotoOrientationEvidence(),
+      evidenceRole:A20261108PhotoAngles[currentA20261108PhotoAngle]?.evidenceRole??null,
+      sourceHardwareRotated:Boolean(A20261108PhotoAngles[currentA20261108PhotoAngle]?.hardwareRotatedForPhoto),
      cameraFittedToActualLensAndMonitor:false
    };
  };
