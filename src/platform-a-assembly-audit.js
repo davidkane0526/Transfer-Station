@@ -71,9 +71,9 @@ export function auditPlatformAAssembly({
     sampleTopStackGeometryRulerCompatible:auditV48RulerRegistration().sampleTopWithinVisibleRulerRange,
     absoluteFilmSampleCoordinatesPhotoRegistered:false,
     installedWorkingFilmStageXSolvedFromPdmsTarget:true,
-    installedWorkingFilmStageXmm:-82.75,
+    installedWorkingFilmStageXmm:-60.75,
     installedWorkingSampleCenterXmm:78,
-    installedWorkingFilmMinusSampleCenterXmm:-160.75,
+    installedWorkingFilmMinusSampleCenterXmm:-138.75,
     installedWorkingFilmStageXPhotoMeasured:false,
     installedWorkingFilmStageXPhotoRegistered:false,
     photoConfirmedMagneticBaseSku:false,
@@ -127,7 +127,7 @@ export function auditPlatformAAssembly({
     a05Gcm13DistinctVendorProfilesRecorded:true,
     a05ExactLowerJawOemProfileVerified:false,
     a05FixingThreadInterfaceVerified:false,
-    a05LegLengthContactSolvedMm:87.6,
+    a05LegLengthContactSolvedMm:86.1,
     a05LegLengthPhotoMeasured:false,
     a05PdmsThicknessCandidateMm:1.8,
     a05VerticalContactConstraintSolved:true,
@@ -135,7 +135,7 @@ export function auditPlatformAAssembly({
     clampMechanicalInterfaceClosed:false,
     functionalTransferAccepted:false,
     missing:['A05 exact lower-jaw OEM profile & hidden fixing-thread interface','A17 exact MBS-65B/C suffix & hidden top mounting pitch',
-      'photo-registered film-stage/thermal-stage relative origin (current -82.75mm is contact-constraint solution)','physical A05→glass→PDMS vertical stack validation (current 87.6mm leg is contact-constraint solution)'],
-    note:'V103 conditionally ranks MBS-65B above MBS-65C only if the hidden real A15 bottom uses the Daheng standard 4xM6/50x50 mounting pattern; compatibility does not close the A17 variant. V99 makes the 87.6mm A05 leg explicit as a lowered-PDMS contact-constraint solution, not a measured fabrication dimension. V98 makes -82.75mm an explicit rigid-180 PDMS-to-A07 contact-constraint solution, not a measured/photo-registered installation coordinate. V97 records the Oeabt MBS-65 holding-force revision conflict (current page 132N vs 2024/2025 catalogs 158N) and explicitly rejects using the GCM-901604M combination drawing as proof of the hidden A15-to-A17 mounting pattern. V95 explicitly models the A05 fixed lower jaw and hard-checks a 26mm clear span matching the candidate glass short edge, while exact GCM-1302M/1311M profile and hidden fixing thread remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
+      'photo-registered film-stage/thermal-stage relative origin (current -60.75mm is photo1-canonical PDMS-target solution)','physical A05→glass→PDMS vertical stack validation (current 86.1mm leg is contact-constraint solution)'],
+    note:'V103 conditionally ranks MBS-65B above MBS-65C only if the hidden real A15 bottom uses the Daheng standard 4xM6/50x50 mounting pattern; compatibility does not close the A17 variant. V130 updates the A05 leg to 86.1mm after placing the glass inside the photo5 clamp stack and moves the rigid-180 film-stage target to -60.75mm so the far-end PDMS reaches A07; neither value is a direct photo measurement or fabrication dimension. V97 records the Oeabt MBS-65 holding-force revision conflict (current page 132N vs 2024/2025 catalogs 158N) and explicitly rejects using the GCM-901604M combination drawing as proof of the hidden A15-to-A17 mounting pattern. V130 replaces the previously assumed installed GCM-13 side-pressure topology with the photo5 lower clamp blade and two vertical wing screws; GCM-1302M/1311M remain comparison studies only, while exact clamp OEM and hidden thread dimensions remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
   });
 }
