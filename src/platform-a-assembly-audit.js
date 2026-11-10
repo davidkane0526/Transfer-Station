@@ -70,6 +70,12 @@ export function auditPlatformAAssembly({
     sampleTopAboveBoardMeasuredRangeMm:[V48_RULER_EVIDENCE.A.sampleTopHeightAboveBreadboardMm.min,V48_RULER_EVIDENCE.A.sampleTopHeightAboveBreadboardMm.max],
     sampleTopStackGeometryRulerCompatible:auditV48RulerRegistration().sampleTopWithinVisibleRulerRange,
     absoluteFilmSampleCoordinatesPhotoRegistered:false,
+    installedWorkingFilmStageXSolvedFromPdmsTarget:true,
+    installedWorkingFilmStageXmm:-82.75,
+    installedWorkingSampleCenterXmm:78,
+    installedWorkingFilmMinusSampleCenterXmm:-160.75,
+    installedWorkingFilmStageXPhotoMeasured:false,
+    installedWorkingFilmStageXPhotoRegistered:false,
     photoConfirmedMagneticBaseSku:false,
     a17PrimaryCandidateFamily:'Oeabt MBS-65B/C',
     a17PrimaryFamilyEnvelopeMm:[65.2,65.2,20],
@@ -117,7 +123,7 @@ export function auditPlatformAAssembly({
     clampMechanicalInterfaceClosed:false,
     functionalTransferAccepted:false,
     missing:['A05 exact lower-jaw OEM profile & hidden fixing-thread interface','A17 exact MBS-65B/C suffix & hidden top mounting pitch',
-      'film stage/thermal stage relative origin and direction','A05-to-glass-to-PDMS contact height'],
-    note:'V97 records the Oeabt MBS-65 holding-force revision conflict (current page 132N vs 2024/2025 catalogs 158N) and explicitly rejects using the GCM-901604M combination drawing as proof of the hidden A15-to-A17 mounting pattern. V95 explicitly models the A05 fixed lower jaw and hard-checks a 26mm clear span matching the candidate glass short edge, while exact GCM-1302M/1311M profile and hidden fixing thread remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
+      'photo-registered film-stage/thermal-stage relative origin (current -82.75mm is contact-constraint solution)','A05-to-glass-to-PDMS contact height'],
+    note:'V98 makes -82.75mm an explicit rigid-180 PDMS-to-A07 contact-constraint solution, not a measured/photo-registered installation coordinate. V97 records the Oeabt MBS-65 holding-force revision conflict (current page 132N vs 2024/2025 catalogs 158N) and explicitly rejects using the GCM-901604M combination drawing as proof of the hidden A15-to-A17 mounting pattern. V95 explicitly models the A05 fixed lower jaw and hard-checks a 26mm clear span matching the candidate glass short edge, while exact GCM-1302M/1311M profile and hidden fixing thread remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
   });
 }

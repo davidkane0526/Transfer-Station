@@ -2,14 +2,28 @@
 // The photographed A05 sheet is defined once in its local LEFT-handed form.
 // The COMPLETE film-side chain A17→A15→A03→A04L→A04→A05→clamp→glass
 // is then installed with a 180° yaw, rather than mirroring only A05.
+const A_LAYOUT_INPUTS=Object.freeze({
+  sampleCenterX:78,lBracketOverhangMm:60,metalThicknessMm:2.5,
+  glassLengthMm:76,glassNearFromLegMm:34,pdmsLengthMm:8,stampRightMarginMm:4
+});
+const A_LOCAL_LEG_X=-A_LAYOUT_INPUTS.lBracketOverhangMm+A_LAYOUT_INPUTS.metalThicknessMm/2;
+const A_LOCAL_GLASS_NEAR_X=A_LOCAL_LEG_X-A_LAYOUT_INPUTS.glassNearFromLegMm;
+const A_LOCAL_STAMP_X=A_LOCAL_GLASS_NEAR_X-
+  (A_LAYOUT_INPUTS.glassLengthMm-A_LAYOUT_INPUTS.stampRightMarginMm-A_LAYOUT_INPUTS.pdmsLengthMm/2);
+const A_CONTACT_SOLVED_FILM_STAGE_X=A_LAYOUT_INPUTS.sampleCenterX+A_LOCAL_STAMP_X;
+
 export const A_WORKING_LAYOUT=Object.freeze({
-  filmStageX:-82.75, filmStageZ:0, sampleCenterX:78,
+  filmStageX:A_CONTACT_SOLVED_FILM_STAGE_X, filmStageZ:0, sampleCenterX:A_LAYOUT_INPUTS.sampleCenterX,
+  filmStageXDerivation:'sampleCenterX + localStampX after rigid 180deg yaw',
+  filmStageXSolvedFromNominalPdmsTarget:true,
+  filmStageXPhotoMeasured:false,filmStageXPhotoRegistered:false,
+  localStampXBeforeYawMm:A_LOCAL_STAMP_X,nominalStampTargetXmm:A_LAYOUT_INPUTS.sampleCenterX,
   localBracketHandedness:'left', installedFilmYawDeg:180,
-  lBracketOverhangMm:60, lBracketTopWidthMm:87, lLegLengthMm:87.6,
-  metalThicknessMm:2.5,
-  glassLengthMm:76, glassWidthMm:26, glassThicknessMm:1,
-  glassNearFromLegMm:34, clampLengthMm:28,
-  pdmsLengthMm:8, pdmsThicknessMm:1.8, stampRightMarginMm:4,
+  lBracketOverhangMm:A_LAYOUT_INPUTS.lBracketOverhangMm, lBracketTopWidthMm:87, lLegLengthMm:87.6,
+  metalThicknessMm:A_LAYOUT_INPUTS.metalThicknessMm,
+  glassLengthMm:A_LAYOUT_INPUTS.glassLengthMm, glassWidthMm:26, glassThicknessMm:1,
+  glassNearFromLegMm:A_LAYOUT_INPUTS.glassNearFromLegMm, clampLengthMm:28,
+  pdmsLengthMm:A_LAYOUT_INPUTS.pdmsLengthMm, pdmsThicknessMm:1.8, stampRightMarginMm:A_LAYOUT_INPUTS.stampRightMarginMm,
   screwAxis:'scene-Z / parallel to 26mm glass short edge',
   screwPitchAlongGlassLengthMm:18,
   magnetFootprintMm:65, sampleBaseFootprintXmm:112,
@@ -92,6 +106,14 @@ export function auditAWorkingLayout({
     verification:'V80 vendor-height-crosschecked rigid-180 installed geometry candidate; dimensions still require physical validation',
     photoReferenceUsesSameUnmirroredSheet:true,
     actualStagePosePhotoRegistered:false,
+    filmStageXSolvedFromNominalPdmsTarget:Boolean(d.filmStageXSolvedFromNominalPdmsTarget),
+    filmStageXPhotoMeasured:Boolean(d.filmStageXPhotoMeasured),
+    filmStageXPhotoRegistered:Boolean(d.filmStageXPhotoRegistered),
+    filmStageXDerivation:d.filmStageXDerivation,
+    localStampXBeforeYawMm:d.localStampXBeforeYawMm,
+    nominalStampTargetXmm:d.nominalStampTargetXmm,
+    solvedFilmStageXmm:d.filmStageX,
+    solvedFilmMinusSampleCenterXmm:n2(d.filmStageX-d.sampleCenterX),
     A17SkuVerified:false,A05CClampSkuVerified:false,
     filmStageX:d.filmStageX,filmStageZ:d.filmStageZ,sampleStageX:d.sampleCenterX,
     localHandedness:d.localBracketHandedness,installedFilmYawDeg:d.installedFilmYawDeg,

@@ -1,5 +1,14 @@
 # Transfer Station
 
+## V98 · 平台 A 工作位 X 从裸常量改为接触约束反解
+
+- `filmStageX=-82.75 mm`不是照片/尺图测量值。局部PDMS中心为-160.75 mm，180°安装后令PDMS命中A07中心X=78 mm，反解得到-82.75 mm。
+- 代码现在从玻片长度、PDMS长度/边距、A05几何和A07中心自动求解该坐标，不再维护不可追溯的裸常量。
+- 审计强制：`filmStageXSolvedFromNominalPdmsTarget=true`、`filmStageXPhotoMeasured=false`、`filmStageXPhotoRegistered=false`。
+- 剩余缺口因此明确为**独立照片/实测的膜侧—样品侧全局注册**，而不是误把接触候选解当安装坐标。
+
+[查看 V98 工作位反解与证据边界](docs/V98_A_working_origin_derivation.md)
+
 ## V97 · A17 厂家参数版本冲突与接口证据边界
 
 - **Oeabt保持力数据修正**：当前MBS-65官方产品页写132 N（13.5 kgf），2024/2025官方目录写158 N（16 kgf）。V97同时记录并标记厂家版本冲突。

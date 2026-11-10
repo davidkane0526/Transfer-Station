@@ -25,9 +25,25 @@ assert.equal(A_WORKING_LAYOUT.bracketTopWorldYmm,199.5);
 assert.equal(A_WORKING_LAYOUT.lLegLengthMm,87.6);
 assert.equal(A_WORKING_LAYOUT.installedFilmYawDeg,180);
 assert.equal(A_WORKING_LAYOUT.localBracketHandedness,'left');
+assert.equal(A_WORKING_LAYOUT.localStampXBeforeYawMm,-160.75);
+assert.equal(A_WORKING_LAYOUT.nominalStampTargetXmm,78);
+assert.equal(A_WORKING_LAYOUT.filmStageX,-82.75);
+assert.equal(A_WORKING_LAYOUT.filmStageXSolvedFromNominalPdmsTarget,true);
+assert.equal(A_WORKING_LAYOUT.filmStageXPhotoMeasured,false);
+assert.equal(A_WORKING_LAYOUT.filmStageXPhotoRegistered,false);
+assert.equal(A_WORKING_LAYOUT.filmStageX,
+  A_WORKING_LAYOUT.sampleCenterX+A_WORKING_LAYOUT.localStampXBeforeYawMm);
 
 const nominal=auditAWorkingLayout();
 assert.equal(nominal.actualStagePosePhotoRegistered,false);
+assert.equal(nominal.filmStageXSolvedFromNominalPdmsTarget,true);
+assert.equal(nominal.filmStageXPhotoMeasured,false);
+assert.equal(nominal.filmStageXPhotoRegistered,false);
+assert.match(nominal.filmStageXDerivation,/sampleCenterX/);
+assert.equal(nominal.localStampXBeforeYawMm,-160.75);
+assert.equal(nominal.nominalStampTargetXmm,78);
+assert.equal(nominal.solvedFilmStageXmm,-82.75);
+assert.equal(nominal.solvedFilmMinusSampleCenterXmm,-160.75);
 assert.equal(nominal.A17SkuVerified,false);
 assert.equal(nominal.A05CClampSkuVerified,false);
 assert.equal(nominal.basesSeparate,true);
