@@ -2,13 +2,13 @@
 // Photos 2 and 3 are rotated side inspections. Their screen-left/right
 // constrains topology only and must not redefine photo 1 handedness.
 export const A20261108PhotoAngles=Object.freeze({
- monitorBehind:{id:'canonical-front',name:'图1｜正确朝向基准',cameraOffsetMm:Object.freeze([100,43,-345]),
+ monitorBehind:{id:'canonical-front',name:'图1｜正确朝向基准',cameraOffsetMm:Object.freeze([100,43,345]),
   targetOffsetMm:Object.freeze([0,128,0]),evidenceRole:'canonical-orientation-anchor',
   hardwareRotatedForPhoto:false,originalCameraCalibrated:false},
- monitorLeft:{id:'rotated-side-a',name:'图2｜旋转后的侧面 A',cameraOffsetMm:Object.freeze([245,90,265]),
+ monitorLeft:{id:'rotated-side-a',name:'图2｜旋转后的侧面 A',cameraOffsetMm:Object.freeze([245,90,-265]),
   targetOffsetMm:Object.freeze([0,119,0]),evidenceRole:'rotated-side-topology-only',
   hardwareRotatedForPhoto:true,hardwareYawCandidateDeg:90,originalCameraCalibrated:false},
- monitorRight:{id:'rotated-side-b',name:'图3｜旋转后的侧面 B',cameraOffsetMm:Object.freeze([-245,78,235]),
+ monitorRight:{id:'rotated-side-b',name:'图3｜旋转后的侧面 B',cameraOffsetMm:Object.freeze([-245,78,-235]),
   targetOffsetMm:Object.freeze([0,119,0]),evidenceRole:'rotated-side-topology-only',
   hardwareRotatedForPhoto:true,hardwareYawCandidateDeg:-90,originalCameraCalibrated:false}
 });
