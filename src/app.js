@@ -4910,8 +4910,10 @@ $('btn-photo947').onclick=()=>focusPhoto947('94');
 $('btn-photo94').onclick=()=>focusPhoto947('94');
 $('btn-photo95').onclick=()=>focusPhoto947('95');
 $('btn-photo97').onclick=()=>focusPhoto947('97');
-// Two new user photos are side views of ONE unchanged mechanism.
- // Only camera.position/target change. No stage/micrometer is mirrored.
+// V130: photo 1 is the canonical physical orientation. Photos 2/3 were
+ // captured after rotating the mechanism and are used as side-topology
+ // evidence. The viewer uses inspection cameras for those side faces without
+ // changing the canonical model handedness or fabricating mirrored hardware.
  let currentA20261108PhotoAngle=null;
  function focus20261108APhoto(mode){
    if(platform!=='A'||aWorkingPoseMode){
