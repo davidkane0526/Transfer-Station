@@ -867,7 +867,11 @@ def make_a():
     # V79: Thorlabs MWWHL4. Use vendor-constrained Ø30.5mm finned
     # housing and SM1 mounting interface; REMOVE the invented gooseneck
     # that made a black cylinder appear to hang below the microscope.
-    led_root_x=cx+50
+    # V89: shift the complete MWWHL4 + optional SM1RC-style ring 22mm
+    # outboard. This removes the V87-detected solid overlap with the right
+    # focus controls without inventing an unsupported mechanical bracket.
+    # Exact mounting hardware and final physical offset remain unverified.
+    led_root_x=cx+72
     led_z=220
     slip_outer=vx(17.5,6,led_root_x,0,led_z)
     slip_inner=vx(15.35,6.2,led_root_x-.1,0,led_z)
