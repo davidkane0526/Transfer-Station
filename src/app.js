@@ -4170,7 +4170,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V94 / '+(aWorkingPoseMode?
+   '平台 A · V96 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4329,7 +4329,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V94当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V96当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
@@ -4373,13 +4373,40 @@ function focusPhoto947(photo='94'){
  camera.position.copy(src);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
 
+function _auditBoxFor(groups){
+ const b=new THREE.Box3();for(const g of groups)if(g)b.union(new THREE.Box3().setFromObject(g));return b;
+}
+function _auditProjection(box){
+ camera.updateMatrixWorld(true);
+ const xs=[],ys=[];
+ for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z]){
+   const p=new THREE.Vector3(x,y,z).project(camera);xs.push(p.x);ys.push(p.y);
+ }
+ const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+ return {centerX:Number(((minX+maxX)/2).toFixed(3)),centerY:Number(((minY+maxY)/2).toFixed(3)),
+   width:Number((maxX-minX).toFixed(3)),height:Number((maxY-minY).toFixed(3))};
+}
+function _isWithin(obj,root){for(let p=obj;p;p=p.parent)if(p===root)return true;return false;}
+function _auditRayClear(targetObj,allowedRoots){
+ if(!targetObj)return {clear:false,firstPart:null};
+ const target=targetObj.getWorldPosition(new THREE.Vector3());
+ const dir=target.clone().sub(camera.position),dist=dir.length();
+ const ray=new THREE.Raycaster(camera.position,dir.normalize(),0,dist+2);
+ const hit=ray.intersectObject(currentRoot,true).find(h=>h.object.visible);
+ if(!hit)return {clear:false,firstPart:null};
+ const root=[...parts.entries()].find(([,v])=>_isWithin(hit.object,v.g));
+ return {clear:allowedRoots.some(g=>_isWithin(hit.object,g)),firstPart:root?.[0]??null,
+   hitDistance:Number(hit.distance.toFixed(2)),targetDistance:Number(dist.toFixed(2))};
+}
 function focusA05ClampAudit(){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
  currentRoot.updateWorldMatrix(true,true);
- const g=parts.get('A05C')?.g;if(!g)return false;
- const target=g.getWorldPosition(new THREE.Vector3());
- const q=g.getWorldQuaternion(new THREE.Quaternion());
- const offset=new THREE.Vector3(72,34,92).applyQuaternion(q);
+ const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g;
+ if(!clamp||!screws)return false;
+ const b=_auditBoxFor([clamp,screws]),target=b.getCenter(new THREE.Vector3());
+ const q=clamp.getWorldQuaternion(new THREE.Quaternion());
+ const size=b.getSize(new THREE.Vector3()),distance=Math.max(95,size.length()*1.65);
+ const offset=new THREE.Vector3(.55,.34,1).normalize().multiplyScalar(distance).applyQuaternion(q);
  camera.position.copy(target).add(offset);
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
  return true;
@@ -4387,19 +4414,50 @@ function focusA05ClampAudit(){
 function focusA17FrontAudit(){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
  currentRoot.updateWorldMatrix(true,true);
- const g=parts.get('A17')?.g;if(!g)return false;
- const plaque=g.children.find(o=>o.userData.A17Photo194FrontLabelPlaque);if(!plaque)return false;
- const rootPos=g.getWorldPosition(new THREE.Vector3());
- const plaquePos=plaque.getWorldPosition(new THREE.Vector3());
- const outward=plaquePos.clone().sub(rootPos).setY(0).normalize();
+ const g=parts.get('A17')?.g,a15=parts.get('A15')?.g;if(!g||!a15)return false;
+ const plaque=g.children.find(o=>o.userData.A17Photo194FrontLabelPlaque);
+ const lever=g.children.find(o=>o.userData.A17Photo194LowerLeverCandidate);
+ if(!plaque||!lever)return false;
+ const rootPos=g.getWorldPosition(new THREE.Vector3()),target=plaque.getWorldPosition(new THREE.Vector3());
+ const outward=target.clone().sub(rootPos).setY(0).normalize();
  if(outward.lengthSq()<.5)outward.set(0,0,1);
- const target=plaquePos.clone();
- camera.position.copy(target).add(outward.multiplyScalar(92)).add(new THREE.Vector3(0,22,0));
+ const tangent=new THREE.Vector3(outward.z,0,-outward.x).normalize();
+ const handles=[];a15.traverse(o=>{if(o.userData.stageActuatorHandle)handles.push(o.getWorldPosition(new THREE.Vector3()));});
+ const handleCenter=handles.length?handles.reduce((a,p)=>a.add(p),new THREE.Vector3()).multiplyScalar(1/handles.length):rootPos;
+ const handleSide=handleCenter.clone().sub(target).dot(tangent);
+ const sideSign=handleSide>=0?-1:1;
+ camera.position.copy(target)
+   .add(outward.clone().multiplyScalar(118))
+   .add(tangent.multiplyScalar(sideSign*58))
+   .add(new THREE.Vector3(0,20,0));
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
  return true;
 }
 window.__focusA05ClampAudit=focusA05ClampAudit;
 window.__focusA17FrontAudit=focusA17FrontAudit;
+window.__A05CloseupProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g;
+ const fixed=clamp?.children.find(o=>o.userData.A05CLowerFixedJaw);
+ const pressure=clamp?.children.find(o=>o.userData.A05CMovingMiddlePlate);
+ const heads=screws?.children.filter(o=>o.userData.A05CSScrewHead)??[];
+ if(!clamp||!screws||!fixed||!pressure||heads.length!==2)return {available:false};
+ const allowed=[clamp,screws];
+ return {available:true,projection:_auditProjection(_auditBoxFor(allowed)),
+   fixedJawRay:_auditRayClear(fixed,allowed),pressureRay:_auditRayClear(pressure,allowed),
+   screwHeadRays:heads.map(o=>_auditRayClear(o,allowed))};
+};
+window.__A17CloseupProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const g=parts.get('A17')?.g;if(!g)return {available:false};
+ const plaque=g.children.find(o=>o.userData.A17Photo194FrontLabelPlaque);
+ const lever=g.children.find(o=>o.userData.A17Photo194LowerLeverCandidate);
+ if(!plaque||!lever)return {available:false};
+ return {available:true,projection:_auditProjection(_auditBoxFor([g])),
+   plaqueRay:_auditRayClear(plaque,[g]),switchRay:_auditRayClear(lever,[g])};
+};
 
 function switchPlatform(next){
   clearCadFeatureCandidates();
