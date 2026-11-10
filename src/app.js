@@ -681,6 +681,10 @@ window.__modelAPhoto194Probe=()=>{
      lampRingRightFocusOverlapMm3,
      lampBodyRightFocusOverlapMm3,
      lampMountingMethodVerified:Boolean(gA11.userData.A11MountingMethodVerified),
+     lampPhotoPlacementOffsetFromOpticalAxisMm:gA11.userData.A11PhotoPlacementOffsetFromOpticalAxisMm??null,
+     lampPlacementOffsetMeasured:Boolean(gA11.userData.A11PlacementOffsetMeasured),
+     lampCollisionFreePlacementCandidate:Boolean(gA11.userData.A11CollisionFreePlacementCandidate),
+     lampPlacementShiftFromV87Mm:gA11.userData.A11PlacementShiftFromV87Mm??null,
      lampElectricalCablePresent:Boolean(cable),
      inventedLampGooseneckPresent:gA11.children.some(o=>o.userData.A11PhysicallyConnectedSupportProxy),
      unsupportedA18HorizontalTubePresent:gA18.children.some(o=>o.userData.A18HorizontalTubeCandidate),
@@ -3315,7 +3319,7 @@ function platformA(){
   add(g,cyl(15,12,mats.silver,0,0,0));
   label(g,'Daheng Imaging 工业相机',0,72,0);
  },{explode:[0,92,0]});
- addPart('A11',sx+50,220,0,g=>{
+ addPart('A11',sx+72,220,0,g=>{
    // Thorlabs MWWHL4 vendor geometry: Ø30.5mm heat sink, approximately
    // 60mm overall axial envelope, internal SM1 thread at the optical end.
    // V79 removes the invented flexible support that made a black cylinder
@@ -3341,7 +3345,11 @@ function platformA(){
    cable.userData.A11ElectricalCable=true;
    g.userData.A11MountingMethodVerified=false;
    g.userData.A11NoInventedGooseneckSupport=true;
-   label(g,'Thorlabs MWWHL4 · Ø30.5mm散热壳 / SM1接口；安装转接待核',35,28,0);
+   g.userData.A11PhotoPlacementOffsetFromOpticalAxisMm=72;
+   g.userData.A11PlacementOffsetMeasured=false;
+   g.userData.A11CollisionFreePlacementCandidate=true;
+   g.userData.A11PlacementShiftFromV87Mm=22;
+   label(g,'Thorlabs MWWHL4 · V89无碰撞外移候选 / SM1RC类安装方式待核',35,28,0);
  },{explode:[22,20,22]});
  addPart('A12',262,20,-80,g=>{
   add(g,cub(60,104,73,mats.dark,0,52,0));
