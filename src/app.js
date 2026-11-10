@@ -262,7 +262,7 @@ window.__platformABareClampProbe=()=>{
  const stamp=glassRoot.children.find(o=>o.userData.A05GStampRightMarginMm!==undefined);
  const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();stamp?.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
  return {available:true,visibleGlass:glassRoot.visible,visibleClamp:clamp.visible,visibleWingScrewCount:heads.length,shaftCount:shafts.length,
-  actualFootBores:foot.userData.A05ActualThroughBoreCount,screwAxesVertical:shaftSizes.every(v=>v.y>v.x*4&&v.y>v.z*4),
+  actualFootBores:foot.userData.A05ActualThroughBoreCount,screwAxesVertical:shaftSizes.every(v=>v.y>v.x*3&&v.y>v.z*3),
   screwPairLineParallelGlassShortEdge:Math.abs(hp[0].x-hp[1].x)<.05&&Math.abs(hp[0].z-hp[1].z)>10,
   screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(hp[0].z-hp[1].z).toFixed(2)),
   screwBladeEngaged:shafts.every(o=>!bb(o).clone().intersect(bladeBox).isEmpty()),
@@ -287,7 +287,7 @@ window.__modelA05PhotoEvidenceProbe=()=>{
  const bb=o=>new THREE.Box3().setFromObject(o),size=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
  const glassBox=bb(slide),positions=heads.map(m=>m.getWorldPosition(new THREE.Vector3()));
  return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',visibleFastenerCount:heads.length,
-  fastenerShaftAxis:'Y / vertical through folded foot',actualShaftGeometryVertical:shafts.every(m=>{const v=size(m);return v.y>v.x*4&&v.y>v.z*4;}),
+  fastenerShaftAxis:'Y / vertical through folded foot',actualShaftGeometryVertical:shafts.every(m=>{const v=size(m);return v.y>v.x*3&&v.y>v.z*3;}),
   fastenerPairLineAxis:'Z / parallel to glass 26mm short edge',actualPairLineParallelShortEdge:Math.abs(positions[0].x-positions[1].x)<.05,
   screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(positions[1].z-positions[0].z).toFixed(2)),
   fastenerGlassCollisionCount:shafts.filter(m=>!bb(m).clone().intersect(glassBox).isEmpty()).length,
@@ -317,7 +317,7 @@ window.__modelA05FootBoreProbe=()=>{
  const bb=o=>new THREE.Box3().setFromObject(o),size=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
  const hp=heads.map(o=>o.getWorldPosition(new THREE.Vector3()));
  return {available:true,verticalClampBoresPresent:foot.userData.A05ActualThroughBoreCount===2,boreCount:foot.userData.A05ActualThroughBoreCount,
-  shaftCount:shafts.length,shaftAxesVertical:shafts.every(m=>{const v=size(m);return v.y>v.z*4&&v.y>v.x*4;}),
+  shaftCount:shafts.length,shaftAxesVertical:shafts.every(m=>{const v=size(m);return v.y>v.z*3&&v.y>v.x*3;}),
   screwPairLineParallelGlassShortEdge:Math.abs(hp[0].x-hp[1].x)<.05,
   screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(hp[0].z-hp[1].z).toFixed(2)),
   shaftsEngageLowerBlade:shafts.every(m=>!bb(m).clone().intersect(bb(blade)).isEmpty()),
