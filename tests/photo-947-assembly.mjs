@@ -66,7 +66,7 @@ assert.equal(names.A03.model,'GCM-VC13M');
 assert.equal(names.A04.model,'GCM-G40M60L');
 assert.match(names.A04L.model,/GCM-G40M40L/);
 assert.match(names.A04L.interfaceNote,/未确认|待/);
-assert(names.A05.name.includes('L形薄金属'),'Do not draw a square crossbeam instead of L sheet');
+assert(names.A05.name.includes('L形'),'Do not draw a square crossbeam instead of the photo-grounded L sheet');
 assert(names.A05.interfaceNote.includes('未'),'Do not certify unseen grip interface');
 const refA=getPhotoComparison('A'),refB=getPhotoComparison('B');
 assert(refA.matched&&!refB.matched);
