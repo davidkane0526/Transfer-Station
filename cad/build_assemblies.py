@@ -765,9 +765,17 @@ def make_a():
     for n,yy in enumerate(screw_y,1):
         shank=vz(1.4,10,screw_x,yy,leg_bottom-4.5)
         hub=vz(3.0,3,screw_x,yy,leg_bottom+5.5)
-        wings=[box(5,2.4,1.8,screw_x+sgn*3,yy,leg_bottom+7.4)
-               for sgn in (-1,1)]
-        add('A',f'A05CS{n}','PHOTO5_VERTICAL_WING_SCREW_PAIR_LINE_PARALLEL_GLASS_SHORT_EDGE',
+        wings=[]
+        for sgn in (-1,1):
+            ear=box(6.5,3.2,2.2,screw_x+sgn*3.25,yy,leg_bottom+7.4)
+            # User fig.5: butterfly ears rise away from the vertical shaft.
+            ear=ear.rotate(
+                (screw_x,yy,leg_bottom+8.5),
+                (screw_x,yy+1,leg_bottom+8.5),
+                -sgn*33.2)
+            wings.append(ear)
+        add('A',f'A05CS{n}',
+            'PHOTO5_VERTICAL_WING_SCREW_RAISED_BUTTERFLY_EARS_PAIR_LINE_PARALLEL_GLASS_SHORT_EDGE',
             shank.fuse(hub,*wings),'C')
 
     # Hidden comparison study only. It is excluded from the installed STEP.
