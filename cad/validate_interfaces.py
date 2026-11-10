@@ -833,6 +833,31 @@ a11=part(A,'A11')[0].BoundingBox()
 check(abs(a11.ylen-31.5)<1.0 and abs(a11.zlen-31.5)<1.0 and
       abs(a11.xlen-60.1)<.12,
       'V79 MWWHL4 uses OEM drawing Ø30.5 x 60.1mm axial envelope')
+# V89: the V87 probe exposed real overlap between the optional SM1RC-style
+# ring / MWWHL4 body and the right-hand focus controls. The complete A11
+# assembly is shifted +22mm outboard; no unverified support bracket is added.
+a11_ring=part(A,'A11R')[0]
+for key in ('A18HR','A18FR','A18FRL'):
+    focus=part(A,key)[0]
+    check(a11_ring.intersect(focus).Volume()<1e-4,
+          'V89 A11 candidate slip ring must not intersect '+key)
+    check(part(A,'A11')[0].intersect(focus).Volume()<1e-4,
+          'V89 MWWHL4 body must not intersect '+key)
+check(a11_ring.distance(part(A,'A18FRL')[0])>0.5,
+      'V89 A11 ring needs positive clearance from right fine-focus knob')
+report['V89_A11_focus_clearance']={
+    'photo_refs':['191','192','193'],
+    'lamp_model':'Thorlabs MWWHL4',
+    'vendor_mounting_option':'SM1RC/M slip-ring class',
+    'placement_shift_from_V87_mm':22,
+    'scene_optical_axis_offset_mm':72,
+    'placement_offset_physically_measured':False,
+    'mounting_method_verified':False,
+    'invented_gooseneck_support_present':False,
+    'ring_right_focus_intersection_mm3':0,
+    'lamp_body_right_focus_intersection_mm3':0,
+    'vendor_lamp_geometry_preserved':True
+}
 check(abs(a19.zmin-155)<.02 and abs(a19.zmax-165)<.02,
       'V79 objective turret remains a distinct 10mm component below microscope head')
 check(110.6+2<o1.zmin<121 and o1.zmax<=160 and
