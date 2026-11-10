@@ -4139,12 +4139,14 @@ function updateDetail(part){
    b35FastenerHtml+b08FitHtml+aRigHtml+a05cVendorHtml+a06VendorHtml+a18VendorHtml+
    photo94QAHtml+photo95QAHtml+
    '</div>';
+ const priceText=String(part.price??'').trim();
+ const hasUsefulPrice=priceText&&!/^(询价|待询价|待识别|未知|—|-|暂无)$/i.test(priceText);
  el.innerHTML='<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
  '<div class="field"><b>ID</b>'+esc(part.id)+'</div>'+
  '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
  '<div class="field"><b>安装</b><p>'+esc(mountUserText)+'</p></div>'+
- '<div class="field"><b>价格</b><p>'+esc(part.price)+'</p></div>'+
- '<div class="field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
+ (hasUsefulPrice?'<div class="field"><b>价格</b><p>'+esc(priceText)+'</p></div>':'')+
+ '<div class="field" id="selected-source-field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
  engineeringHtml;
  const ex=enriched(platform,part);
  const refs=[
@@ -4154,6 +4156,7 @@ function updateDetail(part){
  const linkBox=$('selected-source-links');
  for(const [name,url] of refs){if(!url?.startsWith('https://'))continue;
     const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=name;linkBox.append(a);}
+ if(!linkBox.children.length)$('selected-source-field')?.remove();
  // Selection from either the 3D meshes or BOM must show the corresponding
  // ACTUAL photo thumbnails, and clearly mark unavailable originals.
  mountPhotoEvidence(el,platform,part.id);
