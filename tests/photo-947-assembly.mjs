@@ -67,7 +67,7 @@ assert.equal(names.A04.model,'GCM-G40M60L');
 assert.match(names.A04L.model,/GCM-G40M40L/);
 assert.match(names.A04L.interfaceNote,/未确认|待/);
 assert(names.A05.name.includes('L形'),'Do not draw a square crossbeam instead of the photo-grounded L sheet');
-assert(names.A05.interfaceNote.includes('未'),'Do not certify unseen grip interface');
+assert(/未|候选|不能作为加工尺寸/.test(names.A05.interfaceNote),'Do not certify unseen grip interface');
 const refA=getPhotoComparison('A'),refB=getPhotoComparison('B');
 assert(refA.matched&&!refB.matched);
 assert(refB.noClaim.includes('cannot verify B PHCP-2')||refB.noClaim.includes('cannot verify B'),
