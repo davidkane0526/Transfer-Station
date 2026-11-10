@@ -2166,8 +2166,8 @@ research_ids=set()
 if study_csv.exists():
     with study_csv.open(encoding='utf-8-sig',newline='') as f:
         research_ids={row['id'] for row in csv.DictReader(f)}
-check(research_ids=={'A18MGZ','A05C1302'},
-      'V113 uninstalled-study list must contain only A18MGZ/A05C1302, never required clamp/glass/PDMS hardware')
+check(research_ids=={'A18MGZ','A05C1302','A06GCM1102'},
+      'V116 uninstalled-study list must contain only A18MGZ/A05C1302/A06GCM1102, never required transfer hardware')
 report['V79_A_user_corrected_installed_assembly']={
     'local_sheet_definition':'left-handed single source geometry',
     'complete_film_chain_yaw_deg':180,
