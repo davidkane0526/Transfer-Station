@@ -1,82 +1,38 @@
-// Camera-side constraints from TWO distinct 2026-11-08 user photographs.
-// Both depict the SAME platform A. Monitor location is EXTERNAL
-// reference only, never part of the instrument assembly.
-// Camera distances/pitch are first-pass, not calibrated focal solutions.
-// Scene coordinates: +X right with the VC13M labeled face at scene +Z,
-// +Y vertical, A15 reverse silver slot at -Z.
-// From the -Z side (+X camera offset), BOTH +X and +Z project LEFT.
-// From +X/+Z, +X projects RIGHT, while +Z still projects LEFT.
-// appears RIGHT, and projected +Z (the second XY actuator) appears LEFT.
+// V130: photo 1 is the canonical platform-A orientation anchor.
+// Photos 2 and 3 are rotated side inspections. Their screen-left/right
+// constrains topology only and must not redefine photo 1 handedness.
 export const A20261108PhotoAngles=Object.freeze({
-  monitorBehind:{
-    id:'monitor-behind',name:'照片1｜屏幕居中、长槽板面朝镜头',
-    cameraOffsetMm:Object.freeze([100,43,-345]),
-    targetOffsetMm:Object.freeze([0,128,0]),
-    observedMonitor:'large nearly frontal Windows desktop behind transfer stack',
-    visibleStageFace:'A15 silver sliding slot -Z',
-    visibleMicrometers:['A15 X at image LEFT','upper G40 +X LEFT','lower G40 +Z LEFT'],
-    bentBracketScreenSide:'RIGHT',
-    originalCameraCalibrated:false
-  },
-  monitorLeft:{
-    id:'monitor-left',name:'照片2｜屏幕偏左、VC13M铭牌正面',
-    cameraOffsetMm:Object.freeze([245,90,265]),
-    targetOffsetMm:Object.freeze([0,119,0]),
-    observedMonitor:'Windows desktop on LEFT of instrument image',
-    visibleStageFace:'A03/VC13M +Z front and right-hand +X knobs',
-    visibleMicrometers:['upper G40 +X RIGHT','lower G40 +Z LEFT','A15 +X RIGHT','A15 +Z LEFT'],
-    bentBracketScreenSide:'LEFT or partly occluded',
-    originalCameraCalibrated:false
-  }
+ monitorBehind:{id:'canonical-front',name:'图1｜正确朝向基准',cameraOffsetMm:Object.freeze([100,43,-345]),
+  targetOffsetMm:Object.freeze([0,128,0]),evidenceRole:'canonical-orientation-anchor',
+  hardwareRotatedForPhoto:false,originalCameraCalibrated:false},
+ monitorLeft:{id:'rotated-side-a',name:'图2｜旋转后的侧面 A',cameraOffsetMm:Object.freeze([245,90,265]),
+  targetOffsetMm:Object.freeze([0,119,0]),evidenceRole:'rotated-side-topology-only',
+  hardwareRotatedForPhoto:true,hardwareYawCandidateDeg:90,originalCameraCalibrated:false},
+ monitorRight:{id:'rotated-side-b',name:'图3｜旋转后的侧面 B',cameraOffsetMm:Object.freeze([-245,78,235]),
+  targetOffsetMm:Object.freeze([0,119,0]),evidenceRole:'rotated-side-topology-only',
+  hardwareRotatedForPhoto:true,hardwareYawCandidateDeg:-90,originalCameraCalibrated:false}
 });
 export function aPhotoCameraPose(mode,stageX){
-  const c=A20261108PhotoAngles[mode];
-  if(!c||!Number.isFinite(stageX))throw new RangeError('Invalid A photo camera');
-  return {
-    id:c.id,
-    position:[stageX+c.cameraOffsetMm[0],c.cameraOffsetMm[1]+c.targetOffsetMm[1],
-      c.cameraOffsetMm[2]],
-    target:[stageX+c.targetOffsetMm[0],c.targetOffsetMm[1],c.targetOffsetMm[2]],
-    rollDeg:0,
-    fullyCalibrated:false
-  };
+ const c=A20261108PhotoAngles[mode];
+ if(!c||!Number.isFinite(stageX))throw new RangeError('Invalid A photo camera');
+ return {id:c.id,position:[stageX+c.cameraOffsetMm[0],c.cameraOffsetMm[1]+c.targetOffsetMm[1],c.cameraOffsetMm[2]],
+  target:[stageX+c.targetOffsetMm[0],c.targetOffsetMm[1],c.targetOffsetMm[2]],rollDeg:0,
+  evidenceRole:c.evidenceRole,hardwareRotatedForPhoto:Boolean(c.hardwareRotatedForPhoto),
+  hardwareYawCandidateDeg:c.hardwareYawCandidateDeg??0,hardwareYawVerified:false,fullyCalibrated:false};
 }
 export function photoAProjectedAxis(mode,axis){
-  const def=A20261108PhotoAngles[mode];
-  if(!def)throw new RangeError('Unknown A photo direction');
-  const [cx,,cz]=def.cameraOffsetMm;
-  const h=Math.hypot(cx,cz);
-  if(h<=0)throw new RangeError('Photo camera at target');
-  const rightX=cz/h,rightZ=-cx/h;
-  const v=axis==='+X'?[1,0]:axis==='-X'?[-1,0]:
-    axis==='+Z'?[0,1]:axis==='-Z'?[0,-1]:null;
-  if(!v)throw new RangeError('Expected one horizontal mechanism axis');
-  return Number((rightX*v[0]+rightZ*v[1]).toFixed(4));
+ const def=A20261108PhotoAngles[mode];if(!def)throw new RangeError('Unknown A photo direction');
+ const [cx,,cz]=def.cameraOffsetMm,h=Math.hypot(cx,cz);if(h<=0)throw new RangeError('Photo camera at target');
+ const rightX=cz/h,rightZ=-cx/h;
+ const v=axis==='+X'?[1,0]:axis==='-X'?[-1,0]:axis==='+Z'?[0,1]:axis==='-Z'?[0,-1]:null;
+ if(!v)throw new RangeError('Expected one horizontal mechanism axis');
+ return Number((rightX*v[0]+rightZ*v[1]).toFixed(4));
 }
 export function aPhotoOrientationEvidence(){
-  const m1=aPhotoCameraPose('monitorBehind',-116);
-  const m2=aPhotoCameraPose('monitorLeft',-116);
-  const az=key=>{
-    const p=A20261108PhotoAngles[key].cameraOffsetMm;
-    return Math.atan2(p[0],p[2])*180/Math.PI;
-  };
-  let separation=Math.abs(az('monitorBehind')-az('monitorLeft'));
-  separation=Math.min(separation,360-separation);
-  return {
-    sameUnchangedHardware:true,
-    photographedScreenIsExternalReference:true,
-    camera1SeesNegativeZFace:true,
-    camera2SeesPositiveZFace:true,
-    projectedA04PlusXFromCamera1:photoAProjectedAxis('monitorBehind','+X'),
-    projectedA04PlusXFromCamera2:photoAProjectedAxis('monitorLeft','+X'),
-    projectedA04LPlusZFromCamera1:photoAProjectedAxis('monitorBehind','+Z'),
-    projectedA04LPlusZFromCamera2:photoAProjectedAxis('monitorLeft','+Z'),
-    projectedA15DepthPlusZFromCamera2:photoAProjectedAxis('monitorLeft','+Z'),
-    bentSheetLeftReturnProjectsRightFromCamera1:
-      photoAProjectedAxis('monitorBehind','-X')>0,
-    azimuthSeparationCandidateDeg:Number(separation.toFixed(2)),
-    proposedCamera1:m1,proposedCamera2:m2,
-    physicallyExactCameraAngleVerified:false,
-    photographyToCADWorldRegistrationVerified:false
-  };
+ return {canonicalOrientationSource:'photo-1',photo1DefinesInstalledHandedness:true,canonicalInstalledYawDeg:180,
+  photo2HardwareRotatedForSideView:true,photo3HardwareRotatedForSideView:true,
+  sideViewsMayConstrainTopologyButNotCanonicalScreenDirection:true,sideHardwareYawExactlyVerified:false,
+  photoReferenceAndWorkingOrientationMustMatch:true,photographyToCADWorldRegistrationVerified:false,
+  proposedCamera1:aPhotoCameraPose('monitorBehind',-116),proposedCamera2:aPhotoCameraPose('monitorLeft',-116),
+  proposedCamera3:aPhotoCameraPose('monitorRight',-116)};
 }
