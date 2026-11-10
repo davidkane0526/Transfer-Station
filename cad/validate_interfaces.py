@@ -1116,6 +1116,23 @@ report['V88_A05C_GCM13_family_candidate_boundary']={
     'reason':'GCM-13 actuation topology matches, but A photos do not show readable SKU, mount thread, or full holder length'
 }
 
+report['V90_A05C_GCM13_family_topology']={
+    'photo_sources':['94','194','196'],
+    'vendor_family':'Daheng GCM-13',
+    'vendor_family_topology_applied':True,
+    'exact_sku_geometry_applied':False,
+    'fixed_two_thread_carrier_present':True,
+    'single_middle_moving_plate_present':True,
+    'adjustment_screw_count':2,
+    'both_screws_engage_same_moving_plate':True,
+    'primary_candidate_mount_thread':'M6',
+    'bottom_mount_interface_modelled':False,
+    'bottom_mount_interface_reason':'hidden in photos194/196; M6 is candidate metadata only',
+    'current_photo_fit_effective_grip_length_mm':28,
+    'actual_A05C_sku_verified':False,
+    'safe_for_fabrication':False
+}
+
 # Apply exactly the same rigid yaw used by build_assemblies.py complete export.
 pivot=Vector(ax,0,0)
 vertical=Vector(ax,0,1)

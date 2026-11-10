@@ -206,6 +206,10 @@ window.__platformACompletenessProbe=()=>{
   clampScrewProxyCount:screws.children.filter(m=>m.userData.photo194WingFastenerCandidate).length,
   glassRequiredForTransfer:Boolean(slide.userData.requiredInstalledTransferElement),
   screwAxisParallelGlassShortEdge:Boolean(clamp.userData.screwAxisParallelToGlassShortEdge),
+  gcm13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
+  gcm13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
+  gcm13ThreadCarrierCount:clamp.children.filter(o=>o.userData.A05CGCM13ThreadCarrier).length,
+  gcm13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),
   clampWorldY:clamp.position.y,glassWorldY:slide.position.y,bracketWorldY:bracket.position.y
  };
 };
@@ -280,6 +284,10 @@ window.__platformABareClampProbe=()=>{
      heads[0].getWorldPosition(new THREE.Vector3()).x-
      heads[1].getWorldPosition(new THREE.Vector3()).x).toFixed(2)),
    screwPressureEngaged,screwGlassOverlapMm3:Number(screwGlassOverlap.toFixed(4)),
+   gcm13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
+   gcm13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
+   gcm13ThreadCarrierCount:clamp.children.filter(o=>o.userData.A05CGCM13ThreadCarrier).length,
+   gcm13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),
    installedYawDeg:sheet.userData.installedYawDeg??0,
    stampToSampleCenterXmm:stamp?Number((stampPos.x-samplePos.x).toFixed(2)):null,
    approvedDisplay:'A05 folded sheet + side clamp + required glass + PDMS',
@@ -319,6 +327,12 @@ window.__modelA05PhotoEvidenceProbe=()=>{
    GCM13VendorMiddleMovingPlate:Boolean(clamp.userData.GCM13VendorMiddleMovingPlate),
    GCM13Candidates:clamp.userData.GCM13Candidates??[],
    GCM13GeometryApplied:Boolean(clamp.userData.GCM13GeometryApplied),
+   GCM13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
+   GCM13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),
+   GCM13PrimaryCandidateMountThread:clamp.userData.GCM13PrimaryCandidateMountThread??null,
+   GCM13BottomMountInterfaceModelled:Boolean(clamp.userData.GCM13BottomMountInterfaceModelled),
+   GCM13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
+   GCM13ThreadCarrierCount:clamp.children.filter(o=>o.userData.A05CGCM13ThreadCarrier).length,
    currentGripLengthMmCandidate:clamp.userData.glassGripLengthMmCandidate??null,
    currentGripLengthIsFullOEMLength:Boolean(clamp.userData.glassGripLengthIsFullOEMLength),
    glassClampOEMVerified:false};
@@ -3097,13 +3111,24 @@ function platformA(){
    const pressureRail=add(g,cub(clampLengthX,3,2,mats.silver,
      clampCenterX,glassCenterY,aBent.sheetFrontZ+14));
    pressureRail.userData.A05CPressureRail=true;
+   pressureRail.userData.A05CMovingMiddlePlate=true;
+   pressureRail.userData.GCM13FamilyTopologyRole='moving-middle-plate';
    for(const q of [5,23]){
      const sxLocal=glassNearX+outwardSign*q;
      const boss=add(g,cub(7,7,7,mats.dark,
        sxLocal,glassCenterY,aBent.sheetFrontZ+18.5));
      boss.userData.A05CSideScrewBoss=true;
+     boss.userData.A05CGCM13AdjustmentThreadBoss=true;
    }
-   g.userData.A05CClampingStackType='support ledge + fixed rail + pressure rail';
+   // V90: GCM-13 manufacturer topology has two adjustment threads carried
+   // by one fixed member and both push the same middle moving plate. Keep
+   // the current 28mm photo-fit span, but make that topology physically
+   // visible without copying an unverified 52/60mm exact SKU envelope.
+   const threadedCarrier=add(g,cub(clampLengthX,5,4,mats.dark,
+     clampCenterX,glassCenterY,aBent.sheetFrontZ+18.5));
+   threadedCarrier.userData.A05CGCM13ThreadCarrier=true;
+   threadedCarrier.userData.GCM13FamilyTopologyRole='two-thread-fixed-carrier';
+   g.userData.A05CClampingStackType='support ledge + fixed rail + GCM-13-family moving middle plate';
    g.userData.unverifiedClampMechanism=true;
    g.userData.glassGripLengthMmCandidate=clampLengthX;
    g.userData.glassGripLengthIsFullOEMLength=false;
@@ -3116,6 +3141,12 @@ function platformA(){
    g.userData.GCM13VendorMaxPlateThicknessMm=5;
    g.userData.GCM13VendorAdjustmentThreadCount=2;
    g.userData.GCM13VendorMiddleMovingPlate=true;
+   g.userData.GCM13FamilyTopologyApplied=true;
+   g.userData.GCM13ExactSkuGeometryApplied=false;
+   g.userData.GCM13PrimaryCandidateMountThread='M6';
+   // Photos194/196 do not expose the bottom interface. Do not fabricate a
+   // mounting bore/stud merely because both primary catalogue candidates use M6.
+   g.userData.GCM13BottomMountInterfaceModelled=false;
    g.userData.GCM13Candidates=[
      {sku:'GCM-1302M',mountThread:'M6',Lmm:60,weightG:105,priority:'primary'},
      {sku:'GCM-1311M',mountThread:'M6',Lmm:52,weightG:105,priority:'primary'},
@@ -3124,7 +3155,7 @@ function platformA(){
    ];
    g.userData.GCM13GeometryApplied=false;
    g.userData.actualClampOEM=false;
-   label(g,'A05C · GCM-13系列高可信功能候选 / 1302M与1311M待尺图区分',
+   label(g,'A05C · V90 GCM-13厂家拓扑已应用 / 具体1302M或1311M仍待确认',
      clampCenterX,18,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
@@ -3139,6 +3170,7 @@ function platformA(){
      shaft.userData.A05CSCandidateShank=true;
      shaft.userData.A05CSShaftAxis='glass-short-edge-Z';
      shaft.userData.A05CSContactsPressureRail=true;
+     shaft.userData.GCM13AdjustmentScrewTopology=true;
      const hub=add(g,cyl(3.0,3,mats.silver,
        screwX,glassCenterY,aBent.sheetFrontZ+35.5));
      hub.rotation.x=Math.PI/2;
@@ -3982,7 +4014,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V89 / '+(aWorkingPoseMode?
+   '平台 A · V90 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4141,7 +4173,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V89当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V90当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+

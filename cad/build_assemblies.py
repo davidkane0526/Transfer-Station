@@ -760,9 +760,14 @@ def make_a():
     for q in (5,23):
         screw_x=glass_near-q
         bosses.append(box(7,7,7,screw_x,18.5,glass_bottom-3))
-    add('A','A05C','side_clamp_fixed_carrier_SHORT_EDGE_SCREW_AXIS_CANDIDATE',
-        neck.fuse(ledge,fixed_rail,*bosses),'C')
-    add('A','A05CU','moving_pressure_rail_side_clamp_CANDIDATE',
+    # V90: manufacturer-family topology only. A common fixed carrier holds
+    # both adjustment threads, which drive one middle moving plate. The
+    # current 28mm span remains a photo-fit envelope, not GCM-1302M/1311M
+    # exact overall geometry.
+    thread_carrier=box(28,4,5,clamp_center_x,18.5,glass_bottom-3)
+    add('A','A05C','GCM13_FAMILY_TOPOLOGY_FIXED_CARRIER_PHOTO_FIT_ENVELOPE',
+        neck.fuse(ledge,fixed_rail,thread_carrier,*bosses),'C')
+    add('A','A05CU','GCM13_FAMILY_TOPOLOGY_MIDDLE_MOVING_PLATE_PHOTO_FIT',
         box(28,2,3,clamp_center_x,14,glass_bottom-1),'C')
 
     # Two screw SHAFTS run along STEP +Y = WebGL scene Z, parallel to the
@@ -774,7 +779,7 @@ def make_a():
         hub=vy(3.0,3,screw_x,34,glass_center_z)
         wings=[box(5,1.6,2.8,screw_x+sgn*3,36.2,glass_center_z-1.4)
                for sgn in (-1,1)]
-        add('A',f'A05CS{i}','side_clamp_screw_AXIS_PARALLEL_GLASS_SHORT_EDGE',
+        add('A',f'A05CS{i}','GCM13_FAMILY_TWO_ADJUSTMENT_SCREWS_AXIS_PARALLEL_GLASS_SHORT_EDGE',
             shank.fuse(hub,*wings),'C')
 
     add('A','A05G','installed_standard_76x26x1mm_glass_CANDIDATE',
@@ -953,11 +958,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V81'
+CAD_REVISION='V90'
 UNINSTALLED_A_STUDY_IDS=frozenset()
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
-    """V81 installed A: vendor-height-corrected film chain + photo-refined microscope.
+    """V90 installed A: vendor-height-corrected film chain + GCM-13-family clamp topology + photo-refined microscope.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """

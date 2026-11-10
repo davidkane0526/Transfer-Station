@@ -632,7 +632,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V89.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V90.*整体旋转180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -973,6 +973,10 @@ try{
  assert.equal(aComplete.stampAtRightEdge,true);
  assert.equal(aComplete.glassRequiredForTransfer,true);
  assert.equal(aComplete.screwAxisParallelGlassShortEdge,true);
+ assert.equal(aComplete.gcm13FamilyTopologyApplied,true);
+ assert.equal(aComplete.gcm13MovingMiddlePlateCount,1);
+ assert.equal(aComplete.gcm13ThreadCarrierCount,1);
+ assert.equal(aComplete.gcm13ExactSkuGeometryApplied,false);
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('A05C');
  const aClampRow=page.locator('#bom-body tr').filter({hasText:/^\s*A05C\b/});
@@ -1004,7 +1008,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V89当前安装方向/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V90当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
@@ -1031,6 +1035,11 @@ try{
  assert.equal(foot.shaftsEngagePressureRail,true);
  assert.equal(foot.independentFastenerPart,true);
  assert.equal(foot.actualOEMThreadsVerified,false);
+ const clampTopology=await page.evaluate(()=>window.__platformABareClampProbe?.());
+ assert.equal(clampTopology.gcm13FamilyTopologyApplied,true);
+ assert.equal(clampTopology.gcm13MovingMiddlePlateCount,1);
+ assert.equal(clampTopology.gcm13ThreadCarrierCount,1);
+ assert.equal(clampTopology.gcm13ExactSkuGeometryApplied,false);
  const photoAxis=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
  assert.equal(photoAxis?.available,true);
  assert.equal(photoAxis.pose,'installed180');
@@ -1053,7 +1062,15 @@ try{
  assert.equal(photoAxis.GCM13Candidates[0].Lmm,60);
  assert.equal(photoAxis.GCM13Candidates[1].Lmm,52);
  assert.equal(photoAxis.GCM13GeometryApplied,false,
-   'GCM-13 family match must not replace photo-constrained A05C geometry');
+   'Exact GCM-13 SKU geometry must not replace the photo-fit A05C envelope');
+ assert.equal(photoAxis.GCM13FamilyTopologyApplied,true,
+   'V90 must apply the manufacturer-confirmed two-thread/middle-moving-plate topology');
+ assert.equal(photoAxis.GCM13ExactSkuGeometryApplied,false);
+ assert.equal(photoAxis.GCM13PrimaryCandidateMountThread,'M6');
+ assert.equal(photoAxis.GCM13BottomMountInterfaceModelled,false,
+   'Hidden A05C bottom interface must not receive a fabricated M6 hole');
+ assert.equal(photoAxis.GCM13MovingMiddlePlateCount,1);
+ assert.equal(photoAxis.GCM13ThreadCarrierCount,1);
  assert.equal(photoAxis.currentGripLengthMmCandidate,28);
  assert.equal(photoAxis.currentGripLengthIsFullOEMLength,false);
  assert.equal(photoAxis.glassClampOEMVerified,false);
