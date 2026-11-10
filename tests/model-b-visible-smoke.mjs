@@ -632,7 +632,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V106.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V107.*整体旋转180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -1172,7 +1172,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V106当前安装方向/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V107当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
@@ -1342,7 +1342,14 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aBefore.sampleRotaryGCM1102DirectSubstitutionWithinRulerRange,false,
    'A Ø66 diameter match alone cannot justify dropping the stack from 89.2mm to 77mm');
  assert.equal(aBefore.sampleRotaryGCM1102MinimumMissingStackHeightMm,10);
- assert.equal(aBefore.sampleRotaryGCM1102NominalMissingStackHeightMm,13);
+ assert.equal(aBefore.sampleRotaryGCM1102MaximumMissingStackHeightMm,16);
+ assert.equal(aBefore.sampleRotaryGCM1102RulerMidpointMissingStackHeightMm,13);
+ assert.equal(aBefore.sampleRotaryGCM1102ExactSceneReplacementHeightLossMm,12.2);
+ assert.deepEqual(aBefore.sampleRotaryGCM1102CurrentSceneStackBreakdownMm,{A16:8,A06:33.2,A02:20,A07:28,total:89.2});
+ assert.deepEqual(aBefore.sampleRotaryGCM1102VendorReplacementStackBreakdownMm,{A16:8,A06:21,A02:20,A07:28,total:77});
+ assert.equal(aBefore.sampleRotaryGCM1102A16IndependentBaseAlreadyIncludedInBothStacks,true);
+ assert.equal(aBefore.sampleRotaryGCM1102A16CannotExplainReplacementHeightLoss,true);
+ assert.equal(aBefore.sampleRotaryGCM1102Standard12mmAdapterIdentified,false);
  assert.match(aBefore.sampleRotaryGCM1102CandidatePriority,/unresolved-height-stack/);
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('A06');

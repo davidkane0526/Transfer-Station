@@ -57,6 +57,10 @@ assert(!aSample.missing.some(x=>x.includes('单/双轴')),'V93 closed the A02 ax
 assert(aSample.missing.some(x=>x.includes('具体单轴后缀')),'A02 exact single-axis suffix and mounting face remain unresolved');
 assert(aSample.missing.some(x=>x.includes('10–16mm')),
   'A06 unresolved adapter/support height must remain an explicit acceptance gap');
+assert(aSample.missing.some(x=>x.includes('12.2mm')),
+  'A06 interface ledger must preserve the exact 89.2-to-77.0mm replacement loss');
+assert(aSample.missing.some(x=>x.includes('A16 8mm')),
+  'A16 is already present in both stack calculations and must not be double-counted');
 assert(b09.some(x=>x.id==='B-CHUCK-FASTENERS'),'Upper fastener interface omitted');
 assert(b09.some(x=>x.missing.some(s=>s.includes('攻丝孔组'))),
   'Vendor clearance holes must never silently become tapped upper fastener holes');

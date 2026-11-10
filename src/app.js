@@ -1118,8 +1118,22 @@ window.__modelAKinematicProbe=()=>{
       Boolean(rotarySample.userData.GCM1102DirectSubstitutionWithinRulerRange),
     sampleRotaryGCM1102MinimumMissingStackHeightMm:
       rotarySample.userData.GCM1102MinimumMissingStackHeightMm??null,
-    sampleRotaryGCM1102NominalMissingStackHeightMm:
-      rotarySample.userData.GCM1102NominalMissingStackHeightMm??null,
+    sampleRotaryGCM1102MaximumMissingStackHeightMm:
+      rotarySample.userData.GCM1102MaximumMissingStackHeightMm??null,
+    sampleRotaryGCM1102RulerMidpointMissingStackHeightMm:
+      rotarySample.userData.GCM1102RulerMidpointMissingStackHeightMm??null,
+    sampleRotaryGCM1102ExactSceneReplacementHeightLossMm:
+      rotarySample.userData.GCM1102ExactSceneReplacementHeightLossMm??null,
+    sampleRotaryGCM1102CurrentSceneStackBreakdownMm:
+      rotarySample.userData.GCM1102CurrentSceneStackBreakdownMm??null,
+    sampleRotaryGCM1102VendorReplacementStackBreakdownMm:
+      rotarySample.userData.GCM1102VendorReplacementStackBreakdownMm??null,
+    sampleRotaryGCM1102A16IndependentBaseAlreadyIncludedInBothStacks:
+      Boolean(rotarySample.userData.GCM1102A16IndependentBaseAlreadyIncludedInBothStacks),
+    sampleRotaryGCM1102A16CannotExplainReplacementHeightLoss:
+      Boolean(rotarySample.userData.GCM1102A16CannotExplainReplacementHeightLoss),
+    sampleRotaryGCM1102Standard12mmAdapterIdentified:
+      Boolean(rotarySample.userData.GCM1102Standard12mmAdapterIdentified),
     sampleRotaryGCM1102CandidatePriority:rotarySample.userData.GCM1102CandidatePriority??null,
     a10ActualFootBoresOpen:a10Open,
     a10CandidateBoltHeadCount:a10Heads,
@@ -3391,7 +3405,14 @@ function platformA(){
   g.userData.GCM1102DirectSubstitutionSampleTopAboveBoardMm=77;
   g.userData.GCM1102DirectSubstitutionWithinRulerRange=false;
   g.userData.GCM1102MinimumMissingStackHeightMm=10;
-  g.userData.GCM1102NominalMissingStackHeightMm=13;
+  g.userData.GCM1102MaximumMissingStackHeightMm=16;
+  g.userData.GCM1102RulerMidpointMissingStackHeightMm=13;
+  g.userData.GCM1102ExactSceneReplacementHeightLossMm=12.2;
+  g.userData.GCM1102CurrentSceneStackBreakdownMm={A16:8,A06:33.2,A02:20,A07:28,total:89.2};
+  g.userData.GCM1102VendorReplacementStackBreakdownMm={A16:8,A06:21,A02:20,A07:28,total:77};
+  g.userData.GCM1102A16IndependentBaseAlreadyIncludedInBothStacks=true;
+  g.userData.GCM1102A16CannotExplainReplacementHeightLoss=true;
+  g.userData.GCM1102Standard12mmAdapterIdentified=false;
   g.userData.GCM1102CandidatePriority='high-diameter-match / unresolved-height-stack';
   // V85: do NOT replace the current 33.2mm stack contribution by the
   // 21mm vendor stage until the missing 10–16mm physical layer/interface
@@ -4200,7 +4221,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V106 / '+(aWorkingPoseMode?
+   '平台 A · V107 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4359,7 +4380,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V106当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V107当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
