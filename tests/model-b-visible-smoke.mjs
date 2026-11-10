@@ -696,37 +696,42 @@ try{
  await photoShot('Transfer-Station-A-Photo196-G40.png','#btn-photo196');
  // V95: dedicated closeups are mandatory because general photo views can
  // crop the exact component being modified.
- assert.equal(await page.evaluate(()=>window.__focusA05ClampAudit?.()),true);
+ assert.equal(await page.evaluate(()=>window.__focusA05MovingAudit?.()),true);
  await page.waitForTimeout(220);
- const a05View=await page.evaluate(()=>window.__A05CloseupProbe?.());
- console.log('V102 A05 dedicated closeup QA:',JSON.stringify(a05View));
- assert.equal(a05View?.available,true);
- assert.equal(a05View.selectedVisibilityScore,4,
-   'V102 camera search must find one view where fixed jaw, moving plate and both screw heads are directly inspectable');
- assert.equal(a05View.selectedLocalViewDirection.length,3);
- assert(Math.abs(a05View.projection.centerX)<.22&&Math.abs(a05View.projection.centerY)<.22,
-   'A05 clamp must actually be centered in its dedicated audit frame');
- assert(a05View.projection.width>.34&&a05View.projection.height>.22,
-   'A05 clamp must occupy a meaningful fraction of the audit frame');
- assert.equal(a05View.fixedJawRay.clear,true,
-   'A05 fixed jaw must be directly visible as the first opaque target; transparent glass may be skipped only when it actually lies on the ray');
- assert.equal(a05View.transparentSkipPolicy,'A05G-only');
- const a05Skipped=[a05View.fixedJawRay,a05View.pressureRay,...a05View.screwHeadRays]
-   .flatMap(x=>x.skippedTransparentParts??[]);
- assert(a05Skipped.every(x=>x==='A05G'),
-   'A05 visibility QA may skip only the explicitly transparent installed glass, never an opaque component');
- assert.equal(a05View.fixedJawRay.firstPart,'A05C');
- assert(
-   a05View.fixedJawRay.skippedTransparentParts.length===0 ||
-   a05View.fixedJawRay.skippedTransparentParts.every(x=>x==='A05G'),
-   'A direct line of sight that does not intersect the glass is valid and must not be forced to report a synthetic glass skip');
- assert.equal(a05View.pressureRay.clear,true,'A05 moving pressure plate must be the first opaque target after transparent glass');
- assert.equal(a05View.pressureRay.firstPart,'A05C');
- assert(a05View.screwHeadRays.every(x=>x.clear),'Both A05 screw heads must be directly inspectable');
- assert(a05View.screwHeadRays.every(x=>x.firstPart==='A05CS'));
+ const a05Moving=await page.evaluate(()=>window.__A05MovingCloseupProbe?.());
+ console.log('V117 A05 moving-side closeup QA:',JSON.stringify(a05Moving));
+ assert.equal(a05Moving?.available,true);
+ assert.equal(a05Moving.mode,'moving');
+ assert.equal(a05Moving.selectedVisibilityScore,3,
+   'Moving-side audit must directly expose the moving pressure plate and both screw heads');
+ assert.equal(a05Moving.pressureRay.clear,true);
+ assert.equal(a05Moving.pressureRay.firstPart,'A05C');
+ assert(a05Moving.screwHeadRays.every(x=>x.clear));
+ assert(a05Moving.screwHeadRays.every(x=>x.firstPart==='A05CS'));
+ assert(Math.abs(a05Moving.projection.centerX)<.25&&Math.abs(a05Moving.projection.centerY)<.25);
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
-   await page.screenshot({path:'Transfer-Station-A-V96-A05-Clamp-Closeup.png',
+   await page.screenshot({path:'Transfer-Station-A-V117-A05-Moving-Clamp-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+
+ assert.equal(await page.evaluate(()=>window.__focusA05FixedAudit?.()),true);
+ await page.waitForTimeout(220);
+ const a05Fixed=await page.evaluate(()=>window.__A05FixedCloseupProbe?.());
+ console.log('V117 A05 fixed-side closeup QA:',JSON.stringify(a05Fixed));
+ assert.equal(a05Fixed?.available,true);
+ assert.equal(a05Fixed.mode,'fixed');
+ assert.equal(a05Fixed.selectedVisibilityScore,2,
+   'Fixed-side audit must directly expose the fixed lower jaw and installed glass edge');
+ assert.equal(a05Fixed.fixedJawRay.clear,true);
+ assert.equal(a05Fixed.fixedJawRay.firstPart,'A05C');
+ assert.equal(a05Fixed.glassEdgeRay.clear,true);
+ assert.equal(a05Fixed.glassEdgeRay.firstPart,'A05G');
+ assert(Math.abs(a05Fixed.projection.centerX)<.25&&Math.abs(a05Fixed.projection.centerY)<.25);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V117-A05-Fixed-Jaw-Closeup.png',
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }

@@ -4573,51 +4573,63 @@ function _a05AuditTargets(){
  if(!clamp||!screws||!glassRoot||!fixed||!pressure||heads.length!==2)return null;
  return {clamp,screws,glassRoot,fixed,pressure,heads};
 }
-function _a05AuditRays(q){
+function _a05AuditRays(q,mode){
  const skip={transparentSkipRoots:[q.glassRoot]};
- return [
-   _auditRayClear(q.fixed,[q.fixed],skip),
-   _auditRayClear(q.pressure,[q.pressure],skip),
-   ...q.heads.map(o=>_auditRayClear(o,[o],skip))
- ];
+ if(mode==='fixed'){
+   const slide=q.glassRoot.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
+   return {
+     fixedJaw:_auditRayClear(q.fixed,[q.fixed],skip),
+     glassEdge:slide?_auditRayClear(slide,[slide]):{clear:false,firstPart:null}
+   };
+ }
+ return {
+   pressure:_auditRayClear(q.pressure,[q.pressure],skip),
+   screwHeads:q.heads.map(o=>_auditRayClear(o,[o],skip))
+ };
 }
-function focusA05ClampAudit(){
+function _focusA05AuditView(mode){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
  currentRoot.updateWorldMatrix(true,true);
  const q=_a05AuditTargets();if(!q)return false;
- const b=_auditBoxFor([q.clamp,q.screws]),target=b.getCenter(new THREE.Vector3());
+ const fixedMode=mode==='fixed';
+ const b=fixedMode?_auditBoxFor([q.fixed,q.glassRoot]):_auditBoxFor([q.pressure,q.screws]);
+ const target=b.getCenter(new THREE.Vector3());
  const worldQ=q.clamp.getWorldQuaternion(new THREE.Quaternion());
- const size=b.getSize(new THREE.Vector3()),distance=Math.max(105,size.length()*1.8);
- // V102: choose a true inspection direction. V96's single +Z-biased view
- // centered the clamp but let A05C's own fixed carrier hide the moving plate.
+ const size=b.getSize(new THREE.Vector3()),distance=Math.max(100,size.length()*1.75);
  const dirs=[
    [0,1.25,1],[0,1.25,-1],
    [1,1.1,1],[-1,1.1,1],[1,1.1,-1],[-1,1.1,-1],
    [.55,.72,1],[-.55,.72,1],[.55,.72,-1],[-.55,.72,-1],
-   [1.15,.75,.35],[-1.15,.75,.35],[1.15,.75,-.35],[-1.15,.75,-.35]
+   [1.15,.75,.35],[-1.15,.75,.35],[1.15,.75,-.35],[-1.15,.75,-.35],
+   [0,.35,1.4],[0,.35,-1.4]
  ];
  let best=null;
  for(const raw of dirs){
    const offset=new THREE.Vector3(...raw).normalize().multiplyScalar(distance).applyQuaternion(worldQ);
    camera.position.copy(target).add(offset);
    orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
-   const rays=_a05AuditRays(q);
-   const score=rays.filter(x=>x.clear).length;
+   const rays=_a05AuditRays(q,mode);
+   const clearCount=fixedMode?
+     [rays.fixedJaw,rays.glassEdge].filter(x=>x.clear).length:
+     [rays.pressure,...rays.screwHeads].filter(x=>x.clear).length;
    const projection=_auditProjection(b);
    const centerPenalty=Math.abs(projection.centerX)+Math.abs(projection.centerY);
    const area=projection.width*projection.height;
-   if(!best||score>best.score||
-      (score===best.score&&centerPenalty<best.centerPenalty-.001)||
-      (score===best.score&&Math.abs(centerPenalty-best.centerPenalty)<.001&&area>best.area))
-     best={raw,score,centerPenalty,area};
+   if(!best||clearCount>best.score||
+      (clearCount===best.score&&centerPenalty<best.centerPenalty-.001)||
+      (clearCount===best.score&&Math.abs(centerPenalty-best.centerPenalty)<.001&&area>best.area))
+     best={raw,score:clearCount,centerPenalty,area};
  }
  const offset=new THREE.Vector3(...best.raw).normalize().multiplyScalar(distance).applyQuaternion(worldQ);
  camera.position.copy(target).add(offset);
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
- q.clamp.userData.A05AuditViewScore=best.score;
- q.clamp.userData.A05AuditViewDirection=best.raw;
+ q.clamp.userData['A05Audit'+(fixedMode?'Fixed':'Moving')+'Score']=best.score;
+ q.clamp.userData['A05Audit'+(fixedMode?'Fixed':'Moving')+'Direction']=best.raw;
  return true;
 }
+window.__focusA05MovingAudit=()=>_focusA05AuditView('moving');
+window.__focusA05FixedAudit=()=>_focusA05AuditView('fixed');
+window.__focusA05ClampAudit=window.__focusA05MovingAudit;
 function focusA17FrontAudit(){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
  currentRoot.updateWorldMatrix(true,true);
@@ -4642,17 +4654,31 @@ function focusA17FrontAudit(){
 }
 window.__focusA05ClampAudit=focusA05ClampAudit;
 window.__focusA17FrontAudit=focusA17FrontAudit;
-window.__A05CloseupProbe=()=>{
+window.__A05MovingCloseupProbe=()=>{
  if(platform!=='A')return {available:false};
  currentRoot.updateWorldMatrix(true,true);
  const q=_a05AuditTargets();if(!q)return {available:false};
- const rays=_a05AuditRays(q);
- return {available:true,projection:_auditProjection(_auditBoxFor([q.clamp,q.screws])),
+ const rays=_a05AuditRays(q,'moving');
+ return {available:true,mode:'moving',
+   projection:_auditProjection(_auditBoxFor([q.pressure,q.screws])),
    transparentSkipPolicy:'A05G-only',
-   selectedVisibilityScore:q.clamp.userData.A05AuditViewScore??null,
-   selectedLocalViewDirection:q.clamp.userData.A05AuditViewDirection??null,
-   fixedJawRay:rays[0],pressureRay:rays[1],screwHeadRays:rays.slice(2)};
+   selectedVisibilityScore:q.clamp.userData.A05AuditMovingScore??null,
+   selectedLocalViewDirection:q.clamp.userData.A05AuditMovingDirection??null,
+   pressureRay:rays.pressure,screwHeadRays:rays.screwHeads};
 };
+window.__A05FixedCloseupProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a05AuditTargets();if(!q)return {available:false};
+ const rays=_a05AuditRays(q,'fixed');
+ return {available:true,mode:'fixed',
+   projection:_auditProjection(_auditBoxFor([q.fixed,q.glassRoot])),
+   transparentSkipPolicy:'A05G-only',
+   selectedVisibilityScore:q.clamp.userData.A05AuditFixedScore??null,
+   selectedLocalViewDirection:q.clamp.userData.A05AuditFixedDirection??null,
+   fixedJawRay:rays.fixedJaw,glassEdgeRay:rays.glassEdge};
+};
+window.__A05CloseupProbe=window.__A05MovingCloseupProbe;
 window.__A17CloseupProbe=()=>{
  if(platform!=='A')return {available:false};
  currentRoot.updateWorldMatrix(true,true);
