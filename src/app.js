@@ -4520,6 +4520,7 @@ window.__A05CloseupProbe=()=>{
  const q=_a05AuditTargets();if(!q)return {available:false};
  const rays=_a05AuditRays(q);
  return {available:true,projection:_auditProjection(_auditBoxFor([q.clamp,q.screws])),
+   transparentSkipPolicy:'A05G-only',
    selectedVisibilityScore:q.clamp.userData.A05AuditViewScore??null,
    selectedLocalViewDirection:q.clamp.userData.A05AuditViewDirection??null,
    fixedJawRay:rays[0],pressureRay:rays[1],screwHeadRays:rays.slice(2)};
