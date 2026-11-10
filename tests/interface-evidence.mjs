@@ -52,6 +52,9 @@ assert.match(aSample.known,/GCM-1102M/);
 assert.match(aSample.known,/Ø66/);
 assert.match(aSample.known,/89\.2mm.*77mm/,
   'A06 live ledger must retain the GCM-1102M diameter match and unresolved height conflict');
+assert.match(aSample.known,/A02.*单X轴/,'A02 must remain photo-confirmed single-axis in live interface evidence');
+assert(!aSample.missing.some(x=>x.includes('单/双轴')),'V93 closed the A02 axis-count question; procurement must not reopen it');
+assert(aSample.missing.some(x=>x.includes('具体单轴后缀')),'A02 exact single-axis suffix and mounting face remain unresolved');
 assert(aSample.missing.some(x=>x.includes('10–16mm')),
   'A06 unresolved adapter/support height must remain an explicit acceptance gap');
 assert(b09.some(x=>x.id==='B-CHUCK-FASTENERS'),'Upper fastener interface omitted');
