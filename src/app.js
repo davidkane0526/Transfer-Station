@@ -4871,6 +4871,12 @@ function _a18OpticalRays(q){
    _auditRayClear(q.turret,[q.a19])
  ];
 }
+function _a18SupportRays(q){
+ return [
+   _auditAnyVisibleSurface(q.body,[q.body]),
+   _auditAnyVisibleSurface(q.boom,[q.boom])
+ ];
+}
 function _a18CommonAudit(q){
  const ledBox=new THREE.Box3().setFromObject(q.led),a18Box=new THREE.Box3().setFromObject(q.a18);
  return {
@@ -4902,10 +4908,7 @@ function _focusA18AuditView(mode){
  for(const off of A18_AUDIT_CANDIDATES){
    camera.position.copy(target).add(new THREE.Vector3(...off));
    orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
-   const rays=optical?_a18OpticalRays(q):[
-     _auditRayClear(q.body,[q.a18]),
-     _auditRayClear(q.boom,[q.a10])
-   ];
+   const rays=optical?_a18OpticalRays(q):_a18SupportRays(q);
    const score=rays.filter(x=>x.clear).length;
    const projection=_auditProjection(box);
    const centerPenalty=Math.abs(projection.centerX)+Math.abs(projection.centerY);
@@ -4969,8 +4972,8 @@ window.__A18SupportCloseupProbe=()=>{
    selectedCameraOffset:q.a18.userData.A18AuditViewMode==='support'?q.a18.userData.A18AuditViewOffset:null,
    fitScale:q.a18.userData.A18AuditViewMode==='support'?q.a18.userData.A18AuditViewFitScale:null,
    projection:_auditProjection(_auditBoxFor([q.body,q.boom])),
-   bodyRay:_auditRayClear(q.body,[q.a18]),
-   supportBoomRay:_auditRayClear(q.boom,[q.a10]),
+   bodyRay:_a18SupportRays(q)[0],
+   supportBoomRay:_a18SupportRays(q)[1],
    ..._a18CommonAudit(q)
  };
 };

@@ -818,6 +818,10 @@ try{
  assert.equal(a18Support.bodyRay.clear,true);
  assert.equal(a18Support.supportBoomRay.clear,true,
    'A10-to-A18 support boom must be directly inspectable from the rear/oblique audit view');
+ assert(a18Support.supportBoomRay.sample,
+   'Support audit must report which exposed A10 surface was actually visible');
+ assert.equal(a18Support.supportBoomRay.firstPart,'A10',
+   'The first opaque hit for the exposed support surface must remain A10 itself');
  assert.equal(a18Support.A11IsSeparatePart,true);
  assert.equal(a18Support.A18FocusControlCount,4);
  {
