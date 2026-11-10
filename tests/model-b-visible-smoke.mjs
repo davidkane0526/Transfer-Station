@@ -838,6 +838,18 @@ try{
  assert.equal(dA.lampOEMDiameterMm,30.5);
  assert.equal(dA.lampOEMLengthMm,60.1);
  assert.equal(dA.lampSM1ThreadDepthMm,6);
+ assert.equal(dA.lampCandidateRingPresent,true);
+ assert.equal(dA.lampRingToA18BodyGapMm,30);
+ assert.equal(dA.lampRingRightFocusOverlapMm3,0,
+   'V89 SM1RC-style ring must not occupy right focus-control volume');
+ assert.equal(dA.lampBodyRightFocusOverlapMm3,0,
+   'V89 MWWHL4 body must not occupy right focus-control volume');
+ assert.equal(dA.lampMountingMethodVerified,false,
+   'Collision-free placement does not prove the real A11 mounting hardware');
+ assert.equal(dA.lampPhotoPlacementOffsetFromOpticalAxisMm,72);
+ assert.equal(dA.lampPlacementOffsetMeasured,false);
+ assert.equal(dA.lampCollisionFreePlacementCandidate,true);
+ assert.equal(dA.lampPlacementShiftFromV87Mm,22);
  assert.equal(dA.lampElectricalCablePresent,true);
  assert.equal(dA.inventedLampGooseneckPresent,false,
    'Old invented MWWHL4 mechanical gooseneck must stay deleted');
