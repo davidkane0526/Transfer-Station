@@ -3906,31 +3906,24 @@ function updateDetail(part){
  const aRigHtml=aRigAudit?(aWorkingPoseMode?
    '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
    ' data-gap-mm="'+aRigAudit.clampHeaterClearanceMm+'">'+
-   '<b>V80 当前安装方向 · 厂家高度包络校正 + 整套膜侧刚体旋转180°</b><p>A17→A15→A03→A04L→A04→A05→夹具→玻片保持同一刚体链，'+
-   '不是只镜像末端支架。玻片76×26×1 mm为当前尺寸候选；两枚夹紧螺杆轴线平行26 mm短边。'+
-   'A15+VC13M以同部件厂家组合126mm参考总高作包络交叉校核（标准组合顺序与实机相反，不作型号认定）；当前模型下端高度'+aRigAudit.a15Vc13LowerPoseHeightMm+' mm。'+
-   'PDMS中心X='+aRigAudit.stampCenterX+' mm；A17/A16底座包络间隔 '+aRigAudit.footprintGapMm+
-   ' mm；夹具至热台名义边缘间隔 '+aRigAudit.clampHeaterClearanceMm+
-   ' mm；PDMS垂直间隙 '+aRigAudit.verticalStampGapMm+
-   ' mm。方向由转移功能确认，但A05夹具SKU、A17孔系、光学工作距离和加工尺寸仍未验收。</p></div>':
-   '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false"'+
-   ' data-gap-mm="'+aRigAudit.optimisticResidualHorizontalGapMm+'">'+
-   '<b>照片94左折边 · 全局位置未配准</b><p>原始局部方向下，薄L片末端至A07样品台仍有约 '+
-   aRigAudit.optimisticResidualHorizontalGapMm+
-   'mm的场景X缺口（不是实物测量），翻转假设也未证实。'+
-   'A05C夹具SKU、A17磁座实物身份/顶面孔系及绝对位置仍未确认；PTDB65仅为外形/侧开关候选，不能据此加工。</p></div>'):'';
+   '<b>V130 平台 A 工作位</b><p>图1定义安装朝向；膜侧整链保持180°安装。'+
+   'A05采用图5上下短夹板，两枚螺杆竖直，螺钉中心连线平行玻片短边。'+
+   '玻片76×26×1 mm为候选，PDMS中心X='+aRigAudit.stampCenterX+
+   ' mm；底座间隔 '+aRigAudit.footprintGapMm+' mm；夹具至热台边缘 '+
+   aRigAudit.clampHeaterClearanceMm+' mm。真实夹片尺寸、螺纹和SKU仍待确认。</p></div>':
+   '<div class="field" id="platform-a-unregistered-assembly" data-accepted="false">'+
+   '<b>V130 照片参考</b><p>图1为正确朝向；图2/图3仅作为机构旋转后的侧面拓扑证据。'+
+   '照片参考与工作位使用同一物理手性，不再翻转A05或玻片。</p></div>'):'';
  const a05cVendorHtml=(platform==='A'&&part.id==='A05C')?(()=>{
    const c=parts.get('A05C')?.g;
-   const cand=c?.userData.GCM13Candidates??[];
-   const rows=cand.map(x=>x.sku+'：'+x.mountThread+' / L='+x.Lmm+'mm / '+x.weightG+'g').join('；');
    return '<div class="field" id="a05c-vendor-comparison" data-confirmed="false" '+
      'data-gcm13-applied="'+Boolean(c?.userData.GCM13GeometryApplied)+'" '+
      'data-gcm13-topology-applied="'+Boolean(c?.userData.GCM13FamilyTopologyApplied)+'" '+
      'data-gcm13-exact-sku-applied="'+Boolean(c?.userData.GCM13ExactSkuGeometryApplied)+'">'+
-     '<b>A05C 厂商候选矩阵（V113）</b><p>'+
-     '<b>GCM-1302M：</b>提升为主候选。原厂GCM-130M图明确为L=60mm、主体深26mm、高24mm、活动压板厚7mm、调节端伸出29mm、底部M6；外观为沿长边分布的两枚同侧手拧调节件，与当前已确认的“两枚同向夹紧件”拓扑更一致。<br>'+
-     '<b>GCM-1311M：</b>降为次候选。其52mm紧凑结构和控制件布局与GCM-130M明显不同。<br>'+
-     '<b>当前决定：</b>默认实机仍使用照片约束A05C；新增隐藏的1302M厂家轮廓研究件，不默认安装，不复制未标注的螺杆纵向孔距，也不向A05折弯片添加隐藏M6接口。</p></div>';
+     '<b>A05C 厂商对照（V130）</b><p>'+
+     '<b>当前实机拓扑：</b>图5上下短夹板 + 两枚竖直蝶形螺钉，型号待识别。<br>'+
+     '<b>GCM-1302M / GCM-1311M：</b>仅保留厂家研究对照；其侧向调节/活动压板拓扑与图5不一致，不作为当前默认装配或采购认定。<br>'+
+     '<b>仍待确认：</b>下夹片厚度、弹性/铰接方式、螺纹规格、孔距和底部接口。</p></div>';
  })():'';
  const a06VendorHtml=(platform==='A'&&part.id==='A06')?(()=>{
    const a=auditV48RulerRegistration();
