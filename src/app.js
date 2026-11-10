@@ -4594,6 +4594,28 @@ function _a05ExposedGlassEdgePoint(q){
    end:dMin>dMax?'minX':'maxX'
  };
 }
+function _auditAnyVisibleSurface(targetObj,allowedRoots){
+ if(!targetObj)return {clear:false,firstPart:null,sample:null};
+ const b=new THREE.Box3().setFromObject(targetObj);
+ const c=b.getCenter(new THREE.Vector3());
+ const samples=[
+   ['center',c.clone()],
+   ['xmin',new THREE.Vector3(b.min.x,c.y,c.z)],
+   ['xmax',new THREE.Vector3(b.max.x,c.y,c.z)],
+   ['ymin',new THREE.Vector3(c.x,b.min.y,c.z)],
+   ['ymax',new THREE.Vector3(c.x,b.max.y,c.z)],
+   ['zmin',new THREE.Vector3(c.x,c.y,b.min.z)],
+   ['zmax',new THREE.Vector3(c.x,c.y,b.max.z)]
+ ];
+ let fallback=null;
+ for(const [sample,p] of samples){
+   const r=_auditRayClearPoint(p,allowedRoots);
+   const q={...r,sample};
+   if(r.clear)return q;
+   if(!fallback)fallback=q;
+ }
+ return fallback??{clear:false,firstPart:null,sample:null};
+}
 function _a05AuditTargets(){
  const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g,glassRoot=parts.get('A05G')?.g;
  const fixed=clamp?.children.find(o=>o.userData.A05CLowerFixedJaw);
@@ -4834,6 +4856,18 @@ function _a18AuditTargets(){
  if(!body||!coarseL||!coarseR||!turret||!boom||!led)return null;
  return {a18,a19,a10,a11,body,coarseL,coarseR,turret,boom,led};
 }
+function _a18CoarseRoots(q,sign){
+ return q.a18.children.filter(o=>
+   o.userData.A18CoarseFocusKnob===sign||o.userData.A18CoarseFocusKnurl===sign);
+}
+function _a18OpticalRays(q){
+ return [
+   _auditRayClear(q.body,[q.a18]),
+   _auditAnyVisibleSurface(q.coarseL,_a18CoarseRoots(q,-1)),
+   _auditAnyVisibleSurface(q.coarseR,_a18CoarseRoots(q,1)),
+   _auditRayClear(q.turret,[q.a19])
+ ];
+}
 function _a18CommonAudit(q){
  const ledBox=new THREE.Box3().setFromObject(q.led),a18Box=new THREE.Box3().setFromObject(q.a18);
  return {
@@ -4865,12 +4899,7 @@ function _focusA18AuditView(mode){
  for(const off of A18_AUDIT_CANDIDATES){
    camera.position.copy(target).add(new THREE.Vector3(...off));
    orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
-   const rays=optical?[
-     _auditRayClear(q.body,[q.a18]),
-     _auditRayClear(q.coarseL,[q.coarseL]),
-     _auditRayClear(q.coarseR,[q.coarseR]),
-     _auditRayClear(q.turret,[q.a19])
-   ]:[
+   const rays=optical?_a18OpticalRays(q):[
      _auditRayClear(q.body,[q.a18]),
      _auditRayClear(q.boom,[q.a10])
    ];
@@ -4904,10 +4933,10 @@ window.__A18OpticalCloseupProbe=()=>{
    selectedVisibilityScore:q.a18.userData.A18AuditViewMode==='optical'?q.a18.userData.A18AuditViewScore:null,
    selectedCameraOffset:q.a18.userData.A18AuditViewMode==='optical'?q.a18.userData.A18AuditViewOffset:null,
    projection:_auditProjection(_auditBoxFor([q.a18,q.a19])),
-   bodyRay:_auditRayClear(q.body,[q.a18]),
-   leftCoarseRay:_auditRayClear(q.coarseL,[q.coarseL]),
-   rightCoarseRay:_auditRayClear(q.coarseR,[q.coarseR]),
-   turretRay:_auditRayClear(q.turret,[q.a19]),
+   bodyRay:_a18OpticalRays(q)[0],
+   leftCoarseRay:_a18OpticalRays(q)[1],
+   rightCoarseRay:_a18OpticalRays(q)[2],
+   turretRay:_a18OpticalRays(q)[3],
    ..._a18CommonAudit(q)
  };
 };
