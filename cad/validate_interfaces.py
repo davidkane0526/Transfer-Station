@@ -2148,8 +2148,8 @@ check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide 
 import csv
 verification=json.loads((ROOT/'build'/'verification.json').read_text())
 a_complete=next(x for x in verification if x['system']=='A')
-check(set(a_complete['excluded_uninstalled'])=={'A18MGZ','A05C1302'},
-      'V113 complete A STEP may exclude only explicit A18MGZ/A05C1302 studies; required transfer hardware must remain installed')
+check(set(a_complete['excluded_uninstalled'])=={'A18MGZ','A05C1302','A06GCM1102'},
+      'V116 complete A STEP may exclude only explicit A18MGZ/A05C1302/A06GCM1102 studies; required transfer hardware must remain installed')
 check(a_complete['approved_installed_shape']=='rigid_180deg_film_chain_with_glass_short_edge_side_clamp',
       'V79 official A STEP must use the rigid-180 installed film-chain definition')
 check(abs(a_complete['photo_A_stage_center_x_mm']-(-82.75))<.001,
