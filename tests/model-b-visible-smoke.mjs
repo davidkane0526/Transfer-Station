@@ -983,6 +983,13 @@ try{
  const aContactBefore=await page.evaluate(()=>window.__modelAContactProbe?.());
  assert.equal(aContactBefore?.available,true);
  assert.equal(aContactBefore.clampOutsideHeater,true);
+ assert.equal(aContactBefore.installedClampBoundsExcludeHiddenStudy,true);
+ assert(aContactBefore.clampToHeaterEdgeMm>7&&aContactBefore.clampToHeaterEdgeMm<9,
+   'Installed 28mm clamp should retain the nominal ~7–8mm X clearance to A07');
+ assert(aContactBefore.hiddenStudyInflationXmm>15,
+   'Hidden 60mm GCM-1302M study should be demonstrably larger than the installed photo-fit clamp');
+ assert(aContactBefore.clampToHeaterEdgeIncludingHiddenStudyMm<0,
+   'Diagnostic full-subtree bounds should expose why the old collision test falsely failed');
  assert.equal(aContactBefore.stampFullyInsideChipXY,true);
  assert.equal(aContactBefore.stampRightInsetMm,4);
  assert.equal(aContactBefore.sampleChipTopWorldYmm,110.6);

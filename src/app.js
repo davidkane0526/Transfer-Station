@@ -836,8 +836,25 @@ window.__modelAPhoto194Probe=()=>{
  if(!slide||!stamp||!sample||!clamp||!heater||!magnet||!sampleFoot)
    return {available:false};
  const bounds=o=>{o.updateWorldMatrix(true,true);return new THREE.Box3().setFromObject(o);};
+ // Hidden vendor-study groups are intentionally stored under A05C for QA.
+ // THREE.Box3.setFromObject() still includes their child geometry even when
+ // an ancestor is invisible, so it must not define the INSTALLED collision envelope.
+ const visibleInstalledBounds=root=>{
+   root.updateWorldMatrix(true,true);
+   const out=new THREE.Box3().makeEmpty();
+   root.traverse(o=>{
+     if(!o.isMesh)return;
+     let p=o,installed=true;
+     while(p&&p!==root){if(p.visible===false){installed=false;break;}p=p.parent;}
+     if(root.visible===false)installed=false;
+     if(installed)out.union(new THREE.Box3().setFromObject(o));
+   });
+   return out;
+ };
  const glass=bounds(slide),pdms=bounds(stamp),chip=bounds(sample);
- const heaterBox=bounds(heater),jaw=bounds(clamp);
+ const heaterBox=bounds(heater);
+ const jawAllChildren=bounds(clamp);
+ const jaw=visibleInstalledBounds(clamp);
  const magnetBox=bounds(magnet),sampleFootBox=bounds(sampleFoot);
  const overlapX=(a,b)=>a.min.x<=b.max.x&&b.min.x<=a.max.x;
  const overlapZ=(a,b)=>a.min.z<=b.max.z&&b.min.z<=a.max.z;
@@ -845,8 +862,14 @@ window.__modelAPhoto194Probe=()=>{
    inner.max.x<=outer.max.x+.01&&inner.min.z>=outer.min.z-.01&&
    inner.max.z<=outer.max.z+.01;
  const clearance=heaterBox.min.x-jaw.max.x;
+ const pollutedClearance=heaterBox.min.x-jawAllChildren.max.x;
  return {
    available:true,mode:aWorkingPoseMode?'installed180':'photo-reference',
+   installedClampBoundsExcludeHiddenStudy:true,
+   installedClampMaxWorldXmm:Number(jaw.max.x.toFixed(3)),
+   allChildrenClampMaxWorldXmm:Number(jawAllChildren.max.x.toFixed(3)),
+   hiddenStudyInflationXmm:Number((jawAllChildren.max.x-jaw.max.x).toFixed(3)),
+   clampToHeaterEdgeIncludingHiddenStudyMm:Number(pollutedClearance.toFixed(3)),
    A17ToA16XFootprintGapMm:Number((sampleFootBox.min.x-magnetBox.max.x).toFixed(3)),
    clampToHeaterEdgeMm:Number(clearance.toFixed(3)),
    clampOutsideHeater:clearance>0,
