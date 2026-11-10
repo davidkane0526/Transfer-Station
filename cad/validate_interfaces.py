@@ -1001,7 +1001,17 @@ for sys,key,expected_bottom in [('B','B03',40),('A','A15',40)]:
     check(yknob.ymin>base.ymax,sys+' '+key+' Y handle exits forward')
 # The sample-side A02 is not proven to be a -2L; do NOT invent a second handle.
 check(not (A/'A02D.step').exists(),
-      'A02 single-axis remains unresolved; no imaginary second actuator')
+      'V93 A02 is photo-confirmed single-axis; no imaginary second actuator')
+report['V93_A02_single_axis_photo_confirmation']={
+    'photo_refs':['17','20','100'],
+    'travel_axis':'X',
+    'observed_handle_direction':'left / -X',
+    'linear_axis_count':1,
+    'second_linear_axis_rejected':True,
+    'right_lower_long_knob_assignment':'A06 rotary mechanism',
+    'exact_GCM_T25M_suffix_verified':False,
+    'imaginary_second_actuator_STEP_present':False
+}
 # Reject the V17–V22 fabricated 85mm/249mm return loop and verify
 # independent candidate sleeves/posts with distinct bores.
 for obsolete in ('B05A','B05B','B05C','B05E'):

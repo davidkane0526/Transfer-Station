@@ -71,6 +71,11 @@ export function auditPlatformAAssembly({
     sampleTopStackGeometryRulerCompatible:auditV48RulerRegistration().sampleTopWithinVisibleRulerRange,
     absoluteFilmSampleCoordinatesPhotoRegistered:false,
     photoConfirmedMagneticBaseSku:false,
+    sampleA02TravelAxis:'X',
+    sampleA02SingleAxisPhotoConfirmed:true,
+    sampleA02ObservedHandleDirection:'left / -X',
+    sampleA02SecondLinearAxisRejected:true,
+    sampleA02ExactSkuVerified:false,
     filmStageX,sampleCenterX,
     stageCenterGapMm:Math.abs(sampleCenterX-filmStageX),
     currentFilmMinusSampleXmm:filmStageX-sampleCenterX,
@@ -95,7 +100,7 @@ export function auditPlatformAAssembly({
     clampMechanicalInterfaceClosed:false,
     functionalTransferAccepted:false,
     missing:['A05 lower glass jaw model & fixing thread','A17 magnetic base actual SKU, height & mounting pitch',
-      'film stage/thermal stage relative origin and direction','A02 actual travel axis','A05-to-glass-to-PDMS contact height'],
-    note:'A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
+      'film stage/thermal stage relative origin and direction','A05-to-glass-to-PDMS contact height'],
+    note:'V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
   });
 }

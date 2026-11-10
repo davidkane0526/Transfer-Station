@@ -1763,6 +1763,15 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
   xDrum.userData.stageActuatorHandle={kind:'linear',localAxis:'X'};
   xStem.userData.stageActuatorStem={kind:'linear',localAxis:'X'};
   xCollar.userData.stageActuatorCollar={kind:'linear',localAxis:'X'};
+  if(id==='A02'){
+    g.userData.A02PhotoConfirmedTravelAxis='X';
+    g.userData.A02PhotoConfirmedSingleLinearAxis=true;
+    g.userData.A02SecondLinearAxisRejected=true;
+    g.userData.A02EvidencePhotos=['17','20'];
+    g.userData.A02ObservedHandleDirection='left / -X';
+    g.userData.A02RightLowerKnobBelongsToA06=true;
+    g.userData.A02ExactT25MSuffixVerified=false;
+  }
   label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,actuatorZ);
   if(JOINTS[id]&&id!=='A15')addJointHeads(g.userData.slidingTop,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
   if(holesPattern)for(const xx of [-25,25])for(const zz of [-25,25])circleGuide(g.userData.slidingTop,3,h+.5,xx,zz);

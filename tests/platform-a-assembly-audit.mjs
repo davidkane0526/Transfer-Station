@@ -29,9 +29,15 @@ assert.equal(a.verticalBracketBelowHeaterTopMm,17.2);
 assert.equal(a.secondTwentyMmGoniometerCandidateAdded,true);
 assert.equal(a.secondGoniometerActualSkuVerified,false);
 assert.equal(a.nominalApproachEnvelopeRegistered,false);
+assert.equal(a.sampleA02TravelAxis,'X');
+assert.equal(a.sampleA02SingleAxisPhotoConfirmed,true);
+assert.equal(a.sampleA02ObservedHandleDirection,'left / -X');
+assert.equal(a.sampleA02SecondLinearAxisRejected,true);
+assert.equal(a.sampleA02ExactSkuVerified,false);
+assert(!a.missing.includes('A02 actual travel axis'));
 assert.equal(a.clampMechanicalInterfaceClosed,false);
 assert.equal(a.functionalTransferAccepted,false);
-assert(a.missing.length>=5);
+assert(a.missing.length>=4);
 assert.throws(()=>auditPlatformAAssembly({bracketOverhangLeftMm:-1}),/Invalid/);
 const correctedTestFixture=auditPlatformAAssembly({filmStageX:160,bracketOverhangLeftMm:60});
 assert(correctedTestFixture.nominalApproachEnvelopeRegistered,
