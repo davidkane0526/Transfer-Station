@@ -752,13 +752,19 @@ def make_a():
     glass_bottom=leg_bottom+.5
     glass_center_z=glass_bottom+.5
     clamp_center_x=glass_near-14
+    # V95 explicit family-scale cross span. Both GCM-130M and GCM-1311M
+    # drawings contain a 26mm transverse dimension; this is not SKU proof.
+    glass_short_edge_mm=26
+    clamp_rail_thickness_mm=2
+    clamp_rail_center_offset_y=glass_short_edge_mm/2+clamp_rail_thickness_mm/2
 
     # Side-clamp carrier. It supports the slide vertically and constrains the
     # two long edges with fixed/moving rails. Exact SKU and dimensions remain
     # unverified; the force direction, however, is no longer impossible.
     neck=box(5,14,2.5,bracket_leg_x-32.5,0,leg_bottom-2.5)
     ledge=box(28,30,1,clamp_center_x,0,glass_bottom-1)
-    fixed_rail=box(28,2,3,clamp_center_x,-14,glass_bottom-1)
+    fixed_rail=box(28,clamp_rail_thickness_mm,3,
+                   clamp_center_x,-clamp_rail_center_offset_y,glass_bottom-1)
     bosses=[]
     for q in (5,23):
         screw_x=glass_near-q
@@ -768,10 +774,13 @@ def make_a():
     # current 28mm span remains a photo-fit envelope, not GCM-1302M/1311M
     # exact overall geometry.
     thread_carrier=box(28,4,5,clamp_center_x,18.5,glass_bottom-3)
-    add('A','A05C','GCM13_FAMILY_TOPOLOGY_FIXED_CARRIER_PHOTO_FIT_ENVELOPE',
-        neck.fuse(ledge,fixed_rail,thread_carrier,*bosses),'C')
+    add('A','A05C','GCM13_FAMILY_TOPOLOGY_FIXED_THREAD_CARRIER_PHOTO_FIT_ENVELOPE',
+        neck.fuse(ledge,thread_carrier,*bosses),'C')
+    add('A','A05CL','GCM13_FAMILY_EXPLICIT_FIXED_LOWER_JAW_26mm_CLEAR_SPAN',
+        fixed_rail,'C')
     add('A','A05CU','GCM13_FAMILY_TOPOLOGY_MIDDLE_MOVING_PLATE_PHOTO_FIT',
-        box(28,2,3,clamp_center_x,14,glass_bottom-1),'C')
+        box(28,clamp_rail_thickness_mm,3,
+            clamp_center_x,clamp_rail_center_offset_y,glass_bottom-1),'C')
 
     # Two screw SHAFTS run along STEP +Y = WebGL scene Z, parallel to the
     # 26mm glass short edge. They engage the pressure rail at Y=+14 and
@@ -964,11 +973,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V94'
+CAD_REVISION='V95'
 UNINSTALLED_A_STUDY_IDS=frozenset()
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
-    """V94 installed A: V93 mechanics + A17 photo-front plaque and Oeabt MBS-65 family candidate boundary.
+    """V95 installed A: V94 mechanics + explicit A05 fixed lower jaw and 26mm clear-span audit.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """

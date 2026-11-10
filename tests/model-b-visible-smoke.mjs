@@ -661,6 +661,11 @@ try{
  assert.equal(installedClamp.screwPitchAlongGlassLengthMm,18);
  assert.equal(installedClamp.screwPressureEngaged,true);
  assert.equal(installedClamp.screwGlassOverlapMm3,0);
+ assert.equal(installedClamp.lowerFixedJawCount,1,
+   'A05 fixed lower jaw must be an explicit WebGL mesh');
+ assert.equal(installedClamp.actualJawInnerClearSpanMm,26);
+ assert.equal(installedClamp.actualGlassShortEdgeMm,26);
+ assert.equal(installedClamp.actualJawInnerClearSpanMatchesGlassShortEdge,true);
  assert.equal(installedClamp.installedYawDeg,180);
  assert.equal(installedClamp.stampToSampleCenterXmm,0,
    'Rigid 180° installation must place PDMS over A07 sample centre');
@@ -684,6 +689,24 @@ try{
  await photoShot('Transfer-Station-A-Photo194-FilmUpper.png','#btn-photo94');
  await photoShot('Transfer-Station-A-Photo195-FilmLower.png','#btn-photo97');
  await photoShot('Transfer-Station-A-Photo196-G40.png','#btn-photo196');
+ // V95: dedicated closeups are mandatory because general photo views can
+ // crop the exact component being modified.
+ assert.equal(await page.evaluate(()=>window.__focusA05ClampAudit?.()),true);
+ await page.waitForTimeout(220);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V95-A05-Clamp-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+ assert.equal(await page.evaluate(()=>window.__focusA17FrontAudit?.()),true);
+ await page.waitForTimeout(220);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V95-A17-Front-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
  // The two high-resolution Nov 08 photos have DIFFERENT external
  // monitor positions but an identical fixed instrument. Assert actual
  // Three.js projected hand and L-bracket sidedness for BOTH cameras.
@@ -1123,6 +1146,14 @@ try{
  assert.equal(photoAxis.GCM13PrimaryCandidateMountThread,'M6');
  assert.equal(photoAxis.GCM13BottomMountInterfaceModelled,false,
    'Hidden A05C bottom interface must not receive a fabricated M6 hole');
+ assert.equal(photoAxis.GCM13LowerFixedJawModelled,true);
+ assert.equal(photoAxis.GCM13GlassShortEdgeConstraintMm,26);
+ assert.equal(photoAxis.GCM13InnerClearSpanMm,26);
+ assert.equal(photoAxis.GCM13InnerClearSpanMatchesGlassShortEdge,true);
+ assert.deepEqual(photoAxis.GCM13VendorDrawingProfiles.GCM130M.drawingDimensionsMm,[26,29,7,24]);
+ assert.deepEqual(photoAxis.GCM13VendorDrawingProfiles.GCM1311M.drawingDimensionsMm,[44,26,5.5,33,40]);
+ assert.equal(photoAxis.GCM13VendorProfilesAreDistinct,true);
+ assert.equal(photoAxis.GCM13Shared26mmDimensionDoesNotProveSku,true);
  assert.equal(photoAxis.GCM13MovingMiddlePlateCount,1);
  assert.equal(photoAxis.GCM13ThreadCarrierCount,1);
  assert.equal(photoAxis.currentGripLengthMmCandidate,28);

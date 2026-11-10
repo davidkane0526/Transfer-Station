@@ -102,10 +102,16 @@ export function auditPlatformAAssembly({
     orientationMeasuredFromPhoto:false,
     verticalBracketBelowHeaterTopMm:Number(heightErrorMm.toFixed(1)),
     nominalApproachEnvelopeRegistered:remainingHorizontalGapMm<=0,
+    a05LowerFixedJawExplicitlyModelled:true,
+    a05JawInnerClearSpanMm:26,
+    a05JawSpanMatchesCandidateGlassShortEdge:true,
+    a05Gcm13DistinctVendorProfilesRecorded:true,
+    a05ExactLowerJawOemProfileVerified:false,
+    a05FixingThreadInterfaceVerified:false,
     clampMechanicalInterfaceClosed:false,
     functionalTransferAccepted:false,
-    missing:['A05 lower glass jaw model & fixing thread','A17 exact MBS-65B/C suffix & hidden top mounting pitch',
+    missing:['A05 exact lower-jaw OEM profile & hidden fixing-thread interface','A17 exact MBS-65B/C suffix & hidden top mounting pitch',
       'film stage/thermal stage relative origin and direction','A05-to-glass-to-PDMS contact height'],
-    note:'V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
+    note:'V95 explicitly models the A05 fixed lower jaw and hard-checks a 26mm clear span matching the candidate glass short edge, while exact GCM-1302M/1311M profile and hidden fixing thread remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
   });
 }

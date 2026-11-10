@@ -259,13 +259,20 @@ window.__platformABareClampProbe=()=>{
  const shafts=screws?.children.filter(o=>o.userData.A05CSCandidateShank)??[];
  const heads=screws?.children.filter(o=>o.userData.A05CSScrewHead)??[];
  const pressure=clamp?.children.find(o=>o.userData.A05CPressureRail);
+ const fixedJaw=clamp?.children.find(o=>o.userData.A05CLowerFixedJaw);
  const slide=glassRoot?.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
- if(!foot||shafts.length!==2||heads.length!==2||!pressure||!slide)return {available:false};
+ if(!foot||shafts.length!==2||heads.length!==2||!pressure||!fixedJaw||!slide)return {available:false};
  currentRoot.updateWorldMatrix(true,true);
  const bb=o=>new THREE.Box3().setFromObject(o);
  const sz=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
  const shaftSizes=shafts.map(sz);
- const glassBox=bb(slide),pressureBox=bb(pressure);
+ const glassBox=bb(slide),pressureBox=bb(pressure),fixedJawBox=bb(fixedJaw);
+ const fixedCenterZ=(fixedJawBox.min.z+fixedJawBox.max.z)/2;
+ const pressureCenterZ=(pressureBox.min.z+pressureBox.max.z)/2;
+ const lowBox=fixedCenterZ<pressureCenterZ?fixedJawBox:pressureBox;
+ const highBox=fixedCenterZ<pressureCenterZ?pressureBox:fixedJawBox;
+ const actualJawInnerClearSpanMm=Number((highBox.min.z-lowBox.max.z).toFixed(2));
+ const actualGlassShortEdgeMm=Number((glassBox.max.z-glassBox.min.z).toFixed(2));
  const screwGlassOverlap=shafts.reduce((sum,o)=>{
    const q=bb(o).clone().intersect(glassBox);if(q.isEmpty())return sum;
    const v=new THREE.Vector3();q.getSize(v);return sum+v.x*v.y*v.z;
@@ -284,6 +291,9 @@ window.__platformABareClampProbe=()=>{
      heads[0].getWorldPosition(new THREE.Vector3()).x-
      heads[1].getWorldPosition(new THREE.Vector3()).x).toFixed(2)),
    screwPressureEngaged,screwGlassOverlapMm3:Number(screwGlassOverlap.toFixed(4)),
+   lowerFixedJawCount:clamp.children.filter(o=>o.userData.A05CLowerFixedJaw).length,
+   actualJawInnerClearSpanMm,actualGlassShortEdgeMm,
+   actualJawInnerClearSpanMatchesGlassShortEdge:Math.abs(actualJawInnerClearSpanMm-actualGlassShortEdgeMm)<.01,
    gcm13FamilyTopologyApplied:Boolean(clamp.userData.GCM13FamilyTopologyApplied),
    gcm13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
    gcm13ThreadCarrierCount:clamp.children.filter(o=>o.userData.A05CGCM13ThreadCarrier).length,
@@ -331,6 +341,13 @@ window.__modelA05PhotoEvidenceProbe=()=>{
    GCM13ExactSkuGeometryApplied:Boolean(clamp.userData.GCM13ExactSkuGeometryApplied),
    GCM13PrimaryCandidateMountThread:clamp.userData.GCM13PrimaryCandidateMountThread??null,
    GCM13BottomMountInterfaceModelled:Boolean(clamp.userData.GCM13BottomMountInterfaceModelled),
+   GCM13LowerFixedJawModelled:Boolean(clamp.userData.A05CLowerFixedJawModelled),
+   GCM13GlassShortEdgeConstraintMm:clamp.userData.A05CGlassShortEdgeConstraintMm??null,
+   GCM13InnerClearSpanMm:clamp.userData.A05CInnerClearSpanMm??null,
+   GCM13InnerClearSpanMatchesGlassShortEdge:Boolean(clamp.userData.A05CInnerClearSpanMatchesGlassShortEdge),
+   GCM13VendorDrawingProfiles:clamp.userData.GCM13VendorDrawingProfiles??null,
+   GCM13VendorProfilesAreDistinct:Boolean(clamp.userData.GCM13VendorProfilesAreDistinct),
+   GCM13Shared26mmDimensionDoesNotProveSku:Boolean(clamp.userData.GCM13Shared26mmDimensionDoesNotProveSku),
    GCM13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
    GCM13ThreadCarrierCount:clamp.children.filter(o=>o.userData.A05CGCM13ThreadCarrier).length,
    currentGripLengthMmCandidate:clamp.userData.glassGripLengthMmCandidate??null,
@@ -3168,6 +3185,12 @@ function platformA(){
  const glassCenterY=-aBent.verticalLegLength+1.0;
  const clampLengthX=28;
  const clampCenterX=glassNearX+outwardSign*14;
+ // V95: both Daheng GCM-130M and GCM-1311M vendor drawings contain a
+ // 26mm transverse dimension. This does not identify a SKU; it anchors
+ // the real clear span to the candidate 26mm glass short edge.
+ const glassShortEdgeMm=26;
+ const clampRailThicknessMm=2;
+ const clampRailCenterOffsetZ=glassShortEdgeMm/2+clampRailThicknessMm/2;
 
  addPart('A05C',ax,aBracketTopY,az,g=>{
    const footBottomY=-aBent.verticalLegLength;
@@ -3177,11 +3200,13 @@ function platformA(){
    const ledge=add(g,cub(clampLengthX,1,30,mats.dark,
      clampCenterX,glassCenterY-1,aBent.sheetFrontZ));
    ledge.userData.A05CSupportLedge=true;
-   const fixedRail=add(g,cub(clampLengthX,3,2,mats.dark,
-     clampCenterX,glassCenterY,aBent.sheetFrontZ-14));
+   const fixedRail=add(g,cub(clampLengthX,3,clampRailThicknessMm,mats.dark,
+     clampCenterX,glassCenterY,aBent.sheetFrontZ-clampRailCenterOffsetZ));
    fixedRail.userData.A05CFixedSideRail=true;
-   const pressureRail=add(g,cub(clampLengthX,3,2,mats.silver,
-     clampCenterX,glassCenterY,aBent.sheetFrontZ+14));
+   fixedRail.userData.A05CLowerFixedJaw=true;
+   fixedRail.userData.GCM13FamilyTopologyRole='fixed-lower-jaw';
+   const pressureRail=add(g,cub(clampLengthX,3,clampRailThicknessMm,mats.silver,
+     clampCenterX,glassCenterY,aBent.sheetFrontZ+clampRailCenterOffsetZ));
    pressureRail.userData.A05CPressureRail=true;
    pressureRail.userData.A05CMovingMiddlePlate=true;
    pressureRail.userData.GCM13FamilyTopologyRole='moving-middle-plate';
@@ -3200,7 +3225,12 @@ function platformA(){
      clampCenterX,glassCenterY,aBent.sheetFrontZ+18.5));
    threadedCarrier.userData.A05CGCM13ThreadCarrier=true;
    threadedCarrier.userData.GCM13FamilyTopologyRole='two-thread-fixed-carrier';
-   g.userData.A05CClampingStackType='support ledge + fixed rail + GCM-13-family moving middle plate';
+   g.userData.A05CClampingStackType='support ledge + explicit fixed lower jaw + GCM-13-family moving middle plate';
+   g.userData.A05CLowerFixedJawModelled=true;
+   g.userData.A05CGlassShortEdgeConstraintMm=glassShortEdgeMm;
+   g.userData.A05CClampRailThicknessMm=clampRailThicknessMm;
+   g.userData.A05CInnerClearSpanMm=glassShortEdgeMm;
+   g.userData.A05CInnerClearSpanMatchesGlassShortEdge=true;
    g.userData.unverifiedClampMechanism=true;
    g.userData.glassGripLengthMmCandidate=clampLengthX;
    g.userData.glassGripLengthIsFullOEMLength=false;
@@ -3219,6 +3249,12 @@ function platformA(){
    // Photos194/196 do not expose the bottom interface. Do not fabricate a
    // mounting bore/stud merely because both primary catalogue candidates use M6.
    g.userData.GCM13BottomMountInterfaceModelled=false;
+   g.userData.GCM13VendorDrawingProfiles={
+     GCM130M:{drawingDimensionsMm:[26,29,7,24],covers:['GCM-1301M','GCM-1302M']},
+     GCM1311M:{drawingDimensionsMm:[44,26,5.5,33,40],covers:['GCM-1311M']}
+   };
+   g.userData.GCM13VendorProfilesAreDistinct=true;
+   g.userData.GCM13Shared26mmDimensionDoesNotProveSku=true;
    g.userData.GCM13Candidates=[
      {sku:'GCM-1302M',mountThread:'M6',Lmm:60,weightG:105,priority:'primary'},
      {sku:'GCM-1311M',mountThread:'M6',Lmm:52,weightG:105,priority:'primary'},
@@ -3227,7 +3263,7 @@ function platformA(){
    ];
    g.userData.GCM13GeometryApplied=false;
    g.userData.actualClampOEM=false;
-   label(g,'A05C · V90 GCM-13厂家拓扑已应用 / 具体1302M或1311M仍待确认',
+   label(g,'A05C · V95 固定下夹爪显式化 / 内净跨度26mm / 1302M与1311M分开审计',
      clampCenterX,18,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
@@ -4336,6 +4372,34 @@ function focusPhoto947(photo='94'){
  const target=new THREE.Vector3(x,y,0);
  camera.position.copy(src);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
+
+function focusA05ClampAudit(){
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const g=parts.get('A05C')?.g;if(!g)return false;
+ const target=g.getWorldPosition(new THREE.Vector3());
+ const q=g.getWorldQuaternion(new THREE.Quaternion());
+ const offset=new THREE.Vector3(72,34,92).applyQuaternion(q);
+ camera.position.copy(target).add(offset);
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+}
+function focusA17FrontAudit(){
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const g=parts.get('A17')?.g;if(!g)return false;
+ const plaque=g.children.find(o=>o.userData.A17Photo194FrontLabelPlaque);if(!plaque)return false;
+ const rootPos=g.getWorldPosition(new THREE.Vector3());
+ const plaquePos=plaque.getWorldPosition(new THREE.Vector3());
+ const outward=plaquePos.clone().sub(rootPos).setY(0).normalize();
+ if(outward.lengthSq()<.5)outward.set(0,0,1);
+ const target=plaquePos.clone();
+ camera.position.copy(target).add(outward.multiplyScalar(92)).add(new THREE.Vector3(0,22,0));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+}
+window.__focusA05ClampAudit=focusA05ClampAudit;
+window.__focusA17FrontAudit=focusA17FrontAudit;
 
 function switchPlatform(next){
   clearCadFeatureCandidates();

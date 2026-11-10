@@ -1194,6 +1194,39 @@ report['V88_A05C_GCM13_family_candidate_boundary']={
     'reason':'GCM-13 actuation topology matches, but A photos do not show readable SKU, mount thread, or full holder length'
 }
 
+# V95: A05CL is now a separate fixed lower jaw. The actual STEP inner
+# faces of A05CL/A05CU must define a 26mm clear span matching the
+# candidate glass short edge; contact is allowed, interpenetration is not.
+a05cl=part(A,'A05CL')[0]
+a05cu=part(A,'A05CU')[0]
+a05g=part(A,'A05G')[0]
+clb=a05cl.BoundingBox(); cub=a05cu.BoundingBox(); gb=a05g.BoundingBox()
+jaw_inner_clear_y=cub.ymin-clb.ymax
+check(abs(jaw_inner_clear_y-26)<.02,
+      'V95 A05 fixed/moving jaw inner clear span must be 26mm')
+check(abs(gb.ylen-26)<.02,
+      'V95 candidate glass short edge must remain 26mm')
+check(abs(clb.ymax-gb.ymin)<.02 and abs(cub.ymin-gb.ymax)<.02,
+      'V95 explicit fixed/moving jaws must meet the two glass side faces')
+check(a05cl.intersect(a05g).Volume()<1e-4 and a05cu.intersect(a05g).Volume()<1e-4,
+      'V95 jaws may touch but must not penetrate the glass')
+report['V95_A05_explicit_lower_jaw_and_26mm_span']={
+    'photo_sources':['94','194','196'],
+    'fixed_lower_jaw_STEP_id':'A05CL',
+    'fixed_lower_jaw_explicit_part':True,
+    'moving_middle_plate_STEP_id':'A05CU',
+    'actual_inner_clear_span_mm':round(jaw_inner_clear_y,3),
+    'candidate_glass_short_edge_mm':round(gb.ylen,3),
+    'inner_span_matches_glass_short_edge':abs(jaw_inner_clear_y-gb.ylen)<.02,
+    'GCM130M_vendor_drawing_dimensions_mm':[26,29,7,24],
+    'GCM1311M_vendor_drawing_dimensions_mm':[44,26,5.5,33,40],
+    'vendor_profiles_distinct':True,
+    'shared_26mm_dimension_proves_exact_sku':False,
+    'exact_lower_jaw_OEM_profile_verified':False,
+    'bottom_fixing_thread_interface_verified':False,
+    'safe_for_fabrication':False
+}
+
 report['V90_A05C_GCM13_family_topology']={
     'photo_sources':['94','194','196'],
     'vendor_family':'Daheng GCM-13',
@@ -1271,7 +1304,7 @@ report['V79_A_installed_geometry']={
     'A15_VC13_model_lower_pair_height_mm':119.5,
     'A05_derived_leg_length_mm':87.6,
     'part_chain':['A17','A15','A03','A04L','A04','A05','A05C',
-                  'A05CU','A05CS1','A05CS2','A05G','A05GP'],
+                  'A05CL','A05CU','A05CS1','A05CS2','A05G','A05GP'],
     'A17_A16_footprint_gap_mm':round(a_base_gap,2),
     'film_center_x_mm':ax,
     'local_sheet_handedness':'left',
