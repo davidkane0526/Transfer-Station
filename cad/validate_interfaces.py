@@ -1310,18 +1310,17 @@ report['V113_A05_GCM1302_vendor_silhouette_study']={
     'safe_for_fabrication':False
 }
 
-report['V90_A05C_GCM13_family_topology']={
-    'photo_sources':['94','194','196'],
+report['V130_A05C_previous_GCM13_hypothesis_rejected']={
+    'photo_sources':['94','194','196','user_fig_5'],
     'vendor_family':'Daheng GCM-13',
-    'vendor_family_topology_applied':True,
+    'vendor_family_topology_applied':False,
     'exact_sku_geometry_applied':False,
-    'fixed_two_thread_carrier_present':True,
-    'single_middle_moving_plate_present':True,
-    'adjustment_screw_count':2,
-    'both_screws_engage_same_moving_plate':True,
-    'primary_candidate_mount_thread':'M6',
+    'fixed_two_thread_carrier_present_in_installed_model':False,
+    'single_middle_moving_plate_present_in_installed_model':False,
+    'side_adjustment_screw_count_in_installed_model':0,
+    'photo5_vertical_wing_screw_count':2,
+    'primary_candidate_mount_thread':'unverified',
     'bottom_mount_interface_modelled':False,
-    'bottom_mount_interface_reason':'hidden in photos194/196; M6 is candidate metadata only',
     'current_photo_fit_effective_grip_length_mm':28,
     'actual_A05C_sku_verified':False,
     'safe_for_fabrication':False
@@ -1335,7 +1334,6 @@ installed_slide=installed(a_slide)
 installed_pdms=installed(a_pdms)
 installed_sheet=installed(a_sheet)
 installed_clamp=installed(a_clamp)
-installed_pressure=installed(a_pressure)
 installed_screws=[installed(part(A,f'A05CS{i}')[0]) for i in (1,2)]
 
 check(abs((installed_pdms.BoundingBox().xmin+installed_pdms.BoundingBox().xmax)/2-78)<.02 and
