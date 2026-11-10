@@ -73,6 +73,12 @@ export function auditPlatformAAssembly({
     photoConfirmedMagneticBaseSku:false,
     a17PrimaryCandidateFamily:'Oeabt MBS-65B/C',
     a17PrimaryFamilyEnvelopeMm:[65.2,65.2,20],
+    a17CurrentProductPageHoldingForceN:132,
+    a17HistoricalCatalogHoldingForceN:158,
+    a17HoldingForceSpecConflict:true,
+    a17A15BottomMountPatternVerified:false,
+    a17GCM901604FourM6CannotProveA15ToA17Interface:true,
+    a17BvsCMechanicalDiscriminationClosed:false,
     a17FrontLabelPlaquePhotoConfirmed:true,
     a17FrontLabelTextReadable:false,
     a17ExactVariantVerified:false,
@@ -112,6 +118,6 @@ export function auditPlatformAAssembly({
     functionalTransferAccepted:false,
     missing:['A05 exact lower-jaw OEM profile & hidden fixing-thread interface','A17 exact MBS-65B/C suffix & hidden top mounting pitch',
       'film stage/thermal stage relative origin and direction','A05-to-glass-to-PDMS contact height'],
-    note:'V95 explicitly models the A05 fixed lower jaw and hard-checks a 26mm clear span matching the candidate glass short edge, while exact GCM-1302M/1311M profile and hidden fixing thread remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
+    note:'V97 records the Oeabt MBS-65 holding-force revision conflict (current page 132N vs 2024/2025 catalogs 158N) and explicitly rejects using the GCM-901604M combination drawing as proof of the hidden A15-to-A17 mounting pattern. V95 explicitly models the A05 fixed lower jaw and hard-checks a 26mm clear span matching the candidate glass short edge, while exact GCM-1302M/1311M profile and hidden fixing thread remain unresolved. V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
   });
 }

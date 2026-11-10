@@ -1217,7 +1217,15 @@ try{
  assert.deepEqual(aBefore.a17CandidateEnvelopeMm,[65.2,65.2,20]);
  assert.deepEqual(aBefore.a17CurrentModelEnvelopeMm,[65,65,20],
    'Do not silently expand the photo-fit model by 0.2mm before physical measurement');
- assert.equal(aBefore.a17CandidateHoldingForceN,158);
+ assert.equal(aBefore.a17CandidateHoldingForceN,132);
+ assert.equal(aBefore.a17CurrentProductPageHoldingForceN,132);
+ assert.equal(aBefore.a17HistoricalCatalogHoldingForceN,158);
+ assert.equal(aBefore.a17HoldingForceSpecConflict,true);
+ assert.match(aBefore.a17HoldingForceCurrentSource,/current MBS-65 product page/);
+ assert.match(aBefore.a17HoldingForceHistoricalSource,/2024\/2025/);
+ assert.equal(aBefore.a17A15BottomMountPatternVerified,false);
+ assert.equal(aBefore.a17GCM901604FourM6CannotProveA15ToA17Interface,true);
+ assert.equal(aBefore.a17BvsCMechanicalDiscriminationClosed,false);
  assert.equal(aBefore.a17FrontLabelPlaqueCount,1,
    'Photo194 visible front label plaque must be actual WebGL geometry');
  assert.equal(aBefore.a17FrontLabelTextReadable,false,

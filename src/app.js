@@ -1082,6 +1082,14 @@ window.__modelAKinematicProbe=()=>{
     a17CandidateEnvelopeMm:magnet.userData.oemCandidateEnvelopeMm??null,
     a17CurrentModelEnvelopeMm:magnet.userData.currentModelEnvelopeMm??null,
     a17CandidateHoldingForceN:magnet.userData.oemCandidateHoldingForceN??null,
+    a17CurrentProductPageHoldingForceN:magnet.userData.oemCurrentProductPageHoldingForceN??null,
+    a17HistoricalCatalogHoldingForceN:magnet.userData.oemHistoricalCatalogHoldingForceN??null,
+    a17HoldingForceSpecConflict:Boolean(magnet.userData.oemHoldingForceSpecConflict),
+    a17HoldingForceCurrentSource:magnet.userData.oemHoldingForceCurrentSource??null,
+    a17HoldingForceHistoricalSource:magnet.userData.oemHoldingForceHistoricalSource??null,
+    a17A15BottomMountPatternVerified:Boolean(magnet.userData.A15BottomMountPatternVerified),
+    a17GCM901604FourM6CannotProveA15ToA17Interface:Boolean(magnet.userData.GCM901604FourM6CannotProveA15ToA17Interface),
+    a17BvsCMechanicalDiscriminationClosed:Boolean(magnet.userData.MBS65BvsCMechanicalDiscriminationClosed),
     a17FrontLabelPlaqueCount:magnet.children.filter(o=>o.userData.A17Photo194FrontLabelPlaque).length,
     a17FrontLabelTextReadable:Boolean(magnet.userData.frontLabelTextReadable),
     a17ExactVariantVerified:Boolean(magnet.userData.exactVariantVerified),
@@ -2952,7 +2960,16 @@ function platformA(){
     g.userData.oemVisualMatchConfidence='family-high: 65mm-class + 20mm + front-label-plaque + left-silver-switch';
     g.userData.oemCandidateEnvelopeMm=[65.2,65.2,20];
     g.userData.currentModelEnvelopeMm=[65,65,20];
-    g.userData.oemCandidateHoldingForceN=158;
+    // V97: current Oeabt product page and older 2024/2025 catalogs disagree.
+    g.userData.oemCandidateHoldingForceN=132;
+    g.userData.oemCurrentProductPageHoldingForceN=132;
+    g.userData.oemHistoricalCatalogHoldingForceN=158;
+    g.userData.oemHoldingForceSpecConflict=true;
+    g.userData.oemHoldingForceCurrentSource='Oeabt current MBS-65 product page';
+    g.userData.oemHoldingForceHistoricalSource='Oeabt 2024/2025 optical-mechanics catalogs';
+    g.userData.A15BottomMountPatternVerified=false;
+    g.userData.GCM901604FourM6CannotProveA15ToA17Interface=true;
+    g.userData.MBS65BvsCMechanicalDiscriminationClosed=false;
     g.userData.frontLabelPlaquePhotoConfirmed=true;
     g.userData.frontLabelTextReadable=false;
     g.userData.exactVariantVerified=false;
