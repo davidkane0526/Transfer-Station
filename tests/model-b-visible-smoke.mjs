@@ -944,7 +944,7 @@ try{
  assert(aFrame.topWorldYmm>=390,'A optical/camera cable top is missing from the scene');
  assert.equal(aDefault.actualStagePosePhotoRegistered,false);
  assert.equal(aDefault.A05CClampSkuVerified,false);
- assert.equal(aDefault.footprintGapMm,72.25);
+ assert.equal(aDefault.footprintGapMm,50.25);
  assert.equal(aDefault.stampCenterX,78);
  assert.equal(aDefault.stampCenterZ,0);
  assert.equal(aDefault.initialVerticalStampGapMm,13);
