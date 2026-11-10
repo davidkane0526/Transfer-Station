@@ -1173,7 +1173,9 @@ try{
  assert.equal(dA.A15FloatingCentralControlCount,0,
    'Persistent floating A15 central cylinder must never return');
  assert.equal(dA.clampScrewCount,2);
- assert.equal(dA.clampScrewAxesParallelShortEdge,true);
+ assert.equal(dA.clampScrewAxesVertical,true);
+ assert.equal(dA.clampScrewPairLineParallelShortEdge,true);
+ assert.equal(dA.clampScrewPitchAcrossShortEdgeMm,13);
  assert.equal(dA.g40DrumBendOverlapVolumeAabbMm3,0);
  assert(dA.sampleMicrometerStemDrumEngagementMm>=2.9,
    'A06 angular stem must remain engaged with its knob');
