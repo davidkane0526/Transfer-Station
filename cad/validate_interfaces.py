@@ -876,6 +876,18 @@ report['V84_A_microscope_vendor_candidate_matrix']={
     'current_scene_A10_post_diameter_physically_measured':False,
     'current_scene_post_to_optical_axis_mm':112,
     'current_scene_post_to_optical_axis_physically_measured':False,
+    'BXFM_F':{
+        'candidate_only':True,
+        'vendor_frame_width_mm':84,
+        'vendor_pillar_mount_hole_mm':32,
+        'vendor_focus_travel_mm':30,
+        'vendor_weight_kg':1.9,
+        'rear_bolt_mount':'4-M8 depth8',
+        'photo_topology_match':'high',
+        'geometry_applied_to_A18':False,
+        'width_84_matches_current_photo_fit':True,
+        'width_match_proves_identity':False
+    },
     'MGZ30':{
         'candidate_only':True,
         'vendor_Z_travel_mm':30,
@@ -895,6 +907,8 @@ report['V84_A_microscope_vendor_candidate_matrix']={
          'center_distance_mm':140,'coaxial_fine_focus':False}
     ],
     'Boli_ViewSolutions_geometry_applied_to_A18':False,
+    'Boli_76mm_E_arm_direct_identity_rejected':True,
+    'Boli_76mm_E_arm_rejection_reason':'photos191-193 lack the exposed 76mm annular holder seen in vendor products',
     'visible_76mm_scope_ring_confirmed':False,
     'MCT_LMP2_direct_identity_rejected':True,
     'MCT_LMP2_vendor_envelope_mm':[211.5,130,58.8],

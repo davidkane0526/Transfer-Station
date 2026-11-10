@@ -717,8 +717,20 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30VendorTurretThread:gA18.userData.MGZ30VendorTurretThread,
      A18MGZ30SupportsSM1SM2:Boolean(gA18.userData.MGZ30SupportsSM1SM2),
      A18MGZ30GeometryApplied:Boolean(gA18.userData.MGZ30GeometryApplied),
+     A18BXFMFCandidateOnly:Boolean(gA18.userData.BXFMFCandidateOnly),
+     A18BXFMFVendorFrameWidthMm:gA18.userData.BXFMFVendorFrameWidthMm,
+     A18BXFMFVendorPillarMountHoleMm:gA18.userData.BXFMFVendorPillarMountHoleMm,
+     A18BXFMFVendorFocusTravelMm:gA18.userData.BXFMFVendorFocusTravelMm,
+     A18BXFMFVendorWeightKg:gA18.userData.BXFMFVendorWeightKg,
+     A18BXFMFRearBoltMount:gA18.userData.BXFMFRearBoltMount,
+     A18BXFMFPhotoTopologyMatch:gA18.userData.BXFMFPhotoTopologyMatch,
+     A18BXFMFGeometryApplied:Boolean(gA18.userData.BXFMFGeometryApplied),
+     A18BXFMFWidth84MatchesCurrentPhotoFit:Boolean(gA18.userData.BXFMFWidth84MatchesCurrentPhotoFit),
+     A18BXFMFWidthMatchProvesIdentity:Boolean(gA18.userData.BXFMFWidthMatchProvesIdentity),
      A18Boli76x25Candidates:gA18.userData.Boli76x25Candidates,
      A18BoliFocusRackGeometryApplied:Boolean(gA18.userData.BoliFocusRackGeometryApplied),
+     A18Boli76RingDirectIdentityRejected:Boolean(gA18.userData.Boli76RingDirectIdentityRejected),
+     A18Boli76RingRejectionReason:gA18.userData.Boli76RingRejectionReason,
      A18CurrentScenePostDiameterMm:gA18.userData.currentScenePostDiameterMm,
      A18CurrentScenePostDiameterMeasured:Boolean(gA18.userData.currentScenePostDiameterMeasured),
      A18CurrentScenePostToOpticalAxisMm:gA18.userData.currentScenePostToOpticalAxisMm,
@@ -3443,6 +3455,21 @@ function platformA(){
    g.userData.MGZ30VendorTurretThread='M26×36 TPI';
    g.userData.MGZ30SupportsSM1SM2=true;
    g.userData.MGZ30GeometryApplied=false;
+   // V91: official Olympus/Evident BXFM-F geometry is a stronger topology
+   // match to photos191-193 than the 76mm E-arm racks: compact rectangular
+   // frame, bilateral focus knobs, top optical port and pillar/rear mounting.
+   // The OEM drawing provides an 84mm frame width and Ø32H8 pillar mount.
+   // This is still candidate evidence only; no OEM solid is copied yet.
+   g.userData.BXFMFCandidateOnly=true;
+   g.userData.BXFMFVendorFrameWidthMm=84;
+   g.userData.BXFMFVendorPillarMountHoleMm=32;
+   g.userData.BXFMFVendorFocusTravelMm=30;
+   g.userData.BXFMFVendorWeightKg=1.9;
+   g.userData.BXFMFRearBoltMount='4-M8 depth8';
+   g.userData.BXFMFPhotoTopologyMatch='high';
+   g.userData.BXFMFGeometryApplied=false;
+   g.userData.BXFMFWidth84MatchesCurrentPhotoFit=true;
+   g.userData.BXFMFWidthMatchProvesIdentity=false;
    g.userData.Boli76x25Candidates=[
      {sku:'SA08041302',postDiameterMm:25,holderDiameterMm:76,
       centerDistanceMm:null,coaxialFineFocus:true},
@@ -3452,6 +3479,8 @@ function platformA(){
       centerDistanceMm:140,coaxialFineFocus:false}
    ];
    g.userData.BoliFocusRackGeometryApplied=false;
+   g.userData.Boli76RingDirectIdentityRejected=true;
+   g.userData.Boli76RingRejectionReason='photos191-193 do not show the exposed 76mm annular E-arm holder';
    g.userData.currentScenePostDiameterMm=26;
    g.userData.currentScenePostDiameterMeasured=false;
    g.userData.currentScenePostToOpticalAxisMm=112;
@@ -3460,8 +3489,8 @@ function platformA(){
    g.userData.fullFivePortTurretConfirmed=false;
    g.userData.MCTLMP2DirectIdentityRejected=true;
    g.userData.MCTLMP2VendorEnvelopeMm=[211.5,130,58.8];
-   g.userData.vendorCandidateDecision='MGZ30 topology-high; 25mm-post racks compared; none confirmed';
-   label(g,'A18 调焦主体 · V84厂商候选矩阵 / MGZ30等均未确认',0,52,0);
+   g.userData.vendorCandidateDecision='BXFM-F topology-high; MGZ30 remains plausible; exposed 76mm E-arm direct identity rejected; none confirmed';
+   label(g,'A18 调焦主体 · V91 BXFM-F/MGZ30高优先级 / 76mm大抱环直接身份排除',0,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
    const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
@@ -3772,15 +3801,20 @@ function updateDetail(part){
      (c.coaxialFineFocus?' / 粗微同轴':' / 粗调')).join('；');
    return '<div class="field" id="a18-vendor-comparison" data-confirmed="false" '+
      'data-mgz30-applied="'+Boolean(a18?.userData.MGZ30GeometryApplied)+'" '+
-     'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'">'+
-     '<b>A18 厂商候选矩阵（V84）</b><p>'+
-     '<b>Thorlabs MGZ30 / T-Scope：</b>厂家30mm Z行程、Ø38.1mm立柱、5孔M26×36 TPI转盘，并支持30mm cage / SM1 / SM2。'+
-     '与当前双侧粗微调和TTL200-A光路拓扑相容，但实物未确认Ø38.1mm立柱、完整5孔转盘或Thorlabs标识，故几何未套用。<br>'+
-     '<b>25mm立柱 / Ø76镜体调焦架：</b>'+esc(boliText)+'。'+
-     '当前场景Ø26mm立柱和约112mm立柱—光轴距离均未实测，不能据此选中或排除该系列；照片也未确认Ø76mm大抱环，故几何未套用。<br>'+
-     '<b>MCT-LMP2：</b>厂家211.5×130×58.8mm、40mm行程及密集前板孔阵与照片不符，继续排除直接身份。<br>'+
-     '<b>升级条件：</b>需要A18后侧高清图/Logo、立柱直径尺图、立柱—光轴距离、转盘底视图或原始高清191–193。'+
-     '在此之前继续使用照片约束A18，不允许厂商候选自动覆盖三维实体。</p></div>';
+     'data-bxfmf-applied="'+Boolean(a18?.userData.BXFMFGeometryApplied)+'" '+
+     'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
+     'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
+     '<b>A18 厂商候选矩阵（V91）</b><p>'+
+     '<b>Olympus/Evident BXFM-F：</b>原厂图给出84mm机架宽度、Ø32H8立柱安装孔、后侧4-M8固定接口；系统规格为30mm调焦行程。'+
+     '191–193中可见的紧凑矩形主体、双侧调焦、顶部光路和下方物镜转换结构与其拓扑明显接近，且84mm与当前照片拟合主体最大宽度一致。'+
+     '但颜色/Logo、Ø32立柱和后安装面都没有高清实物证据，所以只升为高优先级候选，不能套原厂实体。<br>'+
+     '<b>Thorlabs MGZ30 / T-Scope：</b>仍保留高优先级：30mm Z行程、Ø38.1mm立柱、5孔M26×36 TPI转盘，并支持30mm cage / SM1 / SM2；'+
+     '但实物仍未确认Ø38.1mm立柱、完整5孔转盘或Thorlabs标识。<br>'+
+     '<b>25mm立柱 / Ø76大抱环调焦架：</b>'+esc(boliText)+'。'+
+     'V91直接对照厂家产品外形后降级：这类产品具有非常醒目的外露Ø76环抱式E-arm，照片191–193没有对应结构，因此不再作为A18直接身份，只保留尺寸族对照。<br>'+
+     '<b>MCT-LMP2：</b>211.5×130×58.8mm包络、40mm行程及密集前板孔阵继续排除直接身份。<br>'+
+     '<b>当前决定：</b>BXFM-F与MGZ30并列高优先级，但任何一个都未确认；84mm宽度吻合只是证据加权，不能作为型号证明。'+
+     '仍需A18后侧高清图/Logo、立柱直径尺图、后安装面或转盘底视图后才允许替换三维实体。</p></div>';
  })():'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
@@ -4016,7 +4050,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V90 / '+(aWorkingPoseMode?
+   '平台 A · V91 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4175,7 +4209,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V90当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V91当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+

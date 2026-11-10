@@ -632,7 +632,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V90.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V91.*整体旋转180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -874,12 +874,27 @@ try{
  assert.equal(dA.A18MGZ30SupportsSM1SM2,true);
  assert.equal(dA.A18MGZ30GeometryApplied,false,
    'MGZ30 vendor geometry cannot replace the photo-constrained A18 before identity is verified');
+ assert.equal(dA.A18BXFMFCandidateOnly,true);
+ assert.equal(dA.A18BXFMFVendorFrameWidthMm,84);
+ assert.equal(dA.A18BXFMFVendorPillarMountHoleMm,32);
+ assert.equal(dA.A18BXFMFVendorFocusTravelMm,30);
+ assert.equal(dA.A18BXFMFVendorWeightKg,1.9);
+ assert.equal(dA.A18BXFMFRearBoltMount,'4-M8 depth8');
+ assert.equal(dA.A18BXFMFPhotoTopologyMatch,'high');
+ assert.equal(dA.A18BXFMFGeometryApplied,false,
+   'BXFM-F vendor geometry cannot replace the photo-constrained A18 before identity is verified');
+ assert.equal(dA.A18BXFMFWidth84MatchesCurrentPhotoFit,true);
+ assert.equal(dA.A18BXFMFWidthMatchProvesIdentity,false,
+   '84mm width coincidence is supporting evidence, never model identification');
  assert.equal(dA.A18Boli76x25Candidates.length,3);
  assert(dA.A18Boli76x25Candidates.every(c=>c.postDiameterMm===25&&c.holderDiameterMm===76));
  assert.equal(dA.A18Boli76x25Candidates.find(c=>c.sku==='SA02041502').centerDistanceMm,156);
  assert.equal(dA.A18Boli76x25Candidates.find(c=>c.sku==='SA08041102').centerDistanceMm,140);
  assert.equal(dA.A18BoliFocusRackGeometryApplied,false,
    '25mm-post rack candidates are comparison evidence only');
+ assert.equal(dA.A18Boli76RingDirectIdentityRejected,true,
+   'Exposed 76mm E-arm topology is absent from photos191-193');
+ assert.match(dA.A18Boli76RingRejectionReason,/76mm annular E-arm/);
  assert.equal(dA.A18CurrentScenePostDiameterMm,26);
  assert.equal(dA.A18CurrentScenePostDiameterMeasured,false,
    'Current Ø26 A10 post is a scene fit, not a physical ruler measurement');
@@ -888,6 +903,8 @@ try{
    'Current 112mm post-to-axis distance is not allowed to hard-reject a vendor candidate');
  assert.equal(dA.A18Visible76mmScopeRingConfirmed,false);
  assert.equal(dA.A18FullFivePortTurretConfirmed,false);
+ assert.match(dA.A18VendorCandidateDecision,/BXFM-F topology-high/);
+ assert.match(dA.A18VendorCandidateDecision,/76mm E-arm direct identity rejected/);
  assert.match(dA.A18VendorCandidateDecision,/none confirmed/);
  assert.equal(dA.A18MCTLMP2DirectIdentityRejected,true);
  assert.deepEqual(dA.A18MCTLMP2VendorEnvelopeMm,[211.5,130,58.8]);
@@ -901,13 +918,18 @@ try{
  const a18VendorCard=page.locator('#a18-vendor-comparison');
  assert.equal(await a18VendorCard.getAttribute('data-confirmed'),'false');
  assert.equal(await a18VendorCard.getAttribute('data-mgz30-applied'),'false');
+ assert.equal(await a18VendorCard.getAttribute('data-bxfmf-applied'),'false');
  assert.equal(await a18VendorCard.getAttribute('data-boli-applied'),'false');
+ assert.equal(await a18VendorCard.getAttribute('data-boli76-direct-rejected'),'true');
  const a18VendorText=await a18VendorCard.innerText();
+ assert.match(a18VendorText,/BXFM-F/);
+ assert.match(a18VendorText,/84mm/);
+ assert.match(a18VendorText,/Ø32H8/);
  assert.match(a18VendorText,/MGZ30 \/ T-Scope/);
  assert.match(a18VendorText,/SA02041502/);
  assert.match(a18VendorText,/SA08041102/);
- assert.match(a18VendorText,/未实测/);
- assert.match(a18VendorText,/不允许厂商候选自动覆盖三维实体/);
+ assert.match(a18VendorText,/不再作为A18直接身份/);
+ assert.match(a18VendorText,/不能作为型号证明/);
  await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  assert.equal(dA.A15LinearHandleCount,2);
  assert.equal(dA.A15StemCount,2);
@@ -1013,7 +1035,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V90当前安装方向/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V91当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
