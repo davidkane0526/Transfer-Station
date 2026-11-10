@@ -1218,10 +1218,11 @@ try{
  assert.match(a05cVendorText,/GCM-13系列/);
  assert.match(a05cVendorText,/GCM-1302M/);
  assert.match(a05cVendorText,/GCM-1311M/);
- assert.match(a05cVendorText,/当前28mm/);
- assert.match(a05cVendorText,/厂家系列拓扑已应用/);
- assert.match(a05cVendorText,/精确SKU外形仍未套用/);
- assert.match(a05cVendorText,/没有凭空增加M6孔或螺柱/);
+ assert.match(a05cVendorText,/GCM-1302M.*主候选/);
+ assert.match(a05cVendorText,/L=60mm/);
+ assert.match(a05cVendorText,/GCM-1311M.*次候选/);
+ assert.match(a05cVendorText,/隐藏的1302M厂家轮廓研究件/);
+ assert.match(a05cVendorText,/不向A05折弯片添加隐藏M6接口/);
  // Clear the user's intentionally persistent filter even while the BOM drawer is closed.
  await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  const photoA=await page.evaluate(()=>window.__photoEvidenceProbe?.('A05C'));
@@ -1284,7 +1285,9 @@ try{
  assert.deepEqual(photoAxis.GCM13Candidates.map(x=>x.sku),
    ['GCM-1302M','GCM-1311M','GCM-1301M','GCM-1312M']);
  assert.equal(photoAxis.GCM13Candidates[0].Lmm,60);
+ assert.equal(photoAxis.GCM13Candidates[0].priority,'primary-topology-match');
  assert.equal(photoAxis.GCM13Candidates[1].Lmm,52);
+ assert.equal(photoAxis.GCM13Candidates[1].priority,'secondary-distinct-control-layout');
  assert.equal(photoAxis.GCM13GeometryApplied,false,
    'Exact GCM-13 SKU geometry must not replace the photo-fit A05C envelope');
  assert.equal(photoAxis.GCM13FamilyTopologyApplied,true,
@@ -1297,8 +1300,20 @@ try{
  assert.equal(photoAxis.GCM13GlassShortEdgeConstraintMm,26);
  assert.equal(photoAxis.GCM13InnerClearSpanMm,26);
  assert.equal(photoAxis.GCM13InnerClearSpanMatchesGlassShortEdge,true);
- assert.deepEqual(photoAxis.GCM13VendorDrawingProfiles.GCM130M.drawingDimensionsMm,[26,29,7,24]);
+ assert.equal(photoAxis.GCM13VendorDrawingProfiles.GCM130M.bodyDepthMm,26);
+ assert.equal(photoAxis.GCM13VendorDrawingProfiles.GCM130M.adjustmentExtensionMm,29);
+ assert.equal(photoAxis.GCM13VendorDrawingProfiles.GCM130M.movingJawThicknessMm,7);
+ assert.equal(photoAxis.GCM13VendorDrawingProfiles.GCM130M.bodyHeightMm,24);
  assert.deepEqual(photoAxis.GCM13VendorDrawingProfiles.GCM1311M.drawingDimensionsMm,[44,26,5.5,33,40]);
+ assert.equal(photoAxis.GCM13PrimaryCandidateSku,'GCM-1302M');
+ assert.equal(photoAxis.GCM1302TwoSameDirectionAdjustersMatchObservedTopology,true);
+ assert.equal(photoAxis.GCM1311DistinctCompactControlLayout,true);
+ assert.equal(photoAxis.GCM1302VendorStudyAvailable,true);
+ assert.equal(photoAxis.GCM1302VendorStudyInstalled,false);
+ assert.equal(photoAxis.GCM1302VendorStudyExactGeometry,false);
+ assert.equal(photoAxis.GCM1302StudyFixedBodyCount,1);
+ assert.equal(photoAxis.GCM1302StudyMovingJawCount,1);
+ assert.equal(photoAxis.GCM1302StudyAdjustmentScrewCount,2);
  assert.equal(photoAxis.GCM13VendorProfilesAreDistinct,true);
  assert.equal(photoAxis.GCM13Shared26mmDimensionDoesNotProveSku,true);
  assert.equal(photoAxis.GCM13MovingMiddlePlateCount,1);

@@ -957,8 +957,9 @@ check(mgz_study.intersect(mgz_bore_probe).Volume()<1e-4,
 check(mgz_bb.ymin<-137 and mgz_bb.ymax>43,
       'V111 MGZ30-family study must span from direct post clamp to photo-fit focus body')
 uninstalled_csv=ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv'
-check(uninstalled_csv.exists() and 'A18MGZ' in uninstalled_csv.read_text(encoding='utf-8-sig'),
-      'V111 A18MGZ study must be excluded from the installed platform-A assembly')
+uninstalled_text=uninstalled_csv.read_text(encoding='utf-8-sig') if uninstalled_csv.exists() else ''
+check(uninstalled_csv.exists() and 'A18MGZ' in uninstalled_text and 'A05C1302' in uninstalled_text,
+      'V113 manufacturer studies must be excluded from the installed platform-A assembly')
 report['V111_A18_MGZ30_family_topology_study']={
     'installed_in_default_assembly':False,
     'exact_MGZ30_vendor_geometry':False,
@@ -1295,6 +1296,42 @@ report['V95_A05_explicit_lower_jaw_and_26mm_span']={
     'shared_26mm_dimension_proves_exact_sku':False,
     'exact_lower_jaw_OEM_profile_verified':False,
     'bottom_fixing_thread_interface_verified':False,
+    'safe_for_fabrication':False
+}
+
+# V113: GCM-1302M manufacturer-silhouette study is separate from the
+# installed clamp. It preserves only dimensions readable from the Daheng
+# M-24 drawing; screw pitch and hidden mounting interface are not asserted.
+g1302_parts=part(A,'A05C1302')
+check(len(g1302_parts)==6,
+      'V113 GCM-1302M study must contain two jaw slabs plus two shaft/knob pairs')
+g1302_comp=cq.Compound.makeCompound(g1302_parts)
+g1302_bb=g1302_comp.BoundingBox()
+check(abs(g1302_bb.xlen-60)<.02 and abs(g1302_bb.zlen-24)<.02,
+      'V113 GCM-1302M study must preserve vendor L60 and H24')
+g1302_slabs=sorted([q for q in g1302_parts if q.BoundingBox().xlen>59],
+                   key=lambda q:q.BoundingBox().ymin)
+check(len(g1302_slabs)==2,
+      'V113 GCM-1302M study must expose fixed and moving jaw slabs')
+g1302_gap=g1302_slabs[1].BoundingBox().ymin-g1302_slabs[0].BoundingBox().ymax
+check(abs(g1302_gap-5)<.02,
+      'V113 study must retain a 5mm max plate gap without claiming exact internal OEM detail')
+report['V113_A05_GCM1302_vendor_silhouette_study']={
+    'installed_in_default_assembly':False,
+    'exact_sku_identity_verified':False,
+    'primary_candidate_sku':'GCM-1302M',
+    'vendor_length_mm':60,
+    'vendor_body_depth_mm':26,
+    'vendor_body_height_mm':24,
+    'vendor_moving_jaw_thickness_mm':7,
+    'vendor_adjustment_extension_mm':29,
+    'vendor_mount_thread':'M6',
+    'vendor_max_plate_thickness_mm':5,
+    'observed_two_same_direction_adjusters_support_primary_ranking':True,
+    'illustrative_longitudinal_screw_pitch_mm':30,
+    'longitudinal_screw_pitch_dimensioned_by_vendor':False,
+    'hidden_bottom_M6_applied_to_installed_A05':False,
+    'GCM1311M_rank':'secondary-distinct-control-layout',
     'safe_for_fabrication':False
 }
 
@@ -2086,8 +2123,8 @@ check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide 
 import csv
 verification=json.loads((ROOT/'build'/'verification.json').read_text())
 a_complete=next(x for x in verification if x['system']=='A')
-check(set(a_complete['excluded_uninstalled'])=={'A18MGZ'},
-      'V111 complete A STEP may exclude only the explicit A18MGZ study; required transfer hardware must remain installed')
+check(set(a_complete['excluded_uninstalled'])=={'A18MGZ','A05C1302'},
+      'V113 complete A STEP may exclude only explicit A18MGZ/A05C1302 studies; required transfer hardware must remain installed')
 check(a_complete['approved_installed_shape']=='rigid_180deg_film_chain_with_glass_short_edge_side_clamp',
       'V79 official A STEP must use the rigid-180 installed film-chain definition')
 check(abs(a_complete['photo_A_stage_center_x_mm']-(-82.75))<.001,
@@ -2104,8 +2141,8 @@ research_ids=set()
 if study_csv.exists():
     with study_csv.open(encoding='utf-8-sig',newline='') as f:
         research_ids={row['id'] for row in csv.DictReader(f)}
-check(research_ids=={'A18MGZ'},
-      'V111 uninstalled-study list must contain only A18MGZ, never required clamp/glass/PDMS hardware')
+check(research_ids=={'A18MGZ','A05C1302'},
+      'V113 uninstalled-study list must contain only A18MGZ/A05C1302, never required clamp/glass/PDMS hardware')
 report['V79_A_user_corrected_installed_assembly']={
     'local_sheet_definition':'left-handed single source geometry',
     'complete_film_chain_yaw_deg':180,

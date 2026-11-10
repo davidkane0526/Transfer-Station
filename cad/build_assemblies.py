@@ -794,6 +794,23 @@ def make_a():
         add('A',f'A05CS{i}','GCM13_FAMILY_TWO_ADJUSTMENT_SCREWS_AXIS_PARALLEL_GLASS_SHORT_EDGE',
             shank.fuse(hub,*wings),'C')
 
+    # V113: uninstalled GCM-1302M family silhouette study from the Daheng
+    # M-24 drawing. Outer manufacturer dimensions used here are L=60,
+    # depth=26, height=24, moving-jaw thickness=7 and adjustment extension=29.
+    # The longitudinal screw pitch is NOT dimensioned, so the ±15mm study
+    # placement is illustrative only. No hidden M6 interface is copied into A05.
+    study_z=glass_bottom-12
+    g1302_fixed=box(60,14,24,clamp_center_x,-6,study_z)
+    g1302_moving=box(60,7,24,clamp_center_x,9.5,study_z)
+    g1302_solids=[g1302_fixed,g1302_moving]
+    for xx in (clamp_center_x-15,clamp_center_x+15):
+        g1302_solids.append(vy(2.5,29,xx,12,glass_bottom))
+        g1302_solids.append(vy(5,10,xx,40,glass_bottom))
+    g1302_study=cq.Compound.makeCompound(g1302_solids)
+    add('A','A05C1302',
+        'GCM_1302M_VENDOR_SILHOUETTE_STUDY_L60_D26_H24_JAW7_EXT29_NOT_INSTALLED',
+        g1302_study,'C')
+
     add('A','A05G','installed_standard_76x26x1mm_glass_CANDIDATE',
         box(76,26,1,glass_center_x,0,glass_bottom),'C')
     add('A','A05GP','PDMS_8x8x1p8_transfer_stamp_installed',
@@ -987,11 +1004,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V112'
-UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ'})
+CAD_REVISION='V113'
+UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302'})
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
-    """V111 installed A: V108 photo-fit A10/A18 remains installed; A18MGZ is an excluded MGZ30-family topology study.
+    """V113 installed A: photo-fit hardware remains installed; A18MGZ and A05C1302 are excluded manufacturer-family studies.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """

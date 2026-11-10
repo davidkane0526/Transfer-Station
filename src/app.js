@@ -346,6 +346,18 @@ window.__modelA05PhotoEvidenceProbe=()=>{
    GCM13InnerClearSpanMm:clamp.userData.A05CInnerClearSpanMm??null,
    GCM13InnerClearSpanMatchesGlassShortEdge:Boolean(clamp.userData.A05CInnerClearSpanMatchesGlassShortEdge),
    GCM13VendorDrawingProfiles:clamp.userData.GCM13VendorDrawingProfiles??null,
+   GCM13PrimaryCandidateSku:clamp.userData.GCM13PrimaryCandidateSku??null,
+   GCM1302TwoSameDirectionAdjustersMatchObservedTopology:Boolean(clamp.userData.GCM1302TwoSameDirectionAdjustersMatchObservedTopology),
+   GCM1311DistinctCompactControlLayout:Boolean(clamp.userData.GCM1311DistinctCompactControlLayout),
+   GCM1302VendorStudyAvailable:Boolean(clamp.userData.GCM1302VendorStudyAvailable),
+   GCM1302VendorStudyInstalled:Boolean(clamp.userData.GCM1302VendorStudyInstalled),
+   GCM1302VendorStudyExactGeometry:Boolean(clamp.userData.GCM1302VendorStudyExactGeometry),
+   GCM1302StudyFixedBodyCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy)
+     .flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyFixedBody).length,
+   GCM1302StudyMovingJawCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy)
+     .flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyMovingJaw).length,
+   GCM1302StudyAdjustmentScrewCount:clamp.children.filter(o=>o.isGroup&&o.userData.GCM1302VendorStudy)
+     .flatMap(o=>o.children).filter(o=>o.userData.GCM1302StudyAdjustmentScrew).length,
    GCM13VendorProfilesAreDistinct:Boolean(clamp.userData.GCM13VendorProfilesAreDistinct),
    GCM13Shared26mmDimensionDoesNotProveSku:Boolean(clamp.userData.GCM13Shared26mmDimensionDoesNotProveSku),
    GCM13MovingMiddlePlateCount:clamp.children.filter(o=>o.userData.A05CMovingMiddlePlate).length,
@@ -3282,6 +3294,44 @@ function platformA(){
      clampCenterX,glassCenterY,aBent.sheetFrontZ+18.5));
    threadedCarrier.userData.A05CGCM13ThreadCarrier=true;
    threadedCarrier.userData.GCM13FamilyTopologyRole='two-thread-fixed-carrier';
+
+   // V113: separate Daheng GCM-1302M family study. Manufacturer drawing
+   // constrains L=60, body depth=26, height=24, moving-jaw thickness=7,
+   // adjustment extension=29 and bottom interface A=M6. The two knob
+   // positions are illustrative because their longitudinal pitch is not
+   // dimensioned in the available drawing. This study is hidden and must
+   // never replace the installed photo-fit clamp without new identity evidence.
+   const gcm1302Study=new THREE.Group();
+   gcm1302Study.visible=false;g.add(gcm1302Study);
+   const studyY=footBottomY+12;
+   const studyFixed=add(gcm1302Study,cub(60,24,14,mats.dark,
+     clampCenterX,studyY,aBent.sheetFrontZ-6));
+   studyFixed.userData.GCM1302StudyFixedBody=true;
+   const studyMoving=add(gcm1302Study,cub(60,24,7,mats.silver,
+     clampCenterX,studyY,aBent.sheetFrontZ+9.5));
+   studyMoving.userData.GCM1302StudyMovingJaw=true;
+   for(const dx of [-15,15]){
+     const x=clampCenterX+dx;
+     const shaft=add(gcm1302Study,cyl(2.5,29,mats.steel,
+       x,studyY,aBent.sheetFrontZ+27.5));
+     shaft.rotation.x=Math.PI/2;
+     shaft.userData.GCM1302StudyAdjustmentScrew=true;
+     const knob=add(gcm1302Study,cyl(5,10,mats.silver,
+       x,studyY,aBent.sheetFrontZ+47));
+     knob.rotation.x=Math.PI/2;
+     knob.userData.GCM1302StudyHandKnob=true;
+   }
+   gcm1302Study.userData.GCM1302VendorStudy=true;
+   gcm1302Study.userData.installedByDefault=false;
+   gcm1302Study.userData.exactVendorGeometry=false;
+   gcm1302Study.userData.vendorEnvelopeLHDmm=[60,24,26];
+   gcm1302Study.userData.vendorMovingJawThicknessMm=7;
+   gcm1302Study.userData.vendorAdjustmentExtensionMm=29;
+   gcm1302Study.userData.vendorMountThread='M6';
+   gcm1302Study.userData.maxPlateThicknessMm=5;
+   gcm1302Study.userData.illustrativeScrewPitchMm=30;
+   gcm1302Study.userData.screwPitchDimensionedByVendor=false;
+
    g.userData.A05CClampingStackType='support ledge + explicit fixed lower jaw + GCM-13-family moving middle plate';
    g.userData.A05CLowerFixedJawModelled=true;
    g.userData.A05CGlassShortEdgeConstraintMm=glassShortEdgeMm;
@@ -3307,14 +3357,21 @@ function platformA(){
    // mounting bore/stud merely because both primary catalogue candidates use M6.
    g.userData.GCM13BottomMountInterfaceModelled=false;
    g.userData.GCM13VendorDrawingProfiles={
-     GCM130M:{drawingDimensionsMm:[26,29,7,24],covers:['GCM-1301M','GCM-1302M']},
+     GCM130M:{bodyDepthMm:26,adjustmentExtensionMm:29,movingJawThicknessMm:7,
+       bodyHeightMm:24,covers:['GCM-1301M','GCM-1302M']},
      GCM1311M:{drawingDimensionsMm:[44,26,5.5,33,40],covers:['GCM-1311M']}
    };
    g.userData.GCM13VendorProfilesAreDistinct=true;
    g.userData.GCM13Shared26mmDimensionDoesNotProveSku=true;
+   g.userData.GCM13PrimaryCandidateSku='GCM-1302M';
+   g.userData.GCM1302TwoSameDirectionAdjustersMatchObservedTopology=true;
+   g.userData.GCM1311DistinctCompactControlLayout=true;
+   g.userData.GCM1302VendorStudyAvailable=true;
+   g.userData.GCM1302VendorStudyInstalled=false;
+   g.userData.GCM1302VendorStudyExactGeometry=false;
    g.userData.GCM13Candidates=[
-     {sku:'GCM-1302M',mountThread:'M6',Lmm:60,weightG:105,priority:'primary'},
-     {sku:'GCM-1311M',mountThread:'M6',Lmm:52,weightG:105,priority:'primary'},
+     {sku:'GCM-1302M',mountThread:'M6',Lmm:60,weightG:105,priority:'primary-topology-match'},
+     {sku:'GCM-1311M',mountThread:'M6',Lmm:52,weightG:105,priority:'secondary-distinct-control-layout'},
      {sku:'GCM-1301M',mountThread:'M6',Lmm:100,weightG:155,priority:'low-longer-than-slide'},
      {sku:'GCM-1312M',mountThread:'M4',Lmm:85,weightG:55,priority:'secondary-different-outline'}
    ];
@@ -3352,8 +3409,7 @@ function platformA(){
    g.userData.screwShaftAxis='scene-Z / parallel to 26mm glass short edge';
    g.userData.screwPitchAlongGlassLengthMmCandidate=18;
    g.userData.realOEMThreadVerified=false;
-   label(g,'A05CS · 2枚侧向夹紧螺钉 · 轴线平行玻片短边',
-     clampCenterX,16,aBent.sheetFrontZ+38);
+   label(g,'A05CS 夹紧螺钉',clampCenterX,16,aBent.sheetFrontZ+38);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
  addPart('A05G',ax,aBracketTopY,az,g=>{
@@ -3370,10 +3426,7 @@ function platformA(){
    g.userData.glassToHolderPhysicallyVerified=false;
    g.userData.requiredInstalledTransferElement=true;
    g.userData.unregisteredGlobalPose=false;
-   label(g,aWorkingPoseMode?
-     'A05G · 76×26×1mm玻片候选 · 180°后PDMS朝向样品':
-     'A05G · 转移机构必需玻片 / 照片参考朝向',
-     glassCenterX,15,aBent.sheetFrontZ);
+   label(g,'A05G 载玻片 / PDMS',glassCenterX,15,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  // V79: glass is part of the installed transfer mechanism. Exact clamp SKU,
  // thread and slide dimensions remain pending physical measurement.
@@ -4008,11 +4061,10 @@ function updateDetail(part){
      'data-gcm13-applied="'+Boolean(c?.userData.GCM13GeometryApplied)+'" '+
      'data-gcm13-topology-applied="'+Boolean(c?.userData.GCM13FamilyTopologyApplied)+'" '+
      'data-gcm13-exact-sku-applied="'+Boolean(c?.userData.GCM13ExactSkuGeometryApplied)+'">'+
-     '<b>A05C 厂商候选矩阵（V90）</b><p>'+
-     '<b>Daheng GCM-13系列：</b>厂家明确采用2枚手拧调节螺纹推动同一中间活动压板，可夹持厚度≤5mm的板状光学件。V90已把这一厂家拓扑落实为“共同固定螺纹载体→两螺杆→单一活动压板”，并保持螺杆轴线∥玻片26mm短边。<br>'+
-     '<b>型号对照：</b>'+esc(rows)+'。GCM-1302M与GCM-1311M作为主要候选；1301M的L=100mm相对76mm玻片偏长；1312M为M4且外形支系不同。<br>'+
-     '<b>当前28mm：</b>仅表示照片拟合的有效夹持区，不是实测完整夹具长度，不能拿它直接排除52/60mm厂家件。<br>'+
-     '<b>当前决定：</b><b>厂家系列拓扑已应用</b>，但精确SKU外形仍未套用；1302M/1311M共有的M6底部接口只作为候选元数据，因为照片194/196没有显示夹具底面，模型没有凭空增加M6孔或螺柱。</p></div>';
+     '<b>A05C 厂商候选矩阵（V113）</b><p>'+
+     '<b>GCM-1302M：</b>提升为主候选。原厂GCM-130M图明确为L=60mm、主体深26mm、高24mm、活动压板厚7mm、调节端伸出29mm、底部M6；外观为沿长边分布的两枚同侧手拧调节件，与当前已确认的“两枚同向夹紧件”拓扑更一致。<br>'+
+     '<b>GCM-1311M：</b>降为次候选。其52mm紧凑结构和控制件布局与GCM-130M明显不同。<br>'+
+     '<b>当前决定：</b>默认实机仍使用照片约束A05C；新增隐藏的1302M厂家轮廓研究件，不默认安装，不复制未标注的螺杆纵向孔距，也不向A05折弯片添加隐藏M6接口。</p></div>';
  })():'';
  const a06VendorHtml=(platform==='A'&&part.id==='A06')?(()=>{
    const a=auditV48RulerRegistration();
