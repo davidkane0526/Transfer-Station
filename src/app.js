@@ -4382,12 +4382,19 @@ function _auditProjection(box){
    width:Number((maxX-minX).toFixed(3)),height:Number((maxY-minY).toFixed(3))};
 }
 function _isWithin(obj,root){for(let p=obj;p;p=p.parent)if(p===root)return true;return false;}
+function _isEffectivelyVisible(obj){
+ for(let p=obj;p;p=p.parent)if(p.visible===false)return false;
+ return true;
+}
 function _auditRayClear(targetObj,allowedRoots,{transparentSkipRoots=[]}={}){
  if(!targetObj)return {clear:false,firstPart:null,skippedTransparentParts:[]};
  const target=targetObj.getWorldPosition(new THREE.Vector3());
  const dir=target.clone().sub(camera.position),dist=dir.length();
  const ray=new THREE.Raycaster(camera.position,dir.normalize(),0,dist+2);
- const hits=ray.intersectObject(currentRoot,true).filter(h=>h.object.visible);
+ // Raycaster traverses children even when an ancestor group is hidden. Audit
+ // rendered visibility, not only leaf-mesh visibility, otherwise hidden vendor
+ // studies become phantom occluders.
+ const hits=ray.intersectObject(currentRoot,true).filter(h=>_isEffectivelyVisible(h.object));
  const skipped=[];
  for(const hit of hits){
    const root=[...parts.entries()].find(([,v])=>_isWithin(hit.object,v.g));
@@ -4405,7 +4412,7 @@ function _auditRayClear(targetObj,allowedRoots,{transparentSkipRoots=[]}={}){
 function _auditRayClearPoint(targetPoint,allowedRoots){
  const dir=targetPoint.clone().sub(camera.position),dist=dir.length();
  const ray=new THREE.Raycaster(camera.position,dir.normalize(),0,dist+2);
- const hits=ray.intersectObject(currentRoot,true).filter(h=>h.object.visible);
+ const hits=ray.intersectObject(currentRoot,true).filter(h=>_isEffectivelyVisible(h.object));
  for(const hit of hits){
    const root=[...parts.entries()].find(([,v])=>_isWithin(hit.object,v.g));
    return {clear:allowedRoots.some(g=>_isWithin(hit.object,g)),firstPart:root?.[0]??null,
