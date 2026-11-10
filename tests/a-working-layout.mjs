@@ -23,6 +23,17 @@ assert.equal(A_WORKING_LAYOUT.a15Vc13LowerPoseHeightMm,119.5);
 assert.equal(A_WORKING_LAYOUT.a15Vc13InstalledOrderMatchesGCM901602,false);
 assert.equal(A_WORKING_LAYOUT.bracketTopWorldYmm,199.5);
 assert.equal(A_WORKING_LAYOUT.lLegLengthMm,87.6);
+assert.equal(A_WORKING_LAYOUT.lLegLengthSolvedFromNominalContact,true);
+assert.equal(A_WORKING_LAYOUT.lLegLengthPhotoMeasured,false);
+assert.equal(A_WORKING_LAYOUT.glassCenterAboveLegBottomMm,1);
+assert.equal(A_WORKING_LAYOUT.pdmsCenterBelowGlassCenterMm,1.4);
+assert.equal(A_WORKING_LAYOUT.pdmsThicknessMm,1.8);
+assert.equal(A_WORKING_LAYOUT.lLegLengthMm,
+  A_WORKING_LAYOUT.bracketTopWorldYmm+
+  A_WORKING_LAYOUT.glassCenterAboveLegBottomMm-
+  A_WORKING_LAYOUT.pdmsCenterBelowGlassCenterMm-
+  A_WORKING_LAYOUT.pdmsThicknessMm/2-
+  A_WORKING_LAYOUT.sampleChipTopWorldYmm);
 assert.equal(A_WORKING_LAYOUT.installedFilmYawDeg,180);
 assert.equal(A_WORKING_LAYOUT.localBracketHandedness,'left');
 assert.equal(A_WORKING_LAYOUT.localStampXBeforeYawMm,-160.75);
@@ -44,6 +55,14 @@ assert.equal(nominal.localStampXBeforeYawMm,-160.75);
 assert.equal(nominal.nominalStampTargetXmm,78);
 assert.equal(nominal.solvedFilmStageXmm,-82.75);
 assert.equal(nominal.solvedFilmMinusSampleCenterXmm,-160.75);
+assert.equal(nominal.bracketVerticalLegMm,87.6);
+assert.equal(nominal.bracketVerticalLegSolvedFromNominalContact,true);
+assert.equal(nominal.bracketVerticalLegPhotoMeasured,false);
+assert.match(nominal.bracketVerticalLegDerivation,/PDMS bottom/);
+assert.equal(nominal.glassCenterAboveLegBottomMm,1);
+assert.equal(nominal.pdmsCenterBelowGlassCenterMm,1.4);
+assert.equal(nominal.pdmsThicknessCandidateMm,1.8);
+assert.equal(nominal.loweredStampBottomTargetYmm,110.6);
 assert.equal(nominal.A17SkuVerified,false);
 assert.equal(nominal.A05CClampSkuVerified,false);
 assert.equal(nominal.basesSeparate,true);

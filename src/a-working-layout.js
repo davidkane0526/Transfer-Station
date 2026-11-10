@@ -11,6 +11,20 @@ const A_LOCAL_GLASS_NEAR_X=A_LOCAL_LEG_X-A_LAYOUT_INPUTS.glassNearFromLegMm;
 const A_LOCAL_STAMP_X=A_LOCAL_GLASS_NEAR_X-
   (A_LAYOUT_INPUTS.glassLengthMm-A_LAYOUT_INPUTS.stampRightMarginMm-A_LAYOUT_INPUTS.pdmsLengthMm/2);
 const A_CONTACT_SOLVED_FILM_STAGE_X=A_LAYOUT_INPUTS.sampleCenterX+A_LOCAL_STAMP_X;
+const A_VERTICAL_INPUTS=Object.freeze({
+  bracketTopWorldYmm:199.5,
+  sampleChipTopWorldYmm:110.6,
+  glassCenterAboveLegBottomMm:1.0,
+  pdmsCenterBelowGlassCenterMm:1.4,
+  pdmsThicknessMm:1.8,
+  transferDropMm:13
+});
+const A_CONTACT_SOLVED_LEG_LENGTH=
+  A_VERTICAL_INPUTS.bracketTopWorldYmm+
+  A_VERTICAL_INPUTS.glassCenterAboveLegBottomMm-
+  A_VERTICAL_INPUTS.pdmsCenterBelowGlassCenterMm-
+  A_VERTICAL_INPUTS.pdmsThicknessMm/2-
+  A_VERTICAL_INPUTS.sampleChipTopWorldYmm;
 
 export const A_WORKING_LAYOUT=Object.freeze({
   filmStageX:A_CONTACT_SOLVED_FILM_STAGE_X, filmStageZ:0, sampleCenterX:A_LAYOUT_INPUTS.sampleCenterX,
@@ -19,16 +33,21 @@ export const A_WORKING_LAYOUT=Object.freeze({
   filmStageXPhotoMeasured:false,filmStageXPhotoRegistered:false,
   localStampXBeforeYawMm:A_LOCAL_STAMP_X,nominalStampTargetXmm:A_LAYOUT_INPUTS.sampleCenterX,
   localBracketHandedness:'left', installedFilmYawDeg:180,
-  lBracketOverhangMm:A_LAYOUT_INPUTS.lBracketOverhangMm, lBracketTopWidthMm:87, lLegLengthMm:87.6,
+  lBracketOverhangMm:A_LAYOUT_INPUTS.lBracketOverhangMm, lBracketTopWidthMm:87,
+  lLegLengthMm:A_CONTACT_SOLVED_LEG_LENGTH,
+  lLegLengthDerivation:'lowered PDMS bottom == candidate sample-chip top',
+  lLegLengthSolvedFromNominalContact:true,lLegLengthPhotoMeasured:false,
+  glassCenterAboveLegBottomMm:A_VERTICAL_INPUTS.glassCenterAboveLegBottomMm,
+  pdmsCenterBelowGlassCenterMm:A_VERTICAL_INPUTS.pdmsCenterBelowGlassCenterMm,
   metalThicknessMm:A_LAYOUT_INPUTS.metalThicknessMm,
   glassLengthMm:A_LAYOUT_INPUTS.glassLengthMm, glassWidthMm:26, glassThicknessMm:1,
   glassNearFromLegMm:A_LAYOUT_INPUTS.glassNearFromLegMm, clampLengthMm:28,
-  pdmsLengthMm:A_LAYOUT_INPUTS.pdmsLengthMm, pdmsThicknessMm:1.8, stampRightMarginMm:A_LAYOUT_INPUTS.stampRightMarginMm,
+  pdmsLengthMm:A_LAYOUT_INPUTS.pdmsLengthMm, pdmsThicknessMm:A_VERTICAL_INPUTS.pdmsThicknessMm, stampRightMarginMm:A_LAYOUT_INPUTS.stampRightMarginMm,
   screwAxis:'scene-Z / parallel to 26mm glass short edge',
   screwPitchAlongGlassLengthMm:18,
   magnetFootprintMm:65, sampleBaseFootprintXmm:112,
   heaterFootprintMm:65, sampleChipFootprintMm:28, heaterTopWorldYmm:109.2,
-  sampleChipTopWorldYmm:110.6,
+  sampleChipTopWorldYmm:A_VERTICAL_INPUTS.sampleChipTopWorldYmm,
   // Daheng GCM-901602M catalog combines the same T25M2L+VC13M parts at
   // 126mm reference top height. The user's installed order is reversed
   // (T25 below VC13), so 126mm is used only as an additive envelope datum,
@@ -37,7 +56,7 @@ export const A_WORKING_LAYOUT=Object.freeze({
   a15Vc13CatalogReferenceHeightMm:126,
   a15Vc13InstalledOrderMatchesGCM901602:false,
   a15Vc13LowerPoseHeightMm:119.5,
-  bracketTopWorldYmm:199.5, initialVC13LiftMm:13,
+  bracketTopWorldYmm:A_VERTICAL_INPUTS.bracketTopWorldYmm, initialVC13LiftMm:A_VERTICAL_INPUTS.transferDropMm,
   opticalParkingLiftMm:18, // display-only until real focus mechanism is identified
   maximumFilmTravelMm:12.5, maximumSampleTravelMm:12.5,
   clearanceReserveMm:0.5
@@ -95,7 +114,8 @@ export function auditAWorkingLayout({
     [chipHalf-Math.abs(p.x),chipHalf-Math.abs(p.z)]));
   const stampInsideSampleChipFootprint=minimumStampEdgeInsetMm>=-1e-8;
   const initialStampBottomYmm=d.bracketTopWorldYmm+d.initialVC13LiftMm-
-    d.lLegLengthMm+1-1.4-d.pdmsThicknessMm/2;
+    d.lLegLengthMm+d.glassCenterAboveLegBottomMm-d.pdmsCenterBelowGlassCenterMm-
+    d.pdmsThicknessMm/2;
   const stampBottomYmm=initialStampBottomYmm-filmDropMm;
   const verticalStampGapMm=stampBottomYmm-d.sampleChipTopWorldYmm;
   const basesSeparate=footprintGapMm>0;
@@ -118,6 +138,13 @@ export function auditAWorkingLayout({
     filmStageX:d.filmStageX,filmStageZ:d.filmStageZ,sampleStageX:d.sampleCenterX,
     localHandedness:d.localBracketHandedness,installedFilmYawDeg:d.installedFilmYawDeg,
     bracketVerticalLegMm:d.lLegLengthMm,
+    bracketVerticalLegSolvedFromNominalContact:Boolean(d.lLegLengthSolvedFromNominalContact),
+    bracketVerticalLegPhotoMeasured:Boolean(d.lLegLengthPhotoMeasured),
+    bracketVerticalLegDerivation:d.lLegLengthDerivation,
+    glassCenterAboveLegBottomMm:d.glassCenterAboveLegBottomMm,
+    pdmsCenterBelowGlassCenterMm:d.pdmsCenterBelowGlassCenterMm,
+    pdmsThicknessCandidateMm:d.pdmsThicknessMm,
+    loweredStampBottomTargetYmm:d.sampleChipTopWorldYmm,
     a15Vc13CatalogReferenceHeightMm:d.a15Vc13CatalogReferenceHeightMm,
     a15Vc13InstalledOrderMatchesGCM901602:d.a15Vc13InstalledOrderMatchesGCM901602,
     a15Vc13LowerPoseHeightMm:d.a15Vc13LowerPoseHeightMm,

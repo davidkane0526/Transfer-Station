@@ -1,5 +1,14 @@
 # Transfer Station
 
+## V99 · A05 87.6 mm 折腿改为竖向接触约束反解
+
+- **87.6 mm不是尺量值**：它由“VC13M完全下降后，PDMS底面恰好接触候选样品片顶面110.6 mm”反解。
+- 当前方程使用A05顶面199.5 mm、玻片中心高于折腿底端1.0 mm、PDMS中心低1.4 mm、PDMS厚1.8 mm，得到87.6 mm。
+- 审计强制 `lLegLengthSolvedFromNominalContact=true`、`lLegLengthPhotoMeasured=false`。
+- 剩余问题被准确改写为**真实A05→玻片→PDMS竖向堆栈验证**，87.6 mm仍不可直接加工。
+
+[查看 V99 竖向接触反解](docs/V99_A05_vertical_contact_derivation.md)
+
 ## V98 · 平台 A 工作位 X 从裸常量改为接触约束反解
 
 - `filmStageX=-82.75 mm`不是照片/尺图测量值。局部PDMS中心为-160.75 mm，180°安装后令PDMS命中A07中心X=78 mm，反解得到-82.75 mm。
