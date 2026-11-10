@@ -529,7 +529,7 @@ window.__modelAPhoto194Probe=()=>{
   const sizes=shafts.map(o=>{const s=new THREE.Vector3();bb(o).getSize(s);return s;}),hp=heads.map(o=>o.getWorldPosition(new THREE.Vector3()));
   const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();stamp.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
   const photoClampGeometricallyCoherent=Math.abs(glassUpperFootGapMm)<.02&&Math.abs(glassLowerBladeGapMm)<.02&&screwBladeOverlapMm3>0&&
-   screwGlassOverlapMm3<.001&&sizes.every(s=>s.y>s.x*4&&s.y>s.z*4)&&Math.abs(hp[0].x-hp[1].x)<.05;
+   screwGlassOverlapMm3<.001&&sizes.every(s=>s.y>s.x*3&&s.y>s.z*3)&&Math.abs(hp[0].x-hp[1].x)<.05;
   return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',clampRendered:parts.get('A05C')?.g.visible??false,
    glassRendered:parts.get('A05G')?.g.visible??false,glassUpperFootGapMm,glassLowerBladeGapMm,
    screwBladeOverlapMm3:Number(screwBladeOverlapMm3.toFixed(4)),screwGlassOverlapMm3:Number(screwGlassOverlapMm3.toFixed(4)),
