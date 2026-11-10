@@ -710,6 +710,12 @@ window.__modelAPhoto194Probe=()=>{
      A18FineKnobCount:a18Fine.length,
      A18FocusChainGapsMm:a18FocusGaps,
      A18FocusChainsContinuous:a18FocusChainsContinuous,
+     A18PhotoBodyCenterOffsetFromOpticalAxisMm:gA18.userData.photoBodyCenterOffsetFromOpticalAxisMm,
+     A18PhotoBodyCenterOffsetMeasured:Boolean(gA18.userData.photoBodyCenterOffsetMeasured),
+     A18BodyCenteredOnOpticalAxis:Boolean(gA18.userData.bodyCenteredOnOpticalAxis),
+     A18OpticalAxisLocalXmm:gA18.userData.opticalAxisLocalXmm,
+     A18BodyLeftEdgeLocalXmm:gA18.userData.bodyLeftEdgeLocalXmm,
+     A18OpticalAxisFractionFromBodyLeft:gA18.userData.opticalAxisFractionFromBodyLeft,
      A18MGZ30CandidateOnly:Boolean(gA18.userData.MGZ30CandidateOnly),
      A18MGZ30VendorTravelMm:gA18.userData.MGZ30VendorTravelMm,
      A18MGZ30VendorPostDiameterMm:gA18.userData.MGZ30VendorPostDiameterMm,
@@ -717,6 +723,12 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30VendorTurretThread:gA18.userData.MGZ30VendorTurretThread,
      A18MGZ30SupportsSM1SM2:Boolean(gA18.userData.MGZ30SupportsSM1SM2),
      A18MGZ30GeometryApplied:Boolean(gA18.userData.MGZ30GeometryApplied),
+     A18MGZ30CandidatePriority:gA18.userData.MGZ30CandidatePriority,
+     A18MGZ30BlackEnclosedFinishMatch:Boolean(gA18.userData.MGZ30BlackEnclosedFinishMatch),
+     A18MGZ30ThorlabsEcosystemMatch:Boolean(gA18.userData.MGZ30ThorlabsEcosystemMatch),
+     A18MGZ30VendorDrawingPostDiameterMm:gA18.userData.MGZ30VendorDrawingPostDiameterMm,
+     A18MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm:gA18.userData.MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm,
+     A18MGZ30VendorDrawingAxisMappingApplied:Boolean(gA18.userData.MGZ30VendorDrawingAxisMappingApplied),
      A18BXFMFCandidateOnly:Boolean(gA18.userData.BXFMFCandidateOnly),
      A18BXFMFVendorFrameWidthMm:gA18.userData.BXFMFVendorFrameWidthMm,
      A18BXFMFVendorPillarMountHoleMm:gA18.userData.BXFMFVendorPillarMountHoleMm,
@@ -724,6 +736,8 @@ window.__modelAPhoto194Probe=()=>{
      A18BXFMFVendorWeightKg:gA18.userData.BXFMFVendorWeightKg,
      A18BXFMFRearBoltMount:gA18.userData.BXFMFRearBoltMount,
      A18BXFMFPhotoTopologyMatch:gA18.userData.BXFMFPhotoTopologyMatch,
+     A18BXFMFCandidatePriority:gA18.userData.BXFMFCandidatePriority,
+     A18BXFMFOpenSilverCastingVisualMismatch:Boolean(gA18.userData.BXFMFOpenSilverCastingVisualMismatch),
      A18BXFMFGeometryApplied:Boolean(gA18.userData.BXFMFGeometryApplied),
      A18BXFMFWidth84MatchesCurrentPhotoFit:Boolean(gA18.userData.BXFMFWidth84MatchesCurrentPhotoFit),
      A18BXFMFWidthMatchProvesIdentity:Boolean(gA18.userData.BXFMFWidthMatchProvesIdentity),
@@ -3363,7 +3377,7 @@ function platformA(){
   add(g,cyl(15,12,mats.silver,0,0,0));
   label(g,'Daheng Imaging 工业相机',0,72,0);
  },{explode:[0,92,0]});
- addPart('A11',sx+72,220,0,g=>{
+ addPart('A11',sx+96,220,0,g=>{
    // Thorlabs MWWHL4 vendor geometry: Ø30.5mm heat sink, approximately
    // 60mm overall axial envelope, internal SM1 thread at the optical end.
    // V79 removes the invented flexible support that made a black cylinder
@@ -3389,11 +3403,13 @@ function platformA(){
    cable.userData.A11ElectricalCable=true;
    g.userData.A11MountingMethodVerified=false;
    g.userData.A11NoInventedGooseneckSupport=true;
-   g.userData.A11PhotoPlacementOffsetFromOpticalAxisMm=72;
+   g.userData.A11PhotoPlacementOffsetFromOpticalAxisMm=96;
    g.userData.A11PlacementOffsetMeasured=false;
    g.userData.A11CollisionFreePlacementCandidate=true;
-   g.userData.A11PlacementShiftFromV87Mm=22;
-   label(g,'Thorlabs MWWHL4 · V89无碰撞外移候选 / SM1RC类安装方式待核',35,28,0);
+   g.userData.A11PlacementShiftFromV87Mm=46;
+   g.userData.A11PlacementShiftFromV91Mm=24;
+   g.userData.A11FollowsA18PhotoBodyOffset=true;
+   label(g,'Thorlabs MWWHL4 · V92随A18实拍偏心外移24mm / SM1RC类安装方式待核',35,28,0);
  },{explode:[22,20,22]});
  addPart('A12',262,20,-80,g=>{
   add(g,cub(60,104,73,mats.dark,0,52,0));
@@ -3412,32 +3428,35 @@ function platformA(){
    label(g,'SM2接口候选镜筒 · 长66mm含6mm装配重叠 / 相机端未认证',0,80,0);
  },{explode:[0,25,0]});
  addPart('A18',sx,200,0,g=>{
-   // V81: photos191-193 support a compact stepped focus body with bilateral
-   // coaxial controls. Similar catalog products are comparison evidence only.
-   // Keep the rear Z=-44 mounting plane attached to A10's bored boom.
-   const bodyMid=add(g,cub(84,38,88,mats.dark,0,2,0));
+   // V92: photos191/193 show that the camera/objective optical axis is NOT
+   // centered in the black focus housing. Keep the optical chain at local X=0
+   // and shift only the housing/focus-control body 24 mm to the right. This
+   // puts the optical axis ~18 mm inside the 84 mm body left edge (~21% of width).
+   // The 24 mm value is a photo-ratio candidate, not a ruler measurement.
+   const bodyX=24;
+   const bodyMid=add(g,cub(84,38,88,mats.dark,bodyX,2,0));
    bodyMid.userData.A18PhotoConstrainedMainBody=true;
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
-   const bodyLower=add(g,cub(70,18,88,mats.dark,0,-26,0));
+   const bodyLower=add(g,cub(70,18,88,mats.dark,bodyX,-26,0));
    bodyLower.userData.A18BodySegment='lower';
-   const bodyUpper=add(g,cub(76,14,88,mats.dark,0,28,0));
+   const bodyUpper=add(g,cub(76,14,88,mats.dark,bodyX,28,0));
    bodyUpper.userData.A18BodySegment='upper';
-   const front=add(g,cub(70,44,4,mats.black,0,1,46));
+   const front=add(g,cub(70,44,4,mats.black,bodyX,1,46));
    front.userData.A18FrontFace=true;
    const topCollar=add(g,cyl(22,8,mats.black,0,39,0,64));
    topCollar.userData.A18TopOpticalInterface=true;
    const bottomCollar=add(g,cyl(24,8,mats.black,0,-39,0,64));
    bottomCollar.userData.A18NosepieceInterface=true;
    for(const sign of [-1,1]){
-     const hub=add(g,cyl(9,12,mats.dark,sign*45,0,0,64));
+     const hub=add(g,cyl(9,12,mats.dark,bodyX+sign*45,0,0,64));
      hub.rotation.z=Math.PI/2;hub.userData.A18FocusHub=sign;
-     const coarse=add(g,cyl(18,14,mats.black,sign*56,0,0,64));
+     const coarse=add(g,cyl(18,14,mats.black,bodyX+sign*56,0,0,64));
      coarse.rotation.z=Math.PI/2;coarse.userData.A18CoarseFocusKnob=sign;
-     const fine=add(g,cyl(11,8,mats.silver,sign*67,0,0,64));
+     const fine=add(g,cyl(11,8,mats.silver,bodyX+sign*67,0,0,64));
      fine.rotation.z=Math.PI/2;fine.userData.A18FineFocusKnob=sign;
      for(let q=0;q<6;q++){
-       const ring=add(g,torus(18.08,.24,mats.ink,sign*(50.5+q*2.3),0,0));
+       const ring=add(g,torus(18.08,.24,mats.ink,bodyX+sign*(50.5+q*2.3),0,0));
        ring.rotation.y=Math.PI/2;ring.userData.A18CoarseFocusKnurl=sign;
      }
    }
@@ -3445,6 +3464,12 @@ function platformA(){
    g.userData.focusKnobPairCount=2;
    g.userData.removedUnsupportedHorizontalTube=true;
    g.userData.vendorIdentificationPending=true;
+   g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
+   g.userData.photoBodyCenterOffsetMeasured=false;
+   g.userData.bodyCenteredOnOpticalAxis=false;
+   g.userData.opticalAxisLocalXmm=0;
+   g.userData.bodyLeftEdgeLocalXmm=bodyX-42;
+   g.userData.opticalAxisFractionFromBodyLeft=(0-(bodyX-42))/84;
    // V84: auditable manufacturer-candidate matrix. None of these
    // candidates is allowed to overwrite the photo-constrained mesh until
    // the post diameter, turret interfaces and optical-axis offset are measured.
@@ -3455,6 +3480,16 @@ function platformA(){
    g.userData.MGZ30VendorTurretThread='M26×36 TPI';
    g.userData.MGZ30SupportsSM1SM2=true;
    g.userData.MGZ30GeometryApplied=false;
+   // V92 evidence weighting: the MGZ30 OEM photo is a black enclosed block,
+   // unlike the visibly open silver BXFM-F casting. The installed A08 TTL200-A,
+   // A11 MWWHL4 and SM1/SM2 stack also form a coherent Thorlabs ecosystem.
+   // This raises MGZ30 to PRIMARY candidate but still does not prove identity.
+   g.userData.MGZ30CandidatePriority='primary';
+   g.userData.MGZ30BlackEnclosedFinishMatch=true;
+   g.userData.MGZ30ThorlabsEcosystemMatch=true;
+   g.userData.MGZ30VendorDrawingPostDiameterMm=38.0;
+   g.userData.MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm=[291.7,130.0,100.2];
+   g.userData.MGZ30VendorDrawingAxisMappingApplied=false;
    // V91: official Olympus/Evident BXFM-F geometry is a stronger topology
    // match to photos191-193 than the 76mm E-arm racks: compact rectangular
    // frame, bilateral focus knobs, top optical port and pillar/rear mounting.
@@ -3466,7 +3501,9 @@ function platformA(){
    g.userData.BXFMFVendorFocusTravelMm=30;
    g.userData.BXFMFVendorWeightKg=1.9;
    g.userData.BXFMFRearBoltMount='4-M8 depth8';
-   g.userData.BXFMFPhotoTopologyMatch='high';
+   g.userData.BXFMFPhotoTopologyMatch='medium';
+   g.userData.BXFMFCandidatePriority='secondary';
+   g.userData.BXFMFOpenSilverCastingVisualMismatch=true;
    g.userData.BXFMFGeometryApplied=false;
    g.userData.BXFMFWidth84MatchesCurrentPhotoFit=true;
    g.userData.BXFMFWidthMatchProvesIdentity=false;
@@ -3489,8 +3526,8 @@ function platformA(){
    g.userData.fullFivePortTurretConfirmed=false;
    g.userData.MCTLMP2DirectIdentityRejected=true;
    g.userData.MCTLMP2VendorEnvelopeMm=[211.5,130,58.8];
-   g.userData.vendorCandidateDecision='BXFM-F topology-high; MGZ30 remains plausible; exposed 76mm E-arm direct identity rejected; none confirmed';
-   label(g,'A18 调焦主体 · V91 BXFM-F/MGZ30高优先级 / 76mm大抱环直接身份排除',0,52,0);
+   g.userData.vendorCandidateDecision='MGZ30 primary candidate; BXFM-F secondary; exposed 76mm E-arm direct identity rejected; none confirmed';
+   label(g,'A18 调焦主体 · V92 实拍偏心24mm / MGZ30主候选 / BXFM-F次候选',bodyX,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
    const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
@@ -3804,12 +3841,13 @@ function updateDetail(part){
      'data-bxfmf-applied="'+Boolean(a18?.userData.BXFMFGeometryApplied)+'" '+
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
-     '<b>A18 厂商候选矩阵（V91）</b><p>'+
-     '<b>Olympus/Evident BXFM-F：</b>原厂图给出84mm机架宽度、Ø32H8立柱安装孔、后侧4-M8固定接口；系统规格为30mm调焦行程。'+
-     '191–193中可见的紧凑矩形主体、双侧调焦、顶部光路和下方物镜转换结构与其拓扑明显接近，且84mm与当前照片拟合主体最大宽度一致。'+
-     '但颜色/Logo、Ø32立柱和后安装面都没有高清实物证据，所以只升为高优先级候选，不能套原厂实体。<br>'+
-     '<b>Thorlabs MGZ30 / T-Scope：</b>仍保留高优先级：30mm Z行程、Ø38.1mm立柱、5孔M26×36 TPI转盘，并支持30mm cage / SM1 / SM2；'+
-     '但实物仍未确认Ø38.1mm立柱、完整5孔转盘或Thorlabs标识。<br>'+
+     '<b>A18 厂商候选矩阵（V92）</b><p>'+
+     '<b>Thorlabs MGZ30 / T-Scope（主候选）：</b>原厂是黑色封闭矩形调焦块，30mm Z行程、Ø1.5in立柱、5孔M26×36 TPI转盘，并支持30mm cage / SM1 / SM2。'+
+     '这不仅比银色开架BXFM-F更符合191–193外观，而且与已确认的TTL200-A、MWWHL4及SM1/SM2光路形成同一Thorlabs生态。'+
+     'V92因此把MGZ30升为主候选，但Ø38.1mm立柱、完整5孔转盘和型号标识仍未由实物确认，原厂291.7/130/100.2mm图纸尺寸也未强套坐标轴。<br>'+
+     '<b>Olympus/Evident BXFM-F（次候选）：</b>其84mm宽度、Ø32H8立柱孔、4-M8后固定和30mm行程仍有尺寸/拓扑相似性；'+
+     '但原厂是明显银色开架铸件，而191–193中的A18表现为黑色封闭块，因此V92降为次候选。84mm吻合不能作为型号证明。<br>'+
+     '<b>实拍几何纠错：</b>191/193显示相机/物镜光轴位于主体左侧而非几何中心，V92已把主体与双侧调焦组件整体向右偏移24mm，光轴/转盘保持原位；24mm是照片比例候选，不是尺测值。<br>'+
      '<b>25mm立柱 / Ø76大抱环调焦架：</b>'+esc(boliText)+'。'+
      'V91直接对照厂家产品外形后降级：这类产品具有非常醒目的外露Ø76环抱式E-arm，照片191–193没有对应结构，因此不再作为A18直接身份，只保留尺寸族对照。<br>'+
      '<b>MCT-LMP2：</b>211.5×130×58.8mm包络、40mm行程及密集前板孔阵继续排除直接身份。<br>'+
@@ -4050,7 +4088,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V91 / '+(aWorkingPoseMode?
+   '平台 A · V92 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4209,7 +4247,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V91当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V92当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+

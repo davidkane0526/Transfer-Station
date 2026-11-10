@@ -845,12 +845,14 @@ for key in ('A18HR','A18FR','A18FRL'):
           'V89 MWWHL4 body must not intersect '+key)
 check(a11_ring.distance(part(A,'A18FRL')[0])>0.5,
       'V89 A11 ring needs positive clearance from right fine-focus knob')
-report['V89_A11_focus_clearance']={
+report['V92_A11_focus_clearance']={
     'photo_refs':['191','192','193'],
     'lamp_model':'Thorlabs MWWHL4',
     'vendor_mounting_option':'SM1RC/M slip-ring class',
-    'placement_shift_from_V87_mm':22,
-    'scene_optical_axis_offset_mm':72,
+    'placement_shift_from_V87_mm':46,
+    'placement_shift_from_V91_mm':24,
+    'scene_optical_axis_offset_mm':96,
+    'follows_A18_photo_body_offset':True,
     'placement_offset_physically_measured':False,
     'mounting_method_verified':False,
     'invented_gooseneck_support_present':False,
@@ -867,11 +869,27 @@ check(110.6+2<o1.zmin<121 and o1.zmax<=160 and
 check(abs(part(A,'A19R1')[0].BoundingBox().xmin-
           part(A,'A19O1')[0].BoundingBox().xmin)<15,
       'V79 left color band follows the same tilted objective axis')
+# V92: the photo-derived body offset must be real in STEP, while optical
+# collars and objective turret stay on the original optical axis.
+a18_bb=part(A,'A18')[0].BoundingBox()
+a18t_bb=part(A,'A18T')[0].BoundingBox()
+a18n_bb=part(A,'A18N')[0].BoundingBox()
+check(abs((a18_bb.xmin+a18_bb.xmax)/2-(78+24))<.05,
+      'V92 A18 housing center must be +24mm from optical axis')
+check(abs((a18t_bb.xmin+a18t_bb.xmax)/2-78)<.05 and
+      abs((a18n_bb.xmin+a18n_bb.xmax)/2-78)<.05,
+      'V92 top/bottom optical interfaces must remain on original optical axis')
+check(part(A,'A10B')[0].intersect(part(A,'A18')[0]).Volume()>500,
+      'V92 offset A18 housing must retain a substantial real A10 rear support contact')
 report['V84_A_microscope_vendor_candidate_matrix']={
     'photo_refs':['191','192','193'],
     'A18_vendor_and_model_verified':False,
     'current_photo_constrained_body_envelope_mm':[84,88,70],
     'current_photo_constrained_body_geometry_retained':True,
+    'photo_body_center_offset_from_optical_axis_mm':24,
+    'photo_body_center_offset_physically_measured':False,
+    'body_centered_on_optical_axis':False,
+    'optical_axis_fraction_from_body_left':18/84,
     'current_scene_A10_post_diameter_mm':26,
     'current_scene_A10_post_diameter_physically_measured':False,
     'current_scene_post_to_optical_axis_mm':112,
@@ -883,13 +901,21 @@ report['V84_A_microscope_vendor_candidate_matrix']={
         'vendor_focus_travel_mm':30,
         'vendor_weight_kg':1.9,
         'rear_bolt_mount':'4-M8 depth8',
-        'photo_topology_match':'high',
+        'photo_topology_match':'medium',
+        'candidate_priority':'secondary',
+        'open_silver_casting_visual_mismatch':True,
         'geometry_applied_to_A18':False,
         'width_84_matches_current_photo_fit':True,
         'width_match_proves_identity':False
     },
     'MGZ30':{
         'candidate_only':True,
+        'candidate_priority':'primary',
+        'black_enclosed_finish_matches_photo':True,
+        'Thorlabs_ecosystem_match_TTL200A_MWWHL4_SM1_SM2':True,
+        'vendor_drawing_post_diameter_mm':38.0,
+        'vendor_drawing_max_envelope_dimensions_seen_mm':[291.7,130.0,100.2],
+        'vendor_drawing_axis_mapping_applied':False,
         'vendor_Z_travel_mm':30,
         'vendor_post_diameter_mm':38.1,
         'vendor_turret_ports':5,

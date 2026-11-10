@@ -876,7 +876,7 @@ def make_a():
     # outboard. This removes the V87-detected solid overlap with the right
     # focus controls without inventing an unsupported mechanical bracket.
     # Exact mounting hardware and final physical offset remain unverified.
-    led_root_x=cx+72
+    led_root_x=cx+96
     led_z=220
     slip_outer=vx(17.5,6,led_root_x,0,led_z)
     slip_inner=vx(15.35,6.2,led_root_x-.1,0,led_z)
@@ -905,34 +905,37 @@ def make_a():
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
 
-    # V81 A18: photos191-193 + V80 real renders show the single 92mm-wide
-    # rectangular proxy is too crude. Rebuild a stepped photo envelope while
-    # preserving the rear Y=-44 mounting plane that mates to A10.
+    # V92 A18: photos191/193 show the optical axis lies near the LEFT side
+    # of the black housing rather than at its geometric center. Keep optical
+    # collars/turret/objectives at cx and shift only housing/focus controls
+    # +24 mm in X. This is a photo-ratio candidate, not a ruler measurement.
+    # The rear Y=-44 mounting plane still mates to A10 over a real overlap.
     # MGZ30 is comparison-only; MCT-LMP2 direct identity is rejected by its
     # 211.5x130x58.8mm vendor envelope and dense front-hole pattern.
     # A 34mm-wide continuous internal/rear spine overlaps all three
     # stepped shells. This prevents STEP export from degenerating into three
     # merely face-touching solids while leaving the external silhouette unchanged.
-    a18_core=box(34,88,70,cx,0,165)
+    a18_body_x=cx+24
+    a18_core=box(34,88,70,a18_body_x,0,165)
     a18_body=(a18_core
-              .fuse(box(70,88,18,cx,0,165),
-                    box(84,88,38,cx,0,179),
-                    box(76,88,14,cx,0,221)).clean())
+              .fuse(box(70,88,18,a18_body_x,0,165),
+                    box(84,88,38,a18_body_x,0,179),
+                    box(76,88,14,a18_body_x,0,221)).clean())
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     add('A','A18F','MICROSCOPE_FRONT_FACE_PHOTO_PROXY',
-        box(70,4,44,cx,46,178),'C')
+        box(70,4,44,a18_body_x,46,178),'C')
     add('A','A18T','MICROSCOPE_TOP_OPTICAL_COLLAR_PROXY',
         vz(22,8,cx,0,235),'C')
     add('A','A18N','MICROSCOPE_BOTTOM_NOSEPIECE_INTERFACE_PROXY',
         vz(24,8,cx,0,157),'C')
     # Continuous left/right focus chains: body -> hub -> coarse -> fine.
-    add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,cx-51,0,200),'C')
-    add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,cx+39,0,200),'C')
-    add('A','A18FL','LEFT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,cx-63,0,200),'C')
-    add('A','A18FR','RIGHT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,cx+49,0,200),'C')
-    add('A','A18FLL','LEFT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,cx-71,0,200),'C')
-    add('A','A18FRL','RIGHT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,cx+63,0,200),'C')
+    add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x-51,0,200),'C')
+    add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x+39,0,200),'C')
+    add('A','A18FL','LEFT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,a18_body_x-63,0,200),'C')
+    add('A','A18FR','RIGHT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,a18_body_x+49,0,200),'C')
+    add('A','A18FLL','LEFT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x-71,0,200),'C')
+    add('A','A18FRL','RIGHT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x+63,0,200),'C')
 
     add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PHOTO_ENVELOPE',
         vz(36,10,cx,0,155),'C')
@@ -958,11 +961,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V91'
+CAD_REVISION='V92'
 UNINSTALLED_A_STUDY_IDS=frozenset()
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
-    """V91 installed A: V90 mechanics + A18 vendor-candidate boundary update; microscope geometry remains photo-constrained.
+    """V92 installed A: V90 mechanics + photo-asymmetric A18 housing + updated A18 vendor evidence weighting.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """
