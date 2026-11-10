@@ -1322,6 +1322,39 @@ try{
  assert.equal(photoAxis.currentGripLengthIsFullOEMLength,false);
  assert.equal(photoAxis.glassClampOEMVerified,false);
 
+ // V115 internal-only manufacturer silhouette review. This never adds a
+ // normal UI control: CI temporarily swaps the photo-fit clamp for the
+ // GCM-1302M family study, captures it, then restores the user model.
+ assert.equal(await page.evaluate(()=>window.__focusA05VendorStudyAudit?.()),true);
+ await page.waitForTimeout(180);
+ const g1302Study=await page.evaluate(()=>window.__A05VendorStudyProbe?.());
+ console.log('V115 A05 GCM-1302M vendor study:',JSON.stringify(g1302Study));
+ assert.equal(g1302Study?.available,true);
+ assert.equal(g1302Study.visible,true);
+ assert.deepEqual(g1302Study.vendorEnvelopeLHDmm,[60,24,26]);
+ assert.equal(g1302Study.vendorMovingJawThicknessMm,7);
+ assert.equal(g1302Study.vendorAdjustmentExtensionMm,29);
+ assert.equal(g1302Study.vendorMountThread,'M6');
+ assert.equal(g1302Study.maxPlateThicknessMm,5);
+ assert.equal(g1302Study.fixedBodyCount,1);
+ assert.equal(g1302Study.movingJawCount,1);
+ assert.equal(g1302Study.adjustmentScrewCount,2);
+ assert.equal(g1302Study.handKnobCount,2);
+ assert.equal(g1302Study.installedByDefault,false);
+ assert.equal(g1302Study.exactVendorGeometry,false);
+ assert.equal(g1302Study.screwPitchDimensionedByVendor,false);
+ assert(Math.abs(g1302Study.projection.centerX)<.25&&Math.abs(g1302Study.projection.centerY)<.25,
+   'GCM-1302M study must be centered in its audit frame');
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V115-GCM1302M-Vendor-Study.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+ assert.equal(await page.evaluate(()=>window.__restoreA05VendorStudyAudit?.()),true);
+ const g1302Restored=await page.evaluate(()=>window.__A05VendorStudyProbe?.());
+ assert.equal(g1302Restored.visible,false,'Vendor study must disappear after CI capture');
+
  assert.equal(mechA.outwardFootCount,1,'Photo194/196 L bracket needs one outward foot');
  assert.equal(mechA.fastenerThreadVerified,false);
  const guideBefore=await page.evaluate(()=>window.__modelAVerticalGuideProbe?.());

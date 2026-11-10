@@ -4641,6 +4641,62 @@ window.__A17CloseupProbe=()=>{
  return {available:true,projection:_auditProjection(_auditBoxFor([g])),
    plaqueRay:_auditRayClear(plaque,[g]),switchRay:_auditRayClear(lever,[g])};
 };
+let _a05VendorStudyRestore=null;
+function focusA05VendorStudyAudit(){
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g,glass=parts.get('A05G')?.g;
+ const study=clamp?.children.find(o=>o.isGroup&&o.userData.GCM1302VendorStudy);
+ if(!clamp||!screws||!study)return false;
+ const childState=clamp.children.map(o=>[o,o.visible]);
+ const screwVisible=screws.visible;
+ const glassVisible=glass?.visible;
+ _a05VendorStudyRestore=()=>{
+   for(const [o,v] of childState)o.visible=v;
+   screws.visible=screwVisible;
+   if(glass)glass.visible=glassVisible;
+   _a05VendorStudyRestore=null;
+ };
+ for(const o of clamp.children)o.visible=(o===study);
+ study.visible=true;screws.visible=false;
+ if(glass)glass.visible=true;
+ currentRoot.updateWorldMatrix(true,true);
+ const targetBox=_auditBoxFor([study,glass]);
+ const target=targetBox.getCenter(new THREE.Vector3());
+ camera.position.copy(target).add(new THREE.Vector3(105,72,130));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+}
+window.__focusA05VendorStudyAudit=focusA05VendorStudyAudit;
+window.__restoreA05VendorStudyAudit=()=>{if(_a05VendorStudyRestore)_a05VendorStudyRestore();return true;};
+window.__A05VendorStudyProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const clamp=parts.get('A05C')?.g;
+ const study=clamp?.children.find(o=>o.isGroup&&o.userData.GCM1302VendorStudy);
+ if(!study)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const b=new THREE.Box3().setFromObject(study),sz=b.getSize(new THREE.Vector3());
+ const fixed=study.children.filter(o=>o.userData.GCM1302StudyFixedBody);
+ const moving=study.children.filter(o=>o.userData.GCM1302StudyMovingJaw);
+ const screws=study.children.filter(o=>o.userData.GCM1302StudyAdjustmentScrew);
+ const knobs=study.children.filter(o=>o.userData.GCM1302StudyHandKnob);
+ return {
+   available:true,visible:study.visible,
+   worldEnvelopeMm:[sz.x,sz.y,sz.z].map(x=>Number(x.toFixed(2))),
+   vendorEnvelopeLHDmm:study.userData.vendorEnvelopeLHDmm,
+   vendorMovingJawThicknessMm:study.userData.vendorMovingJawThicknessMm,
+   vendorAdjustmentExtensionMm:study.userData.vendorAdjustmentExtensionMm,
+   vendorMountThread:study.userData.vendorMountThread,
+   maxPlateThicknessMm:study.userData.maxPlateThicknessMm,
+   screwPitchDimensionedByVendor:Boolean(study.userData.screwPitchDimensionedByVendor),
+   fixedBodyCount:fixed.length,movingJawCount:moving.length,
+   adjustmentScrewCount:screws.length,handKnobCount:knobs.length,
+   installedByDefault:Boolean(study.userData.installedByDefault),
+   exactVendorGeometry:Boolean(study.userData.exactVendorGeometry),
+   projection:_auditProjection(b)
+ };
+};
+
 function _a18AuditTargets(){
  const a18=parts.get('A18')?.g,a19=parts.get('A19')?.g,a10=parts.get('A10')?.g,a11=parts.get('A11')?.g;
  if(!a18||!a19||!a10||!a11)return null;
