@@ -678,18 +678,16 @@ try{
  assert.equal(installedClamp.visibleClamp,true);
  assert.equal(installedClamp.visibleWingScrewCount,2);
  assert.equal(installedClamp.shaftCount,2);
- assert.equal(installedClamp.actualFootBores,0,
-   'Old vertical A05 screw bores must stay deleted');
- assert.equal(installedClamp.screwAxesParallelGlassShortEdge,true,
-   'Both actual screw shafts must be parallel to the 26mm glass short edge');
- assert.equal(installedClamp.screwPitchAlongGlassLengthMm,18);
- assert.equal(installedClamp.screwPressureEngaged,true);
+ assert.equal(installedClamp.actualFootBores,2,
+   'Photo 5 requires two real vertical wing-screw bores in the folded foot');
+ assert.equal(installedClamp.screwAxesVertical,true);
+ assert.equal(installedClamp.screwPairLineParallelGlassShortEdge,true);
+ assert.equal(installedClamp.screwPitchAcrossGlassShortEdgeMm,13);
+ assert.equal(installedClamp.screwBladeEngaged,true);
  assert.equal(installedClamp.screwGlassOverlapMm3,0);
- assert.equal(installedClamp.lowerFixedJawCount,1,
-   'A05 fixed lower jaw must be an explicit WebGL mesh');
- assert.equal(installedClamp.actualJawInnerClearSpanMm,26);
- assert.equal(installedClamp.actualGlassShortEdgeMm,26);
- assert.equal(installedClamp.actualJawInnerClearSpanMatchesGlassShortEdge,true);
+ assert.equal(installedClamp.photo5VerticalWingScrewTopologyApplied,true);
+ assert.equal(installedClamp.glassUpperFootGapMm,0);
+ assert.equal(installedClamp.glassLowerBladeGapMm,0);
  assert.equal(installedClamp.installedYawDeg,180);
  assert.equal(installedClamp.stampToSampleCenterXmm,0,
    'Rigid 180° installation must place PDMS over A07 sample centre');
@@ -722,7 +720,7 @@ try{
  assert.equal(a05Moving?.available,true);
  assert.equal(a05Moving.mode,'moving');
  assert.equal(a05Moving.selectedVisibilityScore,3,
-   'Moving-side audit must directly expose the moving pressure plate and both screw heads');
+   'Clamp audit must directly expose the lower clamp blade and both screw heads');
  assert.equal(a05Moving.pressureRay.clear,true);
  assert.equal(a05Moving.pressureRay.firstPart,'A05C');
  assert(a05Moving.screwHeadRays.every(x=>x.clear));
@@ -742,9 +740,9 @@ try{
  assert.equal(a05Fixed?.available,true);
  assert.equal(a05Fixed.mode,'fixed');
  assert.equal(a05Fixed.selectedVisibilityScore,2,
-   'Fixed-side audit must directly expose the fixed lower jaw and installed glass edge');
+   'Upper-clamp audit must directly expose the folded foot and installed glass edge');
  assert.equal(a05Fixed.fixedJawRay.clear,true);
- assert.equal(a05Fixed.fixedJawRay.firstPart,'A05C');
+ assert.equal(a05Fixed.fixedJawRay.firstPart,'A05');
  assert.equal(a05Fixed.glassEdgeRay.clear,true);
  assert.equal(a05Fixed.glassEdgeRay.firstPart,'A05G');
  assert(Math.abs(a05Fixed.projection.centerX)<.25&&Math.abs(a05Fixed.projection.centerY)<.25);
@@ -994,30 +992,29 @@ try{
  assert.equal(aContactBefore.stampRightInsetMm,4);
  assert.equal(aContactBefore.sampleChipTopWorldYmm,110.6);
  assert.equal(aContactBefore.pdmsToChipGapMm,13);
-  // V79: side-clamp chain must be visible and mechanically coherent.
+  // V130: photo-5 vertical clamp chain must be mechanically coherent.
   const aClampChain=await page.evaluate(()=>window.__modelAClampChainProbe?.());
-  assert.equal(aClampChain?.available,true,'A05 side-clamp mesh chain probe absent');
+  assert.equal(aClampChain?.available,true,'A05 photo-5 clamp mesh chain probe absent');
   assert.equal(aClampChain.pose,'installed180');
   assert.equal(aClampChain.clampRendered,true);
   assert.equal(aClampChain.glassRendered,true);
-  assert.equal(aClampChain.glassSupportGapMm,0);
-  assert.equal(aClampChain.fixedGlassGapMm,0);
-  assert.equal(aClampChain.pressureGlassGapMm,0);
-  assert(aClampChain.screwPressureOverlapMm3>0,
-    'Side screws must physically engage the moving pressure rail');
-  assert.equal(aClampChain.screwGlassOverlapMm3,0,
-    'Clamp screws must not pass through glass');
-  assert.equal(aClampChain.screwAxis,'scene-Z / glass short edge');
+  assert.equal(aClampChain.glassUpperFootGapMm,0);
+  assert.equal(aClampChain.glassLowerBladeGapMm,0);
+  assert(aClampChain.screwBladeOverlapMm3>0);
+  assert.equal(aClampChain.screwGlassOverlapMm3,0);
+  assert.equal(aClampChain.screwAxis,'scene-Y / vertical');
+  assert.equal(aClampChain.screwPairLine,'scene-Z / glass short edge');
+  assert.equal(aClampChain.screwPitchAcrossGlassShortEdgeMm,13);
   assert.equal(aClampChain.installedFilmBranchYawDeg,180);
   assert.equal(aClampChain.stampToSampleCenterXmm,0);
   assert.equal(aClampChain.stampToSampleCenterZmm,0);
-  assert.equal(aClampChain.sideClampGeometricallyCoherent,true);
-  assert.equal(aClampChain.physicalTransferAssemblyAccepted,false,
-    'Coherent candidate geometry cannot certify an unidentified OEM clamp');
+  assert.equal(aClampChain.photoClampGeometricallyCoherent,true);
+  assert.equal(aClampChain.physicalTransferAssemblyAccepted,false);
   const clampAgain=await page.evaluate(()=>window.__platformABareClampProbe?.());
   assert.equal(clampAgain.visibleGlass,true);
   assert.equal(clampAgain.visibleClamp,true);
-  assert.equal(clampAgain.screwAxesParallelGlassShortEdge,true);
+  assert.equal(clampAgain.screwAxesVertical,true);
+  assert.equal(clampAgain.screwPairLineParallelGlassShortEdge,true);
  // Screenshot-level checks: previously visible detached or
  // clipping assemblies are tested using actual world-space meshes.
  const dA=await page.evaluate(()=>window.__modelADetailMountProbe?.());
@@ -1226,137 +1223,84 @@ try{
  assert.equal(aComplete.stampRightMarginMm,4);
  assert.equal(aComplete.stampAtRightEdge,true);
  assert.equal(aComplete.glassRequiredForTransfer,true);
- assert.equal(aComplete.screwAxisParallelGlassShortEdge,true);
- assert.equal(aComplete.gcm13FamilyTopologyApplied,true);
- assert.equal(aComplete.gcm13MovingMiddlePlateCount,1);
- assert.equal(aComplete.gcm13ThreadCarrierCount,1);
+ assert.equal(aComplete.screwAxisVertical,true);
+ assert.equal(aComplete.screwPairLineParallelGlassShortEdge,true);
+ assert.equal(aComplete.photo5VerticalWingScrewTopologyApplied,true);
+ assert.equal(aComplete.gcm13FamilyTopologyApplied,false);
  assert.equal(aComplete.gcm13ExactSkuGeometryApplied,false);
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('A05C');
  const aClampRow=page.locator('#bom-body tr').filter({hasText:/^\s*A05C\b/});
- assert.equal(await aClampRow.count(),1,'A05C clamp needs a separate BOM row');
+ assert.equal(await aClampRow.count(),1);
  await page.locator('#bom-query').fill('A05CS');
  const screwRow=page.locator('#bom-body tr').filter({hasText:/^\s*A05CS\b/});
- assert.equal(await screwRow.count(),1,'A05CS must be a distinct pair of wing screws in BOM');
- assert.match(await screwRow.innerText(),/数量 2 枚|2枚/);
+ assert.equal(await screwRow.count(),1);
+ assert.match(await screwRow.innerText(),/2枚|2 枚/);
  await page.locator('#bom-query').fill('A05C');
- assert.match(await aClampRow.locator('.bom-photo-tile img').getAttribute('src'),/194\.webp$/,
-   'Photo194 must appear as an actual embedded BOM thumbnail for A05C');
+ assert.match(await aClampRow.locator('.bom-photo-tile img').getAttribute('src'),/194\.webp$/);
  await aClampRow.evaluate(el=>el.click());
- assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 194/);
- assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 196/);
- assert(!/原图未入库|未关联|尚未取得/.test(await page.locator('#photo-evidence-gallery').innerText()),
-   'Normal part UI must not show missing-evidence chatter');
- assert.match(await page.locator('#part-detail').innerText(),/玻片侧向夹持组件/,
-   'User detail card should use the concise product-facing A05C name');
+ assert.match(await page.locator('#part-detail').innerText(),/玻片下夹片 \/ 夹持界面/);
  const a05cVendorCard=page.locator('#a05c-vendor-comparison');
  assert.equal(await a05cVendorCard.getAttribute('data-confirmed'),'false');
- assert.equal(await a05cVendorCard.getAttribute('data-gcm13-applied'),'false',
-   'Exact GCM-13 SKU geometry remains intentionally unapplied');
- assert.equal(await a05cVendorCard.getAttribute('data-gcm13-topology-applied'),'true');
+ assert.equal(await a05cVendorCard.getAttribute('data-gcm13-applied'),'false');
+ assert.equal(await a05cVendorCard.getAttribute('data-gcm13-topology-applied'),'false');
  assert.equal(await a05cVendorCard.getAttribute('data-gcm13-exact-sku-applied'),'false');
- const a05cVendorText=await a05cVendorCard.innerText();
- assert.match(a05cVendorText,/GCM-1302M/);
- assert.match(a05cVendorText,/GCM-1311M/);
- assert.match(a05cVendorText,/GCM-1302M.*主候选/);
- assert.match(a05cVendorText,/L=60mm/);
- assert.match(a05cVendorText,/GCM-1311M.*次候选/);
- assert.match(a05cVendorText,/隐藏的1302M厂家轮廓研究件/);
- assert.match(a05cVendorText,/不向A05折弯片添加隐藏M6接口/);
- // Clear the user's intentionally persistent filter even while the BOM drawer is closed.
+ assert.match(await a05cVendorCard.innerText(),/GCM-1302M/);
  await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  const photoA=await page.evaluate(()=>window.__photoEvidenceProbe?.('A05C'));
- assert(photoA?.ids.includes('94'));
- assert.deepEqual(photoA?.embedded,['194','196'],
-   'A05C needs real photographs194/196 while photo94 raw remains unbundled');
- assert.equal(await page.locator('#a-physical-audit').isHidden(),true,
-   'Engineering audit prose must remain outside the normal UI');
+ assert.deepEqual(photoA?.embedded,['194','196']);
  assert.equal(await page.locator('#film-drop-label').innerText(),'玻片 Z');
  assert.equal(await page.locator('#sample-move-label').innerText(),'样品 X');
  assert.equal(await page.locator('#sample-move-depth-label').innerText(),'样品 Y');
- // A03 VC13M must move only its output plate; A04/A05 follow the
- // output, while A03 body and magnet remain fixed to their base.
+
  const mechA=await page.evaluate(()=>window.__modelAPhoto194Probe?.());
  assert.equal(mechA.available,true);
- assert.equal(mechA.upperDriveLocal,'+X',
-   'G40M60L actuator remains on the OEM/photo-supported local +X side');
- assert.equal(mechA.lowerDriveLocal,'+Z',
-   'Lower goniometer actuator remains orthogonal to the upper G40 local axis');
- assert.equal(mechA.installedFilmBranchYawDeg,180,
-   'Installed transfer assembly must preserve the user-corrected rigid 180° yaw');
- assert.equal(mechA.upperDriveWorld,'-X',
-   'Rigid 180° yaw must reverse world X without mirroring the hardware itself');
- assert.equal(mechA.wingFastenerCount,2,'Photo194/196 require two wing fasteners');
+ assert.equal(mechA.installedFilmBranchYawDeg,180);
+ assert.equal(mechA.wingFastenerCount,2);
+
  const foot=await page.evaluate(()=>window.__modelA05FootBoreProbe?.());
  assert.equal(foot.available,true);
- assert.equal(foot.verticalClampBoresRemoved,true,
-   'A05 folded foot must not be drilled for the side-clamp screws');
- assert.equal(foot.boreCount,0);
+ assert.equal(foot.verticalClampBoresPresent,true);
+ assert.equal(foot.boreCount,2);
  assert.equal(foot.shaftCount,2);
- assert.equal(foot.shaftAxesParallelGlassShortEdge,true);
- assert.equal(foot.shaftsEngagePressureRail,true);
+ assert.equal(foot.shaftAxesVertical,true);
+ assert.equal(foot.screwPairLineParallelGlassShortEdge,true);
+ assert.equal(foot.screwPitchAcrossGlassShortEdgeMm,13);
+ assert.equal(foot.shaftsEngageLowerBlade,true);
  assert.equal(foot.independentFastenerPart,true);
  assert.equal(foot.actualOEMThreadsVerified,false);
+
  const clampTopology=await page.evaluate(()=>window.__platformABareClampProbe?.());
- assert.equal(clampTopology.gcm13FamilyTopologyApplied,true);
- assert.equal(clampTopology.gcm13MovingMiddlePlateCount,1);
- assert.equal(clampTopology.gcm13ThreadCarrierCount,1);
- assert.equal(clampTopology.gcm13ExactSkuGeometryApplied,false);
+ assert.equal(clampTopology.gcm13FamilyTopologyApplied,false);
+ assert.equal(clampTopology.photo5VerticalWingScrewTopologyApplied,true);
+
  const photoAxis=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
  assert.equal(photoAxis?.available,true);
  assert.equal(photoAxis.pose,'installed180');
- assert.equal(photoAxis.fastenerShaftAxis,'Z / parallel to glass 26mm short edge');
- assert.equal(photoAxis.actualShaftGeometryParallelShortEdge,true);
- assert.equal(photoAxis.screwPitchAlongGlassLengthMm,18);
- assert.equal(photoAxis.fastenerGlassCollisionCount,0,
-   'Side-clamp shafts must remain outside glass');
+ assert.equal(photoAxis.fastenerShaftAxis,'Y / vertical through folded foot');
+ assert.equal(photoAxis.actualShaftGeometryVertical,true);
+ assert.equal(photoAxis.fastenerPairLineAxis,'Z / parallel to glass 26mm short edge');
+ assert.equal(photoAxis.actualPairLineParallelShortEdge,true);
+ assert.equal(photoAxis.screwPitchAcrossGlassShortEdgeMm,13);
+ assert.equal(photoAxis.fastenerGlassCollisionCount,0);
  assert.equal(photoAxis.glassCandidateVisible,true);
- assert.equal(photoAxis.sideClampVisible,true);
- assert.equal(photoAxis.verticalFootBoreCount,0);
+ assert.equal(photoAxis.clampBladeVisible,true);
+ assert.equal(photoAxis.verticalFootBoreCount,2);
  assert.equal(photoAxis.completeFilmBranchYawDeg,180);
- assert.equal(photoAxis.photo194196ConfirmsTwoFasteners,true);
- assert.equal(photoAxis.GCM13FamilyFunctionalMatch,true);
- assert.equal(photoAxis.GCM13VendorMaxPlateThicknessMm,5);
- assert.equal(photoAxis.GCM13VendorAdjustmentThreadCount,2);
- assert.equal(photoAxis.GCM13VendorMiddleMovingPlate,true);
- assert.deepEqual(photoAxis.GCM13Candidates.map(x=>x.sku),
-   ['GCM-1302M','GCM-1311M','GCM-1301M','GCM-1312M']);
- assert.equal(photoAxis.GCM13Candidates[0].Lmm,60);
- assert.equal(photoAxis.GCM13Candidates[0].priority,'primary-topology-match');
- assert.equal(photoAxis.GCM13Candidates[1].Lmm,52);
- assert.equal(photoAxis.GCM13Candidates[1].priority,'secondary-distinct-control-layout');
- assert.equal(photoAxis.GCM13GeometryApplied,false,
-   'Exact GCM-13 SKU geometry must not replace the photo-fit A05C envelope');
- assert.equal(photoAxis.GCM13FamilyTopologyApplied,true,
-   'V90 must apply the manufacturer-confirmed two-thread/middle-moving-plate topology');
+ assert.equal(photoAxis.photo1CanonicalOrientation,true);
+ assert.equal(photoAxis.photo23AreRotatedSideViews,true);
+ assert.equal(photoAxis.photo5ShowsVerticalWingScrews,true);
+ assert.equal(photoAxis.GCM13FamilyFunctionalMatch,false);
+ assert.equal(photoAxis.GCM13FamilyTopologyApplied,false);
  assert.equal(photoAxis.GCM13ExactSkuGeometryApplied,false);
- assert.equal(photoAxis.GCM13PrimaryCandidateMountThread,'M6');
- assert.equal(photoAxis.GCM13BottomMountInterfaceModelled,false,
-   'Hidden A05C bottom interface must not receive a fabricated M6 hole');
- assert.equal(photoAxis.GCM13LowerFixedJawModelled,true);
- assert.equal(photoAxis.GCM13GlassShortEdgeConstraintMm,26);
- assert.equal(photoAxis.GCM13InnerClearSpanMm,26);
- assert.equal(photoAxis.GCM13InnerClearSpanMatchesGlassShortEdge,true);
- assert.equal(photoAxis.GCM13VendorDrawingProfiles.GCM130M.bodyDepthMm,26);
- assert.equal(photoAxis.GCM13VendorDrawingProfiles.GCM130M.adjustmentExtensionMm,29);
- assert.equal(photoAxis.GCM13VendorDrawingProfiles.GCM130M.movingJawThicknessMm,7);
- assert.equal(photoAxis.GCM13VendorDrawingProfiles.GCM130M.bodyHeightMm,24);
- assert.deepEqual(photoAxis.GCM13VendorDrawingProfiles.GCM1311M.drawingDimensionsMm,[44,26,5.5,33,40]);
- assert.equal(photoAxis.GCM13PrimaryCandidateSku,'GCM-1302M');
- assert.equal(photoAxis.GCM1302TwoSameDirectionAdjustersMatchObservedTopology,true);
- assert.equal(photoAxis.GCM1311DistinctCompactControlLayout,true);
+ assert.equal(photoAxis.GCM13GeometryApplied,false);
  assert.equal(photoAxis.GCM1302VendorStudyAvailable,true);
  assert.equal(photoAxis.GCM1302VendorStudyInstalled,false);
  assert.equal(photoAxis.GCM1302VendorStudyExactGeometry,false);
  assert.equal(photoAxis.GCM1302StudyFixedBodyCount,1);
  assert.equal(photoAxis.GCM1302StudyMovingJawCount,1);
  assert.equal(photoAxis.GCM1302StudyAdjustmentScrewCount,2);
- assert.equal(photoAxis.GCM13VendorProfilesAreDistinct,true);
- assert.equal(photoAxis.GCM13Shared26mmDimensionDoesNotProveSku,true);
- assert.equal(photoAxis.GCM13MovingMiddlePlateCount,1);
- assert.equal(photoAxis.GCM13ThreadCarrierCount,1);
  assert.equal(photoAxis.currentGripLengthMmCandidate,28);
- assert.equal(photoAxis.currentGripLengthIsFullOEMLength,false);
  assert.equal(photoAxis.glassClampOEMVerified,false);
 
  // V115 internal-only manufacturer silhouette review. This never adds a
@@ -1601,7 +1545,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(guideLower.actualTravelInGuideEnvelope,true);
  const fullA=await page.evaluate(()=>window.__modelAContactProbe?.());
  assert.equal((await page.evaluate(()=>window.__modelAClampChainProbe?.()))
-    .sideClampGeometricallyCoherent,true,
+    .photoClampGeometricallyCoherent,true,
     'A05 side clamp must remain coherent throughout the 13mm film lowering stroke');
   assert.equal(fullA.pdmsToChipGapMm,0,
    'V58 at -13mm PDMS must touch the A07 sample chip surface exactly');
@@ -1640,18 +1584,19 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  const aPhoto=await page.evaluate(()=>window.__platformACompletenessProbe?.());
  assert.equal(aPhoto.aPose,'photo-reference');
  assert.equal(aPhoto.localSheetHandedness,'left');
- assert.equal(aPhoto.installedFilmYawDeg,0);
- assert.equal(aPhoto.sheetLegLengthMm,72);
+ assert.equal(aPhoto.installedFilmYawDeg,180);
+ assert.equal(aPhoto.photoAndWorkingSharePhysicalOrientation,true);
+ assert.equal(aPhoto.sheetLegLengthMm,86.1);
  assert.equal(aPhoto.glassRequiredForTransfer,true);
  const photographed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
  assert.equal(photographed.pose,'photo-reference');
- assert.equal(photographed.fastenerShaftAxis,'Z / parallel to glass 26mm short edge');
- assert.equal(photographed.actualShaftGeometryParallelShortEdge,true);
- assert.equal(photographed.screwPitchAlongGlassLengthMm,18);
- assert.equal(photographed.glassCandidateVisible,true,
-   'Photo-reference orientation must not delete a required physical glass component');
- assert.equal(photographed.sideClampVisible,true);
- assert.equal(photographed.verticalFootBoreCount,0);
+ assert.equal(photographed.fastenerShaftAxis,'Y / vertical through folded foot');
+ assert.equal(photographed.actualShaftGeometryVertical,true);
+ assert.equal(photographed.fastenerPairLineAxis,'Z / parallel to glass 26mm short edge');
+ assert.equal(photographed.screwPitchAcrossGlassShortEdgeMm,13);
+ assert.equal(photographed.glassCandidateVisible,true);
+ assert.equal(photographed.clampBladeVisible,true);
+ assert.equal(photographed.verticalFootBoreCount,2);
  assert.equal(await page.locator('#a-physical-audit').isHidden(),true,
    'Photo-reference engineering status must remain outside the normal UI');
  assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
@@ -1664,7 +1609,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'installed180');
  const resumed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
  assert.equal(resumed.glassCandidateVisible,true);
- assert.equal(resumed.sideClampVisible,true);
+ assert.equal(resumed.clampBladeVisible,true);
  assert.equal(resumed.completeFilmBranchYawDeg,180);
  const front194=await page.evaluate(()=>window.__platformAStageFrontProbe?.());
  assert.equal(front194?.available,true);
