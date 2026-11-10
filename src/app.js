@@ -4655,7 +4655,7 @@ function focusA17FrontAudit(){
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
  return true;
 }
-window.__focusA05ClampAudit=focusA05ClampAudit;
+window.__focusA05ClampAudit=window.__focusA05MovingAudit;
 window.__focusA17FrontAudit=focusA17FrontAudit;
 window.__A05MovingCloseupProbe=()=>{
  if(platform!=='A')return {available:false};
