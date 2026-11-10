@@ -3974,7 +3974,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V86 / '+(aWorkingPoseMode?
+   '平台 A · V88 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4133,7 +4133,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V86当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V88当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
