@@ -538,6 +538,7 @@ check(abs(amagnet.zmin-20)<.02 and abs(amagnet.zmax-40)<.02,
 # physical base has no holes. Never transfer B02/GCM-420302M's 13-hole pattern.
 a17_body=part(A,'A17')[0]
 a17_control=part(A,'A17L')[0]
+a17_label=part(A,'A17LBL')[0]
 a15_front=part(A,'A15F')[0]
 check(abs(a17_body.BoundingBox().zmin-20)<.02 and
       abs(a17_body.BoundingBox().zmax-40)<.02,
@@ -587,19 +588,37 @@ report['V62_A15_front_slot_A17_lower_lever']={
   'A17_lower_lever_count':1,'A17_duplicate_slot_count':0,
   'OEM_dimensions_and_threads_verified':False}
 check(a17_body.distance(a17_control)<.02,
-      'V82 A17 side magnetic switch proxy must touch its 65mm base, never float')
-report['V82_A17_PTDB65_comparison_boundary']={
+      'V94 A17 left magnetic switch proxy must touch its 65mm base, never float')
+check(a17_body.intersect(a17_label).Volume()<1e-4,
+      'V94 front label plaque must sit on the A17 face, not penetrate the magnetic body')
+check(a17_body.distance(a17_label)<.02,
+      'V94 photo194 front label plaque must physically touch the A17 front face')
+check(a17_label.BoundingBox().xmin>a17_control.BoundingBox().xmin+5,
+      'V94 front plaque must remain to the right of the left silver switch')
+report['V94_A17_Oeabt_MBS65_family_candidate']={
+    'photo_refs':['194','195'],
     'physical_A17_sku_verified':False,
-    'comparison_vendor':'CORZC',
-    'comparison_sku':'PTDB65',
-    'comparison_envelope_mm':[65,65,20],
-    'comparison_magnetic_force_kg':32,
-    'comparison_top_holes':{'M6':1,'M4':8,'M3':4},
-    'comparison_side_switch':True,
-    'comparison_hole_map_modelled':False,
+    'primary_candidate_family':'Oeabt MBS-65B/C',
+    'family_level_visual_confidence':'high',
+    'photo_front_label_plaque_visible':True,
+    'photo_front_label_text_readable':False,
+    'photo_left_silver_switch_visible':True,
+    'vendor_family_envelope_mm':[65.2,65.2,20],
+    'current_model_envelope_mm':[65,65,20],
+    'vendor_holding_force_N':158,
+    'candidate_variants':{
+      'MBS-65B':{'M4':4,'M6':9},
+      'MBS-65C':{'M4':12,'M6':1}
+    },
+    'candidate_hole_map_modelled':False,
     'A17_actual_modelled_top_hole_count':0,
+    'front_label_plaque_modelled':True,
     'side_switch_contacting_body':True,
-    'reason':'A15 hides the real A17 top face; envelope/switch similarity cannot prove SKU or hole map'
+    'secondary_candidates':[
+      {'vendor':'CORZC','sku':'PTDB65','envelope_mm':[65,65,20]},
+      {'vendor':'LBTEK','sku':'MB65','envelope_mm':[65,65,20]}
+    ],
+    'exact_variant_unresolved_reason':'A15 hides A17 top face; public photo194 preview cannot read plaque brand/model text'
 }
 # V49: photos25/26 show two side-hole rows on the B09 NFP-1462C body.
 # Their exact coordinates, diameters and thread forms are NOT in the readable

@@ -3,6 +3,12 @@ import {auditPlatformAAssembly} from '../src/platform-a-assembly-audit.js';
 const a=auditPlatformAAssembly();
 assert.equal(a.photoConfirmedGlassClamp,false);
 assert.equal(a.photoConfirmedMagneticBaseSku,false);
+assert.equal(a.a17PrimaryCandidateFamily,'Oeabt MBS-65B/C');
+assert.deepEqual(a.a17PrimaryFamilyEnvelopeMm,[65.2,65.2,20]);
+assert.equal(a.a17FrontLabelPlaquePhotoConfirmed,true);
+assert.equal(a.a17FrontLabelTextReadable,false);
+assert.equal(a.a17ExactVariantVerified,false);
+assert(a.missing.includes('A17 exact MBS-65B/C suffix & hidden top mounting pitch'));
 assert.equal(a.stageCenterGapMm,194);
 assert.equal(a.currentFilmMinusSampleXmm,-194,
   'A05 currently points AWAY from the A07 sample stage; geometry cannot be called registered');

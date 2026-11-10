@@ -1056,11 +1056,19 @@ window.__modelAKinematicProbe=()=>{
     a17TopCounterboreCount:magnet.userData.photo23TopCounterboreCount??0,
     a15TopCounterboreCount:parts.get('A15')?.g.userData.A15Photo23TopCounterboreCount??0,
     a15RecessedHeadCount:parts.get('A15')?.g.userData.A15Photo23RecessedHeadCount??0,
+    a17OemPrimaryCandidateFamily:magnet.userData.oemPrimaryCandidateFamily??null,
     a17OemComparisonSku:magnet.userData.oemComparisonSku??null,
     a17OemCandidate:magnet.userData.oemModelCandidate??null,
     a17OemVisualMatchConfidence:magnet.userData.oemVisualMatchConfidence??null,
     a17CandidateTopHolePatternModelled:magnet.userData.candidateTopHolePattern?.modelled??null,
+    a17CandidateTopHoleVariants:magnet.userData.candidateTopHolePattern??null,
     a17CandidateEnvelopeMm:magnet.userData.oemCandidateEnvelopeMm??null,
+    a17CurrentModelEnvelopeMm:magnet.userData.currentModelEnvelopeMm??null,
+    a17CandidateHoldingForceN:magnet.userData.oemCandidateHoldingForceN??null,
+    a17FrontLabelPlaqueCount:magnet.children.filter(o=>o.userData.A17Photo194FrontLabelPlaque).length,
+    a17FrontLabelTextReadable:Boolean(magnet.userData.frontLabelTextReadable),
+    a17ExactVariantVerified:Boolean(magnet.userData.exactVariantVerified),
+    a17SecondaryCandidates:magnet.userData.oemSecondaryCandidates??null,
     lowerGoniometerOemCandidate:lowerTilt.userData.oemCandidate??null,
     lowerGoniometerOemCandidateConfirmed:lowerTilt.userData.oemCandidateConfirmed??null,
     lowerGoniometerVendorRotationCenterMm:lowerTilt.userData.vendorRotationCenterMm??null,
@@ -2904,34 +2912,48 @@ function platformA(){
     add(g,cub(65,10,65,mats.dark,0,5,0));
     const top=add(g,plate(65,65,10,mats.dark,[]));
     top.position.y=10;
-    // V82: CORZC PTDB65 is an OEM comparison only. Its 65×65×20 mm
-    // envelope and side magnetic switch match the visible A17 topology,
-    // but A15 hides the real top face. Therefore the PTDB65 top-hole map
-    // is recorded as metadata and is deliberately NOT cut into the model.
+    // V94: photo194 shows a light rectangular OFF/ON-style front plaque
+    // plus a left silver magnetic switch. Oeabt MBS-65B/C is now the
+    // highest-priority FAMILY match: 65.2×65.2×20 mm and the same plaque/
+    // switch topology. A15 hides the real top face, so neither B nor C
+    // top-hole map is allowed into the model.
+    const frontPlaque=add(g,cub(40,7,.8,mats.silver,5,10,32.9));
+    frontPlaque.userData.A17Photo194FrontLabelPlaque=true;
     const switchPad=add(g,cub(10,10,2.5,mats.black,-23,7,33.75));
     switchPad.userData.A17SideSwitchMountCandidate=true;
     const axle=add(g,cyl(2.2,7,mats.steel,-23,7,36.5,24));
     axle.rotation.x=Math.PI/2;
     const lever=add(g,cyl(3.2,9,mats.silver,-23,8.5,39.5,24));
     lever.userData.A17Photo194LowerLeverCandidate=true;
-    lever.userData.A17PTDB65StyleSideSwitchComparison=true;
+    lever.userData.A17LowProfile65mmFamilySideSwitchCandidate=true;
     g.userData.lowerLeverPositionVerified=false;
     g.userData.magneticFixture=true;
     g.userData.brandAndHolePatternNotVerified=true;
-    g.userData.oemComparisonSku='CORZC PTDB65';
-    g.userData.oemModelCandidate='PTDB65';
-    g.userData.oemVisualMatchConfidence='envelope-and-side-switch-only';
-    g.userData.oemCandidateEnvelopeMm=[65,65,20];
-    g.userData.oemCandidateMagneticForceKg=32;
+    g.userData.oemPrimaryCandidateFamily='Oeabt MBS-65B/C';
+    g.userData.oemComparisonSku='Oeabt MBS-65B/C family';
+    g.userData.oemModelCandidate='MBS-65B / MBS-65C';
+    g.userData.oemVisualMatchConfidence='family-high: 65mm-class + 20mm + front-label-plaque + left-silver-switch';
+    g.userData.oemCandidateEnvelopeMm=[65.2,65.2,20];
+    g.userData.currentModelEnvelopeMm=[65,65,20];
+    g.userData.oemCandidateHoldingForceN=158;
+    g.userData.frontLabelPlaquePhotoConfirmed=true;
+    g.userData.frontLabelTextReadable=false;
+    g.userData.exactVariantVerified=false;
+    g.userData.oemSecondaryCandidates=[
+      {vendor:'CORZC',sku:'PTDB65',envelopeMm:[65,65,20],reason:'same low-profile side-switch family; front plaque match weaker'},
+      {vendor:'LBTEK',sku:'MB65',envelopeMm:[65,65,20],reason:'same low-profile left-switch family; front label style differs'}
+    ];
     g.userData.topInterfaceModelled=false;
     g.userData.oemIdentityVerified=false;
-    g.userData.candidateTopHolePattern={M6:1,M4:8,M3:4,total:13,modelled:false};
+    g.userData.candidateTopHolePattern={
+      MBS65B:{M4:4,M6:9},MBS65C:{M4:12,M6:1},modelled:false
+    };
     g.userData.photo22SideSlotCount=0;
     g.userData.photo22FrontKnobCount=0;
     g.userData.photo194LowerLeverCount=1;
     g.userData.candidateMountHoleMarkers=[];
     g.userData.topCornerCounterbores=0;
-    label(g,'A17 · 65×65×20磁座 · PTDB65仅外形/侧开关候选，顶面孔系未建模',0,32,0);
+    label(g,'A17 · V94 Oeabt MBS-65B/C主候选族 · 正面铭牌/左开关匹配 · 顶面孔系未建模',0,32,0);
   },{explode:[-10,0,0],facingYaw:aFilmYaw});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
@@ -4112,7 +4134,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V92 / '+(aWorkingPoseMode?
+   '平台 A · V94 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4271,7 +4293,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V92当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V94当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+

@@ -632,7 +632,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V92.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V94.*整体旋转180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -846,10 +846,10 @@ try{
    'V89 MWWHL4 body must not occupy right focus-control volume');
  assert.equal(dA.lampMountingMethodVerified,false,
    'Collision-free placement does not prove the real A11 mounting hardware');
- assert.equal(dA.lampPhotoPlacementOffsetFromOpticalAxisMm,72);
+ assert.equal(dA.lampPhotoPlacementOffsetFromOpticalAxisMm,96);
  assert.equal(dA.lampPlacementOffsetMeasured,false);
  assert.equal(dA.lampCollisionFreePlacementCandidate,true);
- assert.equal(dA.lampPlacementShiftFromV87Mm,22);
+ assert.equal(dA.lampPlacementShiftFromV87Mm,46);
  assert.equal(dA.lampElectricalCablePresent,true);
  assert.equal(dA.inventedLampGooseneckPresent,false,
    'Old invented MWWHL4 mechanical gooseneck must stay deleted');
@@ -1062,7 +1062,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V92当前安装方向/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V94当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
@@ -1156,13 +1156,28 @@ try{
    'A17 must not inherit B02/GCM-420302M 13-hole pattern without A17 top-side evidence');
  assert.equal(aBefore.a17PhotographedSkuVerified,false,
    'A17 manufacturer SKU remains unidentified');
- assert.equal(aBefore.a17OemComparisonSku,'CORZC PTDB65',
-   'A17 may record PTDB65 only as an envelope/side-switch comparison candidate');
- assert.equal(aBefore.a17OemCandidate,'PTDB65');
- assert.equal(aBefore.a17OemVisualMatchConfidence,'envelope-and-side-switch-only');
- assert.deepEqual(aBefore.a17CandidateEnvelopeMm,[65,65,20]);
+ assert.equal(aBefore.a17OemPrimaryCandidateFamily,'Oeabt MBS-65B/C');
+ assert.equal(aBefore.a17OemComparisonSku,'Oeabt MBS-65B/C family',
+   'Photo194 front plaque + left silver switch should promote the Oeabt 65mm family');
+ assert.equal(aBefore.a17OemCandidate,'MBS-65B / MBS-65C');
+ assert.match(aBefore.a17OemVisualMatchConfidence,/family-high/);
+ assert.deepEqual(aBefore.a17CandidateEnvelopeMm,[65.2,65.2,20]);
+ assert.deepEqual(aBefore.a17CurrentModelEnvelopeMm,[65,65,20],
+   'Do not silently expand the photo-fit model by 0.2mm before physical measurement');
+ assert.equal(aBefore.a17CandidateHoldingForceN,158);
+ assert.equal(aBefore.a17FrontLabelPlaqueCount,1,
+   'Photo194 visible front label plaque must be actual WebGL geometry');
+ assert.equal(aBefore.a17FrontLabelTextReadable,false,
+   'The tiny public preview cannot justify inventing the plaque brand text');
+ assert.equal(aBefore.a17ExactVariantVerified,false,
+   'Hidden top face prevents distinguishing MBS-65B from MBS-65C');
+ assert.equal(aBefore.a17SecondaryCandidates.length,2);
+ assert(aBefore.a17SecondaryCandidates.some(x=>x.sku==='PTDB65'));
+ assert(aBefore.a17SecondaryCandidates.some(x=>x.sku==='MB65'));
  assert.equal(aBefore.a17CandidateTopHolePatternModelled,false,
-   'PTDB65 13-hole top pattern must NOT be copied onto A17 while its real top is hidden');
+   'MBS-65B/C candidate top patterns must NOT be copied while A15 hides A17 top');
+ assert.deepEqual(aBefore.a17CandidateTopHoleVariants.MBS65B,{M4:4,M6:9});
+ assert.deepEqual(aBefore.a17CandidateTopHoleVariants.MBS65C,{M4:12,M6:1});
  assert.equal(aBefore.a17SideSlotCount,0,'Photo194 silver slot is on A15, not A17');
  assert.equal(aBefore.a17FrontKnobCount,0,'A17 has no duplicate A15 slot knob');
  assert.equal(aBefore.a17TopCounterboreCount,0);

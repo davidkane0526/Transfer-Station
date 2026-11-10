@@ -311,10 +311,12 @@ export function enrichParts(partMap, platform, onMesh){
     });
   }else {
      decoration('A17',(g)=>{
-       // OEM maker/model remain unverified; show only a neutral
-       // magnetic-foot OFF/ON mechanism consistent with user mounting.
-       decal(g,'MAGNETIC BASE / OEM ?',58,7,0,10,33.15,'front','#dfe6ec');
-       box(g,16,7,10,-24,10,35,graphite,.8);
+       // V94: photo194 visibly contains a light front OFF/ON-style plaque,
+       // but the 128×170 repository preview cannot resolve the brand/SKU.
+       // Render the photographed label topology without inventing text.
+       const plaque=decal(g,'OFF       OEM ?       ON',40,6,5,10,33.35,'front','#dfe6ec');
+       plaque.userData.A17Photo194FrontPlaqueDecoration=true;
+       g.userData.A17BrandTextIntentionallyUnresolved=true;
      });
      for(const id of ['A02','A15']){const p=partMap.get(id);if(p)stageHardware(p,'GCM-T25M')}
      decoration('A03',(g)=>{

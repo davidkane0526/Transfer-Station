@@ -71,6 +71,11 @@ export function auditPlatformAAssembly({
     sampleTopStackGeometryRulerCompatible:auditV48RulerRegistration().sampleTopWithinVisibleRulerRange,
     absoluteFilmSampleCoordinatesPhotoRegistered:false,
     photoConfirmedMagneticBaseSku:false,
+    a17PrimaryCandidateFamily:'Oeabt MBS-65B/C',
+    a17PrimaryFamilyEnvelopeMm:[65.2,65.2,20],
+    a17FrontLabelPlaquePhotoConfirmed:true,
+    a17FrontLabelTextReadable:false,
+    a17ExactVariantVerified:false,
     sampleA02TravelAxis:'X',
     sampleA02SingleAxisPhotoConfirmed:true,
     sampleA02ObservedHandleDirection:'left / -X',
@@ -99,8 +104,8 @@ export function auditPlatformAAssembly({
     nominalApproachEnvelopeRegistered:remainingHorizontalGapMm<=0,
     clampMechanicalInterfaceClosed:false,
     functionalTransferAccepted:false,
-    missing:['A05 lower glass jaw model & fixing thread','A17 magnetic base actual SKU, height & mounting pitch',
+    missing:['A05 lower glass jaw model & fixing thread','A17 exact MBS-65B/C suffix & hidden top mounting pitch',
       'film stage/thermal stage relative origin and direction','A05-to-glass-to-PDMS contact height'],
-    note:'V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
+    note:'V94 promotes Oeabt MBS-65B/C to A17 family-level primary candidate from photo194 front-plaque/left-switch topology, but hidden top holes still prevent exact suffix identification. V93 closes A02 as a photo-confirmed single X-axis stage from photos17/20. A ruler photos17/18 establish silver sample top near90mm ABOVE THE BOARD TOP, not absolute model-Z; A05 local sheet uses original photo94 OEM ratio. Global film-to-sample X/Y registration remains UNKNOWN, so horizontal reach gaps are provisional scene diagnostics.'
   });
 }

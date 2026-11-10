@@ -650,12 +650,15 @@ def make_a():
     # A15 must rest on the actual magnetic base, not on naked board.
     # Photo194: face slot is on A15, not the lowest A17 magnet.
     mag=box(65,65,20,ax,0,20)
-    # V82: PTDB65 is comparison evidence only. Its 65x65x20 envelope and
-    # side magnetic switch match the visible layer, but A15 hides A17's top
-    # surface, so NO PTDB65 M6/M4/M3 hole map is cut into this solid.
-    add('A','A17','65x65x20_MAGNET_BASE_PTDB65_ENVELOPE_COMPARISON_NO_TOP_HOLES',mag,'C')
+    # V94: photo194 front face shows a light OFF/ON-style plaque and a
+    # left silver switch. Oeabt MBS-65B/C is the strongest FAMILY match:
+    # 65.2x65.2x20mm with the same plaque/switch topology. The top face is
+    # hidden by A15, so neither B nor C hole pattern may be fabricated.
+    add('A','A17','65x65x20_MAGNET_BASE_OEABT_MBS65_FAMILY_PHOTO_FIT_NO_TOP_HOLES',mag,'C')
+    front_label=box(40,.8,7,ax+5,32.9,30)
+    add('A','A17LBL','PHOTO194_FRONT_OFF_ON_LABEL_PLAQUE_TEXT_UNREADABLE',front_label,'P')
     side_switch=vy(2.2,10,ax-23,32.5,27).fuse(vz(3.2,9,ax-23,39.5,24))
-    add('A','A17L','PTDB65_STYLE_SIDE_SWITCH_COMPARISON_IDENTITY_UNVERIFIED',side_switch,'C')
+    add('A','A17L','MBS65_FAMILY_LEFT_SILVER_SWITCH_CANDIDATE_IDENTITY_UNVERIFIED',side_switch,'C')
     stage('A','A15',ax,0,40,'+X',axes=2,depth_direction='+Y',photo_top_bores=True)
     # Nov 08 screen-behind view shows A15 silver slot on the -Y
     # side of the XY stage, OPPOSITE the +Y VC13M front spindle.
@@ -961,11 +964,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V93'
+CAD_REVISION='V94'
 UNINSTALLED_A_STUDY_IDS=frozenset()
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
-    """V93 installed A: V92 photo-asymmetric microscope + photo-confirmed single-axis A02 semantics.
+    """V94 installed A: V93 mechanics + A17 photo-front plaque and Oeabt MBS-65 family candidate boundary.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """
