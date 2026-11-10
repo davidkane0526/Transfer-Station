@@ -994,13 +994,18 @@ try{
  assert.match(await page.locator('#part-detail').innerText(),/夹持器|玻片夹/);
  const a05cVendorCard=page.locator('#a05c-vendor-comparison');
  assert.equal(await a05cVendorCard.getAttribute('data-confirmed'),'false');
- assert.equal(await a05cVendorCard.getAttribute('data-gcm13-applied'),'false');
+ assert.equal(await a05cVendorCard.getAttribute('data-gcm13-applied'),'false',
+   'Exact GCM-13 SKU geometry remains intentionally unapplied');
+ assert.equal(await a05cVendorCard.getAttribute('data-gcm13-topology-applied'),'true');
+ assert.equal(await a05cVendorCard.getAttribute('data-gcm13-exact-sku-applied'),'false');
  const a05cVendorText=await a05cVendorCard.innerText();
  assert.match(a05cVendorText,/GCM-13系列/);
  assert.match(a05cVendorText,/GCM-1302M/);
  assert.match(a05cVendorText,/GCM-1311M/);
  assert.match(a05cVendorText,/当前28mm/);
- assert.match(a05cVendorText,/厂家几何仍未套用/);
+ assert.match(a05cVendorText,/厂家系列拓扑已应用/);
+ assert.match(a05cVendorText,/精确SKU外形仍未套用/);
+ assert.match(a05cVendorText,/没有凭空增加M6孔或螺柱/);
  // Clear the user's intentionally persistent filter even while the BOM drawer is closed.
  await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  const photoA=await page.evaluate(()=>window.__photoEvidenceProbe?.('A05C'));

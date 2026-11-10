@@ -3739,12 +3739,14 @@ function updateDetail(part){
    const cand=c?.userData.GCM13Candidates??[];
    const rows=cand.map(x=>x.sku+'：'+x.mountThread+' / L='+x.Lmm+'mm / '+x.weightG+'g').join('；');
    return '<div class="field" id="a05c-vendor-comparison" data-confirmed="false" '+
-     'data-gcm13-applied="'+Boolean(c?.userData.GCM13GeometryApplied)+'">'+
-     '<b>A05C 厂商候选矩阵（V88）</b><p>'+
-     '<b>Daheng GCM-13系列：</b>厂家明确采用2枚手拧调节螺纹推动中间活动压板，可夹持厚度≤5mm的板状光学件；这与当前“两螺杆→活动压紧条→玻片”的受力逻辑高度一致。<br>'+
+     'data-gcm13-applied="'+Boolean(c?.userData.GCM13GeometryApplied)+'" '+
+     'data-gcm13-topology-applied="'+Boolean(c?.userData.GCM13FamilyTopologyApplied)+'" '+
+     'data-gcm13-exact-sku-applied="'+Boolean(c?.userData.GCM13ExactSkuGeometryApplied)+'">'+
+     '<b>A05C 厂商候选矩阵（V90）</b><p>'+
+     '<b>Daheng GCM-13系列：</b>厂家明确采用2枚手拧调节螺纹推动同一中间活动压板，可夹持厚度≤5mm的板状光学件。V90已把这一厂家拓扑落实为“共同固定螺纹载体→两螺杆→单一活动压板”，并保持螺杆轴线∥玻片26mm短边。<br>'+
      '<b>型号对照：</b>'+esc(rows)+'。GCM-1302M与GCM-1311M作为主要候选；1301M的L=100mm相对76mm玻片偏长；1312M为M4且外形支系不同。<br>'+
      '<b>当前28mm：</b>仅表示照片拟合的有效夹持区，不是实测完整夹具长度，不能拿它直接排除52/60mm厂家件。<br>'+
-     '<b>当前决定：</b>升级为GCM-13系列高可信功能候选，但具体SKU、M4/M6安装牙、完整外廓及孔位均未确认；厂家几何仍未套用。</p></div>';
+     '<b>当前决定：</b><b>厂家系列拓扑已应用</b>，但精确SKU外形仍未套用；1302M/1311M共有的M6底部接口只作为候选元数据，因为照片194/196没有显示夹具底面，模型没有凭空增加M6孔或螺柱。</p></div>';
  })():'';
  const a06VendorHtml=(platform==='A'&&part.id==='A06')?(()=>{
    const a=auditV48RulerRegistration();
