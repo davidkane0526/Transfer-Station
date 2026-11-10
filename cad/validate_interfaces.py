@@ -1068,6 +1068,28 @@ report['V79_A05_short_edge_side_clamp']={
     'screw_to_glass_intersection_mm3':0,
     'thread_pitch_and_clamping_force_verified':False,
     'actual_clamp_SKU_verified':False}
+report['V88_A05C_GCM13_family_candidate_boundary']={
+    'photo_sources':['94','194','196'],
+    'vendor_family':'Daheng GCM-13',
+    'vendor_family_functional_match':True,
+    'vendor_max_plate_thickness_mm':5,
+    'vendor_adjustment_thread_count':2,
+    'vendor_middle_moving_plate':True,
+    'primary_candidates':[
+        {'sku':'GCM-1302M','mount_thread':'M6','L_mm':60,'weight_g':105},
+        {'sku':'GCM-1311M','mount_thread':'M6','L_mm':52,'weight_g':105}
+    ],
+    'lower_priority_candidates':[
+        {'sku':'GCM-1301M','mount_thread':'M6','L_mm':100,'weight_g':155},
+        {'sku':'GCM-1312M','mount_thread':'M4','L_mm':85,'weight_g':55}
+    ],
+    'current_photo_fit_effective_grip_length_mm':28,
+    'current_28mm_is_full_OEM_length':False,
+    'vendor_geometry_applied':False,
+    'actual_A05C_sku_verified':False,
+    'B06_GCM1302M_identity_may_transfer_to_A05C':False,
+    'reason':'GCM-13 actuation topology matches, but A photos do not show readable SKU, mount thread, or full holder length'
+}
 
 # Apply exactly the same rigid yaw used by build_assemblies.py complete export.
 pivot=Vector(ax,0,0)
