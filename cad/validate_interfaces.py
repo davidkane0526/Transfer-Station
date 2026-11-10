@@ -2086,15 +2086,15 @@ check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide 
 import csv
 verification=json.loads((ROOT/'build'/'verification.json').read_text())
 a_complete=next(x for x in verification if x['system']=='A')
-check(a_complete['excluded_uninstalled']==[],
-      'V79 complete A STEP must not exclude required clamp/glass/PDMS components')
+check(set(a_complete['excluded_uninstalled'])=={'A18MGZ'},
+      'V111 complete A STEP may exclude only the explicit A18MGZ study; required transfer hardware must remain installed')
 check(a_complete['approved_installed_shape']=='rigid_180deg_film_chain_with_glass_short_edge_side_clamp',
       'V79 official A STEP must use the rigid-180 installed film-chain definition')
 check(abs(a_complete['photo_A_stage_center_x_mm']-(-82.75))<.001,
       'V79 installed A film datum must remain X=-82.75mm')
 with (ROOT/'build'/'platform_A'/'part_levels.csv').open(encoding='utf-8-sig',newline='') as f:
     installed_ids={row['id'] for row in csv.DictReader(f)}
-required={'A05','A05C','A05CU','A05CS1','A05CS2','A05G','A05GP'}
+required={'A05','A05C','A05CL','A05CU','A05CS1','A05CS2','A05G','A05GP'}
 check(required.issubset(installed_ids),
       'V79 installed A part-level BOM must include bracket, side clamp, glass and PDMS')
 check('A15FK' not in installed_ids,
@@ -2104,8 +2104,8 @@ research_ids=set()
 if study_csv.exists():
     with study_csv.open(encoding='utf-8-sig',newline='') as f:
         research_ids={row['id'] for row in csv.DictReader(f)}
-check(not research_ids,
-      'V79 has no hidden V77 no-glass study override in official A export')
+check(research_ids=={'A18MGZ'},
+      'V111 uninstalled-study list must contain only A18MGZ, never required clamp/glass/PDMS hardware')
 report['V79_A_user_corrected_installed_assembly']={
     'local_sheet_definition':'left-handed single source geometry',
     'complete_film_chain_yaw_deg':180,
@@ -2115,6 +2115,7 @@ report['V79_A_user_corrected_installed_assembly']={
     'side_screw_axis':'parallel to glass 26mm short edge',
     'vertical_folded_foot_clamp_bores':0,
     'floating_A15FK_present':False,
+    'excluded_noninstalled_study_parts':sorted(research_ids),
     'real_clamp_thread_dimensions_verified':False,
     'A18_vendor_model_verified':False}
 (ROOT/'build'/'interface_validation.json').write_text(
