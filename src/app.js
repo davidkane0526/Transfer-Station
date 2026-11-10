@@ -4912,11 +4912,26 @@ function _focusA18AuditView(mode){
       (score===best.score&&Math.abs(centerPenalty-best.centerPenalty)<.001&&area>best.area))
      best={off:[...off],score,centerPenalty,area};
  }
- camera.position.copy(target).add(new THREE.Vector3(...best.off));
+ let finalOffset=new THREE.Vector3(...best.off);
+ camera.position.copy(target).add(finalOffset);
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ // V125: visibility search chooses direction first; framing is a separate
+ // requirement. Pull back along the SAME ray until the whole target box
+ // fits comfortably instead of accepting a cropped closeup.
+ let fitScale=1;
+ for(let n=0;n<3;n++){
+   const p=_auditProjection(box);
+   const needed=Math.max(p.width/1.55,p.height/1.55,1);
+   if(needed<=1.01)break;
+   fitScale*=needed;
+   finalOffset.multiplyScalar(needed);
+   camera.position.copy(target).add(finalOffset);
+   orbit.target.copy(target);camera.lookAt(target);orbit.update();
+ }
  q.a18.userData.A18AuditViewMode=mode;
  q.a18.userData.A18AuditViewScore=best.score;
- q.a18.userData.A18AuditViewOffset=best.off;
+ q.a18.userData.A18AuditViewOffset=finalOffset.toArray().map(x=>Number(x.toFixed(2)));
+ q.a18.userData.A18AuditViewFitScale=Number(fitScale.toFixed(3));
  return true;
 }
 function focusA18OpticalAudit(){return _focusA18AuditView('optical');}
@@ -4932,6 +4947,7 @@ window.__A18OpticalCloseupProbe=()=>{
    available:true,mode:'optical',
    selectedVisibilityScore:q.a18.userData.A18AuditViewMode==='optical'?q.a18.userData.A18AuditViewScore:null,
    selectedCameraOffset:q.a18.userData.A18AuditViewMode==='optical'?q.a18.userData.A18AuditViewOffset:null,
+   fitScale:q.a18.userData.A18AuditViewMode==='optical'?q.a18.userData.A18AuditViewFitScale:null,
    projection:_auditProjection(_auditBoxFor([q.a18,q.a19])),
    bodyRay:_a18OpticalRays(q)[0],
    leftCoarseRay:_a18OpticalRays(q)[1],
@@ -4948,6 +4964,7 @@ window.__A18SupportCloseupProbe=()=>{
    available:true,mode:'support',
    selectedVisibilityScore:q.a18.userData.A18AuditViewMode==='support'?q.a18.userData.A18AuditViewScore:null,
    selectedCameraOffset:q.a18.userData.A18AuditViewMode==='support'?q.a18.userData.A18AuditViewOffset:null,
+   fitScale:q.a18.userData.A18AuditViewMode==='support'?q.a18.userData.A18AuditViewFitScale:null,
    projection:_auditProjection(_auditBoxFor([q.body,q.boom])),
    bodyRay:_auditRayClear(q.body,[q.a18]),
    supportBoomRay:_auditRayClear(q.boom,[q.a10]),

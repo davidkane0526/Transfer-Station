@@ -778,6 +778,9 @@ try{
    'A18/A19 optical chain must be centered in its dedicated optical audit frame');
  assert(a18Optical.projection.width>.30&&a18Optical.projection.height>.28,
    'A18/A19 optical chain must occupy a meaningful fraction of the audit frame');
+ assert(a18Optical.projection.width<1.65&&a18Optical.projection.height<1.65,
+   'A18 optical audit must fit the complete target instead of cropping it off-screen');
+ assert(a18Optical.fitScale>=1,'A18 audit framing scale must be reported');
  assert.equal(a18Optical.bodyRay.clear,true);
  assert.equal(a18Optical.leftCoarseRay.clear,true);
  assert.equal(a18Optical.rightCoarseRay.clear,true);
