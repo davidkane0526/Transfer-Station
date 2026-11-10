@@ -3694,6 +3694,18 @@ function updateDetail(part){
    aRigAudit.optimisticResidualHorizontalGapMm+
    'mm的场景X缺口（不是实物测量），翻转假设也未证实。'+
    'A05C夹具SKU、A17磁座实物身份/顶面孔系及绝对位置仍未确认；PTDB65仅为外形/侧开关候选，不能据此加工。</p></div>'):'';
+ const a05cVendorHtml=(platform==='A'&&part.id==='A05C')?(()=>{
+   const c=parts.get('A05C')?.g;
+   const cand=c?.userData.GCM13Candidates??[];
+   const rows=cand.map(x=>x.sku+'：'+x.mountThread+' / L='+x.Lmm+'mm / '+x.weightG+'g').join('；');
+   return '<div class="field" id="a05c-vendor-comparison" data-confirmed="false" '+
+     'data-gcm13-applied="'+Boolean(c?.userData.GCM13GeometryApplied)+'">'+
+     '<b>A05C 厂商候选矩阵（V88）</b><p>'+
+     '<b>Daheng GCM-13系列：</b>厂家明确采用2枚手拧调节螺纹推动中间活动压板，可夹持厚度≤5mm的板状光学件；这与当前“两螺杆→活动压紧条→玻片”的受力逻辑高度一致。<br>'+
+     '<b>型号对照：</b>'+esc(rows)+'。GCM-1302M与GCM-1311M作为主要候选；1301M的L=100mm相对76mm玻片偏长；1312M为M4且外形支系不同。<br>'+
+     '<b>当前28mm：</b>仅表示照片拟合的有效夹持区，不是实测完整夹具长度，不能拿它直接排除52/60mm厂家件。<br>'+
+     '<b>当前决定：</b>升级为GCM-13系列高可信功能候选，但具体SKU、M4/M6安装牙、完整外廓及孔位均未确认；厂家几何仍未套用。</p></div>';
+ })():'';
  const a06VendorHtml=(platform==='A'&&part.id==='A06')?(()=>{
    const a=auditV48RulerRegistration();
    return '<div class="field" id="a06-vendor-conflict" data-gcm1102-applied="false" '+
@@ -3736,7 +3748,7 @@ function updateDetail(part){
  '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
  '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
  '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+b08FitHtml+aRigHtml+a06VendorHtml+a18VendorHtml+photo94QAHtml+photo95QAHtml+
+ hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+b08FitHtml+aRigHtml+a05cVendorHtml+a06VendorHtml+a18VendorHtml+photo94QAHtml+photo95QAHtml+
  '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
  '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
  '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
