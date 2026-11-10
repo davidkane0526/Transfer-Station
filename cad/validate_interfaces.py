@@ -879,7 +879,7 @@ check(abs((a18_bb.xmin+a18_bb.xmax)/2-(78+24))<.05,
 check(abs((a18t_bb.xmin+a18t_bb.xmax)/2-78)<.05 and
       abs((a18n_bb.xmin+a18n_bb.xmax)/2-78)<.05,
       'V92 top/bottom optical interfaces must remain on original optical axis')
-check(part(A,'A10B')[0].intersect(part(A,'A18')[0]).Volume()>500,
+check(part(A,'A10A')[0].intersect(part(A,'A18')[0]).Volume()>500,
       'V92 offset A18 housing must retain a substantial real A10 rear support contact')
 report['V84_A_microscope_vendor_candidate_matrix']={
     'photo_refs':['191','192','193'],
