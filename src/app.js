@@ -3094,9 +3094,25 @@ function platformA(){
    g.userData.A05CClampingStackType='support ledge + fixed rail + pressure rail';
    g.userData.unverifiedClampMechanism=true;
    g.userData.glassGripLengthMmCandidate=clampLengthX;
+   g.userData.glassGripLengthIsFullOEMLength=false;
    g.userData.screwAxisParallelToGlassShortEdge=true;
+   // V88: Daheng GCM-13 is a strong functional-family match. Vendor data
+   // explicitly describes two hand-adjustment threads pushing a middle
+   // moving plate. Exact SKU remains unverified, so no vendor geometry is
+   // applied to the current photo-constrained clamp mesh.
+   g.userData.GCM13FamilyFunctionalMatch=true;
+   g.userData.GCM13VendorMaxPlateThicknessMm=5;
+   g.userData.GCM13VendorAdjustmentThreadCount=2;
+   g.userData.GCM13VendorMiddleMovingPlate=true;
+   g.userData.GCM13Candidates=[
+     {sku:'GCM-1302M',mountThread:'M6',Lmm:60,weightG:105,priority:'primary'},
+     {sku:'GCM-1311M',mountThread:'M6',Lmm:52,weightG:105,priority:'primary'},
+     {sku:'GCM-1301M',mountThread:'M6',Lmm:100,weightG:155,priority:'low-longer-than-slide'},
+     {sku:'GCM-1312M',mountThread:'M4',Lmm:85,weightG:55,priority:'secondary-different-outline'}
+   ];
+   g.userData.GCM13GeometryApplied=false;
    g.userData.actualClampOEM=false;
-   label(g,'A05C · 侧向压紧：螺杆轴线 ∥ 玻片26mm短边（尺寸待实测）',
+   label(g,'A05C · GCM-13系列高可信功能候选 / 1302M与1311M待尺图区分',
      clampCenterX,18,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
