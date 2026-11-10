@@ -872,6 +872,14 @@ try{
  assert.equal(dA.A18BodyLeftEdgeLocalXmm,-18);
  assert(Math.abs(dA.A18OpticalAxisFractionFromBodyLeft-(18/84))<1e-6,
    'Photo191/193 optical axis must sit near the left fifth of the A18 body, not at center');
+ assert.equal(dA.A18ActualBodyToTopOpticalOffsetMm,24,
+   'WebGL geometry itself—not only metadata—must offset the A18 body 24mm from top optical axis');
+ assert.equal(dA.A18ActualBodyToBottomOpticalOffsetMm,24,
+   'Bottom nosepiece interface must remain on optical axis while A18 body is offset');
+ assert.equal(dA.A18ActualBodyToTurretOffsetMm,24,
+   'A19 turret must stay on optical axis rather than following the housing center');
+ assert.equal(dA.A18TopOpticalCenterWorldX,dA.A18BottomOpticalCenterWorldX);
+ assert.equal(dA.A18TopOpticalCenterWorldX,dA.A19TurretCenterWorldX);
  assert.equal(dA.A18MGZ30CandidateOnly,true,
    'MGZ30 remains topology comparison only; no auto-identification');
  assert.equal(dA.A18MGZ30VendorTravelMm,30);

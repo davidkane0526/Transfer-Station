@@ -674,6 +674,14 @@ window.__modelAPhoto194Probe=()=>{
    };
    const a18BodyBox=new THREE.Box3();
    a18Segments.forEach(o=>a18BodyBox.union(box(o)));
+   const a18Top=gA18?.children.find(o=>o.userData.A18TopOpticalInterface);
+   const a18Bottom=gA18?.children.find(o=>o.userData.A18NosepieceInterface);
+   const a19Turret=parts.get('A19')?.g.children.find(o=>o.userData.A19TurretEnvelopeCandidate);
+   const centerX=o=>{const q=box(o);return d((q.min.x+q.max.x)/2);};
+   const a18BodyCenterWorldX=d((a18BodyBox.min.x+a18BodyBox.max.x)/2);
+   const a18TopOpticalCenterWorldX=a18Top?centerX(a18Top):null;
+   const a18BottomOpticalCenterWorldX=a18Bottom?centerX(a18Bottom):null;
+   const a19TurretCenterWorldX=a19Turret?centerX(a19Turret):null;
    const ringBox=box(lampRing),lampBox=box(lamp);
    const ringToBodyGapMm=d(Math.max(0,ringBox.min.x-a18BodyBox.max.x,
      a18BodyBox.min.x-ringBox.max.x));
@@ -716,6 +724,13 @@ window.__modelAPhoto194Probe=()=>{
      A18OpticalAxisLocalXmm:gA18.userData.opticalAxisLocalXmm,
      A18BodyLeftEdgeLocalXmm:gA18.userData.bodyLeftEdgeLocalXmm,
      A18OpticalAxisFractionFromBodyLeft:gA18.userData.opticalAxisFractionFromBodyLeft,
+     A18BodyCenterWorldX:a18BodyCenterWorldX,
+     A18TopOpticalCenterWorldX:a18TopOpticalCenterWorldX,
+     A18BottomOpticalCenterWorldX:a18BottomOpticalCenterWorldX,
+     A19TurretCenterWorldX:a19TurretCenterWorldX,
+     A18ActualBodyToTopOpticalOffsetMm:(a18TopOpticalCenterWorldX===null)?null:d(a18BodyCenterWorldX-a18TopOpticalCenterWorldX),
+     A18ActualBodyToBottomOpticalOffsetMm:(a18BottomOpticalCenterWorldX===null)?null:d(a18BodyCenterWorldX-a18BottomOpticalCenterWorldX),
+     A18ActualBodyToTurretOffsetMm:(a19TurretCenterWorldX===null)?null:d(a18BodyCenterWorldX-a19TurretCenterWorldX),
      A18MGZ30CandidateOnly:Boolean(gA18.userData.MGZ30CandidateOnly),
      A18MGZ30VendorTravelMm:gA18.userData.MGZ30VendorTravelMm,
      A18MGZ30VendorPostDiameterMm:gA18.userData.MGZ30VendorPostDiameterMm,
