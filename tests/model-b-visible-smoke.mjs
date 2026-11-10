@@ -574,9 +574,12 @@ try{
  const boardDetail=await page.locator('#part-detail').innerText();
  assert.match(boardDetail,/Thorlabs|THORLABS/);
  assert.match(boardDetail,/145|150/);
- assert.match(boardDetail,/B35↔B16孔系配准/);
- assert.match(boardDetail,/120个候选网格孔已按全厚贯通孔建模/,
-   'B35 detail must not repeat the obsolete blind-hole proxy description');
+ assert(boardDetail.length<900,'Visible part detail must stay concise; engineering audits belong in hidden data');
+ const boardEngineering=await page.locator('#part-detail-engineering').textContent();
+ assert.match(boardEngineering,/B35↔B16孔系配准/);
+ assert.match(boardEngineering,/120个候选网格孔已按全厚贯通孔建模/,
+   'B35 engineering data must retain the full-hole audit without exposing it in the user panel');
+ assert.equal(await page.locator('#part-detail-engineering').isVisible(),false);
  const fourHoleFit=page.locator('#b08-b35-mount-fit');
  assert.equal(await fourHoleFit.getAttribute('data-direct-fit'),'false',
    'Touching B08 and B35 faces does not prove mounting bores line up');
@@ -632,7 +635,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V109.*工作位.*180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/平台 A.*工作位.*180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -1063,6 +1066,7 @@ try{
  assert.equal(await a18Row.count(),1);
  await a18Row.evaluate(el=>el.click());
  const a18VendorCard=page.locator('#a18-vendor-comparison');
+ assert.equal(await a18VendorCard.isVisible(),false,'A18 candidate matrix is engineering data, not primary user UI');
  assert.equal(await a18VendorCard.getAttribute('data-confirmed'),'false');
  assert.equal(await a18VendorCard.getAttribute('data-mgz30-applied'),'false');
  assert.equal(await a18VendorCard.getAttribute('data-bxfmf-applied'),'false');
@@ -1374,6 +1378,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(await a06Row.count(),1);
  await a06Row.evaluate(el=>el.click());
  const a06Conflict=page.locator('#a06-vendor-conflict');
+ assert.equal(await a06Conflict.isVisible(),false,'A06 stack conflict belongs in hidden engineering data');
  assert.equal(await a06Conflict.getAttribute('data-gcm1102-applied'),'false');
  assert.equal(await a06Conflict.getAttribute('data-diameter-match'),'true');
  assert.equal(await a06Conflict.getAttribute('data-direct-height-fit'),'false');

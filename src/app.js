@@ -3818,7 +3818,7 @@ function populateGroups(){
 }
 function updateDetail(part){
  part=part?contextualPart(part):null;
- const el=$('part-detail');if(!part){el.className='select-placeholder';el.textContent='点击零件选中；再点空白取消。只显示被选中的零件标签，不遮挡模型。';return}
+ const el=$('part-detail');if(!part){el.className='select-placeholder';el.textContent='点击零件查看信息。';return}
  el.className='';
  const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
  const reviews=interfaceEvidence(platform,part.id);
@@ -4023,18 +4023,24 @@ function updateDetail(part){
      '需要A18后侧高清图/分缝、立柱直径尺图、后安装面或转盘底视图，才能判断A10横臂是否应并入A18并允许替换三维实体。</p></div>';
  })():'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
+ const engineeringHtml=
+   '<div id="part-detail-engineering" hidden>'+
+   '<div data-role="detail-text">'+esc(part.detail)+'</div>'+
+   '<div data-role="interface-note">'+esc(part.interfaceNote)+'</div>'+
+   '<div id="interface-review-panel">'+interfaceHtml+'</div>'+
+   hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+
+   b35FastenerHtml+b08FitHtml+aRigHtml+a05cVendorHtml+a06VendorHtml+a18VendorHtml+
+   photo94QAHtml+photo95QAHtml+
+   '</div>';
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
  '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
- '<div class="field"><b>编号 / 分组</b>'+esc(part.id)+' · '+esc(groups[part.group].name)+'</div>'+
- '<div class="field"><b>外形/尺寸/孔位（mm）</b><p>'+esc(part.dims)+'</p></div>'+
- '<div class="field"><b>几何及功能</b><p>'+esc(part.detail)+'</p></div>'+
- '<div class="field"><b>连接接口与制造限制</b><p>'+esc(part.interfaceNote)+'</p></div>'+
- '<div class="field" id="interface-review-panel"><b>物理装配接口验收</b>'+interfaceHtml+'</div>'+
- hardwareHtml+installHtml+suctionHtml+vacuumFitHtml+axisHtml+holderQAHtml+b35FastenerHtml+b08FitHtml+aRigHtml+a05cVendorHtml+a06VendorHtml+a18VendorHtml+photo94QAHtml+photo95QAHtml+
- '<div class="field"><b>照片证据编号</b>'+esc(part.evidence)+'</div>'+
- '<div class="field"><b>报价状态</b>'+esc(part.price)+'</div>'+
- '<div class="field"><b>工程状态</b><span class="marked-note">当前为照片与厂家规格约束下的三维工程复原；图中测量框为几何显示包络，不等于厂家公差检验结果。</span></div>'+
- '<div class="field"><b>原厂资料 / 采购链接</b><div id="selected-source-links" class="footlinks"></div></div>';
+ '<div class="field"><b>编号</b>'+esc(part.id)+' · '+esc(groups[part.group].name)+'</div>'+
+ '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
+ '<div class="field"><b>固定方式</b><p>'+esc(mount.text)+'</p></div>'+
+ '<div class="field"><b>证据</b><p>'+esc(part.evidence)+'</p></div>'+
+ '<div class="field"><b>报价</b><p>'+esc(part.price)+'</p></div>'+
+ '<div class="field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
+ engineeringHtml;
  const ex=enriched(platform,part);
  const refs=[
     ['原厂尺寸图',ex.drawing],['原厂 CAD',ex.cad],['型号规格',ex.datasheet],
@@ -4063,8 +4069,8 @@ function selectPart(id){
    // must show their evidence instead of opening an empty detail pane.
    updateDetail(metadata??null);selectedLabels();clearMeasurement();
    $('hover-help').textContent=metadata?
-     id+' · 当前仅有BOM或待验证装配，查看实物照片与接口清单':
-     '点击零件查看尺寸、来源和供应商；点击空白取消';
+     id+' · BOM / 候选装配':
+     '点击零件查看信息';
    return;
  }
  v.g.traverse(o=>{
@@ -4246,7 +4252,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?
   (bPhoto94Mode?'平台 B · 参考布局 · 夹具接口待核':'平台 B · 全系统布局已恢复 · 实拍145–151 · PHUC-1'):
-  ('平台 A · V109 · '+(aWorkingPoseMode?'工作位 · 180°':'照片参考'));
+  ('平台 A · V110 · '+(aWorkingPoseMode?'工作位 · 180°':'照片参考'));
  $('stack-note').textContent=platform==='B'?
   (bPhoto94Mode?'参考视图':'B35→B08→B41(Y)→B09(X)→B10→B11 · 玻片侧 B02→B03→B04→B05→B34→B27→B33→B24→B28→B06'):
   'A17→A15→A03→A04L/A04→A05→A05C→玻片 · 样品侧 A16→A06→A02→A07';
@@ -4299,7 +4305,7 @@ function summaryBOM(rows){
  card(String(sum.unpriced),'待询价零件行数');
  for(const c of sum.currencies)card(c.currency+' '+c.amount.toFixed(2),'有价零件已知小计 · '+c.rows+' 行');
  const n=document.createElement('div');n.className='bom-note';
- n.textContent='没有不同币种混加；各小计仅覆盖已有公开报价，不代表整机总报价。历史参考价与新版现价混用时尤其需要重新询价。';
+ n.textContent='仅汇总已有公开报价；不同币种不合并。';
  dst.append(n);
 }
 function sortedBOM(rows){
