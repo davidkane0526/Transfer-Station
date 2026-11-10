@@ -1035,7 +1035,7 @@ def export(sys):
                 w.writerow([key,name,'not installed on user-approved bare A bracket'])
     return dict(system=sys,assembly_components=len(published),
                 excluded_uninstalled=[p[0] for p in excluded],
-                approved_installed_shape='rigid_180deg_film_chain_with_glass_short_edge_side_clamp' if sys=='A' else 'manufacturer_and_photo_B',
+                approved_installed_shape='photo1_canonical_rigid180_with_photo5_vertical_wing_clamp' if sys=='A' else 'manufacturer_and_photo_B',
                 photo_A_stage_center_x_mm=A_INSTALLED_FILM_CENTER_X if sys=='A' else None,
                 study_solids_available=len(PARTS[sys]),step_solids=len(solids),
                 size_bytes=target.stat().st_size)
