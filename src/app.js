@@ -4568,6 +4568,32 @@ function _auditRayClear(targetObj,allowedRoots,{transparentSkipRoots=[]}={}){
  return {clear:false,firstPart:null,targetDistance:Number(dist.toFixed(2)),
    skippedTransparentParts:skipped};
 }
+function _auditRayClearPoint(targetPoint,allowedRoots){
+ const dir=targetPoint.clone().sub(camera.position),dist=dir.length();
+ const ray=new THREE.Raycaster(camera.position,dir.normalize(),0,dist+2);
+ const hits=ray.intersectObject(currentRoot,true).filter(h=>h.object.visible);
+ for(const hit of hits){
+   const root=[...parts.entries()].find(([,v])=>_isWithin(hit.object,v.g));
+   return {clear:allowedRoots.some(g=>_isWithin(hit.object,g)),firstPart:root?.[0]??null,
+     hitDistance:Number(hit.distance.toFixed(2)),targetDistance:Number(dist.toFixed(2)),
+     targetWorldMm:targetPoint.toArray().map(x=>Number(x.toFixed(2)))};
+ }
+ return {clear:false,firstPart:null,targetDistance:Number(dist.toFixed(2)),
+   targetWorldMm:targetPoint.toArray().map(x=>Number(x.toFixed(2)))};
+}
+function _a05ExposedGlassEdgePoint(q){
+ const slide=q.glassRoot.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
+ if(!slide)return null;
+ const gb=new THREE.Box3().setFromObject(slide),fb=new THREE.Box3().setFromObject(q.fixed);
+ const fixedX=(fb.min.x+fb.max.x)/2;
+ const dMin=Math.abs(gb.min.x-fixedX),dMax=Math.abs(gb.max.x-fixedX);
+ const edgeX=dMin>dMax?gb.min.x+.8:gb.max.x-.8;
+ return {
+   slide,
+   point:new THREE.Vector3(edgeX,(gb.min.y+gb.max.y)/2,(gb.min.z+gb.max.z)/2),
+   end:dMin>dMax?'minX':'maxX'
+ };
+}
 function _a05AuditTargets(){
  const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g,glassRoot=parts.get('A05G')?.g;
  const fixed=clamp?.children.find(o=>o.userData.A05CLowerFixedJaw);
@@ -4579,10 +4605,11 @@ function _a05AuditTargets(){
 function _a05AuditRays(q,mode){
  const skip={transparentSkipRoots:[q.glassRoot]};
  if(mode==='fixed'){
-   const slide=q.glassRoot.children.find(o=>Array.isArray(o.userData.candidateStandardSlide));
+   const edge=_a05ExposedGlassEdgePoint(q);
    return {
      fixedJaw:_auditRayClear(q.fixed,[q.fixed],skip),
-     glassEdge:slide?_auditRayClear(slide,[slide]):{clear:false,firstPart:null}
+     glassEdge:edge?_auditRayClearPoint(edge.point,[edge.slide]):{clear:false,firstPart:null},
+     glassEdgeEnd:edge?.end??null
    };
  }
  return {
@@ -4679,7 +4706,8 @@ window.__A05FixedCloseupProbe=()=>{
    transparentSkipPolicy:'A05G-only',
    selectedVisibilityScore:q.clamp.userData.A05AuditFixedScore??null,
    selectedLocalViewDirection:q.clamp.userData.A05AuditFixedDirection??null,
-   fixedJawRay:rays.fixedJaw,glassEdgeRay:rays.glassEdge};
+   fixedJawRay:rays.fixedJaw,glassEdgeRay:rays.glassEdge,
+   glassEdgeEnd:rays.glassEdgeEnd};
 };
 window.__A05CloseupProbe=window.__A05MovingCloseupProbe;
 window.__A17CloseupProbe=()=>{
