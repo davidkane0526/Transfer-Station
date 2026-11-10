@@ -4141,10 +4141,12 @@ function updateDetail(part){
    '</div>';
  const priceText=String(part.price??'').trim();
  const hasUsefulPrice=priceText&&!/^(询价|待询价|待识别|未知|—|-|暂无)$/i.test(priceText);
- el.innerHTML='<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
- '<div class="field"><b>ID</b>'+esc(part.id)+'</div>'+
+ const usefulMeta=[part.maker,part.model]
+   .map(x=>String(x??'').trim())
+   .filter(x=>x&&!/^(未知|待识别|待确认|—|-)$/i.test(x));
+ const metaHtml=usefulMeta.length?'<p class="meta">'+esc([...new Set(usefulMeta)].join(' · '))+'</p>':'';
+ el.innerHTML='<h2>'+esc(part.name)+'</h2>'+metaHtml+
  '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
- '<div class="field"><b>安装</b><p>'+esc(mountUserText)+'</p></div>'+
  (hasUsefulPrice?'<div class="field"><b>价格</b><p>'+esc(priceText)+'</p></div>':'')+
  '<div class="field" id="selected-source-field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
  engineeringHtml;
@@ -4353,8 +4355,8 @@ function resetScene(){
  holes.forEach(h=>h.visible=showHoles);selectedLabels();
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?
-  (bPhoto94Mode?'平台 B · 参考布局 · 夹具接口待核':'平台 B · 全系统布局已恢复 · 实拍145–151 · PHUC-1'):
-  ('平台 A · '+(aWorkingPoseMode?'工作位 · 180°':'照片参考'));
+  '平台 B':
+  ('平台 A · '+(aWorkingPoseMode?'工作位':'照片'));
  $('stack-note').textContent=platform==='B'?
   (bPhoto94Mode?'参考视图':'B35→B08→B41(Y)→B09(X)→B10→B11 · 玻片侧 B02→B03→B04→B05→B34→B27→B33→B24→B28→B06'):
   'A17→A15→A03→A04L/A04→A05→A05C→玻片 · 样品侧 A16→A06→A02→A07';
@@ -4495,9 +4497,10 @@ renderer.domElement.addEventListener('pointerup',ev=>{
 });
 function updatePhotoScope(){
  const node=$('photo-scope-note');
- $('b-photo-profile').hidden=platform!=='B';
+ $('b-photo-profile').hidden=true;
  $('a-pose-selector').hidden=platform!=='A';
-  $('a-photo-20261108').hidden=platform!=='A';
+ $('photo-crosscheck').hidden=platform!=='A';
+ $('a-photo-20261108').hidden=platform!=='A';
  $('btn-a-working-pose').classList.toggle('on',platform==='A'&&aWorkingPoseMode);
  $('btn-a-photo-pose').classList.toggle('on',platform==='A'&&!aWorkingPoseMode);
  $('btn-a-working-pose').setAttribute('aria-pressed',String(platform==='A'&&aWorkingPoseMode));
@@ -5041,9 +5044,9 @@ function switchPlatform(next){
   $('sample-value').textContent='0 mm';$('sample-depth-value').textContent='0 mm';$('rotate-value').textContent='0°';
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
-  $('film-drop-label').textContent=next==='A'?'玻片竖直下降 (VC13M)':'玻片竖直下降 (V25M)';
-  $('sample-move-label').textContent=next==='A'?'样品 X 平移 (A02)':'样品 X 平移 (B09)';
-  $('sample-move-depth-label').textContent='样品 Y 平移 (B41)';
+  $('film-drop-label').textContent='玻片 Z';
+  $('sample-move-label').textContent='样品 X';
+  $('sample-move-depth-label').textContent='样品 Y';
   $('sample-move-depth').disabled=next!=='B';
   $('film-drop').min='-13';
   $('film-drop').max='0';

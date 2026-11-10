@@ -28,8 +28,10 @@ try{
    console.error('V121 viewer startup diagnostics:',JSON.stringify({startup,pageErrors:failures}));
    throw e;
  }
- assert.match(await page.locator('#platform-caption').innerText(),/平台 B.*145.*151/);
+ assert.equal(await page.locator('#platform-caption').innerText(),'平台 B');
  assert.equal(await page.locator('#photo-scope-note').isHidden(),true);
+ assert.equal(await page.locator('#b-photo-profile').isHidden(),true);
+ assert.equal(await page.locator('#photo-crosscheck').isHidden(),true);
  const rect=await page.locator('#viewer canvas').boundingBox();
  assert(rect&&rect.width>=400&&rect.height>=400);
  // Capture a reviewable model BEFORE the long mechanical test suite.
@@ -591,6 +593,8 @@ try{
  assert(!/证据等级|四孔整体配准|候选矩阵|尚需确认/.test(boardDetail),
    'Visible part detail must not expose engineering audit prose');
  assert(boardDetail.length<650,'Visible part detail must stay compact');
+ assert(!/^ID$/m.test(boardDetail),'Visible part card must omit internal ID');
+ assert(!/^安装$/m.test(boardDetail),'Visible part card must omit installation audit text');
  const boardEngineering=await page.locator('#part-detail-engineering').textContent();
  assert.match(boardEngineering,/B35↔B16孔系配准/);
  assert.match(boardEngineering,/120个候选网格孔已按全厚贯通孔建模/,
@@ -650,10 +654,11 @@ try{
  console.log('V51 platform switch diagnostic:',JSON.stringify(switchState));
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
- assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/平台 A.*工作位.*180°/,
-   'Platform A must open in the transfer-facing installed orientation');
+ assert.equal(switchState.caption,'平台 A · 工作位');
+ assert.equal(await page.locator('#platform-caption').innerText(),'平台 A · 工作位');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
+ assert.equal(await page.locator('#photo-crosscheck').isVisible(),true);
+ assert.equal(await page.locator('#b-photo-profile').isHidden(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
  assert.equal(await page.locator('#btn-a-working-pose').isVisible(),true);
  const installedTruth=await page.evaluate(()=>window.__platformAPhotoTruthProbe?.());
@@ -1683,7 +1688,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
    'A mounting base A16 missing from BOM');
  await page.locator('#close-bom').evaluate(el=>el.click());
  await page.locator('#show-b').evaluate(el=>el.click());
- assert.match(await page.locator('#platform-caption').innerText(),/PHUC-1/);
+ assert.equal(await page.locator('#platform-caption').innerText(),'平台 B');
  assert.deepEqual(failures,[],'Browser errors: '+failures.join('; '));
  console.log('V28 B full model, PHUC-1, GCM-1302M, second rod, A/B separation: PASS');
 }finally{await browser.close()}
