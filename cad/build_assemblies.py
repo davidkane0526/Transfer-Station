@@ -973,11 +973,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V107'
+CAD_REVISION='V108'
 UNINSTALLED_A_STUDY_IDS=frozenset()
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
-    """V107 installed A: current V106 mechanical geometry; A06 GCM-1102M stack-height conflict is now an explicit audited constraint.
+    """V108 installed A: V107 geometry retained; A10/A18 microscope-support component boundary is explicitly unresolved pending rear-housing evidence.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """

@@ -632,7 +632,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V107.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V108.*整体旋转180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -1005,6 +1005,18 @@ try{
  assert.equal(dA.A18MGZ30VendorDrawingPostDiameterMm,38);
  assert.deepEqual(dA.A18MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm,[291.7,130,100.2]);
  assert.equal(dA.A18MGZ30VendorDrawingAxisMappingApplied,false);
+ assert.equal(dA.A18MGZ30IntegralRearPostClampHousing,true);
+ assert.equal(dA.A18MGZ30DirectPostMountNoSeparateBoom,true);
+ assert.equal(dA.A18MGZ30CandidateWouldReclassifyA10BoomIntoA18,true);
+ assert.equal(dA.A18MGZ30DirectIdentityRequiresPost38AndIntegralRearHousingEvidence,true);
+ assert.equal(dA.A18CurrentA10A18ComponentBoundaryVerified,false);
+ assert.equal(dA.A18CurrentA10BoomCouldBeFocusBlockRearHousing,true);
+ assert.equal(dA.A18CurrentSeparateA10BoomMayDoubleCountMGZ30Housing,true);
+ assert.equal(dA.A18A10BoomMayBeProcuredSeparately,false);
+ assert.equal(dA.A10A18ComponentBoundaryVerified,false);
+ assert.equal(dA.A10BoomMustNotBeProcuredSeparatelyUntilBoundaryResolved,true);
+ assert.equal(dA.A10PostDiameterCandidateMm,26);
+ assert.equal(dA.A10PostDiameterMeasured,false);
  assert.equal(dA.A18BXFMFCandidateOnly,true);
  assert.equal(dA.A18BXFMFVendorFrameWidthMm,84);
  assert.equal(dA.A18BXFMFVendorPillarMountHoleMm,32);
@@ -1036,7 +1048,8 @@ try{
    'Current 112mm post-to-axis distance is not allowed to hard-reject a vendor candidate');
  assert.equal(dA.A18Visible76mmScopeRingConfirmed,false);
  assert.equal(dA.A18FullFivePortTurretConfirmed,false);
- assert.match(dA.A18VendorCandidateDecision,/MGZ30 primary candidate/);
+ assert.match(dA.A18VendorCandidateDecision,/MGZ30 primary.*conditional/i);
+ assert.match(dA.A18VendorCandidateDecision,/A10\/A18 rear-housing boundary/);
  assert.match(dA.A18VendorCandidateDecision,/BXFM-F secondary/);
  assert.match(dA.A18VendorCandidateDecision,/76mm E-arm direct identity rejected/);
  assert.match(dA.A18VendorCandidateDecision,/none confirmed/);
@@ -1057,6 +1070,9 @@ try{
  assert.equal(await a18VendorCard.getAttribute('data-boli76-direct-rejected'),'true');
  const a18VendorText=await a18VendorCard.innerText();
  assert.match(a18VendorText,/MGZ30 \/ T-Scope（主候选）/);
+ assert.match(a18VendorText,/立柱夹持壳体/);
+ assert.match(a18VendorText,/A10横臂/);
+ assert.match(a18VendorText,/禁止作为独立已确认采购件/);
  assert.match(a18VendorText,/实拍几何纠错/);
  assert.match(a18VendorText,/24mm/);
  assert.match(a18VendorText,/BXFM-F（次候选）/);
@@ -1172,7 +1188,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V107当前安装方向/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V108当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);

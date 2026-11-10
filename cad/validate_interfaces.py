@@ -924,6 +924,26 @@ check(abs(a10a_bb.ymax-a18_contact_bb.ymin)<.02,
       'V92 A10 boom front face must meet A18 rear face without a gap')
 check(a10a_a18_contact_area>500,
       'V92 offset A18 housing must retain >500mm2 projected A10 rear support contact')
+report['V108_A10_A18_component_boundary']={
+    'photo_refs':['191','192','193'],
+    'current_scene_parts':['A10','A10A','A18'],
+    'current_A10_A18_component_boundary_verified':False,
+    'current_A10_boom_is_photo_fit_separate_part':True,
+    'current_A10_post_diameter_mm':26,
+    'current_A10_post_diameter_physically_measured':False,
+    'MGZ30_integral_rear_post_clamp_housing':True,
+    'MGZ30_direct_mount_post_diameter_mm':38.1,
+    'MGZ30_direct_post_mount_no_separate_boom':True,
+    'MGZ30_candidate_would_reclassify_current_A10_boom_into_A18':True,
+    'current_separate_A10_boom_may_double_count_MGZ30_housing':True,
+    'A10_boom_may_be_procured_separately':False,
+    'geometry_boundary_reclassification_applied':False,
+    'required_new_evidence':['rear seam/high-resolution A18 photo',
+                             'physical post diameter',
+                             'post-to-optical-axis distance',
+                             'rear housing motion with focus block'],
+    'safe_for_separate_A10_boom_fabrication':False
+}
 report['V84_A_microscope_vendor_candidate_matrix']={
     'photo_refs':['191','192','193'],
     'A18_vendor_and_model_verified':False,
@@ -961,6 +981,10 @@ report['V84_A_microscope_vendor_candidate_matrix']={
         'vendor_drawing_post_diameter_mm':38.0,
         'vendor_drawing_max_envelope_dimensions_seen_mm':[291.7,130.0,100.2],
         'vendor_drawing_axis_mapping_applied':False,
+        'integral_rear_post_clamp_housing':True,
+        'direct_post_mount_no_separate_boom':True,
+        'candidate_would_reclassify_current_A10_boom_into_A18':True,
+        'direct_identity_requires_post38_and_integral_rear_housing_evidence':True,
         'vendor_Z_travel_mm':30,
         'vendor_post_diameter_mm':38.1,
         'vendor_turret_ports':5,

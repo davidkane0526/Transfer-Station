@@ -24,6 +24,15 @@ assert(b41.some(x=>x.id==='B-ROTARY-CROSSED-XY'),'B41 newly inserted lower stage
 assert(b41.some(x=>x.missing.some(v=>v.includes('确切SKU'))),'B41 exact OEM identification remains unverified');
 assert(!INTERFACES.some(x=>x.id==='B-ROTARY-NFP'),'Obsolete direct B08-B09 interface must not remain');
 assert(interfaceEvidence('A','A17').some(x=>x.id==='A-MAGNET-T25M'),'A17 unverified magnetic-to-T25M joint omitted');
+assert(interfaceEvidence('A','A10').some(x=>x.id==='A-MICROSCOPE-SUPPORT'),
+  'A10/A18 component boundary must remain an explicit pending physical interface');
+assert(interfaceEvidence('A','A18').some(x=>x.id==='A-MICROSCOPE-SUPPORT'));
+const aMicroscope=interfaceEvidence('A','A18').find(x=>x.id==='A-MICROSCOPE-SUPPORT');
+assert.match(aMicroscope.known,/MGZ30.*后部立柱夹持壳体/);
+assert.match(aMicroscope.known,/A10横臂.*A18一体后壳/);
+assert(aMicroscope.missing.some(x=>x.includes('Ø38.1mm')));
+assert(aMicroscope.missing.some(x=>x.includes('独立SKU')));
+assert.equal(aMicroscope.status,'pending');
 const a17joint=interfaceEvidence('A','A17').find(x=>x.id==='A-MAGNET-T25M');
 assert.match(a17joint.known,/长槽.*属于上方A15|银色长槽.*属于上方A15/,
   'V86 live interface evidence must assign the silver slot to A15, not A17');

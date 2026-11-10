@@ -624,7 +624,7 @@ window.__modelAPhoto194Probe=()=>{
    if(platform!=='A')return {available:false};
    const root=id=>parts.get(id)?.g;
    const mesh=(id,tag)=>root(id)?.children.find(o=>o.isMesh&&o.userData[tag]);
-   const gA11=root('A11'),gA18=root('A18'),gA15=root('A15'),gS=root('A05CS');
+   const gA11=root('A11'),gA18=root('A18'),gA10=root('A10'),gA15=root('A15'),gS=root('A05CS');
    const lamp=gA11?.children.find(o=>o.userData.A11OEMHousingDiameterMm!==undefined);
    const lampRing=gA11?.children.find(o=>o.userData.A11OEMSlipRingCandidate);
    const cable=gA11?.children.find(o=>o.userData.A11ElectricalCable);
@@ -761,6 +761,18 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30VendorDrawingPostDiameterMm:gA18.userData.MGZ30VendorDrawingPostDiameterMm,
      A18MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm:gA18.userData.MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm,
      A18MGZ30VendorDrawingAxisMappingApplied:Boolean(gA18.userData.MGZ30VendorDrawingAxisMappingApplied),
+     A18MGZ30IntegralRearPostClampHousing:Boolean(gA18.userData.MGZ30IntegralRearPostClampHousing),
+     A18MGZ30DirectPostMountNoSeparateBoom:Boolean(gA18.userData.MGZ30DirectPostMountNoSeparateBoom),
+     A18MGZ30CandidateWouldReclassifyA10BoomIntoA18:Boolean(gA18.userData.MGZ30CandidateWouldReclassifyA10BoomIntoA18),
+     A18MGZ30DirectIdentityRequiresPost38AndIntegralRearHousingEvidence:Boolean(gA18.userData.MGZ30DirectIdentityRequiresPost38AndIntegralRearHousingEvidence),
+     A18CurrentA10A18ComponentBoundaryVerified:Boolean(gA18.userData.currentA10A18ComponentBoundaryVerified),
+     A18CurrentA10BoomCouldBeFocusBlockRearHousing:Boolean(gA18.userData.currentA10BoomCouldBeFocusBlockRearHousing),
+     A18CurrentSeparateA10BoomMayDoubleCountMGZ30Housing:Boolean(gA18.userData.currentSeparateA10BoomMayDoubleCountMGZ30Housing),
+     A18A10BoomMayBeProcuredSeparately:Boolean(gA18.userData.A10BoomMayBeProcuredSeparately),
+     A10A18ComponentBoundaryVerified:Boolean(gA10?.userData.A10A18ComponentBoundaryVerified),
+     A10BoomMustNotBeProcuredSeparatelyUntilBoundaryResolved:Boolean(gA10?.userData.A10BoomMustNotBeProcuredSeparatelyUntilBoundaryResolved),
+     A10PostDiameterCandidateMm:gA10?.userData.A10PostDiameterCandidateMm??null,
+     A10PostDiameterMeasured:Boolean(gA10?.userData.A10PostDiameterMeasured),
      A18BXFMFCandidateOnly:Boolean(gA18.userData.BXFMFCandidateOnly),
      A18BXFMFVendorFrameWidthMm:gA18.userData.BXFMFVendorFrameWidthMm,
      A18BXFMFVendorPillarMountHoleMm:gA18.userData.BXFMFVendorPillarMountHoleMm,
@@ -3492,10 +3504,19 @@ function platformA(){
     boomShell.userData.A10BoomLengthCandidateMm=86;
     boomShell.userData.A10BoomTruePostThroughBore=true;
     boomShell.userData.A10BoreDiameterCandidateMm=26.6;
+    boomShell.userData.A10A18ComponentBoundaryVerified=false;
+    boomShell.userData.A10BoomCurrentSeparatePartIsPhotoFit=true;
+    boomShell.userData.A10BoomCouldBeMGZ30IntegralRearHousing=true;
     movingBoom.userData.A10AdjustableBoomCandidate=true;
+    movingBoom.userData.A10A18ComponentBoundaryVerified=false;
+    movingBoom.userData.A10BoomCouldBeMGZ30IntegralRearHousing=true;
     g.userData.opticsMovingBoom=movingBoom;
     g.userData.fourTrueCandidateFootBores=true;
     g.userData.actualOEMFasteningVerified=false;
+    g.userData.A10A18ComponentBoundaryVerified=false;
+    g.userData.A10BoomMustNotBeProcuredSeparatelyUntilBoundaryResolved=true;
+    g.userData.A10PostDiameterCandidateMm=26;
+    g.userData.A10PostDiameterMeasured=false;
     label(g,'A10显微镜支架 · 底脚四孔及螺钉均为候选',0,267,60);
  },{explode:[0,15,-30]});
  addPart('A08',sx,235,0,g=>{
@@ -3623,6 +3644,19 @@ function platformA(){
    g.userData.MGZ30VendorDrawingPostDiameterMm=38.0;
    g.userData.MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm=[291.7,130.0,100.2];
    g.userData.MGZ30VendorDrawingAxisMappingApplied=false;
+   // V108: official MGZ30 imagery/drawing shows its rear post-clamp housing
+   // is integral to the focusing block and mounts directly to a Ø1.5in post.
+   // If MGZ30 is the real A18, the current independent A10 boom may be a
+   // wrong part-boundary split. Keep geometry unchanged until the user's
+   // rear seam/post diameter is actually evidenced.
+   g.userData.MGZ30IntegralRearPostClampHousing=true;
+   g.userData.MGZ30DirectPostMountNoSeparateBoom=true;
+   g.userData.MGZ30CandidateWouldReclassifyA10BoomIntoA18=true;
+   g.userData.MGZ30DirectIdentityRequiresPost38AndIntegralRearHousingEvidence=true;
+   g.userData.currentA10A18ComponentBoundaryVerified=false;
+   g.userData.currentA10BoomCouldBeFocusBlockRearHousing=true;
+   g.userData.currentSeparateA10BoomMayDoubleCountMGZ30Housing=true;
+   g.userData.A10BoomMayBeProcuredSeparately=false;
    // V91: official Olympus/Evident BXFM-F geometry is a stronger topology
    // match to photos191-193 than the 76mm E-arm racks: compact rectangular
    // frame, bilateral focus knobs, top optical port and pillar/rear mounting.
@@ -3659,8 +3693,8 @@ function platformA(){
    g.userData.fullFivePortTurretConfirmed=false;
    g.userData.MCTLMP2DirectIdentityRejected=true;
    g.userData.MCTLMP2VendorEnvelopeMm=[211.5,130,58.8];
-   g.userData.vendorCandidateDecision='MGZ30 primary candidate; BXFM-F secondary; exposed 76mm E-arm direct identity rejected; none confirmed';
-   label(g,'A18 调焦主体 · V92 实拍偏心24mm / MGZ30主候选 / BXFM-F次候选',bodyX,52,0);
+   g.userData.vendorCandidateDecision='MGZ30 primary but conditional on unresolved A10/A18 rear-housing boundary; BXFM-F secondary; exposed 76mm E-arm direct identity rejected; none confirmed';
+   label(g,'A18 调焦主体 · V108 MGZ30主候选但A10/A18后壳边界未闭合',bodyX,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
    const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
@@ -3974,18 +4008,19 @@ function updateDetail(part){
      'data-bxfmf-applied="'+Boolean(a18?.userData.BXFMFGeometryApplied)+'" '+
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
-     '<b>A18 厂商候选矩阵（V92）</b><p>'+
+     '<b>A18 厂商候选矩阵（V108）</b><p>'+
      '<b>Thorlabs MGZ30 / T-Scope（主候选）：</b>原厂是黑色封闭矩形调焦块，30mm Z行程、Ø1.5in立柱、5孔M26×36 TPI转盘，并支持30mm cage / SM1 / SM2。'+
      '这不仅比银色开架BXFM-F更符合191–193外观，而且与已确认的TTL200-A、MWWHL4及SM1/SM2光路形成同一Thorlabs生态。'+
-     'V92因此把MGZ30升为主候选，但Ø38.1mm立柱、完整5孔转盘和型号标识仍未由实物确认，原厂291.7/130/100.2mm图纸尺寸也未强套坐标轴。<br>'+
+     'MGZ30仍为主候选，但V108新增更关键的零件边界：原厂MGZ30后部立柱夹持壳体属于调焦块本体，并直接安装在Ø1.5in立柱上；如果实机确为MGZ30，当前独立A10横臂可能其实属于A18后壳，继续把两者分别采购/加工会造成重复结构。'+
+     '现有191–193低清图还不能确认后侧分缝或Ø38.1mm立柱，因此A10/A18仍保持两个照片拟合实体，但零件边界标记为未闭合。原厂291.7/130/100.2mm图纸尺寸也未强套坐标轴。<br>'+
      '<b>Olympus/Evident BXFM-F（次候选）：</b>其84mm宽度、Ø32H8立柱孔、4-M8后固定和30mm行程仍有尺寸/拓扑相似性；'+
      '但原厂是明显银色开架铸件，而191–193中的A18表现为黑色封闭块，因此V92降为次候选。84mm吻合不能作为型号证明。<br>'+
      '<b>实拍几何纠错：</b>191/193显示相机/物镜光轴位于主体左侧而非几何中心，V92已把主体与双侧调焦组件整体向右偏移24mm，光轴/转盘保持原位；24mm是照片比例候选，不是尺测值。<br>'+
      '<b>25mm立柱 / Ø76大抱环调焦架：</b>'+esc(boliText)+'。'+
      'V91直接对照厂家产品外形后降级：这类产品具有非常醒目的外露Ø76环抱式E-arm，照片191–193没有对应结构，因此不再作为A18直接身份，只保留尺寸族对照。<br>'+
      '<b>MCT-LMP2：</b>211.5×130×58.8mm包络、40mm行程及密集前板孔阵继续排除直接身份。<br>'+
-     '<b>当前决定：</b>BXFM-F与MGZ30并列高优先级，但任何一个都未确认；84mm宽度吻合只是证据加权，不能作为型号证明。'+
-     '仍需A18后侧高清图/Logo、立柱直径尺图、后安装面或转盘底视图后才允许替换三维实体。</p></div>';
+     '<b>当前决定：</b>MGZ30为条件主候选，BXFM-F为次候选；任何一个都未确认。当前A10横臂禁止作为独立已确认采购件。'+
+     '需要A18后侧高清图/分缝、立柱直径尺图、后安装面或转盘底视图，才能判断A10横臂是否应并入A18并允许替换三维实体。</p></div>';
  })():'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
  el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
@@ -4221,7 +4256,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V107 / '+(aWorkingPoseMode?
+   '平台 A · V108 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4380,7 +4415,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V107当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V108当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
