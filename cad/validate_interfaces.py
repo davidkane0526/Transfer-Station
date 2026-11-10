@@ -546,7 +546,7 @@ check(abs(a17_body.BoundingBox().zmin-20)<.02 and
 for dx,dy in [(0,0),(-25,-25),(-25,25),(25,-25),(25,25),
               (-20,-20),(-20,20),(20,-20),(20,20),
               (-16,-16),(-16,16),(16,-16),(16,16)]:
-    unobserved_hole_probe=vz(1.2,8,-82.75+dx,dy,32)
+    unobserved_hole_probe=vz(1.2,8,-60.75+dx,dy,32)
     check(a17_body.intersect(unobserved_hole_probe).Volume()>1,
           'V52 A17 neutral top proxy must not fabricate an unobserved GCM-42 hole')
 a15_top=part(A,'A15A')[0]
@@ -557,7 +557,7 @@ for xx,yy in [(-107.75,-25),(-107.75,25),(-57.75,-25),(-57.75,25)]:
           'V51 A15 photo23 top counterbore is open for 3mm candidate depth')
     check(a15_top.intersect(backing).Volume()>1,
           'V51 A15 top counterbore remains blind, not through the stage')
-slot_probe=box_probe(24,.5,3.5,-82.75,-33.25,57.25)
+slot_probe=box_probe(24,.5,3.5,-60.75,-33.25,57.25)
 check(a15_front.intersect(slot_probe).Volume()<1e-4,
       'V62 A15 photo194 front face is truly slotted')
 check(a15_front.BoundingBox().zmin>amagnet.zmax+10,
@@ -687,7 +687,7 @@ check(len(a03_raised.Solids())==1 and len(a03_moving.Solids())==1,
 # V83 actual-solid check: the middle of the VC13M must remain open.
 # This rejects the old 45x71.5mm solid-wall surrogate while allowing the
 # rear spine, two side towers, guide rails and central micrometer support.
-a03_open_center=box_probe(20,20,50,-82.75,0,90)
+a03_open_center=box_probe(20,20,50,-60.75,0,90)
 check(part(A,'A03')[0].intersect(a03_open_center).Volume()<1e-4,
       'V83 GCM-VC13M vendor topology requires an open central frame, not a tall solid wall')
 report['V83_A03_vendor_topology_and_guides']={
@@ -1182,147 +1182,90 @@ check(abs(long.BoundingBox().xmin+90)<.02 and abs(long.BoundingBox().xmax+20)<.0
       'First rod crosses B33→PHUC without floating or extra metal tail')
 check(not (B/'B06S3.step').exists(),
       'One shared B06 moving plate needs two screws only')
-# V79: platform A uses ONE local left-handed film stack, then the complete
-# film-side chain is yawed 180 degrees around the A17/A15 vertical datum.
-# Validate the local mechanical interfaces first, then validate the installed
-# world-space PDMS/sample relationship after the same rigid transform.
+# V130: photo 1 fixes the canonical installed orientation. Photo 5 shows
+# the actual clamp topology: upper folded foot, lower thin blade, and two
+# VERTICAL wing screws. Their centre line follows the 26mm glass short edge.
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
-ax=-82.75
-leg_bottom=199.5-87.6
+ax=-60.75
+leg_bottom=199.5-86.1
 leg_x=ax-60+1.25
-check(abs(asheet_bb.xmin+173.5)<.02 and abs(asheet_bb.xmax+55.75)<.02,
-      'V79 A05 local sheet/foot remains one LEFT-handed definition before rigid yaw')
+screw_x=leg_x-8
+check(abs(asheet_bb.xmin-(-151.5))<.02 and abs(asheet_bb.xmax-(-33.75))<.02,
+      'V130 A05 local sheet/foot remains one left-handed definition before rigid yaw')
 check(abs(asheet_bb.zmin-leg_bottom)<.02 and abs(asheet_bb.zmax-202.0)<.02,
-      'V80 87.6mm derived leg joins corrected G40 top while preserving glass contact plane')
+      'V130 86.1mm derived leg joins the corrected G40 top')
 check(a_sheet.distance(part(A,'A04')[0])<.05,
-      'V79 A05 sheet rests on the independent upper G40 stage')
-for i,dx in enumerate((-14,14),1):
-    head=part(A,f'A05S{i}')[0]
+      'V130 A05 sheet rests on the independent upper G40 stage')
+for n,dx in enumerate((-14,14),1):
+    head=part(A,f'A05S{n}')[0]
     check(abs(head.BoundingBox().zmin-asheet_bb.zmax)<.02,
-          'V79 both sheet screw heads contact the A05 top plate')
+          'V130 both sheet top fasteners contact the A05 top plate')
     center=(head.BoundingBox().xmin+head.BoundingBox().xmax)/2
-    check(abs(center-(ax+dx))<.02,'V79 A05 top fasteners follow the film datum')
-# The folded support is SOLID: old vertical clamp bores were caused by the
-# wrong screw-axis interpretation and must no longer exist.
-for x in (leg_x-7,leg_x-25):
-    probe=vz(1.2,2.4,x,0,leg_bottom+.05)
-    check(a_sheet.intersect(probe).Volume()>5,
-          'V79 A05 folded foot must remain solid at former vertical screw locations')
+    check(abs(center-(ax+dx))<.02,'V130 A05 top fasteners follow film datum')
+
+for yy in (-6.5,6.5):
+    probe=vz(1.55,2.5,screw_x,yy,leg_bottom)
+    check(a_sheet.intersect(probe).Volume()<1e-3,
+          'V130 folded foot contains the two vertical screw clearance bores')
 
 a_clamp=part(A,'A05C')[0]
-a_pressure=part(A,'A05CU')[0]
 a_slide=part(A,'A05G')[0]
 a_pdms=part(A,'A05GP')[0]
 a_chip=part(A,'A07W')[0]
-check(len(part(A,'A05C'))==1,
-      'V79 A05C support ledge, fixed rail, neck and screw bosses form one component')
+check(len(part(A,'A05C'))==1,'V130 installed A05C is one lower photo-5 clamp blade')
 check(abs(a_slide.BoundingBox().xlen-76)<.02 and
       abs(a_slide.BoundingBox().ylen-26)<.02 and
       abs(a_slide.BoundingBox().zlen-1)<.02,
-      'V79 A05G glass candidate is 76x26x1mm')
-# Fixed rail / ledge and moving pressure rail contact the glass on designed
-# faces only. No metal may occupy finite volume inside the glass.
-check(a_clamp.distance(a_slide)<.05,
-      'V79 fixed clamp/support must contact the glass without floating')
-check(a_pressure.distance(a_slide)<.05,
-      'V79 pressure rail must meet the opposite glass short-edge face')
-check(a_clamp.intersect(a_slide).Volume()<1e-4 and
-      a_pressure.intersect(a_slide).Volume()<1e-4,
-      'V79 side rails/support must not penetrate the glass')
-check(a_pdms.distance(a_slide)<.05 and
-      a_pdms.intersect(a_slide).Volume()<1e-4,
-      'V79 PDMS must contact the glass underside without interpenetration')
-check(a_sheet.intersect(a_slide).Volume()<1e-4,
-      'V79 folded A05 metal must not penetrate the required glass')
+      'V130 A05G glass candidate remains 76x26x1mm')
+check(a_clamp.distance(a_slide)<.05 and a_clamp.intersect(a_slide).Volume()<1e-4,
+      'V130 lower blade touches but does not penetrate glass')
+check(a_sheet.distance(a_slide)<.05 and a_sheet.intersect(a_slide).Volume()<1e-4,
+      'V130 upper folded foot touches but does not penetrate glass')
+check(a_pdms.distance(a_slide)<.05 and a_pdms.intersect(a_slide).Volume()<1e-4,
+      'V130 PDMS contacts glass underside without interpenetration')
 
-# Two clamp screw shafts run along STEP +Y = viewer scene Z, i.e. parallel
-# to the 26mm glass short edge. They thread through the outer bosses and
-# press the moving pressure rail; they never pass vertically through A05.
-screw_centres=[]
-for i in (1,2):
-    screw=part(A,f'A05CS{i}')[0]
+screw_y=[]
+for n in (1,2):
+    screw=part(A,f'A05CS{n}')[0]
     bb=screw.BoundingBox()
-    check(bb.ylen>bb.xlen*1.7 and bb.ylen>bb.zlen*2,
-          'V79 A05CS screw principal axis must be +Y / glass short edge')
-    check(screw.intersect(a_pressure).Volume()>0.2,
-          'V79 A05CS screw must engage the moving pressure rail')
+    check(bb.zlen>bb.xlen*1.5 and bb.zlen>bb.ylen*1.5,
+          'V130 A05CS screw principal axis is vertical STEP Z')
+    check(screw.intersect(a_clamp).Volume()>0.1,
+          'V130 vertical wing screw engages lower clamp blade')
     check(screw.intersect(a_slide).Volume()<1e-4,
-          'V79 A05CS screw must remain outside glass volume')
-    check(screw.intersect(a_sheet).Volume()<1e-4,
-          'V79 A05CS screw must not pass through folded A05 foot')
-    screw_centres.append((bb.xmin+bb.xmax)/2)
-check(abs(abs(screw_centres[1]-screw_centres[0])-18)<.02,
-      'V79 two side screws are spaced 18mm along glass length candidate')
-report['V79_A05_short_edge_side_clamp']={
-    'photo_sources':['194','196'],
+          'V130 wing screw remains outside glass')
+    check(screw.intersect(a_sheet).Volume()<1e-3,
+          'V130 wing screw passes through A05 clearance bore without metal collision')
+    screw_y.append((bb.ymin+bb.ymax)/2)
+check(abs(abs(screw_y[1]-screw_y[0])-13)<.02,
+      'V130 screw pair is spaced 13mm across the candidate glass short edge')
+
+report['V130_A05_photo5_vertical_wing_clamp']={
+    'photo_sources':['user_fig_1','user_fig_5','194','196'],
+    'photo1_canonical_orientation':True,
+    'photos2_3_rotated_side_evidence_only':True,
     'required_glass_in_complete_STEP':True,
     'local_sheet_handedness':'left',
     'complete_film_chain_installed_yaw_deg':180,
-    'vertical_folded_foot_clamp_bores':0,
-    'side_screw_count':2,
-    'screw_axis':'STEP +Y / viewer scene Z / parallel to 26mm glass short edge',
-    'screw_pitch_along_glass_length_mm_candidate':18,
-    'moving_pressure_rail_present':True,
-    'screw_to_pressure_rail_engagement_checked':True,
+    'vertical_folded_foot_clamp_bores':2,
+    'vertical_wing_screw_count':2,
+    'screw_axis':'STEP Z / viewer scene Y / vertical',
+    'screw_pair_line':'STEP Y / viewer scene Z / parallel to 26mm glass short edge',
+    'screw_pitch_across_glass_short_edge_mm_candidate':13,
+    'lower_clamp_blade_present':True,
+    'screw_to_lower_blade_engagement_checked':True,
     'screw_to_glass_intersection_mm3':0,
     'thread_pitch_and_clamping_force_verified':False,
     'actual_clamp_SKU_verified':False}
-report['V88_A05C_GCM13_family_candidate_boundary']={
-    'photo_sources':['94','194','196'],
+report['V130_A05C_GCM13_study_boundary']={
     'vendor_family':'Daheng GCM-13',
-    'vendor_family_functional_match':True,
-    'vendor_max_plate_thickness_mm':5,
-    'vendor_adjustment_thread_count':2,
-    'vendor_middle_moving_plate':True,
-    'primary_candidates':[
-        {'sku':'GCM-1302M','mount_thread':'M6','L_mm':60,'weight_g':105},
-        {'sku':'GCM-1311M','mount_thread':'M6','L_mm':52,'weight_g':105}
-    ],
-    'lower_priority_candidates':[
-        {'sku':'GCM-1301M','mount_thread':'M6','L_mm':100,'weight_g':155},
-        {'sku':'GCM-1312M','mount_thread':'M4','L_mm':85,'weight_g':55}
-    ],
-    'current_photo_fit_effective_grip_length_mm':28,
-    'current_28mm_is_full_OEM_length':False,
-    'vendor_geometry_applied':False,
-    'actual_A05C_sku_verified':False,
-    'B06_GCM1302M_identity_may_transfer_to_A05C':False,
-    'reason':'GCM-13 actuation topology matches, but A photos do not show readable SKU, mount thread, or full holder length'
-}
-
-# V95: A05CL is now a separate fixed lower jaw. The actual STEP inner
-# faces of A05CL/A05CU must define a 26mm clear span matching the
-# candidate glass short edge; contact is allowed, interpenetration is not.
-a05cl=part(A,'A05CL')[0]
-a05cu=part(A,'A05CU')[0]
-a05g=part(A,'A05G')[0]
-clb=a05cl.BoundingBox(); cub=a05cu.BoundingBox(); gb=a05g.BoundingBox()
-jaw_inner_clear_y=cub.ymin-clb.ymax
-check(abs(jaw_inner_clear_y-26)<.02,
-      'V95 A05 fixed/moving jaw inner clear span must be 26mm')
-check(abs(gb.ylen-26)<.02,
-      'V95 candidate glass short edge must remain 26mm')
-check(abs(clb.ymax-gb.ymin)<.02 and abs(cub.ymin-gb.ymax)<.02,
-      'V95 explicit fixed/moving jaws must meet the two glass side faces')
-check(a05cl.intersect(a05g).Volume()<1e-4 and a05cu.intersect(a05g).Volume()<1e-4,
-      'V95 jaws may touch but must not penetrate the glass')
-report['V95_A05_explicit_lower_jaw_and_26mm_span']={
-    'photo_sources':['94','194','196'],
-    'fixed_lower_jaw_STEP_id':'A05CL',
-    'fixed_lower_jaw_explicit_part':True,
-    'moving_middle_plate_STEP_id':'A05CU',
-    'actual_inner_clear_span_mm':round(jaw_inner_clear_y,3),
-    'candidate_glass_short_edge_mm':round(gb.ylen,3),
-    'inner_span_matches_glass_short_edge':abs(jaw_inner_clear_y-gb.ylen)<.02,
-    'GCM130M_vendor_drawing_dimensions_mm':[26,29,7,24],
-    'GCM1311M_vendor_drawing_dimensions_mm':[44,26,5.5,33,40],
-    'vendor_profiles_distinct':True,
-    'shared_26mm_dimension_proves_exact_sku':False,
-    'exact_lower_jaw_OEM_profile_verified':False,
-    'bottom_fixing_thread_interface_verified':False,
-    'safe_for_fabrication':False
-}
+    'installed_functional_match':False,
+    'installed_GCM13_topology':False,
+    'retained_as_hidden_vendor_study':True,
+    'study_sku':'GCM-1302M',
+    'reason':'user fig.5 shows vertical wing screws through a folded plate, not the prior side-pressure topology',
+    'safe_for_fabrication':False}
 
 # V113: GCM-1302M manufacturer-silhouette study is separate from the
 # installed clamp. It preserves only dimensions readable from the Daheng
@@ -1425,8 +1368,8 @@ report['V79_A_optical_head_glass_collision']={
 a17_bb=part(A,'A17')[0].BoundingBox()
 a16_bb=part(A,'A16')[0].BoundingBox()
 a_base_gap=a16_bb.xmin-a17_bb.xmax
-check(abs(a_base_gap-72.25)<.02,
-      'V79 A16/A17 nominal base-envelope gap remains 72.25mm')
+check(abs(a_base_gap-50.25)<.02,
+      'V130 A16/A17 nominal base-envelope gap is 50.25mm after rightward work-position correction')
 check(abs(a_chip.BoundingBox().xlen-28)<.02 and
       abs(a_chip.BoundingBox().ylen-28)<.02 and
       abs(a_chip.BoundingBox().zlen-1.4)<.02,
@@ -1435,9 +1378,9 @@ report['V79_A_installed_geometry']={
     'A15_VC13_catalog_reference_pair_height_mm':126,
     'A15_VC13_stock_GCM901602_order_matches_user_order':False,
     'A15_VC13_model_lower_pair_height_mm':119.5,
-    'A05_derived_leg_length_mm':87.6,
+    'A05_derived_leg_length_mm':86.1,
     'part_chain':['A17','A15','A03','A04L','A04','A05','A05C',
-                  'A05CL','A05CU','A05CS1','A05CS2','A05G','A05GP'],
+                  'A05CS1','A05CS2','A05G','A05GP'],
     'A17_A16_footprint_gap_mm':round(a_base_gap,2),
     'film_center_x_mm':ax,
     'local_sheet_handedness':'left',
@@ -2150,15 +2093,15 @@ verification=json.loads((ROOT/'build'/'verification.json').read_text())
 a_complete=next(x for x in verification if x['system']=='A')
 check(set(a_complete['excluded_uninstalled'])=={'A18MGZ','A05C1302','A06GCM1102'},
       'V116 complete A STEP may exclude only explicit A18MGZ/A05C1302/A06GCM1102 studies; required transfer hardware must remain installed')
-check(a_complete['approved_installed_shape']=='rigid_180deg_film_chain_with_glass_short_edge_side_clamp',
+check(a_complete['approved_installed_shape']=='photo1_canonical_rigid180_with_photo5_vertical_wing_clamp',
       'V79 official A STEP must use the rigid-180 installed film-chain definition')
-check(abs(a_complete['photo_A_stage_center_x_mm']-(-82.75))<.001,
-      'V79 installed A film datum must remain X=-82.75mm')
+check(abs(a_complete['photo_A_stage_center_x_mm']-(-60.75))<.001,
+      'V79 installed A film datum must remain X=-60.75mm')
 with (ROOT/'build'/'platform_A'/'part_levels.csv').open(encoding='utf-8-sig',newline='') as f:
     installed_ids={row['id'] for row in csv.DictReader(f)}
-required={'A05','A05C','A05CL','A05CU','A05CS1','A05CS2','A05G','A05GP'}
+required={'A05','A05C','A05CS1','A05CS2','A05G','A05GP'}
 check(required.issubset(installed_ids),
-      'V79 installed A part-level BOM must include bracket, side clamp, glass and PDMS')
+      'V130 installed A BOM must include photo5 clamp, vertical wing screws, glass and PDMS')
 check('A15FK' not in installed_ids,
       'V79 installed A part-level BOM must not resurrect floating A15FK control')
 study_csv=ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv'
@@ -2168,14 +2111,17 @@ if study_csv.exists():
         research_ids={row['id'] for row in csv.DictReader(f)}
 check(research_ids=={'A18MGZ','A05C1302','A06GCM1102'},
       'V116 uninstalled-study list must contain only A18MGZ/A05C1302/A06GCM1102, never required transfer hardware')
-report['V79_A_user_corrected_installed_assembly']={
+report['V130_A_user_corrected_installed_assembly']={
     'local_sheet_definition':'left-handed single source geometry',
     'complete_film_chain_yaw_deg':180,
+    'photo1_is_canonical_orientation':True,
+    'photos2_3_are_rotated_side_evidence':True,
     'installed_transfer_parts':sorted(required),
     'installed_glass':True,
-    'installed_side_pressure_rail':True,
-    'side_screw_axis':'parallel to glass 26mm short edge',
-    'vertical_folded_foot_clamp_bores':0,
+    'installed_lower_clamp_blade':True,
+    'vertical_wing_screw_count':2,
+    'screw_pair_line':'parallel to glass 26mm short edge',
+    'vertical_folded_foot_clamp_bores':2,
     'floating_A15FK_present':False,
     'excluded_noninstalled_study_parts':sorted(research_ids),
     'real_clamp_thread_dimensions_verified':False,
@@ -2185,5 +2131,5 @@ report['V79_A_user_corrected_installed_assembly']={
 print(json.dumps({'checks':len(report['checks']),
                   'passed':sum(1 for c in report['checks'] if c['passed']),
                   'scope':report['scope'],
-                  'A_V79':report['V79_A_user_corrected_installed_assembly']},
+                  'A_V130':report['V130_A_user_corrected_installed_assembly']},
                  ensure_ascii=False))
