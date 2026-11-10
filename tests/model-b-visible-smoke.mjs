@@ -1459,6 +1459,36 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aBefore.sampleRotaryGCM1102A16CannotExplainReplacementHeightLoss,true);
  assert.equal(aBefore.sampleRotaryGCM1102Standard12mmAdapterIdentified,false);
  assert.match(aBefore.sampleRotaryGCM1102CandidatePriority,/unresolved-height-stack/);
+
+ assert.equal(await page.evaluate(()=>window.__focusA06VendorStudyAudit?.()),true);
+ await page.waitForTimeout(180);
+ const g1102Study=await page.evaluate(()=>window.__A06VendorStudyProbe?.());
+ console.log('V116 A06 GCM-1102M height-conflict study:',JSON.stringify(g1102Study));
+ assert.equal(g1102Study?.available,true);
+ assert.equal(g1102Study.visible,true);
+ assert.equal(g1102Study.vendorDiameterMm,66);
+ assert.equal(g1102Study.vendorHeightMm,21);
+ assert.deepEqual(g1102Study.vendorPlatformMm,[32,32]);
+ assert.equal(g1102Study.nominalGapToA02Mm,12.2);
+ assert.deepEqual(g1102Study.rulerAllowedMissingLayerRangeMm,[10,16]);
+ assert.equal(g1102Study.unknownSpacerGeometryModelled,false,
+   'Do not invent a spacer merely to make the GCM-1102M candidate fit');
+ assert.equal(g1102Study.bodyCount,1);
+ assert.equal(g1102Study.topPlatformCount,1);
+ assert.equal(g1102Study.installedByDefault,false);
+ assert.equal(g1102Study.exactVendorGeometry,false);
+ assert(Math.abs(g1102Study.actualGapToA02Mm-12.2)<.05,
+   'True 21mm vendor-height study must expose the unresolved 12.2mm gap to A02');
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V116-GCM1102M-Height-Conflict-Study.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+ assert.equal(await page.evaluate(()=>window.__restoreA06VendorStudyAudit?.()),true);
+ const g1102Restored=await page.evaluate(()=>window.__A06VendorStudyProbe?.());
+ assert.equal(g1102Restored.visible,false,'GCM-1102M study must not leak into normal scene');
+
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('A06');
  const a06Row=page.locator('#bom-body tr').filter({hasText:/^\s*A06\b/});

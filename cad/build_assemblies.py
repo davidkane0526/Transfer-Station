@@ -831,6 +831,15 @@ def make_a():
     # and GCM-1102M are vendor comparison candidates only; neither drawing
     # matches enough photographed features to replace this geometry safely.
     rot('A','A06',cx,0,28,'I',radius=33,lock_radius=4.5)
+    # V116: uninstalled GCM-1102M vendor-envelope study. The published
+    # Ø66 x 21 mm stage is placed on the same A16 top plane as A06.
+    # A 32 x 32 x 2 mm top platform is embedded flush within the 21 mm
+    # envelope. No adapter/spacer is fabricated; the resulting 12.2 mm
+    # air gap to the existing A02 exposes the unresolved stack conflict.
+    g1102=vz(33,21,cx,0,28).fuse(box(32,32,2,cx,0,47))
+    add('A','A06GCM1102',
+        'GCM_1102M_VENDOR_ENVELOPE_STUDY_O66_H21_PLATFORM32_NOT_INSTALLED',
+        g1102,'C')
     # Photo17/18/20/21: RIGHT side of A06 has a LONG horizontal
     # silver angular micrometer, in addition to the SHORT front lock.
     # Do not mislabel either of these as A02's left linear micrometer.
@@ -1004,8 +1013,8 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V113'
-UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302'})
+CAD_REVISION='V116'
+UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
     """V113 installed A: photo-fit hardware remains installed; A18MGZ and A05C1302 are excluded manufacturer-family studies.

@@ -766,6 +766,30 @@ check(gcm1102_direct_top_above_board==77,
       'V85 GCM-1102M direct 21mm substitution arithmetic')
 check(not (87<=gcm1102_direct_top_above_board<=93),
       'V85 do not auto-apply GCM-1102M height: direct substitution must remain inconsistent with ruler photos')
+# V116: GCM-1102M manufacturer envelope study. It shares the A16 top
+# datum with installed A06, but its true 21mm height must leave a 12.2mm
+# physical gap to the current A02 bottom. No invented spacer is allowed.
+a06_g1102=part(A,'A06GCM1102')[0]
+a06_g1102_bb=a06_g1102.BoundingBox()
+a02_bb=part(A,'A02')[0].BoundingBox()
+g1102_gap_to_a02=a02_bb.zmin-a06_g1102_bb.zmax
+check(abs(a06_g1102_bb.xlen-66)<.02 and abs(a06_g1102_bb.ylen-66)<.02 and
+      abs(a06_g1102_bb.zlen-21)<.02,
+      'V116 GCM-1102M study must preserve Ø66 x 21mm vendor envelope')
+check(abs(g1102_gap_to_a02-12.2)<.02,
+      'V116 true GCM-1102M height must expose the unresolved 12.2mm gap to A02')
+report['V116_A06_GCM1102M_height_conflict_study']={
+    'installed_in_default_assembly':False,
+    'exact_vendor_geometry':False,
+    'vendor_diameter_mm':66,
+    'vendor_height_mm':21,
+    'vendor_platform_mm':[32,32],
+    'actual_gap_to_A02_mm':round(g1102_gap_to_a02,3),
+    'ruler_allowed_missing_layer_range_mm':[10,16],
+    'unknown_spacer_geometry_modelled':False,
+    'reason':'vendor diameter matches photo fit but 21mm height conflicts with 87-93mm ruler-constrained sample top'
+}
+
 report['V85_A06_vendor_candidate_vs_ruler_stack']={
     'photo_references':['17','18','19','20','21'],
     'board_top_z_mm':20,
@@ -958,8 +982,9 @@ check(mgz_bb.ymin<-137 and mgz_bb.ymax>43,
       'V111 MGZ30-family study must span from direct post clamp to photo-fit focus body')
 uninstalled_csv=ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv'
 uninstalled_text=uninstalled_csv.read_text(encoding='utf-8-sig') if uninstalled_csv.exists() else ''
-check(uninstalled_csv.exists() and 'A18MGZ' in uninstalled_text and 'A05C1302' in uninstalled_text,
-      'V113 manufacturer studies must be excluded from the installed platform-A assembly')
+check(uninstalled_csv.exists() and 'A18MGZ' in uninstalled_text and 'A05C1302' in uninstalled_text and
+      'A06GCM1102' in uninstalled_text,
+      'V116 manufacturer studies must be excluded from the installed platform-A assembly')
 report['V111_A18_MGZ30_family_topology_study']={
     'installed_in_default_assembly':False,
     'exact_MGZ30_vendor_geometry':False,

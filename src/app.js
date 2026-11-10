@@ -3486,6 +3486,28 @@ function platformA(){
   g.userData.candidateGeometryOverriddenByVendorDrawing=false;
   g.userData.shortFrontLockCount=1;
   g.userData.rightAngularMicrometerCount=1;
+
+  // V116: hidden manufacturer-envelope study. The vendor drawing supports
+  // Ø66 x 21 mm and a 32 x 32 mm top platform, but not the current 33.2 mm
+  // scene height. Keep this study non-installed so the resulting 12.2 mm
+  // vertical gap to A02 is visible instead of inventing an adapter layer.
+  const gcm1102Study=new THREE.Group();
+  gcm1102Study.visible=false;g.add(gcm1102Study);
+  const studyBody=add(gcm1102Study,cyl(33,21,mats.dark,0,10.5,0));
+  studyBody.userData.GCM1102StudyBody=true;
+  const studyTop=add(gcm1102Study,cub(32,2,32,mats.steel,0,20,0));
+  studyTop.userData.GCM1102StudyTopPlatform=true;
+  gcm1102Study.userData.GCM1102VendorStudy=true;
+  gcm1102Study.userData.installedByDefault=false;
+  gcm1102Study.userData.exactVendorGeometry=false;
+  gcm1102Study.userData.vendorDiameterMm=66;
+  gcm1102Study.userData.vendorHeightMm=21;
+  gcm1102Study.userData.vendorPlatformMm=[32,32];
+  gcm1102Study.userData.nominalGapToA02Mm=12.2;
+  gcm1102Study.userData.rulerAllowedMissingLayerRangeMm=[10,16];
+  gcm1102Study.userData.unknownSpacerGeometryModelled=false;
+  g.userData.GCM1102VendorStudyAvailable=true;
+  g.userData.GCM1102VendorStudyInstalled=false;
   label(g,'A06 旋转台',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,81.2,0,g=>{
@@ -4641,6 +4663,52 @@ window.__A17CloseupProbe=()=>{
  return {available:true,projection:_auditProjection(_auditBoxFor([g])),
    plaqueRay:_auditRayClear(plaque,[g]),switchRay:_auditRayClear(lever,[g])};
 };
+let _a06VendorStudyRestore=null;
+function focusA06VendorStudyAudit(){
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const a06=parts.get('A06')?.g,a02=parts.get('A02')?.g;
+ const study=a06?.children.find(o=>o.isGroup&&o.userData.GCM1102VendorStudy);
+ if(!a06||!a02||!study)return false;
+ const states=a06.children.map(o=>[o,o.visible]);
+ _a06VendorStudyRestore=()=>{for(const [o,v] of states)o.visible=v;_a06VendorStudyRestore=null;};
+ for(const o of a06.children)o.visible=(o===study);
+ study.visible=true;
+ currentRoot.updateWorldMatrix(true,true);
+ const box=_auditBoxFor([study,a02]);
+ const target=box.getCenter(new THREE.Vector3());
+ camera.position.copy(target).add(new THREE.Vector3(110,75,135));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+}
+window.__focusA06VendorStudyAudit=focusA06VendorStudyAudit;
+window.__restoreA06VendorStudyAudit=()=>{if(_a06VendorStudyRestore)_a06VendorStudyRestore();return true;};
+window.__A06VendorStudyProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const a06=parts.get('A06')?.g,a02=parts.get('A02')?.g;
+ const study=a06?.children.find(o=>o.isGroup&&o.userData.GCM1102VendorStudy);
+ if(!a06||!a02||!study)return {available:false};
+ const sb=new THREE.Box3().setFromObject(study),a02b=new THREE.Box3().setFromObject(a02);
+ const sz=sb.getSize(new THREE.Vector3());
+ return {
+   available:true,visible:study.visible,
+   vendorDiameterMm:study.userData.vendorDiameterMm,
+   vendorHeightMm:study.userData.vendorHeightMm,
+   vendorPlatformMm:study.userData.vendorPlatformMm,
+   nominalGapToA02Mm:study.userData.nominalGapToA02Mm,
+   rulerAllowedMissingLayerRangeMm:study.userData.rulerAllowedMissingLayerRangeMm,
+   unknownSpacerGeometryModelled:Boolean(study.userData.unknownSpacerGeometryModelled),
+   installedByDefault:Boolean(study.userData.installedByDefault),
+   exactVendorGeometry:Boolean(study.userData.exactVendorGeometry),
+   bodyCount:study.children.filter(o=>o.userData.GCM1102StudyBody).length,
+   topPlatformCount:study.children.filter(o=>o.userData.GCM1102StudyTopPlatform).length,
+   actualWorldEnvelopeMm:[sz.x,sz.y,sz.z].map(x=>Number(x.toFixed(2))),
+   actualGapToA02Mm:Number((a02b.min.y-sb.max.y).toFixed(2)),
+   projection:_auditProjection(_auditBoxFor([study,a02]))
+ };
+};
+
 let _a05VendorStudyRestore=null;
 function focusA05VendorStudyAudit(){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
