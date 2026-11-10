@@ -632,7 +632,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V96.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V102.*整体旋转180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -694,8 +694,11 @@ try{
  assert.equal(await page.evaluate(()=>window.__focusA05ClampAudit?.()),true);
  await page.waitForTimeout(220);
  const a05View=await page.evaluate(()=>window.__A05CloseupProbe?.());
- console.log('V96 A05 dedicated closeup QA:',JSON.stringify(a05View));
+ console.log('V102 A05 dedicated closeup QA:',JSON.stringify(a05View));
  assert.equal(a05View?.available,true);
+ assert.equal(a05View.selectedVisibilityScore,4,
+   'V102 camera search must find one view where fixed jaw, moving plate and both screw heads are directly inspectable');
+ assert.equal(a05View.selectedLocalViewDirection.length,3);
  assert(Math.abs(a05View.projection.centerX)<.22&&Math.abs(a05View.projection.centerY)<.22,
    'A05 clamp must actually be centered in its dedicated audit frame');
  assert(a05View.projection.width>.34&&a05View.projection.height>.22,
@@ -705,7 +708,9 @@ try{
    'Fixed-jaw visibility test must explicitly account for the transparent installed glass, not silently ignore all occluders');
  assert.equal(a05View.fixedJawRay.firstPart,'A05C');
  assert.equal(a05View.pressureRay.clear,true,'A05 moving pressure plate must be the first opaque target after transparent glass');
+ assert.equal(a05View.pressureRay.firstPart,'A05C');
  assert(a05View.screwHeadRays.every(x=>x.clear),'Both A05 screw heads must be directly inspectable');
+ assert(a05View.screwHeadRays.every(x=>x.firstPart==='A05CS'));
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
    await page.screenshot({path:'Transfer-Station-A-V96-A05-Clamp-Closeup.png',
@@ -1133,7 +1138,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V96当前安装方向/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V102当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);

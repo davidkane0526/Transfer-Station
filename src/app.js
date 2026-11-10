@@ -4187,7 +4187,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V96 / '+(aWorkingPoseMode?
+   '平台 A · V102 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4346,7 +4346,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V96当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V102当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
@@ -4424,17 +4424,57 @@ function _auditRayClear(targetObj,allowedRoots,{transparentSkipRoots=[]}={}){
  return {clear:false,firstPart:null,targetDistance:Number(dist.toFixed(2)),
    skippedTransparentParts:skipped};
 }
+function _a05AuditTargets(){
+ const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g,glassRoot=parts.get('A05G')?.g;
+ const fixed=clamp?.children.find(o=>o.userData.A05CLowerFixedJaw);
+ const pressure=clamp?.children.find(o=>o.userData.A05CMovingMiddlePlate);
+ const heads=screws?.children.filter(o=>o.userData.A05CSScrewHead)??[];
+ if(!clamp||!screws||!glassRoot||!fixed||!pressure||heads.length!==2)return null;
+ return {clamp,screws,glassRoot,fixed,pressure,heads};
+}
+function _a05AuditRays(q){
+ const skip={transparentSkipRoots:[q.glassRoot]};
+ return [
+   _auditRayClear(q.fixed,[q.fixed],skip),
+   _auditRayClear(q.pressure,[q.pressure],skip),
+   ...q.heads.map(o=>_auditRayClear(o,[o],skip))
+ ];
+}
 function focusA05ClampAudit(){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
  currentRoot.updateWorldMatrix(true,true);
- const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g;
- if(!clamp||!screws)return false;
- const b=_auditBoxFor([clamp,screws]),target=b.getCenter(new THREE.Vector3());
- const q=clamp.getWorldQuaternion(new THREE.Quaternion());
- const size=b.getSize(new THREE.Vector3()),distance=Math.max(95,size.length()*1.65);
- const offset=new THREE.Vector3(.55,.34,1).normalize().multiplyScalar(distance).applyQuaternion(q);
+ const q=_a05AuditTargets();if(!q)return false;
+ const b=_auditBoxFor([q.clamp,q.screws]),target=b.getCenter(new THREE.Vector3());
+ const worldQ=q.clamp.getWorldQuaternion(new THREE.Quaternion());
+ const size=b.getSize(new THREE.Vector3()),distance=Math.max(105,size.length()*1.8);
+ // V102: choose a true inspection direction. V96's single +Z-biased view
+ // centered the clamp but let A05C's own fixed carrier hide the moving plate.
+ const dirs=[
+   [0,1.25,1],[0,1.25,-1],
+   [1,1.1,1],[-1,1.1,1],[1,1.1,-1],[-1,1.1,-1],
+   [.55,.72,1],[-.55,.72,1],[.55,.72,-1],[-.55,.72,-1],
+   [1.15,.75,.35],[-1.15,.75,.35],[1.15,.75,-.35],[-1.15,.75,-.35]
+ ];
+ let best=null;
+ for(const raw of dirs){
+   const offset=new THREE.Vector3(...raw).normalize().multiplyScalar(distance).applyQuaternion(worldQ);
+   camera.position.copy(target).add(offset);
+   orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+   const rays=_a05AuditRays(q);
+   const score=rays.filter(x=>x.clear).length;
+   const projection=_auditProjection(b);
+   const centerPenalty=Math.abs(projection.centerX)+Math.abs(projection.centerY);
+   const area=projection.width*projection.height;
+   if(!best||score>best.score||
+      (score===best.score&&centerPenalty<best.centerPenalty-.001)||
+      (score===best.score&&Math.abs(centerPenalty-best.centerPenalty)<.001&&area>best.area))
+     best={raw,score,centerPenalty,area};
+ }
+ const offset=new THREE.Vector3(...best.raw).normalize().multiplyScalar(distance).applyQuaternion(worldQ);
  camera.position.copy(target).add(offset);
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ q.clamp.userData.A05AuditViewScore=best.score;
+ q.clamp.userData.A05AuditViewDirection=best.raw;
  return true;
 }
 function focusA17FrontAudit(){
@@ -4464,16 +4504,12 @@ window.__focusA17FrontAudit=focusA17FrontAudit;
 window.__A05CloseupProbe=()=>{
  if(platform!=='A')return {available:false};
  currentRoot.updateWorldMatrix(true,true);
- const clamp=parts.get('A05C')?.g,screws=parts.get('A05CS')?.g;
- const fixed=clamp?.children.find(o=>o.userData.A05CLowerFixedJaw);
- const pressure=clamp?.children.find(o=>o.userData.A05CMovingMiddlePlate);
- const heads=screws?.children.filter(o=>o.userData.A05CSScrewHead)??[];
- if(!clamp||!screws||!fixed||!pressure||heads.length!==2)return {available:false};
- const glassRoot=parts.get('A05G')?.g;
- return {available:true,projection:_auditProjection(_auditBoxFor([clamp,screws])),
-   fixedJawRay:_auditRayClear(fixed,[fixed],{transparentSkipRoots:[glassRoot]}),
-   pressureRay:_auditRayClear(pressure,[pressure],{transparentSkipRoots:[glassRoot]}),
-   screwHeadRays:heads.map(o=>_auditRayClear(o,[screws],{transparentSkipRoots:[glassRoot]}))};
+ const q=_a05AuditTargets();if(!q)return {available:false};
+ const rays=_a05AuditRays(q);
+ return {available:true,projection:_auditProjection(_auditBoxFor([q.clamp,q.screws])),
+   selectedVisibilityScore:q.clamp.userData.A05AuditViewScore??null,
+   selectedLocalViewDirection:q.clamp.userData.A05AuditViewDirection??null,
+   fixedJawRay:rays[0],pressureRay:rays[1],screwHeadRays:rays.slice(2)};
 };
 window.__A17CloseupProbe=()=>{
  if(platform!=='A')return {available:false};
