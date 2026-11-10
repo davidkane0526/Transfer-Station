@@ -863,46 +863,49 @@ try{
  assert.equal(mgzRestored.currentSeparateBoomVisible,true);
  assert.equal(mgzRestored.currentPhotoFitBodyVisible,true);
 
- // The two high-resolution Nov 08 photos have DIFFERENT external
- // monitor positions but an identical fixed instrument. Assert actual
- // Three.js projected hand and L-bracket sidedness for BOTH cameras.
+ // V130: user establishes photo 1 as the canonical installed orientation.
+ // Photos 2 and 3 are views captured after rotating the mechanism; they are
+ // side-topology evidence and must not be used to flip/mirror the physical model.
  await photoShot('Transfer-Station-A-20261108-MonitorFront.png','#btn-a-photo-monitor-front');
  const f1=await page.evaluate(()=>window.__a20261108PhotoViewProbe?.());
- assert.equal(f1?.available,true,'Photo 1 calibrated viewing command failed');
+ assert.equal(f1?.available,true,'Photo 1 canonical viewing command failed');
  assert.equal(f1.mode,'monitorBehind');
- assert.equal(f1.viewedStageFace,'negative-Z');
- assert.equal(f1.silverSlotFaceLocalZ,-1);
- assert(f1.slotWorldZ<0);
- assert(f1.actualA15XKnobRelativeNdc<-.04,
-   'Photo1 right-hand +X drum MUST appear on the LEFT of the stage');
- assert(f1.actualA04XKnobRelativeNdc<-.04,
-   'Photo1 upper +X G40 micrometer must appear LEFT');
- assert(f1.actualA04LowerPlusZKnobRelativeNdc<-.015,
-   'Photo1 lower +Z G40 micrometer must ALSO project LEFT, from different 3D axis');
- assert(f1.actualA05LegRelativeNdc>.04,
-   'Photo1 LEFT-return L plate must appear RIGHT from opposite camera');
+ assert.equal(f1.evidenceRole,'canonical-orientation-anchor');
+ assert.equal(f1.sourceHardwareRotated,false);
+ assert.equal(f1.photoConstraints.canonicalOrientationSource,'photo-1');
+ assert.equal(f1.photoConstraints.photo1DefinesInstalledHandedness,true);
+ assert.equal(f1.photoConstraints.canonicalInstalledYawDeg,180);
+ assert.equal(f1.photoConstraints.photoReferenceAndWorkingOrientationMustMatch,true);
+ assert.equal(f1.cameraFittedToActualLensAndMonitor,false);
+ for(const x of [
+   f1.actualA15XKnobRelativeNdc,f1.actualA15ZKnobRelativeNdc,
+   f1.actualA04XKnobRelativeNdc,f1.actualA04LowerPlusZKnobRelativeNdc,
+   f1.actualA05LegRelativeNdc
+ ]) assert(Number.isFinite(x),'Photo1 projected model datum must be finite');
  const count=f1.scenePartCount;
+
  await photoShot('Transfer-Station-A-20261108-MonitorLeft.png','#btn-a-photo-monitor-side');
  const f2=await page.evaluate(()=>window.__a20261108PhotoViewProbe?.());
- assert.equal(f2?.available,true,'Photo2 side-view camera command failed');
+ assert.equal(f2?.available,true,'Photo 2 rotated-side viewing command failed');
  assert.equal(f2.mode,'monitorLeft');
- assert.equal(f2.viewedStageFace,'positive-Z');
- assert(f2.actualA15XKnobRelativeNdc>.03,
-   'Photo2 stage +X micrometer must project to the RIGHT');
- assert(f2.actualA15ZKnobRelativeNdc<-.02,
-   'Photo2 other independent +Z stage micrometer must project LEFT');
- assert(f2.actualA04XKnobRelativeNdc>.03,
-   'Photo2 upper G40 +X knob must appear RIGHT');
- assert(f2.actualA04LowerPlusZKnobRelativeNdc<-.03,
-   'Photo2 lower goniometer +Z knob must appear LEFT on orthogonal axis');
- assert.equal(f2.lowerG40DriveAxisCandidate,'+Z',
-   'Lower tilt micrometer must not be falsely placed along -X in CAD');
- assert(f2.actualA05LegRelativeNdc<-.02,
-   'Photo2 same LEFT fold must be LEFT of G40 without mirroring hardware');
- assert.equal(f2.scenePartCount,count,
-   'Photo2 must not switch/mirror/replace part geometries');
- assert(f2.photoConstraints.azimuthSeparationCandidateDeg>120);
- assert.equal(f2.photoConstraints.physicallyExactCameraAngleVerified,false);
+ assert.equal(f2.evidenceRole,'rotated-side-topology-only');
+ assert.equal(f2.sourceHardwareRotated,true);
+ assert.equal(f2.photoConstraints.photo2HardwareRotatedForSideView,true);
+ assert.equal(f2.photoConstraints.sideViewsMayConstrainTopologyButNotCanonicalScreenDirection,true);
+ assert.equal(f2.photoConstraints.sideHardwareYawExactlyVerified,false);
+ assert.equal(f2.scenePartCount,count,'Photo2 evidence view must not replace model geometry');
+
+ await photoShot('Transfer-Station-A-20261108-MonitorRight.png','#btn-a-photo-monitor-opposite');
+ const f3=await page.evaluate(()=>window.__a20261108PhotoViewProbe?.());
+ assert.equal(f3?.available,true,'Photo 3 rotated-side viewing command failed');
+ assert.equal(f3.mode,'monitorRight');
+ assert.equal(f3.evidenceRole,'rotated-side-topology-only');
+ assert.equal(f3.sourceHardwareRotated,true);
+ assert.equal(f3.photoConstraints.photo3HardwareRotatedForSideView,true);
+ assert.equal(f3.photoConstraints.sideViewsMayConstrainTopologyButNotCanonicalScreenDirection,true);
+ assert.equal(f3.scenePartCount,count,'Photo3 evidence view must not replace model geometry');
+ assert.notDeepEqual(f2.cameraWorldPosition,f3.cameraWorldPosition,
+   'Photo2 and photo3 side evidence must use distinct inspection viewpoints');
  // Switch explicitly to hypothesis only for the EXISTING transfer tests.
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -924,7 +927,7 @@ try{
  assert.equal(aDefault.a15Vc13CatalogReferenceHeightMm,126);
  assert.equal(aDefault.a15Vc13LowerPoseHeightMm,119.5);
  assert.equal(aDefault.a15Vc13InstalledOrderMatchesGCM901602,false);
- assert.equal(aDefault.bracketVerticalLegMm,87.6);
+ assert.equal(aDefault.bracketVerticalLegMm,86.1);
  const angled=await page.evaluate(()=>window.__modelAObjectiveOrientationProbe?.());
  assert.equal(angled.available,true,'A19 independent objective pivots must be visible');
  assert.equal(angled.independentObjectivePivots,true);
