@@ -944,6 +944,36 @@ report['V108_A10_A18_component_boundary']={
                              'rear housing motion with focus block'],
     'safe_for_separate_A10_boom_fabrication':False
 }
+# V111: non-installed MGZ30-family topology study. This is deliberately
+# separate from the default A10/A18 photo-fit assembly.
+mgz_study_parts=part(A,'A18MGZ')
+check(len(mgz_study_parts)==1,
+      'V111 MGZ30-family topology study must export as one connected solid')
+mgz_study=mgz_study_parts[0]
+mgz_bb=mgz_study.BoundingBox()
+mgz_bore_probe=vz(19.0,17.8,78,-112,191.1)
+check(mgz_study.intersect(mgz_bore_probe).Volume()<1e-4,
+      'V111 MGZ30-family study must retain an open vertical Ø38.1mm-class post bore')
+check(mgz_bb.ymin<-137 and mgz_bb.ymax>43,
+      'V111 MGZ30-family study must span from direct post clamp to photo-fit focus body')
+uninstalled_csv=ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv'
+check(uninstalled_csv.exists() and 'A18MGZ' in uninstalled_csv.read_text(encoding='utf-8-sig'),
+      'V111 A18MGZ study must be excluded from the installed platform-A assembly')
+report['V111_A18_MGZ30_family_topology_study']={
+    'installed_in_default_assembly':False,
+    'exact_MGZ30_vendor_geometry':False,
+    'photo_fit_main_body_envelope_retained':True,
+    'family_topology_applied':['integral rear bridge','direct vertical post clamp'],
+    'vendor_direct_post_diameter_mm':38.1,
+    'current_scene_post_diameter_mm':26,
+    'post_diameter_conflict_mm':12.1,
+    'current_scene_post_physically_measured':False,
+    'current_A10_separate_boom_retained_in_default_assembly':True,
+    'study_A10_separate_boom_removed':True,
+    'candidate_STEP_part':'A18MGZ.step',
+    'safe_to_promote_without_new_rear_photo_or_post_measurement':False
+}
+
 report['V84_A_microscope_vendor_candidate_matrix']={
     'photo_refs':['191','192','193'],
     'A18_vendor_and_model_verified':False,

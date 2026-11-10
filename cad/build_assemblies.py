@@ -949,6 +949,20 @@ def make_a():
     add('A','A18FLL','LEFT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x-71,0,200),'C')
     add('A','A18FRL','RIGHT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x+63,0,200),'C')
 
+    # V111: separate, NOT-installed MGZ30 family-topology study.
+    # Reuse the current photo-fit main-body envelope and current post center,
+    # but replace the independent A10 boom concept with an integral rear bridge
+    # and a direct vertical Ø38.1mm post clamp. This is topology comparison,
+    # not exact MGZ30 CAD and not evidence that the real post is Ø38.1mm.
+    mgz_study_body=box(84,88,70,a18_body_x,0,165)
+    mgz_study_bridge=box(60,43,38,cx+12,-65,181)
+    mgz_study_ring=vz(26,18,cx,-112,191).cut(
+        vz(19.05,18.2,cx,-112,190.9))
+    mgz_study=(mgz_study_body.fuse(mgz_study_bridge,mgz_study_ring).clean())
+    add('A','A18MGZ',
+        'MGZ30_FAMILY_INTEGRAL_REAR_POST_CLAMP_TOPOLOGY_STUDY_NOT_INSTALLED',
+        mgz_study,'C')
+
     add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PHOTO_ENVELOPE',
         vz(36,10,cx,0,155),'C')
     add('A','A19N','MICROSCOPE_OBJECTIVE_TURRET_NECK_PROXY',
@@ -973,11 +987,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V110'
-UNINSTALLED_A_STUDY_IDS=frozenset()
+CAD_REVISION='V111'
+UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ'})
 A_INSTALLED_FILM_CENTER_X=-82.75
 def _installed_a_solid(key,shape):
-    """V108 installed A: V107 geometry retained; A10/A18 microscope-support component boundary is explicitly unresolved pending rear-housing evidence.
+    """V111 installed A: V108 photo-fit A10/A18 remains installed; A18MGZ is an excluded MGZ30-family topology study.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """

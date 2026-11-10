@@ -3488,7 +3488,10 @@ function platformA(){
       head.userData.A10CandidateBoltHead=true;
     }
     // V59: taller photographed camera/microscope stack; post length remains candidate.
-    add(g,cyl(13,372,mats.steel,0,199,0)); // fixed optical post
+    const fixedPost=add(g,cyl(13,372,mats.steel,0,199,0)); // fixed optical post
+    fixedPost.userData.A10FixedOpticalPost=true;
+    fixedPost.userData.A10PostDiameterCandidateMm=26;
+    fixedPost.userData.A10PostDiameterMeasured=false;
     const movingBoom=new THREE.Group();g.add(movingBoom);
     // V69: old solid support penetrated A10 Ø26 stationary column.
     // Make an actual Ø26.6 axial clearance bore around the post.
@@ -3598,6 +3601,7 @@ function platformA(){
    bodyUpper.userData.A18BodySegment='upper';
    const front=add(g,cub(70,44,4,mats.black,bodyX,1,46));
    front.userData.A18FrontFace=true;
+   for(const o of [bodyMid,bodyLower,bodyUpper,front])o.userData.A18CurrentPhotoFitBody=true;
    const topCollar=add(g,cyl(22,8,mats.black,0,39,0,64));
    topCollar.userData.A18TopOpticalInterface=true;
    const bottomCollar=add(g,cyl(24,8,mats.black,0,-39,0,64));
@@ -3614,6 +3618,33 @@ function platformA(){
        ring.rotation.y=Math.PI/2;ring.userData.A18CoarseFocusKnurl=sign;
      }
    }
+   // V111: hidden manufacturer-FAMILY topology study. It does NOT replace
+   // the installed photo-fit A18. The study keeps the current photo-fit
+   // body envelope/optical-axis offset, but gives the focus block an integral
+   // rear bridge + vertical post clamp, matching MGZ30's direct Ø1.5in post
+   // mounting topology. The current scene post remains Ø26 and unmeasured,
+   // deliberately exposing the Ø38.1-vs-Ø26 conflict instead of hiding it.
+   const mgz30Study=new THREE.Group();
+   mgz30Study.name='A18_MGZ30_FAMILY_TOPOLOGY_STUDY';
+   mgz30Study.visible=false;g.add(mgz30Study);
+   const mgzStudyBody=add(mgz30Study,cub(84,70,88,mats.dark,bodyX,0,0));
+   mgzStudyBody.userData.MGZ30FamilyStudyBody=true;
+   const mgzRearBridge=add(mgz30Study,cub(60,38,43,mats.dark,12,0,-65));
+   mgzRearBridge.userData.MGZ30FamilyIntegralRearBridge=true;
+   const mgzPostClamp=add(mgz30Study,sleeve(26,19.05,18,mats.dark,0,0,-112,'y'));
+   mgzPostClamp.userData.MGZ30FamilyPostClampRing=true;
+   mgzPostClamp.userData.MGZ30FamilyPostBoreDiameterMm=38.1;
+   mgzPostClamp.userData.MGZ30FamilyClampOuterDiameterCandidateMm=52;
+   mgz30Study.userData.MGZ30FamilyTopologyStudy=true;
+   mgz30Study.userData.installedByDefault=false;
+   mgz30Study.userData.exactVendorGeometry=false;
+   mgz30Study.userData.photoFitMainBodyEnvelopeRetained=true;
+   mgz30Study.userData.vendorDirectPostDiameterMm=38.1;
+   mgz30Study.userData.currentScenePostDiameterMm=26;
+   g.userData.MGZ30FamilyTopologyStudyGroup=mgz30Study;
+   g.userData.MGZ30FamilyTopologyStudyAvailable=true;
+   g.userData.MGZ30FamilyTopologyStudyInstalled=false;
+   g.userData.MGZ30FamilyTopologyStudyExactVendorGeometry=false;
    g.userData.microscopeHeadModelUnverified=true;
    g.userData.focusKnobPairCount=2;
    g.userData.removedUnsupportedHorizontalTube=true;
@@ -4252,7 +4283,7 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?
   (bPhoto94Mode?'平台 B · 参考布局 · 夹具接口待核':'平台 B · 全系统布局已恢复 · 实拍145–151 · PHUC-1'):
-  ('平台 A · V110 · '+(aWorkingPoseMode?'工作位 · 180°':'照片参考'));
+  ('平台 A · '+(aWorkingPoseMode?'工作位 · 180°':'照片参考'));
  $('stack-note').textContent=platform==='B'?
   (bPhoto94Mode?'参考视图':'B35→B08→B41(Y)→B09(X)→B10→B11 · 玻片侧 B02→B03→B04→B05→B34→B27→B33→B24→B28→B06'):
   'A17→A15→A03→A04L/A04→A05→A05C→玻片 · 样品侧 A16→A06→A02→A07';
@@ -4671,6 +4702,65 @@ window.__A18SupportCloseupProbe=()=>{
    bodyRay:_auditRayClear(q.body,[q.a18]),
    supportBoomRay:_auditRayClear(q.boom,[q.a10]),
    ..._a18CommonAudit(q)
+ };
+};
+
+function _a18MGZ30StudyTargets(){
+ const a18=parts.get('A18')?.g,a10=parts.get('A10')?.g;
+ if(!a18||!a10)return null;
+ const study=a18.children.find(o=>o.userData.MGZ30FamilyTopologyStudy);
+ const body=study?.children.find(o=>o.userData.MGZ30FamilyStudyBody);
+ const bridge=study?.children.find(o=>o.userData.MGZ30FamilyIntegralRearBridge);
+ const ring=study?.children.find(o=>o.userData.MGZ30FamilyPostClampRing);
+ const post=a10.children.find(o=>o.userData.A10FixedOpticalPost);
+ const boom=a10.userData.opticsMovingBoom?.children.find(o=>o.userData.A10BoomFrontFaceJointToA18);
+ if(!study||!body||!bridge||!ring||!post||!boom)return null;
+ return {a18,a10,study,body,bridge,ring,post,boom};
+}
+window.__setA18MGZ30FamilyStudy=(on)=>{
+ if(platform!=='A')return false;
+ const q=_a18MGZ30StudyTargets();if(!q)return false;
+ q.a18.children.filter(o=>o.userData.A18CurrentPhotoFitBody).forEach(o=>o.visible=!on);
+ q.study.visible=Boolean(on);
+ q.boom.visible=!on;
+ q.a18.userData.MGZ30FamilyTopologyStudyInstalled=Boolean(on);
+ currentRoot.updateWorldMatrix(true,true);
+ return true;
+};
+window.__focusA18MGZ30FamilyStudy=()=>{
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ if(!window.__setA18MGZ30FamilyStudy(true))return false;
+ const q=_a18MGZ30StudyTargets(),box=_auditBoxFor([q.study]);
+ const target=box.getCenter(new THREE.Vector3());
+ camera.position.copy(target).add(new THREE.Vector3(175,75,-235));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+};
+window.__A18MGZ30FamilyStudyProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a18MGZ30StudyTargets();if(!q)return {available:false};
+ const ringPos=q.ring.getWorldPosition(new THREE.Vector3());
+ const postPos=q.post.getWorldPosition(new THREE.Vector3());
+ const bodyBox=new THREE.Box3().setFromObject(q.body);
+ const bridgeBox=new THREE.Box3().setFromObject(q.bridge);
+ const ringBox=new THREE.Box3().setFromObject(q.ring);
+ const xzAlignment=Math.hypot(ringPos.x-postPos.x,ringPos.z-postPos.z);
+ return {
+   available:true,
+   studyVisible:q.study.visible,
+   installedByDefault:Boolean(q.study.userData.installedByDefault),
+   exactVendorGeometry:Boolean(q.study.userData.exactVendorGeometry),
+   photoFitMainBodyEnvelopeRetained:Boolean(q.study.userData.photoFitMainBodyEnvelopeRetained),
+   vendorDirectPostDiameterMm:q.study.userData.vendorDirectPostDiameterMm,
+   currentScenePostDiameterMm:q.study.userData.currentScenePostDiameterMm,
+   postDiameterConflictMm:Number((q.study.userData.vendorDirectPostDiameterMm-q.study.userData.currentScenePostDiameterMm).toFixed(1)),
+   ringCenterToCurrentPostCenterXZmm:Number(xzAlignment.toFixed(3)),
+   bodyBridgeAabbConnected:bodyBox.intersectsBox(bridgeBox),
+   bridgeRingAabbConnected:bridgeBox.intersectsBox(ringBox),
+   currentSeparateBoomVisible:q.boom.visible,
+   currentPhotoFitBodyVisible:q.a18.children.filter(o=>o.userData.A18CurrentPhotoFitBody).some(o=>o.visible),
+   projection:_auditProjection(_auditBoxFor([q.study]))
  };
 };
 window.__A18CloseupProbe=window.__A18OpticalCloseupProbe;

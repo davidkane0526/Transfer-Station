@@ -797,6 +797,41 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
+ // V111 hidden MGZ30-family topology study: compare a direct-post-clamp
+ // architecture without changing the installed/photo-fit default.
+ assert.equal(await page.evaluate(()=>window.__focusA18MGZ30FamilyStudy?.()),true);
+ await page.waitForTimeout(220);
+ const mgzStudy=await page.evaluate(()=>window.__A18MGZ30FamilyStudyProbe?.());
+ console.log('V111 A18 MGZ30-family topology study:',JSON.stringify(mgzStudy));
+ assert.equal(mgzStudy?.available,true);
+ assert.equal(mgzStudy.studyVisible,true);
+ assert.equal(mgzStudy.installedByDefault,false,
+   'MGZ30 family study must never silently replace the installed photo-fit geometry');
+ assert.equal(mgzStudy.exactVendorGeometry,false);
+ assert.equal(mgzStudy.photoFitMainBodyEnvelopeRetained,true);
+ assert.equal(mgzStudy.vendorDirectPostDiameterMm,38.1);
+ assert.equal(mgzStudy.currentScenePostDiameterMm,26);
+ assert.equal(mgzStudy.postDiameterConflictMm,12.1,
+   'The vendor Ø38.1mm post requirement must remain visibly incompatible with the unmeasured Ø26 scene post');
+ assert.equal(mgzStudy.ringCenterToCurrentPostCenterXZmm,0);
+ assert.equal(mgzStudy.bodyBridgeAabbConnected,true);
+ assert.equal(mgzStudy.bridgeRingAabbConnected,true);
+ assert.equal(mgzStudy.currentSeparateBoomVisible,false,
+   'Study mode must replace, not double-count, the current separate A10 boom');
+ assert.equal(mgzStudy.currentPhotoFitBodyVisible,false);
+ assert(Math.abs(mgzStudy.projection.centerX)<.35&&Math.abs(mgzStudy.projection.centerY)<.35);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V111-MGZ30-Family-Topology-Study.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+ assert.equal(await page.evaluate(()=>window.__setA18MGZ30FamilyStudy?.(false)),true);
+ const mgzRestored=await page.evaluate(()=>window.__A18MGZ30FamilyStudyProbe?.());
+ assert.equal(mgzRestored.studyVisible,false);
+ assert.equal(mgzRestored.currentSeparateBoomVisible,true);
+ assert.equal(mgzRestored.currentPhotoFitBodyVisible,true);
+
  // The two high-resolution Nov 08 photos have DIFFERENT external
  // monitor positions but an identical fixed instrument. Assert actual
  // Three.js projected hand and L-bracket sidedness for BOTH cameras.
