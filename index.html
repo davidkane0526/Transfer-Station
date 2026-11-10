@@ -14,18 +14,18 @@
 <div class="control-block" id="b-photo-profile">
  <div class="title">平台 B</div>
  <div class="buttons"><button id="btn-b-user-photos" class="on">实物视图</button><button id="btn-b-archive">平台 A</button></div>
- <p class="small" id="b-profile-note">PHUC-1 · GCM-1302M</p>
- <div class="warning compact-warning" id="b-physical-audit" role="status">缺少真实夹具连接；不可直接加工。</div>
+ <p class="small" id="b-profile-note" hidden>PHUC-1 · GCM-1302M</p>
+ <div class="warning compact-warning" id="b-physical-audit" role="status" hidden></div>
 </div>
-<div class="warning compact-warning" id="a-physical-audit" role="status" hidden>工作位未实测配准；不可直接加工。</div>
+<div class="warning compact-warning" id="a-physical-audit" role="status" hidden></div>
 <div class="control-block" id="a-pose-selector" hidden>
 <div class="title">平台 A</div>
 <div class="buttons">
 <button id="btn-a-working-pose" class="on" aria-pressed="true">工作位</button>
 <button id="btn-a-photo-pose" aria-pressed="false">照片参考</button>
-</div><div class="marked-note compact-note" id="a-working-metrics" role="status" hidden>工作位</div></div>
+</div><div class="marked-note compact-note" id="a-working-metrics" role="status" hidden></div></div>
 <div class="control-block" id="photo-crosscheck"><div class="title">照片视图</div>
-<p class="small" id="photo-scope-note" data-ref-rig="A">A · 94/95/97/191–196</p>
+<p class="small" id="photo-scope-note" data-ref-rig="A" hidden></p>
 <div class="buttons"><button id="btn-photo947">A · 94/95/97</button><button id="btn-photo94">94 · G40/L</button><button id="btn-photo95">95 · T25M</button><button id="btn-photo97">97 · VC13M</button><button id="btn-photo196">196 · G40</button></div>
 <div class="control-block" id="a-photo-20261108" hidden>
  <div class="title">A 高清视角</div>
@@ -47,7 +47,7 @@
 <div class="control-block"><div class="title">03 / 显示与筛选</div>
 <div class="buttons"><button id="toggle-holes" class="on">孔位</button><button id="toggle-axes">坐标轴</button><button id="toggle-wire">线框</button><button id="toggle-labels" class="on">仅选中标签</button><button id="toggle-dim" class="on">选中尺寸框</button></div>
 <input id="search" class="search" placeholder="查找型号或零件，例如 NFP / 显微镜" aria-label="搜索零件"><div id="group-list" class="list"></div>
-</div><p class="small">鼠标左键旋转 · 滚轮缩放 · 右键平移 · 点击零件查看规格。所有空间坐标以毫米计。</p>
+</div>
 </aside>
 <main class="stage"><div id="viewer" class="viewer" role="img" aria-label="可旋转、选择零件的三维装配模型"></div>
 <div class="stage-top"><span class="pill" id="platform-caption">平台 B · 样品旋转 / 显微镜 / 玻片转移臂</span><span class="pill">轴向：X 左右 / Y 高度 / Z 前后</span></div>
@@ -90,7 +90,7 @@
 <div class="control-block" hidden><div class="title">文件与资料</div><div class="footlinks"><a href="docs/engineering.md">孔位/证据说明</a><a href="cad/build_assemblies.py">CAD 生成脚本</a><a href="README.md">项目说明</a></div></div>
 </aside>
 </div>
-<footer class="bottom"><span>逆向工程模型 · mm · 候选尺寸不可直接加工</span></footer>
+<footer class="bottom"><span>mm</span></footer>
 <div class="drawer" id="bom-drawer" role="dialog" aria-modal="true" aria-label="整机零件清单"><div class="modal">
 <div class="modal-head"><h2 id="bom-heading">零件 BOM</h2><div class="buttons"><button id="export-csv">导出完整 BOM.csv</button><button id="close-bom">关闭</button></div></div>
  <div class="bom-tools"><input id="bom-query" class="search" placeholder="型号 / 零件 / 供应商 / 替代品牌搜索" aria-label="在BOM中搜索"><select id="bom-sort" aria-label="BOM排序"><option value="id">零件编号</option><option value="name">零件名称</option><option value="maker">厂家</option><option value="level">证据等级</option><option value="price-desc">价格从高到低（不跨币种比较）</option><option value="price-asc">价格从低到高（不跨币种比较）</option></select><label class="price-only"><input id="priced-only" type="checkbox">只看有公开价</label></div>

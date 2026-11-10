@@ -4117,8 +4117,7 @@ function updateDetail(part){
    b35FastenerHtml+b08FitHtml+aRigHtml+a05cVendorHtml+a06VendorHtml+a18VendorHtml+
    photo94QAHtml+photo95QAHtml+
    '</div>';
- el.innerHTML='<span class="status '+part.level+'">'+esc(levelShort[part.level]||part.level)+'</span>'+
- '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
+ el.innerHTML='<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
  '<div class="field"><b>ID</b>'+esc(part.id)+'</div>'+
  '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
  '<div class="field"><b>安装</b><p>'+esc(mountUserText)+'</p></div>'+
@@ -4482,17 +4481,11 @@ function updatePhotoScope(){
  $('btn-b-archive').classList.remove('on');
  $('b-profile-note').textContent='PHUC-1 · GCM-1302M';
  const aCritical=$('a-physical-audit');
- aCritical.hidden=platform!=='A';
- if(platform==='A')aCritical.textContent=aWorkingPoseMode?
-   '工作位 · 整链180° · 未实测配准':
-   '照片参考位 · 未配准';
+ aCritical.hidden=true;aCritical.textContent='';
  const critical=$('b-physical-audit');
- critical.hidden=platform!=='B';
- if(platform==='B')critical.textContent='缺少真实夹具连接；不可直接加工。';
+ critical.hidden=true;critical.textContent='';
  node.dataset.refRig=platform==='A'?'A-94-95-97-137-144-152-155-161':'B-107-112-145-151';
- node.textContent=platform==='A'?
-  'A · 94/95/97/191–196':
-  'B · 108–112/145–151 · PHUC-1 / GCM-1302M';
+ node.textContent='';
  $('btn-photo947').textContent='A · 94/95/97';
 }
 function focusPhoto947(photo='94'){

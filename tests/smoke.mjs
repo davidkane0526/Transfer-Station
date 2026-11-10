@@ -15,12 +15,10 @@ await page.waitForTimeout(2300);
 // NOT the old speculative PHCP/PHSP metal bar.
 assert((await page.locator('#platform-caption').textContent()).includes('全系统布局已恢复'),
  'The B default must be the current PHOTO profile, clearly marked incomplete');
-assert((await page.locator('#b-physical-audit').textContent()).includes('缺少真实夹具连接'),
- 'B missing load-path must be explicitly visible in the UI');
-assert((await page.locator('#b-physical-audit').textContent()).length<50,
- 'Main B status must stay concise; detailed evidence belongs outside the primary UI');
-assert((await page.locator('#b-profile-note').textContent()).length<60,
- 'B profile note must remain user-facing, not a development log');
+assert.equal(await page.locator('#b-physical-audit').isHidden(),true,
+ 'Engineering audit warnings must not occupy the normal user UI');
+assert.equal(await page.locator('#b-profile-note').isHidden(),true,
+ 'Vendor/profile audit shorthand belongs outside the normal user UI');
 assert((await page.locator('#photo-ledger').textContent()).includes('GCM-VC13M'));
 assert((await page.locator('#photo-ledger').textContent()).includes('GCM-G40M60L'));
 assert((await page.locator('#photo-ledger').textContent()).includes('B29'),
@@ -363,8 +361,8 @@ const aProof=await page.locator('#photo-ledger').textContent();
 assert(aProof.includes('A15')&&aProof.includes('A02'),'A needs two physically separate T25M units');
 assert(aProof.includes('双轴手柄 X:+X / Y:+Z'),'A15 second orthogonal micrometer absent');
 assert(aProof.includes('94.jpg')&&aProof.includes('100.jpg'),'A actuator photo evidence missing');
-assert((await page.locator('#photo-scope-note').textContent()).includes('94/95/97'),
- 'Physical photo comparison must identify the correct A rig, not B');
+assert.equal(await page.locator('#photo-scope-note').isHidden(),true,
+ 'Photo-ID scope metadata must remain hidden from the normal user UI');
 // Keep candidate part selected for metadata, but hide the large cyan bounding
 // box in evidence comparison screenshots; the real stage remains fully visible.
 await page.locator('#toggle-dim').click();

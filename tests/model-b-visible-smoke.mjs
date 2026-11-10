@@ -15,7 +15,7 @@ try{
  await page.locator('#viewer canvas').waitFor();
  await page.waitForFunction(()=>document.querySelectorAll('#group-list .group-row').length>=7);
  assert.match(await page.locator('#platform-caption').innerText(),/平台 B.*145.*151/);
- assert.match(await page.locator('#photo-scope-note').innerText(),/PHUC-1/);
+ assert.equal(await page.locator('#photo-scope-note').isHidden(),true);
  const rect=await page.locator('#viewer canvas').boundingBox();
  assert(rect&&rect.width>=400&&rect.height>=400);
  // Capture a reviewable model BEFORE the long mechanical test suite.

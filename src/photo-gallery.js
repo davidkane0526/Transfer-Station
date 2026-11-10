@@ -94,60 +94,30 @@ function attachPhotoToTile({tile,ref,compact=false}){
 // unrelated photograph. Missing evidence stays visibly unbundled.
 export function mountPhotoEvidence(container,platform,partId){
  const refs=photoRefsForPart(platform,partId);
+ if(!refs.length)return null;
  const section=el('section','field photo-evidence-field');
  section.id='photo-evidence-gallery';
  section.dataset.partId=partId;
- const head=el('b','', '实物照片证据');
- section.append(head);
- if(!refs.length){
-  section.append(el('p','photo-no-evidence','未关联可追溯的实物照片编号。'));
-  container.append(section);return section;
- }
- const coverage=photoCoverageForPart(platform,partId);
- section.append(el('p','small',
-  refs.length+' 个关联编号 · 仓库内置 '+coverage.embeddedCount+
-  ' 张；其余原图尚未取得可发布的文件，不会以代用图冒充。'));
+ section.append(el('b','','实物照片'));
  const grid=el('div','evidence-photo-grid');
  for(const ref of refs){
+  if(!ref.src)continue;
   const card=el('figure','evidence-photo-card');
-  card.dataset.photoId=ref.id;card.dataset.photoSource=ref.src?'repository':'pending';
+  card.dataset.photoId=ref.id;card.dataset.photoSource='repository';
   const tile=el('button','evidence-photo-tile');tile.type='button';
-  tile.setAttribute('aria-label','查看照片 '+ref.id+'：'+ref.title);
-  const attached=attachPhotoToTile({tile,ref});
+  tile.setAttribute('aria-label','查看照片 '+ref.id);
+  attachPhotoToTile({tile,ref});
   const caption=el('figcaption','photo-caption');
-  caption.append(el('strong','', '照片 '+ref.id),el('span','',ref.title));
-  const foot=el('p','photo-caption-desc',ref.description||'按原始照片编号核查零件位置和装配关系。');
-  card.append(tile,caption,foot);
-  // Each bundled A photo now links to its OWN real-Three.js capture.
+  caption.append(el('strong','','照片 '+ref.id));
+  card.append(tile,caption);
   if(platform==='A'&&/^(191|192|193|194|195|196)$/.test(ref.id)){
-   const link=el('a','photo-comparison-link','本张实拍与模型截图逐图对照');
-   link.href='./photo-review.html#photo'+ref.id;
-   card.append(link);
-  }
-  if(!ref.src){
-   const upload=el('button','photo-local-import','在本机补充此编号原图');
-   upload.type='button';
-   const file=el('input');file.type='file';file.accept='image/*';file.hidden=true;
-   upload.onclick=()=>file.click();
-   file.onchange=async()=>{
-    try{
-     const url=await saveLocalPhoto(ref.id,file.files?.[0]);
-     if(url){
-      tile.replaceChildren();attached.fill(url);
-      card.dataset.photoSource='local';
-      upload.textContent='已存于本机浏览器，可点击放大';
-      upload.disabled=true;
-     }
-    }catch(e){upload.textContent='导入失败：'+String(e.message||e)}
-   };
-   card.append(upload,file);
+   const link=el('a','photo-comparison-link','对照模型');
+   link.href='./photo-review.html#photo'+ref.id;card.append(link);
   }
   grid.append(card);
  }
- section.append(grid);
- section.append(el('p','small','照片与模型部件按编号关联；本机补充的原图仅保存于当前浏览器，不会自动上传到 GitHub。'));
- container.append(section);
- return section;
+ if(!grid.children.length)return null;
+ section.append(grid);container.append(section);return section;
 }
 export function mountPhotoBOMCell(td,platform,partId){
  const refs=photoRefsForPart(platform,partId);
