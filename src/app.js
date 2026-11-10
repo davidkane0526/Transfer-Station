@@ -724,9 +724,17 @@ window.__modelAPhoto194Probe=()=>{
      A15ActuatorChainGapsMm:chainGaps,A15ActuatorChainsContinuous:a15ActuatorChainsContinuous,
      A15FloatingCentralControlCount:gA15.children.filter(o=>o.userData.A15Photo194SlotControlKnob).length,
      clampScrewCount:screwHeads.length,
-     clampScrewAxesParallelShortEdge:screwShafts.every(o=>{
-       const q=size(o);return q.z>q.x*4&&q.z>q.y*4;
+     clampScrewAxesVertical:screwShafts.every(o=>{
+       const q=size(o);return q.y>q.x*3&&q.y>q.z*3;
      }),
+     clampScrewPairLineParallelShortEdge:(()=>{
+       const p=screwHeads.map(o=>o.getWorldPosition(new THREE.Vector3()));
+       return p.length===2&&Math.abs(p[0].x-p[1].x)<.05&&Math.abs(p[0].z-p[1].z)>10;
+     })(),
+     clampScrewPitchAcrossShortEdgeMm:(()=>{
+       const p=screwHeads.map(o=>o.getWorldPosition(new THREE.Vector3()));
+       return p.length===2?d(Math.abs(p[0].z-p[1].z)):null;
+     })(),
      g40DrumBendOverlapVolumeAabbMm3:g40Overlap,
      sampleMicrometerStemDrumEngagementMm:d(shaft.max.x-knob.min.x),
      A03TonguePlateOverlapMm:window.__modelAVerticalGuideProbe?.().tonguePlateOverlapMm??null,
