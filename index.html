@@ -5,37 +5,34 @@
 <link rel="stylesheet" href="./src/styles.css">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script></head>
 <body><header class="top">
-<div><div class="eyebrow">TRANSFER STATION / ENGINEERING DIGITAL TWIN · RECONSTRUCTION</div><h1>两套干法转移平台 · 交互式工程总装</h1><p class="subtitle">显微镜 · 载玻片运动臂 · 样品平移台 · 旋转台 · 陶瓷加热真空吸附台</p></div>
-<div class="top-actions"><a href="./photo-review.html" class="photo-review-link">A 实物照片 ↔ 实际渲染逐图对照</a><button id="open-bom">零件 BOM / 证据</button><a href="https://github.com/davidkane0526/Transfer-Station" target="_blank" rel="noreferrer">GitHub 项目</a></div>
+<div><div class="eyebrow">TRANSFER STATION</div><h1>干法转移平台</h1><p class="subtitle">交互式 3D 装配 · BOM · 实物对照</p></div>
+<div class="top-actions"><a href="./photo-review.html" class="photo-review-link">实物对照</a><button id="open-bom">BOM</button><a href="https://github.com/davidkane0526/Transfer-Station" target="_blank" rel="noreferrer">GitHub</a></div>
 </header>
 <div class="layout">
 <aside class="side">
 <div class="title">01 / 系统</div><div class="tabs"><button id="show-b" class="on">平台 B</button><button id="show-a">平台 A</button></div>
 <div class="control-block" id="b-photo-profile">
- <div class="title">B 实物机构 · 新增尺寸照片 145–151</div>
- <div class="buttons"><button id="btn-b-user-photos" class="on">B · 108/109/145–151 实物</button><button id="btn-b-archive">查看另一套平台 A</button></div>
- <p class="small" id="b-profile-note">照片149明确为 Zolix PHUC-1 万向杆夹，照片150明确为 GCM-1302M 玻片夹；B的真空加热/样品位移机构及显微镜必须一同显示。照片94/95/97属于A。</p>
- <div class="warning" id="b-physical-audit" role="status">模型 B 的玻片夹具端与样品侧连接未完成物理验收，禁止作为加工装配图。</div>
+ <div class="title">平台 B</div>
+ <div class="buttons"><button id="btn-b-user-photos" class="on">实物视图</button><button id="btn-b-archive">平台 A</button></div>
+ <p class="small" id="b-profile-note">PHUC-1 · GCM-1302M</p>
+ <div class="warning compact-warning" id="b-physical-audit" role="status">缺少真实夹具连接；不可直接加工。</div>
 </div>
-<div class="warning" id="a-physical-audit" role="status" hidden>平台 A 的工作位置尚未完成配准，无法确认玻片端到热台的正常接触。</div>
+<div class="warning compact-warning" id="a-physical-audit" role="status" hidden>工作位未实测配准；不可直接加工。</div>
 <div class="control-block" id="a-pose-selector" hidden>
-<div class="title">平台 A · 当前转移装配 / 照片参考方向</div>
-<p class="small"><strong>V79方向纠错：</strong>载玻片侧 A17→A15→A03→A04L→A04→A05→夹具→玻片作为一个刚体链整体旋转180°，使玻片/PDMS朝向样品侧。76×26×1 mm玻片保留为转移机构必需件。两枚夹紧螺杆的<strong>轴线平行于玻片26 mm短边</strong>，作用于侧向压紧条，不再竖直穿过折弯脚。夹具SKU、牙型和实物尺寸仍待测。<a href="./photo-review.html">实物与模型逐图对照</a>。</p>
+<div class="title">平台 A</div>
 <div class="buttons">
-<button id="btn-a-working-pose" class="on" aria-pressed="true">当前安装 · 整体旋转180° · 含玻片</button>
-<button id="btn-a-photo-pose" aria-pressed="false">仅查看照片94参考方向</button>
-</div><div class="marked-note" id="a-working-metrics" role="status">当前方向由用户确认用于转移逻辑；厂家尺寸仅用于已识别部件。A05夹具、A17磁座和完整光学工作距离仍未完成实测验收。</div></div>
-<div class="control-block" id="photo-crosscheck"><div class="title">实物照片的对应关系</div>
-<p class="small" id="photo-scope-note" data-ref-rig="A">A：94/95/97、137–144、152、155、161（新增GCM-5306M底座）。B：107–112、145–151（新增PHUC-1和GCM-1302M同机确认）。两套装配不可混用。</p>
-<div class="buttons"><button id="btn-photo947">查看照片94 / 95 / 97对应的A装配</button><button id="btn-photo94">94 · G40/L片</button><button id="btn-photo95">95 · T25M</button><button id="btn-photo97">97 · VC13M</button><button id="btn-photo196">196 · G40右向测微头近景</button></div>
+<button id="btn-a-working-pose" class="on" aria-pressed="true">工作位</button>
+<button id="btn-a-photo-pose" aria-pressed="false">照片参考</button>
+</div><div class="marked-note compact-note" id="a-working-metrics" role="status">工作位候选</div></div>
+<div class="control-block" id="photo-crosscheck"><div class="title">照片视图</div>
+<p class="small" id="photo-scope-note" data-ref-rig="A">A · 94/95/97/191–196</p>
+<div class="buttons"><button id="btn-photo947">A · 94/95/97</button><button id="btn-photo94">94 · G40/L</button><button id="btn-photo95">95 · T25M</button><button id="btn-photo97">97 · VC13M</button><button id="btn-photo196">196 · G40</button></div>
 <div class="control-block" id="a-photo-20261108" hidden>
- <div class="title">平台 A · 新增两张高清实拍的观察方向</div>
- <p class="small">图1显示显示器正面，A15银色长槽板面向镜头，+X微分头在画面左侧，L形折边在右侧；图2显示显示器在左侧，VC13M正面及两组正交调节轴同时可见。<b>相机视角候选，整套实体不镜像。</b></p>
+ <div class="title">A 高清视角</div>
  <div class="buttons">
-  <button id="btn-a-photo-monitor-front">高清图1 · 屏幕正后方 / A15长槽面</button>
-  <button id="btn-a-photo-monitor-side">高清图2 · 屏幕在左 / VC13M铭牌面</button>
+  <button id="btn-a-photo-monitor-front">图 1 · 前视</button>
+  <button id="btn-a-photo-monitor-side">图 2 · 侧视</button>
  </div>
- <p class="small">点击只旋转三维相机，不改变测微头、折弯片或XY轴位置；屏幕是确定拍摄侧的外部参照，不作为机械零件。</p>
 </div>
 </div>
 <div class="control-block"><div class="title">02 / 三维视图</div><div class="buttons"><button id="btn-home">默认视角</button><button id="btn-top">俯视</button><button id="btn-optical">玻片/物镜俯视</button><button id="btn-front">正视</button><button id="btn-rear">后侧接口</button><button id="btn-control-cabinet">控制箱内部</button><button id="btn-iso">轴测</button><button id="btn-film-stack">放大载玻片侧</button><button id="btn-film-holder">杆夹与玻片夹近景</button><button id="btn-photo108">照片108·磁座面</button><button id="btn-photo109">照片109·T25M面</button><button id="btn-sample-stack">放大样品侧</button></div>
@@ -56,55 +53,48 @@
 <div class="stage-top"><span class="pill" id="platform-caption">平台 B · 样品旋转 / 显微镜 / 玻片转移臂</span><span class="pill">轴向：X 左右 / Y 高度 / Z 前后</span></div>
 <div class="stage-bottom"><span id="hover-help">点击零件显示唯一标签及尺寸；点空白取消</span><span id="measurement-text" aria-live="polite">坐标 X / Y(高度) / Z · 单位 mm</span></div>
 </main>
-<aside class="detail"><div class="title">04 / 点击选中 · 尺寸与装配证据</div><div id="part-detail" class="select-placeholder">点击模型中的部件，或在下面查看零件表。绿色标签代表厂家标称尺寸，橙色/红色表示尚需验证的候选几何。</div>
-<div class="control-block"><div class="title">尺寸可信度</div><p class="small" id="axis-confidence-note">NFP-1462C 原厂只有一个线性 X 轴；B03 玻片台的机构 X/Y 两轴在本三维坐标系中分别为 X/Z。模型中其他新绘制的螺钉（除 B14 的四枚数量与齐平状态）均为候选占位，不可据此加工。</p><div class="legend"><span class="status D">D 原厂图纸</span><span class="status P">P 照片</span><span class="status U">U 用户确认</span><span class="status I">I 推导</span><span class="status C">C 候选</span></div><div class="warning">**工程使用限制**：真实外形、真实孔距与厂家完整 CAD 是三个不同层次。本模型的显微镜和部分转接件仍为外形代理，不能直接用于加工或接线。</div></div>
+<aside class="detail"><div class="title">04 / 零件</div><div id="part-detail" class="select-placeholder">点击零件查看规格、尺寸和来源。</div>
+<div class="control-block"><div class="title">证据等级</div><p class="small" id="axis-confidence-note">轴标记为模型辅助，非实物铭牌。</p><div class="legend"><span class="status D">D 原厂图纸</span><span class="status P">P 照片</span><span class="status U">U 用户确认</span><span class="status I">I 推导</span><span class="status C">C 候选</span></div><div class="warning compact-warning">候选尺寸不可直接加工。</div></div>
 <div class="control-block"><div class="title">装配链</div><div id="stack-note" class="small"></div></div>
-<div class="control-block"><div class="title">导入原厂三维 CAD（本地）</div>
-<p class="small">选中模型中的一个零件后，可以导入该零件的原厂 STL 或 GLB，用真实网格替换候选外形。浏览器不上传文件；要保留修改需在本地另存。</p>
-<div class="buttons"><button id="import-cad">为选中零件导入 STL / GLB</button><button id="restore-cad" disabled>恢复原代理几何</button>
-<select id="import-units" aria-label="导入模型尺寸单位"><option value="1">文件为 mm</option><option value="1000">文件为 m → mm</option></select></div>
+<details class="control-block advanced-tools">
+<summary class="title">高级 · 原厂 CAD</summary>
+<div class="buttons"><button id="import-cad">导入 STL / GLB</button><button id="restore-cad" disabled>恢复代理</button>
+<select id="import-units" aria-label="导入模型尺寸单位"><option value="1">mm</option><option value="1000">m → mm</option></select></div>
 <input type="file" id="cad-file" accept=".stl,.glb" hidden>
+<p class="small" id="import-status">未导入 CAD</p>
+<details class="cad-advanced"><summary>配准工具</summary>
 <div class="cad-alignment">
-<label>安装配准预设<select id="cad-profile"><option value="center">通用：包络居中（仅外观）</option><option value="nfp1462c">NFP-1462C 原厂 STEP 轴向预设</option></select></label>
-<div class="cad-offsets"><label>X 偏移 (mm)<input id="cad-offset-x" type="number" value="0" step="0.5"></label>
-<label>Y 偏移 (mm)<input id="cad-offset-y" type="number" value="0" step="0.5"></label>
-<label>Z 偏移 (mm)<input id="cad-offset-z" type="number" value="0" step="0.5"></label>
-<label>绕Y旋转 (°)<input id="cad-yaw" type="number" value="0" step="1"></label></div>
-<button id="apply-cad-alignment">应用局部配准修正</button>
-<div class="field"><b>对应安装特征点配准（仅 B09，非自动认证）</b>
-<p class="small">在原厂转换后的 STL 上读取两个不同孔心或明确基准点的 X,Z（mm）；目标为 B09 装配局部坐标系内对应点的 X,Z（mm），不是光学板世界坐标。两组坐标必须来自可靠资料，不能直接用候选 50 mm 孔距填充。至少两对；两对点无法验证镜像/孔面，第三对更可靠。</p>
+<label>预设<select id="cad-profile"><option value="center">包络居中</option><option value="nfp1462c">NFP-1462C</option></select></label>
+<div class="cad-offsets"><label>X<input id="cad-offset-x" type="number" value="0" step="0.5"></label>
+<label>Y<input id="cad-offset-y" type="number" value="0" step="0.5"></label>
+<label>Z<input id="cad-offset-z" type="number" value="0" step="0.5"></label>
+<label>Yaw<input id="cad-yaw" type="number" value="0" step="1"></label></div>
+<button id="apply-cad-alignment">应用偏移</button>
 <div class="cad-offsets">
-<label>源点1 · STL X,Z <input id="cad-src-1" type="text" inputmode="decimal" placeholder="源点1 X,Z" value=""></label>
-<label>目标点1 · 局部 X,Z <input id="cad-dst-1" type="text" inputmode="decimal" placeholder="目标点1 X,Z" value=""></label>
-<label>源点2 · STL X,Z <input id="cad-src-2" type="text" inputmode="decimal" placeholder="源点2 X,Z" value=""></label>
-<label>目标点2 · 局部 X,Z <input id="cad-dst-2" type="text" inputmode="decimal" placeholder="目标点2 X,Z" value=""></label>
-<label>源点3（可选）· STL X,Z <input id="cad-src-3" type="text" inputmode="decimal" placeholder="源点3 X,Z" value=""></label>
-<label>目标点3（可选）· 局部 X,Z <input id="cad-dst-3" type="text" inputmode="decimal" placeholder="目标点3 X,Z" value=""></label>
+<label>源1<input id="cad-src-1" type="text" inputmode="decimal" placeholder="X,Z"></label><label>目标1<input id="cad-dst-1" type="text" inputmode="decimal" placeholder="X,Z"></label>
+<label>源2<input id="cad-src-2" type="text" inputmode="decimal" placeholder="X,Z"></label><label>目标2<input id="cad-dst-2" type="text" inputmode="decimal" placeholder="X,Z"></label>
+<label>源3<input id="cad-src-3" type="text" inputmode="decimal" placeholder="X,Z"></label><label>目标3<input id="cad-dst-3" type="text" inputmode="decimal" placeholder="X,Z"></label>
 </div>
-<div class="field"><b>从原厂 STEP 导出的本地候选圆心 JSON</b>
-<p class="small">先用 cad/extract_oem_features.py 在本机生成特征 JSON。列表只显示 BREP 圆形特征候选，不能确认它是安装孔或内螺纹。文件仅在本机浏览器读取，不上传。</p>
-<div class="buttons"><button id="load-cad-features">选择本地候选圆心 JSON</button>
-<input type="file" accept=".json,application/json" id="cad-features-file" hidden></div>
-<label>候选特征<select id="cad-feature-list" aria-label="原厂几何候选圆心" disabled><option value="">尚未载入特征数据</option></select></label>
-<div class="buttons"><label>填入源点<select id="cad-feature-slot"><option value="1">第1对</option><option value="2">第2对</option><option value="3">第3对</option></select></label>
-<button id="use-cad-feature" disabled>将候选圆心填入源点</button></div>
-<p class="small" id="cad-feature-status">原厂几何未从本地载入。不得将列表圆边直接判为已攻丝安装孔。</p>
-</div>
-<button id="fit-cad-landmarks">按实测对应点配准 X/Z 与偏航</button>
-<p class="small" id="cad-registration-status">尚未提供对应点。任何配准计算通过均不代表螺纹、孔面、高度或装配干涉已验收。</p></div>
-<a href="https://www.zolix-group.com/product/specification/179.html" target="_blank" rel="noopener noreferrer">NFP 原厂 CAD / 尺寸图</a>
-</div>
-<p class="small" id="cad-motion-note" hidden>当前导入的是整件静态网格，未分离固定台与运动台。B09 的样品平移已暂时禁用，以免显示虚假的原厂运动；点击“恢复原代理几何”可恢复候选运动仿真。导入网格不代表螺孔和安装面已验收。</p>
-<p class="small" id="import-status">STEP 先用 cad/convert_vendor_step_to_stl.py 转换。NFP 原厂文件为44个壳体而非封闭实体；导入后需人工核对孔中心和高度基准。</p></div>
-<div class="control-block"><div class="title">照片对照 · 安装顺序与手柄</div><div class="small" id="photo-ledger">加载照片证据索引...</div></div>
+<div class="buttons"><button id="load-cad-features">载入特征 JSON</button><input type="file" accept=".json,application/json" id="cad-features-file" hidden>
+<select id="cad-feature-list" aria-label="原厂几何候选圆心" disabled><option value="">未载入</option></select>
+<select id="cad-feature-slot"><option value="1">点1</option><option value="2">点2</option><option value="3">点3</option></select>
+<button id="use-cad-feature" disabled>填入</button></div>
+<p class="small" id="cad-feature-status">未载入特征</p>
+<button id="fit-cad-landmarks">特征点配准</button>
+<p class="small" id="cad-registration-status">未配准</p>
+<a href="https://www.zolix-group.com/product/specification/179.html" target="_blank" rel="noopener noreferrer">NFP CAD</a>
+</div></details>
+<p class="small" id="cad-motion-note" hidden>静态网格：运动已禁用</p>
+</details>
+<div id="photo-ledger" hidden></div>
 <div class="control-block"><div class="title">文件与资料</div><div class="footlinks"><a href="docs/engineering.md">孔位/证据说明</a><a href="cad/build_assemblies.py">CAD 生成脚本</a><a href="README.md">项目说明</a></div></div>
 </aside>
 </div>
-<footer class="bottom"><span>研究用途的逆向工程模型 · 主基准尺寸为 mm · 未经核实的螺纹深度和电气配置不得直接用于采购加工</span><span>公开仓库不包含原始照片视频</span></footer>
+<footer class="bottom"><span>逆向工程模型 · mm · 候选尺寸不可直接加工</span></footer>
 <div class="drawer" id="bom-drawer" role="dialog" aria-modal="true" aria-label="整机零件清单"><div class="modal">
-<div class="modal-head"><h2 id="bom-heading">零件 BOM / 型号、尺寸、价格与证据等级</h2><div class="buttons"><button id="export-csv">导出完整 BOM.csv</button><button id="close-bom">关闭</button></div></div>
+<div class="modal-head"><h2 id="bom-heading">零件 BOM</h2><div class="buttons"><button id="export-csv">导出完整 BOM.csv</button><button id="close-bom">关闭</button></div></div>
  <div class="bom-tools"><input id="bom-query" class="search" placeholder="型号 / 零件 / 供应商 / 替代品牌搜索" aria-label="在BOM中搜索"><select id="bom-sort" aria-label="BOM排序"><option value="id">零件编号</option><option value="name">零件名称</option><option value="maker">厂家</option><option value="level">证据等级</option><option value="price-desc">价格从高到低（不跨币种比较）</option><option value="price-asc">价格从低到高（不跨币种比较）</option></select><label class="price-only"><input id="priced-only" type="checkbox">只看有公开价</label></div>
  <div class="bom-summary" id="bom-summary" aria-live="polite"></div>
-<p class="small">公开价格保留原始币种和来源日期。小计按数量计算；各币种分别汇总，缺失报价列为待询价。替代厂家仅提供兼容性审查候选，不是可以直接换装的已验证替代型号。</p>
+<p class="small">价格按原币种汇总；候选替代件需核对接口。</p>
 <div class="table-wrap"><table><thead><tr><th>ID</th><th>子系统</th><th>零件 / 类别</th><th>原厂 / 型号</th><th>数量</th><th>尺寸(mm)</th><th>证据</th><th>材料 / 替代厂商</th><th>单价和币种</th><th>小计</th><th>价格来源 / 日期</th><th>原厂图纸 / CAD</th><th>照片</th></tr></thead><tbody id="bom-body"></tbody></table></div></div></div>
 <script type="module" src="./src/app.js"></script></body></html>

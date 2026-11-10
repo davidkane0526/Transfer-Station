@@ -17,6 +17,10 @@ assert((await page.locator('#platform-caption').textContent()).includes('全系�
  'The B default must be the current PHOTO profile, clearly marked incomplete');
 assert((await page.locator('#b-physical-audit').textContent()).includes('缺少真实夹具连接'),
  'B missing load-path must be explicitly visible in the UI');
+assert((await page.locator('#b-physical-audit').textContent()).length<50,
+ 'Main B status must stay concise; detailed evidence belongs outside the primary UI');
+assert((await page.locator('#b-profile-note').textContent()).length<60,
+ 'B profile note must remain user-facing, not a development log');
 assert((await page.locator('#photo-ledger').textContent()).includes('GCM-VC13M'));
 assert((await page.locator('#photo-ledger').textContent()).includes('GCM-G40M60L'));
 assert((await page.locator('#photo-ledger').textContent()).includes('B29'),

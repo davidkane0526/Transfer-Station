@@ -38,7 +38,7 @@ try{
    assert.equal(await toggle.count(),1,'B scene missing '+category);
    assert.equal(await toggle.isChecked(),true,'B scene category hidden '+category);
  }
- const proof=await page.locator('#photo-ledger').innerText();
+ const proof=await page.locator('#photo-ledger').textContent();
  for(const id of ['B02','B03','B04','B05','B27','B34','B33','B24','B25','B28','B06','B07','B35','B08','B41','B09','B36','B19','B21','B23','B37','B38','B39','B40'])
    assert(proof.includes(id),'B photo evidence ledger missing '+id);
  assert.equal(await page.locator('#sample-move').isEnabled(),true);
@@ -467,7 +467,7 @@ try{
  const restoredExternal=await page.evaluate(()=>window.__modelBViewProbe());
  assert.deepEqual(restoredExternal.hiddenExternalParts,[],
     'Turning external group ON must restore all B36 external assemblies');
- assert.match(await page.locator('#photo-ledger').innerText(),/B35/);
+ assert.match(await page.locator('#photo-ledger').textContent(),/B35/);
  // The black sample-side Thorlabs mounting board is independently
  // selectable; switching film-side profiles cannot delete it.
  assert.equal(await page.locator('#group-list input[data-group="base"]').isChecked(),true);
@@ -632,7 +632,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V108.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V109.*工作位.*180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -1188,8 +1188,9 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V108当前安装方向/);
- assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
+ const aAuditUi=await page.locator('#a-physical-audit').innerText();
+ assert.match(aAuditUi,/工作位.*180°/);
+ assert(aAuditUi.length<60,'Main UI audit status must stay concise; detailed engineering evidence belongs in docs/BOM');
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
  // A03 VC13M must move only its output plate; A04/A05 follow the
@@ -1521,7 +1522,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(mountA?.A15OnA17,true);
  assert.equal(mountA?.A16CandidateAnchorHeads,4);
  assert.equal(mountA?.A17OEMIdentityVerified,false);
-  const evidenceA=await page.locator('#photo-ledger').innerText();
+  const evidenceA=await page.locator('#photo-ledger').textContent();
  assert.match(evidenceA,/A15/);
  assert.match(evidenceA,/A16/,'Photo137/161 mounting base must be in A stack');
  await page.screenshot({path:'Transfer-Station-ModelA-5306M-Base.png'});
