@@ -1247,7 +1247,8 @@ try{
  assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 196/);
  assert(!/原图未入库|未关联|尚未取得/.test(await page.locator('#photo-evidence-gallery').innerText()),
    'Normal part UI must not show missing-evidence chatter');
- assert.match(await page.locator('#part-detail').innerText(),/夹持器|玻片夹/);
+ assert.match(await page.locator('#part-detail').innerText(),/玻片侧向夹持组件/,
+   'User detail card should use the concise product-facing A05C name');
  const a05cVendorCard=page.locator('#a05c-vendor-comparison');
  assert.equal(await a05cVendorCard.getAttribute('data-confirmed'),'false');
  assert.equal(await a05cVendorCard.getAttribute('data-gcm13-applied'),'false',
