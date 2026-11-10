@@ -261,7 +261,9 @@ window.__platformABareClampProbe=()=>{
  const hp=heads.map(o=>o.getWorldPosition(new THREE.Vector3()));
  const stamp=glassRoot.children.find(o=>o.userData.A05GStampRightMarginMm!==undefined);
  const stampPos=new THREE.Vector3(),samplePos=new THREE.Vector3();stamp?.getWorldPosition(stampPos);parts.get('A07W')?.g.getWorldPosition(samplePos);
- return {available:true,visibleGlass:glassRoot.visible,visibleClamp:clamp.visible,visibleWingScrewCount:heads.length,shaftCount:shafts.length,
+ return {available:true,visibleGlass:glassRoot.visible,visibleClamp:clamp.visible,visibleWingScrewCount:heads.length,
+  visibleWingEarCount:screws.children.filter(m=>m.userData.A05CSWingEar).length,
+  wingEarTiltDegCandidate:screws.userData.wingEarTiltDegCandidate??null,shaftCount:shafts.length,
   actualFootBores:foot.userData.A05ActualThroughBoreCount,screwAxesVertical:shaftSizes.every(v=>v.y>v.x*3&&v.y>v.z*3),
   screwPairLineParallelGlassShortEdge:Math.abs(hp[0].x-hp[1].x)<.05&&Math.abs(hp[0].z-hp[1].z)>10,
   screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(hp[0].z-hp[1].z).toFixed(2)),
@@ -287,6 +289,8 @@ window.__modelA05PhotoEvidenceProbe=()=>{
  const bb=o=>new THREE.Box3().setFromObject(o),size=o=>{const v=new THREE.Vector3();bb(o).getSize(v);return v};
  const glassBox=bb(slide),positions=heads.map(m=>m.getWorldPosition(new THREE.Vector3()));
  return {available:true,pose:aWorkingPoseMode?'installed180':'photo-reference',visibleFastenerCount:heads.length,
+  visibleWingEarCount:screws.children.filter(m=>m.userData.A05CSWingEar).length,
+  wingEarTiltDegCandidate:screws.userData.wingEarTiltDegCandidate??null,
   fastenerShaftAxis:'Y / vertical through folded foot',actualShaftGeometryVertical:shafts.every(m=>{const v=size(m);return v.y>v.x*3&&v.y>v.z*3;}),
   fastenerPairLineAxis:'Z / parallel to glass 26mm short edge',actualPairLineParallelShortEdge:Math.abs(positions[0].x-positions[1].x)<.05,
   screwPitchAcrossGlassShortEdgeMm:Number(Math.abs(positions[1].z-positions[0].z).toFixed(2)),
@@ -3249,11 +3253,18 @@ function platformA(){
      const hub=add(g,cyl(3,3,mats.silver,screwX,footBottomY+7,z));
      hub.userData.A05CSScrewHead=true;hub.userData.photo194WingFastenerCandidate=true;
      for(const wingSide of [-1,1]){
-       const wing=add(g,cub(5,1.8,2.4,mats.steel,screwX+wingSide*3,footBottomY+8.3,z));
-       wing.rotation.y=wingSide*.3;wing.userData.A05CSWingEarPlane='horizontal-about-vertical-shaft';
+       // User fig.5: the two butterfly ears rise away from the hub in a V.
+       const wing=add(g,cub(6.5,2.2,3.2,mats.steel,
+         screwX+wingSide*3.25,footBottomY+8.5,z));
+       wing.rotation.z=wingSide*.58;
+       wing.userData.A05CSWingEar=true;
+       wing.userData.A05CSWingEarTiltDegCandidate=33.2;
      }
    }
    g.userData.visibleWingFastenerCount=2;
+   g.userData.wingEarCount=4;
+   g.userData.wingEarTiltDegCandidate=33.2;
+   g.userData.wingEarTiltPhotoSource='user-fig-5';
    g.userData.screwShaftAxis='scene-Y / vertical through A05 folded foot';
    g.userData.screwPairLine='scene-Z / parallel to 26mm glass short edge';
    g.userData.screwPitchAcrossGlassShortEdgeMmCandidate=13;
