@@ -1498,7 +1498,9 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
    'Photo-reference orientation must not delete a required physical glass component');
  assert.equal(photographed.sideClampVisible,true);
  assert.equal(photographed.verticalFootBoreCount,0);
- assert.match(await page.locator('#a-physical-audit').innerText(),/照片94/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/照片参考位/);
+ assert((await page.locator('#a-physical-audit').innerText()).length<40,
+   'Photo-reference status must stay concise in the primary UI');
  assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
  assert.equal(await page.locator('#film-drop').isDisabled(),true,
    'Reference orientation is comparison-only and cannot run the transfer stroke');
