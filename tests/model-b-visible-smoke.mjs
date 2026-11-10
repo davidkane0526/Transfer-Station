@@ -700,8 +700,11 @@ try{
    'A05 clamp must actually be centered in its dedicated audit frame');
  assert(a05View.projection.width>.34&&a05View.projection.height>.22,
    'A05 clamp must occupy a meaningful fraction of the audit frame');
- assert.equal(a05View.fixedJawRay.clear,true,'A05 fixed jaw must not be hidden by unrelated hardware');
- assert.equal(a05View.pressureRay.clear,true,'A05 moving pressure plate must not be hidden by unrelated hardware');
+ assert.equal(a05View.fixedJawRay.clear,true,'A05 fixed jaw must be the first opaque target after skipping the transparent glass');
+ assert(a05View.fixedJawRay.skippedTransparentParts.includes('A05G'),
+   'Fixed-jaw visibility test must explicitly account for the transparent installed glass, not silently ignore all occluders');
+ assert.equal(a05View.fixedJawRay.firstPart,'A05C');
+ assert.equal(a05View.pressureRay.clear,true,'A05 moving pressure plate must be the first opaque target after transparent glass');
  assert(a05View.screwHeadRays.every(x=>x.clear),'Both A05 screw heads must be directly inspectable');
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);

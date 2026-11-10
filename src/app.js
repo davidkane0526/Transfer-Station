@@ -4387,16 +4387,25 @@ function _auditProjection(box){
    width:Number((maxX-minX).toFixed(3)),height:Number((maxY-minY).toFixed(3))};
 }
 function _isWithin(obj,root){for(let p=obj;p;p=p.parent)if(p===root)return true;return false;}
-function _auditRayClear(targetObj,allowedRoots){
- if(!targetObj)return {clear:false,firstPart:null};
+function _auditRayClear(targetObj,allowedRoots,{transparentSkipRoots=[]}={}){
+ if(!targetObj)return {clear:false,firstPart:null,skippedTransparentParts:[]};
  const target=targetObj.getWorldPosition(new THREE.Vector3());
  const dir=target.clone().sub(camera.position),dist=dir.length();
  const ray=new THREE.Raycaster(camera.position,dir.normalize(),0,dist+2);
- const hit=ray.intersectObject(currentRoot,true).find(h=>h.object.visible);
- if(!hit)return {clear:false,firstPart:null};
- const root=[...parts.entries()].find(([,v])=>_isWithin(hit.object,v.g));
- return {clear:allowedRoots.some(g=>_isWithin(hit.object,g)),firstPart:root?.[0]??null,
-   hitDistance:Number(hit.distance.toFixed(2)),targetDistance:Number(dist.toFixed(2))};
+ const hits=ray.intersectObject(currentRoot,true).filter(h=>h.object.visible);
+ const skipped=[];
+ for(const hit of hits){
+   const root=[...parts.entries()].find(([,v])=>_isWithin(hit.object,v.g));
+   if(transparentSkipRoots.some(g=>_isWithin(hit.object,g))){
+     if(root?.[0]&&!skipped.includes(root[0]))skipped.push(root[0]);
+     continue;
+   }
+   return {clear:allowedRoots.some(g=>_isWithin(hit.object,g)),firstPart:root?.[0]??null,
+     hitDistance:Number(hit.distance.toFixed(2)),targetDistance:Number(dist.toFixed(2)),
+     skippedTransparentParts:skipped};
+ }
+ return {clear:false,firstPart:null,targetDistance:Number(dist.toFixed(2)),
+   skippedTransparentParts:skipped};
 }
 function focusA05ClampAudit(){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
@@ -4443,10 +4452,11 @@ window.__A05CloseupProbe=()=>{
  const pressure=clamp?.children.find(o=>o.userData.A05CMovingMiddlePlate);
  const heads=screws?.children.filter(o=>o.userData.A05CSScrewHead)??[];
  if(!clamp||!screws||!fixed||!pressure||heads.length!==2)return {available:false};
- const allowed=[clamp,screws];
- return {available:true,projection:_auditProjection(_auditBoxFor(allowed)),
-   fixedJawRay:_auditRayClear(fixed,allowed),pressureRay:_auditRayClear(pressure,allowed),
-   screwHeadRays:heads.map(o=>_auditRayClear(o,allowed))};
+ const glassRoot=parts.get('A05G')?.g;
+ return {available:true,projection:_auditProjection(_auditBoxFor([clamp,screws])),
+   fixedJawRay:_auditRayClear(fixed,[fixed],{transparentSkipRoots:[glassRoot]}),
+   pressureRay:_auditRayClear(pressure,[pressure],{transparentSkipRoots:[glassRoot]}),
+   screwHeadRays:heads.map(o=>_auditRayClear(o,[screws],{transparentSkipRoots:[glassRoot]}))};
 };
 window.__A17CloseupProbe=()=>{
  if(platform!=='A')return {available:false};
