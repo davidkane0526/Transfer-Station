@@ -638,7 +638,7 @@ def make_b():
         box(65,72,48,335,65,0),'P')
 def make_a():
     board('A')
-    ax,cx=-82.75,78
+    ax,cx=-60.75,78
     # V80 uses Daheng's GCM-901602M catalog only as an additive height
     # cross-check for the same GCM-T25M2L + GCM-VC13M pair. The user's
     # installed order is reversed relative to the stock 901602M image, so
@@ -727,78 +727,50 @@ def make_a():
         vx(5,22,ax+20,0,189.5),'P')
     add('A','A04K','UPPER_G40M60L_right_knob_photo191_196',
         vx(8.5,15,ax+42,0,189.5),'P')
-    # V79: build ONE left-handed local A05 transfer end, then rotate the
-    # COMPLETE film-side branch 180° during complete-assembly export.
-    # This avoids the old error of mirroring only the bracket.
-    # Lowered transfer pose must retain the proven contact plane at z=111.9.
-    # Raising the vendor-constrained VC13/G40 stack therefore lengthens the
-    # custom folded leg instead of moving the glass through the sample.
-    leg_len=87.6
+    # V130: photo 1 fixes the canonical installed orientation. Build one
+    # left-handed local transfer end; the complete film branch is rigid-yawed
+    # 180 degrees for the installed STEP. Photo 5 replaces the old GCM-13
+    # side-pressure guess with a short upper plate, lower blade and TWO
+    # vertical wing screws whose centre line follows the 26mm glass short edge.
+    leg_len=86.1
     leg_bottom=199.5-leg_len
     bracket_leg_x=ax-60+1.25
-    foot=box(32,14,2.5,bracket_leg_x-16,0,leg_bottom)
+    screw_x=bracket_leg_x-8
+    screw_y=(-6.5,6.5)
+
+    # Upper folded foot: 32 x 26 x 2.5, with two real vertical clearance bores.
+    foot=box(32,26,2.5,bracket_leg_x-16,0,leg_bottom)
+    foot=cut(foot,[(screw_x,yy) for yy in screw_y],3.6,2.5,leg_bottom)
     sheet=box(87,12,2.5,ax-16.5,0,199.5).fuse(
         box(2.5,12,leg_len,bracket_leg_x,0,leg_bottom),foot)
-    add('A','A05','LEFT_LOCAL_BENT_SHEET_FOR_RIGID_180_INSTALLED_ROTATION',
+    add('A','A05','PHOTO1_CANONICAL_LEFT_LOCAL_BENT_SHEET_WITH_VERTICAL_WING_BORES',
         sheet,'C')
-    for i,dx in enumerate((-14,14),1):
-        add('A',f'A05S{i}','two_candidate_sheet_top_fastener_heads',
+    for n,dx in enumerate((-14,14),1):
+        add('A',f'A05S{n}','two_candidate_sheet_top_fastener_heads',
             vz(3.1,2,ax+dx,0,202.0),'C')
 
-    # Required glass extends outward in local -X. After the common 180°
-    # yaw its PDMS lies toward world +X / A07 sample side.
-    glass_near=bracket_leg_x-34
+    # Glass inserts 12mm beyond the folded leg and is sandwiched between
+    # the upper foot and a thin lower clamp blade. Local -X becomes world +X
+    # after the canonical 180° installation, so the PDMS work end faces right.
+    glass_near=bracket_leg_x-12
     glass_center_x=glass_near-38
-    glass_bottom=leg_bottom+.5
-    glass_center_z=glass_bottom+.5
+    glass_bottom=leg_bottom-1
     clamp_center_x=glass_near-14
-    # V95 explicit family-scale cross span. Both GCM-130M and GCM-1311M
-    # drawings contain a 26mm transverse dimension; this is not SKU proof.
-    glass_short_edge_mm=26
-    clamp_rail_thickness_mm=2
-    clamp_rail_center_offset_y=glass_short_edge_mm/2+clamp_rail_thickness_mm/2
+    lower_blade=box(40,26,1.5,bracket_leg_x-20,0,leg_bottom-2.5)
+    add('A','A05C','PHOTO5_LOWER_CLAMP_BLADE_UNIDENTIFIED_OEM',
+        lower_blade,'C')
 
-    # Side-clamp carrier. It supports the slide vertically and constrains the
-    # two long edges with fixed/moving rails. Exact SKU and dimensions remain
-    # unverified; the force direction, however, is no longer impossible.
-    neck=box(5,14,2.5,bracket_leg_x-32.5,0,leg_bottom-2.5)
-    ledge=box(28,30,1,clamp_center_x,0,glass_bottom-1)
-    fixed_rail=box(28,clamp_rail_thickness_mm,3,
-                   clamp_center_x,-clamp_rail_center_offset_y,glass_bottom-1)
-    bosses=[]
-    for q in (5,23):
-        screw_x=glass_near-q
-        bosses.append(box(7,7,7,screw_x,18.5,glass_bottom-3))
-    # V90: manufacturer-family topology only. A common fixed carrier holds
-    # both adjustment threads, which drive one middle moving plate. The
-    # current 28mm span remains a photo-fit envelope, not GCM-1302M/1311M
-    # exact overall geometry.
-    thread_carrier=box(28,4,5,clamp_center_x,18.5,glass_bottom-3)
-    add('A','A05C','GCM13_FAMILY_TOPOLOGY_FIXED_THREAD_CARRIER_PHOTO_FIT_ENVELOPE',
-        neck.fuse(ledge,thread_carrier,*bosses),'C')
-    add('A','A05CL','GCM13_FAMILY_EXPLICIT_FIXED_LOWER_JAW_26mm_CLEAR_SPAN',
-        fixed_rail,'C')
-    add('A','A05CU','GCM13_FAMILY_TOPOLOGY_MIDDLE_MOVING_PLATE_PHOTO_FIT',
-        box(28,clamp_rail_thickness_mm,3,
-            clamp_center_x,clamp_rail_center_offset_y,glass_bottom-1),'C')
-
-    # Two screw SHAFTS run along STEP +Y = WebGL scene Z, parallel to the
-    # 26mm glass short edge. They engage the pressure rail at Y=+14 and
-    # never pass vertically through the A05 folded foot or through glass.
-    for i,q in enumerate((5,23),1):
-        screw_x=glass_near-q
-        shank=vy(1.4,20,screw_x,14,glass_center_z)
-        hub=vy(3.0,3,screw_x,34,glass_center_z)
-        wings=[box(5,1.6,2.8,screw_x+sgn*3,36.2,glass_center_z-1.4)
+    # Two VERTICAL screw shafts: STEP Z == viewer Y. Their centres differ
+    # along STEP Y == viewer Z, parallel to the 26mm glass short edge.
+    for n,yy in enumerate(screw_y,1):
+        shank=vz(1.4,10,screw_x,yy,leg_bottom-4.5)
+        hub=vz(3.0,3,screw_x,yy,leg_bottom+5.5)
+        wings=[box(5,2.4,1.8,screw_x+sgn*3,yy,leg_bottom+7.4)
                for sgn in (-1,1)]
-        add('A',f'A05CS{i}','GCM13_FAMILY_TWO_ADJUSTMENT_SCREWS_AXIS_PARALLEL_GLASS_SHORT_EDGE',
+        add('A',f'A05CS{n}','PHOTO5_VERTICAL_WING_SCREW_PAIR_LINE_PARALLEL_GLASS_SHORT_EDGE',
             shank.fuse(hub,*wings),'C')
 
-    # V113: uninstalled GCM-1302M family silhouette study from the Daheng
-    # M-24 drawing. Outer manufacturer dimensions used here are L=60,
-    # depth=26, height=24, moving-jaw thickness=7 and adjustment extension=29.
-    # The longitudinal screw pitch is NOT dimensioned, so the ±15mm study
-    # placement is illustrative only. No hidden M6 interface is copied into A05.
+    # Hidden comparison study only. It is excluded from the installed STEP.
     study_z=glass_bottom-12
     g1302_fixed=box(60,14,24,clamp_center_x,-6,study_z)
     g1302_moving=box(60,7,24,clamp_center_x,9.5,study_z)
@@ -808,7 +780,7 @@ def make_a():
         g1302_solids.append(vy(5,10,xx,40,glass_bottom))
     g1302_study=cq.Compound.makeCompound(g1302_solids)
     add('A','A05C1302',
-        'GCM_1302M_VENDOR_SILHOUETTE_STUDY_L60_D26_H24_JAW7_EXT29_NOT_INSTALLED',
+        'GCM_1302M_VENDOR_SILHOUETTE_STUDY_NOT_INSTALLED_AFTER_PHOTO5',
         g1302_study,'C')
 
     add('A','A05G','installed_standard_76x26x1mm_glass_CANDIDATE',
@@ -1013,11 +985,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V129'
+CAD_REVISION='V130'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
-A_INSTALLED_FILM_CENTER_X=-82.75
+A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
-    """V129 installed A: installed collision envelopes exclude hidden vendor-study geometry.
+    """V130 installed A: photo1-canonical film geometry excludes hidden vendor studies.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """
@@ -1045,9 +1017,9 @@ def export(sys):
         if key in evidence_colors: props['color']=evidence_colors[key]
         installed=_installed_a_solid(key,shape) if sys=='A' else shape
         if key=='A05':
-            props['name']='A05__installed_rigid180_bent_sheet_with_side_clamp'
+            props['name']='A05__photo1_canonical_bent_sheet_vertical_wing_clamp'
         if key.startswith('A05CS'):
-            props['name']=key+'__side_screw_axis_parallel_glass_short_edge'
+            props['name']=key+'__vertical_wing_screw_pair_line_parallel_glass_short_edge'
         assembly.add(installed,**props)
     target=OUT/('platform_'+sys)/('platform_'+sys+'_complete_'+CAD_REVISION+'.step')
     assembly.save(str(target))
