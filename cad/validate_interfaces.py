@@ -879,8 +879,15 @@ check(abs((a18_bb.xmin+a18_bb.xmax)/2-(78+24))<.05,
 check(abs((a18t_bb.xmin+a18t_bb.xmax)/2-78)<.05 and
       abs((a18n_bb.xmin+a18n_bb.xmax)/2-78)<.05,
       'V92 top/bottom optical interfaces must remain on original optical axis')
-check(part(A,'A10A')[0].intersect(part(A,'A18')[0]).Volume()>500,
-      'V92 offset A18 housing must retain a substantial real A10 rear support contact')
+a10a_bb=part(A,'A10A')[0].BoundingBox()
+a18_contact_bb=part(A,'A18')[0].BoundingBox()
+a10a_a18_overlap_x=max(0,min(a10a_bb.xmax,a18_contact_bb.xmax)-max(a10a_bb.xmin,a18_contact_bb.xmin))
+a10a_a18_overlap_z=max(0,min(a10a_bb.zmax,a18_contact_bb.zmax)-max(a10a_bb.zmin,a18_contact_bb.zmin))
+a10a_a18_contact_area=a10a_a18_overlap_x*a10a_a18_overlap_z
+check(abs(a10a_bb.ymax-a18_contact_bb.ymin)<.02,
+      'V92 A10 boom front face must meet A18 rear face without a gap')
+check(a10a_a18_contact_area>500,
+      'V92 offset A18 housing must retain >500mm2 projected A10 rear support contact')
 report['V84_A_microscope_vendor_candidate_matrix']={
     'photo_refs':['191','192','193'],
     'A18_vendor_and_model_verified':False,
@@ -889,6 +896,8 @@ report['V84_A_microscope_vendor_candidate_matrix']={
     'photo_body_center_offset_from_optical_axis_mm':24,
     'photo_body_center_offset_physically_measured':False,
     'body_centered_on_optical_axis':False,
+    'A10_A18_rear_face_gap_mm':abs(a10a_bb.ymax-a18_contact_bb.ymin),
+    'A10_A18_projected_contact_area_mm2':a10a_a18_contact_area,
     'optical_axis_fraction_from_body_left':18/84,
     'current_scene_A10_post_diameter_mm':26,
     'current_scene_A10_post_diameter_physically_measured':False,
