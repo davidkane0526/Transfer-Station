@@ -976,6 +976,15 @@ try{
  assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 94/);
  assert.match(await page.locator('#photo-evidence-gallery').innerText(),/原图未入库/);
  assert.match(await page.locator('#part-detail').innerText(),/夹持器|玻片夹/);
+ const a05cVendorCard=page.locator('#a05c-vendor-comparison');
+ assert.equal(await a05cVendorCard.getAttribute('data-confirmed'),'false');
+ assert.equal(await a05cVendorCard.getAttribute('data-gcm13-applied'),'false');
+ const a05cVendorText=await a05cVendorCard.innerText();
+ assert.match(a05cVendorText,/GCM-13系列/);
+ assert.match(a05cVendorText,/GCM-1302M/);
+ assert.match(a05cVendorText,/GCM-1311M/);
+ assert.match(a05cVendorText,/当前28mm/);
+ assert.match(a05cVendorText,/厂家几何仍未套用/);
  // Clear the user's intentionally persistent filter even while the BOM drawer is closed.
  await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  const photoA=await page.evaluate(()=>window.__photoEvidenceProbe?.('A05C'));
@@ -1023,6 +1032,18 @@ try{
  assert.equal(photoAxis.verticalFootBoreCount,0);
  assert.equal(photoAxis.completeFilmBranchYawDeg,180);
  assert.equal(photoAxis.photo194196ConfirmsTwoFasteners,true);
+ assert.equal(photoAxis.GCM13FamilyFunctionalMatch,true);
+ assert.equal(photoAxis.GCM13VendorMaxPlateThicknessMm,5);
+ assert.equal(photoAxis.GCM13VendorAdjustmentThreadCount,2);
+ assert.equal(photoAxis.GCM13VendorMiddleMovingPlate,true);
+ assert.deepEqual(photoAxis.GCM13Candidates.map(x=>x.sku),
+   ['GCM-1302M','GCM-1311M','GCM-1301M','GCM-1312M']);
+ assert.equal(photoAxis.GCM13Candidates[0].Lmm,60);
+ assert.equal(photoAxis.GCM13Candidates[1].Lmm,52);
+ assert.equal(photoAxis.GCM13GeometryApplied,false,
+   'GCM-13 family match must not replace photo-constrained A05C geometry');
+ assert.equal(photoAxis.currentGripLengthMmCandidate,28);
+ assert.equal(photoAxis.currentGripLengthIsFullOEMLength,false);
  assert.equal(photoAxis.glassClampOEMVerified,false);
 
  assert.equal(mechA.outwardFootCount,1,'Photo194/196 L bracket needs one outward foot');
