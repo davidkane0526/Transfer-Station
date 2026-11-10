@@ -1236,8 +1236,10 @@ try{
  assert.match(await aClampRow.locator('.bom-photo-tile img').getAttribute('src'),/194\.webp$/,
    'Photo194 must appear as an actual embedded BOM thumbnail for A05C');
  await aClampRow.evaluate(el=>el.click());
- assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 94/);
- assert.match(await page.locator('#photo-evidence-gallery').innerText(),/原图未入库/);
+ assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 194/);
+ assert.match(await page.locator('#photo-evidence-gallery').innerText(),/照片 196/);
+ assert(!/原图未入库|未关联|尚未取得/.test(await page.locator('#photo-evidence-gallery').innerText()),
+   'Normal part UI must not show missing-evidence chatter');
  assert.match(await page.locator('#part-detail').innerText(),/夹持器|玻片夹/);
  const a05cVendorCard=page.locator('#a05c-vendor-comparison');
  assert.equal(await a05cVendorCard.getAttribute('data-confirmed'),'false');
@@ -1260,14 +1262,11 @@ try{
  assert(photoA?.ids.includes('94'));
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
- assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- const aAuditUi=await page.locator('#a-physical-audit').innerText();
- assert.match(aAuditUi,/工作位.*180°/);
- assert(aAuditUi.length<60,'Main UI audit status must stay concise; detailed engineering evidence belongs in docs/BOM');
- assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
- assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
- assert(!/V\d+|厂家|候选|待核|接触预览/.test(await page.locator('#film-drop-label').innerText()));
- assert(!/V\d+|厂家|候选|待核/.test(await page.locator('#sample-move-label').innerText()));
+ assert.equal(await page.locator('#a-physical-audit').isHidden(),true,
+   'Engineering audit prose must remain outside the normal UI');
+ assert.equal(await page.locator('#film-drop-label').innerText(),'玻片 Z');
+ assert.equal(await page.locator('#sample-move-label').innerText(),'样品 X');
+ assert.equal(await page.locator('#sample-move-depth-label').innerText(),'样品 Y');
  // A03 VC13M must move only its output plate; A04/A05 follow the
  // output, while A03 body and magnet remain fixed to their base.
  const mechA=await page.evaluate(()=>window.__modelAPhoto194Probe?.());
@@ -1646,9 +1645,8 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
    'Photo-reference orientation must not delete a required physical glass component');
  assert.equal(photographed.sideClampVisible,true);
  assert.equal(photographed.verticalFootBoreCount,0);
- assert.match(await page.locator('#a-physical-audit').innerText(),/照片参考位/);
- assert((await page.locator('#a-physical-audit').innerText()).length<40,
-   'Photo-reference status must stay concise in the primary UI');
+ assert.equal(await page.locator('#a-physical-audit').isHidden(),true,
+   'Photo-reference engineering status must remain outside the normal UI');
  assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
  assert.equal(await page.locator('#film-drop').isDisabled(),true,
    'Reference orientation is comparison-only and cannot run the transfer stroke');
