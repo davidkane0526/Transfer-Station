@@ -27,7 +27,9 @@ assert(interfaceEvidence('A','A17').some(x=>x.id==='A-MAGNET-T25M'),'A17 unverif
 const a17joint=interfaceEvidence('A','A17').find(x=>x.id==='A-MAGNET-T25M');
 assert.match(a17joint.known,/长槽.*属于上方A15|银色长槽.*属于上方A15/,
   'V86 live interface evidence must assign the silver slot to A15, not A17');
+assert.match(a17joint.known,/Oeabt MBS-65B\/C/);
 assert.match(a17joint.known,/PTDB65/);
+assert.match(a17joint.known,/LBTEK MB65/);
 assert.match(a17joint.known,/13孔.*不能|不能复制.*13孔/,
   'PTDB65 hidden top-hole map must remain unmodelled candidate metadata');
 assert(!/A17前侧狭槽/.test(a17joint.known),
