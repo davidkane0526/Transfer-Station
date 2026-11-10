@@ -4485,6 +4485,70 @@ window.__A17CloseupProbe=()=>{
  return {available:true,projection:_auditProjection(_auditBoxFor([g])),
    plaqueRay:_auditRayClear(plaque,[g]),switchRay:_auditRayClear(lever,[g])};
 };
+function _a18AuditTargets(){
+ const a18=parts.get('A18')?.g,a19=parts.get('A19')?.g,a10=parts.get('A10')?.g,a11=parts.get('A11')?.g;
+ if(!a18||!a19||!a10||!a11)return null;
+ const body=a18.children.find(o=>o.userData.A18PhotoConstrainedMainBody);
+ const coarseL=a18.children.find(o=>o.userData.A18CoarseFocusKnob===-1);
+ const coarseR=a18.children.find(o=>o.userData.A18CoarseFocusKnob===1);
+ const turret=a19.children.find(o=>o.userData.A19TurretEnvelopeCandidate);
+ const boom=a10.userData.opticsMovingBoom?.children.find(o=>o.userData.A10BoomFrontFaceJointToA18);
+ const led=a11.children.find(o=>o.userData.A11OEMHousingLengthMm!==undefined);
+ if(!body||!coarseL||!coarseR||!turret||!boom||!led)return null;
+ return {a18,a19,a10,a11,body,coarseL,coarseR,turret,boom,led};
+}
+function focusA18Audit(){
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a18AuditTargets();if(!q)return false;
+ const box=_auditBoxFor([q.a18,q.a19]),target=box.getCenter(new THREE.Vector3());
+ const candidates=[
+   [160,70,190],[-160,70,190],[160,70,-190],[-160,70,-190],
+   [0,65,220],[0,65,-220],[205,45,0],[-205,45,0]
+ ];
+ let best=null;
+ for(const off of candidates){
+   camera.position.copy(target).add(new THREE.Vector3(...off));
+   orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+   const rays=[
+     _auditRayClear(q.body,[q.a18]),
+     _auditRayClear(q.coarseL,[q.coarseL]),
+     _auditRayClear(q.coarseR,[q.coarseR]),
+     _auditRayClear(q.turret,[q.a19]),
+     _auditRayClear(q.boom,[q.a10])
+   ];
+   const score=rays.filter(x=>x.clear).length;
+   const projection=_auditProjection(box);
+   const centerPenalty=Math.abs(projection.centerX)+Math.abs(projection.centerY);
+   if(!best||score>best.score||(score===best.score&&centerPenalty<best.centerPenalty))
+     best={off,score,centerPenalty};
+ }
+ camera.position.copy(target).add(new THREE.Vector3(...best.off));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+}
+window.__focusA18Audit=focusA18Audit;
+window.__A18CloseupProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a18AuditTargets();if(!q)return {available:false};
+ const ledBox=new THREE.Box3().setFromObject(q.led),a18Box=new THREE.Box3().setFromObject(q.a18);
+ return {
+   available:true,
+   projection:_auditProjection(_auditBoxFor([q.a18,q.a19])),
+   bodyRay:_auditRayClear(q.body,[q.a18]),
+   leftCoarseRay:_auditRayClear(q.coarseL,[q.coarseL]),
+   rightCoarseRay:_auditRayClear(q.coarseR,[q.coarseR]),
+   turretRay:_auditRayClear(q.turret,[q.a19]),
+   supportBoomRay:_auditRayClear(q.boom,[q.a10]),
+   A11IsSeparatePart:q.a11!==q.a18&&!_isWithin(q.led,q.a18),
+   A11OEMHousingLengthMm:q.led.userData.A11OEMHousingLengthMm,
+   A11OEMHousingDiameterMm:q.led.userData.A11OEMHousingDiameterMm,
+   A18FocusControlCount:q.a18.children.filter(o=>o.userData.A18CoarseFocusKnob!==undefined||o.userData.A18FineFocusKnob!==undefined).length,
+   A11WorldBox:[ledBox.min.toArray(),ledBox.max.toArray()],
+   A18WorldBox:[a18Box.min.toArray(),a18Box.max.toArray()]
+ };
+};
 
 function switchPlatform(next){
   clearCadFeatureCandidates();

@@ -729,6 +729,32 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
+ assert.equal(await page.evaluate(()=>window.__focusA18Audit?.()),true);
+ await page.waitForTimeout(220);
+ const a18View=await page.evaluate(()=>window.__A18CloseupProbe?.());
+ console.log('V100 A18 dedicated closeup QA:',JSON.stringify(a18View));
+ assert.equal(a18View?.available,true);
+ assert(Math.abs(a18View.projection.centerX)<.25&&Math.abs(a18View.projection.centerY)<.25,
+   'A18/A19 optical head must be centered in its dedicated audit frame');
+ assert(a18View.projection.width>.32&&a18View.projection.height>.30,
+   'A18/A19 optical head must occupy a meaningful fraction of the audit frame');
+ assert.equal(a18View.bodyRay.clear,true,'A18 black focus housing must be directly inspectable');
+ assert.equal(a18View.leftCoarseRay.clear,true,'A18 left coarse focus wheel must be directly inspectable');
+ assert.equal(a18View.rightCoarseRay.clear,true,'A18 right coarse focus wheel must be directly inspectable');
+ assert.equal(a18View.turretRay.clear,true,'A19 turret must be directly inspectable with A18');
+ assert.equal(a18View.supportBoomRay.clear,true,'A10-to-A18 support boom interface must be inspectable');
+ assert.equal(a18View.A11IsSeparatePart,true,
+   'MWWHL4 illumination head must remain explicitly separate from A18 focus controls');
+ assert.equal(a18View.A11OEMHousingLengthMm,60.1);
+ assert.equal(a18View.A11OEMHousingDiameterMm,30.5);
+ assert.equal(a18View.A18FocusControlCount,4,
+   'A18 focus controls are two coarse + two fine knobs; A11 must never be counted as one');
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V100-A18-Focus-Support-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
  // The two high-resolution Nov 08 photos have DIFFERENT external
  // monitor positions but an identical fixed instrument. Assert actual
  // Three.js projected hand and L-bracket sidedness for BOTH cameras.

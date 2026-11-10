@@ -84,7 +84,7 @@ jobs:
         run: |
           python3 -m http.server 8765 > /tmp/transfer-site.log 2>&1 &
           node tests/model-b-visible-smoke.mjs
-      - name: Require ten reproducible A photo comparison renders with V96 target visibility
+      - name: Require eleven reproducible A photo comparison renders with dedicated A18 visibility
         run: |
           mkdir -p assets/photo-review
           for name in \
@@ -97,11 +97,12 @@ jobs:
             Transfer-Station-A-Photo195-FilmLower.png \
             Transfer-Station-A-Photo196-G40.png \
             Transfer-Station-A-V96-A05-Clamp-Closeup.png \
-            Transfer-Station-A-V96-A17-Front-Closeup.png; do
+            Transfer-Station-A-V96-A17-Front-Closeup.png \
+            Transfer-Station-A-V100-A18-Focus-Support-Closeup.png; do
             test -s "$name" || { echo "::error::A real-photo matching render is missing: $name"; exit 1; }
             cp "$name" assets/photo-review/
           done
-      - name: Upload ten photo comparison renders to publish job
+      - name: Upload eleven photo comparison renders to publish job
         uses: actions/upload-artifact@v4
         with:
           name: A-Photo-Comparison-Renders
@@ -128,6 +129,7 @@ jobs:
             Transfer-Station-A-Photo196-G40.png
             Transfer-Station-A-V96-A05-Clamp-Closeup.png
             Transfer-Station-A-V96-A17-Front-Closeup.png
+            Transfer-Station-A-V100-A18-Focus-Support-Closeup.png
             Transfer-Station-A-20261108-MonitorFront.png
             Transfer-Station-A-20261108-MonitorLeft.png
             Transfer-Station-ModelA-5306M-Base.png
