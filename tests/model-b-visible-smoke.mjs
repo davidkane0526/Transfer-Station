@@ -632,7 +632,7 @@ try{
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.match(switchState.caption,/平台 A/);
- assert.match(await page.locator('#platform-caption').innerText(),/V105.*整体旋转180°/,
+ assert.match(await page.locator('#platform-caption').innerText(),/V106.*整体旋转180°/,
    'Platform A must open in the transfer-facing installed orientation');
  assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
@@ -742,29 +742,55 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
- assert.equal(await page.evaluate(()=>window.__focusA18Audit?.()),true);
+ assert.equal(await page.evaluate(()=>window.__focusA18OpticalAudit?.()),true);
  await page.waitForTimeout(220);
- const a18View=await page.evaluate(()=>window.__A18CloseupProbe?.());
- console.log('V100 A18 dedicated closeup QA:',JSON.stringify(a18View));
- assert.equal(a18View?.available,true);
- assert(Math.abs(a18View.projection.centerX)<.25&&Math.abs(a18View.projection.centerY)<.25,
-   'A18/A19 optical head must be centered in its dedicated audit frame');
- assert(a18View.projection.width>.32&&a18View.projection.height>.30,
-   'A18/A19 optical head must occupy a meaningful fraction of the audit frame');
- assert.equal(a18View.bodyRay.clear,true,'A18 black focus housing must be directly inspectable');
- assert.equal(a18View.leftCoarseRay.clear,true,'A18 left coarse focus wheel must be directly inspectable');
- assert.equal(a18View.rightCoarseRay.clear,true,'A18 right coarse focus wheel must be directly inspectable');
- assert.equal(a18View.turretRay.clear,true,'A19 turret must be directly inspectable with A18');
- assert.equal(a18View.supportBoomRay.clear,true,'A10-to-A18 support boom interface must be inspectable');
- assert.equal(a18View.A11IsSeparatePart,true,
+ const a18Optical=await page.evaluate(()=>window.__A18OpticalCloseupProbe?.());
+ console.log('V106 A18 optical closeup QA:',JSON.stringify(a18Optical));
+ assert.equal(a18Optical?.available,true);
+ assert.equal(a18Optical.mode,'optical');
+ assert.equal(a18Optical.selectedVisibilityScore,4,
+   'A18 optical audit must find one view with body, both coarse wheels and A19 turret all directly visible');
+ assert(Math.abs(a18Optical.projection.centerX)<.28&&Math.abs(a18Optical.projection.centerY)<.28,
+   'A18/A19 optical chain must be centered in its dedicated optical audit frame');
+ assert(a18Optical.projection.width>.30&&a18Optical.projection.height>.28,
+   'A18/A19 optical chain must occupy a meaningful fraction of the audit frame');
+ assert.equal(a18Optical.bodyRay.clear,true);
+ assert.equal(a18Optical.leftCoarseRay.clear,true);
+ assert.equal(a18Optical.rightCoarseRay.clear,true);
+ assert.equal(a18Optical.turretRay.clear,true,
+   'A19 turret must be directly inspectable in the lower/front optical audit view');
+ assert.equal(a18Optical.A11IsSeparatePart,true,
    'MWWHL4 illumination head must remain explicitly separate from A18 focus controls');
- assert.equal(a18View.A11OEMHousingLengthMm,60.1);
- assert.equal(a18View.A11OEMHousingDiameterMm,30.5);
- assert.equal(a18View.A18FocusControlCount,4,
+ assert.equal(a18Optical.A11OEMHousingLengthMm,60.1);
+ assert.equal(a18Optical.A11OEMHousingDiameterMm,30.5);
+ assert.equal(a18Optical.A18FocusControlCount,4,
    'A18 focus controls are two coarse + two fine knobs; A11 must never be counted as one');
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
-   await page.screenshot({path:'Transfer-Station-A-V100-A18-Focus-Support-Closeup.png',
+   await page.screenshot({path:'Transfer-Station-A-V106-A18-Optical-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+ assert.equal(await page.evaluate(()=>window.__focusA18SupportAudit?.()),true);
+ await page.waitForTimeout(220);
+ const a18Support=await page.evaluate(()=>window.__A18SupportCloseupProbe?.());
+ console.log('V106 A18 support closeup QA:',JSON.stringify(a18Support));
+ assert.equal(a18Support?.available,true);
+ assert.equal(a18Support.mode,'support');
+ assert.equal(a18Support.selectedVisibilityScore,2,
+   'A18 support audit must find one rear/oblique view with both A18 housing and A10 boom directly visible');
+ assert(Math.abs(a18Support.projection.centerX)<.30&&Math.abs(a18Support.projection.centerY)<.30,
+   'A18/A10 support pair must be centered in its dedicated support audit frame');
+ assert(a18Support.projection.width>.22&&a18Support.projection.height>.18,
+   'A18/A10 support pair must occupy a meaningful fraction of the audit frame');
+ assert.equal(a18Support.bodyRay.clear,true);
+ assert.equal(a18Support.supportBoomRay.clear,true,
+   'A10-to-A18 support boom must be directly inspectable from the rear/oblique audit view');
+ assert.equal(a18Support.A11IsSeparatePart,true);
+ assert.equal(a18Support.A18FocusControlCount,4);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V106-A18-Support-Closeup.png',
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
@@ -1146,7 +1172,7 @@ try{
  assert.deepEqual(photoA?.embedded,['194','196'],
    'A05C needs real photographs194/196 while photo94 raw remains unbundled');
  assert.equal(await page.locator('#a-physical-audit').isVisible(),true);
- assert.match(await page.locator('#a-physical-audit').innerText(),/V105当前安装方向/);
+ assert.match(await page.locator('#a-physical-audit').innerText(),/V106当前安装方向/);
  assert.match(await page.locator('#a-physical-audit').innerText(),/72.25/);
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);

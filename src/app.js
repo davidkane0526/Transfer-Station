@@ -4200,7 +4200,7 @@ function resetScene(){
  $('platform-caption').textContent=platform==='B'?(bPhoto94Mode?
    '平台 B · 全系统布局已恢复 / 玻片夹接口待验证':
    '平台 B · V57 / B41下层Y+B09上层X分界清楚 / B08无外伸手柄 / 实拍147可点击 / MB2530/M孔系候选 / B16脚座四孔配准 / MXFMS显微镜 / PHUC-1夹具 / B40后侧管路 / 145–151实拍'):
-   '平台 A · V105 / '+(aWorkingPoseMode?
+   '平台 A · V106 / '+(aWorkingPoseMode?
     '载玻片支路整体旋转180° / 含玻片与PDMS / 侧向夹紧螺杆∥玻片短边 / A17型号待核':
     '照片94参考方向 / 仅用于实拍比对 / 不作为转移工作方向');
  $('stack-note').textContent=platform==='B'?
@@ -4359,7 +4359,7 @@ function updatePhotoScope(){
    if(aWorkingPoseMode){
      const a=auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
        sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop});
-     aCritical.textContent='V105当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
+     aCritical.textContent='V106当前安装方向：载玻片侧完整机械链统一旋转180°，使玻片/PDMS朝向样品；不是旧版只翻转A05。'+
        '同部件厂家组合参考总高 '+a.a15Vc13CatalogReferenceHeightMm+' mm仅作包络交叉校核，标准组合顺序与实机相反；当前模型下端高度 '+a.a15Vc13LowerPoseHeightMm+' mm。'+
        '膜侧基准X '+a.filmStageX+' mm，PDMS中心X '+a.stampCenterX+
        ' mm，初始PDMS/样品垂直间隙 '+a.initialVerticalStampGapMm+
@@ -4547,58 +4547,98 @@ function _a18AuditTargets(){
  if(!body||!coarseL||!coarseR||!turret||!boom||!led)return null;
  return {a18,a19,a10,a11,body,coarseL,coarseR,turret,boom,led};
 }
-function focusA18Audit(){
+function _a18CommonAudit(q){
+ const ledBox=new THREE.Box3().setFromObject(q.led),a18Box=new THREE.Box3().setFromObject(q.a18);
+ return {
+   A11IsSeparatePart:q.a11!==q.a18&&!_isWithin(q.led,q.a18),
+   A11OEMHousingLengthMm:q.led.userData.A11OEMHousingLengthMm,
+   A11OEMHousingDiameterMm:q.led.userData.A11OEMHousingDiameterMm,
+   A18FocusControlCount:q.a18.children.filter(o=>
+     o.userData.A18CoarseFocusKnob!==undefined||o.userData.A18FineFocusKnob!==undefined).length,
+   A11WorldBox:[ledBox.min.toArray(),ledBox.max.toArray()],
+   A18WorldBox:[a18Box.min.toArray(),a18Box.max.toArray()]
+ };
+}
+const A18_AUDIT_CANDIDATES=[
+ [160,70,190],[-160,70,190],[160,70,-190],[-160,70,-190],
+ [0,65,220],[0,65,-220],[205,45,0],[-205,45,0],
+ [160,-70,190],[-160,-70,190],[160,-70,-190],[-160,-70,-190],
+ [0,-90,220],[0,-90,-220],[205,-55,0],[-205,-55,0],
+ [120,-120,175],[-120,-120,175],[120,-120,-175],[-120,-120,-175],
+ [230,0,120],[-230,0,120],[230,0,-120],[-230,0,-120]
+];
+function _focusA18AuditView(mode){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
  currentRoot.updateWorldMatrix(true,true);
  const q=_a18AuditTargets();if(!q)return false;
- const box=_auditBoxFor([q.a18,q.a19]),target=box.getCenter(new THREE.Vector3());
- const candidates=[
-   [160,70,190],[-160,70,190],[160,70,-190],[-160,70,-190],
-   [0,65,220],[0,65,-220],[205,45,0],[-205,45,0]
- ];
+ const optical=mode==='optical';
+ const box=optical?_auditBoxFor([q.a18,q.a19]):_auditBoxFor([q.body,q.boom]);
+ const target=box.getCenter(new THREE.Vector3());
  let best=null;
- for(const off of candidates){
+ for(const off of A18_AUDIT_CANDIDATES){
    camera.position.copy(target).add(new THREE.Vector3(...off));
    orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
-   const rays=[
+   const rays=optical?[
      _auditRayClear(q.body,[q.a18]),
      _auditRayClear(q.coarseL,[q.coarseL]),
      _auditRayClear(q.coarseR,[q.coarseR]),
-     _auditRayClear(q.turret,[q.a19]),
+     _auditRayClear(q.turret,[q.a19])
+   ]:[
+     _auditRayClear(q.body,[q.a18]),
      _auditRayClear(q.boom,[q.a10])
    ];
    const score=rays.filter(x=>x.clear).length;
    const projection=_auditProjection(box);
    const centerPenalty=Math.abs(projection.centerX)+Math.abs(projection.centerY);
-   if(!best||score>best.score||(score===best.score&&centerPenalty<best.centerPenalty))
-     best={off,score,centerPenalty};
+   const area=projection.width*projection.height;
+   if(!best||score>best.score||
+      (score===best.score&&centerPenalty<best.centerPenalty-.001)||
+      (score===best.score&&Math.abs(centerPenalty-best.centerPenalty)<.001&&area>best.area))
+     best={off:[...off],score,centerPenalty,area};
  }
  camera.position.copy(target).add(new THREE.Vector3(...best.off));
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ q.a18.userData.A18AuditViewMode=mode;
+ q.a18.userData.A18AuditViewScore=best.score;
+ q.a18.userData.A18AuditViewOffset=best.off;
  return true;
 }
-window.__focusA18Audit=focusA18Audit;
-window.__A18CloseupProbe=()=>{
+function focusA18OpticalAudit(){return _focusA18AuditView('optical');}
+function focusA18SupportAudit(){return _focusA18AuditView('support');}
+window.__focusA18Audit=focusA18OpticalAudit;
+window.__focusA18OpticalAudit=focusA18OpticalAudit;
+window.__focusA18SupportAudit=focusA18SupportAudit;
+window.__A18OpticalCloseupProbe=()=>{
  if(platform!=='A')return {available:false};
  currentRoot.updateWorldMatrix(true,true);
  const q=_a18AuditTargets();if(!q)return {available:false};
- const ledBox=new THREE.Box3().setFromObject(q.led),a18Box=new THREE.Box3().setFromObject(q.a18);
  return {
-   available:true,
+   available:true,mode:'optical',
+   selectedVisibilityScore:q.a18.userData.A18AuditViewMode==='optical'?q.a18.userData.A18AuditViewScore:null,
+   selectedCameraOffset:q.a18.userData.A18AuditViewMode==='optical'?q.a18.userData.A18AuditViewOffset:null,
    projection:_auditProjection(_auditBoxFor([q.a18,q.a19])),
    bodyRay:_auditRayClear(q.body,[q.a18]),
    leftCoarseRay:_auditRayClear(q.coarseL,[q.coarseL]),
    rightCoarseRay:_auditRayClear(q.coarseR,[q.coarseR]),
    turretRay:_auditRayClear(q.turret,[q.a19]),
-   supportBoomRay:_auditRayClear(q.boom,[q.a10]),
-   A11IsSeparatePart:q.a11!==q.a18&&!_isWithin(q.led,q.a18),
-   A11OEMHousingLengthMm:q.led.userData.A11OEMHousingLengthMm,
-   A11OEMHousingDiameterMm:q.led.userData.A11OEMHousingDiameterMm,
-   A18FocusControlCount:q.a18.children.filter(o=>o.userData.A18CoarseFocusKnob!==undefined||o.userData.A18FineFocusKnob!==undefined).length,
-   A11WorldBox:[ledBox.min.toArray(),ledBox.max.toArray()],
-   A18WorldBox:[a18Box.min.toArray(),a18Box.max.toArray()]
+   ..._a18CommonAudit(q)
  };
 };
+window.__A18SupportCloseupProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a18AuditTargets();if(!q)return {available:false};
+ return {
+   available:true,mode:'support',
+   selectedVisibilityScore:q.a18.userData.A18AuditViewMode==='support'?q.a18.userData.A18AuditViewScore:null,
+   selectedCameraOffset:q.a18.userData.A18AuditViewMode==='support'?q.a18.userData.A18AuditViewOffset:null,
+   projection:_auditProjection(_auditBoxFor([q.body,q.boom])),
+   bodyRay:_auditRayClear(q.body,[q.a18]),
+   supportBoomRay:_auditRayClear(q.boom,[q.a10]),
+   ..._a18CommonAudit(q)
+ };
+};
+window.__A18CloseupProbe=window.__A18OpticalCloseupProbe;
 
 function switchPlatform(next){
   clearCadFeatureCandidates();
