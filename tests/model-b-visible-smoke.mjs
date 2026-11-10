@@ -12,8 +12,22 @@ const failures=[];
 page.on('pageerror',e=>failures.push(String(e)));
 try{
  await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:20000});
- await page.locator('#viewer canvas').waitFor();
- await page.waitForFunction(()=>document.querySelectorAll('#group-list .group-row').length>=7);
+ await page.locator('#viewer canvas').waitFor({timeout:20000});
+ try{
+   await page.waitForFunction(()=>document.querySelectorAll('#group-list .group-row').length>=7,
+     null,{timeout:30000});
+ }catch(e){
+   const startup=await page.evaluate(()=>({
+     title:document.title,
+     readyState:document.readyState,
+     canvasCount:document.querySelectorAll('#viewer canvas').length,
+     groupRowCount:document.querySelectorAll('#group-list .group-row').length,
+     caption:document.querySelector('#platform-caption')?.textContent??null,
+     viewerChildren:document.querySelector('#viewer')?.children.length??null
+   })).catch(()=>({evaluateFailed:true}));
+   console.error('V121 viewer startup diagnostics:',JSON.stringify({startup,pageErrors:failures}));
+   throw e;
+ }
  assert.match(await page.locator('#platform-caption').innerText(),/平台 B.*145.*151/);
  assert.equal(await page.locator('#photo-scope-note').isHidden(),true);
  const rect=await page.locator('#viewer canvas').boundingBox();
