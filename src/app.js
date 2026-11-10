@@ -4476,7 +4476,10 @@ function _a05AuditRays(q,mode){
    };
  }
  return {
-   pressure:_auditRayClear(q.pressure,[q.pressure],skip),
+   // The lower blade is physically shadowed at its geometric center by the
+   // upper folded foot. Photo 5 only requires a directly visible blade edge/
+   // surface, not an impossible line of sight to its buried center.
+   pressure:_auditAnyVisibleSurface(q.pressure,[q.pressure]),
    screwHeads:q.heads.map(o=>_auditRayClear(o,[o],skip))
  };
 }
