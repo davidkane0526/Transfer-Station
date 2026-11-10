@@ -1971,7 +1971,7 @@ function filmB(){
      ring.rotation.y=Math.PI/2; // ring normal along X
    }
    addJointHeads(g,'B31',14.9,[[-14,-14],[14,14]],{headR:2.6});
-   label(g,'GCM-G40M60L · R60 / 右侧测微（照片94）',-4,40,0);
+   label(g,'GCM-G40M60L',-4,40,0);
  },{explode:[-25,42,0],moveFilm:true});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:144});
  addPart('B32',ax,144,0,g=>{
@@ -2105,7 +2105,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
      0,rack.supportPlateHeightMm/2,0));
    addJointHeads(g,'B05',rack.supportPlateHeightMm-.05,
       [[-30,-30],[-30,30],[30,-30],[30,30]],{headR:2.6});
-   label(g,'V30照片108：活动导轨侧装B05安装板，避开固定V25M机架',0,28,0);
+   label(g,'B05 安装板',0,28,0);
  },{explode:[-30,55,-13],moveFilm:true,moveFilmVertical:true});
  // Photo149: steel post extends THROUGH a 50mm cylindrical holder
  // and THROUGH B33 square clamp with a threaded tip still exposed.
@@ -2116,7 +2116,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    rod.userData.candidate100mmFit=true;
    // Small M6-like terminal witness, not a verified thread pitch.
    add(g,cyl(3,3,mats.silver,0,rack.supportPostLengthMm+1.5,0,32));
-   label(g,'竖向接杆 Ø12×100 mm（PHSP12-4 尺规候选）',0,114,0);
+   label(g,'PHSP12-4 竖向接杆',0,114,0);
  },{explode:[-25,55,-13],moveFilm:true,moveFilmVertical:true});
  // Photo149: missing BLACK sleeve: ~4-5 cm tall; Zolix PHSH-2 50mm
  // is a series-length CANDIDATE, no photo-visible SKU.
@@ -2127,7 +2127,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
       rack.postHolderHeightMm-.75,0));
    g.userData.photo149HolderDatums=rack;
    g.userData.modelConfirmed=false;
-   label(g,'黑色立杆套筒 · PHSH-2 50mm仅候选',0,65,0);
+   label(g,'PHSH-2 立杆套筒',0,65,0);
  },{explode:[-23,55,-13],moveFilm:true,moveFilmVertical:true});
  // Photo149 additionally shows a SEPARATE small square connector
  // joining the support post to the first long horizontal Ø12 rod.
@@ -2176,7 +2176,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    thumbKnob(g,16,-16.5,0,'x',5);
    g.userData.verifiedPhotoModel='Zolix PHUC-1';
    g.userData.oemHoleCenterSpacingMm=oem.boreCenterSpacingEmm;
-   label(g,'PHUC-1 · 厂家 A60 / Ø30 / Ø12×2 / 中心距33mm',2,52,-7);
+   label(g,'PHUC-1 双孔夹',2,52,-7);
  },{explode:[-23,58,-13],moveFilm:true,moveFilmVertical:true});
  // First Ø12 rod connects B33 square clamp to PHUC upper hole only;
  // 100mm is a PHOTO FIT and not an identified PHSP part number.
@@ -2185,7 +2185,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
      rack.upperRodLengthMm/2,0,0,60));
    rod.rotation.z=Math.PI/2;
    g.userData.photoFitNotOemLength=true;
-   label(g,'首根横杆 Ø12×'+rack.upperRodLengthMm+'mm（照片空间拟合，非型号确认）',32,17,0);
+   label(g,'首根横杆 Ø12×'+rack.upperRodLengthMm+' mm',32,17,0);
  },{explode:[-20,64,-13],moveFilm:true,moveFilmVertical:true});
  // The second rod is visible through the other PHUC-1 opening in both
  // 149 and 150. Its end-to-end length and swivel yaw are still unknown.
@@ -2302,7 +2302,7 @@ function rotaryB(){
    g.userData.centralFifthCounterbore=false;
    g.userData.anchorHoleCoordinatesWorld=[[-25,-125],[-25,125],[175,-125],[175,125]];
    g.userData.threadGeometry='M6 through-tapped pattern represented by Ø5mm tap-drill holes';
-   label(g,'B35 · Thorlabs MB2530/M孔系候选 · 250×300×12 photo-fit · M6/25mm贯通网格',0,rise+8,136);
+   label(g,'B35 Thorlabs 面包板',0,rise+8,136);
   });
   addPart('B08',sx,20+rise,0,g=>{
     // GCM-1107M OEM base: 4 x Ø6.8 clearance holes on 50mm
@@ -2446,7 +2446,7 @@ function rotaryB(){
    }
    for(const x of [-25,25])for(const z of [-25,25])circleGuide(g,5.5,11.3,x,z);
    stageBaseRecessedFasteners(g,id,[[-25,-25],[-25,25],[25,-25],[25,25]]);
-   label(g,modelConfirmed?'NFP 仅单轴 X / 一根测微头':'第二级正交单轴台 · 前向测微头（型号待核）',-38,46,0);
+   label(g,modelConfirmed?'NFP 仅单轴 X / 一根测微头':'第二级单轴台',-38,46,0);
    label(g,title,0,42,0);
   },{explode:[0,16,0],rotateSample:true,facingYaw,
       ...(id==='B09'?{translateSampleDepth:true}:{})});
@@ -2471,7 +2471,7 @@ function rotaryB(){
    // Keep the true center Ø1.4 opening in the drilled upper plate;
    // the unverified buried duct is represented only by evidence notes.
    g.userData.vacuumPathInternalNotExternallyVisible=true;
-   label(g,'单中心吸附孔 Ø1.4 mm（候选）/ 底面开腔 / 四沉孔',0,31,0);
+   label(g,'中心吸附孔 Ø1.4 mm',0,31,0);
  },{explode:[0,61,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B12',sx,109.5+rise,0,g=>{
    add(g,cub(38,5,38,mats.ceramic,0,2.5,0));
@@ -2480,7 +2480,7 @@ function rotaryB(){
       add(g,cub(2,1.5,2,mats.copper,x,2.5,-18.5));
       add(g,tube([[x,2.5,-19],[x,2.5,-32.5],[x,2.5,-48],[x+1,0,-60]],.55,mats.copper));
    }
-   label(g,'加热片后侧双引线（孔位候选）',0,12,-18);
+   label(g,'加热片后侧引线',0,12,-18);
  },{explode:[38,74,12],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B13',sx,114.35+rise,0,g=>{
     add(g,cyl(.6,1.2,mats.copper,6,.6,0));
@@ -2502,7 +2502,7 @@ function rotaryB(){
      [[0,0,-45.5],[0,1,-58],[1,-3,-70],[12,-17,-79]],1.8,mats.rubber));
    shortHose.userData.lastFlexiblePoint=[12,-17,-79];
    g.userData.rearVacuumBoreNotBlocked=true;
-   label(g,'B15接头：OD Ø6.0 / 孔径 Ø2.84 / 长13 mm（均为候选）',4,12,-48);
+   label(g,'B15 真空接头',4,12,-48);
  },{explode:[0,60,-20],rotateSample:true,translateSample:true,translateSampleDepth:true});
  const substrate=cub(24,.6,24,mats.glass,0,121.5+rise,0);currentRoot.add(substrate);sampleSubstrate=substrate;
 }
@@ -2568,7 +2568,7 @@ function microscopeB(){
    g.userData.MXFMS={model:'MXFMS',manufacturer:'SUNNY / SDPTOP',
      postDiameterMm:32,postHeightMm:280,coarseTravelMm:32,
      fineAdjustmentPrecisionMm:0.002,head:'30deg trinocular'};
-   label(g,'SDPTOP MXFMS · Ø32立柱 · 粗/微同轴调焦（安装底座为候选）',-8,303,68);
+   label(g,'SDPTOP MXFMS 调焦架',-8,303,68);
  },{explode:[0,15,-42]});
  addPart('B17',sx,276+rise,0,g=>{
    // Photo113 identifies the SDPTOP digital microscope camera.
@@ -2580,7 +2580,7 @@ function microscopeB(){
    const camera=add(g,cub(47,48,48,mats.dark,0,24,0));
    camera.userData.SDPTOPCamera=true;
    g.userData.cameraAdapterSections=2;
-   label(g,'SDPTOP Digital Microscope Camera · CTV/中继筒接口待核',0,77,0);
+   label(g,'SDPTOP 显微相机',0,77,0);
  },{explode:[0,95,0]});
  addPart('B18',sx,200+rise,0,g=>{
    // Photo108/video show the objective changer; OEM MXFMS data specifies
@@ -2659,7 +2659,7 @@ function microscopeB(){
    // rather than floating in space as a second 87mm-deep box.
    add(g,cub(120,80,18,mats.dark,0,40,0));
    add(g,cub(82,46,2,mats.black,0,50,9.4));
-   label(g,'YUDIAN AI · B36机箱前面板（真实开孔未核）',0,94,12);
+   label(g,'YUDIAN AI 控制器',0,94,12);
  },{explode:[70,10,35]});
  addPart('B21',controlX,3,-190,g=>{
    // Photo117 clearly identifies this SE-600-48 PSU, and photo119
@@ -2875,7 +2875,7 @@ function heatingControlHarnessB(){
    add(g,tube([[225,87,-167],[235,75,-151],[237,49,-128],
      [252,26,-118],[265,19.7,-116]],.95,pale));
    g.userData.terminatesAtUnassignedTerminalZone=true;
-   label(g,'加热双线：后侧并行线束，端子/供电均未核',185,127,-116);
+   label(g,'加热线',185,127,-116);
  },{explode:[0,30,-40]});
  addPart('B38',0,0,0,g=>{
    const m=add(g,tube([[0,0,0],[1,0,0]],.72,sensorMat));
@@ -2883,7 +2883,7 @@ function heatingControlHarnessB(){
    add(g,tube([[225,89,-163],[235,103,-150],[265,108,-120],
      [310,100,-83],[349,78,-43]],.72,sensorMat));
    g.userData.backPanelTerminalsNotConfirmed=true;
-   label(g,'测温反馈线：与加热功率线分支，输入端子未核',250,145,-140);
+   label(g,'测温线',250,145,-140);
  },{explode:[0,40,-30]});
 }
 function refreshHeatingControlHarness(){

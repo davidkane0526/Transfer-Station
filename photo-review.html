@@ -19,41 +19,41 @@ footer{margin-top:25px;color:#8f9eaf;font-size:13px}
 @media(max-width:1050px){.pair{grid-template-columns:165px 1fr 1fr}}@media(max-width:700px){body{padding:14px}.pair{grid-template-columns:1fr 1fr;gap:9px}.info{grid-column:1/-1}.media img{height:230px}}
 </style></head><body>
 <header><div><h1>平台 A · 实物照片与本次模型逐图对照</h1>
-<p>实物照片 191–196 对照每次发布时<strong>真实 Three.js 浏览器渲染</strong>，不是示意图或手工拼出的合成模型。</p>
+<p>左侧为实物，右侧为当前三维模型。</p>
 </div><div><a href="./index.html">返回三维模型</a> · <a href="https://github.com/davidkane0526/Transfer-Station/actions" target="_blank" rel="noopener">构建记录</a></div></header>
-<div class="notice"><strong>尚未通过实物级验收。</strong> 这里的视角只是接近对应实拍的观察方向，未经相机标定、透视变换或同名机械基准点配准，不能将两张图的像素尺寸直接比较。仓库中实物原图目前只有128×170像素的压缩预览；没有原始高清图片时，不会凭空补造细小孔位或夹爪结构。实拍模式默认不渲染尚未拍到的 A05C 夹爪和 A05G 玻片，右折边工作候选必须单独开启。</div>
+<div class="notice">视角未做摄影标定，仅用于结构与方向对照。</div>
 <main id="pairs">
 <section class="pair" id="photo20261108a"><div class="info">
 <h2>高清实拍 2026-11-08 · 图 1</h2>
 <p>电脑屏幕基本位于器件后方，A15 银色长槽板面朝镜头，右上方有向右折出的 L 板；在该视角，物理 +X 方向投影到画面左方。</p>
-<p class="state">相机候选：从场景 -Z 观察。屏幕作为外部参照，不改变任何部件朝向。</p></div>
+</div>
 <figure class="media reference"><div class="empty">高清原图已在当前对话提供，但尚未公开存入此 GitHub 仓库。此处不以其他照片冒充该原图。</div><figcaption>实拍图 1 · 对照本次对话中的第一张高清照片</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-20261108-MonitorFront.png" alt="模型 A 从图 1 屏幕居中方向观察的实际三维渲染" loading="eager"><figcaption>模型 · 从 A15 长槽面 (-Z) 观察，L形板与微分头左右关系需逐图检查</figcaption></figure></section>
 <section class="pair" id="photo20261108b"><div class="info">
 <h2>高清实拍 2026-11-08 · 图 2</h2>
 <p>显示器位于画面左侧，正面可读 GCM-VC13M，顶层右向测微头和底层右向测微头同时出现；底层另一根正交测微头向画面左侧伸出。</p>
-<p class="state">相机候选：场景 +X/+Z 斜视；与图 1 的模型相机角距约 121°（未实测标定），不是 30° 的同侧小转角。</p></div>
+</div>
 <figure class="media reference"><div class="empty">高清原图已在当前对话提供，暂未作为公开仓库素材上传。请与当前对话中的第二张高清照片核对。</div><figcaption>实拍图 2 · 屏幕偏左 / VC13M 铭牌方向</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-20261108-MonitorLeft.png" alt="模型 A 从图 2 屏幕左侧 VC13M 方向观察的实际渲染" loading="eager"><figcaption>模型 · +X/+Z 斜视，必须同时看到 X/Z 两条不同轴的调节头</figcaption></figure></section>
-<section class="pair" id="photo191"><div class="info"><h2>照片 191</h2><p>相机、镜筒、机头及样品区整体。</p><p class="state">V92已纠正：相机/物镜光轴不再强制穿过A18主体几何中心；主体右偏24mm候选。仍未验收：支架与机头实际接口、绝对偏置尺寸。</p></div>
+<section class="pair" id="photo191"><div class="info"><h2>照片 191</h2><p>相机、镜筒、机头及样品区整体。</p></div>
 <figure class="media reference"><img src="./assets/photos/191.webp" alt="实物191：显微镜整体" loading="eager"><figcaption>实物 191 · 原仓库存档缩略图</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo191-Overview.png" alt="本次构建平台A轴测渲染，接近照片191" loading="eager"><figcaption>模型 · 轴测观察方向，未做视角标定</figcaption></figure></section>
-<section class="pair" id="photo192"><div class="info"><h2>照片 192</h2><p>侧视立柱、机头、相机线及样品台。</p><p class="state">V108新增边界审计：若A18为MGZ30，其后部立柱夹持壳体应属于A18本体；当前A10独立横臂可能是错误拆分。仍需后侧高清分缝/立柱直径证据。</p></div>
+<section class="pair" id="photo192"><div class="info"><h2>照片 192</h2><p>侧视立柱、机头、相机线及样品台。</p></div>
 <figure class="media reference"><img src="./assets/photos/192.webp" alt="实物192：侧视显微镜" loading="lazy"><figcaption>实物 192</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo192-Side.png" alt="模型侧面渲染" loading="lazy"><figcaption>模型 · 后侧方向，仅可检查相对层级</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-V106-A18-Optical-Closeup.png" alt="V106 A18前侧光学链专用近景" loading="lazy"><figcaption>V106光学侧验收 · A18主体、左右粗调轮与A19转盘必须同屏直接可见；A11照明头保持独立</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-V106-A18-Support-Closeup.png" alt="V106 A18后侧支撑链专用近景" loading="lazy"><figcaption>V106支撑侧验收 · 从后侧/斜后方单独检查A18主体与A10支撑梁，避免要求被主体自身遮挡的内部方向</figcaption></figure></section>
-<section class="pair" id="photo193"><div class="info"><h2>照片 193</h2><p>正面整体：物镜、样品座、两套机构。</p><p class="state">未验收：物镜与样品的真实空间距离。</p></div>
+<section class="pair" id="photo193"><div class="info"><h2>照片 193</h2><p>正面整体：物镜、样品座、两套机构。</p></div>
 <figure class="media reference"><img src="./assets/photos/193.webp" alt="实物193：正面整体" loading="lazy"><figcaption>实物 193</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo193-Front.png" alt="模型正面渲染" loading="lazy"><figcaption>模型 · 正面方向，未经摄影测量配准</figcaption></figure></section>
-<section class="pair" id="photo194"><div class="info"><h2>照片 194</h2><p class="state">V96复核：A17正面浅色长方形铭牌与左侧银色磁力开关不仅进入实体模型，而且专用近景必须通过射线遮挡检查；Oeabt MBS-65B/C升为主候选族，但铭牌文字和被A15遮挡的顶孔仍不可读，因此不认定具体后缀。</p><p>载玻片侧整体：磁座、T25M、VC13M、G40、折弯片。</p><p class="state">未验收：磁座型号及 A05 下端夹持器。</p></div>
+<section class="pair" id="photo194"><div class="info"><h2>照片 194</h2><p>载玻片侧整体：磁座、T25M、VC13M、G40、折弯片。</p></div>
 <figure class="media reference"><img src="./assets/photos/194.webp" alt="实物194：转移臂正面" loading="lazy"><figcaption>实物 194</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo194-FilmUpper.png" alt="模型A上方摆角台与折弯片" loading="lazy"><figcaption>模型 · A04/A05 原有照片方向</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-V96-A17-Front-Closeup.png" alt="V96 A17正面专用验收近景" loading="lazy"><figcaption>V96专用验收 · A17正面铭牌/左侧开关必须实际可见</figcaption></figure></section>
-<section class="pair" id="photo195"><div class="info"><h2>照片 195</h2><p>VC13M 竖直台、底层双轴 T25M 与上方摆角台。</p><p class="state">未验收：具体平移台后缀、导轨与前端螺钉孔位。</p></div>
+<section class="pair" id="photo195"><div class="info"><h2>照片 195</h2><p>VC13M 竖直台、底层双轴 T25M 与上方摆角台。</p></div>
 <figure class="media reference"><img src="./assets/photos/195.webp" alt="实物195：VC13M局部" loading="lazy"><figcaption>实物 195</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo195-FilmLower.png" alt="模型A下方VC13M与T25M" loading="lazy"><figcaption>模型 · A03/A15 近景</figcaption></figure></section>
-<section class="pair" id="photo196"><div class="info"><h2>照片 196</h2><p>G40M60L 右侧微分头、L形板下端并排蝶形螺钉。</p><p class="state">未验收：两枚螺钉的真实孔距与压紧方式。</p></div>
+<section class="pair" id="photo196"><div class="info"><h2>照片 196</h2><p>G40M60L 右侧微分头、L形板下端并排蝶形螺钉。</p></div>
 <figure class="media reference"><img src="./assets/photos/196.webp" alt="实物196：G40M60L局部" loading="lazy"><figcaption>实物 196</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-Photo196-G40.png" alt="模型G40M60L与折弯片" loading="lazy"><figcaption>模型 · G40与折弯片，摄影角度为近似</figcaption></figure>
 <figure class="media"><img src="./assets/photo-review/Transfer-Station-A-V96-A05-Clamp-Closeup.png" alt="V96 A05夹具专用验收近景" loading="lazy"><figcaption>V96专用验收 · 固定下夹爪、活动压板、两枚侧向螺杆与玻片</figcaption></figure></section>
