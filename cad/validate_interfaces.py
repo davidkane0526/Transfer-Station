@@ -1228,11 +1228,16 @@ check(a_pdms.distance(a_slide)<.05 and a_pdms.intersect(a_slide).Volume()<1e-4,
       'V130 PDMS contacts glass underside without interpenetration')
 
 screw_y=[]
-for n in (1,2):
+for n,expected_y in enumerate((-6.5,6.5),1):
     screw=part(A,f'A05CS{n}')[0]
     bb=screw.BoundingBox()
-    check(bb.zlen>bb.xlen*1.5 and bb.zlen>bb.ylen*1.5,
-          'V130 A05CS screw principal axis is vertical STEP Z')
+    # Do not infer shaft direction from the WHOLE butterfly screw bounding box:
+    # its two wings can legitimately be wider than the exposed shank is long.
+    # Instead, require a continuous vertical cylindrical core at the expected
+    # X/Y datum through the full candidate shank length.
+    vertical_shaft_probe=vz(1.2,10,screw_x,expected_y,leg_bottom-4.5)
+    check(screw.intersect(vertical_shaft_probe).Volume()>40,
+          'V130 A05CS contains a continuous vertical STEP-Z screw shaft')
     check(screw.intersect(a_clamp).Volume()>0.1,
           'V130 vertical wing screw engages lower clamp blade')
     check(screw.intersect(a_slide).Volume()<1e-4,
