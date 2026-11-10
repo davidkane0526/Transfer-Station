@@ -703,13 +703,18 @@ try{
    'A05 clamp must actually be centered in its dedicated audit frame');
  assert(a05View.projection.width>.34&&a05View.projection.height>.22,
    'A05 clamp must occupy a meaningful fraction of the audit frame');
- assert.equal(a05View.fixedJawRay.clear,true,'A05 fixed jaw must be the first opaque target after skipping the transparent glass');
+ assert.equal(a05View.fixedJawRay.clear,true,
+   'A05 fixed jaw must be directly visible as the first opaque target; transparent glass may be skipped only when it actually lies on the ray');
  assert.equal(a05View.transparentSkipPolicy,'A05G-only');
  const a05Skipped=[a05View.fixedJawRay,a05View.pressureRay,...a05View.screwHeadRays]
    .flatMap(x=>x.skippedTransparentParts??[]);
  assert(a05Skipped.every(x=>x==='A05G'),
    'A05 visibility QA may skip only the explicitly transparent installed glass, never an opaque component');
  assert.equal(a05View.fixedJawRay.firstPart,'A05C');
+ assert(
+   a05View.fixedJawRay.skippedTransparentParts.length===0 ||
+   a05View.fixedJawRay.skippedTransparentParts.every(x=>x==='A05G'),
+   'A direct line of sight that does not intersect the glass is valid and must not be forced to report a synthetic glass skip');
  assert.equal(a05View.pressureRay.clear,true,'A05 moving pressure plate must be the first opaque target after transparent glass');
  assert.equal(a05View.pressureRay.firstPart,'A05C');
  assert(a05View.screwHeadRays.every(x=>x.clear),'Both A05 screw heads must be directly inspectable');
