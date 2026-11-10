@@ -876,6 +876,8 @@ try{
  assert.equal(f1.photoConstraints.photo1DefinesInstalledHandedness,true);
  assert.equal(f1.photoConstraints.canonicalInstalledYawDeg,180);
  assert.equal(f1.photoConstraints.photoReferenceAndWorkingOrientationMustMatch,true);
+ assert(f1.actualA04XKnobRelativeNdc<0,
+   'Photo1 canonical front: upper G40 micrometer must project to screen-left as in the user photo');
  assert.equal(f1.cameraFittedToActualLensAndMonitor,false);
  for(const x of [
    f1.actualA15XKnobRelativeNdc,f1.actualA15ZKnobRelativeNdc,
@@ -893,6 +895,8 @@ try{
  assert.equal(f2.photoConstraints.photo2HardwareRotatedForSideView,true);
  assert.equal(f2.photoConstraints.sideViewsMayConstrainTopologyButNotCanonicalScreenDirection,true);
  assert.equal(f2.photoConstraints.sideHardwareYawExactlyVerified,false);
+ assert(f2.actualA04XKnobRelativeNdc>0,
+   'Photo2 rotated side: upper G40 micrometer must project to screen-right');
  assert.equal(f2.scenePartCount,count,'Photo2 evidence view must not replace model geometry');
 
  await photoShot('Transfer-Station-A-20261108-MonitorRight.png','#btn-a-photo-monitor-opposite');
@@ -903,6 +907,8 @@ try{
  assert.equal(f3.sourceHardwareRotated,true);
  assert.equal(f3.photoConstraints.photo3HardwareRotatedForSideView,true);
  assert.equal(f3.photoConstraints.sideViewsMayConstrainTopologyButNotCanonicalScreenDirection,true);
+ assert(f3.actualA04XKnobRelativeNdc>0,
+   'Photo3 rotated side: upper G40 micrometer must project to screen-right');
  assert.equal(f3.scenePartCount,count,'Photo3 evidence view must not replace model geometry');
  assert.notDeepEqual(f2.cameraWorldPosition,f3.cameraWorldPosition,
    'Photo2 and photo3 side evidence must use distinct inspection viewpoints');
