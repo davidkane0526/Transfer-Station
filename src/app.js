@@ -313,6 +313,14 @@ window.__modelA05PhotoEvidenceProbe=()=>{
    completeFilmBranchYawDeg:aWorkingPoseMode?180:0,
    photo194196ConfirmsTwoFasteners:true,
    photoDoesNotDefineThreadOrClampSku:true,
+   GCM13FamilyFunctionalMatch:Boolean(clamp.userData.GCM13FamilyFunctionalMatch),
+   GCM13VendorMaxPlateThicknessMm:clamp.userData.GCM13VendorMaxPlateThicknessMm??null,
+   GCM13VendorAdjustmentThreadCount:clamp.userData.GCM13VendorAdjustmentThreadCount??null,
+   GCM13VendorMiddleMovingPlate:Boolean(clamp.userData.GCM13VendorMiddleMovingPlate),
+   GCM13Candidates:clamp.userData.GCM13Candidates??[],
+   GCM13GeometryApplied:Boolean(clamp.userData.GCM13GeometryApplied),
+   currentGripLengthMmCandidate:clamp.userData.glassGripLengthMmCandidate??null,
+   currentGripLengthIsFullOEMLength:Boolean(clamp.userData.glassGripLengthIsFullOEMLength),
    glassClampOEMVerified:false};
 };
 window.__modelA05FootBoreProbe=()=>{
