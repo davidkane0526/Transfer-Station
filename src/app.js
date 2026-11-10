@@ -1500,6 +1500,7 @@ scene.add(currentRoot);
 const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2();
 const hitMeshes=[],holes=[],labels=[],axisObjects=[];
 const levelMeaning={D:'原厂机械图/规格中的标称尺寸（但几何可能简化）',P:'照片识别出的型号/外观',U:'使用者确认的装配关系；具体加工尺寸未必确认',I:'由相邻件孔距/几何关系推断',C:'候选或代理尺寸；不可当成实物测绘'};
+const levelShort={D:'原厂',P:'照片',U:'确认',I:'推导',C:'候选'};
 const mk=(geometry,material,shadow=true)=>{const o=new THREE.Mesh(geometry,material);o.castShadow=shadow;o.receiveShadow=true;return o};
 const cub=(w,h,d,m,x=0,y=0,z=0)=>{const o=mk(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);return o};
 const cyl=(r,h,m,x=0,y=0,z=0,segments=48)=>{const o=mk(new THREE.CylinderGeometry(r,r,h,segments),m);o.position.set(x,y,z);return o};
@@ -2148,7 +2149,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    g.userData.unidentifiedModel=true;
    g.userData.squareBodyEnvelopeMm=[28,30,30];
    g.userData.separateRealThroughBores=2;
-   label(g,'照片149：独立方夹 · 真Ø12立杆孔/横杆孔（型号待核）',0,27,0);
+   label(g,'方形夹块',0,27,0);
  },{explode:[-19,54,-12],moveFilm:true,moveFilmVertical:true});
  // Photos 149 and 150 show an actual Zolix PHUC-1, NOT the earlier
  // PHCP-2. Manufacturer drawing: A60, BØ30, C/DØ12, bore pitch E33.
@@ -2207,7 +2208,7 @@ makeStageBlock('B03',ax,40,0,65,65,33,'GCM-T25M2L (2 axes X/Y)',false,{facingYaw
    stud.rotation.z=Math.PI/2;
    g.userData.interfaceOnly=true;
    g.userData.photoConfirmedThread=false;
-   label(g,'B26仅是M6接口候选，非可见大型转接件',3,14,0);
+   label(g,'B26 M6 接口',3,14,0);
  },{explode:[-20,65,2],moveFilm:true,moveFilmVertical:true});
  // The 1-mm glass occupies the 1.5-mm gap between actual upper/lower jaws.
  // Place plate clamp at glass LEFT edge, away from the sample optical axis.
@@ -2651,7 +2652,7 @@ function microscopeB(){
      add(g,cub(w-2*t,h-t,t,mats.silver,0,(h+t)/2,z));
    g.userData.hollowOpenTop=true;
    g.userData.physicalManufacturerDimensionsKnown=false;
-   label(g,'照片114/119：银色电控箱，内置B21/B23；外廓/配线待核',0,h+15,0);
+   label(g,'控制箱',0,h+15,0);
  },{explode:[75,0,-65]});
  addPart('B19',controlX,20,-28.5,g=>{
    // Face of B19 touches the FRONT wall of B36 at Z=-37.5,
@@ -2676,7 +2677,7 @@ function microscopeB(){
    // Prevent a decorative port from punching through the actual
    // front steel wall. Dimensions remain photo-fit candidates.
    add(g,cub(48,13,10,mats.steel,0,16,26));
-   label(g,'照片119：控制箱内部黑色散热模块（型号未识别）',0,53,0);
+   label(g,'散热模块',0,53,0);
  },{explode:[85,65,-38]});
  // Photo120 pump and photo115 LED adapter are distinct EXTERNAL devices,
  // not modules stacked in the controller's metal housing.
@@ -2800,7 +2801,7 @@ function microscopeB(){
    add(g,cub(65,48,72,mats.dark,0,24,0));
    add(g,cub(44,22,4,mats.steel,0,24,37));
    const plug=add(g,cyl(7,12,mats.steel,33,16,0));plug.rotation.z=Math.PI/2;
-   label(g,'照片115：LED LAMP ADAPTOR（独立于B36机箱）',0,68,0);
+   label(g,'LED LAMP ADAPTOR',0,68,0);
  },{explode:[55,0,-20]});
 }
 
@@ -2859,7 +2860,7 @@ function heatingControlHarnessB(){
    add(g,cub(36,16,12,mats.dark,0,8,0));
    for(const x of [-10,0,10])add(g,cyl(2,1.2,mats.silver,x,16.6,0));
    g.userData.electricalFunctionUnverified=true;
-   label(g,'箱内端子区域（照片119，端子功能和线序未核）',0,31,0);
+   label(g,'端子区域',0,31,0);
  },{explode:[80,40,-35]});
  addPart('B37',0,0,0,g=>{
    for(const [role,mat,r] of [['heaterA',red,1.1],['heaterB',pale,1.1]]){
@@ -3026,7 +3027,7 @@ function platformA(){
     g.userData.photo194LowerLeverCount=1;
     g.userData.candidateMountHoleMarkers=[];
     g.userData.topCornerCounterbores=0;
-    label(g,'A17 · V94 Oeabt MBS-65B/C主候选族 · 正面铭牌/左开关匹配 · 顶面孔系未建模',0,32,0);
+    label(g,'A17 磁座',0,32,0);
   },{explode:[-10,0,0],facingYaw:aFilmYaw});
  // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
  makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
@@ -3167,7 +3168,7 @@ function platformA(){
    g.userData.vendorPairingWithG40M60L=true;
    g.userData.photo20261108LowerDriveAxisCandidate='+Z';
    g.userData.lowerDriveOrthogonalToUpperG40=true;
-   label(g,'A04L · GCM-G40M40L厂家配对候选 · 40×40×20 / R40 / ±7°；铭牌待核',-4,40,0);
+   label(g,'A04L GCM-G40M40L',-4,40,0);
  },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  addPart('A04',ax,aUpperG40Y,az,g=>{
    // Upper G40M60L label is visually legible in photo94.
@@ -3191,7 +3192,7 @@ function platformA(){
    addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
    g.userData.upperConfirmedPhoto94='GCM-G40M60L';
    g.userData.photo196UpperDriveDirection='+X';
-   label(g,'照片196：上层 GCM-G40M60L · 右侧测微 · 40×40×20mm',-4,40,0);
+   label(g,'A04 GCM-G40M60L',-4,40,0);
  },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:aBracketTopY,
    topPlateWidth:aWorkingPoseMode?A_WORKING_LAYOUT.lBracketTopWidthMm:undefined,
@@ -3319,7 +3320,7 @@ function platformA(){
    ];
    g.userData.GCM13GeometryApplied=false;
    g.userData.actualClampOEM=false;
-   label(g,'A05C · V95 固定下夹爪显式化 / 内净跨度26mm / 1302M与1311M分开审计',
+   label(g,'A05C 玻片夹',
      clampCenterX,18,aBent.sheetFrontZ);
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
@@ -3432,7 +3433,7 @@ function platformA(){
   g.userData.candidateGeometryOverriddenByVendorDrawing=false;
   g.userData.shortFrontLockCount=1;
   g.userData.rightAngularMicrometerCount=1;
-  label(g,'A06 · GCM-1102M高优先级候选：Ø66吻合，但21mm高度与尺照堆栈冲突',0,54,0);
+  label(g,'A06 旋转台',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,81.2,0,g=>{
   // Original photos17–21 and a steel ruler show the silver top at
@@ -3470,7 +3471,7 @@ function platformA(){
     sampleChip.userData.A07SampleChipProxy=true;
     sampleChip.userData.A07SampleChipThicknessUnverified=true;
     g.userData.sampleMaterialAndThicknessUnverified=true;
-    label(g,'A07W · 独立样品片28×28×1.4mm几何候选，非厂家尺寸',0,14,0);
+    label(g,'A07W 样品片',0,14,0);
  },{explode:[0,45,0],translateSample:true,rotateSample:true});
  addPart('A10',sx,20,-112,g=>{
     // Four TRUE Ø5.5mm candidate mounting bores in an offset foot.
@@ -3520,7 +3521,7 @@ function platformA(){
     g.userData.A10BoomMustNotBeProcuredSeparatelyUntilBoundaryResolved=true;
     g.userData.A10PostDiameterCandidateMm=26;
     g.userData.A10PostDiameterMeasured=false;
-    label(g,'A10显微镜支架 · 底脚四孔及螺钉均为候选',0,267,60);
+    label(g,'A10 显微镜支架',0,267,60);
  },{explode:[0,15,-30]});
  addPart('A08',sx,235,0,g=>{
   // OEM TTL200-A housing is 28mm long; 200mm is focal length.
@@ -3566,7 +3567,7 @@ function platformA(){
    g.userData.A11PlacementShiftFromV87Mm=46;
    g.userData.A11PlacementShiftFromV91Mm=24;
    g.userData.A11FollowsA18PhotoBodyOffset=true;
-   label(g,'Thorlabs MWWHL4 · V92随A18实拍偏心外移24mm / SM1RC类安装方式待核',35,28,0);
+   label(g,'A11 Thorlabs MWWHL4',35,28,0);
  },{explode:[22,20,22]});
  addPart('A12',262,20,-80,g=>{
   add(g,cub(60,104,73,mats.dark,0,52,0));
@@ -3582,7 +3583,7 @@ function platformA(){
    // V59: 66mm open sleeve overlaps A08 by 6mm and meets camera A09.
    // Thread engagement and camera flange remain unverified.
    add(g,sleeve(28,26.1,66,mats.dark,0,33,0,'y'));
-   label(g,'SM2接口候选镜筒 · 长66mm含6mm装配重叠 / 相机端未认证',0,80,0);
+   label(g,'A14 SM2 镜筒',0,80,0);
  },{explode:[0,25,0]});
  addPart('A18',sx,200,0,g=>{
    // V92: photos191/193 show that the camera/objective optical axis is NOT
@@ -3725,7 +3726,7 @@ function platformA(){
    g.userData.MCTLMP2DirectIdentityRejected=true;
    g.userData.MCTLMP2VendorEnvelopeMm=[211.5,130,58.8];
    g.userData.vendorCandidateDecision='MGZ30 primary but conditional on unresolved A10/A18 rear-housing boundary; BXFM-F secondary; exposed 76mm E-arm direct identity rejected; none confirmed';
-   label(g,'A18 调焦主体 · V108 MGZ30主候选但A10/A18后壳边界未闭合',bodyX,52,0);
+   label(g,'A18 显微镜调焦主体',bodyX,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
    const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
@@ -3760,7 +3761,7 @@ function platformA(){
    const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));
    const cable=add(g,new THREE.Mesh(new THREE.TubeGeometry(curve,80,2.4,10,false),mats.black));
    cable.userData.A20CameraCableRouteCandidate=true;g.userData.electricalInterfaceVerified=false;
-   label(g,'A20 相机线缆 · 走线路径候选',82,24,18);
+   label(g,'A20 相机线缆',82,24,18);
  },{explode:[0,45,20]});
 }
 function addAxis(){
@@ -4063,13 +4064,12 @@ function updateDetail(part){
    b35FastenerHtml+b08FitHtml+aRigHtml+a05cVendorHtml+a06VendorHtml+a18VendorHtml+
    photo94QAHtml+photo95QAHtml+
    '</div>';
- el.innerHTML='<span class="status '+part.level+'">'+part.level+' · '+esc(levelMeaning[part.level])+'</span>'+
+ el.innerHTML='<span class="status '+part.level+'">'+esc(levelShort[part.level]||part.level)+'</span>'+
  '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
- '<div class="field"><b>编号</b>'+esc(part.id)+' · '+esc(groups[part.group].name)+'</div>'+
+ '<div class="field"><b>ID</b>'+esc(part.id)+'</div>'+
  '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
- '<div class="field"><b>固定方式</b><p>'+esc(mount.text)+'</p></div>'+
- '<div class="field"><b>证据</b><p>'+esc(part.evidence)+'</p></div>'+
- '<div class="field"><b>报价</b><p>'+esc(part.price)+'</p></div>'+
+ '<div class="field"><b>安装</b><p>'+esc(mount.text)+'</p></div>'+
+ '<div class="field"><b>价格</b><p>'+esc(part.price)+'</p></div>'+
  '<div class="field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
  engineeringHtml;
  const ex=enriched(platform,part);
@@ -4100,7 +4100,7 @@ function selectPart(id){
    // must show their evidence instead of opening an empty detail pane.
    updateDetail(metadata??null);selectedLabels();clearMeasurement();
    $('hover-help').textContent=metadata?
-     id+' · BOM / 候选装配':
+     id+' · BOM':
      '点击零件查看信息';
    return;
  }
@@ -4131,10 +4131,7 @@ function updateTransforms(){
      sampleAngleDeg:sampleAngle,filmDropMm:0});
  }
  if($('a-working-metrics')&&aPoseAudit){
-   $('a-working-metrics').textContent='底座 '+aPoseAudit.footprintGapMm.toFixed(1)+
-     ' mm · 夹具余量 '+aPoseAudit.clampHeaterClearanceMm.toFixed(1)+
-     ' mm · PDMS '+aPoseAudit.verticalStampGapMm.toFixed(1)+' mm · '+
-     (aPoseAudit.candidateCanLower?'可下降':'禁止下降');
+   $('a-working-metrics').textContent=aPoseAudit.candidateCanLower?'可下降':'禁止下降';
  }
  const motionAudit=platform==='B'&&!bPhoto94Mode?
    auditBLoweringPose({filmShiftX:filmShift,sampleShiftX:sampleShift,
@@ -4147,11 +4144,8 @@ function updateTransforms(){
  }
  if($('lowering-clearance')){
    $('lowering-clearance').textContent=motionAudit?
-     '热台余量 '+motionAudit.planarGapMm.toFixed(1)+' mm · '+(motionAudit.possibleClash?'禁止下降':'可下降'):
-     aPoseAudit?
-       '夹具余量 '+aPoseAudit.clampHeaterClearanceMm.toFixed(1)+' mm · PDMS '+
-       aPoseAudit.verticalStampGapMm.toFixed(1)+' mm · '+(aPoseAudit.candidateCanLower?'可下降':'禁止下降'):
-     '照片参考位';
+     (motionAudit.possibleClash?'禁止下降':'可下降'):
+     aPoseAudit?(aPoseAudit.candidateCanLower?'可下降':'禁止下降'):'照片参考';
  }
  parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,translateSampleDepth,rotateSample,facingYaw=0})=>{
   const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0;

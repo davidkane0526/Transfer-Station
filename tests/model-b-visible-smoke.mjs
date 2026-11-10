@@ -121,8 +121,9 @@ try{
    'The lower Y stage needs its own visible photo-review axis marker');
  assert.deepEqual(actuators.B09.modelOnlyAxisAnnotations,['upper-X'],
    'The upper NFP X stage needs its own distinct marker');
- assert.match(await page.locator('#axis-confidence-note').innerText(),/非实物铭牌/,
-   'Viewer must disclose that X/Y visual axis labels are not factory markings');
+ assert.match(await page.locator('#axis-confidence-note').textContent(),/非实物铭牌/);
+ assert.equal(await page.locator('#axis-confidence-note').isVisible(),false,
+   'Engineering evidence legend belongs in hidden audit data, not the normal user UI');
  assert.equal(actuators.B41.fixedBaseHeightMm+actuators.B41.movingStageHeightMm,23);
  assert.equal(actuators.B09.fixedBaseHeightMm+actuators.B09.movingStageHeightMm,23);
  // Verify rendered B41/B09 screws are physically below travelling plates.
@@ -573,8 +574,9 @@ try{
  await board.evaluate(el=>el.click());
  const boardDetail=await page.locator('#part-detail').innerText();
  assert.match(boardDetail,/Thorlabs|THORLABS/);
- assert.match(boardDetail,/145|150/);
- assert(boardDetail.length<900,'Visible part detail must stay concise; engineering audits belong in hidden data');
+ assert(!/证据等级|四孔整体配准|候选矩阵|尚需确认/.test(boardDetail),
+   'Visible part detail must not expose engineering audit prose');
+ assert(boardDetail.length<650,'Visible part detail must stay compact');
  const boardEngineering=await page.locator('#part-detail-engineering').textContent();
  assert.match(boardEngineering,/B35↔B16孔系配准/);
  assert.match(boardEngineering,/120个候选网格孔已按全厚贯通孔建模/,
@@ -599,8 +601,8 @@ try{
  assert.equal(await cabinet.count(),1,'Open steel control enclosure must be independent BOM item');
  await cabinet.evaluate(el=>el.click());
  const cabinetDetail=await page.locator('#part-detail').innerText();
- assert.match(cabinetDetail,/119/);
- assert.match(cabinetDetail,/B21|B23/);
+ assert(!/照片119|尚未|待核|候选矩阵/.test(cabinetDetail),
+   'Cabinet user card must stay free of research notes');
  // V38 selected-only diameter labels: all four are explicitly
  // candidates and MUST be available without cluttering 3D view.
  for(const [id,pattern] of [
