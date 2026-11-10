@@ -3777,7 +3777,7 @@ function renderPhotoLedger(){
  for(const [side,ids] of Object.entries({film:filmIds,sample:sampleIds,external:stack.external||[]})){
    if(!ids.length)continue;
    const heading=document.createElement('div');heading.className='key';
-   heading.textContent=side==='external'?'温控控制箱及内部部件（相对位置仍为候选）':
+   heading.textContent=side==='external'?'温控控制箱':
      side==='film'?(platform==='B'&&bPhoto94Mode?
      '载玻片侧（机构顺序 + 未连接的玻片位置参考）':'载玻片侧（从下至上）'):
      '样品侧（从下至上；与玻片侧接口待核验）';
@@ -3945,6 +3945,7 @@ function updateDetail(part){
  // The annotation is only in the selected part's detail view, not an
  // always-on 3D label covering the clamp/stamp/optics.
  const mount=mountStatus(platform,part.id);
+ const mountUserText=String(mount.text||'').split(/[。；]/)[0].trim();
  const installHtml='<div class="field" id="mounting-method" data-kind="'+
    esc(mount.kind)+'"><b>固定到面包板的方式</b><p>'+esc(mount.text)+
    '。'+(mount.verified?'固定方式可由照片或用户装配关系支持。':
@@ -4068,7 +4069,7 @@ function updateDetail(part){
  '<h2>'+esc(part.name)+'</h2><p class="meta">'+esc(part.maker)+' · '+esc(part.model)+'</p>'+
  '<div class="field"><b>ID</b>'+esc(part.id)+'</div>'+
  '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
- '<div class="field"><b>安装</b><p>'+esc(mount.text)+'</p></div>'+
+ '<div class="field"><b>安装</b><p>'+esc(mountUserText)+'</p></div>'+
  '<div class="field"><b>价格</b><p>'+esc(part.price)+'</p></div>'+
  '<div class="field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
  engineeringHtml;
@@ -4394,7 +4395,7 @@ function updateTable(){
   tbody.append(tr);
  }
  summaryBOM(activeParts().map(x=>enriched(platform,x)));
- $('bom-heading').textContent='平台 '+platform+' · 原厂 BOM / 替代厂家 / 采购价格和总额';
+ $('bom-heading').textContent='平台 '+platform+' · BOM';
 }
 function csvEscape(v){return '"'+String(v??'').replaceAll('"','""')+'"'}
 function exportCSV(){
@@ -4427,7 +4428,7 @@ function updatePhotoScope(){
  $('btn-a-photo-pose').setAttribute('aria-pressed',String(platform==='A'&&!aWorkingPoseMode));
  $('btn-b-user-photos').classList.toggle('on',platform==='B');
  $('btn-b-archive').classList.remove('on');
- $('b-profile-note').textContent='PHUC-1 · GCM-1302M · 其余尺寸候选';
+ $('b-profile-note').textContent='PHUC-1 · GCM-1302M';
  const aCritical=$('a-physical-audit');
  aCritical.hidden=platform!=='A';
  if(platform==='A')aCritical.textContent=aWorkingPoseMode?
@@ -4768,13 +4769,9 @@ function switchPlatform(next){
   $('sample-value').textContent='0 mm';$('sample-depth-value').textContent='0 mm';$('rotate-value').textContent='0°';
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
-  $('film-drop-label').textContent=next==='A'?
-    'VC13M竖直台 · V80厂家高度校正 / 含玻片PDMS接触预览':
-    '玻片竖直下降 · V25M（13mm接触预览）';
-  $('sample-move-label').textContent=next==='A'?
-    '样品侧 A02 · GCM-T25M（后缀待核）· X平移':
-    '样品上层 B09 · X平移';
-  $('sample-move-depth-label').textContent='样品下层 B41 · Y平移（前后，场景+Z）';
+  $('film-drop-label').textContent=next==='A'?'玻片竖直下降 (VC13M)':'玻片竖直下降 (V25M)';
+  $('sample-move-label').textContent=next==='A'?'样品 X 平移 (A02)':'样品 X 平移 (B09)';
+  $('sample-move-depth-label').textContent='样品 Y 平移 (B41)';
   $('sample-move-depth').disabled=next!=='B';
   $('film-drop').min='-13';
   $('film-drop').max='0';
@@ -4787,7 +4784,7 @@ function switchPlatform(next){
     '照片参考方向仅用于对照，不执行转移下降':'仅几何预览，不是实际硬件控制';
   // Both A and B have photo-confirmed film-side T25M. Actual travel use remains candidate.
   $('translate').disabled=false;
-  $('translate').title=next==='A'?'A15: 照片95/97证明存在载玻片侧 T25M':'B03: 照片108/109证明存在磁座上T25M';
+  $('translate').title='玻片 X 平移';
   resetScene();updatePhotoScope();
 }
 $('show-b').onclick=()=>switchPlatform('B');

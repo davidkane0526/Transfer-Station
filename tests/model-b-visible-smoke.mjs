@@ -1234,6 +1234,8 @@ try{
  assert(aAuditUi.length<60,'Main UI audit status must stay concise; detailed engineering evidence belongs in docs/BOM');
  assert.match(await page.locator('#film-drop-label').innerText(),/VC13M/);
  assert.match(await page.locator('#sample-move-label').innerText(),/T25M/);
+ assert(!/V\d+|厂家|候选|待核|接触预览/.test(await page.locator('#film-drop-label').innerText()));
+ assert(!/V\d+|厂家|候选|待核/.test(await page.locator('#sample-move-label').innerText()));
  // A03 VC13M must move only its output plate; A04/A05 follow the
  // output, while A03 body and magnet remain fixed to their base.
  const mechA=await page.evaluate(()=>window.__modelAPhoto194Probe?.());
