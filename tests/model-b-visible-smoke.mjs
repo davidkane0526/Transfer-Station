@@ -677,6 +677,8 @@ try{
  assert.equal(installedClamp.visibleGlass,true);
  assert.equal(installedClamp.visibleClamp,true);
  assert.equal(installedClamp.visibleWingScrewCount,2);
+ assert.equal(installedClamp.visibleWingEarCount,4);
+ assert.equal(installedClamp.wingEarTiltDegCandidate,33.2);
  assert.equal(installedClamp.shaftCount,2);
  assert.equal(installedClamp.actualFootBores,2,
    'Photo 5 requires two real vertical wing-screw bores in the folded foot');
@@ -1288,6 +1290,8 @@ try{
  const photoAxis=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
  assert.equal(photoAxis?.available,true);
  assert.equal(photoAxis.pose,'installed180');
+ assert.equal(photoAxis.visibleWingEarCount,4);
+ assert.equal(photoAxis.wingEarTiltDegCandidate,33.2);
  assert.equal(photoAxis.fastenerShaftAxis,'Y / vertical through folded foot');
  assert.equal(photoAxis.actualShaftGeometryVertical,true);
  assert.equal(photoAxis.fastenerPairLineAxis,'Z / parallel to glass 26mm short edge');
