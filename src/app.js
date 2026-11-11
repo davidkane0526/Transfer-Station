@@ -4276,6 +4276,28 @@ window.__modelAControlInterfaceProbe=()=>{
    [id,parts.get(id)?.g.children.filter(m=>m.isMesh&&m.userData.aControlWireRole)
      .map(m=>m.userData.aControlWireRole)??[]]));
  const carrier=support?.userData.ledAdjustableCarrier;
+ currentRoot.updateWorldMatrix(true,true);
+ const wp=o=>o?.getWorldPosition(new THREE.Vector3())??null;
+ const dist=(a,b)=>a&&b?Number(a.distanceTo(b).toFixed(3)):null;
+ const portLED=driver?.children.find(o=>o.userData.A12M8LEDServiceSocketCandidate);
+ const portTEMP=sensorService?.children.find(o=>o.userData.A25TemperatureServiceSocketCandidate);
+ const powerPorts=parts.get('A13')?.g.children.filter(o=>o.userData.A13RearPowerServicePortCandidate)??[];
+ const reliefs=heater?.children.filter(o=>o.userData.A07RearServiceExitRoleCandidate)??[];
+ const ringObj=carrier?.children.find(o=>o.userData.A21SM1RCStyleMountingRing);
+ const lampMesh=parts.get('A11')?.g.children.find(o=>o.userData.A11OEMHousingDiameterMm!==undefined);
+ const breadboardMesh=parts.get('A01')?.g.children.find(o=>o.isMesh);
+ const supportFoot=support?.children.find(o=>o.userData.A21CandidateTrueFootBores);
+ const lampBB=lampMesh?new THREE.Box3().setFromObject(lampMesh):null;
+ const ringCenter=wp(ringObj),lampCenter=wp(lampMesh);
+ const routeGeometryEndpoints={};
+ for(const id of ['A22','A23','A24']){
+   for(const obj of parts.get(id)?.g.children??[]){
+     const role=obj.userData.aControlWireRole;
+     const pts=obj.geometry?.parameters?.path?.points;
+     if(!role||!pts?.length)continue;
+     routeGeometryEndpoints[role]={start:pts[0].toArray(),end:pts.at(-1).toArray()};
+   }
+ }
  const pose={sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,
    opticalLiftMm:aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0};
  return {available:!!(support&&driver&&heater&&sensorService),
@@ -4291,6 +4313,23 @@ window.__modelAControlInterfaceProbe=()=>{
    driverLEDPort:driver?.children.some(m=>m.userData.A12M8LEDServiceSocketCandidate),
    sensorFeedbackPort:sensorService?.children.some(m=>m.userData.A25TemperatureServiceSocketCandidate),
    harnessRoles:roles,routeEndpoints:aControlRoutes(pose).endpoints,
+   routeMeshEndpoints:routeGeometryEndpoints,
+   ledMountConcentricWithLamp:Boolean(ringCenter&&lampCenter&&
+     Math.abs(ringCenter.y-lampCenter.y)<.05&&Math.abs(ringCenter.z-lampCenter.z)<.05&&
+     ringCenter.x>=lampBB.min.x&&ringCenter.x<=lampBB.max.x),
+   supportFootBoardGapMm:supportFoot&&breadboardMesh?
+     Number((new THREE.Box3().setFromObject(supportFoot).min.y-
+       new THREE.Box3().setFromObject(breadboardMesh).max.y).toFixed(3)):null,
+   ledDriverPortDistanceMm:dist(wp(portLED),new THREE.Vector3(...aControlRoutes(pose).endpoints.ledDriver)),
+   sensorPortDistanceMm:dist(wp(portTEMP),new THREE.Vector3(...aControlRoutes(pose).endpoints.temperatureServiceEnvelope)),
+   heaterPortDistancesMm:powerPorts.map((o,i)=>dist(wp(o),
+     new THREE.Vector3(...(i===0?aControlRoutes(pose).endpoints.heaterRelayEnvelope:
+       aControlRoutes(pose).endpoints.powerServiceEnvelope)))),
+   sampleRearPortStartDistancesMm:reliefs.map(o=>{
+     const role=o.userData.A07RearServiceExitRoleCandidate;
+     return dist(wp(o),new THREE.Vector3(...aControlRoutes(pose).endpoints[
+       role==='heaterA'?'heaterFirst':role==='heaterB'?'heaterSecond':'temperatureProbe']));
+   }),
    routeQa:auditAControlRoutes(pose),
    originalLedSupportIdentified:false,
    liveElectricalCircuitCertified:false,
