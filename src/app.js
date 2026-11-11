@@ -1125,7 +1125,17 @@ window.__modelAKinematicProbe=()=>{
      A02SampleCarriageLocalXmm:parts.get('A02')?.g.userData.slidingX?.position.x??null,
      A15FilmCarriageLocalXmm:parts.get('A15')?.g.userData.slidingX?.position.x??null,
      sampleHeaterWorldXmm:silverSample.position.x,
-    sampleLayersMm:silverSample.userData.layerProxies??null,
+    sampleLayersMm:(()=>{
+      // Each physical layer now has its OWN part and actual geometry.
+      // Do not resurrect the old single A07 9+7+12mm proxy.
+      const lower=parts.get('A32')?.g,wood=parts.get('A31')?.g;
+      const metal=silverSample;
+      return [
+        lower?.userData.lowerThicknessMm,
+        wood?.userData.woodThicknessCandidateMm,
+        ...(metal?.userData.layerProxies??[])
+      ];
+    })(),
     sampleRotaryDiameterMm:rotarySample.userData.photo48CandidateRotaryDiameterMm??null,
     sampleRotaryRightAngularMicrometerCount:rotarySample.userData.rightAngularMicrometerCount??0,
     sampleRotaryShortFrontLockCount:rotarySample.userData.shortFrontLockCount??0,
