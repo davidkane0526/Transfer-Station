@@ -41,7 +41,7 @@ assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1102M.overallDiamete
 assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1102M.heightMm,21);
 assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1102M.geometryApplied,false);
 assert.deepEqual(e.A.sampleAssembly.nominalLayerThicknessMm,[9,7,12]);
-assert.equal(HANDLES.A02.direction,'-X');
+assert.equal(HANDLES.A02.direction,'+X');
 assert.equal(HANDLES.A06.linearHandles,0);
 assert.equal(HANDLES.A06.lockHandles,1);
 assert.equal(HANDLES.A02.axes,2);

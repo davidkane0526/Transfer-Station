@@ -43,7 +43,7 @@ assert.equal(HANDLES.B41.direction,'+Z','B41 micrometer faces forward');
 assert.equal(HANDLES.B41.physicalAxis,'Y','B41 is the physical Y/fore-aft axis despite scene +Z');
 assert.equal(HANDLES.B09.axes,1,'B09 NFP-1462C remains a single-axis stage');
 const expected={B03:'-X',B04:'+Y',B41:'+Z',B09:'+X',
- A02:'-X',A15:'+X',A03:'+Y',A04L:'+Z',A04:'+X'};
+ A02:'+X',A15:'+X',A03:'+Y',A04L:'+Z',A04:'+X'};
 for(const [id,dir]of Object.entries(expected))
  assert.equal(HANDLES[id].direction,dir,'Wrong actuator direction '+id);
 assert.equal(OEM_DRAWING_CONSTRAINTS.twoAxisT25M.heightMm,33);

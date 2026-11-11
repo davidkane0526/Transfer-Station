@@ -662,7 +662,7 @@ def make_a():
     # this does NOT claim that the user's assembly is a stock GCM-901602M.
     # A photo 100 shows sample-side T25M above rotary; A photo 97 shows a
     # SECOND T25M below VC13M. Both physically exist.
-    stage('A','A02',cx,0,49,'-X',axes=2,depth_direction='+Y')
+    stage('A','A02',cx,0,49,'+X',axes=2,depth_direction='+Y')
     # User-confirmed mounting relationship, maker/height candidate:
     # A15 must rest on the actual magnetic base, not on naked board.
     # Photo194: face slot is on A15, not the lowest A17 magnet.
@@ -970,8 +970,16 @@ def make_a():
         led_cable,'C')
     # V133 external controls stand on the common floor datum (Z=0),
     # not floating 20mm above a board that does not reach their X.
-    add('A','A12','LEDD1B',box(60,73,104,262,-80,0),'P')
-    a12_socket=vy(5,4,262,-120.5,65).cut(vy(2.2,4.2,262,-120.6,65))
+    # LEDD1B OEM height/depth are 73/104 mm (not reversed).
+    add('A','A12','LEDD1B_OEM_60_W_104_D_73_H',
+        box(60,104,70,262,-80,3),'D')
+    add('A','A12F','LEDD1B_SLOTTED_BASE_CANDIDATE',
+        box(80,124,3,262,-80,0),'C')
+    add('A','A12K','LEDD1B_TOP_INTENSITY_KNOB',
+        vz(14,12,262,-79,74),'D')
+    add('A','A12L','LEDD1B_FRONT_CURRENT_LIMIT_DIAL',
+        vy(8,2.5,262,-29.2,43),'D')
+    a12_socket=vy(5,5,262,-135,42).cut(vy(2.2,5.2,262,-135.1,42))
     add('A','A12LED','LEDD1B_REAR_M8_LED_PORT_HOUSING_CANDIDATE',a12_socket,'C')
     add('A','A13','DELIXI_SSR',box(75,64,33,260,72,0),'P')
     for idx,x in enumerate((253,271),1):
@@ -997,8 +1005,8 @@ def make_a():
         vy(5,87.5,187.5,-87.5,198),'C')
     add('A','A21L','LED_RING_BRIDGE_LUG_CANDIDATE',box(10,12,12,187.5,0,199),'C')
     add('A','A22','MWWHL4_TO_LEDD1B_FLEXIBLE_SERVICE_CABLE',
-        cable_path([(229,12,182),(236,-3,184),(251,-45,154),
-                    (258,-87,117),(262,-119,65)],2.2),'C')
+        cable_path([(229,12,182),(232,-14,184),(235,-64,163),
+                    (240,-120,104),(261,-142,54),(262,-133,42)],2.2),'C')
     add('A','A23H1','A26_HEATER_LEAD_1_TO_SSR_NEIGHBOURHOOD_UNWIRED',
         cable_path([(88,-32.5,100.2),(88,-43,100.2),(106,-59,124.2),
                     (162,-41,120),(226,-24,120),(253,40,18)],1.2),'C')
@@ -1012,18 +1020,42 @@ def make_a():
         box(28,20,14,305,25,0),'C')
     a25_port=vz(3,2,305,25,14).cut(vz(1,2.2,305,25,13.9))
     add('A','A25P','TEMPERATURE_SERVICE_TERMINAL_ENTRY_CANDIDATE',a25_port,'C')
-    # A29 vacuum hose physically connects A28 to a grounded external
-    # A30 service port. Pump make/model has not been identified for A.
+    # V138 actual pump BODY instead of a fake endpoint box; use B20
+    # VN-50 only as a generic reference, never a confirmed Platform A SKU.
     vacuum_path_A=[(78,-43.5,105.5),(78,-55,108),(116,-75,114),
-                   (167,-169,88),(285,-210,72),(350,-190,68)]
-    add('A','A29','ANNULAR_SUCTION_HOSE_TO_EXTERNAL_SERVICE_PORT',
+                   (166,-162,88),(280,-215,88),(356,-219,77),
+                   (423.6,-190,68)]
+    add('A','A29','A28_TO_A30_PUMP_REFERENCE_HOLLOW_HOSE',
         hollow_hose(vacuum_path_A,3.5,2.2),'C')
-    vacuum_service=box(44,44,18,350,-190,0).fuse(vz(5,48,350,-190,18))
-    add('A','A30','GROUNDED_SUCTION_SOURCE_SERVICE_PORT_NOT_PUMP',
-        vacuum_service,'C')
-    add('A','A30P','HOLLOW_EXTERNAL_VACUUM_SERVICE_PORT',
-        vz(4.3,8,350,-190,64).cut(vz(2.2,8.2,350,-190,63.9)),'C')
-        # TTL200-A uses EXTERNAL SM2 both ends. A14 remains an OPEN
+    pump_base=box(200,110,8,340,-190,0)
+    pump_motor=vx(44,150,265,-190,50)
+    add('A','A30','VN50_FAMILY_PUMP_SHAPE_REFERENCE_ACTUAL_A_SKU_UNKNOWN',
+        pump_base.fuse(pump_motor).clean(),'C')
+    for i,x in enumerate((305,380),1):
+        add('A',f'A30H{i}','A_PUMP_TWIN_HEAD_CANDIDATE',
+            box(42,42,36,x,-190,96),'C')
+    for i,x in enumerate((269,411),1):
+        for j,y in enumerate((-238,-142),1):
+            add('A',f'A30F{i}{j}','A_PUMP_MOUNT_FOOT_CANDIDATE',
+                box(28,14,12,x,y,8),'C')
+    add('A','A30P','UNVERIFIED_G1_4_REFERENCE_HOLLOW_PUMP_INLET',
+        vx(6.58,2.2,422.5,-190,68).cut(
+            vx(5.9,2.4,422.4,-190,68)),'C')
+    # A33 external PID cabinet. OEM controller and wiring remain unknown.
+    cabinet_bottom=box(154,148,5,260,95,0)
+    cabinet_l=box(4,142,154,185,95,5)
+    cabinet_r=box(4,142,154,335,95,5)
+    cabinet_top=box(154,148,4,260,95,156)
+    cabinet_face=box(150,4,150,260,168,5)
+    add('A','A33','TEMP_CABINET_HOUSING_UNVERIFIED_OEM',
+        cabinet_bottom.fuse(cabinet_l,cabinet_r,cabinet_top,cabinet_face).clean(),'C')
+    add('A','A33PID','TWO_READOUT_PID_CONTROLLER_FACE_CANDIDATE',
+        box(102,5,96,260,172,60),'C')
+    add('A','A33PV','PROCESS_READOUT_DISPLAY_PROXY',
+        box(76,1.6,22,260,176,113),'C')
+    add('A','A33SV','SETPOINT_READOUT_DISPLAY_PROXY',
+        box(76,1.6,18,260,176,88),'C')
+    # TTL200-A uses EXTERNAL SM2 both ends. A14 remains an OPEN
     # candidate mating sleeve until the real adapter stack is identified.
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
@@ -1098,7 +1130,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V137'
+CAD_REVISION='V138'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

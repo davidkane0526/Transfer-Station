@@ -50,7 +50,7 @@ assert.equal(a.secondGoniometerActualSkuVerified,false);
 assert.equal(a.nominalApproachEnvelopeRegistered,false);
 assert.deepEqual(a.sampleA02TravelAxes,['X','Y']);
 assert.equal(a.sampleA02DualAxisUserConfirmed,true);
-assert.equal(a.sampleA02ObservedHandleDirection,'left / -X');
+assert.equal(a.sampleA02ObservedHandleDirection,'right / +X');
 assert.equal(a.sampleA02SecondLinearAxisRejected,false);
 assert.equal(a.sampleA02ExactSkuVerified,false);
 assert(!a.missing.includes('A02 actual travel axis'));

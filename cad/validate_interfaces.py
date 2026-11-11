@@ -740,8 +740,8 @@ check(abs(A02_X.BoundingBox().zmin-49)<.01 and
 check(abs(A02_middle.BoundingBox().zmin-A02_X.BoundingBox().zmax)<.01 and
       abs(A02_Y.BoundingBox().zmin-A02_middle.BoundingBox().zmax)<.01,
       'V137 stationary base, X carriage and Y carriage must stack continuously')
-check(part(A,'A02B')[0].BoundingBox().xmax<=A02_X.BoundingBox().xmin+.02,
-      'V137 sample X micrometer exits left (-X)')
+check(part(A,'A02B')[0].BoundingBox().xmin>=A02_X.BoundingBox().xmax-.02,
+      'V138 sample X micrometer exits right (+X)')
 check(part(A,'A02E')[0].BoundingBox().zmin>=A02_X.BoundingBox().zmin-.01,
       'V137 Y actuator must sit ABOVE the rotary, not penetrate its rotating disk')
 check(part(A,'A02D')[0].BoundingBox().ylen > part(A,'A02D')[0].BoundingBox().xlen*2,
@@ -777,14 +777,15 @@ check(abs(part(A,'A06GCM1102')[0].BoundingBox().zmax-A02_X.BoundingBox().zmin)<.
 report['V137_A02_XY_and_A06_lock_only']={
   'A16_base_mm':8,'A06_rotation_mm':21,'A02_two_axis_mm':33,
   'A07_wood_heater_metal_mm':28,'above_board_total_mm':90,
-  'X_micrometer_count':1,'Y_micrometer_count':1,
+  'X_micrometer_count':1,'X_actuator_side':'+X_right',
+  'Y_micrometer_count':1,
   'rotation_linear_micrometer_count':0,'rotation_lock_count':1,
   'XY_exact_vendor_suffix_verified':False,'rotary_exact_SKU_verified':False,
   'missing_spacer_mm':0,'real_mounting_pitch_verified':False}
 check(part(A,'A15B')[0].BoundingBox().xmin>=a15.xmax-.02,
       'A film T25M handle points to RIGHT +X')
-check(part(A,'A02B')[0].BoundingBox().xmax<=a02.xmin+.02,
-      'A sample T25M silver left handle in photo17 points LEFT -X')
+check(part(A,'A02B')[0].BoundingBox().xmin>=a02.xmax-.02,
+      'V138 user correction: A02 X actuator right +X, Y actuator front +Y')
 check(part(A,'A03M')[0].BoundingBox().zmax<=part(A,'A03K')[0].BoundingBox().zmin+.02,
       'A VC13M micrometer is vertically oriented')
 a04_lower_support=part(A,'A04LS')[0]

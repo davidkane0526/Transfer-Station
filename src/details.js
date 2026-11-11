@@ -361,10 +361,19 @@ export function enrichParts(partMap, platform, onMesh){
        tag.userData.A11BodyAttachedBrandDecoration=true;
        g.userData.noDuplicateDecorativeEmitterDiscs=true;
      });
+     decoration('A33',(g)=>{
+       decal(g,'TEMP  CONTROL  ·  TYPE ?',117,13,0,147,76.6,'front','#e6ebf1');
+       decal(g,'PV    25.0',75,14,0,125,80.95,'front','#ffe1e3');
+       decal(g,'SV    25.0',75,12,0,97,80.95,'front','#d9ffde');
+       decal(g,'SET     ALM    OUT',83,7,0,57,77.9,'front','#d4dce4');
+       decal(g,'CONTROLLER MODEL UNVERIFIED',123,9,0,35,77.9,'front','#bbc3cc');
+     });
      decoration('A12',(g)=>{
-       const front=box(g,58,102,1.8,0,52,37,graphite,2);
-       knurl(g,0,45,41,14,8,'y',60);
-       decal(g,'LEDD1B',42,9,0,82,38.5,'front','#d9e4eb');
+       decal(g,'LED - DRIVER   LEDD1B',46,6,0,74.2,-29,'top','#dce4ed');
+       decal(g,'THORLABS',39,6,0,74.2,36,'top','#d6e4ed');
+       decal(g,'CW   TRIG   MOD',38,4.5,-9,74.2,-40,'top','#e0e5eb');
+       decal(g,'CURRENT LIMIT',47,5,0,56.5,51.1,'front','#d6e4ed');
+       decal(g,'0.2   0.5   1.2 A',44,5,0,30,51.1,'front','#ccd3df');
      });
   }
   if(onMesh)for(const m of extras)onMesh(m);

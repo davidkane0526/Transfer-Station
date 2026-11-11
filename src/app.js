@@ -1836,7 +1836,7 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
     g.userData.A02PhotoConfirmedSingleLinearAxis=false;
     g.userData.A02SecondLinearAxisRejected=false;
     g.userData.A02EvidencePhotos=['17','18','20','2026-11-11 user correction'];
-    g.userData.A02ObservedHandleDirection='X:-X; Y:+Z (scene depth)';
+    g.userData.A02ObservedHandleDirection='X:+X; Y:+Z (scene depth)';
     g.userData.A02SecondDrumBelongsToA02=true;
     g.userData.A02RotaryLongMicrometerCount=0;
     g.userData.A02ExactT25MSuffixVerified=false;
@@ -3034,7 +3034,7 @@ function platformA(){
     label(g,'A17 磁座',0,32,0);
   },{explode:[-10,0,0],facingYaw:aFilmYaw});
  // A sample branch: GCM-5306M base -> A06 lock-only rotation -> A02 XY stage.
- makeStageBlock('A02',sx,49,0,65,65,33,'样品侧 XY 双轴 GCM-T25M2系列（X左、Y前）',true,{rotateSample:true},-1,2,1);
+ makeStageBlock('A02',sx,49,0,65,65,33,'样品侧 XY 双轴 GCM-T25M2系列（X右、Y前）',true,{rotateSample:true},+1,2,1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
  makeStageBlock('A15',ax,40,az,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,
    {facingYaw:aFilmYaw},1,2,1);
@@ -3571,6 +3571,18 @@ function platformA(){
     const boomShell=add(movingBoom,plate(34,86,25,mats.dark,
       [[0,25,13.3]]));
     boomShell.position.set(0,187.5,25);
+    // Candidate split sleeve and lateral bolt pair for microscope boom.
+    // The post and head interfaces still require original manufacturer CAD.
+    const boomCollar=add(movingBoom,sleeve(17.1,13.3,15,mats.dark,0,191,0,'y'));
+    boomCollar.userData.A10SlidingPostClampCandidate=true;
+    for(const z of [-13,13]){
+      const bolt=add(movingBoom,cyl(2.5,12,mats.steel,19,190,z,24));
+      bolt.rotation.z=Math.PI/2;
+      bolt.userData.A10ClampBoltCandidate=true;
+      const head=add(movingBoom,cyl(4,2.6,mats.silver,26,190,z,24));
+      head.rotation.z=Math.PI/2;
+      head.userData.A10ClampBoltHeadCandidate=true;
+    }
     boomShell.userData.A10BoomFrontFaceJointToA18=true;
     boomShell.userData.A10BoomLengthCandidateMm=86;
     boomShell.userData.A10BoomTruePostThroughBore=true;
@@ -3637,13 +3649,30 @@ function platformA(){
    label(g,'A11 Thorlabs MWWHL4',35,28,0);
  },{explode:[22,20,22]});
  addPart('A12',262,0,-80,g=>{
-  add(g,cub(60,104,73,mats.dark,0,52,0));
-  add(g,cub(34,25,2,mats.blue,0,66,37));
-  const socket=add(g,sleeve(5,2.2,4,mats.steel,0,65,-38,'z'));
+  // Thorlabs LEDD1B T-Cube envelope: W60 x H73 x D104mm.
+  // V137 incorrectly swapped height with depth and invented a blue screen.
+  const foot=add(g,plate(80,124,3,mats.dark,[[0,-54,4],[0,54,4]]));
+  foot.userData.A12SlottedMountingBaseCandidate=true;
+  const chassis=add(g,cub(60,70,100,mats.dark,0,38,0));
+  chassis.userData.A12OEMCaseEnvelopeMm=[60,73,104];
+  const top=add(g,cub(58,1,98,mats.ink,0,73.5,0));
+  top.userData.A12TopControlPanel=true;
+  const knob=add(g,cyl(14,12,mats.black,0,80,1,48));
+  knob.userData.A12LargeIntensityKnob=true;
+  const index=add(g,cub(3,1,6,mats.silver,0,87,10));
+  index.userData.A12KnobIndexMark=true;
+  const mode=add(g,cub(7,7,8,mats.dark,-20,78,-29));
+  mode.userData.A12ModeSwitch=true;
+  const limit=add(g,cyl(8,2.5,mats.black,0,43,50.8,36));
+  limit.rotation.x=Math.PI/2;limit.userData.A12FrontCurrentLimitDial=true;
+  const socket=add(g,sleeve(5,2.2,5,mats.steel,0,42,-52,'z'));
   socket.userData.A12M8LEDServiceSocketCandidate=true;
+  const dc=add(g,sleeve(4.1,2.1,3,mats.black,-18,17,-52,'z'));
+  dc.userData.A12RearDcInputCandidate=true;
   g.userData.A12M8LEDPortFamily=true;
+  g.userData.A12OEMTopModeDial=true;
   g.userData.A12ElectricalPolarityVerified=false;
-  label(g,'Thorlabs LEDD1B',0,123,0);
+  label(g,'Thorlabs LEDD1B',0,108,0);
  },{explode:[50,15,-20]});
  addPart('A13',260,0,72,g=>{
   add(g,cub(75,33,64,mats.dark,0,16.5,0));
@@ -3656,6 +3685,48 @@ function platformA(){
   }
   label(g,'德力西 CDG1-1DD/25A',0,62,0);
  },{explode:[45,15,20]});
+ addPart('A33',260,0,95,g=>{
+   // Real temperature-control topology; actual PID controller OEM unknown.
+   add(g,cub(154,5,148,mats.dark,0,2.5,0)).userData.A33CabinetFloor=true;
+   for(const x of [-75,75]){
+     const panel=add(g,cub(4,154,142,mats.dark,x,80,0));
+     panel.userData.A33SteelSidePanel=true;
+     for(const y of [32,54,76,98,120]){
+       const slit=add(g,cub(4.6,2,32,mats.ink,x,y,35));
+       slit.userData.A33SideCoolingVentCandidate=true;
+     }
+   }
+   add(g,cub(154,4,148,mats.dark,0,158,0));
+   const face=add(g,cub(150,150,4,mats.pump,0,80,73));
+   face.userData.A33ControllerFrontPanel=true;
+   const bezel=add(g,cub(102,96,5,mats.ink,0,108,77));
+   bezel.userData.A33PIDInstrumentBezel=true;
+   const red=new THREE.MeshBasicMaterial({color:0xbd2831});
+   const green=new THREE.MeshBasicMaterial({color:0x39b35a});
+   const pv=add(g,cub(76,22,1.4,red,0,124,80));
+   pv.userData.A33ProcessValueDisplay=true;
+   const sv=add(g,cub(76,18,1.4,green,0,96,80));
+   sv.userData.A33SetpointDisplay=true;
+   for(const x of [-30,-10,10,30]){
+     const b=add(g,cub(11,6,2,mats.black,x,71,78));
+     b.userData.A33PIDFrontButton=true;
+   }
+   for(const x of [-56,56])for(const y of [18,141]){
+     const bolt=add(g,cyl(2.7,1.8,mats.silver,x,y,77,24));
+     bolt.rotation.x=Math.PI/2;bolt.userData.A33FrontCabinetScrew=true;
+   }
+   for(const x of [-61,61]){
+     const rear=add(g,cub(32,138,3,mats.dark,x,79,-72));
+     rear.userData.A33SplitRearPanel=true;
+   }
+   const grommet=add(g,sleeve(17,12,3,mats.rubber,0,28,-73,'z'));
+   grommet.userData.A33RearCableEntryCandidate=true;
+   g.userData.A33EncasesSSRPart='A13';
+   g.userData.A33SensorInterfacePart='A25';
+   g.userData.A33TemperatureControllerExactSKUVerified=false;
+   g.userData.A33ControllerCandidateNoEnergizedPinout=true;
+   label(g,'A33 温控控制箱 · 控制器型号待核',0,172,75);
+ },{explode:[40,0,35]});
  addPart('A14',sx,257,0,g=>{
    // V59: 66mm open sleeve overlaps A08 by 6mm and meets camera A09.
    // Thread engagement and camera flange remain unverified.
@@ -3673,6 +3744,22 @@ function platformA(){
    bodyMid.userData.A18PhotoConstrainedMainBody=true;
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
+   // MGZ30-like guiding topology is only a candidate, not OEM identity.
+   for(const x of [-11,59]){
+     const guide=add(g,cub(4,47,3,mats.black,x,-6,45.5));
+     guide.userData.A18FrontSlidingGuideCandidate=true;
+     const wear=add(g,cub(2,43,1,mats.steel,x,-6,47.2));
+     wear.userData.A18FrontGuideWearStripCandidate=true;
+   }
+   const carriage=add(g,cub(54,15,7,mats.dark,24,-25,49));
+   carriage.userData.A18DovetailCarriageCandidate=true;
+   const adapter=add(g,cub(44,5,37,mats.black,3,-34,23));
+   adapter.userData.A18ObjectiveDovetailAdapterCandidate=true;
+   for(const x of [-10,58])for(const y of [-9,17]){
+     const screw=add(g,cyl(2.25,1.4,mats.steel,x,y,46.3,24));
+     screw.rotation.x=Math.PI/2;
+     screw.userData.A18FaceMountScrewCandidate=true;
+   }
    const bodyLower=add(g,cub(70,18,88,mats.dark,bodyX,-26,0));
    bodyLower.userData.A18BodySegment='lower';
    const bodyUpper=add(g,cub(76,14,88,mats.dark,bodyX,28,0));
@@ -3927,13 +4014,62 @@ function platformA(){
    label(g,'A29 真空软管',266,81,-202);
  });
  addPart('A30',350,0,-190,g=>{
-   add(g,cub(44,18,44,mats.dark,0,9,0));
-   add(g,cyl(5,48,mats.steel,0,42,0));
-   const inlet=add(g,sleeve(4.3,2.2,8,mats.steel,0,68,0,'y'));
+   // Physical pump family geometry only: B20 VN-50 is a visual reference.
+   // Do not infer that Platform A has the same pump or live specifications.
+   const sole=add(g,cub(200,8,110,mats.dark,-10,4,0));
+   sole.userData.A30PumpSole=true;
+   for(const x of [-81,61])for(const z of [-48,48]){
+      const foot=add(g,cub(28,12,14,mats.black,x,10,z));
+      foot.userData.A30PumpRubberFootCandidate=true;
+      const anchor=add(g,cyl(3.1,2,mats.ink,x,16,z));
+      anchor.userData.A30PumpFootMountHoleCandidate=true;
+   }
+   const motor=add(g,cyl(44,150,mats.black,-10,50,0,64));
+   motor.rotation.z=Math.PI/2;motor.userData.A30PumpMotor=true;
+   for(const x of [-51,7]){
+      const band=add(g,sleeve(46,43,3,mats.steel,x,50,0,'x'));
+      band.userData.A30MotorFixingBand=true;
+   }
+   for(const x of [-75,-60,-45,-30,-15,0,15,30,45]){
+      const vent=add(g,cub(3,1.2,50,mats.ink,x,93.5,0));
+      vent.userData.A30MotorVentCandidate=true;
+   }
+   const fan=add(g,cyl(42,11,mats.dark,-90,50,0,48));
+   fan.rotation.z=Math.PI/2;fan.userData.A30FanGuard=true;
+   for(const [dy,dz] of [[-19,-19],[-19,19],[19,-19],[19,19],[0,0]]){
+      const grille=add(g,cyl(2.6,12,mats.ink,-96,50+dy,dz,24));
+      grille.rotation.z=Math.PI/2;grille.userData.A30FanGrilleOpeningCandidate=true;
+   }
+   for(const y of [31,69]){
+     const rod=add(g,cyl(2.8,136,mats.steel,-10,y,39,24));
+     rod.rotation.z=Math.PI/2;rod.userData.A30MotorTieRod=true;
+   }
+   for(const x of [-45,30]){
+      add(g,cub(48,8,48,mats.dark,x,92,0));
+      const head=add(g,cub(42,36,42,mats.pump,x,114,0));
+      head.userData.A30TwinVacuumHead=true;
+      add(g,cub(44,4,44,mats.steel,x,134,0));
+      for(const y of [138,141,144]){
+        const fin=add(g,cub(44,1.9,44,mats.silver,x,y,0));
+        fin.userData.A30PumpCoolingFin=true;
+      }
+   }
+   const bridge=add(g,cyl(4.2,75,mats.steel,-7.5,147,0));
+   bridge.rotation.z=Math.PI/2;bridge.userData.A30PumpHeadManifold=true;
+   const filter=add(g,cyl(7,20,mats.glass,50,117,0));
+   filter.userData.A30FilterReferenceCandidate=true;
+   // G1/4 is reference only, not a confirmed reducer to Ø4.4mm hose.
+   const inlet=add(g,sleeve(6.58,5.9,2.2,mats.steel,73.6,68,0,'x'));
    inlet.userData.A30VacuumSourceOpenPort=true;
-   g.userData.notAPumpBody=true;
+   inlet.userData.A30G14ThreadDiameterReference=13.157;
+   g.userData.A30PumpEnvelopeMm=[200,110,150];
+   g.userData.A30PumpMotorCount=1;
+   g.userData.A30PumpHeadCount=2;
+   g.userData.referenceFamily='VN-50 / platform B example only';
    g.userData.realPumpIdentityUnknown=true;
-   label(g,'A30 真空源接口 · 待确认泵',0,88,0);
+   g.userData.actualPortThreadAndReducerUnknown=true;
+   g.userData.notAConfirmedVendorModel=true;
+   label(g,'A30 真空泵 · VN-50 同族外形候选',-6,166,29);
  },{explode:[30,0,-20]});
 }
 function addAxis(){
@@ -4441,6 +4577,45 @@ function refreshAControlHarness(){
    g.userData.lastRoutePose=pose;
  }
 }
+// V138: inspect actual geometric assemblies, not labels or BOM proxies.
+window.__modelA138HardwareProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const st=parts.get('A02')?.g,rot=parts.get('A06')?.g,
+       driver=parts.get('A12')?.g,pump=parts.get('A30')?.g,
+       cab=parts.get('A33')?.g,scope=parts.get('A18')?.g;
+ if(!st||!rot||!driver||!pump||!cab||!scope)return {available:false};
+ const tag=(g,key)=>g.children.filter(o=>Boolean(o.userData[key]));
+ const axes=tag(st,'stageActuatorHandle');
+ const x=axes.find(o=>o.userData.stageActuatorHandle?.localAxis==='X');
+ const depth=axes.find(o=>o.userData.stageActuatorHandle?.localAxis==='depth');
+ const inlet=tag(pump,'A30VacuumSourceOpenPort')[0];
+ const end=aVacuumRoute({sampleShiftMm:sampleShift,
+   sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle}).path.at(-1);
+ const inletWorld=inlet?.getWorldPosition(new THREE.Vector3());
+ return {available:true,
+   xActuatorRight:!!(x&&x.position.x>0),
+   yActuatorFront:!!(depth&&depth.position.z>0),
+   xActuatorLocalCenterX:x?.position.x??null,
+   yActuatorLocalCenterZ:depth?.position.z??null,
+   rotaryLinearHandleCount:rot.userData.rotaryLinearMicrometerCount??null,
+   rotaryLockCount:tag(rot,'A06ShortFrontLock').length,
+   LEDDriverTopKnobs:tag(driver,'A12LargeIntensityKnob').length,
+   LEDDriverModeSwitches:tag(driver,'A12ModeSwitch').length,
+   LEDDriverFrontLimitDials:tag(driver,'A12FrontCurrentLimitDial').length,
+   LEDDriverNominalEnvelopeMm:driver.children.find(o=>o.userData.A12OEMCaseEnvelopeMm)?.userData.A12OEMCaseEnvelopeMm,
+   pumpMotorCount:tag(pump,'A30PumpMotor').length,
+   pumpHeadCount:tag(pump,'A30TwinVacuumHead').length,
+   pumpInletReferenceOnly:pump.userData.realPumpIdentityUnknown===true,
+   pumpHoseEndpointGapMm:inletWorld?Number(inletWorld.distanceTo(new THREE.Vector3(...end)).toFixed(3)):null,
+   temperatureCabinetFront:tag(cab,'A33ControllerFrontPanel').length,
+   temperatureCabinetPIDDisplayCount:tag(cab,'A33ProcessValueDisplay').length+tag(cab,'A33SetpointDisplay').length,
+   SSRPartInstalledInsideCabinet:parts.has('A13')&&cab.userData.A33EncasesSSRPart==='A13',
+   microscopeFrontRails:tag(scope,'A18FrontSlidingGuideCandidate').length,
+   microscopeDovetailCandidate:tag(scope,'A18DovetailCarriageCandidate').length,
+   exactMicroscopeSkuVerified:false,
+   exactPumpSkuVerified:false,
+   actualElectricalSafetyCertified:false};
+};
 window.__modelAThermalFunctionalProbe=()=>{
  if(platform!=='A')return {available:false};
  const chuck=parts.get('A07')?.g,heater=parts.get('A26')?.g,

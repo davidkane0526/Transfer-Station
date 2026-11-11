@@ -27,10 +27,10 @@ export function aVacuumRoute(options={}){
  aThermalPoseLocalToWorld(A_THERMAL.suctionFittingTailLocal,options),
  aThermalPoseLocalToWorld([0,26,-55],options),
  aThermalPoseLocalToWorld([38,32,-75],options),
- [167,88,-169],[285,72,-210],[350,68,-190]];
+ [166,88,-162],[280,88,-215],[356,77,-219],[423.6,68,-190]];
  if(path.some(point=>point.some(x=>!Number.isFinite(x))))throw new Error('Invalid vacuum route');
  return {path,innerDiameterCandidateMm:4.4,outerDiameterCandidateMm:7,
-  source:'A28 suction outlet',destination:'A30 external vacuum source service interface',
+  source:'A28 suction outlet',destination:'A30 unverified VN-50-family pump intake interface',
   realPumpIdentified:false,installedPhysicallyVerified:false,
   withinCandidateAngularTravel:Math.abs(options.sampleAngleDeg??0)<=A_THERMAL.vacuumCandidateAngleLimitDeg};
 }

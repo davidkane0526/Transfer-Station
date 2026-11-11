@@ -97,7 +97,7 @@ export function auditPlatformAAssembly({
     a17ExactVariantVerified:false,
     sampleA02TravelAxes:['X','Y'],
     sampleA02DualAxisUserConfirmed:true,
-    sampleA02ObservedHandleDirection:'left / -X',
+    sampleA02ObservedHandleDirection:'right / +X',
     sampleA02SecondLinearAxisRejected:false,
     sampleA02ExactSkuVerified:false,
     filmStageX,sampleCenterX,

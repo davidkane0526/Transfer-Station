@@ -7,7 +7,7 @@ export const MOUNT_RULES=Object.freeze({
    installedMagnet:'A17',
    magnetic:['A17','A15'],
    bolted:['A16','A06','A02','A07','A10','A21'],
-   separate:['A12','A13','A25'],
+   separate:['A12','A13','A25','A30','A33'],
    accessoryBoards:[],
    verifiedAnchorHoleCoordinates:false
  },

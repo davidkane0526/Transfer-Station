@@ -9,7 +9,7 @@ export const A_CONTROL_DATUMS = Object.freeze({
   ledPostBase:[187.5,20,-87.5],
   ledPostTopY:219,
   ledBridgeHeightY:194,
-  driverSocket:[262,65,-119], // candidate back-face position, NOT pin location
+  driverSocket:[262,42,-133], // candidate back-face position, NOT pin location
   relayInterface:[253,18,40], // candidate service-envelope point, not a wiring terminal
   powerReturnInterface:[271,18,40],
   temperatureServiceInterface:[305,14,25],
@@ -45,8 +45,8 @@ export function aControlRoutes({sampleShiftMm=0,sampleDepthShiftMm=0,sampleAngle
   const ledStart=pt(ledRoot[0]+55,ledRoot[1]-38+opticalLiftMm,12);
   // The LED lamp has an independent support. A22 uses a flexible service loop.
   const led=[
-    ledStart,pt(236,184+opticalLiftMm,-3),pt(251,154+opticalLiftMm*.5,-45),
-    pt(258,117,-87),pt(...A_CONTROL_DATUMS.driverSocket)
+    ledStart,pt(232,184+opticalLiftMm,-14),pt(235,163+opticalLiftMm*.5,-64),
+    pt(240,104,-120),pt(261,54,-142),pt(...A_CONTROL_DATUMS.driverSocket)
   ];
   // Distinct REAR exits from A07. These points indicate candidate cable
   // origins on the brown/intermediate layer, not guaranteed thermal feedthroughs.

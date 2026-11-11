@@ -668,6 +668,28 @@ try{
    'Platform A must not expose the B control-cabinet inspection shortcut');
  assert.equal(await page.locator('#b-photo-profile').isHidden(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
+ // V138 scene geometry test, not simulated metadata-only X/Y axes.
+ const v138=await page.evaluate(()=>window.__modelA138HardwareProbe?.());
+ assert.equal(v138?.available,true,'V138 installed A hardware probe');
+ assert.equal(v138.xActuatorRight,true,'A02 X actuator must face right +X');
+ assert.equal(v138.yActuatorFront,true,'A02 depth actuator must face front +Z');
+ assert.equal(v138.rotaryLinearHandleCount,0);
+ assert.equal(v138.rotaryLockCount,1);
+ assert.deepEqual(v138.LEDDriverNominalEnvelopeMm,[60,73,104]);
+ assert.equal(v138.LEDDriverTopKnobs,1);
+ assert.equal(v138.LEDDriverModeSwitches,1);
+ assert.equal(v138.LEDDriverFrontLimitDials,1);
+ assert.equal(v138.pumpMotorCount,1);
+ assert.equal(v138.pumpHeadCount,2);
+ assert(v138.pumpHoseEndpointGapMm<=.1,
+   'Hose must physically meet pump intake, not hover near it');
+ assert.equal(v138.temperatureCabinetFront,1);
+ assert.equal(v138.temperatureCabinetPIDDisplayCount,2);
+ assert.equal(v138.SSRPartInstalledInsideCabinet,true);
+ assert.equal(v138.microscopeFrontRails,2);
+ assert.equal(v138.microscopeDovetailCandidate,1);
+ assert.equal(v138.exactPumpSkuVerified,false);
+ assert.equal(v138.exactMicroscopeSkuVerified,false);
  // V133: the added A21 mount must be an actual grounded support chain,
  // and LED/heater/temperature cable routes must not merge into one tube.
  // V135: inspect real geometry parts, not a blue dot painted onto a solid.
@@ -833,6 +855,8 @@ try{
  });
  assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).currentExplodePercent,0);
  await photoShot('Transfer-Station-A-V137-XY-Rotary-Lock.png','#btn-sample-stack');
+ await photoShot('Transfer-Station-A-V138-X-Right-Y-Front.png','#btn-sample-stack');
+ await photoShot('Transfer-Station-A-V138-Pump-Controller.png','#btn-iso');
  await photoShot('Transfer-Station-A-V133-Control-Routes.png','#btn-iso');
  await page.locator('#toggle-a-thermal').evaluate(el=>el.click());
  assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).cutawayEnabled,true);
