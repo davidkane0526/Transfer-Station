@@ -1642,6 +1642,8 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(photo5Empty.wingEarCount,4);
  assert.equal(photo5Empty.selectedVisibilityScore,4,
    'Photo5 empty-clamp audit must directly expose upper foot, lower blade and both wing-screw heads');
+ assert(photo5Empty.selectedElevationDeg<=27,
+   'Photo5 closeup must remain a low oblique view instead of drifting back to top-down');
  assert.equal(photo5Empty.fixedRay.clear,true);
  assert.equal(photo5Empty.pressureRay.clear,true);
  assert(photo5Empty.screwHeadRays.every(x=>x.clear));
