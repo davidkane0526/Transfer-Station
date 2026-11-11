@@ -660,6 +660,12 @@ try{
    'Platform A photo/reference selector is internal QA only');
  assert.equal(await page.locator('#photo-crosscheck').isHidden(),true,
    'Platform A photo comparison controls must not appear in user UI');
+ assert.equal(await page.locator('#btn-photo108').isHidden(),true,
+   'Platform A must not expose B photo108 shortcut');
+ assert.equal(await page.locator('#btn-photo109').isHidden(),true,
+   'Platform A must not expose B photo109 shortcut');
+ assert.equal(await page.locator('#btn-control-cabinet').isHidden(),true,
+   'Platform A must not expose the B control-cabinet inspection shortcut');
  assert.equal(await page.locator('#b-photo-profile').isHidden(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
  assert.equal(await page.locator('#btn-a-working-pose').isHidden(),true,
