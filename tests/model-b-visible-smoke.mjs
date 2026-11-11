@@ -662,7 +662,8 @@ try{
    'Platform A photo comparison controls must not appear in user UI');
  assert.equal(await page.locator('#b-photo-profile').isHidden(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
- assert.equal(await page.locator('#btn-a-working-pose').isVisible(),true);
+ assert.equal(await page.locator('#btn-a-working-pose').isHidden(),true,
+   'Internal A pose control must stay hidden from the user UI');
  const installedTruth=await page.evaluate(()=>window.__platformAPhotoTruthProbe?.());
  assert.equal(installedTruth?.photoMode,false);
  assert.equal(installedTruth.filmBranchInstalledYawDeg,180,
