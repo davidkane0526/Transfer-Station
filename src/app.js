@@ -554,9 +554,11 @@ window.__modelAPhoto194Probe=()=>{
    if(platform!=='A')return {available:false};
    const root=id=>parts.get(id)?.g;
    const mesh=(id,tag)=>root(id)?.children.find(o=>o.isMesh&&o.userData[tag]);
-   const gA11=root('A11'),gA18=root('A18'),gA10=root('A10'),gA15=root('A15'),gS=root('A05CS');
+   const gA11=root('A11'),gA21=root('A21'),gA18=root('A18'),gA10=root('A10'),gA15=root('A15'),gS=root('A05CS');
    const lamp=gA11?.children.find(o=>o.userData.A11OEMHousingDiameterMm!==undefined);
-   const lampRing=gA11?.children.find(o=>o.userData.A11OEMSlipRingCandidate);
+   // V133 physical mounting ring belongs to A21's sliding support carriage;
+   // using an A11-owned decorative ring would silently reintroduce ghost geometry.
+   const lampRing=gA21?.userData.ledAdjustableCarrier?.children.find(o=>o.userData.A21SM1RCStyleMountingRing);
    const cable=gA11?.children.find(o=>o.userData.A11ElectricalCable);
    const housing=gA18?.children.find(o=>o.userData.A18PhotoConstrainedMainBody);
    const bend=mesh('A05','A05VerticalSheetWeb');
