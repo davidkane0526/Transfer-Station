@@ -4765,6 +4765,50 @@ window.__A15NoGhostCloseupProbe=()=>{
  };
 };
 
+// V132: user-visible working-pose closeup for the exact Fig.1 stack.
+// This is deliberately independent of the hidden historical photo-reference
+// mode. It validates what the user actually sees after selecting Platform A.
+function _focusAFilmWorkingAudit(){
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const ids=['A15','A03','A04L','A04','A05'];
+ const gs=ids.map(id=>parts.get(id)?.g);
+ if(gs.some(g=>!g))return false;
+ const box=_auditBoxFor(gs),target=box.getCenter(new THREE.Vector3());
+ const size=box.getSize(new THREE.Vector3());
+ const distance=Math.max(235,size.y*1.15,size.x*2.2);
+ camera.position.copy(target).add(new THREE.Vector3(0,55,distance));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+}
+window.__focusAFilmWorkingAudit=_focusAFilmWorkingAudit;
+window.__AFilmWorkingCloseupProbe=()=>{
+ if(platform!=='A'||!aWorkingPoseMode)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);camera.updateMatrixWorld(true);
+ const stage=parts.get('A15')?.g,vc=parts.get('A03')?.g;
+ const lower=parts.get('A04L')?.g,upper=parts.get('A04')?.g,sheet=parts.get('A05')?.g;
+ const lowerKnob=lower?.children.find(o=>o.userData.A04LDriveDrum);
+ const upperKnob=upper?.children.find(o=>o.userData.A04DriveDrum);
+ const handles=stage?.children.filter(o=>o.userData.stageActuatorHandle)??[];
+ if(![stage,vc,lower,upper,sheet,lowerKnob,upperKnob].every(Boolean)||handles.length!==2)
+   return {available:false};
+ const sx=o=>o.getWorldPosition(new THREE.Vector3()).project(camera).x;
+ const stackBox=_auditBoxFor([stage,vc,lower,upper,sheet]);
+ return {
+   available:true,mode:'working',
+   upperKnobNdcX:Number(sx(upperKnob).toFixed(3)),
+   lowerKnobNdcX:Number(sx(lowerKnob).toFixed(3)),
+   knobsOnOppositeSides:sx(upperKnob)*sx(lowerKnob)<0,
+   upperDriveLocalDirection:upper.userData.photo196UpperDriveDirection??null,
+   lowerDriveLocalDirection:lower.userData.photo195196LowerDriveDirection??null,
+   oldFrontFacingDepthDriveRejected:Boolean(lower.userData.oldFrontFacingDepthDriveRejected),
+   A15HandleCount:handles.length,
+   A15HandleAxes:handles.map(o=>o.userData.stageActuatorHandle.localAxis).sort(),
+   A15DuplicateDecorativeActuators:Boolean(stage.userData.noDuplicateDecorativeStageActuators),
+   projection:_auditProjection(stackBox)
+ };
+};
+
 window.__A05FixedCloseupProbe=()=>{
  if(platform!=='A')return {available:false};
  currentRoot.updateWorldMatrix(true,true);
