@@ -847,6 +847,12 @@ def make_a():
         # Heads only: do not claim unknown buried screw threads.
         add('A',f'A07S{i}','silver_top_four_VISIBLE_HEAD_only_CANDIDATE',
             vz(2.9,1.8,xx,yy,106.8),'C')
+    # V133: the two heater and one temperature probe strain reliefs
+    # touch the REAR (-Y) sample edge. No internal heater bore is presumed.
+    for i,(xx,zz,bore) in enumerate(((cx-13,93.7,1.4),
+        (cx-6,93.7,1.4),(cx+12,96.2,1.1)),1):
+        ring=vy(3.4,3,xx,-35.5,zz).cut(vy(bore,3.2,xx,-35.6,zz))
+        add('A',f'A07P{i}','A07_REAR_CABLE_RELIEF_UNCONFIRMED_INTERFACE',ring,'C')
     # Photo191/193: front slotted adjustment plate and visible screws.
     a07_front=box(36,2,18,cx,33.5,91).cut(box(18,2.2,3,cx,33.5,92))
     add('A','A07F','sample_stage_front_slotted_adjust_plate_photo191_candidate',a07_front,'C')
