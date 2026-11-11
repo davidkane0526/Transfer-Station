@@ -3531,6 +3531,12 @@ function platformA(){
  addPart('A13',260,0,72,g=>{
   add(g,cub(75,33,64,mats.dark,0,16.5,0));
   add(g,cub(40,15,4,mats.silver,0,16,34));
+  // Pure service-interface geometry on the rear of an identified SSR.
+  // Actual load/supply terminals and the circuit's pinout remain UNKNOWN.
+  for(const x of [-7,11]){
+    const port=add(g,sleeve(3.4,1.4,4,mats.black,x,18,-34,'z'));
+    port.userData.A13RearPowerServicePortCandidate=true;
+  }
   label(g,'德力西 CDG1-1DD/25A',0,62,0);
  },{explode:[45,15,20]});
  addPart('A14',sx,257,0,g=>{
