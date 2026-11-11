@@ -716,10 +716,13 @@ def make_a():
     # end-on proxy that rendered as a false front circular knob.
     add('A','A04LS','LOWER_G40_LEFT_SIDE_DRIVE_SUPPORT_PHOTO195_196',
         box(16,29,15,ax-24,0,167.5),'C')
+    # vx() uses its x coordinate as the START of the +X cylinder,
+    # so a physical -X drive is created by starting further left and ending
+    # at the engaged support/body interface.
     add('A','A04LM','LOWER_G40_MINUS_X_MICROMETER_PHOTO195_196',
-        vx(5.5,18,ax-27,0,169.5),'C')
+        vx(5.5,18,ax-36,0,169.5),'C')
     add('A','A04LK','LOWER_G40_MINUS_X_KNOB_PHOTO195_196',
-        vx(8.3,20,ax-43,0,169.5),'C')
+        vx(8.3,20,ax-53,0,169.5),'C')
     add('A','A04','UPPER_G40M60L_LABEL_PHOTO94_40x40x20',
         box(40,40,20,ax,0,179.5),'P')
     add('A','A04M','UPPER_G40M60L_right_micrometer_photo191_196',
