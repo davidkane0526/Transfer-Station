@@ -7,12 +7,12 @@ export const A_CONTROL_DATUMS = Object.freeze({
   ledOrigin:[174,220,0],
   ledSlipRingCenter:[186,220,0],
   ledPostBase:[186,20,-92],
-  ledPostTopY:199,
+  ledPostTopY:219,
   ledBridgeHeightY:194,
-  driverSocket:[262,85,-119], // candidate back-face position, NOT pin location
-  relayInterface:[253,38,40], // candidate service-envelope point, not a wiring terminal
-  powerReturnInterface:[271,38,40],
-  temperatureServiceInterface:[305,34,25],
+  driverSocket:[262,65,-119], // candidate back-face position, NOT pin location
+  relayInterface:[253,18,40], // candidate service-envelope point, not a wiring terminal
+  powerReturnInterface:[271,18,40],
+  temperatureServiceInterface:[305,14,25],
   sampleRearZ:-32.5,
   heatingCoreIdentified:false,
   temperatureProbeTypeVerified:false,
