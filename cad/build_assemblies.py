@@ -937,6 +937,9 @@ def make_a():
     a21_foot=cut(a21_foot,a21_anchors,5.4,8,20)
     a21_base=a21_foot.fuse(vz(6,191,187.5,-87.5,28))
     add('A','A21','LED_STAND_FOOT_AND_POST_UNVERIFIED_RECONSTRUCTION',a21_base,'C')
+    for i,(xx,yy) in enumerate(a21_anchors,1):
+        bolt=vz(2.5,14,xx,yy,14).fuse(vz(4.25,2.5,xx,yy,28))
+        add('A',f'A21S{i}','FOUR_CANDIDATE_FOOT_M5_ANCHORS_ON_A01_GRID',bolt,'C')
     a21_collar=vz(10,14,187.5,-87.5,187).cut(vz(6.1,14.2,187.5,-87.5,186.9))
     add('A','A21C','LED_STAND_ADJUSTABLE_POST_COLLAR_CANDIDATE',a21_collar,'C')
     add('A','A21B','LED_STAND_RIGID_Z_TO_LED_BRIDGE_CANDIDATE',
