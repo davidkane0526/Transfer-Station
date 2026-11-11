@@ -678,6 +678,22 @@ try{
  assert.equal(controlA0.mountingFootBores,4);
  assert.equal(controlA0.mountingAnchorHeads,4);
  assert.deepEqual(controlA0.mountedSupportWorldXZ,[187.5,-87.5]);
+ assert.equal(controlA0.supportFootBoardGapMm,0,'A21 foot must touch the A01 board top');
+ assert.equal(controlA0.ledMountConcentricWithLamp,true,'A21 ring must physically wrap the A11 light housing');
+ assert.equal(controlA0.ledDriverPortDistanceMm,1,'LED cable must engage A12 rear connector envelope');
+ assert.equal(controlA0.sensorPortDistanceMm,0,'A24 must terminate at the A25 service port');
+ assert.deepEqual(controlA0.heaterPortDistancesMm,[2,2],
+   'Both heater leads must reach real modelled A13 service socket envelopes');
+ assert.deepEqual(controlA0.sampleRearPortStartDistancesMm,[1.5,1.5,1.5],
+   'Three A07 cable starts must coincide with their rear strain reliefs');
+ for(const role of ['led','heaterA','heaterB','temperature']){
+   assert(controlA0.routeMeshEndpoints[role],
+     'Cable mesh must expose its ACTUAL tube-curve endpoints for '+role);
+ }
+ assert.deepEqual(controlA0.routeMeshEndpoints.led.end,controlA0.routeEndpoints.ledDriver);
+ assert.deepEqual(controlA0.routeMeshEndpoints.heaterA.start,controlA0.routeEndpoints.heaterFirst);
+ assert.deepEqual(controlA0.routeMeshEndpoints.heaterB.start,controlA0.routeEndpoints.heaterSecond);
+ assert.deepEqual(controlA0.routeMeshEndpoints.temperature.start,controlA0.routeEndpoints.temperatureProbe);
  assert.equal(controlA0.ringLiftMm,18,'A21 upper ring must follow optical parking');
  assert.deepEqual(controlA0.a07RearServiceRoles,['heaterA','heaterB','temperature']);
  assert.equal(controlA0.driverLEDPort,true);
@@ -696,6 +712,13 @@ try{
  const controlAMove=await page.evaluate(()=>window.__modelAControlInterfaceProbe?.());
  assert.equal(controlAMove.routeEndpoints.heaterFirst[0]-controlA0.routeEndpoints.heaterFirst[0],4);
  assert.equal(controlAMove.routeEndpoints.temperatureProbe[0]-controlA0.routeEndpoints.temperatureProbe[0],4);
+ assert.equal(controlAMove.routeMeshEndpoints.heaterA.start[0]-
+   controlA0.routeMeshEndpoints.heaterA.start[0],4,
+   'ACTUAL rendered heater cable mesh must move with the sample');
+ assert.equal(controlAMove.routeMeshEndpoints.temperature.start[0]-
+   controlA0.routeMeshEndpoints.temperature.start[0],4,
+   'ACTUAL rendered temperature cable mesh must move with the sample');
+ assert.deepEqual(controlAMove.routeMeshEndpoints.led.end,controlA0.routeMeshEndpoints.led.end);
  assert.deepEqual(controlAMove.routeEndpoints.heaterRelayEnvelope,
    controlA0.routeEndpoints.heaterRelayEnvelope);
  assert.deepEqual(controlAMove.routeEndpoints.ledDriver,controlA0.routeEndpoints.ledDriver);
