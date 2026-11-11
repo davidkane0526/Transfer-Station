@@ -43,3 +43,11 @@
 - [Thorlabs MWWHL4](https://www.thorlabs.com/item.cfm?partnumber=MWWHL4) 与 Mounted LEDs 产品材料展示 SM1RC 滑环安装方式。
 - [Thorlabs LEDD1B 说明书](https://www.manualslib.com/manual/3021078/Thorlabs-Ledd1b.html)：LED 输出口为 M8×1 四针接口，实际 LED 导线仅使用 1、2 两脚；本项目不据此指定未知线束的正负极。
 - A13 的具体开关/电源电路必须由实物电气原理图确认。
+
+
+## 2026-11-11 本轮实际验证结果
+- 已在当前会话读取 GitHub 上的完整 `src/app.js` / `src/a-control-interfaces.js` / `src/parts.js` / `src/assembly-mounts.js` / `src/photo-evidence.js`，剔除静态 ES import/export 声明后交给 V8 JavaScript 语法解析：**均通过语法解析**。
+- 已实际在 V8 中执行 `aControlRoutes()`、`aControlRoutes({sampleShiftMm:4})`、`aControlRoutes({opticalLiftMm:18})` 与 `auditAControlRoutes()`：加热/测温线前端 X 位移均为 4 mm，LED 前端随光学升高 18 mm，各终端坐标不变，路径 QA 为通过，`fullElectricalAcceptance=false`。
+- 为避免几何与元数据脱节，后续补充了真实 WebGL 网格级钩子：从 `TubeGeometry.parameters.path.points` 读取四条线束各自的**实际渲染端点**，并检查 A21 安装环是否与 A11 灯体同轴、A21 底脚是否贴合面包板、A07/A12/A13/A25 实体接口与电缆起/终点间隙。Playwright 测试已同步增加约束。
+- 修正 V132 遗留的 `__modelADetailMountProbe`：安装环从原本 A11 灯头装饰子件改由 A21 的真正支撑组件检索，杜绝无故新增装饰悬浮环。
+- **尚未执行或取得确认：** 完整 GitHub Actions Playwright 浏览器回归、CadQuery STEP 构建及 `cad/validate_interfaces.py` 物理干涉审计。目前不能声称这些构建全部通过，更不能声称电气回路达到真实接线安全要求。
