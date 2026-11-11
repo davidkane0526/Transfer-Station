@@ -84,7 +84,7 @@ jobs:
         run: |
           python3 -m http.server 8765 > /tmp/transfer-site.log 2>&1 &
           node tests/model-b-visible-smoke.mjs
-      - name: Require fourteen reproducible A photo comparison renders with complementary A05/A18 views
+      - name: Require fifteen reproducible A photo comparison renders with photo5 empty-clamp view
         run: |
           mkdir -p assets/photo-review
           for name in \
@@ -99,13 +99,14 @@ jobs:
             Transfer-Station-A-Photo196-G40.png \
             Transfer-Station-A-V117-A05-Moving-Clamp-Closeup.png \
             Transfer-Station-A-V117-A05-Fixed-Jaw-Closeup.png \
+            Transfer-Station-A-V131-Photo5-Empty-Clamp-Closeup.png \
             Transfer-Station-A-V96-A17-Front-Closeup.png \
             Transfer-Station-A-V106-A18-Optical-Closeup.png \
             Transfer-Station-A-V106-A18-Support-Closeup.png; do
             test -s "$name" || { echo "::error::A real-photo matching render is missing: $name"; exit 1; }
             cp "$name" assets/photo-review/
           done
-      - name: Upload fourteen photo comparison renders to publish job
+      - name: Upload fifteen photo comparison renders to publish job
         uses: actions/upload-artifact@v4
         with:
           name: A-Photo-Comparison-Renders
@@ -132,6 +133,7 @@ jobs:
             Transfer-Station-A-Photo196-G40.png
             Transfer-Station-A-V117-A05-Moving-Clamp-Closeup.png
             Transfer-Station-A-V117-A05-Fixed-Jaw-Closeup.png
+            Transfer-Station-A-V131-Photo5-Empty-Clamp-Closeup.png
             Transfer-Station-A-V96-A17-Front-Closeup.png
             Transfer-Station-A-V106-A18-Optical-Closeup.png
             Transfer-Station-A-V106-A18-Support-Closeup.png
