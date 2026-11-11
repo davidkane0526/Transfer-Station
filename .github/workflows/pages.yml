@@ -106,7 +106,6 @@ jobs:
             Transfer-Station-A-V132-A11-No-Ghost-Closeup.png \
             Transfer-Station-A-V132-A15-No-Ghost-Closeup.png \
             Transfer-Station-A-V132-Film-Stack-Working-Closeup.png \
-            Transfer-Station-A-V133-Control-Routes.png \
             Transfer-Station-A-V96-A17-Front-Closeup.png \
             Transfer-Station-A-V106-A18-Optical-Closeup.png \
             Transfer-Station-A-V106-A18-Support-Closeup.png; do
@@ -144,6 +143,7 @@ jobs:
             Transfer-Station-A-V132-A11-No-Ghost-Closeup.png
             Transfer-Station-A-V132-A15-No-Ghost-Closeup.png
             Transfer-Station-A-V132-Film-Stack-Working-Closeup.png
+            Transfer-Station-A-V133-Control-Routes.png
             Transfer-Station-A-V96-A17-Front-Closeup.png
             Transfer-Station-A-V106-A18-Optical-Closeup.png
             Transfer-Station-A-V106-A18-Support-Closeup.png
