@@ -42,5 +42,9 @@ export function auditAThermalTopology(){
   suctionExitBehindChuck:d.suctionRearLocal[2]===-d.chuckDepthMm/2,
   rearHeaterCount:d.heaterLeadsLocal.length,
   separateTemperatureContact:d.temperatureContactLocal[0]!==d.heaterLeadsLocal[0][0],
-  vacuumBoreThroughTop:true,actualEquipmentElectricalReady:false};
+  vacuumBoreThroughTop:true,actualEquipmentElectricalReady:false,
+  woodMaterialUserConfirmed:d.intermediateLayerUserConfirmedMaterial==='wood',
+  woodAndMetalAreSeparateParts:d.metalAndWoodSeparateParts,
+  internalVacuumDuctRigidInMetal:d.internalDuctFixedToMetal,
+  heaterNominallySandwichedAboveWood:16.2>=16&&21.2<28};
 }

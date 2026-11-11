@@ -674,6 +674,26 @@ try{
  const thermalA=await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.());
  assert.equal(thermalA?.available,true,'A07 functional thermal/vacuum structure not rendered');
  assert.equal(thermalA.realTopBoreCount,1);
+ // V136 user-confirmed topology, verified from ACTUAL Three.js scene
+ // parts, not hard-coded product-list text or a drawing caption.
+ assert.equal(thermalA.woodInsulationSeparatePart,true);
+ assert.equal(thermalA.woodConfirmedMaterial,'wood');
+ assert.equal(thermalA.darkLowerSupportSeparatePart,true);
+ assert.equal(thermalA.vacuumDuctFixedInMetal,true);
+ assert.equal(thermalA.rigidVacuumDuctPartId,'A07');
+ assert.equal(thermalA.fixedInnerDuctCount,1);
+ assert.deepEqual(thermalA.innerDuctLocalPosition,[0,23,0]);
+ assert.deepEqual(thermalA.strataExplodeOffsetsMm,{
+   lower:0,wood:18,heater:34,sensor:38,metal:68,suctionFitting:68,sample:92
+ });
+ // All assembled levels must meet the true wood/metal sandwich.
+ const heights=thermalA.strataMeshWorldHeights;
+ assert(Math.abs(heights.A32[1]-heights.A31[0])<.01,
+   'Wood must physically rest on the separate black support');
+ assert(heights.A26[0]>heights.A31[1],
+   'Heater must be above wood, not inside wooden or lower layer');
+ assert(heights.A27[0]>=heights.A26[1],
+   'Temperature tip must remain between heater surface and upper metal');
  assert.equal(thermalA.heaterElementCount,1);
  assert.equal(thermalA.heaterTerminalCount,2);
  assert.equal(thermalA.sensorJunctionCount,1);
@@ -793,6 +813,25 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  };
+ // V136: inspect the literal explosion order and capture a real 3D view.
+ await page.locator('#explode').evaluate(el=>{
+   el.value='100';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const explodedA=await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.());
+ const ex=explodedA.strataMeshWorldHeights;
+ assert(ex.A32[1]<ex.A31[0]&&ex.A31[1]<ex.A26[0]&&
+   ex.A26[1]<ex.A27[0]&&ex.A27[1]<ex.A07[0],
+   'V136 exploded order must be lower→wood→heater→probe→metal');
+ assert.equal(explodedA.currentExplodePercent,100);
+ assert.deepEqual(explodedA.innerDuctLocalPosition,thermalA.innerDuctLocalPosition,
+   'Internal vacuum duct is fixed in upper metal and cannot move independently');
+ assert.equal(explodedA.externalHoseVisible,false,
+   'Flexible external hose should not stretch through an exploded assembly');
+ await photoShot('Transfer-Station-A-V136-Wood-Heater-Metal-Exploded.png','#btn-sample-stack');
+ await page.locator('#explode').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).currentExplodePercent,0);
  await photoShot('Transfer-Station-A-V133-Control-Routes.png','#btn-iso');
  await page.locator('#toggle-a-thermal').evaluate(el=>el.click());
  assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).cutawayEnabled,true);

@@ -831,13 +831,15 @@ def make_a():
         vx(9,25,cx+69,0,42),'C')
     # V48 photos17/18 show the 65mm silver top at ~90mm ABOVE THE
     # 20mm-thick board TOP, not 90mm absolute from model origin.
-    # Photos17–21 show three distinct vertical bands. Material of the
-    # middle gold/tan layer remains unknown, not certified ceramic.
+    # V136 user-confirmed: the central gold/tan 7mm layer is WOOD
+    # insulation, separate from the upper silver metal and heater.
     # Current A02 ends at z81.2; lower9 + middle7 + top12 =>109.2.
-    add('A','A07B','sample_lower_dark_support_65x65x9_CANDIDATE',
+    add('A','A32','LOWER_SUPPORT_SEPARATE_PART_65x65x9',
         box(65,65,9,cx,0,81.2),'C')
-    add('A','A07I','sample_intermediate_goldtoned_65x65x7_MATERIAL_UNKNOWN',
+    add('A','A31','WOOD_INSULATING_BOARD_65x65x7_USER_CONFIRMED',
         box(65,65,7,cx,0,90.2),'C')
+    # V136: A07 is ONLY the upper metal. A26/A27 sit between A31 WOOD
+    # and the underside pocket; suction bore is an immobile void in A07.
     # V135: a real bored chuck, not a solid silver ornament.
     # Underside Ø38.6-square heater pocket, two power through-galleries,
     # separate sensing gallery and an intersecting vertical-to-rear
@@ -1086,7 +1088,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V135'
+CAD_REVISION='V136'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

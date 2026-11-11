@@ -91,7 +91,7 @@ jobs:
         run: |
           python3 -m http.server 8765 > /tmp/transfer-site.log 2>&1 &
           node tests/model-b-visible-smoke.mjs
-      - name: Require nineteen reproducible A engineering renders with working film-stack direction check
+      - name: Require V136 exploded thermal-layer render and A engineering evidence
         run: |
           mkdir -p assets/photo-review
           for name in \
@@ -100,6 +100,7 @@ jobs:
             Transfer-Station-A-20261108-MonitorRight.png \
             Transfer-Station-A-V133-Control-Routes.png \
             Transfer-Station-A-V135-Heater-Cutaway.png \
+            Transfer-Station-A-V136-Wood-Heater-Metal-Exploded.png \
             Transfer-Station-A-Photo191-Overview.png \
             Transfer-Station-A-Photo192-Side.png \
             Transfer-Station-A-Photo193-Front.png \
@@ -118,7 +119,7 @@ jobs:
             test -s "$name" || { echo "::error::A real-photo matching render is missing: $name"; exit 1; }
             cp "$name" assets/photo-review/
           done
-      - name: Upload nineteen A engineering renders to publish job
+      - name: Upload A engineering renders to publish job
         uses: actions/upload-artifact@v4
         with:
           name: A-Photo-Comparison-Renders
@@ -151,6 +152,7 @@ jobs:
             Transfer-Station-A-V132-Film-Stack-Working-Closeup.png
             Transfer-Station-A-V133-Control-Routes.png
             Transfer-Station-A-V135-Heater-Cutaway.png
+            Transfer-Station-A-V136-Wood-Heater-Metal-Exploded.png
             Transfer-Station-A-V96-A17-Front-Closeup.png
             Transfer-Station-A-V106-A18-Optical-Closeup.png
             Transfer-Station-A-V106-A18-Support-Closeup.png

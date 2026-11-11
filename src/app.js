@@ -50,6 +50,7 @@ black:new THREE.MeshStandardMaterial({color:'#1a242e',metalness:.35,roughness:.4
 microscope:new THREE.MeshStandardMaterial({color:'#d4dce2',metalness:.55,roughness:.38}),
 white:new THREE.MeshStandardMaterial({color:'#f0ecde',roughness:.83}),
 ceramic:new THREE.MeshStandardMaterial({color:'#e6d7be',roughness:.68}),
+woodInsulator:new THREE.MeshStandardMaterial({color:'#c99b58',metalness:0,roughness:.93}),
 glass:new THREE.MeshPhysicalMaterial({color:'#b6def3',transparent:true,opacity:.55,roughness:.1,metalness:0,transmission:.28,depthWrite:false}),
 blue:new THREE.MeshStandardMaterial({color:'#329edc',metalness:.2,roughness:.35}),
 copper:new THREE.MeshStandardMaterial({color:'#d9a66b',metalness:.54,roughness:.35}),
@@ -3392,11 +3393,35 @@ function platformA(){
   g.userData.GCM1102VendorStudyInstalled=false;
   label(g,'A06 旋转台',0,54,0);
  },{explode:[0,0,0]});
+ // V136: black support, WOOD insulation, heater+sensor, then solid metal.
+ // All are independent parts for a meaningful exploded view.
+ addPart('A32',sx,81.2,0,g=>{
+   const base=add(g,cub(65,9,65,mats.dark,0,4.5,0));
+   base.userData.A32LowerSupport=true;
+   // Photo-referenced front adjustment plate is attached to the lower
+   // support, never part of the heated vacuum metal geometry.
+   const front=add(g,cub(36,16,2,mats.silver,0,14,33.4));
+   front.userData.A07FrontSlottedPlateCandidate=true;
+   add(g,cub(18,2.6,.8,mats.ink,0,14,34.55));
+   const stem=add(g,cyl(2.7,5,mats.steel,0,14,37.2));stem.rotation.x=Math.PI/2;
+   const knob=add(g,cyl(5.2,3,mats.silver,0,14,41));knob.rotation.x=Math.PI/2;
+   for(const x of [-12,12]){
+     const head=add(g,cyl(2.2,2,mats.steel,x,7,35));head.rotation.x=Math.PI/2;
+   }
+   g.userData.lowerThicknessMm=9;
+   label(g,'A32 下部固定支座',0,25,0);
+ },{explode:[0,0,0],translateSample:true,rotateSample:true});
+ addPart('A31',sx,81.2,0,g=>{
+   const wood=add(g,cub(65,7,65,mats.woodInsulator,0,12.5,0));
+   wood.userData.A31WoodInsulationLayer=true;
+   g.userData.materialUserConfirmed='wood';
+   g.userData.woodThicknessCandidateMm=7;
+   g.userData.woodTopLocalY=16;
+   label(g,'A31 木质隔热垫',0,23,0);
+ },{explode:[0,18,0],translateSample:true,rotateSample:true});
  addPart('A07',sx,81.2,0,g=>{
-  // Same physical silhouette and vertical datum as the user photo:
-  // 9mm dark + 7mm unknown brown + 12mm silver functional chuck.
-  add(g,cub(65,9,65,mats.dark,0,4.5,0));
-  add(g,cub(65,7,65,mats.copper,0,12.5,0));
+  // Silver upper metal ONLY, Y16..28. Suction geometry is a machined
+  // rigid void inside this metal; no independent moving duct object exists.
   const corners=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
   // 38.6 square underside heater pocket through the lower 5.4mm
   // of the original silver slab; four support side walls are real meshes.
@@ -3420,8 +3445,13 @@ function platformA(){
   add(g,rearNotchedPlate(65,65,.6,mats.steel,
     {slotX:-10,slotWidth:1.5,slotStopZ:.7,corners})).position.y=21.4;
   add(g,plate(65,65,1,mats.steel,corners)).position.y=22;
-  add(g,rearNotchedPlate(65,65,1.8,mats.steel,
-    {slotX:0,slotWidth:2.2,slotStopZ:.75,corners})).position.y=23;
+  const fixedDuctBoundary=add(g,rearNotchedPlate(65,65,1.8,mats.steel,
+    {slotX:0,slotWidth:2.2,slotStopZ:.75,corners}));
+  fixedDuctBoundary.position.y=23;
+  fixedDuctBoundary.userData.A07RigidVacuumBoreBoundary=true;
+  fixedDuctBoundary.userData.createdBySubtractiveVoid=true;
+  // The channel is an A07 void, NOT a separate movable pipe.
+
   add(g,plate(65,65,.7,mats.steel,[...corners,[0,0,.7]])).position.y=24.8;
   const top=add(g,plate(65,65,2.5,mats.steel,[...corners,[0,0,.7]]));
   top.position.y=25.5;top.userData.A07ActualCenterSuctionBore=true;
@@ -3429,15 +3459,7 @@ function platformA(){
     const h=add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24));
     h.userData.A07VisibleHeadCandidate=true;
   }
-  // Maintain the photo191/193 front adjustment plate and its fasteners.
-  const front=add(g,cub(36,16,2,mats.silver,0,14,33.4));
-  front.userData.A07FrontSlottedPlateCandidate=true;
-  add(g,cub(18,2.6,.8,mats.ink,0,14,34.55));
-  const stem=add(g,cyl(2.7,5,mats.steel,0,14,37.2));stem.rotation.x=Math.PI/2;
-  const knob=add(g,cyl(5.2,3,mats.silver,0,14,41));knob.rotation.x=Math.PI/2;
-  for(const x of [-12,12]){
-    const h=add(g,cyl(2.2,2,mats.steel,x,7,35));h.rotation.x=Math.PI/2;
-  }
+  // Lower front controls are on A32, not in the upper metal.
   for(const [role,x,y,r] of [
     ['heaterA',10,18.2,1.25],['heaterB',16,18.2,1.25],
     ['temperature',-10,21.1,.75]]){
@@ -3451,14 +3473,18 @@ function platformA(){
     }
   }
   g.userData.rulerSampleTopAboveBoardMm=89.2;
-  g.userData.layerProxies=[9,7,12];
+  g.userData.layerProxies=[12];
+  g.userData.internalVacuumDuctOwner='A07';
+  g.userData.internalVacuumDuctIndependentlyMovable=false;
+  g.userData.woodInsulationPartId='A31';
+  g.userData.lowerSupportPartId='A32';
   g.userData.A07HeaterPocketMm=[38.6,38.6,5.4];
   g.userData.A07SuctionBoreDiameterMm=1.4;
   g.userData.A07VacuumDuctDiameterMm=2.2;
   g.userData.intermediateMaterialUnknown=true;
   g.userData.heatSensorAndPortDimensionsUnverified=true;
-  label(g,'A07 内嵌加热真空吸附台',0,40,0);
- },{explode:[0,26,0],translateSample:true,rotateSample:true});
+  label(g,'A07 银色金属吸附台（内部刚性气道）',0,40,0);
+ },{explode:[0,68,0],translateSample:true,rotateSample:true});
  addPart('A26',sx,81.2,0,g=>{
    const ceramic=add(g,cub(38,5,38,mats.ceramic,0,18.7,0));
    ceramic.userData.A26EmbeddedHeater=true;
@@ -3471,7 +3497,7 @@ function platformA(){
    }
    g.userData.heaterVoltageWattageUnknown=true;
    label(g,'A26 陶瓷加热片 · 候选38×38×5',0,12,-18);
- },{explode:[34,70,10],translateSample:true,rotateSample:true});
+ },{explode:[0,34,0],translateSample:true,rotateSample:true});
  addPart('A27',sx,81.2,0,g=>{
    const tip=add(g,cyl(.45,.18,mats.copper,-10,21.3,0,32));
    tip.userData.A27TemperatureJunction=true;
@@ -3480,21 +3506,21 @@ function platformA(){
    wire.userData.A27IndependentProbeLead=true;
    g.userData.sensorTypeAndPolarityUnknown=true;
    label(g,'A27 测温探头 · 类型待核',-10,26,-21);
- },{explode:[-16,72,0],translateSample:true,rotateSample:true});
+ },{explode:[0,38,0],translateSample:true,rotateSample:true});
  addPart('A28',sx,81.2,0,g=>{
    const fitting=add(g,sleeve(3.5,1.1,11,mats.steel,0,23.5,-38,'z'));
    fitting.userData.A28OpenVacuumBore=true;
    g.userData.duct='top hole → drilled lateral channel → rear suction';
    g.userData.realThreadSealUnknown=true;
    label(g,'A28 中空真空接头',0,38,-45);
- },{explode:[0,80,-14],translateSample:true,rotateSample:true});
+ },{explode:[0,68,0],translateSample:true,rotateSample:true});
  addPart('A07W',sx,109.2,0,g=>{
     const sampleChip=add(g,cub(28,1.4,28,mats.glass,0,.7,0));
     sampleChip.userData.A07SampleChipProxy=true;
     sampleChip.userData.A07SampleChipThicknessUnverified=true;
     g.userData.sampleMaterialAndThicknessUnverified=true;
     label(g,'A07W 样品片',0,14,0);
- },{explode:[0,45,0],translateSample:true,rotateSample:true});
+ },{explode:[0,92,0],translateSample:true,rotateSample:true});
  addPart('A10',sx,20,-112,g=>{
     // Four TRUE Ø5.5mm candidate mounting bores in an offset foot.
     // Centers world X50/100, Z-125/-75 match the candidate A01 grid.
@@ -4354,6 +4380,11 @@ function updateTransforms(){
    refreshHeatingControlHarness();refreshVacuumHoseB();
  }
  if(platform==='A'){
+   // Flexible cables are suppressed in exploded engineering views: their
+   // endpoint-control shapes are valid only in the fully assembled pose.
+   for(const id of ['A22','A23','A24','A29']){
+     const g=parts.get(id)?.g;if(g)g.visible=explosion===0;
+   }
    refreshAControlHarness();refreshAVacuumHose();
    if(Math.abs(sampleAngle)>5&&$('lowering-clearance'))
      $('lowering-clearance').textContent='A06 候选摆角 ±5°；大角度旋转不代表可用装配';
@@ -4394,11 +4425,44 @@ function refreshAControlHarness(){
 window.__modelAThermalFunctionalProbe=()=>{
  if(platform!=='A')return {available:false};
  const chuck=parts.get('A07')?.g,heater=parts.get('A26')?.g,
-  sensor=parts.get('A27')?.g,fit=parts.get('A28')?.g,
+  sensor=parts.get('A27')?.g,wood=parts.get('A31')?.g,lower=parts.get('A32')?.g,fit=parts.get('A28')?.g,
   hose=parts.get('A29')?.g,port=parts.get('A30')?.g;
  const r=aVacuumRoute({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
  return {available:!!(chuck&&heater&&sensor&&fit&&hose&&port),
   realTopBoreCount:chuck?.children.filter(o=>o.userData.A07ActualCenterSuctionBore).length??0,
+  fixedInnerDuctCount:chuck?.children.filter(o=>o.userData.A07RigidVacuumBoreBoundary).length??0,
+  innerDuctLocalPosition:(()=>{
+    const d=chuck?.children.find(o=>o.userData.A07RigidVacuumBoreBoundary);
+    return d?[d.position.x,d.position.y,d.position.z]:null;
+  })(),
+  strataMeshWorldHeights:(()=>{
+    const spec=[['A32','A32LowerSupport'],['A31','A31WoodInsulationLayer'],
+      ['A26','A26EmbeddedHeater'],['A27','A27TemperatureJunction'],
+      ['A07','A07ActualCenterSuctionBore'],['A28','A28OpenVacuumBore']];
+    const heights={};currentRoot.updateWorldMatrix(true,true);
+    for(const [id,key] of spec){
+      const m=parts.get(id)?.g.children.find(o=>o.userData[key]);
+      if(!m)continue;
+      const b=new THREE.Box3().setFromObject(m);
+      heights[id]=[Number(b.min.y.toFixed(3)),Number(b.max.y.toFixed(3))];
+    }
+    return heights;
+  })(),
+  woodInsulationSeparatePart:Boolean(wood?.children.some(o=>o.userData.A31WoodInsulationLayer)),
+  woodConfirmedMaterial:wood?.userData.materialUserConfirmed??null,
+  darkLowerSupportSeparatePart:Boolean(lower?.children.some(o=>o.userData.A32LowerSupport)),
+  vacuumDuctFixedInMetal:chuck?.userData.internalVacuumDuctIndependentlyMovable===false,
+  rigidVacuumDuctPartId:chuck?.userData.internalVacuumDuctOwner??null,
+  strataExplodeOffsetsMm:{
+    lower:parts.get('A32')?.explode?.[1]??null,
+    wood:parts.get('A31')?.explode?.[1]??null,
+    heater:parts.get('A26')?.explode?.[1]??null,
+    sensor:parts.get('A27')?.explode?.[1]??null,
+    metal:parts.get('A07')?.explode?.[1]??null,
+    suctionFitting:parts.get('A28')?.explode?.[1]??null,
+    sample:parts.get('A07W')?.explode?.[1]??null
+  },
+  currentExplodePercent:explosion,
   heaterPocketMm:chuck?.userData.A07HeaterPocketMm,
   topAboveBoardMm:chuck?.userData.rulerSampleTopAboveBoardMm,
   heaterElementCount:heater?.children.filter(o=>o.userData.A26EmbeddedHeater).length??0,
@@ -4531,7 +4595,7 @@ function resetScene(){
  }
  else {
    platformA();
-   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A07','A07W','A26','A27','A28','A29','A30','A10','A11','A12','A13','A21','A22','A23','A24','A25']){
+   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A32','A31','A26','A27','A07','A28','A07W','A29','A30','A10','A11','A12','A13','A21','A22','A23','A24','A25']){
      if(!parts.has(id))throw Error('Model A missing: '+id);
    }
  }

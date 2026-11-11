@@ -732,13 +732,13 @@ report['V83_A03_central_drive_and_moving_plate']={
     'physical_zero_height_verified':False
 }
 check(abs(part(A,'A06A')[0].BoundingBox().zmax-a02.zmin)<.02,'A sample T25M above rotary')
-check(abs((a02.zmin+20)-part(A,'A07B')[0].BoundingBox().zmin)<.02,
+check(abs((a02.zmin+20)-part(A,'A32')[0].BoundingBox().zmin)<.02,
       'V48 A07 dark bottom 9mm directly rests on sample A02 T25M')
-check(abs(part(A,'A07B')[0].BoundingBox().zmax-
-          part(A,'A07I')[0].BoundingBox().zmin)<.02,
-      'V48 7mm intermediate visible layer rests on lower dark support')
-check(abs(part(A,'A07I')[0].BoundingBox().zmax-aheat.zmin)<.02,
-      'V48 12mm silver top sits on the gold-colored intermediate plate')
+check(abs(part(A,'A32')[0].BoundingBox().zmax-
+          part(A,'A31')[0].BoundingBox().zmin)<.02,
+      'V136 7mm wooden insulator rests on separate lower support')
+check(abs(part(A,'A31')[0].BoundingBox().zmax-aheat.zmin)<.02,
+      'V136 silver upper metal rim meets wood top with embedded heater in pocket')
 check(abs(aheat.zmax-109.2)<.02,
       'V48 ruler photo17/18: sample top global 109.2mm, 89.2mm above 20mm board')
 check(87<(aheat.zmax-20)<93,
@@ -2179,6 +2179,21 @@ report['V134_A_priority04_local_mechanical_QA']={
     'electrical_pinout_verified':False}
 # V135 Platform A functional chuck: explicit bore intersection and physical
 # clearance evidence. These are candidate CAD dimensions, not real QA data.
+# V136 distinct real solids and a sandwich below the upper metal.
+a07_wood=part(A,'A31')[0]
+a07_lower=part(A,'A32')[0]
+check(abs(a07_wood.BoundingBox().zmin-90.2)<.01 and
+      abs(a07_wood.BoundingBox().zmax-97.2)<.01,
+      'V136 wooden insulation must be a separate 7mm physical solid')
+check(abs(a07_lower.BoundingBox().zmax-a07_wood.BoundingBox().zmin)<.01,
+      'V136 wood must sit directly on the dark support')
+check(part(A,'A07')[0].intersect(a07_wood).Volume()<.001,
+      'V136 upper metal and wooden insulation MUST NOT fuse')
+check(part(A,'A26')[0].BoundingBox().zmin>a07_wood.BoundingBox().zmax and
+      part(A,'A26')[0].BoundingBox().zmax<part(A,'A07')[0].BoundingBox().zmax,
+      'V136 heater belongs BETWEEN wood and upper metal')
+check(part(A,'A27')[0].BoundingBox().zmin>a07_wood.BoundingBox().zmax,
+      'V136 temperature contact belongs at wood-metal heater interface')
 a07_metal=part(A,'A07')[0]
 a26_heat=part(A,'A26')[0]
 a27_probe=part(A,'A27')[0]
@@ -2205,10 +2220,17 @@ check(a29_hose.isValid() and a30_service.BoundingBox().zmin<.01,
       'V135 vacuum hose needs valid hollow CAD and a grounded external inlet')
 check(part(A,'A26')[0].BoundingBox().zmax<102.6,
       'V135 A26 ceramic must fit within the upper metal pocket height')
-v135_required={'A07','A26','A26L1','A26L2','A27','A27L',
+v135_required={'A07','A31','A32','A26','A26L1','A26L2','A27','A27L',
                'A28','A29','A30','A30P'}
 check(v135_required.issubset(installed_ids),
       'V135 official installed STEP must include physical heater, probe and suction path')
+report['V136_A_wood_to_metal_thermal_sandwich']={
+ 'layers_bottom_to_top':['A32_lower','A31_wood','A26_heater_and_A27_probe','A07_metal'],
+ 'wood_user_confirmed':True,
+ 'heater_below_metal_and_above_wood':True,
+ 'suction_duct_subtracted_inside_A07':True,
+ 'independent_vacuum_channel_motion':False,
+ 'assembled_top_height_mm':109.2}
 report['V135_A_user_required_vacuum_heating_sensor']={
   'chuck_open_top_suction_mm':1.4,
   'side_suction_duct_mm':2.2,
