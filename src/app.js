@@ -24,6 +24,7 @@ import {auditB35MicroscopeFasteners,auditB08ToB35Mount} from './b35-fastener-aud
 import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
 import {A_WORKING_LAYOUT,auditAWorkingLayout} from './a-working-layout.js';
 import {aControlRoutes,auditAControlRoutes} from './a-control-interfaces.js';
+import {A_THERMAL,aVacuumRoute,auditAThermalTopology} from './a-thermal-datums.js';
 import {A20261108PhotoAngles,aPhotoCameraPose,aPhotoOrientationEvidence} from './a-photo-angle-registration.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
@@ -68,6 +69,7 @@ vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
 let platform='B', bPhoto94Mode=false, aWorkingPoseMode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
     filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleShiftDepth=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
+let aThermalCutaway=false;
 // Read-only platform state for automated browser QA.
 window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',
  aPose:platform==='A'?(aWorkingPoseMode?'installed180':'photo-reference'):null,partCount:parts.size});
@@ -1598,6 +1600,16 @@ function thumbKnob(parent,x,y,z,axis='z',r=5){
 }
 
 function tube(points,r,m){const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));return mk(new THREE.TubeGeometry(curve,Math.max(24,points.length*12),r,9,false),m,false)}
+function rearNotchedPlate(w,d,h,material,{slotX=0,slotWidth=2.2,slotStopZ=.75,corners=[]}={}){
+ const q=new THREE.Shape(),left=-w/2,right=w/2,front=-d/2,rear=d/2;
+ q.moveTo(left,front);q.lineTo(right,front);q.lineTo(right,rear);
+ q.lineTo(slotX+slotWidth/2,rear);q.lineTo(slotX+slotWidth/2,-slotStopZ);
+ q.lineTo(slotX-slotWidth/2,-slotStopZ);q.lineTo(slotX-slotWidth/2,rear);
+ q.lineTo(left,rear);q.closePath();addHoles(q,corners);
+ const geometry=new THREE.ExtrudeGeometry(q,{depth:h,bevelEnabled:false,steps:1,curveSegments:24});
+ geometry.rotateX(-Math.PI/2);
+ const mesh=mk(geometry,material);mesh.userData.rearOpenChannelGeometry=true;return mesh;
+}
 function shapeRect(w,d){const s=new THREE.Shape();s.moveTo(-w/2,-d/2);s.lineTo(w/2,-d/2);s.lineTo(w/2,d/2);s.lineTo(-w/2,d/2);s.closePath();return s}
 function addHoles(s,circles=[],innerRect=null){
  for(const [x,z,r] of circles){const hole=new THREE.Path();hole.absarc(x,z,r,0,2*Math.PI,true);s.holes.push(hole)}
@@ -3381,43 +3393,101 @@ function platformA(){
   label(g,'A06 旋转台',0,54,0);
  },{explode:[0,0,0]});
  addPart('A07',sx,81.2,0,g=>{
-  // Original photos17–21 and a steel ruler show the silver top at
-  // approximately 87–93mm above the BOARD TOP. Prior V47 single
-  // cuboid left it only 79.2mm above the board and erased two seams.
-  // Three stacked physical silhouettes: 9 dark + 7 gold + 12 silver.
+  // Same physical silhouette and vertical datum as the user photo:
+  // 9mm dark + 7mm unknown brown + 12mm silver functional chuck.
   add(g,cub(65,9,65,mats.dark,0,4.5,0));
   add(g,cub(65,7,65,mats.copper,0,12.5,0));
-  add(g,cub(65,9.5,65,mats.steel,0,20.75,0));
-  const headHoles=[[-25,-25,3.25],[-25,25,3.25],
-                   [25,-25,3.25],[25,25,3.25]];
-  const top=plate(65,65,2.5,mats.steel,headHoles);
-  top.position.y=25.5;add(g,top);
-  for(const [x,z] of headHoles){
-    const head=add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24));
-    head.userData.A07VisibleHeadCandidate=true;
+  const corners=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
+  // 38.6 square underside heater pocket through the lower 5.4mm
+  // of the original silver slab; four support side walls are real meshes.
+  const wall=13.2;
+  for(const d of [-1,1])add(g,cub(wall,5.4,65,mats.steel,d*25.9,18.7,0));
+  add(g,cub(38.6,5.4,wall,mats.steel,0,18.7,25.9));
+  const rearSlice=(y,h,holes)=>{
+    const sorted=holes.map(([x,r])=>[x-r,x+r]).sort((a,b)=>a[0]-b[0]);
+    let start=-19.3;
+    for(const [a,b] of [...sorted,[19.3,19.3]]){
+      if(a-start>.001)add(g,cub(a-start,h,wall,mats.steel,(a+start)/2,y+h/2,-25.9));
+      start=Math.max(start,b);
+    }
+  };
+  rearSlice(16,1,[]);
+  rearSlice(17,2.4,[[10,1.25],[16,1.25]]);
+  rearSlice(19.4,.95,[]);
+  rearSlice(20.35,1.05,[[-10,.75]]);
+  // Independent temperature groove and internal transverse vacuum
+  // passage underneath the cap, not visual hose-lines on solid metal.
+  add(g,rearNotchedPlate(65,65,.6,mats.steel,
+    {slotX:-10,slotWidth:1.5,slotStopZ:.7,corners})).position.y=21.4;
+  add(g,plate(65,65,1,mats.steel,corners)).position.y=22;
+  add(g,rearNotchedPlate(65,65,1.8,mats.steel,
+    {slotX:0,slotWidth:2.2,slotStopZ:.75,corners})).position.y=23;
+  add(g,plate(65,65,.7,mats.steel,[...corners,[0,0,.7]])).position.y=24.8;
+  const top=add(g,plate(65,65,2.5,mats.steel,[...corners,[0,0,.7]]));
+  top.position.y=25.5;top.userData.A07ActualCenterSuctionBore=true;
+  for(const [x,z] of corners){
+    const h=add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24));
+    h.userData.A07VisibleHeadCandidate=true;
   }
-  // Photo191/193: separate front slotted adjustment plate and fasteners.
-  const frontPlate=add(g,cub(36,16,2,mats.silver,0,14,33.4));
-  frontPlate.userData.A07FrontSlottedPlateCandidate=true;
+  // Maintain the photo191/193 front adjustment plate and its fasteners.
+  const front=add(g,cub(36,16,2,mats.silver,0,14,33.4));
+  front.userData.A07FrontSlottedPlateCandidate=true;
   add(g,cub(18,2.6,.8,mats.ink,0,14,34.55));
-  const adjustStem=add(g,cyl(2.7,5,mats.steel,0,14,37.2));adjustStem.rotation.x=Math.PI/2;
-  const adjustKnob=add(g,cyl(5.2,3,mats.silver,0,14,41));adjustKnob.rotation.x=Math.PI/2;
+  const stem=add(g,cyl(2.7,5,mats.steel,0,14,37.2));stem.rotation.x=Math.PI/2;
+  const knob=add(g,cyl(5.2,3,mats.silver,0,14,41));knob.rotation.x=Math.PI/2;
   for(const x of [-12,12]){
-    const screw=add(g,cyl(2.2,2,mats.steel,x,7,35));screw.rotation.x=Math.PI/2;
+    const h=add(g,cyl(2.2,2,mats.steel,x,7,35));h.rotation.x=Math.PI/2;
+  }
+  for(const [role,x,y,r] of [
+    ['heaterA',10,18.2,1.25],['heaterB',16,18.2,1.25],
+    ['temperature',-10,21.1,.75]]){
+    const f=add(g,sleeve(3.1,r,3,mats.black,x,y,-34,'z'));
+    f.userData.A07RearServiceExitRoleCandidate=role;
+  }
+  for(const mesh of g.children){
+    if(mesh.isMesh&&mesh.material===mats.steel){
+      mesh.material=mats.steel.clone();
+      mesh.userData.A07CutawayMetalShell=true;
+    }
   }
   g.userData.rulerSampleTopAboveBoardMm=89.2;
   g.userData.layerProxies=[9,7,12];
-  // V133: back-facing strain reliefs only; heater bores are NOT verified.
-  for(const [role,x,y,hole] of [['heaterA',-13,12.5,1.4],
-    ['heaterB',-6,12.5,1.4],['temperature',12,15,1.1]]){
-    const bushing=add(g,sleeve(3.4,hole,3,mats.black,x,y,-34,'z'));
-    bushing.userData.A07RearServiceExitRoleCandidate=role;
-  }
-  g.userData.A07RearCableExitPositionsUnverified=true;
+  g.userData.A07HeaterPocketMm=[38.6,38.6,5.4];
+  g.userData.A07SuctionBoreDiameterMm=1.4;
+  g.userData.A07VacuumDuctDiameterMm=2.2;
   g.userData.intermediateMaterialUnknown=true;
-  g.userData.vendorHolePatternUnverified=true;
-  label(g,'A07样品台 · 实拍三层 / 顶面高于面包板约89mm',0,40,0);
+  g.userData.heatSensorAndPortDimensionsUnverified=true;
+  label(g,'A07 内嵌加热真空吸附台',0,40,0);
  },{explode:[0,26,0],translateSample:true,rotateSample:true});
+ addPart('A26',sx,81.2,0,g=>{
+   const ceramic=add(g,cub(38,5,38,mats.ceramic,0,18.7,0));
+   ceramic.userData.A26EmbeddedHeater=true;
+   for(const x of [10,16]){
+     const terminal=add(g,cub(1.6,1,1.4,mats.copper,x,18.2,-19.7));
+     terminal.userData.A26HeaterTerminal=true;
+     const lead=add(g,tube([[x,18.2,-19],[x,18.2,-25],
+       [x,18.2,-32.5]],.55,mats.copper));
+     lead.userData.A26LeadInRearFeedthrough=true;
+   }
+   g.userData.heaterVoltageWattageUnknown=true;
+   label(g,'A26 陶瓷加热片 · 候选38×38×5',0,12,-18);
+ },{explode:[34,70,10],translateSample:true,rotateSample:true});
+ addPart('A27',sx,81.2,0,g=>{
+   const tip=add(g,cyl(.45,.18,mats.copper,-10,21.3,0,32));
+   tip.userData.A27TemperatureJunction=true;
+   const wire=add(g,tube([[-10,21.1,0],[-10,21.1,-18],
+     [-10,21.1,-32.5]],.45,mats.blue));
+   wire.userData.A27IndependentProbeLead=true;
+   g.userData.sensorTypeAndPolarityUnknown=true;
+   label(g,'A27 测温探头 · 类型待核',-10,26,-21);
+ },{explode:[-16,72,0],translateSample:true,rotateSample:true});
+ addPart('A28',sx,81.2,0,g=>{
+   const fitting=add(g,sleeve(3.5,1.1,11,mats.steel,0,23.5,-38,'z'));
+   fitting.userData.A28OpenVacuumBore=true;
+   g.userData.duct='top hole → drilled lateral channel → rear suction';
+   g.userData.realThreadSealUnknown=true;
+   label(g,'A28 中空真空接头',0,38,-45);
+ },{explode:[0,80,-14],translateSample:true,rotateSample:true});
  addPart('A07W',sx,109.2,0,g=>{
     const sampleChip=add(g,cub(28,1.4,28,mats.glass,0,.7,0));
     sampleChip.userData.A07SampleChipProxy=true;
@@ -3796,6 +3866,30 @@ function platformA(){
    g.userData.A25NoTemperatureControllerIdentity=true;
    label(g,'A25 测温接口（未识别）',0,38,0);
  });
+ // Independent vacuum service chain. A30 is deliberately NOT labelled
+ // as an identified pump: it is a grounded external inlet connector.
+ addPart('A29',0,0,0,g=>{
+   const pts=aVacuumRoute().path;
+   const outer=add(g,tube(pts,3.5,mats.rubber));
+   outer.userData.dynamicAVacuumTube='outer';
+   const insideMat=mats.ink.clone();insideMat.side=THREE.BackSide;
+   const inside=add(g,tube(pts,2.2,insideMat));
+   inside.userData.dynamicAVacuumTube='inner';
+   g.userData.connectedFrom='A28';
+   g.userData.connectedTo='A30';
+   g.userData.candidateDiameterMm={outer:7,inner:4.4};
+   g.userData.actualPumpConnected=false;
+   label(g,'A29 真空软管',266,81,-202);
+ });
+ addPart('A30',350,0,-190,g=>{
+   add(g,cub(44,18,44,mats.dark,0,9,0));
+   add(g,cyl(5,48,mats.steel,0,42,0));
+   const inlet=add(g,sleeve(4.3,2.2,8,mats.steel,0,68,0,'y'));
+   inlet.userData.A30VacuumSourceOpenPort=true;
+   g.userData.notAPumpBody=true;
+   g.userData.realPumpIdentityUnknown=true;
+   label(g,'A30 真空源接口 · 待确认泵',0,88,0);
+ },{explode:[30,0,-20]});
 }
 function addAxis(){
  const axes=new THREE.AxesHelper(80);axes.position.set(-216,22,145);currentRoot.add(axes);axisObjects.push(axes);
@@ -4259,8 +4353,24 @@ function updateTransforms(){
    if(deck)deck.rotation.y=angle;
    refreshHeatingControlHarness();refreshVacuumHoseB();
  }
- if(platform==='A')refreshAControlHarness();
+ if(platform==='A'){
+   refreshAControlHarness();refreshAVacuumHose();
+   if(Math.abs(sampleAngle)>5&&$('lowering-clearance'))
+     $('lowering-clearance').textContent='A06 候选摆角 ±5°；大角度旋转不代表可用装配';
+ }
  if(active)updateMeasurement();
+}
+function refreshAVacuumHose(){
+ if(platform!=='A')return;
+ const hose=parts.get('A29')?.g;if(!hose)return;
+ const route=aVacuumRoute({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
+ for(const mesh of hose.children){
+   if(!mesh.isMesh||!mesh.userData.dynamicAVacuumTube)continue;
+   const radius=mesh.userData.dynamicAVacuumTube==='inner'?2.2:3.5;
+   const next=tube(route.path,radius,mesh.material);
+   mesh.geometry.dispose();mesh.geometry=next.geometry;
+ }
+ hose.userData.lastPoseRoute=route.path;
 }
 function refreshAControlHarness(){
  if(platform!=='A')return;
@@ -4281,6 +4391,30 @@ function refreshAControlHarness(){
    g.userData.lastRoutePose=pose;
  }
 }
+window.__modelAThermalFunctionalProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const chuck=parts.get('A07')?.g,heater=parts.get('A26')?.g,
+  sensor=parts.get('A27')?.g,fit=parts.get('A28')?.g,
+  hose=parts.get('A29')?.g,port=parts.get('A30')?.g;
+ const r=aVacuumRoute({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
+ return {available:!!(chuck&&heater&&sensor&&fit&&hose&&port),
+  realTopBoreCount:chuck?.children.filter(o=>o.userData.A07ActualCenterSuctionBore).length??0,
+  heaterPocketMm:chuck?.userData.A07HeaterPocketMm,
+  topAboveBoardMm:chuck?.userData.rulerSampleTopAboveBoardMm,
+  heaterElementCount:heater?.children.filter(o=>o.userData.A26EmbeddedHeater).length??0,
+  heaterTerminalCount:heater?.children.filter(o=>o.userData.A26HeaterTerminal).length??0,
+  sensorJunctionCount:sensor?.children.filter(o=>o.userData.A27TemperatureJunction).length??0,
+  hollowFittingCount:fit?.children.filter(o=>o.userData.A28OpenVacuumBore).length??0,
+  hoseMeshCount:hose?.children.filter(o=>o.userData.dynamicAVacuumTube).length??0,
+  rearElectricalPorts:chuck?.children.filter(o=>o.userData.A07RearServiceExitRoleCandidate)
+    .map(o=>o.userData.A07RearServiceExitRoleCandidate)??[],
+  endpointPositions:[r.path[0],r.path.at(-1)],
+  cutawayEnabled:aThermalCutaway,
+  vacuumWithinCandidateAngularTravel:r.withinCandidateAngularTravel,
+  separateVacuumServicePort:port?.children.some(o=>o.userData.A30VacuumSourceOpenPort),
+  identifiedPumpModel:false,actualVacuumFunctionalCertification:false,
+  dimensionsAndTopology:auditAThermalTopology()};
+};
 window.__modelAControlInterfaceProbe=()=>{
  if(platform!=='A')return {available:false};
  const support=parts.get('A21')?.g,driver=parts.get('A12')?.g,
@@ -4397,7 +4531,7 @@ function resetScene(){
  }
  else {
    platformA();
-   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A07','A07W','A10','A11','A12','A13','A21','A22','A23','A24','A25']){
+   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A07','A07W','A26','A27','A28','A29','A30','A10','A11','A12','A13','A21','A22','A23','A24','A25']){
      if(!parts.has(id))throw Error('Model A missing: '+id);
    }
  }
@@ -5320,9 +5454,24 @@ window.__A18MGZ30FamilyStudyProbe=()=>{
 };
 window.__A18CloseupProbe=window.__A18OpticalCloseupProbe;
 
+function setAThermalCutaway(enabled){
+ aThermalCutaway=platform==='A'&&!!enabled;
+ for(const m of parts.get('A07')?.g.children??[]){
+   if(!m.userData.A07CutawayMetalShell)continue;
+   m.material.transparent=aThermalCutaway;
+   m.material.opacity=aThermalCutaway?.22:1;
+   m.material.depthWrite=!aThermalCutaway;
+   m.material.needsUpdate=true;
+ }
+ const b=$('toggle-a-thermal');
+ if(b){b.classList.toggle('on',aThermalCutaway);b.setAttribute('aria-pressed',String(aThermalCutaway));}
+}
 function switchPlatform(next){
   clearCadFeatureCandidates();
   platform=next;
+  aThermalCutaway=false;
+  const b=$('toggle-a-thermal');
+  if(b){b.hidden=next!=='A';b.classList.remove('on');b.setAttribute('aria-pressed','false');}
   explosion=0;filmShift=0;filmShiftDepth=0;filmDrop=0;sampleShift=0;sampleShiftDepth=0;sampleAngle=0;
   for(const [id,value] of [['explode','0'],['translate','0'],['translate-depth','0'],['sample-move','0'],['sample-move-depth','0'],['rotate-sample','0']])$(id).value=value;
   $('explode-value').textContent='0%';$('translate-value').textContent='0 mm';$('translate-depth-value').textContent='0 mm';
@@ -5509,6 +5658,7 @@ $('toggle-holes').onclick=e=>{
  showHoles=!showHoles;e.currentTarget.classList.toggle('on',showHoles);
  holes.forEach(h=>h.visible=showHoles&&!proxyReplaced(h));
 };
+$('toggle-a-thermal').onclick=()=>setAThermalCutaway(!aThermalCutaway);
 $('toggle-labels').onclick=e=>{showLabels=!showLabels;e.currentTarget.classList.toggle('on',showLabels);selectedLabels()};
 $('toggle-dim').onclick=e=>{showDimensions=!showDimensions;e.currentTarget.classList.toggle('on',showDimensions);updateMeasurement()};
 $('toggle-axes').onclick=e=>{showAxes=!showAxes;e.currentTarget.classList.toggle('on',showAxes);axisObjects.forEach(a=>a.visible=showAxes)};

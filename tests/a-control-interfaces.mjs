@@ -51,3 +51,8 @@ for(const angle of [-180,-135,-90,-45,0,45,90,135,180]){
  assert.equal(q.temperatureStartsBehindA07,true,'temperature rear source at '+angle);
  assert.equal(q.firstCableGuidesFollowStage,true,'stage-local knot at '+angle);
 }
+
+for(const angle of [-180,-90,0,90,180]){
+ const qa=auditAControlRoutes({sampleShiftMm:3,sampleAngleDeg:angle});
+ for(const k of ["heaterStartsBehindA07","temperatureStartsBehindA07","firstCableGuidesFollowStage"])assert.equal(qa[k],true,k+' at '+angle);
+}

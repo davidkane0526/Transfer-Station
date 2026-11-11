@@ -670,7 +670,24 @@ try{
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
  // V133: the added A21 mount must be an actual grounded support chain,
  // and LED/heater/temperature cable routes must not merge into one tube.
- const controlA0=await page.evaluate(()=>window.__modelAControlInterfaceProbe?.());
+ // V135: inspect real geometry parts, not a blue dot painted onto a solid.
+ const thermalA=await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.());
+ assert.equal(thermalA?.available,true,'A07 functional thermal/vacuum structure not rendered');
+ assert.equal(thermalA.realTopBoreCount,1);
+ assert.equal(thermalA.heaterElementCount,1);
+ assert.equal(thermalA.heaterTerminalCount,2);
+ assert.equal(thermalA.sensorJunctionCount,1);
+ assert.equal(thermalA.hollowFittingCount,1);
+ assert.equal(thermalA.hoseMeshCount,2);
+ assert.deepEqual(thermalA.rearElectricalPorts,['heaterA','heaterB','temperature']);
+ assert.deepEqual(thermalA.heaterPocketMm,[38.6,38.6,5.4]);
+ assert.equal(thermalA.topAboveBoardMm,89.2);
+ assert.equal(thermalA.separateVacuumServicePort,true);
+ assert.equal(thermalA.identifiedPumpModel,false);
+ assert.equal(thermalA.actualVacuumFunctionalCertification,false);
+ assert.equal(await page.locator('#toggle-a-thermal').isHidden(),false,
+  'A07 cutaway control must be available in A only');
+  const controlA0=await page.evaluate(()=>window.__modelAControlInterfaceProbe?.());
  assert.equal(controlA0?.available,true,'V133 A control interface probe absent');
  assert.equal(controlA0.allComponentsPresent,true);
  assert.equal(controlA0.postCount,1);
@@ -777,7 +794,12 @@ try{
      animations:'disabled',timeout:30000});
  };
  await photoShot('Transfer-Station-A-V133-Control-Routes.png','#btn-iso');
- await photoShot('Transfer-Station-A-Photo191-Overview.png','#btn-iso');
+ await page.locator('#toggle-a-thermal').evaluate(el=>el.click());
+ assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).cutawayEnabled,true);
+ await photoShot('Transfer-Station-A-V135-Heater-Cutaway.png','#btn-sample-stack');
+ await page.locator('#toggle-a-thermal').evaluate(el=>el.click());
+ assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).cutawayEnabled,false);
+  await photoShot('Transfer-Station-A-Photo191-Overview.png','#btn-iso');
  await photoShot('Transfer-Station-A-Photo192-Side.png','#btn-rear');
  await photoShot('Transfer-Station-A-Photo193-Front.png','#btn-front');
  await photoShot('Transfer-Station-A-Photo194-FilmUpper.png','#btn-photo94');

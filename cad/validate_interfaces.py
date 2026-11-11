@@ -2177,6 +2177,49 @@ report['V134_A_priority04_local_mechanical_QA']={
     'sample_local_cable_leads_follow_rotation':True,
     'actual_assembly_model_verified':False,
     'electrical_pinout_verified':False}
+# V135 Platform A functional chuck: explicit bore intersection and physical
+# clearance evidence. These are candidate CAD dimensions, not real QA data.
+a07_metal=part(A,'A07')[0]
+a26_heat=part(A,'A26')[0]
+a27_probe=part(A,'A27')[0]
+a28_fitting=part(A,'A28')[0]
+a29_hose=part(A,'A29')[0]
+a30_service=part(A,'A30')[0]
+check(abs(a07_metal.BoundingBox().zmin-97.2)<.01 and
+      abs(a07_metal.BoundingBox().zmax-109.2)<.01,
+      'V135 A07 must keep original 12mm silver top envelope')
+check(a07_metal.intersect(a26_heat).Volume()<.001,
+      'V135 ceramic heater must occupy a REAL milled cavity, not solid metal')
+check(a07_metal.intersect(a27_probe).Volume()<.001,
+      'V135 temperature junction must occupy an independently milled groove')
+vacuum_vertical=vz(.7,5.5,78,0,103.8)
+vacuum_lateral=vy(1.1,33.5,78,-33,104.7)
+check(vacuum_vertical.intersect(vacuum_lateral).Volume()>0,
+      'V135 vertical suction bore must physically intersect rear horizontal duct')
+check(a07_metal.intersect(vacuum_vertical).Volume()<.001 and
+      a07_metal.intersect(vacuum_lateral).Volume()<.001,
+      'V135 top and rear vacuum bores must be ACTUALLY OPEN in the metal solid')
+check(a28_fitting.intersect(vy(1.1,11,78,-43.5,104.7)).Volume()<.001,
+      'V135 A28 must have an unobstructed axial suction lumen')
+check(a29_hose.isValid() and a30_service.BoundingBox().zmin<.01,
+      'V135 vacuum hose needs valid hollow CAD and a grounded external inlet')
+check(part(A,'A26')[0].BoundingBox().zmax<102.6,
+      'V135 A26 ceramic must fit within the upper metal pocket height')
+v135_required={'A07','A26','A26L1','A26L2','A27','A27L',
+               'A28','A29','A30','A30P'}
+check(v135_required.issubset(installed_ids),
+      'V135 official installed STEP must include physical heater, probe and suction path')
+report['V135_A_user_required_vacuum_heating_sensor']={
+  'chuck_open_top_suction_mm':1.4,
+  'side_suction_duct_mm':2.2,
+  'heater_pocket_mm':[38.6,38.6,5.4],
+  'heater_element_candidate_mm':[38,38,5],
+  'sample_stack_still_mm':89.2,
+  'two_power_feedthroughs_separate_from_sensor':True,
+  'rear_vacuum_fitting_and_hollow_hose_present':True,
+  'real_pump_model_verified':False,
+  'real_electrical_and_vacuum_system_certified':False,
+  'user_stated_requirements_suction_heater_temperature':True}
 report['V133_A_priority04_illumination_and_thermal']={
     'support_candidate':'independent_post_and_SM1RC_compatible_ring',
     'LED_reaches_LEDD1B_M8_service_envelope':True,

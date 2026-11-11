@@ -1,4 +1,4 @@
-// V133. Platform A only. Millimetres; Three.js Y is up.
+// V135. Platform A only. Millimetres; Three.js Y is up.
 // These are cable-clearance/render datums, not photograph-calibrated wiring or
 // manufacturer-certified mechanical/electrical interfaces.
 export const A_CONTROL_DATUMS = Object.freeze({
@@ -50,24 +50,25 @@ export function aControlRoutes({sampleShiftMm=0,sampleAngleDeg=0,opticalLiftMm=0
   ];
   // Distinct REAR exits from A07. These points indicate candidate cable
   // origins on the brown/intermediate layer, not guaranteed thermal feedthroughs.
-  const first=aHeaterLocalToWorld(-13,12.5,-32.5,sample);
-  const second=aHeaterLocalToWorld(-6,12.5,-32.5,sample);
-  const sensor=aHeaterLocalToWorld(12,15,-32.5,sample);
-  // V134: move the first guide knots with A07, not with the laboratory.
-  // Fixed world-Z guides pierced the stage as it rotated past 90 degrees.
-  // Rise above the sample stack before joining the external service lane.
+  // Source datums coincide with the rear bores in the A07 metal chuck
+  // and with the terminals of A26/A27, rather than arbitrary layer colors.
+  const first=aHeaterLocalToWorld(10,18.2,-32.5,sample);
+  const second=aHeaterLocalToWorld(16,18.2,-32.5,sample);
+  const sensor=aHeaterLocalToWorld(-10,21.1,-32.5,sample);
+  // Short stage-local leads then a compact service corridor beside
+  // the microscope, instead of three high free-floating cable arcs.
   const heaterA=[first,
-    aHeaterLocalToWorld(-13,17,-47,sample),
-    aHeaterLocalToWorld(-13,59,-70,sample),
-    pt(160,165,-145),pt(253,130,-35),pt(...A_CONTROL_DATUMS.relayInterface)];
+    aHeaterLocalToWorld(10,18.2,-43,sample),
+    aHeaterLocalToWorld(28,43,-59,sample),
+    pt(162,120,-41),pt(226,120,-24),pt(...A_CONTROL_DATUMS.relayInterface)];
   const heaterB=[second,
-    aHeaterLocalToWorld(-6,21,-50,sample),
-    aHeaterLocalToWorld(-6,64,-76,sample),
-    pt(174,172,-158),pt(272,130,-35),pt(...A_CONTROL_DATUMS.powerReturnInterface)];
+    aHeaterLocalToWorld(16,18.2,-44,sample),
+    aHeaterLocalToWorld(34,47,-61,sample),
+    pt(171,127,-36),pt(233,122,-18),pt(...A_CONTROL_DATUMS.powerReturnInterface)];
   const temperature=[sensor,
-    aHeaterLocalToWorld(12,23,-52,sample),
-    aHeaterLocalToWorld(12,68,-79,sample),
-    pt(187,178,-169),pt(303,130,-35),pt(...A_CONTROL_DATUMS.temperatureServiceInterface)];
+    aHeaterLocalToWorld(-10,21.1,-43,sample),
+    aHeaterLocalToWorld(24,51,-62,sample),
+    pt(181,136,-31),pt(257,123,-6),pt(...A_CONTROL_DATUMS.temperatureServiceInterface)];
   const paths={led,heaterA,heaterB,temperature};
   for(const p of Object.values(paths)){
     if(p.some(v=>v.some(n=>!Number.isFinite(n))))throw new TypeError('Nonfinite route waypoint');
@@ -95,13 +96,13 @@ export function auditAControlRoutes(options={}){
     ledStartsAtLampTail:r.endpoints.ledHead[0]===d.ledOrigin[0]+55,
     // Behind the heater is stage-local -Z, not world -Z after A06 rotation.
     heaterStartsBehindA07:dist(r.endpoints.heaterFirst,
-      aHeaterLocalToWorld(-13,12.5,d.sampleRearZ,options))<.01 &&
+      aHeaterLocalToWorld(10,18.2,d.sampleRearZ,options))<.01 &&
       dist(r.endpoints.heaterSecond,
-      aHeaterLocalToWorld(-6,12.5,d.sampleRearZ,options))<.01,
+      aHeaterLocalToWorld(16,18.2,d.sampleRearZ,options))<.01,
     temperatureStartsBehindA07:dist(r.endpoints.temperatureProbe,
-      aHeaterLocalToWorld(12,15,d.sampleRearZ,options))<.01,
+      aHeaterLocalToWorld(-10,21.1,d.sampleRearZ,options))<.01,
     firstCableGuidesFollowStage:['heaterA','heaterB','temperature'].every((key,i)=>{
-      const x=[-13,-6,12][i],y=[17,21,23][i],z=[-47,-50,-52][i];
+      const x=[10,16,-10][i],y=[18.2,18.2,21.1][i],z=[-43,-44,-43][i];
       return dist(r.paths[key][1],aHeaterLocalToWorld(x,y,z,options))<.01;
     }),
     powerAndSenseSeparate:dist(r.endpoints.heaterFirst,r.endpoints.temperatureProbe)>3,

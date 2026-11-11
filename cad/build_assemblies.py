@@ -838,21 +838,48 @@ def make_a():
         box(65,65,9,cx,0,81.2),'C')
     add('A','A07I','sample_intermediate_goldtoned_65x65x7_MATERIAL_UNKNOWN',
         box(65,65,7,cx,0,90.2),'C')
+    # V135: a real bored chuck, not a solid silver ornament.
+    # Underside Ø38.6-square heater pocket, two power through-galleries,
+    # separate sensing gallery and an intersecting vertical-to-rear
+    # vacuum duct. All dimensions are candidates inherited from B function.
     a07_top=box(65,65,12,cx,0,97.2)
+    a07_pocket=box(38.6,38.6,5.4,cx,0,97.2)
+    vacuum_vertical=vz(.7,5.5,cx,0,103.8)
+    vacuum_lateral=vy(1.1,33.5,cx,-33,104.7)
+    heater_bores=[vy(1.25,13.6,cx+x,-32.5,99.4) for x in (10,16)]
+    sensor_bore=vy(.75,13.6,cx-10,-32.5,102.3)
+    a07_top=a07_top.cut(a07_pocket,vacuum_vertical,vacuum_lateral,
+                        sensor_bore,*heater_bores)
     a07_holes=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
     a07_top=cut(a07_top,a07_holes,6.5,2.5,106.7)
-    add('A','A07','silver_sample_upper_plate_65x65x12_four_blind_head_recesses',
+    add('A','A07','CHUCK_REAL_VERTICAL_SUCTION_BORE_TO_REAR_AND_HEATER_POCKET_CANDIDATE',
         a07_top,'C')
     for i,(xx,yy) in enumerate(a07_holes,1):
         # Heads only: do not claim unknown buried screw threads.
         add('A',f'A07S{i}','silver_top_four_VISIBLE_HEAD_only_CANDIDATE',
             vz(2.9,1.8,xx,yy,106.8),'C')
-    # V133: the two heater and one temperature probe strain reliefs
-    # touch the REAR (-Y) sample edge. No internal heater bore is presumed.
-    for i,(xx,zz,bore) in enumerate(((cx-13,93.7,1.4),
-        (cx-6,93.7,1.4),(cx+12,96.2,1.1)),1):
-        ring=vy(3.4,3,xx,-35.5,zz).cut(vy(bore,3.2,xx,-35.6,zz))
-        add('A',f'A07P{i}','A07_REAR_CABLE_RELIEF_UNCONFIRMED_INTERFACE',ring,'C')
+    # Bore outlets are aligned with actual modeled heater/probe paths;
+    # no copper wires should emerge from a monolithic solid wall.
+    for i,(xx,zz,bore) in enumerate(((cx+10,99.4,1.25),
+        (cx+16,99.4,1.25),(cx-10,102.3,.75)),1):
+        ring=vy(3.1,3,xx,-35.5,zz).cut(vy(bore,3.2,xx,-35.6,zz))
+        add('A',f'A07P{i}','A07_DRILLED_REAR_ELECTRICAL_FEEDTHROUGH_CANDIDATE',ring,'C')
+    # Embedded heater is physically constrained by the pocket and retains
+    # a small 0.2mm underside/top-wall fit; wattage remains unknown.
+    add('A','A26','CERAMIC_HEATER_EMBEDDED_IN_A07_38x38x5_CANDIDATE',
+        box(38,38,5,cx,0,97.4),'C')
+    for i,x in enumerate((10,16),1):
+        add('A',f'A26T{i}','HEATER_TERMINAL_AT_POCKET_REAR',
+            box(1.6,1.4,1,cx+x,-19.7,98.9),'C')
+        add('A',f'A26L{i}','HEATER_INTERNAL_LEAD_THROUGH_REAR_BORE',
+            vy(.55,13.5,cx+x,-32.5,99.4),'C')
+    add('A','A27','SEPARATE_TEMPERATURE_CONTACT_CANDIDATE',
+        vz(.45,.18,cx-10,0,102.41),'C')
+    add('A','A27L','SENSOR_LEAD_IN_MILLED_REAR_BORE',
+        vy(.45,32.5,cx-10,-32.5,102.3),'C')
+    # Real open annular rear fitting mates to the upper transverse duct.
+    a28=vy(3.5,11,cx,-43.5,104.7).cut(vy(1.1,11.2,cx,-43.6,104.7))
+    add('A','A28','REAR_OPEN_VACUUM_FITTING_UNVERIFIED_THREAD_SEAL',a28,'C')
     # Photo191/193: front slotted adjustment plate and visible screws.
     a07_front=box(36,2,18,cx,33.5,91).cut(box(18,2.2,3,cx,33.5,92))
     add('A','A07F','sample_stage_front_slotted_adjust_plate_photo191_candidate',a07_front,'C')
@@ -960,20 +987,31 @@ def make_a():
     add('A','A22','MWWHL4_TO_LEDD1B_FLEXIBLE_SERVICE_CABLE',
         cable_path([(229,12,182),(236,-3,184),(251,-45,154),
                     (258,-87,117),(262,-119,65)],2.2),'C')
-    add('A','A23H1','A07_HEATER_LEAD_1_TO_SSR_NEIGHBOURHOOD_UNWIRED',
-        cable_path([(65,-32.5,93.7),(65,-47,98.2),(65,-70,140.2),
-                    (160,-145,165),(253,-35,130),(253,40,18)],1.2),'C')
-    add('A','A23H2','A07_HEATER_LEAD_2_TO_RETURN_NEIGHBOURHOOD_UNWIRED',
-        cable_path([(72,-32.5,93.7),(72,-50,102.2),(72,-76,145.2),
-                    (174,-158,172),(272,-35,130),(271,40,18)],1.2),'C')
-    add('A','A24','A07_TEMPERATURE_FEEDBACK_NOT_ASSUMED_K_TYPE',
-        cable_path([(90,-32.5,96.2),(90,-52,104.2),(90,-79,149.2),
-                    (187,-169,178),(303,-35,130),(305,25,14)],.78),'C')
+    add('A','A23H1','A26_HEATER_LEAD_1_TO_SSR_NEIGHBOURHOOD_UNWIRED',
+        cable_path([(88,-32.5,99.4),(88,-43,99.4),(106,-59,124.2),
+                    (162,-41,120),(226,-24,120),(253,40,18)],1.2),'C')
+    add('A','A23H2','A26_HEATER_LEAD_2_TO_RETURN_NEIGHBOURHOOD_UNWIRED',
+        cable_path([(94,-32.5,99.4),(94,-44,99.4),(112,-61,128.2),
+                    (171,-36,127),(233,-18,122),(271,40,18)],1.2),'C')
+    add('A','A24','A27_TEMPERATURE_FEEDBACK_NOT_ASSUMED_K_TYPE',
+        cable_path([(68,-32.5,102.3),(68,-43,102.3),(102,-62,132.2),
+                    (181,-31,136),(257,-6,123),(305,25,14)],.78),'C')
     add('A','A25','TEMPERATURE_SERVICE_TERMINAL_NOT_A_CONTROLLER',
         box(28,20,14,305,25,0),'C')
     a25_port=vz(3,2,305,25,14).cut(vz(1,2.2,305,25,13.9))
     add('A','A25P','TEMPERATURE_SERVICE_TERMINAL_ENTRY_CANDIDATE',a25_port,'C')
-    # TTL200-A uses EXTERNAL SM2 both ends. A14 remains an OPEN
+    # A29 vacuum hose physically connects A28 to a grounded external
+    # A30 service port. Pump make/model has not been identified for A.
+    vacuum_path_A=[(78,-43.5,104.7),(78,-55,107.2),(116,-75,113.2),
+                   (167,-169,88),(285,-210,72),(350,-190,68)]
+    add('A','A29','ANNULAR_SUCTION_HOSE_TO_EXTERNAL_SERVICE_PORT',
+        hollow_hose(vacuum_path_A,3.5,2.2),'C')
+    vacuum_service=box(44,44,18,350,-190,0).fuse(vz(5,48,350,-190,18))
+    add('A','A30','GROUNDED_SUCTION_SOURCE_SERVICE_PORT_NOT_PUMP',
+        vacuum_service,'C')
+    add('A','A30P','HOLLOW_EXTERNAL_VACUUM_SERVICE_PORT',
+        vz(4.3,8,350,-190,64).cut(vz(2.2,8.2,350,-190,63.9)),'C')
+        # TTL200-A uses EXTERNAL SM2 both ends. A14 remains an OPEN
     # candidate mating sleeve until the real adapter stack is identified.
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
     add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
@@ -1048,7 +1086,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V134'
+CAD_REVISION='V135'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
