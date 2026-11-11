@@ -60,6 +60,8 @@ jobs:
           node tests/platform-a-assembly-audit.mjs
           node --check src/a-working-layout.js
           node tests/a-working-layout.mjs
+          node --check src/a-control-interfaces.js
+          node tests/a-control-interfaces.mjs
           node tests/a-photo-angle-registration.mjs
           node --check src/b-physical-audit.js
           node tests/b-profile-audit.mjs
