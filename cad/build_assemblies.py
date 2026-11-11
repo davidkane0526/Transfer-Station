@@ -901,8 +901,8 @@ def make_a():
     # V133: assign the SM1RC-compatible slip ring to the physical A21 mount,
     # not to the light emitter itself. OEM ring compatibility is grounded;
     # its installation position is a candidate.
-    slip_outer=vx(18,6,led_root_x+9,0,led_z)
-    slip_inner=vx(15.35,6.2,led_root_x+8.9,0,led_z)
+    slip_outer=vx(18,6,led_root_x+10.5,0,led_z)
+    slip_inner=vx(15.35,6.2,led_root_x+10.4,0,led_z)
     add('A','A21R','SM1RC_STYLE_RING_ON_A21_SUPPORT_CANDIDATE',
         slip_outer.cut(slip_inner),'C')
     # Thorlabs MWWHL4 drawing MTN006388: Ø30.5 x 60.1 mm total envelope.
@@ -932,16 +932,16 @@ def make_a():
         add('A',f'A13P{idx}','SSR_REAR_SERVICE_REGION_NOT_WIRING_TERMINAL',a13_shell,'C')
     # Independently grounded LED holder: four real candidate base bores,
     # post and bridge, telescoping collar and one SM1RC-type ring.
-    a21_foot=box(36,36,8,186,-92,20)
-    a21_anchors=[(x,y) for x in (173.5,198.5) for y in (-104.5,-79.5)]
+    a21_foot=box(36,36,8,187.5,-87.5,20)
+    a21_anchors=[(x,y) for x in (175,200) for y in (-100,-75)]
     a21_foot=cut(a21_foot,a21_anchors,5.4,8,20)
-    a21_base=a21_foot.fuse(vz(6,191,186,-92,28))
+    a21_base=a21_foot.fuse(vz(6,191,187.5,-87.5,28))
     add('A','A21','LED_STAND_FOOT_AND_POST_UNVERIFIED_RECONSTRUCTION',a21_base,'C')
-    a21_collar=vz(10,14,186,-92,187).cut(vz(6.1,14.2,186,-92,186.9))
+    a21_collar=vz(10,14,187.5,-87.5,187).cut(vz(6.1,14.2,187.5,-87.5,186.9))
     add('A','A21C','LED_STAND_ADJUSTABLE_POST_COLLAR_CANDIDATE',a21_collar,'C')
     add('A','A21B','LED_STAND_RIGID_Z_TO_LED_BRIDGE_CANDIDATE',
-        vy(5,92,186,-92,194),'C')
-    add('A','A21L','LED_RING_BRIDGE_LUG_CANDIDATE',box(10,12,12,186,0,199),'C')
+        vy(5,87.5,187.5,-87.5,194),'C')
+    add('A','A21L','LED_RING_BRIDGE_LUG_CANDIDATE',box(10,12,12,187.5,0,199),'C')
     add('A','A22','MWWHL4_TO_LEDD1B_FLEXIBLE_SERVICE_CABLE',
         cable_path([(229,12,182),(236,-3,184),(251,-45,154),
                     (258,-87,117),(262,-119,65)],2.2),'C')
