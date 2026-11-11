@@ -1623,12 +1623,22 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(await page.locator('#a-physical-audit').isHidden(),true,
    'Photo-reference engineering status must remain outside the normal UI');
  assert.equal(await page.locator('#btn-a-photo-pose').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('#film-drop-label').innerText(),'照片参考');
  assert.equal(await page.locator('#film-drop').isDisabled(),true,
    'Reference orientation is comparison-only and cannot run the transfer stroke');
+ assert.equal(await page.locator('#translate').isDisabled(),true,
+   'Photo-reference must freeze film-stage X motion');
+ assert.equal(await page.locator('#translate-depth').isDisabled(),true,
+   'Photo-reference must freeze film-stage Y motion');
+ assert.match(await page.locator('#stack-note').innerText(),/空载，无玻片\/PDMS/);
  await page.locator('#btn-front').evaluate(el=>el.click());
  await page.screenshot({path:'Transfer-Station-V79-A-Photo-Reference.png'});
  await page.locator('#btn-iso').evaluate(el=>el.click());
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
+ assert.equal(await page.locator('#film-drop-label').innerText(),'玻片 Z');
+ assert.equal(await page.locator('#translate').isEnabled(),true);
+ assert.equal(await page.locator('#translate-depth').isEnabled(),true);
+ assert.match(await page.locator('#stack-note').innerText(),/玻片\/PDMS/);
  assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'installed180');
  const resumedComplete=await page.evaluate(()=>window.__platformACompletenessProbe?.());
  assert.equal(resumedComplete.glassVisibleInCurrentPose,true);
