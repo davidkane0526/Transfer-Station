@@ -5135,6 +5135,9 @@ function switchPlatform(next){
   $('sample-value').textContent='0 mm';$('sample-depth-value').textContent='0 mm';$('rotate-value').textContent='0°';
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
+  // V132: Platform A has no user-facing photo-reference workflow.
+  // Hide B-only inspection shortcuts so A does not expose unrelated photo views.
+  for(const id of ['btn-photo108','btn-photo109','btn-control-cabinet'])$(id).hidden=next==='A';
   const photoA=next==='A'&&!aWorkingPoseMode;
   $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
   $('sample-move-label').textContent='样品 X';
