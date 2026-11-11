@@ -4660,6 +4660,111 @@ window.__A05MovingCloseupProbe=()=>{
    selectedLocalViewDirection:q.clamp.userData.A05AuditMovingDirection??null,
    pressureRay:rays.pressure,screwHeadRays:rays.screwHeads};
 };
+// V132 dedicated closeups for the exact user-reported ghost-geometry areas.
+function _focusA11NoGhostAudit(){
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const g=parts.get('A11')?.g;
+ const body=g?.children.find(o=>o.userData.A11OEMHousingDiameterMm!==undefined);
+ const cable=g?.children.find(o=>o.userData.A11ElectricalCable);
+ if(!g||!body||!cable)return false;
+ const box=_auditBoxFor([g]),target=box.getCenter(new THREE.Vector3());
+ const size=box.getSize(new THREE.Vector3()),distance=Math.max(95,size.length()*1.8);
+ const dirs=[[0,.18,1],[0,.18,-1],[.4,.25,1],[-.4,.25,1],[.4,.25,-1],[-.4,.25,-1]];
+ let best=null;
+ for(const raw of dirs){
+   const off=new THREE.Vector3(...raw).normalize().multiplyScalar(distance);
+   camera.position.copy(target).add(off);orbit.target.copy(target);
+   camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+   const bodyRay=_auditAnyVisibleSurface(body,[body]);
+   const cableRay=_auditAnyVisibleSurface(cable,[cable]);
+   const score=[bodyRay,cableRay].filter(x=>x.clear).length;
+   const projection=_auditProjection(box);
+   const centerPenalty=Math.abs(projection.centerX)+Math.abs(projection.centerY);
+   if(!best||score>best.score||(score===best.score&&centerPenalty<best.centerPenalty))
+     best={raw,score,centerPenalty};
+ }
+ const off=new THREE.Vector3(...best.raw).normalize().multiplyScalar(distance);
+ camera.position.copy(target).add(off);orbit.target.copy(target);
+ camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ g.userData.A11NoGhostAuditScore=best.score;
+ g.userData.A11NoGhostAuditDirection=best.raw;
+ return true;
+}
+window.__focusA11NoGhostAudit=_focusA11NoGhostAudit;
+window.__A11NoGhostCloseupProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const g=parts.get('A11')?.g;
+ const body=g?.children.find(o=>o.userData.A11OEMHousingDiameterMm!==undefined);
+ const cable=g?.children.find(o=>o.userData.A11ElectricalCable);
+ if(!g||!body||!cable)return {available:false};
+ return {
+   available:true,
+   bodyVisible:_auditAnyVisibleSurface(body,[body]).clear,
+   cableVisible:_auditAnyVisibleSurface(cable,[cable]).clear,
+   noDuplicateDecorativeEmitterDiscs:Boolean(g.userData.noDuplicateDecorativeEmitterDiscs),
+   floatingDecorativeDiscCount:g.children.filter(o=>o.userData.A11LegacyDecorativeEmitterDisc).length,
+   selectedVisibilityScore:g.userData.A11NoGhostAuditScore??null,
+   selectedLocalViewDirection:g.userData.A11NoGhostAuditDirection??null,
+   projection:_auditProjection(_auditBoxFor([g]))
+ };
+};
+
+function _focusA15NoGhostAudit(){
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const g=parts.get('A15')?.g;
+ const handles=g?.children.filter(o=>o.userData.stageActuatorHandle)??[];
+ if(!g||handles.length!==2)return false;
+ const box=_auditBoxFor([g]),target=box.getCenter(new THREE.Vector3());
+ const size=box.getSize(new THREE.Vector3()),distance=Math.max(135,size.length()*1.55);
+ const dirs=[[1,.42,1],[-1,.42,1],[1,.42,-1],[-1,.42,-1],
+             [1,.25,.65],[-1,.25,.65],[1,.25,-.65],[-1,.25,-.65]];
+ let best=null;
+ for(const raw of dirs){
+   const off=new THREE.Vector3(...raw).normalize().multiplyScalar(distance);
+   camera.position.copy(target).add(off);orbit.target.copy(target);
+   camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+   const rays=handles.map(o=>_auditAnyVisibleSurface(o,[o]));
+   const score=rays.filter(x=>x.clear).length;
+   const projection=_auditProjection(box);
+   const centerPenalty=Math.abs(projection.centerX)+Math.abs(projection.centerY);
+   if(!best||score>best.score||(score===best.score&&centerPenalty<best.centerPenalty))
+     best={raw,score,centerPenalty};
+ }
+ const off=new THREE.Vector3(...best.raw).normalize().multiplyScalar(distance);
+ camera.position.copy(target).add(off);orbit.target.copy(target);
+ camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ g.userData.A15NoGhostAuditScore=best.score;
+ g.userData.A15NoGhostAuditDirection=best.raw;
+ return true;
+}
+window.__focusA15NoGhostAudit=_focusA15NoGhostAudit;
+window.__A15NoGhostCloseupProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const g=parts.get('A15')?.g;
+ const handles=g?.children.filter(o=>o.userData.stageActuatorHandle)??[];
+ const stems=g?.children.filter(o=>o.userData.stageActuatorStem)??[];
+ const collars=g?.children.filter(o=>o.userData.stageActuatorCollar)??[];
+ const supports=g?.children.filter(o=>o.userData.stageActuatorSupport)??[];
+ if(!g||handles.length!==2)return {available:false};
+ const d=window.__modelADetailMountProbe?.();
+ return {
+   available:true,
+   handleCount:handles.length,stemCount:stems.length,collarCount:collars.length,supportCount:supports.length,
+   handleAxes:handles.map(o=>o.userData.stageActuatorHandle.localAxis).sort(),
+   noDuplicateDecorativeStageActuators:Boolean(g.userData.noDuplicateDecorativeStageActuators),
+   actuatorChainsContinuous:Boolean(d?.A15ActuatorChainsContinuous),
+   actuatorChainGapsMm:d?.A15ActuatorChainGapsMm??null,
+   visibleHandleCount:handles.map(o=>_auditAnyVisibleSurface(o,[o])).filter(x=>x.clear).length,
+   selectedVisibilityScore:g.userData.A15NoGhostAuditScore??null,
+   selectedLocalViewDirection:g.userData.A15NoGhostAuditDirection??null,
+   projection:_auditProjection(_auditBoxFor([g]))
+ };
+};
+
 window.__A05FixedCloseupProbe=()=>{
  if(platform!=='A')return {available:false};
  currentRoot.updateWorldMatrix(true,true);
