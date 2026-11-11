@@ -4275,6 +4275,8 @@ window.__modelAControlInterfaceProbe=()=>{
    postCount:support?.children.filter(m=>m.userData.A21FixedSupportPost).length??0,
    ringCount:carrier?.children.filter(m=>m.userData.A21SM1RCStyleMountingRing).length??0,
    mountingFootBores:support?.children.find(m=>m.userData.A21CandidateTrueFootBores)?.userData.A21CandidateTrueFootBores??0,
+   mountingAnchorHeads:support?.children.filter(m=>m.userData.A21CandidateAnchorHead).length??0,
+   mountedSupportWorldXZ:[support?.position.x??null,support?.position.z??null],
    ringLiftMm:carrier?.position.y??null,
    a07RearServiceRoles:heater?.children.filter(m=>m.userData.A07RearServiceExitRoleCandidate)
      .map(m=>m.userData.A07RearServiceExitRoleCandidate)??[],
