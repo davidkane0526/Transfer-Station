@@ -31,7 +31,7 @@ export const HANDLES={
   A06:{kind:'rotation-lock-only',axes:1,linearHandles:0,handles:0,lockHandles:1,direction:'+Z',
     evidence:'用户2026-11-11明确纠正：底部旋转台没有平移手柄，只有一个锁柄；长银色手柄属于双轴平移台，旋转台实际SKU仍待核',confidence:'user-correction'},
   A02:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,subtypeUnverified:true,
-    direction:'-X',secondaryDirection:'+Z',physicalAxes:['X','Y'],
+    direction:'+X',secondaryDirection:'+Z',physicalAxes:['X','Y'],
     evidence:'用户2026-11-11明确补充样品位移台缺少一个轴：两根正交微分头属于X、Y平移台，旋转台只锁紧；GCM-T25M2L/2C 33mm原厂尺寸',confidence:'user-correction+vendor'}
 };
 export const MAGNET_PLACEMENT={id:'B02',lowest:true,baseZmm:20,topZmm:40,
