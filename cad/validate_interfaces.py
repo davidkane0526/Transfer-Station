@@ -898,7 +898,7 @@ check(abs(a11.ylen-31.5)<1.0 and abs(a11.zlen-31.5)<1.0 and
 # V89: the V87 probe exposed real overlap between the optional SM1RC-style
 # ring / MWWHL4 body and the right-hand focus controls. The complete A11
 # assembly is shifted +22mm outboard; no unverified support bracket is added.
-a11_ring=part(A,'A11R')[0]
+a11_ring=part(A,'A21R')[0]
 for key in ('A18HR','A18FR','A18FRL'):
     focus=part(A,key)[0]
     check(a11_ring.intersect(focus).Volume()<1e-4,
@@ -2135,6 +2135,37 @@ report['V132_A_user_corrected_installed_assembly']={
     'real_clamp_thread_dimensions_verified':False,
     'A18_vendor_model_verified':False,
     'A11_mounting_method_verified':False}
+# V133: electrical routing is a topology/clearance CANDIDATE, not an
+# electrician-approved circuit. Check each cable and physical support exists.
+required_v133={'A21','A21C','A21B','A21L','A21R','A22',
+               'A23H1','A23H2','A24','A25','A25P','A12LED'}
+check(required_v133.issubset(installed_ids),
+      'V133 STEP must publish LED mechanical support, M8 port housing and separate heater/temperature services')
+check(not (A/'A11R.step').exists(),
+      'V133 LED mounting ring belongs to A21, not a duplicated free ring on A11')
+foot=part(A,'A21')[0].BoundingBox()
+check(abs(foot.zmin-20)<.05 and foot.zmax>=218,
+      'V133 LED support must start on A01 upper face and reach the lamp working height')
+check(part(A,'A22')[0].BoundingBox().zmax>175,
+      'V133 LED flexible cable must begin at MWWHL4 tail, not at controller')
+check(part(A,'A23H1')[0].BoundingBox().zmax>90 and
+      part(A,'A23H2')[0].BoundingBox().zmax>90 and
+      part(A,'A24')[0].BoundingBox().zmax>90,
+      'V133 A07 rear leads must originate near the heated sample, not on the floor')
+check(abs(part(A,'A12')[0].BoundingBox().zmin)<.05 and
+      abs(part(A,'A13')[0].BoundingBox().zmin)<.05,
+      'V133 external LEDD1B and SSR cannot float 20mm above the off-board floor')
+report['V133_A_priority04_illumination_and_thermal']={
+    'support_candidate':'independent_post_and_SM1RC_compatible_ring',
+    'LED_reaches_LEDD1B_M8_service_envelope':True,
+    'distinct_heater_power_leads':2,
+    'distinct_temperature_feedback_leads':1,
+    'sample_motion_flexible_routes_in_webgl':True,
+    'STEP_is_nominal_static_pose':True,
+    'A11_support_identified_from_user_photos':False,
+    'heater_voltage_verified':False,
+    'temperature_controller_identified':False,
+    'actual_energized_wiring_approved':False}
 (ROOT/'build'/'interface_validation.json').write_text(
     json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps({'checks':len(report['checks']),
