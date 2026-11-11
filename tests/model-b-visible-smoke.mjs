@@ -800,6 +800,30 @@ try{
      animations:'disabled',timeout:30000});
  }
 
+ assert.equal(await page.evaluate(()=>window.__focusAFilmWorkingAudit?.()),true);
+ await page.waitForTimeout(180);
+ const aFilmWorking=await page.evaluate(()=>window.__AFilmWorkingCloseupProbe?.());
+ console.log('V132 A working film-stack closeup QA:',JSON.stringify(aFilmWorking));
+ assert.equal(aFilmWorking?.available,true);
+ assert.equal(aFilmWorking.mode,'working');
+ assert.equal(aFilmWorking.upperDriveLocalDirection,'+X');
+ assert.equal(aFilmWorking.lowerDriveLocalDirection,'-X');
+ assert.equal(aFilmWorking.oldFrontFacingDepthDriveRejected,true);
+ assert.equal(aFilmWorking.knobsOnOppositeSides,true,
+   'Working Platform A must show upper/lower angular micrometers on opposite sides');
+ assert(aFilmWorking.upperKnobNdcX<0&&aFilmWorking.lowerKnobNdcX>0,
+   'Working front view must keep upper G40 knob left and lower goniometer knob right');
+ assert.equal(aFilmWorking.A15HandleCount,2);
+ assert.deepEqual(aFilmWorking.A15HandleAxes,['X','depth']);
+ assert.equal(aFilmWorking.A15DuplicateDecorativeActuators,true);
+ assert(Math.abs(aFilmWorking.projection.centerX)<.28&&Math.abs(aFilmWorking.projection.centerY)<.28);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V132-Film-Stack-Working-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+
   assert.equal(await page.evaluate(()=>window.__focusA17FrontAudit?.()),true);
  await page.waitForTimeout(220);
  const a17View=await page.evaluate(()=>window.__A17CloseupProbe?.());
