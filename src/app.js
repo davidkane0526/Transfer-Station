@@ -1799,17 +1799,21 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
    // Two REAL distinct crossed micrometer assemblies, per original 97/108 and GCM-T25M2L.
    // V79: continuous support -> spindle -> collar -> drum chain.
    const supportZ=depthHandleSide*(d/2+7);
-   const ySupport=add(g,cub(14,11,14,mats.dark,0,lowerH*.5,supportZ));
+   // V137: A02 second (depth/Y) actuator must mount to the middle
+   // stage level, NOT the lower 5.5mm datum: Ø18 drum at 5.5mm
+   // projected 3.5mm below A02 and collided with the rotary top.
+   const yActuatorHeight=id==='A02'?lowerH+middleH/2:lowerH/2;
+   const ySupport=add(g,cub(14,11,14,mats.dark,0,yActuatorHeight,supportZ));
    ySupport.userData.stageActuatorSupport={kind:'linear',localAxis:'depth'};
-   const yStem=add(g,cyl(4.2,30,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+27.5)));yStem.rotation.x=Math.PI/2;
-   const yCollar=add(g,cyl(6.4,7,mats.dark,0,lowerH*.5,depthHandleSide*(d/2+43)));yCollar.rotation.x=Math.PI/2;
-   const yDrum=add(g,cyl(9,18,mats.silver,0,lowerH*.5,depthHandleSide*(d/2+49.5)));yDrum.rotation.x=Math.PI/2;
-   for(let q=0;q<6;q++){const ring=add(g,torus(9.04,.18,mats.ink,0,lowerH*.5,
+   const yStem=add(g,cyl(4.2,30,mats.silver,0,yActuatorHeight,depthHandleSide*(d/2+27.5)));yStem.rotation.x=Math.PI/2;
+   const yCollar=add(g,cyl(6.4,7,mats.dark,0,yActuatorHeight,depthHandleSide*(d/2+43)));yCollar.rotation.x=Math.PI/2;
+   const yDrum=add(g,cyl(9,18,mats.silver,0,yActuatorHeight,depthHandleSide*(d/2+49.5)));yDrum.rotation.x=Math.PI/2;
+   for(let q=0;q<6;q++){const ring=add(g,torus(9.04,.18,mats.ink,0,yActuatorHeight,
      depthHandleSide*(d/2+43+q*2.2)));ring.rotation.x=Math.PI/2;}
    yDrum.userData.stageActuatorHandle={kind:'linear',localAxis:'depth'};
    yStem.userData.stageActuatorStem={kind:'linear',localAxis:'depth'};
    yCollar.userData.stageActuatorCollar={kind:'linear',localAxis:'depth'};
-   label(g,'机构Y / 场景Z：前后微调',0,lowerH+5,depthHandleSide*(d/2+55));
+   label(g,'机构Y / 场景Z：前后微调',0,yActuatorHeight+5,depthHandleSide*(d/2+55));
   }else{
    g.userData.slidingTop=carriageX;
    add(carriageX,cub(w*.94,h-lowerH,d*.92,mats.dark,0,lowerH+(h-lowerH)/2,0));
@@ -4518,6 +4522,7 @@ window.__modelASampleXYProbe=()=>{
   rotaryLinearHandleCount:rotaryHandles.length,
   rotaryLockCount:rotor.children.filter(o=>o.userData.A06ShortFrontLock).length,
   rotaryHeightMm:21,rulerStackAboveBoardMm:8+21+33+28,
+  xyMechanicalUndersideGapMm:Number((new THREE.Box3().setFromObject(xy).min.y-xy.position.y).toFixed(3)),
   heaterWorldXmm:Number((parts.get('A07')?.g.position.x??NaN).toFixed(3)),
   heaterWorldZmm:Number((parts.get('A07')?.g.position.z??NaN).toFixed(3)),
   manufacturerRotarySkuVerified:false,manufacturerXYExactSuffixVerified:false};

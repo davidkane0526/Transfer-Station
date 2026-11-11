@@ -1418,6 +1418,8 @@ try{
    'A06 must retain only one short user-confirmed lock lever');
  assert.equal(xy0.rotaryHeightMm,21);
  assert.equal(xy0.rulerStackAboveBoardMm,90);
+ assert.equal(xy0.xyMechanicalUndersideGapMm,0,
+   'A02 second-axis drum must not sink into rotary turntable');
  assert.equal(xy0.xCarriageMm,0);
  assert.equal(xy0.yCarriageMm,0);
  assert.equal(xy0.bottomHousingYawDeg,0);

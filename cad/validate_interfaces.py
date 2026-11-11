@@ -742,6 +742,8 @@ check(abs(A02_middle.BoundingBox().zmin-A02_X.BoundingBox().zmax)<.01 and
       'V137 stationary base, X carriage and Y carriage must stack continuously')
 check(part(A,'A02B')[0].BoundingBox().xmax<=A02_X.BoundingBox().xmin+.02,
       'V137 sample X micrometer exits left (-X)')
+check(part(A,'A02E')[0].BoundingBox().zmin>=A02_X.BoundingBox().zmin-.01,
+      'V137 Y actuator must sit ABOVE the rotary, not penetrate its rotating disk')
 check(part(A,'A02D')[0].BoundingBox().ylen > part(A,'A02D')[0].BoundingBox().xlen*2,
       'V137 second Y micrometer must point along stage depth, not X')
 check(abs(part(A,'A02D')[0].BoundingBox().ymax-

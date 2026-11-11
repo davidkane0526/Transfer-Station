@@ -85,12 +85,15 @@ def stage(sys,key,x,y,z,direction='+X',axes=1,depth_direction='+Y',photo_top_bor
         add(sys,key+'B','X_micrometer_stem',vx(6,40,x-72.5,y,z+h-9))
         add(sys,key+'C','X_micrometer_knob',vx(9,14,x-86.5,y,z+h-9))
     if axes==2:
+        # Place A02 second micrometer at mid-carriage height: a 9mm-radius
+        # drum at only 5.5mm above bottom would intersect the rotary.
+        z_y=z+(16.5 if key=='A02' else 5.5)
         if depth_direction=='+Y':
-            add(sys,key+'D','Y_micrometer_stem',vy(6,40,x,y+32.5,z+5.5),'D')
-            add(sys,key+'E','Y_micrometer_knob',vy(9,14,x,y+72.5,z+5.5),'D')
+            add(sys,key+'D','Y_micrometer_stem',vy(6,40,x,y+32.5,z_y),'D')
+            add(sys,key+'E','Y_micrometer_knob',vy(9,14,x,y+72.5,z_y),'D')
         else:
-            add(sys,key+'D','Y_micrometer_stem',vy(6,40,x,y-72.5,z+5.5),'D')
-            add(sys,key+'E','Y_micrometer_knob',vy(9,14,x,y-86.5,z+5.5),'D')
+            add(sys,key+'D','Y_micrometer_stem',vy(6,40,x,y-72.5,z_y),'D')
+            add(sys,key+'E','Y_micrometer_knob',vy(9,14,x,y-86.5,z_y),'D')
 def rot(sys,key,x,y,z,grade,radius=47,lock_radius=8):
     # B uses its historical Ø94 candidate. A photo17/20/21/23 ruler
     # silhouette is distinctly narrower than the 65mm top-plate.
