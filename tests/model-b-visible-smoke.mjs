@@ -676,6 +676,8 @@ try{
  assert.equal(controlA0.postCount,1);
  assert.equal(controlA0.ringCount,1,'A11 must not duplicate the A21 mounting ring');
  assert.equal(controlA0.mountingFootBores,4);
+ assert.equal(controlA0.mountingAnchorHeads,4);
+ assert.deepEqual(controlA0.mountedSupportWorldXZ,[187.5,-87.5]);
  assert.equal(controlA0.ringLiftMm,18,'A21 upper ring must follow optical parking');
  assert.deepEqual(controlA0.a07RearServiceRoles,['heaterA','heaterB','temperature']);
  assert.equal(controlA0.driverLEDPort,true);
