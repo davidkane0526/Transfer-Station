@@ -3723,6 +3723,14 @@ function platformA(){
    const foot=add(g,plate(36,36,8,mats.dark,
      [[-12.5,-12.5,2.7],[-12.5,12.5,2.7],[12.5,-12.5,2.7],[12.5,12.5,2.7]]));
    foot.userData.A21CandidateTrueFootBores=4;
+   // Four fasteners engage the candidate 25mm A01 grid at
+   // (175,200) × (-100,-75) in world X/Z. Real thread depth is unverified.
+   for(const x of [-12.5,12.5])for(const z of [-12.5,12.5]){
+     const shank=add(g,cyl(2.5,14,mats.steel,x,1,z,24));
+     shank.userData.A21CandidateAnchorShank=true;
+     const head=add(g,cyl(4.25,2.5,mats.silver,x,9.25,z,24));
+     head.userData.A21CandidateAnchorHead=true;
+   }
    const post=add(g,cyl(6,191,mats.steel,0,103.5,0,40));
    post.userData.A21FixedSupportPost=true;
    const carrier=new THREE.Group();g.add(carrier);
