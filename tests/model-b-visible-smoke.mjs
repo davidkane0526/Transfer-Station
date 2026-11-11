@@ -1236,6 +1236,9 @@ try{
  assert.equal(aComplete.stampRightMarginMm,4);
  assert.equal(aComplete.stampAtRightEdge,true);
  assert.equal(aComplete.glassRequiredForTransfer,true);
+ assert.equal(aComplete.glassVisibleInCurrentPose,true);
+ assert.equal(aComplete.installedPoseGlassVisible,true);
+ assert.equal(aComplete.photoReferenceGlassHidden,false);
  assert.equal(aComplete.screwAxisVertical,true);
  assert.equal(aComplete.screwPairLineParallelGlassShortEdge,true);
  assert.equal(aComplete.photo5VerticalWingScrewTopologyApplied,true);
@@ -1603,13 +1606,18 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aPhoto.photoAndWorkingSharePhysicalOrientation,true);
  assert.equal(aPhoto.sheetLegLengthMm,86.1);
  assert.equal(aPhoto.glassRequiredForTransfer,true);
+ assert.equal(aPhoto.glassVisibleInCurrentPose,false,
+   'User photo reference must not render the absent glass/PDMS');
+ assert.equal(aPhoto.photoReferenceGlassHidden,true);
+ assert.equal(aPhoto.installedPoseGlassVisible,false);
  const photographed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
  assert.equal(photographed.pose,'photo-reference');
  assert.equal(photographed.fastenerShaftAxis,'Y / vertical through folded foot');
  assert.equal(photographed.actualShaftGeometryVertical,true);
  assert.equal(photographed.fastenerPairLineAxis,'Z / parallel to glass 26mm short edge');
  assert.equal(photographed.screwPitchAcrossGlassShortEdgeMm,13);
- assert.equal(photographed.glassCandidateVisible,true);
+ assert.equal(photographed.glassCandidateVisible,false,
+   'Photo-reference view must hide A05G while retaining the clamp hardware');
  assert.equal(photographed.clampBladeVisible,true);
  assert.equal(photographed.verticalFootBoreCount,2);
  assert.equal(await page.locator('#a-physical-audit').isHidden(),true,
@@ -1622,6 +1630,9 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  await page.locator('#btn-iso').evaluate(el=>el.click());
  await page.locator('#btn-a-working-pose').evaluate(el=>el.click());
  assert.equal((await page.evaluate(()=>window.__platformACompletenessProbe?.())).aPose,'installed180');
+ const resumedComplete=await page.evaluate(()=>window.__platformACompletenessProbe?.());
+ assert.equal(resumedComplete.glassVisibleInCurrentPose,true);
+ assert.equal(resumedComplete.installedPoseGlassVisible,true);
  const resumed=await page.evaluate(()=>window.__modelA05PhotoEvidenceProbe?.());
  assert.equal(resumed.glassCandidateVisible,true);
  assert.equal(resumed.clampBladeVisible,true);
