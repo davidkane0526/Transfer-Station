@@ -1138,7 +1138,7 @@ try{
  assert.equal(aDefault.a15Vc13CatalogReferenceHeightMm,126);
  assert.equal(aDefault.a15Vc13LowerPoseHeightMm,119.5);
  assert.equal(aDefault.a15Vc13InstalledOrderMatchesGCM901602,false);
- assert.equal(aDefault.bracketVerticalLegMm,85.3);
+ assert(Math.abs(aDefault.bracketVerticalLegMm-85.3)<1e-6,'V137 derived bracket leg within geometric tolerance');
  const angled=await page.evaluate(()=>window.__modelAObjectiveOrientationProbe?.());
  assert.equal(angled.available,true,'A19 independent objective pivots must be visible');
  assert.equal(angled.independentObjectivePivots,true);
@@ -1856,7 +1856,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aPhoto.localSheetHandedness,'left');
  assert.equal(aPhoto.installedFilmYawDeg,180);
  assert.equal(aPhoto.photoAndWorkingSharePhysicalOrientation,true);
- assert.equal(aPhoto.sheetLegLengthMm,85.3);
+ assert(Math.abs(aPhoto.sheetLegLengthMm-85.3)<1e-6,'V137 derived bracket leg within geometric tolerance');
  assert.equal(aPhoto.glassRequiredForTransfer,true);
  assert.equal(aPhoto.glassVisibleInCurrentPose,false,
    'User photo reference must not render the absent glass/PDMS');
