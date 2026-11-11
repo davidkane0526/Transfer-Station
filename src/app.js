@@ -654,6 +654,8 @@ window.__modelAPhoto194Probe=()=>{
      lampCollisionFreePlacementCandidate:Boolean(gA11.userData.A11CollisionFreePlacementCandidate),
      lampPlacementShiftFromV87Mm:gA11.userData.A11PlacementShiftFromV87Mm??null,
      lampElectricalCablePresent:Boolean(cable),
+     A11NoDuplicateDecorativeEmitterDiscs:Boolean(gA11.userData.noDuplicateDecorativeEmitterDiscs),
+     A15NoDuplicateDecorativeStageActuators:Boolean(gA15.userData.noDuplicateDecorativeStageActuators),
      inventedLampGooseneckPresent:gA11.children.some(o=>o.userData.A11PhysicallyConnectedSupportProxy),
      unsupportedA18HorizontalTubePresent:gA18.children.some(o=>o.userData.A18HorizontalTubeCandidate),
      A18VendorIdentificationPending:Boolean(gA18.userData.vendorIdentificationPending),
