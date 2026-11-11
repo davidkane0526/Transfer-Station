@@ -995,11 +995,11 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V130'
+CAD_REVISION='V132'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
-    """V130 installed A: photo1-canonical film geometry excludes hidden vendor studies.
+    """V132 installed A: user-facing work geometry excludes hidden vendor studies.
     STEP Z is height, so rotation is around the vertical axis through A15/A17.
     Sample-side A16/A06/A02/A07 and microscope remain stationary.
     """
