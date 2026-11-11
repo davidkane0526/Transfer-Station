@@ -3104,16 +3104,21 @@ function platformA(){
      hd.userData.fastenerProxy=true;
      const inset=add(g,cyl(1.3,.2,mats.ink,x,y,22,6));inset.rotation.x=Math.PI/2;
    }
-   // Two photographs from 2026-11-08 establish TWO orthogonal angular
-   // micrometer directions. The upper G40 is +X; the lower one is
-   // seen nearly end-on from the VC13M face, consistent with +Z.
-   // This is a photo-derived orientation CANDIDATE, not an OEM SKU.
-   add(g,cub(29,15,16,mats.black,0,8,24));
-   const stem=add(g,cyl(5.5,18,mats.steel,0,10,27,40));stem.rotation.x=Math.PI/2;
-   const drum=add(g,cyl(8.3,20,mats.silver,0,10,43,48));drum.rotation.x=Math.PI/2;
+   // Photos195/196: the upper labelled G40M60L drive is on +X while
+   // the lower independent angular stage drive is on the opposite side.
+   // The old +Z/end-on proxy produced the large false front circular knob
+   // visible in the user's 2026-11-11 screenshot. Mirror the same engaged
+   // side-drive topology used by A04 instead of pointing a drum at camera.
+   const lowerSupport=add(g,cub(16,15,29,mats.black,-24,8,0));
+   lowerSupport.userData.A04LDriveSupport=true;
+   const stem=add(g,cyl(5.5,18,mats.steel,-27,10,0,40));stem.rotation.z=Math.PI/2;
+   const drum=add(g,cyl(8.3,20,mats.silver,-43,10,0,48));drum.rotation.z=Math.PI/2;
    drum.userData.A04LDriveDrum=true;
-   drum.userData.driveAxisCandidate='+Z';
-   for(let z=35;z<52;z+=3)add(g,torus(8.35,.22,mats.ink,0,10,z));
+   drum.userData.driveAxisCandidate='-X';
+   for(let x=-35;x>-52;x-=3){
+     const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
+     ring.rotation.y=Math.PI/2;
+   }
    addJointHeads(g,'A04L',14.9,[[-14,-14],[14,14]],{headR:2.6});
    // V82: Daheng catalog explicitly pairs GCM-G40M40L with G40M60L.
    // Lower engraving is not readable in the user's photo, so this remains
@@ -3126,8 +3131,9 @@ function platformA(){
    g.userData.vendorRotationCenterMm=40;
    g.userData.vendorTravelDeg=7;
    g.userData.vendorPairingWithG40M60L=true;
-   g.userData.photo20261108LowerDriveAxisCandidate='+Z';
-   g.userData.lowerDriveOrthogonalToUpperG40=true;
+   g.userData.photo195196LowerDriveDirection='-X';
+   g.userData.lowerDriveOpposesUpperG40=true;
+   g.userData.oldFrontFacingDepthDriveRejected=true;
    label(g,'A04L GCM-G40M40L',-4,40,0);
  },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  addPart('A04',ax,aUpperG40Y,az,g=>{
