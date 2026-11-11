@@ -656,8 +656,10 @@ try{
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
  assert.equal(switchState.caption,'平台 A · 工作位');
  assert.equal(await page.locator('#platform-caption').innerText(),'平台 A · 工作位');
- assert.equal(await page.locator('#a-pose-selector').isVisible(),true);
- assert.equal(await page.locator('#photo-crosscheck').isVisible(),true);
+ assert.equal(await page.locator('#a-pose-selector').isHidden(),true,
+   'Platform A photo/reference selector is internal QA only');
+ assert.equal(await page.locator('#photo-crosscheck').isHidden(),true,
+   'Platform A photo comparison controls must not appear in user UI');
  assert.equal(await page.locator('#b-photo-profile').isHidden(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
  assert.equal(await page.locator('#btn-a-working-pose').isVisible(),true);
@@ -880,10 +882,14 @@ try{
  assert.equal(f1.photoConstraints.photoReferenceAndWorkingOrientationMustMatch,true);
  assert(f1.actualA04XKnobRelativeNdc<0,
    'Photo1 canonical front: upper G40 micrometer must project to screen-left as in the user photo');
+ assert(f1.actualA04LowerOppositeXKnobRelativeNdc>0,
+   'Lower angular micrometer must project to the opposite side, not appear end-on as a front circular knob');
+ assert.equal(f1.lowerG40DriveDirection,'-X');
+ assert.equal(f1.oldFrontFacingDepthDriveRejected,true);
  assert.equal(f1.cameraFittedToActualLensAndMonitor,false);
  for(const x of [
    f1.actualA15XKnobRelativeNdc,f1.actualA15ZKnobRelativeNdc,
-   f1.actualA04XKnobRelativeNdc,f1.actualA04LowerPlusZKnobRelativeNdc,
+   f1.actualA04XKnobRelativeNdc,f1.actualA04LowerOppositeXKnobRelativeNdc,
    f1.actualA05LegRelativeNdc
  ]) assert(Number.isFinite(x),'Photo1 projected model datum must be finite');
  const count=f1.scenePartCount;
