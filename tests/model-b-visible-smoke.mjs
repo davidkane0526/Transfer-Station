@@ -675,6 +675,9 @@ try{
  assert.equal(controlA0.allComponentsPresent,true);
  assert.equal(controlA0.postCount,1);
  assert.equal(controlA0.ringCount,1,'A11 must not duplicate the A21 mounting ring');
+ assert.equal(controlA0.carrierLockScrewCount,1,'A21 collar needs a lock screw');
+ assert.equal(controlA0.ringRadialClampScrewCount,1,'A21 LED ring needs a clamp screw');
+ assert(controlA0.bridgeLugAabbOverlapMm3>10,'A21 bridge and lug cannot merely be tangent');
  assert.equal(controlA0.mountingFootBores,4);
  assert.equal(controlA0.mountingAnchorHeads,4);
  assert.deepEqual(controlA0.mountedSupportWorldXZ,[187.5,-87.5]);

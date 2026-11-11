@@ -53,12 +53,21 @@ export function aControlRoutes({sampleShiftMm=0,sampleAngleDeg=0,opticalLiftMm=0
   const first=aHeaterLocalToWorld(-13,12.5,-32.5,sample);
   const second=aHeaterLocalToWorld(-6,12.5,-32.5,sample);
   const sensor=aHeaterLocalToWorld(12,15,-32.5,sample);
-  const heaterA=[first,pt(92,95,-55),pt(149,111,-72),pt(215,91,-20),
-    pt(245,63,16),pt(...A_CONTROL_DATUMS.relayInterface)];
-  const heaterB=[second,pt(105,100,-61),pt(153,118,-80),pt(224,99,-31),
-    pt(265,69,10),pt(...A_CONTROL_DATUMS.powerReturnInterface)];
-  const temperature=[sensor,pt(112,110,-56),pt(177,134,-96),
-    pt(253,95,-76),pt(303,52,-23),pt(...A_CONTROL_DATUMS.temperatureServiceInterface)];
+  // V134: move the first guide knots with A07, not with the laboratory.
+  // Fixed world-Z guides pierced the stage as it rotated past 90 degrees.
+  // Rise above the sample stack before joining the external service lane.
+  const heaterA=[first,
+    aHeaterLocalToWorld(-13,17,-47,sample),
+    aHeaterLocalToWorld(-13,59,-70,sample),
+    pt(160,165,-145),pt(253,130,-35),pt(...A_CONTROL_DATUMS.relayInterface)];
+  const heaterB=[second,
+    aHeaterLocalToWorld(-6,21,-50,sample),
+    aHeaterLocalToWorld(-6,64,-76,sample),
+    pt(174,172,-158),pt(272,130,-35),pt(...A_CONTROL_DATUMS.powerReturnInterface)];
+  const temperature=[sensor,
+    aHeaterLocalToWorld(12,23,-52,sample),
+    aHeaterLocalToWorld(12,68,-79,sample),
+    pt(187,178,-169),pt(303,130,-35),pt(...A_CONTROL_DATUMS.temperatureServiceInterface)];
   const paths={led,heaterA,heaterB,temperature};
   for(const p of Object.values(paths)){
     if(p.some(v=>v.some(n=>!Number.isFinite(n))))throw new TypeError('Nonfinite route waypoint');
@@ -84,8 +93,17 @@ export function auditAControlRoutes(options={}){
   const out={
     ledEndsAtDriverSocket:dist(r.endpoints.ledDriver,d.driverSocket)<.001,
     ledStartsAtLampTail:r.endpoints.ledHead[0]===d.ledOrigin[0]+55,
-    heaterStartsBehindA07:r.endpoints.heaterFirst[2]<0&&r.endpoints.heaterSecond[2]<0,
-    temperatureStartsBehindA07:r.endpoints.temperatureProbe[2]<0,
+    // Behind the heater is stage-local -Z, not world -Z after A06 rotation.
+    heaterStartsBehindA07:dist(r.endpoints.heaterFirst,
+      aHeaterLocalToWorld(-13,12.5,d.sampleRearZ,options))<.01 &&
+      dist(r.endpoints.heaterSecond,
+      aHeaterLocalToWorld(-6,12.5,d.sampleRearZ,options))<.01,
+    temperatureStartsBehindA07:dist(r.endpoints.temperatureProbe,
+      aHeaterLocalToWorld(12,15,d.sampleRearZ,options))<.01,
+    firstCableGuidesFollowStage:['heaterA','heaterB','temperature'].every((key,i)=>{
+      const x=[-13,-6,12][i],y=[17,21,23][i],z=[-47,-50,-52][i];
+      return dist(r.paths[key][1],aHeaterLocalToWorld(x,y,z,options))<.01;
+    }),
     powerAndSenseSeparate:dist(r.endpoints.heaterFirst,r.endpoints.temperatureProbe)>3,
     singleRelayCannotServeAsTemperatureController:!d.temperatureControllerIdentified,
     noFalseMainsPinoutCertification:!r.manufacturerPinoutVerified,

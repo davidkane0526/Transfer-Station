@@ -1,5 +1,14 @@
 # Transfer Station
 
+## V134 · 平台 A 控制线束避碰与 LED 支撑锁紧
+
+- 先在本地独立验证，再集中提交。新增 `tests/a-control-spline-clearance.mjs`（365 组姿态、Three.js 同类 centripetal Catmull–Rom 曲线路径）与 `tests/test_a21_fixture.py`（CadQuery 实体锁紧接口和 0/9/18mm 假设高度验证）。
+- **修复 A07 穿模风险：** 将加热双线和测温反馈的前两个导向点从固定世界坐标改为随样品台 X/旋转共同运动；“热台后侧”以台体局部坐标而非世界 -Z 判定。先沿样品台后侧退出，再升高进入控制器服务线道。
+- **修复 A21 浮接：** 横杆与连接块从零面积接触改为实体啮合，新增套环锁紧螺钉和 LED 安装环径向锁紧螺钉，STEP 中是真实穿孔，WebGL 以非制造级螺钉代理显示。
+- **仍未确认：** A21 是否为实际安装结构、真加热元件、测温类型、控制器、接线极性与负载规格。不允许将建模候选作为实物认证或通电接线图。
+
+[查看 V134 本地验证](docs/V134_A_CABLE_CLEARANCE_AND_MOUNT_LOCK.md)
+
 ## V133 · 平台 A 照明与加热/测温实体连接
 
 - 2026-11-11 用户要求保存平台 A 五项待修正问题，并优先完成第 04 项。问题清单：[`V133_A_AUDIT_AND_PRIORITY_04.md`](docs/V133_A_AUDIT_AND_PRIORITY_04.md)。

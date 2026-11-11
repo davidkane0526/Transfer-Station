@@ -909,8 +909,10 @@ def make_a():
     # its installation position is a candidate.
     slip_outer=vx(18,6,led_root_x+10.5,0,led_z)
     slip_inner=vx(15.35,6.2,led_root_x+10.4,0,led_z)
-    add('A','A21R','SM1RC_STYLE_RING_ON_A21_SUPPORT_CANDIDATE',
-        slip_outer.cut(slip_inner),'C')
+    a21_ring=slip_outer.cut(slip_inner).cut(vz(1.8,5,187.5,0,235.25))
+    add('A','A21R','SM1RC_RING_WITH_REAL_RADIAL_CLAMP_BORE_CANDIDATE',a21_ring,'C')
+    add('A','A21RK','RING_RADIAL_SET_SCREW_AND_HEAD_UNVERIFIED',
+        vz(1.6,9,187.5,0,235.25).fuse(vz(4,3,187.5,0,243.5)),'C')
     # Thorlabs MWWHL4 drawing MTN006388: Ø30.5 x 60.1 mm total envelope.
     led=vx(15.25,60.1,led_root_x+6,0,led_z)
     for q in [10+4.8*i for i in range(11)]:
@@ -946,23 +948,27 @@ def make_a():
     for i,(xx,yy) in enumerate(a21_anchors,1):
         bolt=vz(2.5,14,xx,yy,14).fuse(vz(4.25,2.5,xx,yy,28))
         add('A',f'A21S{i}','FOUR_CANDIDATE_FOOT_M5_ANCHORS_ON_A01_GRID',bolt,'C')
-    a21_collar=vz(10,14,187.5,-87.5,187).cut(vz(6.1,14.2,187.5,-87.5,186.9))
-    add('A','A21C','LED_STAND_ADJUSTABLE_POST_COLLAR_CANDIDATE',a21_collar,'C')
-    add('A','A21B','LED_STAND_RIGID_Z_TO_LED_BRIDGE_CANDIDATE',
-        vy(5,87.5,187.5,-87.5,194),'C')
+    a21_collar=vz(10,14,187.5,-87.5,187).cut(
+        vz(6.1,14.2,187.5,-87.5,186.9)).cut(vx(2.1,8,193.5,-87.5,194))
+    add('A','A21C','LED_STAND_COLLAR_WITH_REAL_RADIAL_LOCK_BORE',a21_collar,'C')
+    add('A','A21CK','RADIAL_POST_LOCK_SCREW_AND_HEAD_CANDIDATE',
+        vx(2,12,193.5,-87.5,194).fuse(vx(4.5,4,203.5,-87.5,194)),'C')
+    # Before V134 the bar merely touched the lug at z=199, zero area overlap.
+    add('A','A21B','LED_STAND_ENGAGED_RIGID_BRIDGE_CANDIDATE',
+        vy(5,87.5,187.5,-87.5,198),'C')
     add('A','A21L','LED_RING_BRIDGE_LUG_CANDIDATE',box(10,12,12,187.5,0,199),'C')
     add('A','A22','MWWHL4_TO_LEDD1B_FLEXIBLE_SERVICE_CABLE',
         cable_path([(229,12,182),(236,-3,184),(251,-45,154),
                     (258,-87,117),(262,-119,65)],2.2),'C')
     add('A','A23H1','A07_HEATER_LEAD_1_TO_SSR_NEIGHBOURHOOD_UNWIRED',
-        cable_path([(65,-32.5,93.7),(92,-55,95),(149,-72,111),
-                    (215,-20,91),(245,16,63),(253,40,18)],1.2),'C')
+        cable_path([(65,-32.5,93.7),(65,-47,98.2),(65,-70,140.2),
+                    (160,-145,165),(253,-35,130),(253,40,18)],1.2),'C')
     add('A','A23H2','A07_HEATER_LEAD_2_TO_RETURN_NEIGHBOURHOOD_UNWIRED',
-        cable_path([(72,-32.5,93.7),(105,-61,100),(153,-80,118),
-                    (224,-31,99),(265,10,69),(271,40,18)],1.2),'C')
+        cable_path([(72,-32.5,93.7),(72,-50,102.2),(72,-76,145.2),
+                    (174,-158,172),(272,-35,130),(271,40,18)],1.2),'C')
     add('A','A24','A07_TEMPERATURE_FEEDBACK_NOT_ASSUMED_K_TYPE',
-        cable_path([(90,-32.5,96.2),(112,-56,110),(177,-96,134),
-                    (253,-76,95),(303,-23,52),(305,25,14)],.78),'C')
+        cable_path([(90,-32.5,96.2),(90,-52,104.2),(90,-79,149.2),
+                    (187,-169,178),(303,-35,130),(305,25,14)],.78),'C')
     add('A','A25','TEMPERATURE_SERVICE_TERMINAL_NOT_A_CONTROLLER',
         box(28,20,14,305,25,0),'C')
     a25_port=vz(3,2,305,25,14).cut(vz(1,2.2,305,25,13.9))
@@ -1042,7 +1048,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V133'
+CAD_REVISION='V134'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

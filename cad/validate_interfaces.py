@@ -2137,7 +2137,7 @@ report['V132_A_user_corrected_installed_assembly']={
     'A11_mounting_method_verified':False}
 # V133: electrical routing is a topology/clearance CANDIDATE, not an
 # electrician-approved circuit. Check each cable and physical support exists.
-required_v133={'A21','A21C','A21B','A21L','A21R','A22',
+required_v133={'A21','A21C','A21CK','A21B','A21L','A21R','A21RK','A22',
                'A21S1','A21S2','A21S3','A21S4','A07P1','A07P2','A07P3',
                'A23H1','A23H2','A24','A25','A25P','A12LED'}
 check(required_v133.issubset(installed_ids),
@@ -2156,6 +2156,27 @@ check(part(A,'A23H1')[0].BoundingBox().zmax>90 and
 check(abs(part(A,'A12')[0].BoundingBox().zmin)<.05 and
       abs(part(A,'A13')[0].BoundingBox().zmin)<.05,
       'V133 external LEDD1B and SSR cannot float 20mm above the off-board floor')
+# V134: CAD-level true mating topology, not only apparent contact in a viewer.
+check(part(A,'A21B')[0].intersect(part(A,'A21L')[0]).Volume()>1,
+      'V134 LED support bridge must engage lug with nonzero solid overlap')
+check(part(A,'A21B')[0].intersect(part(A,'A21C')[0]).Volume()>1,
+      'V134 A21 bridge must engage the traveling collar')
+check(part(A,'A21L')[0].intersect(part(A,'A21R')[0]).Volume()>1,
+      'V134 ring must meet its connecting lug')
+check(part(A,'A21CK')[0].intersect(part(A,'A21C')[0]).Volume()<.001,
+      'V134 candidate lock shaft requires actual radial collar bore')
+check(part(A,'A21RK')[0].intersect(part(A,'A21R')[0]).Volume()<.001,
+      'V134 candidate optical ring lock requires radial through-bore')
+check(part(A,'A21CK')[0].distance(part(A,'A21')[0])<.01,
+      'V134 lock screw must nominally contact the stationary support post')
+check(part(A,'A21RK')[0].distance(part(A,'A11')[0])<.5,
+      'V134 ring set screw must reach MWWHL4 barrel')
+report['V134_A_priority04_local_mechanical_QA']={
+    'candidate_carrier_and_ring_radial_bores':2,
+    'bridge_lug_3d_overlap_verified':True,
+    'sample_local_cable_leads_follow_rotation':True,
+    'actual_assembly_model_verified':False,
+    'electrical_pinout_verified':False}
 report['V133_A_priority04_illumination_and_thermal']={
     'support_candidate':'independent_post_and_SM1RC_compatible_ring',
     'LED_reaches_LEDD1B_M8_service_envelope':True,

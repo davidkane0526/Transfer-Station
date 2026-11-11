@@ -42,3 +42,12 @@ assert.equal(A_CONTROL_DATUMS.temperatureControllerIdentified,false);
 assert.equal(A_CONTROL_DATUMS.heaterSupplyIdentified,false);
 assert.equal(A_CONTROL_DATUMS.ledSupportInstalledFromPhotoVerified,false);
 console.log('V133 A LED mount/service endpoints, power/sense separation and motion routing: PASS');
+
+// V134 rear-exit registration after the sample stage rotates.
+for(const angle of [-180,-135,-90,-45,0,45,90,135,180]){
+ const args={sampleShiftMm:3,sampleAngleDeg:angle};
+ const q=auditAControlRoutes(args);
+ assert.equal(q.heaterStartsBehindA07,true,'heater rear source at '+angle);
+ assert.equal(q.temperatureStartsBehindA07,true,'temperature rear source at '+angle);
+ assert.equal(q.firstCableGuidesFollowStage,true,'stage-local knot at '+angle);
+}

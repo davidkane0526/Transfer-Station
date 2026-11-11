@@ -3744,13 +3744,26 @@ function platformA(){
    const carrier=new THREE.Group();g.add(carrier);
    const collar=add(carrier,sleeve(10,6.1,14,mats.black,0,174,0,'y'));
    collar.userData.A21MovingPostCollar=true;
-   const bridge=add(carrier,cyl(5,87.5,mats.steel,0,174,43.75,40));
+   // Radial lock candidates: the STEP has true axial bores. This browser
+   // depiction shows the screw shafts/heads, not a certified threaded hole.
+   const lock=add(carrier,cyl(2,12,mats.steel,12,174,0,28));
+   lock.rotation.z=Math.PI/2;lock.userData.A21CarrierLockScrewCandidate=true;
+   const lockHead=add(carrier,cyl(4.5,4,mats.silver,18,174,0,28));
+   lockHead.rotation.z=Math.PI/2;lockHead.userData.A21CarrierLockKnobCandidate=true;
+   // Earlier z=194 bridge only touched the lug at one tangent plane.
+   // Raise by 4mm to form a real 3D mechanical overlap.
+   const bridge=add(carrier,cyl(5,87.5,mats.steel,0,178,43.75,40));
    bridge.rotation.x=Math.PI/2;bridge.userData.A21RigidBridge=true;
    const lug=add(carrier,cub(10,12,12,mats.dark,0,185,87.5));
    lug.userData.A21MountingLug=true;
    const ring=add(carrier,sleeve(18,15.35,6,mats.black,0,200,87.5,'x'));
    ring.userData.A21SM1RCStyleMountingRing=true;
+   const ringScrew=add(carrier,cyl(1.6,9,mats.steel,0,219.75,87.5,24));
+   ringScrew.userData.A21RingRadialClampScrewCandidate=true;
+   const ringKnob=add(carrier,cyl(4,3,mats.silver,0,225,87.5,32));
+   ringKnob.userData.A21RingClampKnobCandidate=true;
    g.userData.ledAdjustableCarrier=carrier;
+   g.userData.webRadialBoresAreVisualProxy=true;
    g.userData.installedSupportPhotoVerified=false;
    g.userData.sm1rcRingCompatibleByVendor=true;
    label(g,'A21 LED支撑',0,216,66);
@@ -4304,6 +4317,17 @@ window.__modelAControlInterfaceProbe=()=>{
    allComponentsPresent:['A21','A22','A23','A24','A25'].every(id=>parts.has(id)),
    postCount:support?.children.filter(m=>m.userData.A21FixedSupportPost).length??0,
    ringCount:carrier?.children.filter(m=>m.userData.A21SM1RCStyleMountingRing).length??0,
+   carrierLockScrewCount:carrier?.children.filter(m=>m.userData.A21CarrierLockScrewCandidate).length??0,
+   ringRadialClampScrewCount:carrier?.children.filter(m=>m.userData.A21RingRadialClampScrewCandidate).length??0,
+   bridgeLugAabbOverlapMm3:(()=>{
+     const bridge=carrier?.children.find(m=>m.userData.A21RigidBridge);
+     const lug=carrier?.children.find(m=>m.userData.A21MountingLug);
+     if(!bridge||!lug)return null;
+     const overlap=new THREE.Box3().setFromObject(bridge).intersect(new THREE.Box3().setFromObject(lug));
+     if(overlap.isEmpty())return 0;
+     const dims=overlap.getSize(new THREE.Vector3());
+     return Number((dims.x*dims.y*dims.z).toFixed(3));
+   })(),
    mountingFootBores:support?.children.find(m=>m.userData.A21CandidateTrueFootBores)?.userData.A21CandidateTrueFootBores??0,
    mountingAnchorHeads:support?.children.filter(m=>m.userData.A21CandidateAnchorHead).length??0,
    mountedSupportWorldXZ:[support?.position.x??null,support?.position.z??null],
