@@ -1631,6 +1631,27 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(await page.locator('#translate-depth').isDisabled(),true,
    'Photo-reference must freeze film-stage Y motion');
  assert.match(await page.locator('#stack-note').innerText(),/空载，无玻片\/PDMS/);
+ assert.equal(await page.evaluate(()=>window.__focusA05Photo5EmptyAudit?.()),true);
+ await page.waitForTimeout(180);
+ const photo5Empty=await page.evaluate(()=>window.__A05Photo5EmptyProbe?.());
+ assert.equal(photo5Empty?.available,true);
+ assert.equal(photo5Empty.photoReference,true);
+ assert.equal(photo5Empty.glassRendered,false);
+ assert.equal(photo5Empty.clampRendered,true);
+ assert.equal(photo5Empty.screwsRendered,true);
+ assert.equal(photo5Empty.wingEarCount,4);
+ assert.equal(photo5Empty.selectedVisibilityScore,4,
+   'Photo5 empty-clamp audit must directly expose upper foot, lower blade and both wing-screw heads');
+ assert.equal(photo5Empty.fixedRay.clear,true);
+ assert.equal(photo5Empty.pressureRay.clear,true);
+ assert(photo5Empty.screwHeadRays.every(x=>x.clear));
+ assert(Math.abs(photo5Empty.projection.centerX)<.25&&Math.abs(photo5Empty.projection.centerY)<.25);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V131-Photo5-Empty-Clamp-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
  await page.locator('#btn-front').evaluate(el=>el.click());
  await page.screenshot({path:'Transfer-Station-V79-A-Photo-Reference.png'});
  await page.locator('#btn-iso').evaluate(el=>el.click());
