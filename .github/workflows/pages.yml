@@ -76,10 +76,15 @@ jobs:
           node tests/interface-evidence.mjs
           node --check src/cad-registration.js
           node tests/cad-registration.mjs
-      - name: Add CJK fonts for accurate screenshot validation
+      - name: Optional CJK fonts (never gate geometry validation on apt mirrors)
+        shell: bash
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq fonts-noto-cjk
+          if fc-list :lang=zh family | grep -q .; then
+            echo "CJK font already available"
+          else
+            timeout 35s bash -c 'sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk' || \
+              echo "::warning::CJK font download unavailable. Continue geometry checks and mark text renders as font-fallback."
+          fi
       - name: Install browser smoke-test runner
         run: npm install --no-save playwright-core
       - name: Check browser regression scripts

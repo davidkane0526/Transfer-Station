@@ -2094,9 +2094,18 @@ check(part(A,'A23H1')[0].BoundingBox().zmax>90 and
       part(A,'A23H2')[0].BoundingBox().zmax>90 and
       part(A,'A24')[0].BoundingBox().zmax>90,
       'V133 A07 rear leads must originate near the heated sample, not on the floor')
-check(abs(part(A,'A12')[0].BoundingBox().zmin)<.05 and
-      abs(part(A,'A13')[0].BoundingBox().zmin)<.05,
-      'V133 external LEDD1B and SSR cannot float 20mm above the off-board floor')
+# V139: LEDD1B is a 70mm chassis SEATED on a 3mm mounting foot.
+# The earlier test incorrectly required the chassis itself to touch Z=0.
+a12_chassis=part(A,'A12')[0]
+a12_foot=part(A,'A12F')[0]
+check(abs(a12_foot.BoundingBox().zmin)<.05 and
+      abs(a12_foot.BoundingBox().zmax-a12_chassis.BoundingBox().zmin)<.05 and
+      a12_chassis.intersect(a12_foot).Volume()<.001,
+      'V139 LEDD1B must seat on a grounded separate mounting foot without overlap')
+check(abs(part(A,'A13')[0].BoundingBox().zmin)<.05 and
+      abs(part(A,'A30')[0].BoundingBox().zmin)<.05 and
+      abs(part(A,'A33')[0].BoundingBox().zmin)<.05,
+      'V139 separate SSR, pump sole, and temperature cabinet must remain grounded')
 # V134: CAD-level true mating topology, not only apparent contact in a viewer.
 check(part(A,'A21B')[0].intersect(part(A,'A21L')[0]).Volume()>1,
       'V134 LED support bridge must engage lug with nonzero solid overlap')

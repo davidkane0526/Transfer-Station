@@ -29,6 +29,7 @@ jobs:
           python tests/test_a21_fixture.py
           python tests/test_a07_physical.py
           python tests/test_a07_wood_sandwich.py
+          python tests/test_a139_external_mounts.py
       - name: Generate independent platform A and B parametric STEP assemblies
         run: python cad/build_assemblies.py
       - name: Reject mechanical interpenetrations and validate interface contacts
@@ -36,6 +37,6 @@ jobs:
       - name: Upload editable STEP models
         uses: actions/upload-artifact@v4
         with:
-          name: Transfer-Station-V136-STEP-CAD
+          name: Transfer-Station-V139-STEP-CAD
           path: build/
           retention-days: 90

@@ -4818,7 +4818,7 @@ function resetScene(){
  }
  else {
    platformA();
-   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A32','A31','A26','A27','A07','A28','A07W','A29','A30','A10','A11','A12','A13','A21','A22','A23','A24','A25']){
+   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A32','A31','A26','A27','A07','A28','A07W','A29','A30','A10','A11','A12','A13','A33','A21','A22','A23','A24','A25']){
      if(!parts.has(id))throw Error('Model A missing: '+id);
    }
  }
