@@ -8,6 +8,11 @@ on:
       - '.github/workflows/build-cad.yml'
 permissions:
   contents: read
+# Only the newest CAD revision is useful; cancel obsolete builds triggered
+# by earlier commits in the same edit batch.
+concurrency:
+  group: transfer-station-cad
+  cancel-in-progress: true
 jobs:
   cad:
     runs-on: ubuntu-latest
