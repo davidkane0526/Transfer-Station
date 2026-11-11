@@ -4470,6 +4470,7 @@ window.__modelAThermalFunctionalProbe=()=>{
   sensorJunctionCount:sensor?.children.filter(o=>o.userData.A27TemperatureJunction).length??0,
   hollowFittingCount:fit?.children.filter(o=>o.userData.A28OpenVacuumBore).length??0,
   hoseMeshCount:hose?.children.filter(o=>o.userData.dynamicAVacuumTube).length??0,
+  externalHoseVisible:hose?.visible??false,
   rearElectricalPorts:chuck?.children.filter(o=>o.userData.A07RearServiceExitRoleCandidate)
     .map(o=>o.userData.A07RearServiceExitRoleCandidate)??[],
   endpointPositions:[r.path[0],r.path.at(-1)],
