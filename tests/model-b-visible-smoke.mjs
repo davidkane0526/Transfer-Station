@@ -1053,6 +1053,10 @@ try{
  assert.equal(dA.lampCollisionFreePlacementCandidate,true);
  assert.equal(dA.lampPlacementShiftFromV87Mm,46);
  assert.equal(dA.lampElectricalCablePresent,true);
+ assert.equal(dA.A11NoDuplicateDecorativeEmitterDiscs,true,
+   'A11 must not recreate the floating decorative emitter discs from user Fig.2');
+ assert.equal(dA.A15NoDuplicateDecorativeStageActuators,true,
+   'A15 must not recreate detached decorative micrometer knobs from user Fig.3');
  assert.equal(dA.inventedLampGooseneckPresent,false,
    'Old invented MWWHL4 mechanical gooseneck must stay deleted');
  assert.equal(dA.unsupportedA18HorizontalTubePresent,false,
