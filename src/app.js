@@ -4214,7 +4214,9 @@ function resetScene(){
   ('平台 A · '+(aWorkingPoseMode?'工作位':'照片'));
  $('stack-note').textContent=platform==='B'?
   (bPhoto94Mode?'参考视图':'B35→B08→B41(Y)→B09(X)→B10→B11 · 玻片侧 B02→B03→B04→B05→B34→B27→B33→B24→B28→B06'):
-  'A17→A15→A03→A04L/A04→A05→A05C→玻片 · 样品侧 A16→A06→A02→A07';
+  (aWorkingPoseMode?
+    'A17→A15→A03→A04L/A04→A05→A05C→玻片/PDMS · 样品侧 A16→A06→A02→A07':
+    'A17→A15→A03→A04L/A04→A05→A05C · 照片参考：空载，无玻片/PDMS');
  focus('iso');
  updateTable();
 }
@@ -4907,7 +4909,8 @@ function switchPlatform(next){
   $('sample-value').textContent='0 mm';$('sample-depth-value').textContent='0 mm';$('rotate-value').textContent='0°';
   $('show-b').classList.toggle('on',next==='B');
   $('show-a').classList.toggle('on',next==='A');
-  $('film-drop-label').textContent='玻片 Z';
+  const photoA=next==='A'&&!aWorkingPoseMode;
+  $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
   $('sample-move-label').textContent='样品 X';
   $('sample-move-depth-label').textContent='样品 Y';
   $('sample-move-depth').disabled=next!=='B';
@@ -4918,12 +4921,15 @@ function switchPlatform(next){
   // Photo-reference mode is comparison-only and intentionally hides the
   // unphotographed glass/PDMS. The installed pose renders A05G and may run
   // the geometry-only descent preview.
-  $('film-drop').disabled=next==='A'&&!aWorkingPoseMode;
-  $('film-drop').title=next==='A'&&!aWorkingPoseMode?
-    '照片参考方向仅用于对照，不执行转移下降':'仅几何预览，不是实际硬件控制';
-  // Both A and B have photo-confirmed film-side T25M. Actual travel use remains candidate.
-  $('translate').disabled=false;
-  $('translate').title='玻片 X 平移';
+  $('film-drop').disabled=photoA;
+  $('film-drop').title=photoA?
+    '照片参考固定，不执行转移下降':'仅几何预览，不是实际硬件控制';
+  // Photo-reference is a frozen evidence view: do not let the film-stage
+  // controls move a configuration that is supposed to match the photos.
+  $('translate').disabled=photoA;
+  $('translate-depth').disabled=photoA;
+  $('translate').title=photoA?'照片参考固定，不执行玻片运动':'玻片 X 平移';
+  $('translate-depth').title=photoA?'照片参考固定，不执行玻片运动':'玻片 Y 平移';
   resetScene();updatePhotoScope();
 }
 $('show-b').onclick=()=>switchPlatform('B');
