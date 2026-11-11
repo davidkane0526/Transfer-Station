@@ -757,7 +757,50 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
- assert.equal(await page.evaluate(()=>window.__focusA17FrontAudit?.()),true);
+ assert.equal(await page.evaluate(()=>window.__focusA11NoGhostAudit?.()),true);
+ await page.waitForTimeout(180);
+ const a11Ghost=await page.evaluate(()=>window.__A11NoGhostCloseupProbe?.());
+ console.log('V132 A11 no-ghost closeup QA:',JSON.stringify(a11Ghost));
+ assert.equal(a11Ghost?.available,true);
+ assert.equal(a11Ghost.noDuplicateDecorativeEmitterDiscs,true);
+ assert.equal(a11Ghost.floatingDecorativeDiscCount,0);
+ assert.equal(a11Ghost.selectedVisibilityScore,2,
+   'A11 closeup must expose the real MWWHL4 body and its electrical lead with no floating decorative discs');
+ assert.equal(a11Ghost.bodyVisible,true);
+ assert.equal(a11Ghost.cableVisible,true);
+ assert(Math.abs(a11Ghost.projection.centerX)<.28&&Math.abs(a11Ghost.projection.centerY)<.28);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V132-A11-No-Ghost-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+
+ assert.equal(await page.evaluate(()=>window.__focusA15NoGhostAudit?.()),true);
+ await page.waitForTimeout(180);
+ const a15Ghost=await page.evaluate(()=>window.__A15NoGhostCloseupProbe?.());
+ console.log('V132 A15 no-ghost closeup QA:',JSON.stringify(a15Ghost));
+ assert.equal(a15Ghost?.available,true);
+ assert.equal(a15Ghost.handleCount,2);
+ assert.equal(a15Ghost.stemCount,2);
+ assert.equal(a15Ghost.collarCount,2);
+ assert.equal(a15Ghost.supportCount,2);
+ assert.deepEqual(a15Ghost.handleAxes,['X','depth']);
+ assert.equal(a15Ghost.noDuplicateDecorativeStageActuators,true);
+ assert.equal(a15Ghost.actuatorChainsContinuous,true,
+   'A15 must retain two continuous support-spindle-collar-drum chains');
+ assert.equal(a15Ghost.visibleHandleCount,2);
+ assert.equal(a15Ghost.selectedVisibilityScore,2,
+   'A15 closeup must show both real orthogonal micrometer drums and no detached third knob');
+ assert(Math.abs(a15Ghost.projection.centerX)<.28&&Math.abs(a15Ghost.projection.centerY)<.28);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V132-A15-No-Ghost-Closeup.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+
+  assert.equal(await page.evaluate(()=>window.__focusA17FrontAudit?.()),true);
  await page.waitForTimeout(220);
  const a17View=await page.evaluate(()=>window.__A17CloseupProbe?.());
  console.log('V96 A17 dedicated closeup QA:',JSON.stringify(a17View));
