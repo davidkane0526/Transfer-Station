@@ -668,6 +668,38 @@ try{
    'Platform A must not expose the B control-cabinet inspection shortcut');
  assert.equal(await page.locator('#b-photo-profile').isHidden(),true);
  assert.equal(await page.locator('#btn-a-working-pose').getAttribute('aria-pressed'),'true');
+ // V133: the added A21 mount must be an actual grounded support chain,
+ // and LED/heater/temperature cable routes must not merge into one tube.
+ const controlA0=await page.evaluate(()=>window.__modelAControlInterfaceProbe?.());
+ assert.equal(controlA0?.available,true,'V133 A control interface probe absent');
+ assert.equal(controlA0.allComponentsPresent,true);
+ assert.equal(controlA0.postCount,1);
+ assert.equal(controlA0.ringCount,1,'A11 must not duplicate the A21 mounting ring');
+ assert.equal(controlA0.mountingFootBores,4);
+ assert.equal(controlA0.ringLiftMm,18,'A21 upper ring must follow optical parking');
+ assert.deepEqual(controlA0.a07RearServiceRoles,['heaterA','heaterB','temperature']);
+ assert.equal(controlA0.driverLEDPort,true);
+ assert.equal(controlA0.sensorFeedbackPort,true);
+ assert.deepEqual(controlA0.harnessRoles,{
+   A22:['led'],A23:['heaterA','heaterB'],A24:['temperature']});
+ assert.equal(controlA0.routeQa.ledEndsAtDriverSocket,true);
+ assert.equal(controlA0.routeQa.fullElectricalAcceptance,false,
+   'Do not claim actual heater/controller pinout without photo evidence');
+ assert.equal(controlA0.temperatureControllerIdentified,false);
+ // The heater and sensor start points follow sample X while their
+ // service ends remain fixed. LED's separate optic lift is independent.
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='4';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const controlAMove=await page.evaluate(()=>window.__modelAControlInterfaceProbe?.());
+ assert.equal(controlAMove.routeEndpoints.heaterFirst[0]-controlA0.routeEndpoints.heaterFirst[0],4);
+ assert.equal(controlAMove.routeEndpoints.temperatureProbe[0]-controlA0.routeEndpoints.temperatureProbe[0],4);
+ assert.deepEqual(controlAMove.routeEndpoints.heaterRelayEnvelope,
+   controlA0.routeEndpoints.heaterRelayEnvelope);
+ assert.deepEqual(controlAMove.routeEndpoints.ledDriver,controlA0.routeEndpoints.ledDriver);
+ await page.locator('#sample-move').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
  assert.equal(await page.locator('#btn-a-working-pose').isHidden(),true,
    'Internal A pose control must stay hidden from the user UI');
  const installedTruth=await page.evaluate(()=>window.__platformAPhotoTruthProbe?.());
@@ -716,6 +748,7 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  };
+ await photoShot('Transfer-Station-A-V133-Control-Routes.png','#btn-iso');
  await photoShot('Transfer-Station-A-Photo191-Overview.png','#btn-iso');
  await photoShot('Transfer-Station-A-Photo192-Side.png','#btn-rear');
  await photoShot('Transfer-Station-A-Photo193-Front.png','#btn-front');
