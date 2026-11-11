@@ -4230,8 +4230,54 @@ function updateTransforms(){
    if(deck)deck.rotation.y=angle;
    refreshHeatingControlHarness();refreshVacuumHoseB();
  }
+ if(platform==='A')refreshAControlHarness();
  if(active)updateMeasurement();
 }
+function refreshAControlHarness(){
+ if(platform!=='A')return;
+ const pose={sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,
+   opticalLiftMm:aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0};
+ const routes=aControlRoutes(pose).paths;
+ for(const id of ['A22','A23','A24']){
+   const g=parts.get(id)?.g;if(!g)continue;
+   g.traverse(obj=>{
+     const role=obj.userData.aControlWireRole;
+     if(!obj.isMesh||!role)return;
+     const radius=role==='led'?2.2:role==='temperature'?.78:1.2;
+     const points=routes[role].map(x=>new THREE.Vector3(...x));
+     const next=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),
+       Math.max(48,points.length*12),radius,9,false);
+     obj.geometry.dispose();obj.geometry=next;
+   });
+   g.userData.lastRoutePose=pose;
+ }
+}
+window.__modelAControlInterfaceProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const support=parts.get('A21')?.g,driver=parts.get('A12')?.g,
+       heater=parts.get('A07')?.g,sensorService=parts.get('A25')?.g;
+ const roles=Object.fromEntries(['A22','A23','A24'].map(id=>
+   [id,parts.get(id)?.g.children.filter(m=>m.isMesh&&m.userData.aControlWireRole)
+     .map(m=>m.userData.aControlWireRole)??[]]));
+ const carrier=support?.userData.ledAdjustableCarrier;
+ const pose={sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,
+   opticalLiftMm:aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0};
+ return {available:!!(support&&driver&&heater&&sensorService),
+   allComponentsPresent:['A21','A22','A23','A24','A25'].every(id=>parts.has(id)),
+   postCount:support?.children.filter(m=>m.userData.A21FixedSupportPost).length??0,
+   ringCount:carrier?.children.filter(m=>m.userData.A21SM1RCStyleMountingRing).length??0,
+   mountingFootBores:support?.children.find(m=>m.userData.A21CandidateTrueFootBores)?.userData.A21CandidateTrueFootBores??0,
+   ringLiftMm:carrier?.position.y??null,
+   a07RearServiceRoles:heater?.children.filter(m=>m.userData.A07RearServiceExitRoleCandidate)
+     .map(m=>m.userData.A07RearServiceExitRoleCandidate)??[],
+   driverLEDPort:driver?.children.some(m=>m.userData.A12M8LEDServiceSocketCandidate),
+   sensorFeedbackPort:sensorService?.children.some(m=>m.userData.A25TemperatureServiceSocketCandidate),
+   harnessRoles:roles,routeEndpoints:aControlRoutes(pose).endpoints,
+   routeQa:auditAControlRoutes(pose),
+   originalLedSupportIdentified:false,
+   liveElectricalCircuitCertified:false,
+   temperatureControllerIdentified:false};
+};
 function resetScene(){
  // Each platform has its own independent BOM; prevent previous queries from hiding rows.
  if($('bom-query'))$('bom-query').value='';
