@@ -3719,7 +3719,7 @@ function platformA(){
  },{explode:[0,45,20]});
  // V133 LED support: SM1RC is an OEM-compatible ring; independent base,
  // pole and adjustable bridge are UNVERIFIED engineering alternatives.
- addPart('A21',186,20,-92,g=>{
+ addPart('A21',187.5,20,-87.5,g=>{
    const foot=add(g,plate(36,36,8,mats.dark,
      [[-12.5,-12.5,2.7],[-12.5,12.5,2.7],[12.5,-12.5,2.7],[12.5,12.5,2.7]]));
    foot.userData.A21CandidateTrueFootBores=4;
@@ -3728,11 +3728,11 @@ function platformA(){
    const carrier=new THREE.Group();g.add(carrier);
    const collar=add(carrier,sleeve(10,6.1,14,mats.black,0,174,0,'y'));
    collar.userData.A21MovingPostCollar=true;
-   const bridge=add(carrier,cyl(5,92,mats.steel,0,174,46,40));
+   const bridge=add(carrier,cyl(5,87.5,mats.steel,0,174,43.75,40));
    bridge.rotation.x=Math.PI/2;bridge.userData.A21RigidBridge=true;
-   const lug=add(carrier,cub(10,12,12,mats.dark,0,185,92));
+   const lug=add(carrier,cub(10,12,12,mats.dark,0,185,87.5));
    lug.userData.A21MountingLug=true;
-   const ring=add(carrier,sleeve(18,15.35,6,mats.black,0,200,92,'x'));
+   const ring=add(carrier,sleeve(18,15.35,6,mats.black,0,200,87.5,'x'));
    ring.userData.A21SM1RCStyleMountingRing=true;
    g.userData.ledAdjustableCarrier=carrier;
    g.userData.installedSupportPhotoVerified=false;
