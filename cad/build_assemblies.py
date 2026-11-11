@@ -711,16 +711,15 @@ def make_a():
     # The older one-piece A04 envelope was 20mm too short.
     add('A','A04L','GCM_G40M40L_VENDOR_PAIRING_CANDIDATE_R40_PM7_NOT_PHOTO_CONFIRMED',
         box(40,40,20,ax,0,159.5),'C')
-    # Nov 08 TWO photo views: the LOWER angular micrometer is
-    # orthogonal (+Y depth in STEP) to the UPPER +X micrometer.
-    # WebGL uses +Z for this same direction. An engaged side mount
-    # joins it to the lower block, no unsupported floating knob.
-    add('A','A04LS','LOWER_G40_depth_drive_support_UNVERIFIED',
-        box(29,16,15,ax,24,167.5),'C')
-    add('A','A04LM','LOWER_G40_plus_depth_micrometer_20261108_CANDIDATE',
-        vy(5.5,18,ax,27,169.5),'C')
-    add('A','A04LK','LOWER_G40_plus_depth_knob_20261108_CANDIDATE',
-        vy(8.3,20,ax,43,169.5),'C')
+    # Photos195/196: lower angular drive is on the opposite lateral
+    # side from the upper labelled G40M60L. Reject the previous +Y/depth
+    # end-on proxy that rendered as a false front circular knob.
+    add('A','A04LS','LOWER_G40_LEFT_SIDE_DRIVE_SUPPORT_PHOTO195_196',
+        box(16,29,15,ax-24,0,167.5),'C')
+    add('A','A04LM','LOWER_G40_MINUS_X_MICROMETER_PHOTO195_196',
+        vx(5.5,18,ax-27,0,169.5),'C')
+    add('A','A04LK','LOWER_G40_MINUS_X_KNOB_PHOTO195_196',
+        vx(8.3,20,ax-43,0,169.5),'C')
     add('A','A04','UPPER_G40M60L_LABEL_PHOTO94_40x40x20',
         box(40,40,20,ax,0,179.5),'P')
     add('A','A04M','UPPER_G40M60L_right_micrometer_photo191_196',
