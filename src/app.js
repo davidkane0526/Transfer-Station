@@ -4356,9 +4356,11 @@ renderer.domElement.addEventListener('pointerup',ev=>{
 function updatePhotoScope(){
  const node=$('photo-scope-note');
  $('b-photo-profile').hidden=true;
- $('a-pose-selector').hidden=platform!=='A';
- $('photo-crosscheck').hidden=platform!=='A';
- $('a-photo-20261108').hidden=platform!=='A';
+ // V132: A photo/reference controls are retained only as internal QA hooks.
+ // They are no longer part of the user-facing Platform A workflow.
+ $('a-pose-selector').hidden=true;
+ $('photo-crosscheck').hidden=true;
+ $('a-photo-20261108').hidden=true;
  $('btn-a-working-pose').classList.toggle('on',platform==='A'&&aWorkingPoseMode);
  $('btn-a-photo-pose').classList.toggle('on',platform==='A'&&!aWorkingPoseMode);
  $('btn-a-working-pose').setAttribute('aria-pressed',String(platform==='A'&&aWorkingPoseMode));
