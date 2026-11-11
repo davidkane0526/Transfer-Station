@@ -134,23 +134,28 @@ export function enrichParts(partMap, platform, onMesh){
       yAxisTag.userData.modelOnlyAxisAnnotation='lower-Y';
     } else {
       decal(g,frontLabel,54,8,0,14,33.4,'front','#e8eef4');
-      // Stage B03 is installed yaw=180° relative to magnet. From its
-      // own branded face (photo109), the handwheel is local +X/right.
-      // From the opposite magnetic-base face (photo108), it looks left.
-      const handX=63;
-      knurl(g,handX,topY-9,0,8.4,26,'x',48);
-      // Source 97/108 + GCM-901604M drawing: two crossed lateral
-      // micrometers are mandatory on -M2L. A02 remains a 1-axis candidate.
-      if(stageType==='B03'||stageType==='A15'){
-        const sign=stageType==='B03'?-1:1;
-        const depth=sign*72;
-        const barrel=cyl(g,8.6,24,0,6,depth,ring,48);
-        barrel.rotation.x=Math.PI/2;
-        for(let n=0;n<32;n++){
-          const a=n*Math.PI/16;
-          const stripe=box(g,.34,.34,20,8.6*Math.cos(a),6+8.6*Math.sin(a),depth,graphite,.1);
+      // A15/A02 actuator solids are already constructed in app.js as
+      // support -> spindle -> collar -> drum chains. Re-adding decorative
+      // knurls here created the detached third knob seen in the user's
+      // 2026-11-11 screenshot. Keep decorations visual-only.
+      if(stageType==='A15'||stageType==='A02'){
+        g.userData.noDuplicateDecorativeStageActuators=true;
+      }else{
+        // Stage B03 is installed yaw=180° relative to magnet. From its
+        // own branded face (photo109), the handwheel is local +X/right.
+        const handX=63;
+        knurl(g,handX,topY-9,0,8.4,26,'x',48);
+        if(stageType==='B03'){
+          const sign=-1;
+          const depth=sign*72;
+          const barrel=cyl(g,8.6,24,0,6,depth,ring,48);
+          barrel.rotation.x=Math.PI/2;
+          for(let n=0;n<32;n++){
+            const a=n*Math.PI/16;
+            box(g,.34,.34,20,8.6*Math.cos(a),6+8.6*Math.sin(a),depth,graphite,.1);
+          }
+          const cap=cyl(g,9.1,4,0,6,depth+sign*13,graphite,48);cap.rotation.x=Math.PI/2;
         }
-        const cap=cyl(g,9.1,4,0,6,depth+sign*13,graphite,48);cap.rotation.x=Math.PI/2;
       }
     }
   }
@@ -350,8 +355,12 @@ export function enrichParts(partMap, platform, onMesh){
         box(g,12,8,12,26,22,0,matte,.5);
      });
      decoration('A11',(g)=>{
-       cyl(g,13.8,3,0,33,0,ring);cyl(g,8,3,0,36,0,green);
-       decal(g,'THORLABS',20,5,0,22,13,'front','#e2e7e9');
+       // The MWWHL4 body/emitter already exist in app.js along local X.
+       // Old Y-axis decorative discs floated above the lamp (user Fig.2).
+       // Keep only a side marking attached to the actual cylindrical body.
+       const tag=decal(g,'THORLABS',20,5,36,0,15.45,'front','#e2e7e9');
+       tag.userData.A11BodyAttachedBrandDecoration=true;
+       g.userData.noDuplicateDecorativeEmitterDiscs=true;
      });
      decoration('A12',(g)=>{
        const front=box(g,58,102,1.8,0,52,37,graphite,2);
