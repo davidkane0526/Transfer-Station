@@ -23,6 +23,7 @@ import {suctionDimension,auditVacuumInterfaceFit} from './pneumatic-dimensions.j
 import {auditB35MicroscopeFasteners,auditB08ToB35Mount} from './b35-fastener-audit.js';
 import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
 import {A_WORKING_LAYOUT,auditAWorkingLayout} from './a-working-layout.js';
+import {aControlRoutes,auditAControlRoutes} from './a-control-interfaces.js';
 import {A20261108PhotoAngles,aPhotoCameraPose,aPhotoOrientationEvidence} from './a-photo-angle-registration.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
@@ -3482,8 +3483,8 @@ function platformA(){
    // 60mm overall axial envelope, internal SM1 thread at the optical end.
    // V79 removes the invented flexible support that made a black cylinder
    // hang below a fictitious A18 horizontal tube.
-   const adapter=add(g,sleeve(17.5,15.35,6,mats.black,3,0,0,'x'));
-   adapter.userData.A11OEMSlipRingCandidate=true;
+   // V133: the single actual mounting ring now belongs to A21.
+   // No duplicate unsupported ring on A11.
    // Thorlabs MWWHL4 mechanical drawing MTN006388: Ø30.5 mm housing,
    // 60.1 mm total axial envelope, SM1 internal thread depth 6 mm.
    const ledBody=add(g,cyl(15.25,60.1,mats.dark,36.05,0,0,72));
@@ -3511,12 +3512,16 @@ function platformA(){
    g.userData.A11FollowsA18PhotoBodyOffset=true;
    label(g,'A11 Thorlabs MWWHL4',35,28,0);
  },{explode:[22,20,22]});
- addPart('A12',262,20,-80,g=>{
+ addPart('A12',262,0,-80,g=>{
   add(g,cub(60,104,73,mats.dark,0,52,0));
   add(g,cub(34,25,2,mats.blue,0,66,37));
+  const socket=add(g,sleeve(5,2.2,4,mats.steel,0,65,-38,'z'));
+  socket.userData.A12M8LEDServiceSocketCandidate=true;
+  g.userData.A12M8LEDPortFamily=true;
+  g.userData.A12ElectricalPolarityVerified=false;
   label(g,'Thorlabs LEDD1B',0,123,0);
  },{explode:[50,15,-20]});
- addPart('A13',260,20,72,g=>{
+ addPart('A13',260,0,72,g=>{
   add(g,cub(75,33,64,mats.dark,0,16.5,0));
   add(g,cub(40,15,4,mats.silver,0,16,34));
   label(g,'德力西 CDG1-1DD/25A',0,62,0);
@@ -3705,6 +3710,56 @@ function platformA(){
    cable.userData.A20CameraCableRouteCandidate=true;g.userData.electricalInterfaceVerified=false;
    label(g,'A20 相机线缆',82,24,18);
  },{explode:[0,45,20]});
+ // V133 LED support: SM1RC is an OEM-compatible ring; independent base,
+ // pole and adjustable bridge are UNVERIFIED engineering alternatives.
+ addPart('A21',186,20,-92,g=>{
+   const foot=add(g,plate(36,36,8,mats.dark,
+     [[-12.5,-12.5,2.7],[-12.5,12.5,2.7],[12.5,-12.5,2.7],[12.5,12.5,2.7]]));
+   foot.userData.A21CandidateTrueFootBores=4;
+   const post=add(g,cyl(6,191,mats.steel,0,103.5,0,40));
+   post.userData.A21FixedSupportPost=true;
+   const carrier=new THREE.Group();g.add(carrier);
+   const collar=add(carrier,sleeve(10,6.1,14,mats.black,0,174,0,'y'));
+   collar.userData.A21MovingPostCollar=true;
+   const bridge=add(carrier,cyl(5,92,mats.steel,0,174,46,40));
+   bridge.rotation.x=Math.PI/2;bridge.userData.A21RigidBridge=true;
+   const lug=add(carrier,cub(10,12,12,mats.dark,0,185,92));
+   lug.userData.A21MountingLug=true;
+   const ring=add(carrier,sleeve(18,15.35,6,mats.black,0,200,92,'x'));
+   ring.userData.A21SM1RCStyleMountingRing=true;
+   g.userData.ledAdjustableCarrier=carrier;
+   g.userData.installedSupportPhotoVerified=false;
+   g.userData.sm1rcRingCompatibleByVendor=true;
+   label(g,'A21 LED支撑',0,216,66);
+ },{explode:[0,0,-10]});
+ addPart('A22',0,0,0,g=>{
+   const m=add(g,tube(aControlRoutes().paths.led,2.2,mats.rubber));
+   m.userData.aControlWireRole='led';
+   g.userData.ledConnectorPolarityVerified=false;
+   label(g,'A22 LED线',238,150,-44);
+ });
+ addPart('A23',0,0,0,g=>{
+   const routes=aControlRoutes().paths;
+   for(const role of ['heaterA','heaterB']){
+     const m=add(g,tube(routes[role],1.2,mats.rubber));
+     m.userData.aControlWireRole=role;
+   }
+   g.userData.heaterVoltageAndSSRPinoutUnknown=true;
+   label(g,'A23 加热双线',174,118,-75);
+ });
+ addPart('A24',0,0,0,g=>{
+   const m=add(g,tube(aControlRoutes().paths.temperature,.78,mats.dark));
+   m.userData.aControlWireRole='temperature';
+   g.userData.sensorTypeUnverified=true;
+   label(g,'A24 测温反馈',180,145,-94);
+ });
+ addPart('A25',305,0,25,g=>{
+   add(g,cub(28,14,20,mats.dark,0,7,0));
+   const port=add(g,sleeve(3,1,2,mats.steel,0,14,0,'y'));
+   port.userData.A25TemperatureServiceSocketCandidate=true;
+   g.userData.A25NoTemperatureControllerIdentity=true;
+   label(g,'A25 测温接口（未识别）',0,38,0);
+ });
 }
 function addAxis(){
  const axes=new THREE.AxesHelper(80);axes.position.set(-216,22,145);currentRoot.add(axes);axisObjects.push(axes);
