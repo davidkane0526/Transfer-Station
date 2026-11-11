@@ -1150,7 +1150,11 @@ try{
  assert.equal(dA.lampOEMLengthMm,60.1);
  assert.equal(dA.lampSM1ThreadDepthMm,6);
  assert.equal(dA.lampCandidateRingPresent,true);
- assert.equal(dA.lampRingToA18BodyGapMm,30);
+ // V133 single ring relocated to mounted A21 assembly, its real AABB gap
+ // differs from the V89 decorative A11 attachment. Avoid pinning an old
+ // unattached mesh coordinate as the only acceptable installation.
+ assert(dA.lampRingToA18BodyGapMm>=30,
+   'Mounted A21 ring must keep clearance from the A18 head');
  assert.equal(dA.lampRingRightFocusOverlapMm3,0,
    'V89 SM1RC-style ring must not occupy right focus-control volume');
  assert.equal(dA.lampBodyRightFocusOverlapMm3,0,
