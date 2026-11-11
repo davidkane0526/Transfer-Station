@@ -84,7 +84,7 @@ jobs:
         run: |
           python3 -m http.server 8765 > /tmp/transfer-site.log 2>&1 &
           node tests/model-b-visible-smoke.mjs
-      - name: Require seventeen reproducible A engineering renders with A11/A15 ghost checks
+      - name: Require eighteen reproducible A engineering renders with working film-stack direction check
         run: |
           mkdir -p assets/photo-review
           for name in \
@@ -102,13 +102,14 @@ jobs:
             Transfer-Station-A-V131-Photo5-Empty-Clamp-Closeup.png \
             Transfer-Station-A-V132-A11-No-Ghost-Closeup.png \
             Transfer-Station-A-V132-A15-No-Ghost-Closeup.png \
+            Transfer-Station-A-V132-Film-Stack-Working-Closeup.png \
             Transfer-Station-A-V96-A17-Front-Closeup.png \
             Transfer-Station-A-V106-A18-Optical-Closeup.png \
             Transfer-Station-A-V106-A18-Support-Closeup.png; do
             test -s "$name" || { echo "::error::A real-photo matching render is missing: $name"; exit 1; }
             cp "$name" assets/photo-review/
           done
-      - name: Upload seventeen A engineering renders to publish job
+      - name: Upload eighteen A engineering renders to publish job
         uses: actions/upload-artifact@v4
         with:
           name: A-Photo-Comparison-Renders
@@ -138,6 +139,7 @@ jobs:
             Transfer-Station-A-V131-Photo5-Empty-Clamp-Closeup.png
             Transfer-Station-A-V132-A11-No-Ghost-Closeup.png
             Transfer-Station-A-V132-A15-No-Ghost-Closeup.png
+            Transfer-Station-A-V132-Film-Stack-Working-Closeup.png
             Transfer-Station-A-V96-A17-Front-Closeup.png
             Transfer-Station-A-V106-A18-Optical-Closeup.png
             Transfer-Station-A-V106-A18-Support-Closeup.png
