@@ -7,7 +7,7 @@ export const AXES={
  B09:{makerAxes:['X'],sceneAxes:['X'],linear:1,micrometers:1,verified:'OEM-official'},
  B08:{makerAxes:['theta'],sceneAxes:['yaw'],linear:0,micrometers:0,verified:'user-photo-correction-no-handle'},
  A15:{makerAxes:['X','Y'],sceneAxes:['X','Z'],linear:2,micrometers:2,verified:'photo-and-maker-drawing'},
- A02:{makerAxes:['X'],sceneAxes:['X'],linear:1,micrometers:1,verified:'proxy-only-subtype-unknown'}
+ A02:{makerAxes:['X','Y'],sceneAxes:['X','Z'],linear:2,micrometers:2,verified:'user-confirmed-XY-topology; exact-T25M-variant-unverified'}
 };
 export const JOINTS={
  B02:{count:4,kind:'mounting-head-proxy',status:'candidate',name:'磁座至双轴台（固定孔/螺纹未配准）'},

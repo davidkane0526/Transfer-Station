@@ -7,7 +7,7 @@ assert.equal(A_WORKING_LAYOUT.glassNearFromLegMm,12);
 assert.equal(A_WORKING_LAYOUT.glassCenterAboveLegBottomMm,-0.5);
 assert.equal(A_WORKING_LAYOUT.localStampXBeforeYawMm,-138.75);
 assert.equal(A_WORKING_LAYOUT.filmStageX,-60.75);
-assert.equal(A_WORKING_LAYOUT.lLegLengthMm,86.1);
+assert(Math.abs(A_WORKING_LAYOUT.lLegLengthMm-85.3)<1e-9);
 assert.equal(A_WORKING_LAYOUT.screwAxis,'scene-Y / vertical through A05 folded foot');
 assert.equal(A_WORKING_LAYOUT.screwPairLine,'scene-Z / parallel to 26mm glass short edge');
 assert.equal(A_WORKING_LAYOUT.screwPitchAcrossGlassShortEdgeMm,13);

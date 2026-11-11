@@ -57,19 +57,13 @@ assert.match(aGlass.known,/GCM-13.*功能.*对照/,
 assert(!/A05C未安装/.test(aGlass.evidence));
 assert(interfaceEvidence('A','A16').some(x=>x.id==='A-SAMPLE'),'A16 mounting base must be part of the real sample-side assembly audit');
 const aSample=interfaceEvidence('A','A06').find(x=>x.id==='A-SAMPLE');
-assert.match(aSample.known,/GCM-1102M/);
-assert.match(aSample.known,/Ø66/);
-assert.match(aSample.known,/89\.2mm.*77mm/,
-  'A06 live ledger must retain the GCM-1102M diameter match and unresolved height conflict');
-assert.match(aSample.known,/A02.*单X轴/,'A02 must remain photo-confirmed single-axis in live interface evidence');
-assert(!aSample.missing.some(x=>x.includes('单/双轴')),'V93 closed the A02 axis-count question; procurement must not reopen it');
-assert(aSample.missing.some(x=>x.includes('具体单轴后缀')),'A02 exact single-axis suffix and mounting face remain unresolved');
-assert(aSample.missing.some(x=>x.includes('10–16mm')),
-  'A06 unresolved adapter/support height must remain an explicit acceptance gap');
-assert(aSample.missing.some(x=>x.includes('12.2mm')),
-  'A06 interface ledger must preserve the exact 89.2-to-77.0mm replacement loss');
-assert(aSample.missing.some(x=>x.includes('A16 8mm')),
-  'A16 is already present in both stack calculations and must not be double-counted');
+assert.match(aSample.known,/GCM-T25M2L\/2C/);
+assert.match(aSample.known,/A02.*X\/Y两轴/);
+assert.match(aSample.known,/A06无平移测微头/);
+assert.match(aSample.known,/90mm.*87–93mm/);
+assert(aSample.missing.some(x=>x.includes('双轴T25M2L或2C')));
+assert(aSample.missing.some(x=>x.includes('全行程')));
+assert(!aSample.missing.some(x=>x.includes('单轴后缀')));
 assert(b09.some(x=>x.id==='B-CHUCK-FASTENERS'),'Upper fastener interface omitted');
 assert(b09.some(x=>x.missing.some(s=>s.includes('攻丝孔组'))),
   'Vendor clearance holes must never silently become tapped upper fastener holes');

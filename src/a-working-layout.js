@@ -14,7 +14,7 @@ const A_LOCAL_STAMP_X=A_LOCAL_GLASS_NEAR_X-
 const A_CONTACT_SOLVED_FILM_STAGE_X=A_LAYOUT_INPUTS.sampleCenterX+A_LOCAL_STAMP_X;
 const A_VERTICAL_INPUTS=Object.freeze({
   bracketTopWorldYmm:199.5,
-  sampleChipTopWorldYmm:110.6,
+  sampleChipTopWorldYmm:111.4,
   glassCenterAboveLegBottomMm:-0.5,
   pdmsCenterBelowGlassCenterMm:1.4,
   pdmsThicknessMm:1.8,
@@ -49,7 +49,7 @@ export const A_WORKING_LAYOUT=Object.freeze({
   screwPairLine:'scene-Z / parallel to 26mm glass short edge',
   screwPitchAcrossGlassShortEdgeMm:13,
   magnetFootprintMm:65,sampleBaseFootprintXmm:112,heaterFootprintMm:65,sampleChipFootprintMm:28,
-  heaterTopWorldYmm:109.2,sampleChipTopWorldYmm:A_VERTICAL_INPUTS.sampleChipTopWorldYmm,
+  heaterTopWorldYmm:110,sampleChipTopWorldYmm:A_VERTICAL_INPUTS.sampleChipTopWorldYmm,
   a15Vc13CatalogReferenceHeightMm:126,a15Vc13InstalledOrderMatchesGCM901602:false,
   a15Vc13LowerPoseHeightMm:119.5,bracketTopWorldYmm:A_VERTICAL_INPUTS.bracketTopWorldYmm,
   initialVC13LiftMm:A_VERTICAL_INPUTS.transferDropMm,opticalParkingLiftMm:18,

@@ -106,7 +106,7 @@ export function enrichParts(partMap, platform, onMesh){
     const g=part.g;
     const movingTop=g.userData.slidingTop||g;
     const stageType=part.part.id;
-    const topY=['B09','B41'].includes(stageType)?23:['B03','A15'].includes(stageType)?33:stageType==='A02'?20:65;
+    const topY=['B09','B41'].includes(stageType)?23:['B03','A15'].includes(stageType)?33:stageType==='A02'?33:65;
     box(g,51,1.2,5,0,['B09','B41'].includes(stageType)?11.5:10.4,31,graphite,.1);
     box(g,51,1.2,5,0,['B09','B41'].includes(stageType)?11.5:10.4,-31,graphite,.1);
     for(let x of [-21,21])for(let z of [-24,24])screwHead(movingTop,x,topY+.7,z,2.1);
@@ -336,8 +336,7 @@ export function enrichParts(partMap, platform, onMesh){
        g.userData.noDuplicateDecorativeG40Drum=true;
        decal(g,'GCM-G40M60L',38,6,0,10,20.5,'front','#e3e5e9');
     });
-    decoration('A06',(g)=>{analogScale(g,31.8,12);
-       const c=cyl(g,7,24,0,12,69,ring);c.rotation.x=Math.PI/2;});
+    decoration('A06',(g)=>{analogScale(g,31.8,8); g.userData.A06NoFalseMicrometerDecoration=true;});
      decoration('A08',(g)=>{
         // A08 TTL200-A housing nominal local Y=0..28mm only.
         // Rings Y73 and Y84 were disconnected ghost geometry.

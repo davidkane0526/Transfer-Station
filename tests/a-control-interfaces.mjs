@@ -27,7 +27,7 @@ assert(Math.abs(yaw.endpoints.heaterFirst[2]-nominal.endpoints.heaterFirst[2])>5
 assert.deepEqual(yaw.endpoints.heaterRelayEnvelope,nominal.endpoints.heaterRelayEnvelope);
 assert.deepEqual(yaw.endpoints.temperatureServiceEnvelope,nominal.endpoints.temperatureServiceEnvelope);
 assert.deepEqual(aHeaterLocalToWorld(0,0,0,{sampleShiftMm:0,sampleAngleDeg:0}),
-  [78,81.2,0]);
+  [78,82,0]);
 
 const parked=aControlRoutes({opticalLiftMm:18});
 assert.equal(parked.endpoints.ledHead[1]-nominal.endpoints.ledHead[1],18);
@@ -39,6 +39,9 @@ assert.throws(()=>aControlRoutes({sampleShiftMm:26}),RangeError);
 assert.throws(()=>aControlRoutes({sampleAngleDeg:Infinity}),RangeError);
 assert.throws(()=>aControlRoutes({opticalLiftMm:19}),RangeError);
 assert.equal(A_CONTROL_DATUMS.temperatureControllerIdentified,false);
+const yMove=aControlRoutes({sampleDepthShiftMm:5});
+assert.equal(yMove.endpoints.heaterFirst[2]-nominal.endpoints.heaterFirst[2],5);
+assert.deepEqual(yMove.endpoints.heaterRelayEnvelope,nominal.endpoints.heaterRelayEnvelope);
 assert.equal(A_CONTROL_DATUMS.heaterSupplyIdentified,false);
 assert.equal(A_CONTROL_DATUMS.ledSupportInstalledFromPhotoVerified,false);
 console.log('V133 A LED mount/service endpoints, power/sense separation and motion routing: PASS');

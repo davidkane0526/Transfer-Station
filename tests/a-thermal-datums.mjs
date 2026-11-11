@@ -3,7 +3,7 @@ import {A_THERMAL,aThermalPoseLocalToWorld,aVacuumRoute,auditAThermalTopology}
  from '../src/a-thermal-datums.js';
 const d=A_THERMAL,q=auditAThermalTopology();
 assert.equal(q.stackHeightMm,28);
-assert.equal(q.sampleTopAboveBoardMm,89.2);
+assert.equal(q.sampleTopAboveBoardMm,90);
 assert.equal(q.heaterFitsPocket,true);
 assert.equal(q.ductClearsHeater,true);
 assert.equal(q.suctionExitBehindChuck,true);
@@ -15,7 +15,7 @@ assert.equal(q.woodAndMetalAreSeparateParts,true);
 assert.equal(q.internalVacuumDuctRigidInMetal,true);
 assert.equal(q.heaterNominallySandwichedAboveWood,true);
 const nominal=aVacuumRoute();
-assert.deepEqual(nominal.path[0],[78,104.7,-43.5]);
+assert.deepEqual(nominal.path[0],[78,105.5,-43.5]);
 for(let x of [-12.5,-8,0,8,12.5])for(let yaw=-180;yaw<=180;yaw+=5){
  const options={sampleShiftMm:x,sampleAngleDeg:yaw};
  const moved=aVacuumRoute(options);
@@ -24,4 +24,7 @@ for(let x of [-12.5,-8,0,8,12.5])for(let yaw=-180;yaw<=180;yaw+=5){
  assert(moved.path.every(pt=>pt.every(Number.isFinite)));
 }
 assert.throws(()=>aVacuumRoute({sampleAngleDeg:900}),RangeError);
+const yMove=aVacuumRoute({sampleDepthShiftMm:4});
+assert.equal(yMove.path[0][2]-nominal.path[0][2],4);
+assert.deepEqual(yMove.path.at(-1),nominal.path.at(-1));
 console.log('V135 A vacuum/heater/sensor functional datums and 365-pose flexible hose: PASS');

@@ -42,13 +42,15 @@ export const V48_RULER_EVIDENCE=Object.freeze({
           manufacturer:'Daheng',overallDiameterMm:66,heightMm:21,
           platformMm:[32,32],fineAdjustmentDeg:5,resolutionArcMin:10,
           geometryApplied:false,
-          assessment:'diameter matches photo-fit, but direct 21mm-height substitution breaks sample-stack ruler height'
+          assessment:'Ø66×21mm envelope matches the reconstructed XY33mm stack; actual manufacturer model not confirmed'
         })
       }),
-      angularMicrometerOnRight:true,
+      angularMicrometerOnRight:false,
       shortRotationLockAtFront:true,
       separatedFromA02LinearLeftMicrometer:true,
-      sampleTopLayers:['dark lower support','gold/bronze-colored intermediate layer (material unknown)','silver top plate'],
+      A02HasSecondLinearAxis:true,
+      A06NoLongMicrometerUserConfirmed:true,
+      sampleTopLayers:['dark lower support','wooden thermal insulator (user confirmed)','silver top plate'],
       photoLayerEvidence:['17','18','20','21'],
       nominalLayerThicknessMm:[9,7,12],
       candidateTotalThicknessMm:28,
@@ -120,8 +122,8 @@ export const V48_RULER_EVIDENCE=Object.freeze({
 export function auditV48RulerRegistration({
   sampleBoardTopMm=20,
   sampleBaseMm=8,
-  sampleRotationMm=33.2,
-  sampleTranslationMm=20,
+  sampleRotationMm=21,
+  sampleTranslationMm=33,
   sampleLowerMm=9,
   sampleInterlayerMm=7,
   sampleTopMm=12,

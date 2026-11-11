@@ -28,8 +28,11 @@ export const HANDLES={
   A03:{kind:'vertical',direction:'+Y',evidence:'97.jpg及195.jpg：VC13M竖直导轨与正面竖直测微装置',confidence:'photo'},
   A04L:{kind:'tilt',direction:'+Z',evidence:'2026-11-08 两个观察方向：下层测微头端面朝向VC13M铭牌侧，和上层+X杆轴正交。+Z为场景配准候选，不将单图左右误当世界-X。下层具体型号未知',confidence:'inference'},
   A04:{kind:'tilt',direction:'+X',evidence:'194–196.jpg可辨GCM-G40M60L铭牌及右侧微分头；按该组近正面视角统一为+X，94号图的投影左右不单独作为全局轴向依据',confidence:'photo'},
-  A06:{kind:'rotation-lock+fine-adjust',direction:'+Z',micrometerDirection:'+X',micrometerCount:1,evidence:'新上传照片17/18/20/21：下层圆台右侧长银色角度微调头，与前侧小锁紧杆分别可见；具体GCM-11后缀未知',confidence:'photo'},
-  A02:{kind:'horizontal',axes:1,handles:1,thicknessMm:20,subtypeUnverified:true,direction:'-X',evidence:'照片17/18/20：银色台左侧有水平方向测微头；下层旋转台右侧另有角度调节测微头',confidence:'photo'}
+  A06:{kind:'rotation-lock-only',axes:1,linearHandles:0,handles:0,lockHandles:1,direction:'+Z',
+    evidence:'用户2026-11-11明确纠正：底部旋转台没有平移手柄，只有一个锁柄；长银色手柄属于双轴平移台，旋转台实际SKU仍待核',confidence:'user-correction'},
+  A02:{kind:'orthogonal-XY',axes:2,handles:2,thicknessMm:33,subtypeUnverified:true,
+    direction:'-X',secondaryDirection:'+Z',physicalAxes:['X','Y'],
+    evidence:'用户2026-11-11明确补充样品位移台缺少一个轴：两根正交微分头属于X、Y平移台，旋转台只锁紧；GCM-T25M2L/2C 33mm原厂尺寸',confidence:'user-correction+vendor'}
 };
 export const MAGNET_PLACEMENT={id:'B02',lowest:true,baseZmm:20,topZmm:40,
   evidence:'108.jpg/112.jpg：GCM-420302M底面接光学面包板，上面直接是T25M；不是中部支架'};

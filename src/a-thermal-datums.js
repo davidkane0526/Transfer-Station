@@ -1,7 +1,7 @@
 // V136. Platform A separated wood / heater / metal with rigid internal suction duct.
-// WebGL X lateral, Y vertical, Z front/back; A07 starts at world Y=81.2.
+// WebGL X lateral, Y vertical, Z front/back; A07 starts at world Y=82.
 export const A_THERMAL=Object.freeze({
- chuckWidthMm:65,chuckDepthMm:65,localOriginY:81.2,
+ chuckWidthMm:65,chuckDepthMm:65,localOriginY:82,
  lowerHeightMm:9,intermediateHeightMm:7,upperHeightMm:12,
  upperStartLocalY:16,topLocalY:28,
  pocketWidthMm:38.6,pocketDepthMm:38.6,pocketHeightMm:5.4,
@@ -16,11 +16,11 @@ export const A_THERMAL=Object.freeze({
  vacuumCandidateAngleLimitDeg:5,installedVacuumPumpIdentityVerified:false
 });
 const p=(x,y,z)=>[+x.toFixed(3),+y.toFixed(3),+z.toFixed(3)];
-export function aThermalPoseLocalToWorld([x,y,z],{sampleShiftMm=0,sampleAngleDeg=0}={}){
- if(![x,y,z,sampleShiftMm,sampleAngleDeg].every(Number.isFinite))throw new TypeError('Invalid A sample pose');
- if(Math.abs(sampleShiftMm)>12.5||Math.abs(sampleAngleDeg)>180)throw new RangeError('Unsupported sample-stage candidate pose');
+export function aThermalPoseLocalToWorld([x,y,z],{sampleShiftMm=0,sampleDepthShiftMm=0,sampleAngleDeg=0}={}){
+ if(![x,y,z,sampleShiftMm,sampleDepthShiftMm,sampleAngleDeg].every(Number.isFinite))throw new TypeError('Invalid A sample pose');
+ if(Math.abs(sampleShiftMm)>12.5||Math.abs(sampleDepthShiftMm)>12.5||Math.abs(sampleAngleDeg)>180)throw new RangeError('Unsupported sample-stage candidate pose');
  const a=sampleAngleDeg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),shift=sampleShiftMm+x;
- return p(78+c*shift+s*z,81.2+y,-s*shift+c*z);
+ return p(78+c*shift+s*(z+sampleDepthShiftMm),82+y,-s*shift+c*(z+sampleDepthShiftMm));
 }
 export function aVacuumRoute(options={}){
  const path=[
@@ -37,7 +37,7 @@ export function aVacuumRoute(options={}){
 export function auditAThermalTopology(){
  const d=A_THERMAL;
  return {stackHeightMm:d.lowerHeightMm+d.intermediateHeightMm+d.upperHeightMm,
-  sampleTopAboveBoardMm:8+33.2+20+28,
+  sampleTopAboveBoardMm:8+21+33+28,
   heaterFitsPocket:d.heaterSizeMm[0]<d.pocketWidthMm&&d.heaterSizeMm[1]<=d.pocketHeightMm&&d.heaterSizeMm[2]<d.pocketDepthMm,
   ductClearsHeater:d.suctionDuctLocalY-d.suctionDuctDiameterMm/2>d.upperStartLocalY+d.pocketHeightMm,
   suctionExitBehindChuck:d.suctionRearLocal[2]===-d.chuckDepthMm/2,

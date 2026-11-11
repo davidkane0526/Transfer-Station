@@ -3,7 +3,7 @@
 // manufacturer-certified mechanical/electrical interfaces.
 export const A_CONTROL_DATUMS = Object.freeze({
   sampleX:78,
-  heaterOriginY:81.2,
+  heaterOriginY:82,
   ledOrigin:[174,220,0],
   ledSlipRingCenter:[187.5,220,0],
   ledPostBase:[187.5,20,-87.5],
@@ -28,19 +28,19 @@ const pt=(x,y,z)=>[Number(x.toFixed(3)),Number(y.toFixed(3)),Number(z.toFixed(3)
 const finite=(...ns)=>ns.every(Number.isFinite);
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 // Three.js +Y yaw: local +X -> world(cos,0,-sin).
-export function aHeaterLocalToWorld(x,y,z,{sampleShiftMm=0,sampleAngleDeg=0}={}){
-  if(!finite(x,y,z,sampleShiftMm,sampleAngleDeg))throw new TypeError('Nonfinite Platform A sample pose');
-  if(Math.abs(sampleShiftMm)>12.5||Math.abs(sampleAngleDeg)>180)
+export function aHeaterLocalToWorld(x,y,z,{sampleShiftMm=0,sampleDepthShiftMm=0,sampleAngleDeg=0}={}){
+  if(!finite(x,y,z,sampleShiftMm,sampleDepthShiftMm,sampleAngleDeg))throw new TypeError('Nonfinite Platform A sample pose');
+  if(Math.abs(sampleShiftMm)>12.5||Math.abs(sampleDepthShiftMm)>12.5||Math.abs(sampleAngleDeg)>180)
     throw new RangeError('Platform A candidate pose out of supported envelope');
   const r=sampleAngleDeg*Math.PI/180,c=Math.cos(r),s=Math.sin(r);
-  return pt(A_CONTROL_DATUMS.sampleX+c*(sampleShiftMm+x)+s*z,
+  return pt(A_CONTROL_DATUMS.sampleX+c*(sampleShiftMm+x)+s*(sampleDepthShiftMm+z),
     A_CONTROL_DATUMS.heaterOriginY+y,
-    -s*(sampleShiftMm+x)+c*z);
+    -s*(sampleShiftMm+x)+c*(sampleDepthShiftMm+z));
 }
-export function aControlRoutes({sampleShiftMm=0,sampleAngleDeg=0,opticalLiftMm=0}={}){
-  if(!finite(sampleShiftMm,sampleAngleDeg,opticalLiftMm)||opticalLiftMm<0||opticalLiftMm>18)
+export function aControlRoutes({sampleShiftMm=0,sampleDepthShiftMm=0,sampleAngleDeg=0,opticalLiftMm=0}={}){
+  if(!finite(sampleShiftMm,sampleDepthShiftMm,sampleAngleDeg,opticalLiftMm)||opticalLiftMm<0||opticalLiftMm>18)
     throw new RangeError('Invalid A electrical routing pose');
-  const sample={sampleShiftMm,sampleAngleDeg};
+  const sample={sampleShiftMm,sampleDepthShiftMm,sampleAngleDeg};
   const ledRoot=A_CONTROL_DATUMS.ledOrigin;
   const ledStart=pt(ledRoot[0]+55,ledRoot[1]-38+opticalLiftMm,12);
   // The LED lamp has an independent support. A22 uses a flexible service loop.

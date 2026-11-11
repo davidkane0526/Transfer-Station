@@ -566,8 +566,8 @@ window.__modelAPhoto194Probe=()=>{
    const housing=gA18?.children.find(o=>o.userData.A18PhotoConstrainedMainBody);
    const bend=mesh('A05','A05VerticalSheetWeb');
    const drum=mesh('A04','A04DriveDrum');
-   const sampleStem=mesh('A06','A06CoupledMicrometerStem');
-   const sampleDrum=mesh('A06','A06RightAngularMicrometer');
+   const sampleStem=mesh('A02','stageActuatorStem');
+   const sampleDrum=mesh('A02','stageActuatorHandle');
    const screwHeads=gS?.children.filter(o=>o.userData.A05CSScrewHead)??[];
    const screwShafts=gS?.children.filter(o=>o.userData.A05CSCandidateShank)??[];
    if(![lamp,lampRing,cable,housing,bend,drum,sampleStem,sampleDrum].every(Boolean)||
@@ -1785,6 +1785,14 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
     g.userData.A15Photo194SlotDimensionsVerified=false;
     g.userData.A15Photo23TopCounterboreCount=4;
     g.userData.A15Photo23RecessedHeadCount=4;
+   }else if(id==='A02'){
+    // V137 OEM-constrained true second linear axis. Both carriages and
+    // top-plate holes are actual meshes, not a second handle on rotary.
+    const through=[[-25,-25,2.9],[-25,25,2.9],[25,-25,2.9],[25,25,2.9]];
+    const carriage=add(carriageY,plate(w*.94,d*.92,topH,mats.dark,through));
+    carriage.position.y=lowerH+middleH;
+    carriage.userData.A02XYTopCarriesHeater=true;
+    g.userData.A02SlidingStackHeightsMm=[lowerH,middleH,topH];
    }else{
     add(carriageY,cub(w*.94,topH,d*.92,mats.dark,0,lowerH+middleH+topH/2,0));
    }
@@ -1818,13 +1826,17 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
   xStem.userData.stageActuatorStem={kind:'linear',localAxis:'X'};
   xCollar.userData.stageActuatorCollar={kind:'linear',localAxis:'X'};
   if(id==='A02'){
-    g.userData.A02PhotoConfirmedTravelAxis='X';
-    g.userData.A02PhotoConfirmedSingleLinearAxis=true;
-    g.userData.A02SecondLinearAxisRejected=true;
-    g.userData.A02EvidencePhotos=['17','20'];
-    g.userData.A02ObservedHandleDirection='left / -X';
-    g.userData.A02RightLowerKnobBelongsToA06=true;
+    // User V137 correction supersedes V93 single-axis interpretation.
+    g.userData.A02Axes=['X','Y'];
+    g.userData.A02LinearAxisCount=2;
+    g.userData.A02PhotoConfirmedSingleLinearAxis=false;
+    g.userData.A02SecondLinearAxisRejected=false;
+    g.userData.A02EvidencePhotos=['17','18','20','2026-11-11 user correction'];
+    g.userData.A02ObservedHandleDirection='X:-X; Y:+Z (scene depth)';
+    g.userData.A02SecondDrumBelongsToA02=true;
+    g.userData.A02RotaryLongMicrometerCount=0;
     g.userData.A02ExactT25MSuffixVerified=false;
+    g.userData.A02NominalStackHeightMm=33;
   }
   label(g,'机构X / 场景X：左右微调',side*(w/2+62),h-1,actuatorZ);
   if(JOINTS[id]&&id!=='A15')addJointHeads(g.userData.slidingTop,id,h-.1,[[-25,-25],[-25,25],[25,-25],[25,25]],{headR:2.8});
@@ -3017,8 +3029,8 @@ function platformA(){
     g.userData.topCornerCounterbores=0;
     label(g,'A17 磁座',0,32,0);
   },{explode:[-10,0,0],facingYaw:aFilmYaw});
- // A sample branch: GCM-5306M base -> A06 rotation -> A02 stage.
- makeStageBlock('A02',sx,61.2,0,65,65,20,'样品侧 GCM-T25M (照片17左向X测微)',true,{rotateSample:true},-1);
+ // A sample branch: GCM-5306M base -> A06 lock-only rotation -> A02 XY stage.
+ makeStageBlock('A02',sx,49,0,65,65,33,'样品侧 XY 双轴 GCM-T25M2系列（X左、Y前）',true,{rotateSample:true},-1,2,1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
  makeStageBlock('A15',ax,40,az,65,65,33,'载玻片侧 GCM-T25M2L (2 axes)',false,
    {facingYaw:aFilmYaw},1,2,1);
@@ -3324,29 +3336,25 @@ function platformA(){
  // V79: glass is part of the installed transfer mechanism. Exact clamp SKU,
  // thread and slide dimensions remain pending physical measurement.
  addPart('A06',sx,28,0,g=>{
-  // Photos17/18/20: rotary cylinder does not exceed the 65mm upper
-  // square plate. V47 Ø94 was geometrically disproportionate.
-  // Candidate Ø66mm; actual vendor/SKU is still unreadable.
-  add(g,cyl(33,33.2,mats.dark,0,16.6,0));
-  add(g,torus(31,1,mats.steel,0,33.5,0));
-  const lock=add(g,cyl(4.5,28,mats.steel,0,12,45));
-  lock.rotation.x=Math.PI/2;
-  lock.userData.A06ShortFrontLock=true;
-  // Separate RIGHT-side angular micrometer, photo17/20/21.
-  add(g,cub(14,14,16,mats.black,34,14,0));
-  // Overlap stem into both knob and actuator blocks. Previously the
-   // stem and drum merely met on a mathematically zero-area end face.
-   const angularStem=add(g,cyl(5.5,42,mats.silver,51,14,0));
-   angularStem.userData.A06CoupledMicrometerStem=true;
-  angularStem.rotation.z=Math.PI/2;
-  const angularDrum=add(g,cyl(9,25,mats.silver,81.5,14,0,48));
-  angularDrum.rotation.z=Math.PI/2;
-  angularDrum.userData.A06RightAngularMicrometer=true;
-  for(let x=71;x<92;x+=3){
-    const ring=add(g,torus(9,.16,mats.ink,x,14,0));
-    ring.rotation.y=Math.PI/2;
-  }
-  addJointHeads(g,'A06',33.15,[[-16,-16],[-16,16],[16,-16],[16,16]],{headR:2.5});
+  // V137: the user confirms NO ordinary external micrometer on A06.
+  // Ø66 x 21 mm is a provisional height/dia envelope, NOT a verified SKU.
+  const fixed=add(g,cyl(33,17.5,mats.dark,0,8.75,0));
+  fixed.userData.A06StationaryRotaryHousing=true;
+  const turret=new THREE.Group();g.add(turret);
+  const dial=add(turret,cyl(32.6,3.5,mats.dark,0,19.25,0));
+  dial.userData.A06RotatingDial=true;
+  const rim=add(turret,torus(30,.65,mats.silver,0,21.15,0));
+  g.userData.rotatingDeck=turret;
+  // ONLY a short clamp/lock lever, mounted into the stationary rim.
+  const lockBlock=add(g,cub(10,8,8,mats.dark,0,8.6,31.4));
+  lockBlock.userData.A06LockSeat=true;
+  const lock=add(g,cyl(3.3,18,mats.ink,0,8.6,41));
+  lock.rotation.x=Math.PI/2;lock.userData.A06ShortFrontLock=true;
+  const lockTip=add(g,cyl(4.2,4,mats.dark,0,8.6,49));
+  lockTip.rotation.x=Math.PI/2;lockTip.userData.A06LockTip=true;
+  g.userData.rotaryLinearMicrometerCount=0;
+  g.userData.rotaryLockLeverCount=1;
+  addJointHeads(turret,'A06',20.9,[[-16,-16],[-16,16],[16,-16],[16,16]],{headR:2.5});
   g.userData.photo48CandidateRotaryDiameterMm=66;
   g.userData.rotaryManufacturerSkuConfirmed=false;
   g.userData.vendorCandidateShortlist=['Daheng GCM-1102M','Daheng GCM-1101M'];
@@ -3361,29 +3369,26 @@ function platformA(){
   g.userData.GCM1102FineAdjustmentDeg=5;
   g.userData.GCM1102ResolutionArcMin=10;
   g.userData.GCM1102DiameterMatchesPhotoFit=true;
-  g.userData.GCM1102DirectSubstitutionSampleTopAboveBoardMm=77;
-  g.userData.GCM1102DirectSubstitutionWithinRulerRange=false;
-  g.userData.GCM1102MinimumMissingStackHeightMm=10;
-  g.userData.GCM1102MaximumMissingStackHeightMm=16;
-  g.userData.GCM1102RulerMidpointMissingStackHeightMm=13;
-  g.userData.GCM1102ExactSceneReplacementHeightLossMm=12.2;
-  g.userData.GCM1102CurrentSceneStackBreakdownMm={A16:8,A06:33.2,A02:20,A07:28,total:89.2};
-  g.userData.GCM1102VendorReplacementStackBreakdownMm={A16:8,A06:21,A02:20,A07:28,total:77};
+  g.userData.GCM1102DirectSubstitutionSampleTopAboveBoardMm=90;
+  g.userData.GCM1102DirectSubstitutionWithinRulerRange=true;
+  g.userData.GCM1102MinimumMissingStackHeightMm=0;
+  g.userData.GCM1102MaximumMissingStackHeightMm=0;
+  g.userData.GCM1102RulerMidpointMissingStackHeightMm=0;
+  g.userData.GCM1102ExactSceneReplacementHeightLossMm=0;
+  g.userData.GCM1102CurrentSceneStackBreakdownMm={A16:8,A06:21,A02:33,A07:28,total:90};
+  g.userData.GCM1102VendorReplacementStackBreakdownMm={A16:8,A06:21,A02:33,A07:28,total:90};
   g.userData.GCM1102A16IndependentBaseAlreadyIncludedInBothStacks=true;
   g.userData.GCM1102A16CannotExplainReplacementHeightLoss=true;
   g.userData.GCM1102Standard12mmAdapterIdentified=false;
-  g.userData.GCM1102CandidatePriority='high-diameter-match / unresolved-height-stack';
-  // V85: do NOT replace the current 33.2mm stack contribution by the
-  // 21mm vendor stage until the missing 10–16mm physical layer/interface
-  // is found in photographs or measurement.
-  g.userData.candidateGeometryOverriddenByVendorDrawing=false;
+  g.userData.GCM1102CandidatePriority='height-compatible-with-two-axis / OEM-identity-unverified';
+  // V137: 21mm rotary and 33mm double-axis stage mutually restore
+  // the photographed 90mm nominal stack. The rotary exact SKU is unverified.
+  g.userData.candidateGeometryOverriddenByVendorDrawing=true;
   g.userData.shortFrontLockCount=1;
-  g.userData.rightAngularMicrometerCount=1;
+  g.userData.rightAngularMicrometerCount=0;
 
-  // V116: hidden manufacturer-envelope study. The vendor drawing supports
-  // Ø66 x 21 mm and a 32 x 32 mm top platform, but not the current 33.2 mm
-  // scene height. Keep this study non-installed so the resulting 12.2 mm
-  // vertical gap to A02 is visible instead of inventing an adapter layer.
+  // OEM envelope comparison remains a NON-INSTALLED optional study;
+  // its 21mm height now fits the 33mm A02 two-axis assembly.
   const gcm1102Study=new THREE.Group();
   gcm1102Study.visible=false;g.add(gcm1102Study);
   const studyBody=add(gcm1102Study,cyl(33,21,mats.dark,0,10.5,0));
@@ -3396,8 +3401,8 @@ function platformA(){
   gcm1102Study.userData.vendorDiameterMm=66;
   gcm1102Study.userData.vendorHeightMm=21;
   gcm1102Study.userData.vendorPlatformMm=[32,32];
-  gcm1102Study.userData.nominalGapToA02Mm=12.2;
-  gcm1102Study.userData.rulerAllowedMissingLayerRangeMm=[10,16];
+  gcm1102Study.userData.nominalGapToA02Mm=0;
+  gcm1102Study.userData.rulerAllowedMissingLayerRangeMm=[0,0];
   gcm1102Study.userData.unknownSpacerGeometryModelled=false;
   g.userData.GCM1102VendorStudyAvailable=true;
   g.userData.GCM1102VendorStudyInstalled=false;
@@ -3405,7 +3410,7 @@ function platformA(){
  },{explode:[0,0,0]});
  // V136: black support, WOOD insulation, heater+sensor, then solid metal.
  // All are independent parts for a meaningful exploded view.
- addPart('A32',sx,81.2,0,g=>{
+ addPart('A32',sx,82,0,g=>{
    const base=add(g,cub(65,9,65,mats.dark,0,4.5,0));
    base.userData.A32LowerSupport=true;
    // Photo-referenced front adjustment plate is attached to the lower
@@ -3420,16 +3425,16 @@ function platformA(){
    }
    g.userData.lowerThicknessMm=9;
    label(g,'A32 下部固定支座',0,25,0);
- },{explode:[0,0,0],translateSample:true,rotateSample:true});
- addPart('A31',sx,81.2,0,g=>{
+ },{explode:[0,0,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
+ addPart('A31',sx,82,0,g=>{
    const wood=add(g,cub(65,7,65,mats.woodInsulator,0,12.5,0));
    wood.userData.A31WoodInsulationLayer=true;
    g.userData.materialUserConfirmed='wood';
    g.userData.woodThicknessCandidateMm=7;
    g.userData.woodTopLocalY=16;
    label(g,'A31 木质隔热垫',0,23,0);
- },{explode:[0,18,0],translateSample:true,rotateSample:true});
- addPart('A07',sx,81.2,0,g=>{
+ },{explode:[0,18,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
+ addPart('A07',sx,82,0,g=>{
   // Silver upper metal ONLY, Y16..28. Suction geometry is a machined
   // rigid void inside this metal; no independent moving duct object exists.
   const corners=[[-25,-25,3.25],[-25,25,3.25],[25,-25,3.25],[25,25,3.25]];
@@ -3482,7 +3487,7 @@ function platformA(){
       mesh.userData.A07CutawayMetalShell=true;
     }
   }
-  g.userData.rulerSampleTopAboveBoardMm=89.2;
+  g.userData.rulerSampleTopAboveBoardMm=90;
   g.userData.layerProxies=[12];
   g.userData.internalVacuumDuctOwner='A07';
   g.userData.internalVacuumDuctIndependentlyMovable=false;
@@ -3494,8 +3499,8 @@ function platformA(){
   g.userData.intermediateMaterialUnknown=true;
   g.userData.heatSensorAndPortDimensionsUnverified=true;
   label(g,'A07 银色金属吸附台（内部刚性气道）',0,40,0);
- },{explode:[0,68,0],translateSample:true,rotateSample:true});
- addPart('A26',sx,81.2,0,g=>{
+ },{explode:[0,68,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
+ addPart('A26',sx,82,0,g=>{
    const ceramic=add(g,cub(38,5,38,mats.ceramic,0,18.7,0));
    ceramic.userData.A26EmbeddedHeater=true;
    for(const x of [10,16]){
@@ -3507,8 +3512,8 @@ function platformA(){
    }
    g.userData.heaterVoltageWattageUnknown=true;
    label(g,'A26 陶瓷加热片 · 候选38×38×5',0,12,-18);
- },{explode:[0,34,0],translateSample:true,rotateSample:true});
- addPart('A27',sx,81.2,0,g=>{
+ },{explode:[0,34,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
+ addPart('A27',sx,82,0,g=>{
    const tip=add(g,cyl(.45,.18,mats.copper,-10,21.3,0,32));
    tip.userData.A27TemperatureJunction=true;
    const wire=add(g,tube([[-10,21.1,0],[-10,21.1,-18],
@@ -3516,21 +3521,21 @@ function platformA(){
    wire.userData.A27IndependentProbeLead=true;
    g.userData.sensorTypeAndPolarityUnknown=true;
    label(g,'A27 测温探头 · 类型待核',-10,26,-21);
- },{explode:[0,38,0],translateSample:true,rotateSample:true});
- addPart('A28',sx,81.2,0,g=>{
+ },{explode:[0,38,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
+ addPart('A28',sx,82,0,g=>{
    const fitting=add(g,sleeve(3.5,1.1,11,mats.steel,0,23.5,-38,'z'));
    fitting.userData.A28OpenVacuumBore=true;
    g.userData.duct='top hole → drilled lateral channel → rear suction';
    g.userData.realThreadSealUnknown=true;
    label(g,'A28 中空真空接头',0,38,-45);
- },{explode:[0,68,0],translateSample:true,rotateSample:true});
- addPart('A07W',sx,109.2,0,g=>{
+ },{explode:[0,68,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
+ addPart('A07W',sx,110,0,g=>{
     const sampleChip=add(g,cub(28,1.4,28,mats.glass,0,.7,0));
     sampleChip.userData.A07SampleChipProxy=true;
     sampleChip.userData.A07SampleChipThicknessUnverified=true;
     g.userData.sampleMaterialAndThicknessUnverified=true;
     label(g,'A07W 样品片',0,14,0);
- },{explode:[0,92,0],translateSample:true,rotateSample:true});
+ },{explode:[0,92,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
  addPart('A10',sx,20,-112,g=>{
     // Four TRUE Ø5.5mm candidate mounting bores in an offset foot.
     // Centers world X50/100, Z-125/-75 match the candidate A01 grid.
@@ -4171,18 +4176,16 @@ function updateDetail(part){
  })():'';
  const a06VendorHtml=(platform==='A'&&part.id==='A06')?(()=>{
    const a=auditV48RulerRegistration();
-   return '<div class="field" id="a06-vendor-conflict" data-gcm1102-applied="false" '+
+   return '<div class="field" id="a06-vendor-conflict" data-gcm1102-applied="true" '+
      'data-diameter-match="'+a.GCM1102MDiameterMatchesPhotoFit+'" '+
      'data-direct-height-fit="'+a.GCM1102MDirectSubstitutionWithinRulerRange+'">'+
-     '<b>A06 厂商尺寸 × 实物尺照冲突（V85）</b><p>'+
-     '<b>GCM-1102M：</b>厂家Ø66、约21mm高、32×32mm台面、±5°微调；Ø66与照片17/20/21和当前模型完全吻合，因此是当前最高优先级候选。'+
-     '但若直接用21mm替换当前33.2mm堆栈贡献，样品顶面距面包板只剩'+
-     a.GCM1102MDirectSubstitutionTopAboveBoardMm+'mm，低于照片17/18尺读87–93mm。'+
-     '至少还缺'+a.GCM1102MMinimumMissingStackHeightMm+'mm，按90mm中心值约缺'+
-     a.GCM1102MNominalMissingStackHeightMm+'mm。<br>'+
-     '<b>GCM-1101M：</b>厂家约92mm级外宽，超出A06照片55–75mm合理包络，优先级显著降低。<br>'+
-     '<b>当前决定：</b>保留Ø66场景外径和现有高度链，不套用GCM-1102M的21mm高度。'+
-     '需要确认A06铭牌/底面、或找到实物中额外约10–16mm接口层后才能改实体。</p></div>';
+     '<b>V137 双轴样品台与旋转台高度复核</b><p>'+
+     '用户确认样品位移台为 X/Y 双轴，旋转台只具短锁柄，不能安置两根直线微分头。'+
+     'A02 对应 GCM-T25M2 系列 33mm 厚双轴结构；A06 用 Ø66×21mm 厂家候选包络。'+
+     '新的高度链 A16 8 + A06 21 + A02 33 + A07 28 = <b>90mm</b>，'+
+     '仍处在照片尺照 87–93mm 范围内，无须臆造垫片。'+
+     '<br><b>证据限制：</b>GCM-1102M 精确后缀与实际锁柄形状未从可读铭牌确认，'+
+     'A02 双轴的 2L/2C 后缀亦待辨认；不得将高度匹配理解为 SKU 实锤。</p></div>';
  })():'';
  const a18VendorHtml=(platform==='A'&&part.id==='A18')?(()=>{
    const a18=parts.get('A18')?.g;
@@ -4328,7 +4331,8 @@ function updateTransforms(){
   g.position.set(base.x+off[0]*e+fx+dx,
     base.y+off[1]*e+(moveFilmVertical?aLift-filmDrop:0)+opticsLift,
     base.z+off[2]*e+dz+fz);
-  g.rotation.y=(rotateSample?angle:0)+facingYaw;
+  g.rotation.y=(rotateSample&&part.id!=='A06'?angle:0)+facingYaw;
+  if(platform==='A'&&part.id==='A06'&&g.userData.rotatingDeck)g.userData.rotatingDeck.rotation.y=angle;
   // V131: user photos 1-3 show the bare clamp state. Keep A05G in the
   // engineering model, but render glass/PDMS only in the installed pose.
   if(platform==='A'&&part.id==='A05G')g.visible=aWorkingPoseMode;
@@ -4354,7 +4358,8 @@ function updateTransforms(){
      // shared filmShift branch physically disconnected A02 from A07.
      g.userData.slidingX.position.x=part.id==='A02'?sampleShift:
        part.id==='B03'&&!bPhoto94Mode?-filmShift:filmShift;
-    if(g.userData.slidingDepth)g.userData.slidingDepth.position.z=part.id==='B03'&&!bPhoto94Mode?-filmShiftDepth:filmShiftDepth;
+    if(g.userData.slidingDepth)g.userData.slidingDepth.position.z=part.id==='A02'?sampleShiftDepth:
+      part.id==='B03'&&!bPhoto94Mode?-filmShiftDepth:filmShiftDepth;
   }else if(g.userData.slidingTop){
     g.userData.slidingTop.position.x=part.id==='B09'?-sampleShift:
       part.id==='B41'?-sampleShiftDepth:part.id==='A02'?sampleShift:0;
@@ -4404,7 +4409,7 @@ function updateTransforms(){
 function refreshAVacuumHose(){
  if(platform!=='A')return;
  const hose=parts.get('A29')?.g;if(!hose)return;
- const route=aVacuumRoute({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
+ const route=aVacuumRoute({sampleShiftMm:sampleShift,sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle});
  for(const mesh of hose.children){
    if(!mesh.isMesh||!mesh.userData.dynamicAVacuumTube)continue;
    const radius=mesh.userData.dynamicAVacuumTube==='inner'?2.2:3.5;
@@ -4415,7 +4420,7 @@ function refreshAVacuumHose(){
 }
 function refreshAControlHarness(){
  if(platform!=='A')return;
- const pose={sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,
+ const pose={sampleShiftMm:sampleShift,sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle,
    opticalLiftMm:aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0};
  const routes=aControlRoutes(pose).paths;
  for(const id of ['A22','A23','A24']){
@@ -4437,7 +4442,7 @@ window.__modelAThermalFunctionalProbe=()=>{
  const chuck=parts.get('A07')?.g,heater=parts.get('A26')?.g,
   sensor=parts.get('A27')?.g,wood=parts.get('A31')?.g,lower=parts.get('A32')?.g,fit=parts.get('A28')?.g,
   hose=parts.get('A29')?.g,port=parts.get('A30')?.g;
- const r=aVacuumRoute({sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle});
+ const r=aVacuumRoute({sampleShiftMm:sampleShift,sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle});
  return {available:!!(chuck&&heater&&sensor&&fit&&hose&&port),
   realTopBoreCount:chuck?.children.filter(o=>o.userData.A07ActualCenterSuctionBore).length??0,
   fixedInnerDuctCount:chuck?.children.filter(o=>o.userData.A07RigidVacuumBoreBoundary).length??0,
@@ -4490,6 +4495,33 @@ window.__modelAThermalFunctionalProbe=()=>{
   identifiedPumpModel:false,actualVacuumFunctionalCertification:false,
   dimensionsAndTopology:auditAThermalTopology()};
 };
+// V137: report real in-scene carriage positions and handle ownership.
+window.__modelASampleXYProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const xy=parts.get('A02')?.g,rotor=parts.get('A06')?.g;
+ if(!xy||!rotor)return {available:false};
+ const drums=xy.children.filter(o=>o.userData.stageActuatorHandle);
+ const stems=xy.children.filter(o=>o.userData.stageActuatorStem);
+ const carrierX=xy.userData.slidingX,carrierY=xy.userData.slidingDepth;
+ const dial=rotor.userData.rotatingDeck;
+ const rotaryHandles=rotor.children.filter(o=>o.userData.A06RightAngularMicrometer||
+   o.userData.A06CoupledMicrometerStem);
+ return {available:true,xyNominalThicknessMm:xy.userData.A02NominalStackHeightMm,
+  xyStackMm:xy.userData.A02SlidingStackHeightsMm,
+  xyAxes:xy.userData.A02Axes,linearDrumCount:drums.length,
+  linearStemCount:stems.length,drumLocalAxes:drums.map(o=>o.userData.stageActuatorHandle.localAxis),
+  xCarriageMm:carrierX?.position.x??null,yCarriageMm:carrierY?.position.z??null,
+  xControlMm:sampleShift,yControlMm:sampleShiftDepth,
+  bottomHousingYawDeg:Number((rotor.rotation.y*180/Math.PI).toFixed(3)),
+  rotaryDeckYawDeg:Number((dial?.rotation.y*180/Math.PI).toFixed(3)),
+  rotaryLinearHandleCount:rotaryHandles.length,
+  rotaryLockCount:rotor.children.filter(o=>o.userData.A06ShortFrontLock).length,
+  rotaryHeightMm:21,rulerStackAboveBoardMm:8+21+33+28,
+  heaterWorldXmm:Number((parts.get('A07')?.g.position.x??NaN).toFixed(3)),
+  heaterWorldZmm:Number((parts.get('A07')?.g.position.z??NaN).toFixed(3)),
+  manufacturerRotarySkuVerified:false,manufacturerXYExactSuffixVerified:false};
+};
 window.__modelAControlInterfaceProbe=()=>{
  if(platform!=='A')return {available:false};
  const support=parts.get('A21')?.g,driver=parts.get('A12')?.g,
@@ -4520,7 +4552,7 @@ window.__modelAControlInterfaceProbe=()=>{
      routeGeometryEndpoints[role]={start:pts[0].toArray(),end:pts.at(-1).toArray()};
    }
  }
- const pose={sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,
+ const pose={sampleShiftMm:sampleShift,sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle,
    opticalLiftMm:aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0};
  return {available:!!(support&&driver&&heater&&sensorService),
    allComponentsPresent:['A21','A22','A23','A24','A25'].every(id=>parts.has(id)),
@@ -5560,7 +5592,7 @@ function switchPlatform(next){
   $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
   $('sample-move-label').textContent='样品 X';
   $('sample-move-depth-label').textContent='样品 Y';
-  $('sample-move-depth').disabled=next!=='B';
+  $('sample-move-depth').disabled=false;
   $('film-drop').min='-13';
   $('film-drop').max='0';
   $('film-drop').value='0';

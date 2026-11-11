@@ -3,25 +3,22 @@ import {V48_RULER_EVIDENCE as e,auditV48RulerRegistration} from '../src/v48-rule
 import {PARTS} from '../src/parts.js';
 import {HANDLES,STACKS} from '../src/photo-evidence.js';
 const a=auditV48RulerRegistration();
-assert.equal(a.sampleTopGlobalMm,109.2);
-assert.equal(a.sampleTopHeightAboveBreadboardMm,89.2);
+assert.equal(a.sampleTopGlobalMm,110);
+assert.equal(a.sampleTopHeightAboveBreadboardMm,90);
 assert.deepEqual([a.photoHeightMinMm,a.photoHeightMaxMm],[87,93]);
 assert.equal(a.sampleTopWithinVisibleRulerRange,true);
 assert.deepEqual(a.sampleLayerHeightsMm,[9,7,12]);
 assert.equal(a.rotaryDiameterMm,66);
 assert.equal(a.plausibleRotationSize,true);
 assert.equal(a.GCM1101MWidthMm,92);
-assert.equal(a.GCM1101MWithinPhotoDiameterEnvelope,false,
-  'GCM-1101M is too wide for the ruler/photo-constrained A06 envelope');
+assert.equal(a.GCM1101MWithinPhotoDiameterEnvelope,false);
 assert.equal(a.GCM1102MDiameterMm,66);
 assert.equal(a.GCM1102MHeightMm,21);
-assert.equal(a.GCM1102MDiameterMatchesPhotoFit,true,
-  'GCM-1102M is the first vendor candidate whose published diameter matches the A06 photo fit');
-assert.equal(a.GCM1102MDirectSubstitutionTopAboveBoardMm,77);
-assert.equal(a.GCM1102MDirectSubstitutionWithinRulerRange,false,
-  'Direct 21mm GCM-1102M substitution would violate the 87–93mm sample-top ruler evidence');
-assert.equal(a.GCM1102MMinimumMissingStackHeightMm,10);
-assert.equal(a.GCM1102MNominalMissingStackHeightMm,13);
+assert.equal(a.GCM1102MDiameterMatchesPhotoFit,true);
+assert.equal(a.GCM1102MDirectSubstitutionTopAboveBoardMm,90);
+assert.equal(a.GCM1102MDirectSubstitutionWithinRulerRange,true);
+assert.equal(a.GCM1102MMinimumMissingStackHeightMm,0);
+assert.equal(a.GCM1102MNominalMissingStackHeightMm,0);
 assert.equal(a.A06VendorGeometryApplied,false);
 assert.equal(a.bMagnetNamedButAMagnetUnknown,true);
 assert.equal(a.certifiedForMachining,false);
@@ -45,9 +42,11 @@ assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1102M.heightMm,21);
 assert.equal(e.A.sampleAssembly.rotationVendorCandidates.GCM1102M.geometryApplied,false);
 assert.deepEqual(e.A.sampleAssembly.nominalLayerThicknessMm,[9,7,12]);
 assert.equal(HANDLES.A02.direction,'-X');
-assert.equal(HANDLES.A06.micrometerDirection,'+X');
+assert.equal(HANDLES.A06.linearHandles,0);
+assert.equal(HANDLES.A06.lockHandles,1);
+assert.equal(HANDLES.A02.axes,2);
 assert.equal(HANDLES.A06.direction,'+Z');
-assert.equal(e.A.sampleAssembly.angularMicrometerOnRight,true);
+assert.equal(e.A.sampleAssembly.angularMicrometerOnRight,false);
 assert.equal(e.A.sampleAssembly.shortRotationLockAtFront,true);
 assert.equal(e.A.filmAssembly.A17.sideSlotVisibleOnA17,false,
   'Photo194 resolved the old slot attribution: the silver slot belongs to A15');
@@ -84,4 +83,4 @@ assert.equal(a.sampleLayerHeightsMm.reduce((x,y)=>x+y,0),28);
 assert.match(A.A06.dims,/Ø66/);
 assert.throws(()=>auditV48RulerRegistration({sampleTopMm:-1}),/positive/);
 assert.equal(auditV48RulerRegistration({sampleTopMm:2}).sampleTopWithinVisibleRulerRange,false);
-console.log('V48 cross-rig photo identity, 89.2mm ruler sample top and true 3-layer model: PASS');
+console.log('V48 cross-rig photo identity, 90mm ruler sample top and true 3-layer model: PASS');

@@ -731,113 +731,54 @@ report['V83_A03_central_drive_and_moving_plate']={
     'full_13mm_motion_collision_certified':False,
     'physical_zero_height_verified':False
 }
-check(abs(part(A,'A06A')[0].BoundingBox().zmax-a02.zmin)<.02,'A sample T25M above rotary')
-check(abs((a02.zmin+20)-part(A,'A32')[0].BoundingBox().zmin)<.02,
-      'V48 A07 dark bottom 9mm directly rests on sample A02 T25M')
+# V137 complete crossed sample axes and lock-only rotary. The 33mm T25M2
+# replaces the false 20mm single-axis + phantom 12.2mm rotary spacer.
+A02_X=part(A,'A02')[0];A02_middle=part(A,'A02M')[0];A02_Y=part(A,'A02A')[0]
+check(abs(A02_X.BoundingBox().zmin-49)<.01 and
+      abs(A02_Y.BoundingBox().zmax-82)<.01,
+      'V137 A02 OEM-equivalent two-axis translation must be 33mm')
+check(abs(A02_middle.BoundingBox().zmin-A02_X.BoundingBox().zmax)<.01 and
+      abs(A02_Y.BoundingBox().zmin-A02_middle.BoundingBox().zmax)<.01,
+      'V137 stationary base, X carriage and Y carriage must stack continuously')
+check(part(A,'A02B')[0].BoundingBox().xmax<=A02_X.BoundingBox().xmin+.02,
+      'V137 sample X micrometer exits left (-X)')
+check(part(A,'A02D')[0].BoundingBox().ylen > part(A,'A02D')[0].BoundingBox().xlen*2,
+      'V137 second Y micrometer must point along stage depth, not X')
+check(abs(part(A,'A02D')[0].BoundingBox().ymax-
+          part(A,'A02E')[0].BoundingBox().ymin)<.02,
+      'V137 second Y micrometer shaft must engage its drum')
+check(not (A/'A06C.step').exists() and not (A/'A06D.step').exists(),
+      'V137 ZERO translational micrometers may belong to A06 rotary')
+rotor_lower=part(A,'A06')[0].BoundingBox()
+rotor_top=part(A,'A06A')[0].BoundingBox()
+rotor_lock=part(A,'A06B')[0].BoundingBox()
+check(abs(rotor_lower.zmin-28)<.01 and abs(rotor_top.zmax-49)<.01 and
+      abs(rotor_top.zmin-rotor_lower.zmax)<.01,
+      'V137 rotary body and moving dial must contribute exactly 21mm')
+check(rotor_lock.ymin<=rotor_lower.ymax+2 and rotor_lock.ymax>rotor_lower.ymax,
+      'V137 one short front rotary lock must attach to fixed housing')
+check(abs(rotor_top.zmax-A02_X.BoundingBox().zmin)<.01,
+      'V137 A02 two-axis stage must rest directly above rotating deck')
+check(abs(A02_Y.BoundingBox().zmax-part(A,'A32')[0].BoundingBox().zmin)<.01,
+      'V137 black heater base must rest on upper Y carriage')
 check(abs(part(A,'A32')[0].BoundingBox().zmax-
-          part(A,'A31')[0].BoundingBox().zmin)<.02,
-      'V136 7mm wooden insulator rests on separate lower support')
-check(abs(part(A,'A31')[0].BoundingBox().zmax-aheat.zmin)<.02,
-      'V136 silver upper metal rim meets wood top with embedded heater in pocket')
-check(abs(aheat.zmax-109.2)<.02,
-      'V48 ruler photo17/18: sample top global 109.2mm, 89.2mm above 20mm board')
-check(87<(aheat.zmax-20)<93,
-      'V48 ruler: silver sample top must stand approx 9cm above breadboard')
+          part(A,'A31')[0].BoundingBox().zmin)<.01,
+      'V137 wood sits above lower black heater support')
+check(abs(part(A,'A31')[0].BoundingBox().zmax-aheat.zmin)<.01,
+      'V137 silver heater block sits above separate wooden insulation')
+check(abs(aheat.zmax-110)<.02 and 87<(aheat.zmax-20)<93,
+      'V137 sample top must be 90mm above board, within photos17/18 87-93mm ruler')
 check(abs(arot.xlen-66)<.02 and abs(arot.ylen-66)<.02,
-      'V48 A only: candidate rotary Ø66 mm, NOT disproportional Ø94')
-a06_right_stem=part(A,'A06C')[0].BoundingBox()
-a06_right_knob=part(A,'A06D')[0].BoundingBox()
-a06_front_lock=part(A,'A06B')[0].BoundingBox()
-check(abs(a06_right_stem.xmin-(78+30))<.02 and
-      2.9<a06_right_stem.xmax-a06_right_knob.xmin<3.1,
-      'V75 A06 angular micrometer shaft must ENGAGE inside drum by 3mm, not float at a zero-area face')
-check(abs(a06_front_lock.ymin-33)<.02,
-      'V48 front short A06 lock must independently attach to circular rim')
-check(a06_right_knob.xmin>arot.xmax,
-      'V48 A06 angular drum must stand outside rotary, not through its metal body')
-for i in range(1,5):
-    head=part(A,f'A07S{i}')[0]
-    check(abs(head.BoundingBox().zmax-108.6)<.02,
-          'V48 silver top screw HEAD must be recessed, not floating above sample')
-# V85 vendor conflict audit. GCM-1102M's Ø66 drawing agrees with the
-# photo-fit A06 diameter, unlike 92mm-class GCM-1101M. However, replacing
-# the current 33.2mm rotary stack contribution by the vendor 21mm height
-# would lower the ruler-constrained sample top by 12.2mm.
-gcm1102_direct_top_above_board=8+21+20+9+7+12
-check(gcm1102_direct_top_above_board==77,
-      'V85 GCM-1102M direct 21mm substitution arithmetic')
-check(not (87<=gcm1102_direct_top_above_board<=93),
-      'V85 do not auto-apply GCM-1102M height: direct substitution must remain inconsistent with ruler photos')
-# V116: GCM-1102M manufacturer envelope study. It shares the A16 top
-# datum with installed A06, but its true 21mm height must leave a 12.2mm
-# physical gap to the current A02 bottom. No invented spacer is allowed.
-a06_g1102=part(A,'A06GCM1102')[0]
-a06_g1102_bb=a06_g1102.BoundingBox()
-a02_bb=part(A,'A02')[0].BoundingBox()
-g1102_gap_to_a02=a02_bb.zmin-a06_g1102_bb.zmax
-check(abs(a06_g1102_bb.xlen-66)<.02 and abs(a06_g1102_bb.ylen-66)<.02 and
-      abs(a06_g1102_bb.zlen-21)<.02,
-      'V116 GCM-1102M study must preserve Ø66 x 21mm vendor envelope')
-check(abs(g1102_gap_to_a02-12.2)<.02,
-      'V116 true GCM-1102M height must expose the unresolved 12.2mm gap to A02')
-report['V116_A06_GCM1102M_height_conflict_study']={
-    'installed_in_default_assembly':False,
-    'exact_vendor_geometry':False,
-    'vendor_diameter_mm':66,
-    'vendor_height_mm':21,
-    'vendor_platform_mm':[32,32],
-    'actual_gap_to_A02_mm':round(g1102_gap_to_a02,3),
-    'ruler_allowed_missing_layer_range_mm':[10,16],
-    'unknown_spacer_geometry_modelled':False,
-    'reason':'vendor diameter matches photo fit but 21mm height conflicts with 87-93mm ruler-constrained sample top'
-}
-
-report['V85_A06_vendor_candidate_vs_ruler_stack']={
-    'photo_references':['17','18','19','20','21'],
-    'board_top_z_mm':20,
-    'photo_top_above_board_mm_estimate':[87,93],
-    'scene_top_above_board_mm':round(aheat.zmax-20,1),
-    'A07_layers_mm':[9,7,12],
-    'A07_middle_layer_material_identified':False,
-    'A06_scene_rotary_diameter_mm':66,
-    'A06_scene_rotary_stack_height_mm':33.2,
-    'A06_actual_rotation_sku_identified':False,
-    'GCM1101M':{
-        'vendor_width_mm':92,
-        'fine_adjustment_deg':4,
-        'resolution_arcmin':10,
-        'within_photo_diameter_envelope_55_75mm':False,
-        'geometry_applied':False
-    },
-    'GCM1102M':{
-        'vendor_diameter_mm':66,
-        'vendor_height_mm':21,
-        'vendor_platform_mm':[32,32],
-        'fine_adjustment_deg':5,
-        'resolution_arcmin':10,
-        'diameter_matches_scene_photo_fit':True,
-        'direct_substitution_top_above_board_mm':gcm1102_direct_top_above_board,
-        'direct_substitution_within_ruler_range':False,
-        'minimum_missing_stack_height_mm':10,
-        'maximum_missing_stack_height_mm':16,
-        'ruler_midpoint_missing_stack_height_mm':13,
-        'exact_scene_replacement_height_loss_mm':12.2,
-        'current_scene_stack_breakdown_mm':{'A16':8,'A06':33.2,'A02':20,'A07':28,'total':89.2},
-        'vendor_replacement_stack_breakdown_mm':{'A16':8,'A06':21,'A02':20,'A07':28,'total':77.0},
-        'A16_independent_base_already_included_in_both_stacks':True,
-        'A16_cannot_explain_replacement_height_loss':True,
-        'standard_12mm_adapter_identified':False,
-        'geometry_applied':False,
-        'candidate_priority':'high diameter match / unresolved height stack'
-    },
-    'possible_explanations':['A06 is not GCM-1102M',
-                             'an unmodelled 10-16mm adapter/support layer exists',
-                             'one or more prior photo-fit layer heights must be remeasured'],
-    'vendor_geometry_may_override_ruler_evidence':False,
-    'A06_right_angular_micrometer_count':1,
-    'A06_front_lock_count':1,
-    'A07_top_4_blind_screw_head_locations_qualified':False
-}
+      'V137 A06 diameter stays Ø66 candidate; OEM SKU NOT verified')
+check(abs(part(A,'A06GCM1102')[0].BoundingBox().zmax-A02_X.BoundingBox().zmin)<.01,
+      'V137 21mm rotary vendor envelope + 33mm XY no longer needs phantom 12.2mm spacer')
+report['V137_A02_XY_and_A06_lock_only']={
+  'A16_base_mm':8,'A06_rotation_mm':21,'A02_two_axis_mm':33,
+  'A07_wood_heater_metal_mm':28,'above_board_total_mm':90,
+  'X_micrometer_count':1,'Y_micrometer_count':1,
+  'rotation_linear_micrometer_count':0,'rotation_lock_count':1,
+  'XY_exact_vendor_suffix_verified':False,'rotary_exact_SKU_verified':False,
+  'missing_spacer_mm':0,'real_mounting_pitch_verified':False}
 check(part(A,'A15B')[0].BoundingBox().xmin>=a15.xmax-.02,
       'A film T25M handle points to RIGHT +X')
 check(part(A,'A02B')[0].BoundingBox().xmax<=a02.xmin+.02,
@@ -924,7 +865,7 @@ report['V92_A11_focus_clearance']={
 }
 check(abs(a19.zmin-155)<.02 and abs(a19.zmax-165)<.02,
       'V79 objective turret remains a distinct 10mm component below microscope head')
-check(110.6+2<o1.zmin<121 and o1.zmax<=160 and
+check(111.4+2<o1.zmin<121 and o1.zmax<=160 and
       abs(o2.zmin-116)<.02 and abs(o2.zmax-155)<.02 and
       o1.xmin<78-18-12 and abs(o2.xmin-(78+18-11.5))<.02,
       'V79 two photographed objectives remain distinct and above sample while left objective is inclined')
@@ -1117,19 +1058,16 @@ for sys,key,expected_bottom in [('B','B03',40),('A','A15',40)]:
     check(abs(yshaft.ymax-yknob.ymin)<.01,
           sys+' '+key+' second perpendicular micrometer shaft and drum touch')
     check(yknob.ymin>base.ymax,sys+' '+key+' Y handle exits forward')
-# The sample-side A02 is not proven to be a -2L; do NOT invent a second handle.
-check(not (A/'A02D.step').exists(),
-      'V93 A02 is photo-confirmed single-axis; no imaginary second actuator')
-report['V93_A02_single_axis_photo_confirmation']={
-    'photo_refs':['17','20','100'],
-    'travel_axis':'X',
-    'observed_handle_direction':'left / -X',
-    'linear_axis_count':1,
-    'second_linear_axis_rejected':True,
-    'right_lower_long_knob_assignment':'A06 rotary mechanism',
-    'exact_GCM_T25M_suffix_verified':False,
-    'imaginary_second_actuator_STEP_present':False
-}
+# V137 user correction: sample A02 MUST have two perpendicular drives,
+# but exact T25M2L/2C suffix remains unresolved.
+check((A/'A02D.step').exists() and (A/'A02E.step').exists(),
+      'V137 both orthogonal A02 Y shaft and Y drum are required in STEP')
+report['V137_A02_two_axes_user_confirmation']={
+    'evidence':['user correction 2026-11-11','GCM-T25M2L/2C vendor'],
+    'X_direction':'-X','Y_direction':'+Y in STEP / +Z WebGL',
+    'linear_axis_count':2,'micrometer_count':2,
+    'rotary_has_no_linear_micrometer':True,
+    'thickness_mm':33,'suffix_verified':False}
 # Reject the V17–V22 fabricated 85mm/249mm return loop and verify
 # independent candidate sleeves/posts with distinct bores.
 for obsolete in ('B05A','B05B','B05C','B05E'):
@@ -1190,13 +1128,13 @@ check(not (B/'B06S3.step').exists(),
 a_sheet=part(A,'A05')[0]
 asheet_bb=a_sheet.BoundingBox()
 ax=-60.75
-leg_bottom=199.5-86.1
+leg_bottom=199.5-85.3
 leg_x=ax-60+1.25
 screw_x=leg_x-8
 check(abs(asheet_bb.xmin-(-151.5))<.02 and abs(asheet_bb.xmax-(-33.75))<.02,
       'V130 A05 local sheet/foot remains one left-handed definition before rigid yaw')
 check(abs(asheet_bb.zmin-leg_bottom)<.02 and abs(asheet_bb.zmax-202.0)<.02,
-      'V130 86.1mm derived leg joins the corrected G40 top')
+      'V130 85.3mm derived leg joins the corrected G40 top')
 check(a_sheet.distance(part(A,'A04')[0])<.05,
       'V130 A05 sheet rests on the independent upper G40 stage')
 for n,dx in enumerate((-14,14),1):
@@ -1339,8 +1277,8 @@ installed_screws=[installed(part(A,f'A05CS{i}')[0]) for i in (1,2)]
 check(abs((installed_pdms.BoundingBox().xmin+installed_pdms.BoundingBox().xmax)/2-78)<.02 and
       abs((installed_pdms.BoundingBox().ymin+installed_pdms.BoundingBox().ymax)/2)<.02,
       'V79 rigid 180deg film-chain yaw must put PDMS over A07 sample XY')
-check(abs(a_chip.BoundingBox().zmax-110.6)<.02,
-      'V79 A07W sample-chip top is 110.6mm')
+check(abs(a_chip.BoundingBox().zmax-111.4)<.02,
+      'V79 A07W sample-chip top is 111.4mm')
 check(abs(installed_pdms.BoundingBox().zmin-a_chip.BoundingBox().zmax)<.02,
       'V79 static lower pose PDMS reaches chip top')
 check(installed_pdms.distance(a_chip)<.05 and
@@ -1383,7 +1321,7 @@ report['V79_A_installed_geometry']={
     'A15_VC13_catalog_reference_pair_height_mm':126,
     'A15_VC13_stock_GCM901602_order_matches_user_order':False,
     'A15_VC13_model_lower_pair_height_mm':119.5,
-    'A05_derived_leg_length_mm':86.1,
+    'A05_derived_leg_length_mm':85.3,
     'part_chain':['A17','A15','A03','A04L','A04','A05','A05C',
                   'A05CS1','A05CS2','A05G','A05GP'],
     'A17_A16_footprint_gap_mm':round(a_base_gap,2),
@@ -1393,7 +1331,7 @@ report['V79_A_installed_geometry']={
     'glass_size_candidate_mm':[76,26,1],
     'pdms_size_candidate_mm':[8,8,1.8],
     'pdms_far_edge_margin_mm':4,
-    'sample_chip_top_mm':110.6,
+    'sample_chip_top_mm':111.4,
     'static_lowered_PDMS_contact_with_chip':True,
     'full_13mm_motion_collision_certified':False,
     'A17_and_A05C_OEM_identified':False,
@@ -1432,8 +1370,8 @@ check(abs(a_tilt.zmax-199.5)<.02,
 # V79 complete STEP applies the same rigid 180° film-chain yaw validated above.
 # Contact/clearance checks below therefore use installed world-space clamp/PDMS.
 a_heater=part(A,'A07')[0].BoundingBox()
-check(abs(a_heater.zmax-109.2)<.02,
-      'Sample silver support top remains 109.2mm above datum')
+check(abs(a_heater.zmax-110.0)<.02,
+      'Sample silver support top remains 110.0mm above datum')
 check(abs(a_chip.BoundingBox().zmax-installed_pdms.BoundingBox().zmin)<.02,
       'V79 installed PDMS interface is on sample chip, not inside heater')
 check(installed_clamp.BoundingBox().xmax<a_heater.xmin,
@@ -2182,8 +2120,8 @@ report['V134_A_priority04_local_mechanical_QA']={
 # V136 distinct real solids and a sandwich below the upper metal.
 a07_wood=part(A,'A31')[0]
 a07_lower=part(A,'A32')[0]
-check(abs(a07_wood.BoundingBox().zmin-90.2)<.01 and
-      abs(a07_wood.BoundingBox().zmax-97.2)<.01,
+check(abs(a07_wood.BoundingBox().zmin-91.0)<.01 and
+      abs(a07_wood.BoundingBox().zmax-98.0)<.01,
       'V136 wooden insulation must be a separate 7mm physical solid')
 check(abs(a07_lower.BoundingBox().zmax-a07_wood.BoundingBox().zmin)<.01,
       'V136 wood must sit directly on the dark support')
@@ -2200,25 +2138,25 @@ a27_probe=part(A,'A27')[0]
 a28_fitting=part(A,'A28')[0]
 a29_hose=part(A,'A29')[0]
 a30_service=part(A,'A30')[0]
-check(abs(a07_metal.BoundingBox().zmin-97.2)<.01 and
-      abs(a07_metal.BoundingBox().zmax-109.2)<.01,
+check(abs(a07_metal.BoundingBox().zmin-98.0)<.01 and
+      abs(a07_metal.BoundingBox().zmax-110.0)<.01,
       'V135 A07 must keep original 12mm silver top envelope')
 check(a07_metal.intersect(a26_heat).Volume()<.001,
       'V135 ceramic heater must occupy a REAL milled cavity, not solid metal')
 check(a07_metal.intersect(a27_probe).Volume()<.001,
       'V135 temperature junction must occupy an independently milled groove')
-vacuum_vertical=vz(.7,5.5,78,0,103.8)
-vacuum_lateral=vy(1.1,33.5,78,-33,104.7)
+vacuum_vertical=vz(.7,5.5,78,0,104.6)
+vacuum_lateral=vy(1.1,33.5,78,-33,105.5)
 check(vacuum_vertical.intersect(vacuum_lateral).Volume()>0,
       'V135 vertical suction bore must physically intersect rear horizontal duct')
 check(a07_metal.intersect(vacuum_vertical).Volume()<.001 and
       a07_metal.intersect(vacuum_lateral).Volume()<.001,
       'V135 top and rear vacuum bores must be ACTUALLY OPEN in the metal solid')
-check(a28_fitting.intersect(vy(1.1,11,78,-43.5,104.7)).Volume()<.001,
+check(a28_fitting.intersect(vy(1.1,11,78,-43.5,105.5)).Volume()<.001,
       'V135 A28 must have an unobstructed axial suction lumen')
 check(a29_hose.isValid() and a30_service.BoundingBox().zmin<.01,
       'V135 vacuum hose needs valid hollow CAD and a grounded external inlet')
-check(part(A,'A26')[0].BoundingBox().zmax<102.6,
+check(part(A,'A26')[0].BoundingBox().zmax<103.4,
       'V135 A26 ceramic must fit within the upper metal pocket height')
 v135_required={'A07','A31','A32','A26','A26L1','A26L2','A27','A27L',
                'A28','A29','A30','A30P'}
@@ -2230,7 +2168,7 @@ report['V136_A_wood_to_metal_thermal_sandwich']={
  'heater_below_metal_and_above_wood':True,
  'suction_duct_subtracted_inside_A07':True,
  'independent_vacuum_channel_motion':False,
- 'assembled_top_height_mm':109.2}
+ 'assembled_top_height_mm':110.0}
 report['V135_A_user_required_vacuum_heating_sensor']={
   'chuck_open_top_suction_mm':1.4,
   'side_suction_duct_mm':2.2,

@@ -95,6 +95,20 @@ def rot(sys,key,x,y,z,grade,radius=47,lock_radius=8):
     # B uses its historical Ø94 candidate. A photo17/20/21/23 ruler
     # silhouette is distinctly narrower than the 65mm top-plate.
     # V48 only A uses Ø66 candidate, bounded [55,75]mm; SKU unknown.
+    if key=='A06':
+        # User V137: circular rotary is lock-only; no translational micrometer.
+        # 21mm OEM-derived envelope closes the previous false 12.2mm gap
+        # only after A02 becomes a REAL 33mm crossed XY stage.
+        lower=vz(radius,17.5,x,y,z)
+        top=vz(radius-.4,3.5,x,y,z+17.5)
+        holes=[(x+dx,y+dy) for dx in (-16,16) for dy in (-16,16)]
+        top=cut(top,holes,4.5,3.5,z+17.5)
+        add(sys,key,'A06_USER_CONFIRMED_LOCK_ONLY_FIXED_17p5mm_HOUSING',lower,grade)
+        add(sys,key+'A','A06_ROTATING_TOP_3p5mm_CANDIDATE_HOLES',top,grade)
+        # One short locking lever on the front (+Y), not a drive shaft.
+        lock=box(10,8,8,x,y+31.4,z+4.6).fuse(vy(3.3,18,x,y+32,z+8.6))
+        add(sys,key+'B','A06_ONE_FRONT_LOCK_NO_MICROMETER',lock,'U')
+        return
     lower=vz(radius,23,x,y,z)
     if key=='B08':
         # GCM-1107M OEM: four Ø6.8 clearance bores on 50mm square,
@@ -645,7 +659,7 @@ def make_a():
     # this does NOT claim that the user's assembly is a stock GCM-901602M.
     # A photo 100 shows sample-side T25M above rotary; A photo 97 shows a
     # SECOND T25M below VC13M. Both physically exist.
-    stage('A','A02',cx,0,61.2,'-X')
+    stage('A','A02',cx,0,49,'-X',axes=2,depth_direction='+Y')
     # User-confirmed mounting relationship, maker/height candidate:
     # A15 must rest on the actual magnetic base, not on naked board.
     # Photo194: face slot is on A15, not the lowest A17 magnet.
@@ -734,7 +748,7 @@ def make_a():
     # 180 degrees for the installed STEP. Photo 5 replaces the old GCM-13
     # side-pressure guess with a short upper plate, lower blade and TWO
     # vertical wing screws whose centre line follows the 26mm glass short edge.
-    leg_len=86.1
+    leg_len=85.3
     leg_bottom=199.5-leg_len
     bracket_leg_x=ax-60+1.25
     screw_x=bracket_leg_x-8
@@ -809,9 +823,8 @@ def make_a():
     for i,(x,y) in enumerate(abolt,1):
         screw=vz(2.5,16,x,y,12).fuse(vz(4.25,2.5,x,y,25.5))
         add('A',f'A16S{i}','A16_to_single_A01_grid_anchor_CANDIDATE',screw,'C')
-    # V82: keep the ruler/photo-fit Ø66 x 33.2 envelope. Daheng GCM-1101M
-    # and GCM-1102M are vendor comparison candidates only; neither drawing
-    # matches enough photographed features to replace this geometry safely.
+    # V137: user confirmed A02 crossed XY, A06 lock-only rotary.
+    # Combined height = 8 + 21 + 33 + 28 = 90mm above board.
     rot('A','A06',cx,0,28,'I',radius=33,lock_radius=4.5)
     # V116: uninstalled GCM-1102M vendor-envelope study. The published
     # Ø66 x 21 mm stage is placed on the same A16 top plane as A06.
@@ -822,65 +835,59 @@ def make_a():
     add('A','A06GCM1102',
         'GCM_1102M_VENDOR_ENVELOPE_STUDY_O66_H21_PLATFORM32_NOT_INSTALLED',
         g1102,'C')
-    # Photo17/18/20/21: RIGHT side of A06 has a LONG horizontal
-    # silver angular micrometer, in addition to the SHORT front lock.
-    # Do not mislabel either of these as A02's left linear micrometer.
-    add('A','A06C','rotation_right_fine_adjust_stem_36mm_CANDIDATE',
-        vx(5.5,42,cx+30,0,42),'C')
-    add('A','A06D','rotation_right_fine_adjust_knob_25mm_CANDIDATE',
-        vx(9,25,cx+69,0,42),'C')
+    # Removed A06C/A06D. The second long micrometer is A02 Y, not A06.
     # V48 photos17/18 show the 65mm silver top at ~90mm ABOVE THE
     # 20mm-thick board TOP, not 90mm absolute from model origin.
     # V136 user-confirmed: the central gold/tan 7mm layer is WOOD
     # insulation, separate from the upper silver metal and heater.
-    # Current A02 ends at z81.2; lower9 + middle7 + top12 =>109.2.
+    # A02 crossed XY ends at z82; lower9 + wood7 + top12 =>110mm.
     add('A','A32','LOWER_SUPPORT_SEPARATE_PART_65x65x9',
-        box(65,65,9,cx,0,81.2),'C')
+        box(65,65,9,cx,0,82.0),'C')
     add('A','A31','WOOD_INSULATING_BOARD_65x65x7_USER_CONFIRMED',
-        box(65,65,7,cx,0,90.2),'C')
+        box(65,65,7,cx,0,91.0),'C')
     # V136: A07 is ONLY the upper metal. A26/A27 sit between A31 WOOD
     # and the underside pocket; suction bore is an immobile void in A07.
     # V135: a real bored chuck, not a solid silver ornament.
     # Underside Ø38.6-square heater pocket, two power through-galleries,
     # separate sensing gallery and an intersecting vertical-to-rear
     # vacuum duct. All dimensions are candidates inherited from B function.
-    a07_top=box(65,65,12,cx,0,97.2)
-    a07_pocket=box(38.6,38.6,5.4,cx,0,97.2)
-    vacuum_vertical=vz(.7,5.5,cx,0,103.8)
-    vacuum_lateral=vy(1.1,33.5,cx,-33,104.7)
-    heater_bores=[vy(1.25,13.6,cx+x,-32.5,99.4) for x in (10,16)]
-    sensor_bore=vy(.75,13.6,cx-10,-32.5,102.3)
+    a07_top=box(65,65,12,cx,0,98.0)
+    a07_pocket=box(38.6,38.6,5.4,cx,0,98.0)
+    vacuum_vertical=vz(.7,5.5,cx,0,104.6)
+    vacuum_lateral=vy(1.1,33.5,cx,-33,105.5)
+    heater_bores=[vy(1.25,13.6,cx+x,-32.5,100.2) for x in (10,16)]
+    sensor_bore=vy(.75,13.6,cx-10,-32.5,103.1)
     a07_top=a07_top.cut(a07_pocket,vacuum_vertical,vacuum_lateral,
                         sensor_bore,*heater_bores)
     a07_holes=[(cx+dx,dy) for dx in (-25,25) for dy in (-25,25)]
-    a07_top=cut(a07_top,a07_holes,6.5,2.5,106.7)
+    a07_top=cut(a07_top,a07_holes,6.5,2.5,107.5)
     add('A','A07','CHUCK_REAL_VERTICAL_SUCTION_BORE_TO_REAR_AND_HEATER_POCKET_CANDIDATE',
         a07_top,'C')
     for i,(xx,yy) in enumerate(a07_holes,1):
         # Heads only: do not claim unknown buried screw threads.
         add('A',f'A07S{i}','silver_top_four_VISIBLE_HEAD_only_CANDIDATE',
-            vz(2.9,1.8,xx,yy,106.8),'C')
+            vz(2.9,1.8,xx,yy,107.6),'C')
     # Bore outlets are aligned with actual modeled heater/probe paths;
     # no copper wires should emerge from a monolithic solid wall.
-    for i,(xx,zz,bore) in enumerate(((cx+10,99.4,1.25),
-        (cx+16,99.4,1.25),(cx-10,102.3,.75)),1):
+    for i,(xx,zz,bore) in enumerate(((cx+10,100.2,1.25),
+        (cx+16,100.2,1.25),(cx-10,103.1,.75)),1):
         ring=vy(3.1,3,xx,-35.5,zz).cut(vy(bore,3.2,xx,-35.6,zz))
         add('A',f'A07P{i}','A07_DRILLED_REAR_ELECTRICAL_FEEDTHROUGH_CANDIDATE',ring,'C')
     # Embedded heater is physically constrained by the pocket and retains
     # a small 0.2mm underside/top-wall fit; wattage remains unknown.
     add('A','A26','CERAMIC_HEATER_EMBEDDED_IN_A07_38x38x5_CANDIDATE',
-        box(38,38,5,cx,0,97.4),'C')
+        box(38,38,5,cx,0,98.2),'C')
     for i,x in enumerate((10,16),1):
         add('A',f'A26T{i}','HEATER_TERMINAL_AT_POCKET_REAR',
-            box(1.6,1.4,1,cx+x,-19.7,98.9),'C')
+            box(1.6,1.4,1,cx+x,-19.7,99.7),'C')
         add('A',f'A26L{i}','HEATER_INTERNAL_LEAD_THROUGH_REAR_BORE',
-            vy(.55,13.5,cx+x,-32.5,99.4),'C')
+            vy(.55,13.5,cx+x,-32.5,100.2),'C')
     add('A','A27','SEPARATE_TEMPERATURE_CONTACT_CANDIDATE',
-        vz(.45,.18,cx-10,0,102.41),'C')
+        vz(.45,.18,cx-10,0,103.21),'C')
     add('A','A27L','SENSOR_LEAD_IN_MILLED_REAR_BORE',
-        vy(.45,32.5,cx-10,-32.5,102.3),'C')
+        vy(.45,32.5,cx-10,-32.5,103.1),'C')
     # Real open annular rear fitting mates to the upper transverse duct.
-    a28=vy(3.5,11,cx,-43.5,104.7).cut(vy(1.1,11.2,cx,-43.6,104.7))
+    a28=vy(3.5,11,cx,-43.5,105.5).cut(vy(1.1,11.2,cx,-43.6,105.5))
     add('A','A28','REAR_OPEN_VACUUM_FITTING_UNVERIFIED_THREAD_SEAL',a28,'C')
     # Photo191/193: front slotted adjustment plate and visible screws.
     a07_front=box(36,2,18,cx,33.5,91).cut(box(18,2.2,3,cx,33.5,92))
@@ -892,7 +899,7 @@ def make_a():
     # V58: viewer always contains this 28x28x1.4mm sample-chip proxy;
     # prior STEP omitted it and would falsely put the PDMS into metal.
     add('A','A07W','sample_chip_28x28x1p4_THICKNESS_UNVERIFIED',
-        box(28,28,1.4,cx,0,109.2),'C')
+        box(28,28,1.4,cx,0,110.0),'C')
     # V45: previous STEP A10 post started at Z=32 and floated 12mm
     # above the only A01 board top (Z=20). A single connected base
     # and post now match the web viewer mounting arrangement.
@@ -990,13 +997,13 @@ def make_a():
         cable_path([(229,12,182),(236,-3,184),(251,-45,154),
                     (258,-87,117),(262,-119,65)],2.2),'C')
     add('A','A23H1','A26_HEATER_LEAD_1_TO_SSR_NEIGHBOURHOOD_UNWIRED',
-        cable_path([(88,-32.5,99.4),(88,-43,99.4),(106,-59,124.2),
+        cable_path([(88,-32.5,100.2),(88,-43,100.2),(106,-59,124.2),
                     (162,-41,120),(226,-24,120),(253,40,18)],1.2),'C')
     add('A','A23H2','A26_HEATER_LEAD_2_TO_RETURN_NEIGHBOURHOOD_UNWIRED',
-        cable_path([(94,-32.5,99.4),(94,-44,99.4),(112,-61,128.2),
+        cable_path([(94,-32.5,100.2),(94,-44,100.2),(112,-61,128.2),
                     (171,-36,127),(233,-18,122),(271,40,18)],1.2),'C')
     add('A','A24','A27_TEMPERATURE_FEEDBACK_NOT_ASSUMED_K_TYPE',
-        cable_path([(68,-32.5,102.3),(68,-43,102.3),(102,-62,132.2),
+        cable_path([(68,-32.5,103.1),(68,-43,103.1),(102,-62,132.2),
                     (181,-31,136),(257,-6,123),(305,25,14)],.78),'C')
     add('A','A25','TEMPERATURE_SERVICE_TERMINAL_NOT_A_CONTROLLER',
         box(28,20,14,305,25,0),'C')
@@ -1004,7 +1011,7 @@ def make_a():
     add('A','A25P','TEMPERATURE_SERVICE_TERMINAL_ENTRY_CANDIDATE',a25_port,'C')
     # A29 vacuum hose physically connects A28 to a grounded external
     # A30 service port. Pump make/model has not been identified for A.
-    vacuum_path_A=[(78,-43.5,104.7),(78,-55,107.2),(116,-75,113.2),
+    vacuum_path_A=[(78,-43.5,105.5),(78,-55,108),(116,-75,114),
                    (167,-169,88),(285,-210,72),(350,-190,68)]
     add('A','A29','ANNULAR_SUCTION_HOSE_TO_EXTERNAL_SERVICE_PORT',
         hollow_hose(vacuum_path_A,3.5,2.2),'C')
@@ -1088,7 +1095,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V136'
+CAD_REVISION='V137'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

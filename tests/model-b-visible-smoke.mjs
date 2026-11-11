@@ -701,7 +701,7 @@ try{
  assert.equal(thermalA.hoseMeshCount,2);
  assert.deepEqual(thermalA.rearElectricalPorts,['heaterA','heaterB','temperature']);
  assert.deepEqual(thermalA.heaterPocketMm,[38.6,38.6,5.4]);
- assert.equal(thermalA.topAboveBoardMm,89.2);
+ assert.equal(thermalA.topAboveBoardMm,90);
  assert.equal(thermalA.separateVacuumServicePort,true);
  assert.equal(thermalA.identifiedPumpModel,false);
  assert.equal(thermalA.actualVacuumFunctionalCertification,false);
@@ -832,6 +832,7 @@ try{
    el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
  });
  assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).currentExplodePercent,0);
+ await photoShot('Transfer-Station-A-V137-XY-Rotary-Lock.png','#btn-sample-stack');
  await photoShot('Transfer-Station-A-V133-Control-Routes.png','#btn-iso');
  await page.locator('#toggle-a-thermal').evaluate(el=>el.click());
  assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).cutawayEnabled,true);
@@ -1137,7 +1138,7 @@ try{
  assert.equal(aDefault.a15Vc13CatalogReferenceHeightMm,126);
  assert.equal(aDefault.a15Vc13LowerPoseHeightMm,119.5);
  assert.equal(aDefault.a15Vc13InstalledOrderMatchesGCM901602,false);
- assert.equal(aDefault.bracketVerticalLegMm,86.1);
+ assert.equal(aDefault.bracketVerticalLegMm,85.3);
  const angled=await page.evaluate(()=>window.__modelAObjectiveOrientationProbe?.());
  assert.equal(angled.available,true,'A19 independent objective pivots must be visible');
  assert.equal(angled.independentObjectivePivots,true);
@@ -1203,7 +1204,7 @@ try{
    'Diagnostic full-subtree bounds should expose why the old collision test falsely failed');
  assert.equal(aContactBefore.stampFullyInsideChipXY,true);
  assert.equal(aContactBefore.stampRightInsetMm,4);
- assert.equal(aContactBefore.sampleChipTopWorldYmm,110.6);
+ assert.equal(aContactBefore.sampleChipTopWorldYmm,111.4);
  assert.equal(aContactBefore.pdmsToChipGapMm,13);
   // V130: photo-5 vertical clamp chain must be mechanically coherent.
   const aClampChain=await page.evaluate(()=>window.__modelAClampChainProbe?.());
@@ -1396,12 +1397,52 @@ try{
  assert.equal(dA.clampScrewPitchAcrossShortEdgeMm,13);
  assert.equal(dA.g40DrumBendOverlapVolumeAabbMm3,0);
  assert(dA.sampleMicrometerStemDrumEngagementMm>=2.9,
-   'A06 angular stem must remain engaged with its knob');
+   'A02 X stage stem must remain engaged with its own linear knob');
  assert.deepEqual(dA.A03TonguePlateOverlapMm,[6.5,6.5],
    'VC13M two guide tongues still require real overlap');
  assert.equal(dA.physicalPhotoFitCertified,false);
  // A02 and A15 are DIFFERENT physical stages and must use different
  // sliders. Previously the sample A02 top moved with filmShift instead.
+ // V137 user correction: A02 has two orthogonal linearly driven carriages.
+ const xy0=await page.evaluate(()=>window.__modelASampleXYProbe?.());
+ assert.equal(xy0.available,true);
+ assert.equal(xy0.xyNominalThicknessMm,33);
+ assert.deepEqual(xy0.xyStackMm,[11,11,11]);
+ assert.deepEqual(xy0.xyAxes,['X','Y']);
+ assert.equal(xy0.linearDrumCount,2);
+ assert.equal(xy0.linearStemCount,2);
+ assert.deepEqual(xy0.drumLocalAxes.sort(),['X','depth']);
+ assert.equal(xy0.rotaryLinearHandleCount,0,
+   'Rotary A06 must have no linear-stage micrometer or second long knob');
+ assert.equal(xy0.rotaryLockCount,1,
+   'A06 must retain only one short user-confirmed lock lever');
+ assert.equal(xy0.rotaryHeightMm,21);
+ assert.equal(xy0.rulerStackAboveBoardMm,90);
+ assert.equal(xy0.xCarriageMm,0);
+ assert.equal(xy0.yCarriageMm,0);
+ assert.equal(xy0.bottomHousingYawDeg,0);
+ await page.locator('#sample-move-depth').evaluate(el=>{
+   el.value='5';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const xyDepth=await page.evaluate(()=>window.__modelASampleXYProbe?.());
+ assert.equal(xyDepth.xCarriageMm,0);
+ assert.equal(xyDepth.yCarriageMm,5);
+ assert.equal(xyDepth.heaterWorldZmm-xy0.heaterWorldZmm,5,
+   'The second stage must ACTUALLY translate the A07 heater, not merely add a cosmetic drum');
+ await page.locator('#sample-move-depth').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='3';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ const xyTurn=await page.evaluate(()=>window.__modelASampleXYProbe?.());
+ assert.equal(xyTurn.bottomHousingYawDeg,0,
+   'A06 stationary housing and lock lever must not rotate with its deck');
+ assert.equal(xyTurn.rotaryDeckYawDeg,3,
+   'A06 rotating disk must turn independently of the lock seat');
+ await page.locator('#rotate-sample').evaluate(el=>{
+   el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));
+ });
  const aZero=await page.evaluate(()=>window.__modelAKinematicProbe?.());
  assert.equal(aZero.A02SampleCarriageLocalXmm,0);
  assert.equal(aZero.A15FilmCarriageLocalXmm,0);
@@ -1647,27 +1688,28 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aBefore.sampleRotaryDiameterMm,66);
  assert.deepEqual(aBefore.sampleRotaryVendorCandidates,
    ['Daheng GCM-1102M','Daheng GCM-1101M']);
- assert.equal(aBefore.sampleRotaryVendorGeometryApplied,false,
-   'A06 vendor drawing must not overwrite ruler evidence before the missing height is resolved');
+ assert.equal(aBefore.sampleRotaryVendorGeometryApplied,true,
+   'V137 adopted 21mm as a HEIGHT CANDIDATE, not a verified rotary SKU');
  assert.equal(aBefore.sampleRotaryGCM1101VendorWidthMm,92);
  assert.equal(aBefore.sampleRotaryGCM1101RejectedByPhotoDiameterEnvelope,true);
  assert.equal(aBefore.sampleRotaryGCM1102VendorDiameterMm,66);
  assert.equal(aBefore.sampleRotaryGCM1102VendorHeightMm,21);
  assert.deepEqual(aBefore.sampleRotaryGCM1102VendorPlatformMm,[32,32]);
  assert.equal(aBefore.sampleRotaryGCM1102DiameterMatchesPhotoFit,true);
- assert.equal(aBefore.sampleRotaryGCM1102DirectSubstitutionSampleTopAboveBoardMm,77);
- assert.equal(aBefore.sampleRotaryGCM1102DirectSubstitutionWithinRulerRange,false,
-   'A Ø66 diameter match alone cannot justify dropping the stack from 89.2mm to 77mm');
- assert.equal(aBefore.sampleRotaryGCM1102MinimumMissingStackHeightMm,10);
- assert.equal(aBefore.sampleRotaryGCM1102MaximumMissingStackHeightMm,16);
- assert.equal(aBefore.sampleRotaryGCM1102RulerMidpointMissingStackHeightMm,13);
- assert.equal(aBefore.sampleRotaryGCM1102ExactSceneReplacementHeightLossMm,12.2);
- assert.deepEqual(aBefore.sampleRotaryGCM1102CurrentSceneStackBreakdownMm,{A16:8,A06:33.2,A02:20,A07:28,total:89.2});
- assert.deepEqual(aBefore.sampleRotaryGCM1102VendorReplacementStackBreakdownMm,{A16:8,A06:21,A02:20,A07:28,total:77});
+ assert.equal(aBefore.sampleRotaryGCM1102DirectSubstitutionSampleTopAboveBoardMm,90);
+ assert.equal(aBefore.sampleRotaryGCM1102DirectSubstitutionWithinRulerRange,true);
+ assert.equal(aBefore.sampleRotaryGCM1102MinimumMissingStackHeightMm,0);
+ assert.equal(aBefore.sampleRotaryGCM1102MaximumMissingStackHeightMm,0);
+ assert.equal(aBefore.sampleRotaryGCM1102RulerMidpointMissingStackHeightMm,0);
+ assert.equal(aBefore.sampleRotaryGCM1102ExactSceneReplacementHeightLossMm,0);
+ assert.deepEqual(aBefore.sampleRotaryGCM1102CurrentSceneStackBreakdownMm,
+   {A16:8,A06:21,A02:33,A07:28,total:90});
+ assert.deepEqual(aBefore.sampleRotaryGCM1102VendorReplacementStackBreakdownMm,
+   {A16:8,A06:21,A02:33,A07:28,total:90});
  assert.equal(aBefore.sampleRotaryGCM1102A16IndependentBaseAlreadyIncludedInBothStacks,true);
  assert.equal(aBefore.sampleRotaryGCM1102A16CannotExplainReplacementHeightLoss,true);
  assert.equal(aBefore.sampleRotaryGCM1102Standard12mmAdapterIdentified,false);
- assert.match(aBefore.sampleRotaryGCM1102CandidatePriority,/unresolved-height-stack/);
+ assert.match(aBefore.sampleRotaryGCM1102CandidatePriority,/height-compatible-with-two-axis/);
 
  assert.equal(await page.evaluate(()=>window.__focusA06VendorStudyAudit?.()),true);
  await page.waitForTimeout(180);
@@ -1678,16 +1720,16 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(g1102Study.vendorDiameterMm,66);
  assert.equal(g1102Study.vendorHeightMm,21);
  assert.deepEqual(g1102Study.vendorPlatformMm,[32,32]);
- assert.equal(g1102Study.nominalGapToA02Mm,12.2);
- assert.deepEqual(g1102Study.rulerAllowedMissingLayerRangeMm,[10,16]);
+ assert.equal(g1102Study.nominalGapToA02Mm,0);
+ assert.deepEqual(g1102Study.rulerAllowedMissingLayerRangeMm,[0,0]);
  assert.equal(g1102Study.unknownSpacerGeometryModelled,false,
    'Do not invent a spacer merely to make the GCM-1102M candidate fit');
  assert.equal(g1102Study.bodyCount,1);
  assert.equal(g1102Study.topPlatformCount,1);
  assert.equal(g1102Study.installedByDefault,false);
  assert.equal(g1102Study.exactVendorGeometry,false);
- assert(Math.abs(g1102Study.actualGapToA02Mm-12.2)<.05,
-   'True 21mm vendor-height study must expose the unresolved 12.2mm gap to A02');
+ assert(Math.abs(g1102Study.actualGapToA02Mm)<.05,
+   'Two-axis A02 must meet the 21mm candidate rotary without a fabricated spacer');
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
    await page.screenshot({path:'Transfer-Station-A-V116-GCM1102M-Height-Conflict-Study.png',
@@ -1705,18 +1747,18 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  await a06Row.evaluate(el=>el.click());
  const a06Conflict=page.locator('#a06-vendor-conflict');
  assert.equal(await a06Conflict.isVisible(),false,'A06 stack conflict belongs in hidden engineering data');
- assert.equal(await a06Conflict.getAttribute('data-gcm1102-applied'),'false');
+ assert.equal(await a06Conflict.getAttribute('data-gcm1102-applied'),'true');
  assert.equal(await a06Conflict.getAttribute('data-diameter-match'),'true');
- assert.equal(await a06Conflict.getAttribute('data-direct-height-fit'),'false');
+ assert.equal(await a06Conflict.getAttribute('data-direct-height-fit'),'true');
  const a06ConflictText=await a06Conflict.innerText();
  assert.match(a06ConflictText,/GCM-1102M/);
- assert.match(a06ConflictText,/77mm/);
+ assert.match(a06ConflictText,/90mm/);
  assert.match(a06ConflictText,/87–93mm/);
- assert.match(a06ConflictText,/10–16mm/);
+ assert.match(a06ConflictText,/双轴/);
  await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
- assert.equal(aBefore.sampleRotaryRightAngularMicrometerCount,1);
+ assert.equal(aBefore.sampleRotaryRightAngularMicrometerCount,0);
  assert.equal(aBefore.sampleRotaryShortFrontLockCount,1);
- assert.equal(aBefore.sampleTopAboveBoardMm,89.2);
+ assert.equal(aBefore.sampleTopAboveBoardMm,90);
  assert.equal(aBefore.sampleRulerWithinTolerance,true);
  assert.deepEqual(aBefore.samplePhotoRulerSource,['17','18']);
  assert.equal(aBefore.a10CandidateBoltHeadCount,4,
@@ -1814,7 +1856,7 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.equal(aPhoto.localSheetHandedness,'left');
  assert.equal(aPhoto.installedFilmYawDeg,180);
  assert.equal(aPhoto.photoAndWorkingSharePhysicalOrientation,true);
- assert.equal(aPhoto.sheetLegLengthMm,86.1);
+ assert.equal(aPhoto.sheetLegLengthMm,85.3);
  assert.equal(aPhoto.glassRequiredForTransfer,true);
  assert.equal(aPhoto.glassVisibleInCurrentPose,false,
    'User photo reference must not render the absent glass/PDMS');
