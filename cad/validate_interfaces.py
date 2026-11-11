@@ -2116,25 +2116,29 @@ if study_csv.exists():
         research_ids={row['id'] for row in csv.DictReader(f)}
 check(research_ids=={'A18MGZ','A05C1302','A06GCM1102'},
       'V116 uninstalled-study list must contain only A18MGZ/A05C1302/A06GCM1102, never required transfer hardware')
-report['V130_A_user_corrected_installed_assembly']={
-    'local_sheet_definition':'left-handed single source geometry',
+report['V132_A_user_corrected_installed_assembly']={
     'complete_film_chain_yaw_deg':180,
-    'photo1_is_canonical_orientation':True,
-    'photos2_3_are_rotated_side_evidence':True,
     'installed_transfer_parts':sorted(required),
     'installed_glass':True,
     'installed_lower_clamp_blade':True,
     'vertical_wing_screw_count':2,
     'screw_pair_line':'parallel to glass 26mm short edge',
     'vertical_folded_foot_clamp_bores':2,
+    'A04_upper_drive_local_direction':'+X',
+    'A04L_lower_drive_local_direction':'-X',
+    'A04L_old_front_facing_depth_drive_rejected':True,
+    'A15_physical_actuator_count':2,
+    'A15_duplicate_decorative_actuator_present':False,
+    'A11_duplicate_decorative_emitter_present':False,
     'floating_A15FK_present':False,
     'excluded_noninstalled_study_parts':sorted(research_ids),
     'real_clamp_thread_dimensions_verified':False,
-    'A18_vendor_model_verified':False}
+    'A18_vendor_model_verified':False,
+    'A11_mounting_method_verified':False}
 (ROOT/'build'/'interface_validation.json').write_text(
     json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps({'checks':len(report['checks']),
                   'passed':sum(1 for c in report['checks'] if c['passed']),
                   'scope':report['scope'],
-                  'A_V130':report['V130_A_user_corrected_installed_assembly']},
+                  'A_V132':report['V132_A_user_corrected_installed_assembly']},
                  ensure_ascii=False))
