@@ -4559,11 +4559,14 @@ function _focusA05Photo5EmptyAudit(){
  const target=b.getCenter(new THREE.Vector3());
  const worldQ=q.clamp.getWorldQuaternion(new THREE.Quaternion());
  const size=b.getSize(new THREE.Vector3()),distance=Math.max(82,size.length()*1.55);
+ // User fig.5 is a low oblique view, not a top-down inspection shot.
+ // Keep every candidate below ~27deg elevation so the lower clamp layer and
+ // downward screw shanks remain visually meaningful while still exposing the heads.
  const dirs=[
-   [0,1.15,1],[0,1.15,-1],
-   [.65,.95,1],[-.65,.95,1],[.65,.95,-1],[-.65,.95,-1],
-   [1,.8,.55],[-1,.8,.55],[1,.8,-.55],[-1,.8,-.55],
-   [.45,.55,1.35],[-.45,.55,1.35],[.45,.55,-1.35],[-.45,.55,-1.35]
+   [0,.42,1],[0,.42,-1],
+   [.45,.38,1],[-.45,.38,1],[.45,.38,-1],[-.45,.38,-1],
+   [.9,.34,.6],[-.9,.34,.6],[.9,.34,-.6],[-.9,.34,-.6],
+   [.35,.30,1.25],[-.35,.30,1.25],[.35,.30,-1.25],[-.35,.30,-1.25]
  ];
  let best=null;
  for(const raw of dirs){
@@ -4603,6 +4606,10 @@ window.__A05Photo5EmptyProbe=()=>{
    wingEarCount:q.screws.children.filter(m=>m.userData.A05CSWingEar).length,
    selectedVisibilityScore:q.clamp.userData.A05Photo5EmptyScore??null,
    selectedLocalViewDirection:q.clamp.userData.A05Photo5EmptyDirection??null,
+   selectedElevationDeg:(()=>{
+     const d=q.clamp.userData.A05Photo5EmptyDirection;
+     return d?Number((Math.atan2(Math.abs(d[1]),Math.hypot(d[0],d[2]))*180/Math.PI).toFixed(1)):null;
+   })(),
    projection:_auditProjection(_auditBoxFor([q.fixed,q.pressure,q.screws])),
    fixedRay,pressureRay,screwHeadRays:headRays
  };
