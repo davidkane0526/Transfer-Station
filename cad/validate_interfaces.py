@@ -848,17 +848,17 @@ a04_lower_support=part(A,'A04LS')[0]
 a04_lower_stem=part(A,'A04LM')[0]
 a04_lower_drum=part(A,'A04LK')[0]
 check(a04_lower_support.intersect(part(A,'A04L')[0]).Volume()>1,
-      'Nov08 A04L +Y spindle support must ENTER the fixed lower goniometer')
+      'V132 A04L left-side spindle support must ENTER the fixed lower goniometer')
 check(a04_lower_support.intersect(a04_lower_stem).Volume()>1,
-      'Nov08 lower angular micrometer shaft must engage its actual support')
+      'V132 lower angular micrometer shaft must engage its actual support')
 check(a04_lower_stem.intersect(a04_lower_drum).Volume()>1,
-      'Nov08 lower G40 knob must ENGAGE shaft, not float off its end')
-check(a04_lower_stem.BoundingBox().ymax>a04_lower.ymax+10 and
-      a04_lower_drum.BoundingBox().ymin>a04_lower.ymax,
-      'Nov08 lower G40 drive exits along +Y (depth axis), orthogonal to upper +X')
-check(abs((a04_lower_stem.BoundingBox().xmin+a04_lower_stem.BoundingBox().xmax)/2-
-          (a04_lower.xmin+a04_lower.xmax)/2)<.05,
-      'Nov08 lower micrometer must stay centred in X, no spurious left X offset')
+      'V132 lower G40 knob must ENGAGE shaft, not float off its end')
+check(a04_lower_stem.BoundingBox().xmax<a04_lower.xmin+3 and
+      a04_lower_drum.BoundingBox().xmax<a04_lower.xmin,
+      'V132 lower angular drive exits LEFT -X, not toward the front/depth axis')
+check(abs((a04_lower_stem.BoundingBox().ymin+a04_lower_stem.BoundingBox().ymax)/2-
+          (a04_lower.ymin+a04_lower.ymax)/2)<.05,
+      'V132 lower micrometer stays centred in stage depth while exiting -X')
 check(part(A,'A04M')[0].BoundingBox().xmin>=a04.xmax-.02,
       'V59 labeled upper G40M60L micrometer exits RIGHT +X')
 check(part(A,'A04K')[0].BoundingBox().xmin>=part(A,'A04M')[0].BoundingBox().xmax-.02,
