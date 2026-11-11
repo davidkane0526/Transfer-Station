@@ -1,4 +1,4 @@
-// V135. Platform A heated vacuum chuck: candidate functional dimensions.
+// V136. Platform A separated wood / heater / metal with rigid internal suction duct.
 // WebGL X lateral, Y vertical, Z front/back; A07 starts at world Y=81.2.
 export const A_THERMAL=Object.freeze({
  chuckWidthMm:65,chuckDepthMm:65,localOriginY:81.2,
@@ -11,7 +11,8 @@ export const A_THERMAL=Object.freeze({
  suctionRearLocal:[0,23.5,-32.5],suctionFittingTailLocal:[0,23.5,-43.5],
  heaterLeadsLocal:[[10,18.2,-32.5],[16,18.2,-32.5]],
  temperatureContactLocal:[-10,21.1,0],temperatureRearLocal:[-10,21.1,-32.5],
- heaterAndProbeAreCandidates:true,materialOfIntermediateLayerUnknown:true,
+ heaterAndProbeAreCandidates:true,intermediateLayerUserConfirmedMaterial:'wood',
+ metalAndWoodSeparateParts:true,internalDuctFixedToMetal:true,
  vacuumCandidateAngleLimitDeg:5,installedVacuumPumpIdentityVerified:false
 });
 const p=(x,y,z)=>[+x.toFixed(3),+y.toFixed(3),+z.toFixed(3)];
