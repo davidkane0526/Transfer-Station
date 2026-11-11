@@ -73,7 +73,14 @@ assert.equal(A.A16.model,'GCM-5306M');
 assert.equal(B.B02.model,'GCM-420302M');
 assert.notEqual(A.A17.model,'GCM-420302M',
   'A17 is only a visual candidate; the B photo31 nameplate is not transferred to A');
-assert.match(A.A07.dims,/28mm|9\+7\+12mm/);
+// V136: the 28mm is the assembled stack, not the upper metal part.
+assert.match(A.A32.dims,/65×65×9\s*mm/);
+assert.match(A.A31.dims,/65×65×7\s*mm/);
+assert.match(A.A07.dims,/65×65×12\s*mm/);
+assert.equal(A.A31.group,'heat');
+assert.match(A.A31.name,/木质隔热/);
+assert.deepEqual(e.A.sampleAssembly.nominalLayerThicknessMm,[9,7,12]);
+assert.equal(a.sampleLayerHeightsMm.reduce((x,y)=>x+y,0),28);
 assert.match(A.A06.dims,/Ø66/);
 assert.throws(()=>auditV48RulerRegistration({sampleTopMm:-1}),/positive/);
 assert.equal(auditV48RulerRegistration({sampleTopMm:2}).sampleTopWithinVisibleRulerRange,false);
