@@ -4547,6 +4547,66 @@ function _focusA05AuditView(mode){
 window.__focusA05MovingAudit=()=>_focusA05AuditView('moving');
 window.__focusA05FixedAudit=()=>_focusA05AuditView('fixed');
 window.__focusA05ClampAudit=window.__focusA05MovingAudit;
+
+// V131: dedicated user-fig5 validation. Unlike the two engineering A05
+// closeups above, this keeps the real photo-reference state EMPTY: A05G is
+// hidden and the camera is chosen from real mesh visibility, not a mock crop.
+function _focusA05Photo5EmptyAudit(){
+ if(platform!=='A'||aWorkingPoseMode){aWorkingPoseMode=false;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a05AuditTargets();if(!q)return false;
+ const b=_auditBoxFor([q.fixed,q.pressure,q.screws]);
+ const target=b.getCenter(new THREE.Vector3());
+ const worldQ=q.clamp.getWorldQuaternion(new THREE.Quaternion());
+ const size=b.getSize(new THREE.Vector3()),distance=Math.max(82,size.length()*1.55);
+ const dirs=[
+   [0,1.15,1],[0,1.15,-1],
+   [.65,.95,1],[-.65,.95,1],[.65,.95,-1],[-.65,.95,-1],
+   [1,.8,.55],[-1,.8,.55],[1,.8,-.55],[-1,.8,-.55],
+   [.45,.55,1.35],[-.45,.55,1.35],[.45,.55,-1.35],[-.45,.55,-1.35]
+ ];
+ let best=null;
+ for(const raw of dirs){
+   const offset=new THREE.Vector3(...raw).normalize().multiplyScalar(distance).applyQuaternion(worldQ);
+   camera.position.copy(target).add(offset);
+   orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+   const fixedRay=_auditAnyVisibleSurface(q.fixed,[q.fixed]);
+   const pressureRay=_auditAnyVisibleSurface(q.pressure,[q.pressure]);
+   const headRays=q.heads.map(o=>_auditRayClear(o,[o],{transparentSkipRoots:[q.glassRoot]}));
+   const score=[fixedRay,pressureRay,...headRays].filter(x=>x.clear).length;
+   const projection=_auditProjection(b);
+   const centerPenalty=Math.abs(projection.centerX)+Math.abs(projection.centerY);
+   const area=projection.width*projection.height;
+   if(!best||score>best.score||
+      (score===best.score&&centerPenalty<best.centerPenalty-.001)||
+      (score===best.score&&Math.abs(centerPenalty-best.centerPenalty)<.001&&area>best.area))
+     best={raw,score,centerPenalty,area};
+ }
+ const offset=new THREE.Vector3(...best.raw).normalize().multiplyScalar(distance).applyQuaternion(worldQ);
+ camera.position.copy(target).add(offset);
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ q.clamp.userData.A05Photo5EmptyScore=best.score;
+ q.clamp.userData.A05Photo5EmptyDirection=best.raw;
+ return true;
+}
+window.__focusA05Photo5EmptyAudit=_focusA05Photo5EmptyAudit;
+window.__A05Photo5EmptyProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a05AuditTargets();if(!q)return {available:false};
+ const fixedRay=_auditAnyVisibleSurface(q.fixed,[q.fixed]);
+ const pressureRay=_auditAnyVisibleSurface(q.pressure,[q.pressure]);
+ const headRays=q.heads.map(o=>_auditRayClear(o,[o],{transparentSkipRoots:[q.glassRoot]}));
+ return {
+   available:true,photoReference:!aWorkingPoseMode,glassRendered:q.glassRoot.visible,
+   clampRendered:q.clamp.visible,screwsRendered:q.screws.visible,
+   wingEarCount:q.screws.children.filter(m=>m.userData.A05CSWingEar).length,
+   selectedVisibilityScore:q.clamp.userData.A05Photo5EmptyScore??null,
+   selectedLocalViewDirection:q.clamp.userData.A05Photo5EmptyDirection??null,
+   projection:_auditProjection(_auditBoxFor([q.fixed,q.pressure,q.screws])),
+   fixedRay,pressureRay,screwHeadRays:headRays
+ };
+};
 function focusA17FrontAudit(){
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
  currentRoot.updateWorldMatrix(true,true);
