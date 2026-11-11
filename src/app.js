@@ -121,7 +121,8 @@ window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':
    fabricatedClampVisible:Boolean(parts.get('A05C')?.g.visible),
    unphotographedGlassVisible:Boolean(parts.get('A05G')?.g.visible),
    actualClampManufacturerConfirmed:false,photographicMountsAccepted:false,
-   directPhotoIds:['191','192','193','194','195','196']};
+   photoReferenceGlassHidden:!aWorkingPoseMode&&!Boolean(parts.get('A05G')?.g.visible),
+   directPhotoIds:['191','192','193','194','195','196','198','199','200','201']};
  };
 const activeAFilmX=()=>aWorkingPoseMode?A_WORKING_LAYOUT.filmStageX:CONFIG.A.armX;
 window.__platformAWorkingPoseProbe=()=>platform==='A'?{
@@ -199,6 +200,9 @@ window.__platformACompletenessProbe=()=>{
   sheetLegLengthMm:bracket.userData.photoBracketDatums?.verticalLegLength??null,
   clampScrewProxyCount:screws.children.filter(m=>m.userData.photo194WingFastenerCandidate).length,
   glassRequiredForTransfer:Boolean(slide.userData.requiredInstalledTransferElement),
+  glassVisibleInCurrentPose:Boolean(slide.visible),
+  photoReferenceGlassHidden:!aWorkingPoseMode&&!slide.visible,
+  installedPoseGlassVisible:aWorkingPoseMode&&slide.visible,
   screwAxisVertical:Boolean(clamp.userData.screwAxisVertical),
   screwPairLineParallelGlassShortEdge:Boolean(clamp.userData.screwPairLineParallelToGlassShortEdge),
   photo5VerticalWingScrewTopologyApplied:Boolean(clamp.userData.photo5VerticalWingScrewTopologyApplied),
@@ -4096,6 +4100,9 @@ function updateTransforms(){
     base.y+off[1]*e+(moveFilmVertical?aLift-filmDrop:0)+opticsLift,
     base.z+off[2]*e+dz+fz);
   g.rotation.y=(rotateSample?angle:0)+facingYaw;
+  // V131: user photos 1-3 show the bare clamp state. Keep A05G in the
+  // engineering model, but render glass/PDMS only in the installed pose.
+  if(platform==='A'&&part.id==='A05G')g.visible=aWorkingPoseMode;
   if(platform==='A'&&part.id==='A10'&&g.userData.opticsMovingBoom){
     // Only the horizontal imaging-arm clamp follows the optical head.
     // A10 breadboard foot and 372mm column remain FIXED.
@@ -4908,8 +4915,9 @@ function switchPlatform(next){
   $('film-drop').max='0';
   $('film-drop').value='0';
   $('film-drop-value').textContent='0.0 mm';
-  // Photo-reference mode is comparison-only; the V80 installed pose contains
-  // the required glass/PDMS and may run the geometry-only descent preview.
+  // Photo-reference mode is comparison-only and intentionally hides the
+  // unphotographed glass/PDMS. The installed pose renders A05G and may run
+  // the geometry-only descent preview.
   $('film-drop').disabled=next==='A'&&!aWorkingPoseMode;
   $('film-drop').title=next==='A'&&!aWorkingPoseMode?
     '照片参考方向仅用于对照，不执行转移下降':'仅几何预览，不是实际硬件控制';
