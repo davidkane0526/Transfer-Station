@@ -898,9 +898,12 @@ def make_a():
     # Exact mounting hardware and final physical offset remain unverified.
     led_root_x=cx+96
     led_z=220
-    slip_outer=vx(17.5,6,led_root_x,0,led_z)
-    slip_inner=vx(15.35,6.2,led_root_x-.1,0,led_z)
-    add('A','A11R','SM1RC_STYLE_SLIP_RING_OPTION_UNCONFIRMED',
+    # V133: assign the SM1RC-compatible slip ring to the physical A21 mount,
+    # not to the light emitter itself. OEM ring compatibility is grounded;
+    # its installation position is a candidate.
+    slip_outer=vx(18,6,led_root_x+9,0,led_z)
+    slip_inner=vx(15.35,6.2,led_root_x+8.9,0,led_z)
+    add('A','A21R','SM1RC_STYLE_RING_ON_A21_SUPPORT_CANDIDATE',
         slip_outer.cut(slip_inner),'C')
     # Thorlabs MWWHL4 drawing MTN006388: Ø30.5 x 60.1 mm total envelope.
     led=vx(15.25,60.1,led_root_x+6,0,led_z)
@@ -918,8 +921,43 @@ def make_a():
         (led_root_x+55,12,led_z-38)],2.2)
     add('A','A11C','MWWHL4_ELECTRICAL_CABLE_NOT_MECHANICAL_SUPPORT',
         led_cable,'C')
-    add('A','A12','LEDD1B',box(60,73,104,262,-80,20),'P')
-    add('A','A13','DELIXI_SSR',box(75,64,33,260,72,20),'P')
+    # V133 external controls stand on the common floor datum (Z=0),
+    # not floating 20mm above a board that does not reach their X.
+    add('A','A12','LEDD1B',box(60,73,104,262,-80,0),'P')
+    a12_socket=vy(5,4,262,-120.5,65).cut(vy(2.2,4.2,262,-120.6,65))
+    add('A','A12LED','LEDD1B_REAR_M8_LED_PORT_HOUSING_CANDIDATE',a12_socket,'C')
+    add('A','A13','DELIXI_SSR',box(75,64,33,260,72,0),'P')
+    for idx,x in enumerate((253,271),1):
+        a13_shell=vy(3.4,4,x,36,18).cut(vy(1.4,4.2,x,35.9,18))
+        add('A',f'A13P{idx}','SSR_REAR_SERVICE_REGION_NOT_WIRING_TERMINAL',a13_shell,'C')
+    # Independently grounded LED holder: four real candidate base bores,
+    # post and bridge, telescoping collar and one SM1RC-type ring.
+    a21_foot=box(36,36,8,186,-92,20)
+    a21_anchors=[(x,y) for x in (173.5,198.5) for y in (-104.5,-79.5)]
+    a21_foot=cut(a21_foot,a21_anchors,5.4,8,20)
+    a21_base=a21_foot.fuse(vz(6,191,186,-92,28))
+    add('A','A21','LED_STAND_FOOT_AND_POST_UNVERIFIED_RECONSTRUCTION',a21_base,'C')
+    a21_collar=vz(10,14,186,-92,187).cut(vz(6.1,14.2,186,-92,186.9))
+    add('A','A21C','LED_STAND_ADJUSTABLE_POST_COLLAR_CANDIDATE',a21_collar,'C')
+    add('A','A21B','LED_STAND_RIGID_Z_TO_LED_BRIDGE_CANDIDATE',
+        vy(5,92,186,-92,194),'C')
+    add('A','A21L','LED_RING_BRIDGE_LUG_CANDIDATE',box(10,12,12,186,0,199),'C')
+    add('A','A22','MWWHL4_TO_LEDD1B_FLEXIBLE_SERVICE_CABLE',
+        cable_path([(229,12,182),(236,-3,184),(251,-45,154),
+                    (258,-87,117),(262,-119,65)],2.2),'C')
+    add('A','A23H1','A07_HEATER_LEAD_1_TO_SSR_NEIGHBOURHOOD_UNWIRED',
+        cable_path([(65,-32.5,93.7),(92,-55,95),(149,-72,111),
+                    (215,-20,91),(245,16,63),(253,40,18)],1.2),'C')
+    add('A','A23H2','A07_HEATER_LEAD_2_TO_RETURN_NEIGHBOURHOOD_UNWIRED',
+        cable_path([(72,-32.5,93.7),(105,-61,100),(153,-80,118),
+                    (224,-31,99),(265,10,69),(271,40,18)],1.2),'C')
+    add('A','A24','A07_TEMPERATURE_FEEDBACK_NOT_ASSUMED_K_TYPE',
+        cable_path([(90,-32.5,96.2),(112,-56,110),(177,-96,134),
+                    (253,-76,95),(303,-23,52),(305,25,14)],.78),'C')
+    add('A','A25','TEMPERATURE_SERVICE_TERMINAL_NOT_A_CONTROLLER',
+        box(28,20,14,305,25,0),'C')
+    a25_port=vz(3,2,305,25,14).cut(vz(1,2.2,305,25,13.9))
+    add('A','A25P','TEMPERATURE_SERVICE_TERMINAL_ENTRY_CANDIDATE',a25_port,'C')
     # TTL200-A uses EXTERNAL SM2 both ends. A14 remains an OPEN
     # candidate mating sleeve until the real adapter stack is identified.
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
@@ -995,7 +1033,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V132'
+CAD_REVISION='V133'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
