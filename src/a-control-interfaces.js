@@ -5,8 +5,8 @@ export const A_CONTROL_DATUMS = Object.freeze({
   sampleX:78,
   heaterOriginY:81.2,
   ledOrigin:[174,220,0],
-  ledSlipRingCenter:[186,220,0],
-  ledPostBase:[186,20,-92],
+  ledSlipRingCenter:[187.5,220,0],
+  ledPostBase:[187.5,20,-87.5],
   ledPostTopY:219,
   ledBridgeHeightY:194,
   driverSocket:[262,65,-119], // candidate back-face position, NOT pin location
