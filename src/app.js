@@ -3405,6 +3405,13 @@ function platformA(){
   }
   g.userData.rulerSampleTopAboveBoardMm=89.2;
   g.userData.layerProxies=[9,7,12];
+  // V133: back-facing strain reliefs only; heater bores are NOT verified.
+  for(const [role,x,y,hole] of [['heaterA',-13,12.5,1.4],
+    ['heaterB',-6,12.5,1.4],['temperature',12,15,1.1]]){
+    const bushing=add(g,sleeve(3.4,hole,3,mats.black,x,y,-34,'z'));
+    bushing.userData.A07RearServiceExitRoleCandidate=role;
+  }
+  g.userData.A07RearCableExitPositionsUnverified=true;
   g.userData.intermediateMaterialUnknown=true;
   g.userData.vendorHolePatternUnverified=true;
   label(g,'A07样品台 · 实拍三层 / 顶面高于面包板约89mm',0,40,0);
@@ -4166,6 +4173,11 @@ function updateTransforms(){
   // V131: user photos 1-3 show the bare clamp state. Keep A05G in the
   // engineering model, but render glass/PDMS only in the installed pose.
   if(platform==='A'&&part.id==='A05G')g.visible=aWorkingPoseMode;
+  if(platform==='A'&&part.id==='A21'&&g.userData.ledAdjustableCarrier){
+    // Only A21 upper collar and ring follow the optical parking lift.
+    g.userData.ledAdjustableCarrier.position.y=
+      aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0;
+  }
   if(platform==='A'&&part.id==='A10'&&g.userData.opticsMovingBoom){
     // Only the horizontal imaging-arm clamp follows the optical head.
     // A10 breadboard foot and 372mm column remain FIXED.
@@ -4258,7 +4270,7 @@ function resetScene(){
  }
  else {
    platformA();
-   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A07','A07W','A10']){
+   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A07','A07W','A10','A11','A12','A13','A21','A22','A23','A24','A25']){
      if(!parts.has(id))throw Error('Model A missing: '+id);
    }
  }
