@@ -2138,6 +2138,7 @@ report['V132_A_user_corrected_installed_assembly']={
 # V133: electrical routing is a topology/clearance CANDIDATE, not an
 # electrician-approved circuit. Check each cable and physical support exists.
 required_v133={'A21','A21C','A21B','A21L','A21R','A22',
+               'A21S1','A21S2','A21S3','A21S4','A07P1','A07P2','A07P3',
                'A23H1','A23H2','A24','A25','A25P','A12LED'}
 check(required_v133.issubset(installed_ids),
       'V133 STEP must publish LED mechanical support, M8 port housing and separate heater/temperature services')
