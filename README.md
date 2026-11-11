@@ -1,5 +1,14 @@
 # Transfer Station
 
+## V140 · 解决泵/控制器被相机裁切的视觉验收缺口
+
+- **实测旧渲染的问题**：V139发布的 `Transfer-Station-A-V138-Pump-Controller.png` 将A33温控箱裁在前景下侧、A30泵推到画面右侧边缘。零件确实存在，但用户无法看清，并非用户浏览器问题。
+- 新增平台A专属 `A 泵·控制器` 按钮。根据A07、A12、A29、A30、A33真实WebGL包围盒、当前宽高比和摄像机FOV计算相机位置，而不是硬编码视角。B平台按钮隐藏。
+- 纯数学 `tests/a-external-camera.mjs` 对5种宽高比测试；浏览器回归则检查**实际投影后的THREE.js组件边界**必须在画面内，并输出 `Transfer-Station-A-V140-Pump-Controls-Full.png`。旧外设图片也改用新视角生成。
+- 实物对照页增加A外设专栏，未确认A泵型号的地方明写“待核”，不以B20 VN-50冒充A30；同样不把A10/A18未确定的显微镜OEM当作准确模型。B几何未改动。
+
+[查看V140专用相机验收](docs/V140_A_EXTERNAL_CAMERA_AND_VISUAL_QA.md)
+
 ## V139 · V138 实体修正保留、CI阻塞解除与接口真实落地校验
 
 - **阻塞复盘**：V138（主分支）网页部署未成功。一次旧回归测试错误认为 A02 X 微分头仍朝 -X，另一次因 GitHub Ubuntu apt 镜像 DNS 故障而在 CJK 字体步骤停止；STEP 测试错误要求 LEDD1B 主机自身接地，忽略实际另建 3 mm 安装底板 A12F。

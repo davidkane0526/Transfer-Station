@@ -856,7 +856,15 @@ try{
  assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).currentExplodePercent,0);
  await photoShot('Transfer-Station-A-V137-XY-Rotary-Lock.png','#btn-sample-stack');
  await photoShot('Transfer-Station-A-V138-X-Right-Y-Front.png','#btn-sample-stack');
- await photoShot('Transfer-Station-A-V138-Pump-Controller.png','#btn-iso');
+ await page.locator('#btn-a-external').evaluate(el=>el.click());
+ const v140=await page.evaluate(()=>window.__AExternalCameraFitProbe?.());
+ assert.equal(v140?.available,true,'V140 A external camera missing');
+ assert.deepEqual(v140.selectedPartIds,['A07','A12','A29','A30','A33']);
+ assert.equal(v140.dynamicCameraFit,true);
+ assert.equal(v140.allHardwareFits,true,'Pump, PID and LEDD1B must be in viewport');
+ assert.equal(v140.pumpInletConnectedViaRoute,true);
+ await photoShot('Transfer-Station-A-V140-Pump-Controls-Full.png','#btn-a-external');
+ await photoShot('Transfer-Station-A-V138-Pump-Controller.png','#btn-a-external');
  await photoShot('Transfer-Station-A-V133-Control-Routes.png','#btn-iso');
  await page.locator('#toggle-a-thermal').evaluate(el=>el.click());
  assert.equal((await page.evaluate(()=>window.__modelAThermalFunctionalProbe?.())).cutawayEnabled,true);

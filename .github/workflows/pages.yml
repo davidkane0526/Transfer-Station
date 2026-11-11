@@ -62,6 +62,8 @@ jobs:
           node tests/a-working-layout.mjs
           node --check src/a-control-interfaces.js
           node tests/a-control-interfaces.mjs
+          node --check src/a-external-camera.js
+          node tests/a-external-camera.mjs
           node --check src/a-thermal-datums.js
           node tests/a-thermal-datums.mjs
           node tests/a-vacuum-clearance.mjs
@@ -109,6 +111,7 @@ jobs:
             Transfer-Station-A-V137-XY-Rotary-Lock.png \
             Transfer-Station-A-V138-X-Right-Y-Front.png \
             Transfer-Station-A-V138-Pump-Controller.png \
+            Transfer-Station-A-V140-Pump-Controls-Full.png \
             Transfer-Station-A-Photo191-Overview.png \
             Transfer-Station-A-Photo192-Side.png \
             Transfer-Station-A-Photo193-Front.png \
@@ -164,6 +167,7 @@ jobs:
             Transfer-Station-A-V137-XY-Rotary-Lock.png
             Transfer-Station-A-V138-X-Right-Y-Front.png
             Transfer-Station-A-V138-Pump-Controller.png
+            Transfer-Station-A-V140-Pump-Controls-Full.png
             Transfer-Station-A-V96-A17-Front-Closeup.png
             Transfer-Station-A-V106-A18-Optical-Closeup.png
             Transfer-Station-A-V106-A18-Support-Closeup.png

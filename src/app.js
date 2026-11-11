@@ -25,6 +25,7 @@ import {auditPlatformAAssembly} from './platform-a-assembly-audit.js';
 import {A_WORKING_LAYOUT,auditAWorkingLayout} from './a-working-layout.js';
 import {aControlRoutes,auditAControlRoutes} from './a-control-interfaces.js';
 import {A_THERMAL,aVacuumRoute,auditAThermalTopology} from './a-thermal-datums.js';
+import {A_EXTERNAL_FOCUS_IDS,calculateAExternalCamera} from './a-external-camera.js';
 import {A20261108PhotoAngles,aPhotoCameraPose,aPhotoOrientationEvidence} from './a-photo-angle-registration.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
@@ -4871,6 +4872,31 @@ function focus(mode){
  camera.position.copy(dst);orbit.target.copy(target);camera.lookAt(target);orbit.update();
 }
 
+let lastAExternalCameraFit=null;
+function getAExternalCameraCorners(){
+ const pts=[];currentRoot.updateWorldMatrix(true,true);
+ for(const id of A_EXTERNAL_FOCUS_IDS){
+   const g=parts.get(id)?.g;if(!g)throw Error('Missing A external hardware: '+id);
+   const b=new THREE.Box3().setFromObject(g);if(b.isEmpty())throw Error('Empty A external hardware: '+id);
+   for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])pts.push([x,y,z]);
+ }return pts;
+}
+function focusAExternal(){
+ if(platform!=='A'){aWorkingPoseMode=true;switchPlatform('A');}
+ const fit=calculateAExternalCamera(getAExternalCameraCorners(),{fovDeg:camera.fov,aspect:camera.aspect});
+ camera.position.set(...fit.position);orbit.target.set(...fit.target);camera.lookAt(orbit.target);
+ camera.updateMatrixWorld(true);orbit.update();lastAExternalCameraFit=fit;return fit;
+}
+window.__AExternalCameraFitProbe=()=>{
+ if(platform!=='A'||!lastAExternalCameraFit)return {available:false};
+ camera.updateProjectionMatrix();camera.updateMatrixWorld(true);
+ const points=getAExternalCameraCorners().map(q=>new THREE.Vector3(...q).project(camera));
+ const bounds={x:Number(Math.max(...points.map(q=>Math.abs(q.x))).toFixed(4)),y:Number(Math.max(...points.map(q=>Math.abs(q.y))).toFixed(4))};
+ return {available:true,selectedPartIds:[...A_EXTERNAL_FOCUS_IDS],actualScreenBounds:bounds,
+   allHardwareFits:bounds.x<.95&&bounds.y<.95,
+   dynamicCameraFit:lastAExternalCameraFit.allWithinFrame,
+   pumpInletConnectedViaRoute:parts.get('A29')?.g.userData.connectedTo==='A30'};
+};
 function buildLink(name,url){
  if(!url?.startsWith('https://'))return document.createTextNode('—');
  const a=document.createElement('a');a.href=url;a.target='_blank';
@@ -5768,6 +5794,7 @@ function switchPlatform(next){
   // V132: Platform A has no user-facing photo-reference workflow.
   // Hide B-only inspection shortcuts so A does not expose unrelated photo views.
   for(const id of ['btn-photo108','btn-photo109','btn-control-cabinet'])$(id).hidden=next==='A';
+  $('btn-a-external').hidden=next!=='A';lastAExternalCameraFit=null;
   const photoA=next==='A'&&!aWorkingPoseMode;
   $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
   $('sample-move-label').textContent='样品 X';
@@ -5918,6 +5945,7 @@ function focusBPhoto(photo){
 $('btn-photo108').onclick=()=>focusBPhoto('108');
 $('btn-photo109').onclick=()=>focusBPhoto('109');
 $('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
+$('btn-a-external').onclick=focusAExternal;
  $('btn-control-cabinet').onclick=()=>{
    // The controller has a front YUDIAN panel and open-top internal
    // SE-600-48/B23 modules. A dedicated raised viewpoint exposes
