@@ -1533,6 +1533,8 @@ try{
  assert.match(a18VendorText,/MGZ30本体包含五物镜转换盘/);
  assert.match(a18VendorText,/2012 Rev C工程图标注微调225µm\/rev/);
  assert.match(a18VendorText,/2014目录微调250µm\/rev/);
+ assert.match(a18VendorText,/Volition CAD下载入口（DXF\/SolidWorks\/STEP）/);
+ assert.match(a18VendorText,/文件尚未实际取得或与Thorlabs工程图比对/);
  assert.match(a18VendorText,/LYLIGHT FR5025CF（高优先级结构候选，非型号确认）/);
  assert.match(a18VendorText,/产品图标注中心距165mm/);
  assert.match(a18VendorText,/完整支架示意另标135mm/);

@@ -4621,7 +4621,7 @@ function updateDetail(part){
      'data-bxfmf-applied="'+Boolean(a18?.userData.BXFMFGeometryApplied)+'" '+
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
-     '<b>A18 厂商候选矩阵（V150）</b><p>'+
+     '<b>A18 厂商候选矩阵（V151）</b><p>'+
      '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认）：</b>厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、产品图标注中心距165mm及0.02mm微调精度；同一PDF的完整支架示意另标135mm。两条尺寸的端点基准未充分说明，不能直接把165mm映射为当前立柱中心至光轴距离。这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
      '<a href="https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/" target="_blank" rel="noopener noreferrer">FR5025CF产品页</a> · '+
      '<a href="https://www.lylight.com/wp-content/uploads/2024/05/FR5025CF-coarse-and-fine-adjustment-focus-rack-LYLIGHT.pdf" target="_blank" rel="noopener noreferrer">厂商产品图/规格PDF</a>。'+
@@ -4631,9 +4631,10 @@ function updateDetail(part){
      '<b>候选规格汇总：</b>'+esc(lyText)+'。上述尺寸是厂商候选数据，不是本机实测。当前场景Ø26mm立柱与112mm立柱至光轴距离均未实测，不能据此直接确认或排除FR5025CF。'+
      '<br><b>Thorlabs MGZ30 Focus Block（条件候选）：</b>30mm Z行程、粗调40mm/rev、2014目录微调250µm/rev、Ø1.5in（38.1mm）立柱安装；MGZ30本体包含五物镜转换盘，五个M26×36 TPI接口并附五个RMS转接件，顶部兼容30mm cage / SM1 / SM2。'+
      '<a href="https://www.thorlabs.com/focus-block-and-accessories" target="_blank" rel="noopener noreferrer">MGZ30产品页</a> · '+
+     '<a href="https://www.govolition.com/product/V40-MGZ30" target="_blank" rel="noopener noreferrer">Volition CAD下载入口（DXF/SolidWorks/STEP）</a> · '+
      '<a href="https://www.thorlabs.com/catalogpages/v21/1739.pdf" target="_blank" rel="noopener noreferrer">2014官方目录</a> · '+
      '<a href="https://oxxius.ru/upload/iblock/645/z5e9spl0ippo9o526roo4qt3zxyzg0bk/21618_E0W.pdf" target="_blank" rel="noopener noreferrer">2012 Rev C工程图</a>。'+
-     '需注意：2012 Rev C工程图标注微调225µm/rev，与2014目录250µm/rev存在版本差异，未核清前不把二者混为同一规格。MGZ30后部立柱夹持壳体与调焦块一体，若实机为MGZ30，A10独立横臂可能属于A18后壳。'+
+     'Volition页面列出MGZ30的AutoCAD DXF、SolidWorks和STEP下载项，但文件尚未实际取得或与Thorlabs工程图比对，不能据此声称已获得原厂STEP。需注意：2012 Rev C工程图标注微调225µm/rev，与2014目录250µm/rev存在版本差异，未核清前不把二者混为同一规格。MGZ30后部立柱夹持壳体与调焦块一体，若实机为MGZ30，A10独立横臂可能属于A18后壳。'+
      '<b>MGZ30与完整T-Scope的区别：</b>五物镜盘是MGZ30本体的厂商特征，不是T-Scope专属；官方T-Scope是独立完整显微镜系统，配套ITL200管镜。当前A08按TTL200-A建模，因此不能将现有整套光学组件直接认定为T-Scope。现有MGZ30研究网格尚未重建五孔盘的精确几何，不能称为原厂CAD复刻。'+
      '<b>Olympus/Evident BXFM-F（次候选）：</b>84mm宽度、Ø32H8立柱孔、4-M8后固定和30mm行程有尺寸/拓扑相似性，但原厂为银色开架铸件，与照片中的黑色封闭外观不完全一致；84mm吻合不能作为型号证明。'+
      '<b>Boli 76mm/25mm调焦架：</b>'+esc(boliText)+'。当前191–193预览只有约128×170像素，既不能确认，也不足以排除外露76mm环形E-arm；该家族保留为未决对照，不作为已识别实机。'+

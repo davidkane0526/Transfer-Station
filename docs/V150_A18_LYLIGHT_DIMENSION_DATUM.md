@@ -42,3 +42,11 @@ MGZ30 仍是条件候选：其 Ø1.5in（38.1mm）立柱安装规格与当前 Ø
 - FR5025CF、FR7625CF、MGZ30、BXFM-F 与 Boli 型号继续作为候选比较，不宣称任何一个已确认。
 
 下一步只在获得明确尺寸基准或高清接口证据后，才更新实际装配模型。
+
+
+## V151 补充：MGZ30 CAD 下载入口
+
+Volition 的 MGZ30 产品资料页在 CAD Drawings & Models 栏列出 AutoCAD DXF、SolidWorks 和 STEP 格式。入口：
+- [Volition MGZ30 CAD 下载页](https://www.govolition.com/product/V40-MGZ30)
+
+该页面属于第三方产品平台，不是 Thorlabs 官方托管下载页。当前只确认其页面列出了这些文件格式，尚未下载具体文件，也未核对文件元数据、零件结构和 2012 Rev C 工程图的一致性。因此不能把它描述为已取得或已验证的原厂 STEP。

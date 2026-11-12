@@ -1,5 +1,11 @@
 # Transfer Station
 
+## V151 · MGZ30 CAD 文件来源补充
+
+- 找到 Volition 的 MGZ30 产品资料页，页面列出 AutoCAD DXF、SolidWorks 和 STEP 格式的 CAD 下载项。
+- 已将下载入口加入 A18 候选矩阵和采购 BOM；目前尚未实际取得文件或与 Thorlabs 工程图比对，因此不标记为已验证原厂 CAD。
+- [V151 MGZ30 CAD 来源与验证状态](docs/V151_MGZ30_CAD_SOURCE.md)
+
 ## V150 · FR5025CF 尺寸基准复核
 
 - 修正 FR5025CF 的尺寸解释：产品图标注 165mm 中心距，同一 PDF 的完整支架示意另标 135mm。两条尺寸线的端点基准未充分说明，不能将 165mm 直接映射为本机立柱中心至光轴距离。
