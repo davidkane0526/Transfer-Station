@@ -10,9 +10,12 @@ export const A_CONTROL_DATUMS = Object.freeze({
   ledPostTopY:219,
   ledBridgeHeightY:194,
   driverSocket:[262,42,-133], // candidate back-face position, NOT pin location
-  relayInterface:[253,18,40], // candidate service-envelope point, not a wiring terminal
-  powerReturnInterface:[271,18,40],
-  temperatureServiceInterface:[305,14,25],
+  // V141: cabinet shifted +80mm in X; heater/temperature endpoints must
+  // follow its SSR (A13) and sensor service (A25). LEDD1B is stationary.
+  pidRightShiftMm:80,
+  relayInterface:[333,18,40], // candidate service-envelope point, not a wiring terminal
+  powerReturnInterface:[351,18,40],
+  temperatureServiceInterface:[385,14,25],
   sampleRearZ:-32.5,
   heatingCoreIdentified:false,
   temperatureProbeTypeVerified:false,
@@ -60,15 +63,15 @@ export function aControlRoutes({sampleShiftMm=0,sampleDepthShiftMm=0,sampleAngle
   const heaterA=[first,
     aHeaterLocalToWorld(10,18.2,-43,sample),
     aHeaterLocalToWorld(28,43,-59,sample),
-    pt(162,120,-41),pt(226,120,-24),pt(...A_CONTROL_DATUMS.relayInterface)];
+    pt(162,120,-41),pt(306,120,-24),pt(...A_CONTROL_DATUMS.relayInterface)];
   const heaterB=[second,
     aHeaterLocalToWorld(16,18.2,-44,sample),
     aHeaterLocalToWorld(34,47,-61,sample),
-    pt(171,127,-36),pt(233,122,-18),pt(...A_CONTROL_DATUMS.powerReturnInterface)];
+    pt(171,127,-36),pt(313,122,-18),pt(...A_CONTROL_DATUMS.powerReturnInterface)];
   const temperature=[sensor,
     aHeaterLocalToWorld(-10,21.1,-43,sample),
     aHeaterLocalToWorld(24,51,-62,sample),
-    pt(181,136,-31),pt(257,123,-6),pt(...A_CONTROL_DATUMS.temperatureServiceInterface)];
+    pt(181,136,-31),pt(337,123,-6),pt(...A_CONTROL_DATUMS.temperatureServiceInterface)];
   const paths={led,heaterA,heaterB,temperature};
   for(const p of Object.values(paths)){
     if(p.some(v=>v.some(n=>!Number.isFinite(n))))throw new TypeError('Nonfinite route waypoint');

@@ -684,6 +684,18 @@ try{
  assert(v138.pumpHoseEndpointGapMm<=.1,
    'Hose must physically meet pump intake, not hover near it');
  assert.equal(v138.temperatureCabinetFront,1);
+ assert.equal(v138.temperatureCabinetCenterXmm,340,
+   'V141 A33 PID cabinet must move 80mm to the right');
+ assert.equal(v138.temperatureCabinetShiftXmm,80);
+ assert.equal(v138.SSRCenterXmm,340,'V141 A13 must remain inside cabinet');
+ assert.equal(v138.sensorServiceCenterXmm,385,
+   'V141 feedback connector must move with controller');
+ assert.equal(v138.LEDControllerUnchangedXmm,262,
+   'V141 LED controller must remain unchanged');
+ assert.equal(v138.pumpUnchangedXmm,350,
+   'V141 vacuum pump must not move');
+ assert.equal(v138.PIDBoxStaysOverSSR,true);
+ assert.equal(v138.PIDBoxKeepsSensorInterface,true);
  assert.equal(v138.temperatureCabinetPIDDisplayCount,2);
  assert.equal(v138.SSRPartInstalledInsideCabinet,true);
  assert.equal(v138.microscopeFrontRails,2);

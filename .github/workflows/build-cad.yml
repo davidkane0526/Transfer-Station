@@ -37,6 +37,6 @@ jobs:
       - name: Upload editable STEP models
         uses: actions/upload-artifact@v4
         with:
-          name: Transfer-Station-V139-STEP-CAD
+          name: Transfer-Station-V141-STEP-CAD
           path: build/
           retention-days: 90

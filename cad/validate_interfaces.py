@@ -2106,6 +2106,35 @@ check(abs(part(A,'A13')[0].BoundingBox().zmin)<.05 and
       abs(part(A,'A30')[0].BoundingBox().zmin)<.05 and
       abs(part(A,'A33')[0].BoundingBox().zmin)<.05,
       'V139 separate SSR, pump sole, and temperature cabinet must remain grounded')
+# V141: user-requested rightward move of the temperature control cabinet.
+# The PID body, internal SSR and feedback interface are one X-translated
+# external subsystem. Thorlabs LEDD1B and suction pump stay stationary.
+a33_box=part(A,'A33')[0].BoundingBox()
+a13_box=part(A,'A13')[0].BoundingBox()
+a25_box=part(A,'A25')[0].BoundingBox()
+a12_box=part(A,'A12')[0].BoundingBox()
+a30_box=part(A,'A30')[0].BoundingBox()
+pid_center=lambda b:(b.xmin+b.xmax)*.5
+check(abs(pid_center(a33_box)-340)<.01 and abs(pid_center(a13_box)-340)<.01,
+      'V141 PID cabinet and enclosed SSR must both move +80mm along X')
+check(abs(pid_center(a25_box)-385)<.01,
+      'V141 A25 temperature feedback must move with its cabinet')
+check(abs(pid_center(a12_box)-262)<.01,
+      'V141 LEDD1B is stationary; do not accidentally move illumination')
+check(abs(pid_center(a30_box)-340)<.01,
+      'V141 pump stays put; its X coincidence with PID is not a collision')
+check(a33_box.xmax<a25_box.xmax+50 and a33_box.xmin<a13_box.xmin
+      and a33_box.xmax>a13_box.xmax,
+      'V141 SSR must remain laterally inside the PID cabinet')
+check(a33_box.ymin>a30_box.ymax+30,
+      'V141 PID cabinet and vacuum pump must have distinct front/back (Y) envelopes')
+check(a33_box.ymin>a12_box.ymax+40,
+      'V141 temperature cabinet must stay separated from LEDD1B in depth')
+report['V141_PID_cabinet_rightward_move']={
+  'move_direction':'+X','shift_mm':80,
+  'PID_center_X_mm':340,'SSR_center_X_mm':340,
+  'sensor_terminal_X_mm':385,'LEDD1B_stationary_X_mm':262,
+  'pump_stationary_X_mm':340,'real_cable_pinout_verified':False}
 # V134: CAD-level true mating topology, not only apparent contact in a viewer.
 check(part(A,'A21B')[0].intersect(part(A,'A21L')[0]).Volume()>1,
       'V134 LED support bridge must engage lug with nonzero solid overlap')

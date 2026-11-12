@@ -981,9 +981,12 @@ def make_a():
         vy(8,2.5,262,-29.2,43),'D')
     a12_socket=vy(5,5,262,-135,42).cut(vy(2.2,5.2,262,-135.1,42))
     add('A','A12LED','LEDD1B_REAR_M8_LED_PORT_HOUSING_CANDIDATE',a12_socket,'C')
-    add('A','A13','DELIXI_SSR',box(75,64,33,260,72,0),'P')
+    # V141: PID cabinet + all enclosed/service electrical interfaces move
+    # +80mm along global X. Pump and LEDD1B remain untouched.
+    pid_dx=80
+    add('A','A13','DELIXI_SSR',box(75,64,33,260+pid_dx,72,0),'P')
     for idx,x in enumerate((253,271),1):
-        a13_shell=vy(3.4,4,x,36,18).cut(vy(1.4,4.2,x,35.9,18))
+        a13_shell=vy(3.4,4,x+pid_dx,36,18).cut(vy(1.4,4.2,x+pid_dx,35.9,18))
         add('A',f'A13P{idx}','SSR_REAR_SERVICE_REGION_NOT_WIRING_TERMINAL',a13_shell,'C')
     # Independently grounded LED holder: four real candidate base bores,
     # post and bridge, telescoping collar and one SM1RC-type ring.
@@ -1009,16 +1012,16 @@ def make_a():
                     (240,-120,104),(261,-142,54),(262,-133,42)],2.2),'C')
     add('A','A23H1','A26_HEATER_LEAD_1_TO_SSR_NEIGHBOURHOOD_UNWIRED',
         cable_path([(88,-32.5,100.2),(88,-43,100.2),(106,-59,124.2),
-                    (162,-41,120),(226,-24,120),(253,40,18)],1.2),'C')
+                    (162,-41,120),(306,-24,120),(333,40,18)],1.2),'C')
     add('A','A23H2','A26_HEATER_LEAD_2_TO_RETURN_NEIGHBOURHOOD_UNWIRED',
         cable_path([(94,-32.5,100.2),(94,-44,100.2),(112,-61,128.2),
-                    (171,-36,127),(233,-18,122),(271,40,18)],1.2),'C')
+                    (171,-36,127),(313,-18,122),(351,40,18)],1.2),'C')
     add('A','A24','A27_TEMPERATURE_FEEDBACK_NOT_ASSUMED_K_TYPE',
         cable_path([(68,-32.5,103.1),(68,-43,103.1),(102,-62,132.2),
-                    (181,-31,136),(257,-6,123),(305,25,14)],.78),'C')
+                    (181,-31,136),(337,-6,123),(385,25,14)],.78),'C')
     add('A','A25','TEMPERATURE_SERVICE_TERMINAL_NOT_A_CONTROLLER',
-        box(28,20,14,305,25,0),'C')
-    a25_port=vz(3,2,305,25,14).cut(vz(1,2.2,305,25,13.9))
+        box(28,20,14,305+pid_dx,25,0),'C')
+    a25_port=vz(3,2,305+pid_dx,25,14).cut(vz(1,2.2,305+pid_dx,25,13.9))
     add('A','A25P','TEMPERATURE_SERVICE_TERMINAL_ENTRY_CANDIDATE',a25_port,'C')
     # V138 actual pump BODY instead of a fake endpoint box; use B20
     # VN-50 only as a generic reference, never a confirmed Platform A SKU.
@@ -1042,19 +1045,19 @@ def make_a():
         vx(6.58,2.2,422.5,-190,68).cut(
             vx(5.9,2.4,422.4,-190,68)),'C')
     # A33 external PID cabinet. OEM controller and wiring remain unknown.
-    cabinet_bottom=box(154,148,5,260,95,0)
-    cabinet_l=box(4,142,154,185,95,5)
-    cabinet_r=box(4,142,154,335,95,5)
-    cabinet_top=box(154,148,4,260,95,156)
-    cabinet_face=box(150,4,150,260,168,5)
+    cabinet_bottom=box(154,148,5,260+pid_dx,95,0)
+    cabinet_l=box(4,142,154,185+pid_dx,95,5)
+    cabinet_r=box(4,142,154,335+pid_dx,95,5)
+    cabinet_top=box(154,148,4,260+pid_dx,95,156)
+    cabinet_face=box(150,4,150,260+pid_dx,168,5)
     add('A','A33','TEMP_CABINET_HOUSING_UNVERIFIED_OEM',
         cabinet_bottom.fuse(cabinet_l,cabinet_r,cabinet_top,cabinet_face).clean(),'C')
     add('A','A33PID','TWO_READOUT_PID_CONTROLLER_FACE_CANDIDATE',
-        box(102,5,96,260,172,60),'C')
+        box(102,5,96,260+pid_dx,172,60),'C')
     add('A','A33PV','PROCESS_READOUT_DISPLAY_PROXY',
-        box(76,1.6,22,260,176,113),'C')
+        box(76,1.6,22,260+pid_dx,176,113),'C')
     add('A','A33SV','SETPOINT_READOUT_DISPLAY_PROXY',
-        box(76,1.6,18,260,176,88),'C')
+        box(76,1.6,18,260+pid_dx,176,88),'C')
     # TTL200-A uses EXTERNAL SM2 both ends. A14 remains an OPEN
     # candidate mating sleeve until the real adapter stack is identified.
     sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
@@ -1130,7 +1133,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V138'
+CAD_REVISION='V141'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

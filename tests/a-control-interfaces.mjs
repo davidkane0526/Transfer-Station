@@ -59,3 +59,11 @@ for(const angle of [-180,-90,0,90,180]){
  const qa=auditAControlRoutes({sampleShiftMm:3,sampleAngleDeg:angle});
  for(const k of ["heaterStartsBehindA07","temperatureStartsBehindA07","firstCableGuidesFollowStage"])assert.equal(qa[k],true,k+' at '+angle);
 }
+
+// V141 temperature cabinet moves +80mm right; these 3 routes must end
+// at the displaced cabinet terminals, without moving the LED driver.
+const v141=aControlRoutes();
+assert.deepEqual(v141.endpoints.heaterRelayEnvelope,[333,18,40]);
+assert.deepEqual(v141.endpoints.powerServiceEnvelope,[351,18,40]);
+assert.deepEqual(v141.endpoints.temperatureServiceEnvelope,[385,14,25]);
+assert.deepEqual(v141.endpoints.ledDriver,[262,42,-133]);

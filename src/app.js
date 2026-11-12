@@ -3675,7 +3675,10 @@ function platformA(){
   g.userData.A12ElectricalPolarityVerified=false;
   label(g,'Thorlabs LEDD1B',0,108,0);
  },{explode:[50,15,-20]});
- addPart('A13',260,0,72,g=>{
+ // V141: user-requested +80mm rightward PID cabinet move (local world +X).
+ // A13/A25 move WITH the enclosure so cable endpoints remain attached.
+ const pidRightShiftMm=80;
+ addPart('A13',260+pidRightShiftMm,0,72,g=>{
   add(g,cub(75,33,64,mats.dark,0,16.5,0));
   add(g,cub(40,15,4,mats.silver,0,16,34));
   // Pure service-interface geometry on the rear of an identified SSR.
@@ -3686,7 +3689,7 @@ function platformA(){
   }
   label(g,'德力西 CDG1-1DD/25A',0,62,0);
  },{explode:[45,15,20]});
- addPart('A33',260,0,95,g=>{
+ addPart('A33',260+pidRightShiftMm,0,95,g=>{
    // Real temperature-control topology; actual PID controller OEM unknown.
    add(g,cub(154,5,148,mats.dark,0,2.5,0)).userData.A33CabinetFloor=true;
    for(const x of [-75,75]){
@@ -3722,6 +3725,8 @@ function platformA(){
    }
    const grommet=add(g,sleeve(17,12,3,mats.rubber,0,28,-73,'z'));
    grommet.userData.A33RearCableEntryCandidate=true;
+   g.userData.A33RightShiftMm=pidRightShiftMm;
+   g.userData.A33ReferenceCenterXmm=260;
    g.userData.A33EncasesSSRPart='A13';
    g.userData.A33SensorInterfacePart='A25';
    g.userData.A33TemperatureControllerExactSKUVerified=false;
@@ -3992,7 +3997,7 @@ function platformA(){
    g.userData.sensorTypeUnverified=true;
    label(g,'A24 测温反馈',180,145,-94);
  });
- addPart('A25',305,0,25,g=>{
+ addPart('A25',305+pidRightShiftMm,0,25,g=>{
    add(g,cub(28,14,20,mats.dark,0,7,0));
    const port=add(g,sleeve(3,1,2,mats.steel,0,14,0,'y'));
    port.userData.A25TemperatureServiceSocketCandidate=true;
@@ -4609,6 +4614,14 @@ window.__modelA138HardwareProbe=()=>{
    pumpInletReferenceOnly:pump.userData.realPumpIdentityUnknown===true,
    pumpHoseEndpointGapMm:inletWorld?Number(inletWorld.distanceTo(new THREE.Vector3(...end)).toFixed(3)):null,
    temperatureCabinetFront:tag(cab,'A33ControllerFrontPanel').length,
+   temperatureCabinetCenterXmm:cab.position.x,
+   temperatureCabinetShiftXmm:cab.userData.A33RightShiftMm,
+   SSRCenterXmm:parts.get('A13')?.g.position.x??null,
+   sensorServiceCenterXmm:parts.get('A25')?.g.position.x??null,
+   LEDControllerUnchangedXmm:driver.position.x,
+   pumpUnchangedXmm:pump.position.x,
+   PIDBoxStaysOverSSR:Math.abs(cab.position.x-parts.get('A13')?.g.position.x)<.01,
+   PIDBoxKeepsSensorInterface:Math.abs((parts.get('A25')?.g.position.x??NaN)-cab.position.x-45)<.01,
    temperatureCabinetPIDDisplayCount:tag(cab,'A33ProcessValueDisplay').length+tag(cab,'A33SetpointDisplay').length,
    SSRPartInstalledInsideCabinet:parts.has('A13')&&cab.userData.A33EncasesSSRPart==='A13',
    microscopeFrontRails:tag(scope,'A18FrontSlidingGuideCandidate').length,
