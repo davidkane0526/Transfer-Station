@@ -361,12 +361,124 @@ export function enrichParts(partMap, platform, onMesh){
        tag.userData.A11BodyAttachedBrandDecoration=true;
        g.userData.noDuplicateDecorativeEmitterDiscs=true;
      });
+     decoration('A13',(g)=>{
+       // CDG1 family appearance, not a verified wiring diagram. The
+       // aluminium spreader and side fins are candidate thermal hardware.
+       box(g,80,3,70,0,6.5,0,aluminum,.5);
+       box(g,72,28,60,0,24,0,graphite,1.4);
+       for(const side of [-1,1])for(let z=-22;z<=22;z+=11){
+         const fin=box(g,3,17,2.2,side*39,20,z,aluminum,.2);
+         fin.userData.A13HeatSinkFinCandidate=true;
+       }
+       for(const x of [-25,25])for(const z of [-21,21]){
+         box(g,10,5,9,x,43.5,z,graphite,.6);
+         const terminal=cyl(g,2.6,2.2,x,47,z,ring,6);
+         terminal.userData.A13TerminalScrewCandidate=true;
+       }
+       const led=cyl(g,2,1.2,0,27,32.7,green,24);led.rotation.x=Math.PI/2;
+       led.userData.A13StatusLEDProxy=true;
+       decal(g,'DELIXI  CDG1',46,5.5,0,16,36.1,'front','#e8edf2');
+       g.userData.A13HeatSinkCandidate=true;
+       g.userData.A13TerminalScrewCount=4;
+       g.userData.A13VariantAndPinoutUnverified=true;
+     });
+     decoration('A30',(g)=>{
+       // VN-50-family appearance reference only; Platform A pump SKU remains
+       // unverified. Details follow the official twin-head / motor / filter
+       // product silhouette without claiming exact internal construction.
+       box(g,48,18,1.4,-10,50,45,graphite,.5);
+       decal(g,'OIL-FREE PUMP',42,5.5,-10,50,45.8,'front','#e5ebf0');
+       for(const x of [-28,8])screwHead(g,x,50,45.9,1.5,'front');
+       const fanRing=new THREE.Mesh(new THREE.TorusGeometry(34,1.2,8,48),aluminum);
+       fanRing.rotation.y=Math.PI/2;fanRing.position.set(-96,50,0);add(g,fanRing);
+       fanRing.userData.A30FanGuardRing=true;
+       for(let i=0;i<4;i++){
+         const spoke=box(g,1.8,64,1.5,-96.2,50,0,ring,.2);
+         spoke.rotation.x=i*Math.PI/4;
+         spoke.userData.A30FanGuardSpoke=true;
+       }
+       const hub=cyl(g,8,2,-97.2,50,0,graphite,32);
+       hub.rotation.z=Math.PI/2;hub.userData.A30FanHub=true;
+       for(const x of [-45,30]){
+         for(const z of [-22.1,22.1])for(let y=100;y<=128;y+=5){
+           const rib=box(g,42,1.2,1.3,x,y,z,aluminum,.15);
+           rib.userData.A30HeadCoolingRib=true;
+         }
+         for(const side of [-1,1])for(let y=102;y<=126;y+=6){
+           const rib=box(g,1.3,1.2,40,x+side*21.3,y,0,aluminum,.15);
+           rib.userData.A30HeadSideCoolingRib=true;
+         }
+         for(const dx of [-15,15])for(const dz of [-15,15])
+           screwHead(g,x+dx,136.3,dz,1.6);
+       }
+       cyl(g,8.2,2,50,128,0,graphite,40).userData.A30FilterTopCap=true;
+       cyl(g,8.2,2,50,106,0,graphite,40).userData.A30FilterBottomCap=true;
+       for(let i=0;i<8;i++){
+         const a=i*Math.PI/4;
+         const rib=box(g,.65,15,.7,50+8*Math.cos(a),117,8*Math.sin(a),ring,.08);
+         rib.userData.A30FilterPleat=true;
+       }
+       for(const x of [76,79,82]){
+         const barb=new THREE.Mesh(new THREE.TorusGeometry(5.8,.65,8,32),ring);
+         barb.rotation.y=Math.PI/2;barb.position.set(x,68,0);add(g,barb);
+         barb.userData.A30InletBarbRingCandidate=true;
+       }
+       g.userData.A30OEMFamilyDetailsAdded=true;
+       g.userData.A30ExactPumpSKUStillUnverified=true;
+     });
      decoration('A33',(g)=>{
-       decal(g,'TEMP  CONTROL  ·  TYPE ?',117,13,0,147,76.6,'front','#e6ebf1');
-       decal(g,'PV    25.0',75,14,0,125,80.95,'front','#ffe1e3');
-       decal(g,'SV    25.0',75,12,0,97,80.95,'front','#d9ffde');
-       decal(g,'SET     ALM    OUT',83,7,0,57,77.9,'front','#d4dce4');
-       decal(g,'CONTROLLER MODEL UNVERIFIED',123,9,0,35,77.9,'front','#bbc3cc');
+       // Generic 96mm-class panel PID candidate. The real controller make,
+       // keypad legend and readout values are not identified.
+       const redLED=new THREE.MeshBasicMaterial({color:0xff3948});
+       const greenLED=new THREE.MeshBasicMaterial({color:0x55ef88});
+       const patterns={
+         '0':'abcdef','1':'bc','2':'abged','3':'abgcd','4':'fgbc',
+         '5':'afgcd','6':'afgcde','7':'abc','8':'abcdefg','9':'abfgcd'
+       };
+       const drawDigit=(x,y,z,value,material,tag)=>{
+         const spec={
+           a:[5.2,1.05,0,5.1],b:[1.05,4.2,2.55,2.6],
+           c:[1.05,4.2,2.55,-2.6],d:[5.2,1.05,0,-5.1],
+           e:[1.05,4.2,-2.55,-2.6],f:[1.05,4.2,-2.55,2.6],
+           g:[5.2,1.05,0,0]
+         };
+         for(const key of patterns[value]||''){
+           const [w,h,dx,dy]=spec[key];
+           const seg=box(g,w,h,.85,x+dx,y+dy,z,material,.12);
+           seg.userData[tag]=true;
+         }
+       };
+       for(const [row,y,material,tag] of [
+         ['PV',124,redLED,'A33PVSegment'],['SV',96,greenLED,'A33SVSegment']
+       ]){
+         decal(g,row,8,3.2,-29,y,81,'front','#cbd4dd');
+         const xs=[-9,1,11];
+         ['2','5','0'].forEach((digit,i)=>drawDigit(xs[i],y,81,digit,material,tag));
+         const dot=cyl(g,.9,.8,7,y-4.7,81.1,material,20);
+         dot.rotation.x=Math.PI/2;dot.userData[tag]=true;
+       }
+       for(const [x,word] of [[-30,'SET'],[-10,'▲'],[10,'▼'],[30,'ENT']]){
+         const cap=box(g,7.5,4.2,1.4,x,71,80.3,ring,.7);
+         cap.userData.A33PIDKeyCap=true;
+         decal(g,word,7,2.6,x,64.5,80.9,'front','#dce4ea');
+       }
+       for(const [x,material] of [[-43,redLED],[43,greenLED]]){
+         const led=cyl(g,1.5,1.2,x,62,80.4,material,24);
+         led.rotation.x=Math.PI/2;led.userData.A33StatusIndicator=true;
+       }
+       for(const x of [-48,48])for(const y of [64,151])
+         screwHead(g,x,y,80.1,2.1,'front');
+       // Rear wall pass-throughs: three distinct cable glands, not one
+       // oversized decorative grommet floating on an open enclosure.
+       for(const [x,y] of [[-7,18],[11,18],[45,14]]){
+         const ringMesh=new THREE.Mesh(new THREE.TorusGeometry(5.7,1.0,8,32),rubber);
+         ringMesh.position.set(x,y,-73.2);add(g,ringMesh);
+         ringMesh.userData.A33RearGlandRing=true;
+       }
+       decal(g,'TEMP CONTROL · MODEL UNVERIFIED',112,8,0,35,77.9,'front','#bbc3cc');
+       g.userData.A33ReadoutValuesAreVisualPlaceholders=true;
+       g.userData.A33PIDKeyCount=4;
+       g.userData.A33RearGlandCount=3;
      });
      decoration('A12',(g)=>{
        decal(g,'LED - DRIVER   LEDD1B',46,6,0,74.2,-29,'top','#dce4ed');
@@ -374,6 +486,37 @@ export function enrichParts(partMap, platform, onMesh){
        decal(g,'CW   TRIG   MOD',38,4.5,-9,74.2,-40,'top','#e0e5eb');
        decal(g,'CURRENT LIMIT',47,5,0,56.5,51.1,'front','#d6e4ed');
        decal(g,'0.2   0.5   1.2 A',44,5,0,30,51.1,'front','#ccd3df');
+       // OEM top intensity scale and front current-limit graduations.
+       for(let i=0;i<32;i++){
+         const a=i*Math.PI*2/32,r=19.1;
+         const tick=box(g,.75,.65,i%4===0?3.2:2.1,r*Math.cos(a),74.35,1+r*Math.sin(a),dialFace,.08);
+         tick.rotation.y=-a;tick.userData.A12TopScaleTick=true;
+       }
+       for(let i=0;i<24;i++){
+         const a=i*Math.PI*2/24,r=10.4;
+         const tick=box(g,i%4===0?1.5:1,.65,.55,r*Math.cos(a),43+r*Math.sin(a),52.65,dialFace,.08);
+         tick.rotation.z=a;tick.userData.A12FrontLimitTick=true;
+       }
+       // Knurled side grip on the actual top control, not a second knob.
+       for(let i=0;i<24;i++){
+         const a=i*Math.PI*2/24,r=13.7;
+         const grip=box(g,.7,7,.7,r*Math.cos(a),80,1+r*Math.sin(a),ring,.08);
+         grip.rotation.y=-a;grip.userData.A12KnobGripRib=true;
+       }
+       const lever=cyl(g,1.25,4.5,-20,81,-29,ring,24);
+       lever.userData.A12ModeLever=true;
+       const cap=cyl(g,2.1,1.6,-20,83.7,-29,graphite,24);
+       cap.userData.A12ModeLeverCap=true;
+       const shell=new THREE.Mesh(new THREE.TorusGeometry(4.4,.65,8,32),ring);
+       shell.position.set(0,42,-133);add(g,shell);shell.userData.A12M8ShellRing=true;
+       for(const x of [-1.15,1.15])for(const y of [40.85,43.15]){
+         const pin=cyl(g,.62,1.2,x,y,-133.3,gold,20);
+         pin.rotation.x=Math.PI/2;pin.userData.A12M8ContactProxy=true;
+       }
+       const dcShell=new THREE.Mesh(new THREE.TorusGeometry(3.1,.55,8,32),ring);
+       dcShell.position.set(-18,17,-132);add(g,dcShell);dcShell.userData.A12DCJackShell=true;
+       g.userData.A12OEMControlSurfaceDetailed=true;
+       g.userData.A12M8ContactCount=4;
      });
   }
   if(onMesh)for(const m of extras)onMesh(m);
