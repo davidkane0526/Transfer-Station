@@ -1492,7 +1492,7 @@ try{
  assert.match(dA.A18VendorCandidateDecision,/LYLIGHT FR5025CF high-priority.*MGZ30 conditional/i);
  assert.match(dA.A18VendorCandidateDecision,/A10\/A18 rear-housing boundary/);
  assert.match(dA.A18VendorCandidateDecision,/BXFM-F secondary/);
- assert.match(dA.A18VendorCandidateDecision,/76mm E-arm direct identity rejected/);
+ assert.match(dA.A18VendorCandidateDecision,/76mm Boli\/LYLIGHT variants unresolved/);
  assert.match(dA.A18VendorCandidateDecision,/none confirmed/);
  assert.equal(dA.A18MCTLMP2DirectIdentityRejected,true);
  assert.deepEqual(dA.A18MCTLMP2VendorEnvelopeMm,[211.5,130,58.8]);
