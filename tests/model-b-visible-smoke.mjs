@@ -1492,7 +1492,11 @@ try{
  assert.equal(await a18VendorCard.getAttribute('data-boli-applied'),'false');
  assert.equal(await a18VendorCard.getAttribute('data-boli76-direct-rejected'),'true');
  const a18VendorText=await a18VendorCard.innerText();
- assert.match(a18VendorText,/MGZ30 \/ T-Scope（主候选）/);
+ assert.match(a18VendorText,/MGZ30 Focus Block（主候选）/);
+ assert.match(a18VendorText,/五物镜转换盘属于完整T-Scope系统/);
+ assert.match(a18VendorText,/ITL200/);
+ assert.match(a18VendorText,/TTL200-A/);
+ assert.match(a18VendorText,/不能将现有整套光学组件直接认定为T-Scope/);
  assert.match(a18VendorText,/立柱夹持壳体/);
  assert.match(a18VendorText,/A10横臂/);
  assert.match(a18VendorText,/禁止作为独立已确认采购件/);
