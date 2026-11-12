@@ -1100,7 +1100,7 @@ def make_a():
         a18_body,'C')
     # V144 rear focus block -> true fixed front guide cantilever fork.
     # All dimensions here are C-grade topology candidates.
-    for idx,x in enumerate((cx-11,cx+59),1):
+    for idx,x in enumerate((cx-15,cx+59),1):
         for suffix,z in (('U',217),('L',175)):
             beam=box(8,54,6,x,22,z)
             add('A',f'A18B{idx}{suffix}','FOCUS_FRONT_CANTILEVER_FORK_CANDIDATE',
