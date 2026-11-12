@@ -1436,9 +1436,11 @@ check(a_support_boom.translate(Vector(0,0,18)).intersect(a_scope_col).Volume()<1
       'V69 retracted 18mm optical carrier remains clear of the fixed post')
 check(a_support_boom.intersect(vz(2,25,78,-90,220)).Volume()>50,
       'V69 boom retains real metal adjacent to the post clearance')
-check(abs(a_support_boom.BoundingBox().ymin+130)<.02 and
+# V142: the reinforced post collar projects 1.5 mm beyond the old
+# Y=-130 beam tail. The critical FRONT mating face must still end at Y=-44.
+check(abs(a_support_boom.BoundingBox().ymin+131.5)<.02 and
       abs(a_support_boom.BoundingBox().ymax+44)<.02,
-      'V74 A10 beam must end precisely at A18 rear face, not pierce 40mm of housing')
+      'V142 A10 collar may overhang rearward 1.5mm but the boom front must meet A18')
 a_head=part(A,'A18')[0]
 check(abs(a_head.BoundingBox().ymin-a_support_boom.BoundingBox().ymax)<.02,
       'V74 A10 front beam and A18 housing rear must mate flush')
