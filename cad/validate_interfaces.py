@@ -914,6 +914,47 @@ report['V108_A10_A18_component_boundary']={
                              'rear housing motion with focus block'],
     'safe_for_separate_A10_boom_fabrication':False
 }
+
+# V142 real microscope geometry checks: no fake filled axial light path.
+optical_axis_probe=vz(9.9,70,78,0,165)
+check(a18_shape.intersect(optical_axis_probe).Volume()<1e-4,
+      'V142 A18 requires a true through-bore for the optical axis')
+for key,z in (('A18T',235),('A18N',157)):
+    coupler=part(A,key)[0]
+    check(coupler.intersect(vz(9.9,8,78,0,z)).Volume()<1e-4,
+          'V142 '+key+' optical coupler must actually be hollow')
+fixed_rails=[part(A,f'A18G{i}')[0] for i in (1,2)]
+wear_strips=[part(A,f'A18W{i}')[0] for i in (1,2)]
+moving_shoes=[part(A,f'A18CW{i}')[0] for i in (1,2)]
+carriage=part(A,'A18C')[0]
+bridge=part(A,'A18CB')[0]
+adapter=part(A,'A18AD')[0]
+for i,(rail,wear,shoe) in enumerate(zip(fixed_rails,wear_strips,moving_shoes),1):
+    check(rail.intersect(wear).Volume()>5,
+          f'V142 fixed guide {i} must carry its wear strip')
+    check(shoe.intersect(carriage).Volume()>5,
+          f'V142 slide shoe {i} must be coupled to the carriage')
+    check(.5<=wear.distance(shoe)<=.9,
+          f'V142 guide {i} needs non-interfering ~0.7mm running clearance')
+check(bridge.intersect(carriage).Volume()>100 and
+      bridge.intersect(adapter).Volume()>100,
+      'V142 carriage-to-adapter load path must have volumetric engagement')
+check(adapter.intersect(part(A,'A18N')[0]).Volume()>1,
+      'V142 adapter must actually reach the nosepiece socket')
+check(part(A,'A18N')[0].intersect(part(A,'A19N')[0]).Volume()<1e-4 and
+      part(A,'A19N')[0].BoundingBox().zmin<part(A,'A18N')[0].BoundingBox().zmax,
+      'V142 A19 connector must sit within hollow A18N instead of merely face touching')
+for i in (1,2):
+    fastener=part(A,f'A10K{i}')[0]
+    check(fastener.intersect(part(A,'A10')[0]).Volume()<1e-4,
+          'V142 clamp screws must not enter the fixed A10 post')
+    check(fastener.intersect(part(A,'A10A')[0]).Volume()<1e-4,
+          'V142 clamp screws require real sleeve clearance bores')
+report['V142_A_microscope_mechanical_chain']={
+    'optical_aperture_candidate_mm':20,'aperture_physically_measured':False,
+    'fixed_rail_count':2,'moving_shoe_count':2,
+    'radial_lock_fastener_count':2,'oem_clamp_verified':False,
+    'A10_A18_part_boundary_verified':False,'fabrication_ready':False}
 # V111: non-installed MGZ30-family topology study. This is deliberately
 # separate from the default A10/A18 photo-fit assembly.
 mgz_study_parts=part(A,'A18MGZ')

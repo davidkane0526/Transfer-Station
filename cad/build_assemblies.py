@@ -929,7 +929,17 @@ def make_a():
     # Terminate the support at its rear face (Y=-44). A10 column
     # remains at Y=-112 with a through hole; these are scene candidates.
     boom=box(34,86,25,cx,-87,207.5).cut(vz(13.3,25.2,cx,-112,207.4))
-    add('A','A10A','imaging_boom_WITH_POST_THROUGH_BORE_UNVERIFIED',boom,'C')
+    # V142: candidate split clamp carries radial screws outside the Ø26 post.
+    boom_collar=vz(19.5,15,cx,-112,211.5).cut(vz(13.3,15.2,cx,-112,211.4))
+    boom=boom.fuse(boom_collar).clean()
+    for dz in (-8,8):
+        boom=boom.cut(vx(2.6,8.5,cx+13.5,-112+dz,219))
+    boom=boom.clean()
+    add('A','A10A','imaging_boom_WITH_POST_BORE_AND_RADIAL_CLAMP',boom,'C')
+    for i,dz in enumerate((-8,8),1):
+        clamp_bolt=vx(2.5,9,cx+14,-112+dz,219).fuse(
+            vx(4,2.6,cx+22.9,-112+dz,219)).clean()
+        add('A',f'A10K{i}','RADIAL_CLAMP_FASTENER_CANDIDATE',clamp_bolt,'C')
     # V59: photo191–193 show a taller camera/microscope stack; no ruler is present.
     add('A','A08','TTL200A_nominal_28mm_housing_CANDIDATE',
         vz(26,28,cx,0,235),'D')
@@ -1079,14 +1089,32 @@ def make_a():
               .fuse(box(70,88,18,a18_body_x,0,165),
                     box(84,88,38,a18_body_x,0,179),
                     box(76,88,14,a18_body_x,0,221)).clean())
+    # Real open Ø20 vertical optical clearance (unmeasured candidate).
+    a18_body=a18_body.cut(vz(10,70,cx,0,165)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
-    add('A','A18F','MICROSCOPE_FRONT_FACE_PHOTO_PROXY',
-        box(70,4,44,a18_body_x,46,178),'C')
-    add('A','A18T','MICROSCOPE_TOP_OPTICAL_COLLAR_PROXY',
-        vz(22,8,cx,0,235),'C')
-    add('A','A18N','MICROSCOPE_BOTTOM_NOSEPIECE_INTERFACE_PROXY',
-        vz(24,8,cx,0,157),'C')
+    add('A','A18F','RECESSED_FOCUS_FRONT_COVER_CANDIDATE',
+        box(70,1.4,44,a18_body_x,44.7,179),'C')
+    # Two guides and wear strips on stationary body, with distinct moving shoes.
+    for i,dx in enumerate((-11,59),1):
+        x=cx+dx
+        add('A',f'A18G{i}','FOCUS_FIXED_GUIDE_RAIL_CANDIDATE',
+            box(4,3,47,x,45.5,170.5),'C')
+        add('A',f'A18W{i}','FOCUS_GUIDE_WEAR_STRIP_CANDIDATE',
+            box(2,1,43,x,47.2,172.5),'C')
+    add('A','A18C','FOCUS_MOVING_CARRIAGE_CANDIDATE',
+        box(54,7,15,a18_body_x,49,167.5),'C')
+    add('A','A18CB','FOCUS_CARRIAGE_OPTICAL_BRIDGE_CANDIDATE',
+        box(42,8,12,cx+3,43.5,165),'C')
+    add('A','A18AD','FOCUS_OPTICAL_NOSEPIECE_ADAPTER_CANDIDATE',
+        box(44,37,5,cx+3,23,163.5),'C')
+    for i,dx in enumerate((-7.6,55.6),1):
+        add('A',f'A18CW{i}','FOCUS_SLIDING_SHOE_CANDIDATE',
+            box(11,2,28,cx+dx,49.4,167),'C')
+    add('A','A18T','HOLLOW_TOP_OPTICAL_COUPLER_CANDIDATE',
+        vz(22,8,cx,0,235).cut(vz(13.1,8.2,cx,0,234.9)),'C')
+    add('A','A18N','HOLLOW_NOSEPIECE_SOCKET_CANDIDATE',
+        vz(24,8,cx,0,157).cut(vz(18.1,8.2,cx,0,156.9)),'C')
     # Continuous left/right focus chains: body -> hub -> coarse -> fine.
     add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x-51,0,200),'C')
     add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x+39,0,200),'C')
@@ -1112,7 +1140,7 @@ def make_a():
     add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PHOTO_ENVELOPE',
         vz(36,10,cx,0,155),'C')
     add('A','A19N','MICROSCOPE_OBJECTIVE_TURRET_NECK_PROXY',
-        vz(18,5,cx,0,165),'C')
+        vz(18,5,cx,0,163),'C')
     objective_pivot=Vector(cx-18,0,155)
     objective_axis=Vector(cx-18,1,155)
     left_tilt=lambda sh:sh.rotate(objective_pivot,objective_axis,22.5)
@@ -1133,7 +1161,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V141'
+CAD_REVISION='V142'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

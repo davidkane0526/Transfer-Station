@@ -452,7 +452,61 @@ window.__modelAOpticalClearanceProbe=()=>{
    actualWorkingDistanceVerified:false,
    physicalCollisionCertification:false};
 };
-window.__modelAVerticalGuideProbe=()=>{
+
+ window.__A18MechanicalTopologyProbe=()=>{
+  if(platform!=='A')return {available:false};
+  const head=parts.get('A18')?.g,post=parts.get('A10')?.g,turret=parts.get('A19')?.g;
+  if(!head||!post||!turret)return {available:false};
+  currentRoot.updateWorldMatrix(true,true);
+  const tag=(root,key)=>root.children.filter(o=>o.isMesh&&o.userData[key]);
+  const one=(root,key)=>tag(root,key)[0];
+  const boom=post.userData.opticsMovingBoom;
+  const rails=tag(head,'A18FrontSlidingGuideCandidate');
+  const strips=tag(head,'A18FrontGuideWearStripCandidate');
+  const shoes=tag(head,'A18SlidingShoeCandidate');
+  const carriage=one(head,'A18DovetailCarriageCandidate');
+  const adapter=one(head,'A18ObjectiveDovetailAdapterCandidate');
+  const bridge=one(head,'A18OpticalCarrierBridgeCandidate');
+  const bottom=one(head,'A18NosepieceInterface');
+  const neck=one(turret,'A19A18MountNeck');
+  const clamp=one(boom,'A10SlidingPostClampCandidate');
+  const bolts=tag(boom,'A10ClampBoltCandidate');
+  const fixed=one(post,'A10FixedOpticalPost');
+  if(!carriage||!adapter||!bridge||!bottom||!neck||!clamp||!fixed||
+     rails.length!==2||strips.length!==2||shoes.length!==2||bolts.length!==2)
+    return {available:false};
+  const box=o=>new THREE.Box3().setFromObject(o);
+  const overlap=(a,b)=>{
+    const ab=box(a).intersect(box(b)),s=new THREE.Vector3();
+    return ab.isEmpty()?0:(ab.getSize(s),Number((s.x*s.y*s.z).toFixed(2)));
+  };
+  const railGap=shoes.map((s,i)=>Number((box(s).min.z-box(strips[i]).max.z).toFixed(3)));
+  const origin=head.localToWorld(new THREE.Vector3(0,-50,0));
+  const ray=new THREE.Raycaster(origin,new THREE.Vector3(0,1,0),0,100);
+  const boreMeshes=[...tag(head,'A18BodySegment'),one(head,'A18TopOpticalInterface'),bottom];
+  const opticalAxialCoreOpen=ray.intersectObjects(boreMeshes,false).length===0;
+  const screwPostClearance=bolts.map(s=>Number((box(s).min.x-box(fixed).max.x).toFixed(3)));
+  return {available:true,railCount:rails.length,shoeCount:shoes.length,
+    slidingGuideGapMm:railGap,
+    slidingGuideClearanceCandidate:railGap.every(v=>v>=.5&&v<=.9),
+    guideWearMounted:strips.every((s,i)=>overlap(s,rails[i])>5),
+    shoesEngagedWithCarriage:shoes.every(s=>overlap(s,carriage)>5),
+    bridgeToCarriageOverlapMm3:overlap(bridge,carriage),
+    bridgeToAdapterOverlapMm3:overlap(bridge,adapter),
+    adapterToNosepieceOverlapMm3:overlap(adapter,bottom),
+    nosepieceMountNeckAxialOverlapMm:Number(Math.max(0,
+      Math.min(box(bottom).max.y,box(neck).max.y)-
+      Math.max(box(bottom).min.y,box(neck).min.y)).toFixed(2)),
+    opticalAxialCoreOpen,
+    axialBoreDiameterCandidateMm:head.userData.A18OpticalThroughBoreDiameterCandidateMm,
+    axialBorePhysicallyMeasured:false,
+    sleeveBoltOverlap:bolts.map(s=>overlap(s,clamp)),
+    screwPostClearanceMm:screwPostClearance,
+    clampFastenersEngaged:screwPostClearance.every(v>0)&&bolts.every(s=>overlap(s,clamp)>0),
+    a10a18PartBoundaryVerified:false,oemFocusModuleIdentified:false,
+    fabricationReady:false};
+ };
+ window.__modelAVerticalGuideProbe=()=>{
  if(platform!=='A')return {available:false};
  const stage=parts.get('A03')?.g;
  const fixed=stage?.children.filter(m=>m.userData.A03StationarySideGuide);
@@ -3572,15 +3626,16 @@ function platformA(){
     const boomShell=add(movingBoom,plate(34,86,25,mats.dark,
       [[0,25,13.3]]));
     boomShell.position.set(0,187.5,25);
-    // Candidate split sleeve and lateral bolt pair for microscope boom.
-    // The post and head interfaces still require original manufacturer CAD.
-    const boomCollar=add(movingBoom,sleeve(17.1,13.3,15,mats.dark,0,191,0,'y'));
+    // V142: put both clamp bolts into the actual split sleeve instead of
+    // floating at the edge of the old 34.2-mm ring. Thread is unverified.
+    const boomCollar=add(movingBoom,sleeve(19.5,13.3,15,mats.dark,0,199,0,'y'));
     boomCollar.userData.A10SlidingPostClampCandidate=true;
-    for(const z of [-13,13]){
-      const bolt=add(movingBoom,cyl(2.5,12,mats.steel,19,190,z,24));
+    boomCollar.userData.A10SleeveOuterDiameterCandidateMm=39;
+    for(const z of [-8,8]){
+      const bolt=add(movingBoom,cyl(2.5,9,mats.steel,18.5,199,z,24));
       bolt.rotation.z=Math.PI/2;
       bolt.userData.A10ClampBoltCandidate=true;
-      const head=add(movingBoom,cyl(4,2.6,mats.silver,26,190,z,24));
+      const head=add(movingBoom,cyl(4,2.6,mats.silver,24.2,199,z,24));
       head.rotation.z=Math.PI/2;
       head.userData.A10ClampBoltHeadCandidate=true;
     }
@@ -3746,7 +3801,10 @@ function platformA(){
    // puts the optical axis ~18 mm inside the 84 mm body left edge (~21% of width).
    // The 24 mm value is a photo-ratio candidate, not a ruler measurement.
    const bodyX=24;
-   const bodyMid=add(g,cub(84,38,88,mats.dark,bodyX,2,0));
+   // Real optical aperture across the focus body; Ø20 remains unmeasured.
+    const bore=[[-bodyX,0,10]];
+    const bodyMid=add(g,plate(84,88,38,mats.dark,bore));
+    bodyMid.position.set(bodyX,-17,0);
    bodyMid.userData.A18PhotoConstrainedMainBody=true;
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
@@ -3759,24 +3817,37 @@ function platformA(){
    }
    const carriage=add(g,cub(54,15,7,mats.dark,24,-25,49));
    carriage.userData.A18DovetailCarriageCandidate=true;
+    // Guide shoes belong to the moving carriage and engage it on both sides.
+    // The 0.7 mm clearance to stationary wear strips is a scene candidate.
+    for(const x of [-7.6,55.6]){
+      const shoe=add(g,cub(11,28,2,mats.steel,x,-19,49.4));
+      shoe.userData.A18SlidingShoeCandidate=x<0?'left':'right';
+    }
    const adapter=add(g,cub(44,5,37,mats.black,3,-34,23));
    adapter.userData.A18ObjectiveDovetailAdapterCandidate=true;
+    // The adapter previously stopped 4 mm short of its carrier.
+    const opticalBridge=add(g,cub(42,12,8,mats.dark,3,-29,43.5));
+    opticalBridge.userData.A18OpticalCarrierBridgeCandidate=true;
    for(const x of [-10,58])for(const y of [-9,17]){
-     const screw=add(g,cyl(2.25,1.4,mats.steel,x,y,46.3,24));
+     const screw=add(g,cyl(2.25,1.4,mats.steel,x,y,47.2,24));
      screw.rotation.x=Math.PI/2;
      screw.userData.A18FaceMountScrewCandidate=true;
    }
-   const bodyLower=add(g,cub(70,18,88,mats.dark,bodyX,-26,0));
+   const bodyLower=add(g,plate(70,88,18,mats.dark,bore));
+    bodyLower.position.set(bodyX,-35,0);
    bodyLower.userData.A18BodySegment='lower';
-   const bodyUpper=add(g,cub(76,14,88,mats.dark,bodyX,28,0));
+   const bodyUpper=add(g,plate(76,88,14,mats.dark,bore));
+    bodyUpper.position.set(bodyX,21,0);
    bodyUpper.userData.A18BodySegment='upper';
-   const front=add(g,cub(70,44,4,mats.black,bodyX,1,46));
+   const front=add(g,cub(70,44,1.4,mats.black,bodyX,1,44.7));
    front.userData.A18FrontFace=true;
    for(const o of [bodyMid,bodyLower,bodyUpper,front])o.userData.A18CurrentPhotoFitBody=true;
-   const topCollar=add(g,cyl(22,8,mats.black,0,39,0,64));
+   const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,39,0,'y'));
    topCollar.userData.A18TopOpticalInterface=true;
-   const bottomCollar=add(g,cyl(24,8,mats.black,0,-39,0,64));
+   const bottomCollar=add(g,sleeve(24,18.1,8,mats.black,0,-39,0,'y'));
    bottomCollar.userData.A18NosepieceInterface=true;
+    g.userData.A18OpticalThroughBoreDiameterCandidateMm=20;
+    g.userData.A18OpticalThroughBoreMeasured=false;
    for(const sign of [-1,1]){
      const hub=add(g,cyl(9,12,mats.dark,bodyX+sign*45,0,0,64));
      hub.rotation.z=Math.PI/2;hub.userData.A18FocusHub=sign;
@@ -3902,7 +3973,7 @@ function platformA(){
    const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
    turret.userData.A19TurretEnvelopeCandidate=true;
    add(g,torus(34,1,mats.steel,0,0,0));
-   const neck=add(g,cyl(18,5,mats.dark,0,7.5,0,64));
+   const neck=add(g,cyl(18,5,mats.dark,0,5.5,0,64));
    neck.userData.A19A18MountNeck=true;
    const objective=(x,angle,labelText,bandMat,side)=>{
      const pivot=new THREE.Group();pivot.position.set(x,-5,0);

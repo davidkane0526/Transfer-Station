@@ -1073,6 +1073,26 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
+ // V142 evaluate the ACTUAL rendered microscope guide, bore and clamp meshes.
+ const chain=await page.evaluate(()=>window.__A18MechanicalTopologyProbe?.());
+ console.log('V142 A microscope mechanical topology:',JSON.stringify(chain));
+ assert.equal(chain?.available,true);
+ assert.equal(chain.railCount,2);
+ assert.equal(chain.shoeCount,2);
+ assert.equal(chain.slidingGuideClearanceCandidate,true);
+ assert.equal(chain.guideWearMounted,true);
+ assert.equal(chain.shoesEngagedWithCarriage,true);
+ assert(chain.bridgeToCarriageOverlapMm3>100);
+ assert(chain.bridgeToAdapterOverlapMm3>100);
+ assert(chain.adapterToNosepieceOverlapMm3>100);
+ assert(chain.nosepieceMountNeckAxialOverlapMm>=1.9);
+ assert.equal(chain.opticalAxialCoreOpen,true);
+ assert.equal(chain.axialBoreDiameterCandidateMm,20);
+ assert.equal(chain.axialBorePhysicallyMeasured,false);
+ assert.equal(chain.clampFastenersEngaged,true);
+ assert.equal(chain.a10a18PartBoundaryVerified,false);
+ assert.equal(chain.oemFocusModuleIdentified,false);
+ assert.equal(chain.fabricationReady,false);
  // V111 hidden MGZ30-family topology study: compare a direct-post-clamp
  // architecture without changing the installed/photo-fit default.
  assert.equal(await page.evaluate(()=>window.__focusA18MGZ30FamilyStudy?.()),true);
