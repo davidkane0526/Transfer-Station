@@ -928,7 +928,7 @@ def make_a():
     # 125mm forward boom still penetrated 37.5mm into the A18 casing.
     # Terminate the support at its rear face (Y=-44). A10 column
     # remains at Y=-112 with a through hole; these are scene candidates.
-    boom=box(34,86,25,cx,-87,207.5).cut(vz(13.3,25.2,cx,-112,207.4))
+    boom=box(34,38,25,cx,-111,207.5).cut(vz(13.3,25.2,cx,-112,207.4))
     # V142: candidate split clamp carries radial screws outside the Ø26 post.
     boom_collar=vz(19.5,15,cx,-112,211.5).cut(vz(13.3,15.2,cx,-112,211.4))
     boom=boom.fuse(boom_collar).clean()
@@ -1084,15 +1084,30 @@ def make_a():
     # stepped shells. This prevents STEP export from degenerating into three
     # merely face-touching solids while leaving the external silhouette unchanged.
     a18_body_x=cx+24
-    a18_core=box(34,88,70,a18_body_x,0,165)
+    a18_core=box(34,88,70,a18_body_x,-48,165)
     a18_body=(a18_core
-              .fuse(box(70,88,18,a18_body_x,0,165),
-                    box(84,88,38,a18_body_x,0,179),
-                    box(76,88,14,a18_body_x,0,221)).clean())
+              .fuse(box(70,88,18,a18_body_x,-48,165),
+                    box(84,88,38,a18_body_x,-48,179),
+                    box(76,88,14,a18_body_x,-48,221)).clean())
     # Real open Ø20 vertical optical clearance (unmeasured candidate).
-    a18_body=a18_body.cut(vz(10,70,cx,0,165)).clean()
+    # V144: axial light path is IN FRONT OF, not THROUGH, the focus gearbox.
+    # Do not put a fabricated Ø20 bore through an unidentified focus block.
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
+    # V144 rear focus block -> true fixed front guide cantilever fork.
+    # All dimensions here are C-grade topology candidates.
+    for idx,x in enumerate((cx-11,cx+59),1):
+        for suffix,z in (('U',217),('L',175)):
+            beam=box(8,54,6,x,22,z)
+            add('A',f'A18B{idx}{suffix}','FOCUS_FRONT_CANTILEVER_FORK_CANDIDATE',
+                beam,'C')
+    # Four auxiliary straps link both optical annular mounts to the
+    # rear focus block without filling the front optical channel.
+    for idx,x in enumerate((cx-17,cx+17),1):
+        for suffix,z in (('U',232),('L',160)):
+            strap=box(8,30,8,x,-9,z)
+            add('A',f'A18S{idx}{suffix}','OFFSET_OPTICAL_MOUNT_STRAP_CANDIDATE',
+                strap,'C')
     add('A','A18F','RECESSED_FOCUS_FRONT_COVER_CANDIDATE',
         box(70,1.4,44,a18_body_x,44.7,179),'C')
     # Two guides and wear strips on stationary body, with distinct moving shoes.
@@ -1116,12 +1131,12 @@ def make_a():
     add('A','A18N','HOLLOW_NOSEPIECE_SOCKET_CANDIDATE',
         vz(24,8,cx,0,157).cut(vz(18.1,8.2,cx,0,156.9)),'C')
     # Continuous left/right focus chains: body -> hub -> coarse -> fine.
-    add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x-51,0,200),'C')
-    add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x+39,0,200),'C')
-    add('A','A18FL','LEFT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,a18_body_x-63,0,200),'C')
-    add('A','A18FR','RIGHT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,a18_body_x+49,0,200),'C')
-    add('A','A18FLL','LEFT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x-71,0,200),'C')
-    add('A','A18FRL','RIGHT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x+63,0,200),'C')
+    add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x-51,-48,200),'C')
+    add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x+39,-48,200),'C')
+    add('A','A18FL','LEFT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,a18_body_x-63,-48,200),'C')
+    add('A','A18FR','RIGHT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,a18_body_x+49,-48,200),'C')
+    add('A','A18FLL','LEFT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x-71,-48,200),'C')
+    add('A','A18FRL','RIGHT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x+63,-48,200),'C')
 
     # V111: separate, NOT-installed MGZ30 family-topology study.
     # Reuse the current photo-fit main-body envelope and current post center,
@@ -1171,7 +1186,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V143'
+CAD_REVISION='V144'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
