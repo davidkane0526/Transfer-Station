@@ -5778,7 +5778,43 @@ function _a18OpticalRays(q){
    _auditRayClear(q.turret,[q.a19])
  ];
 }
-function _a18SupportRays(q){
+// V144: each coarse wheel has a legitimate exposed SIDE face.
+ // Do not require both opposite wheel faces to be visible at once through
+ // an opaque focus block. Check them separately from actual camera rays.
+ window.__A18BilateralFocusVisibilityProbe=()=>{
+   if(platform!=='A')return {available:false};
+   const q=_a18AuditTargets();if(!q)return {available:false};
+   currentRoot.updateWorldMatrix(true,true);
+   const savedPosition=camera.position.clone(),savedTarget=orbit.target.clone(),savedUp=camera.up.clone();
+   const target=_auditBoxFor([q.a18,q.a19]).getCenter(new THREE.Vector3());
+   const inspect=(sign)=>{
+     const offsets=[
+       [sign*250,0,-90],[sign*250,75,-90],[sign*250,-75,-90],
+       [sign*230,0,35],[sign*180,65,160],[sign*180,-65,160],
+       [sign*230,35,-170],[sign*170,65,-180]
+     ];
+     let best={visible:false,offset:null,firstPart:null};
+     for(const off of offsets){
+       camera.position.copy(target).add(new THREE.Vector3(...off));
+       orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+       const out=sign<0?_auditAnyVisibleSurface(q.coarseL,_a18CoarseRoots(q,-1)):
+                          _auditAnyVisibleSurface(q.coarseR,_a18CoarseRoots(q,1));
+       if(out.clear){best={visible:true,offset:off,firstPart:out.firstPart};break;}
+       if(best.offset===null)best={visible:false,offset:off,firstPart:out.firstPart};
+     }
+     return best;
+   };
+   let left,right;
+   try{left=inspect(-1);right=inspect(1);}
+   finally{
+     camera.position.copy(savedPosition);camera.up.copy(savedUp);
+     orbit.target.copy(savedTarget);camera.lookAt(savedTarget);orbit.update();
+   }
+   return {available:true,leftVisible:left.visible,rightVisible:right.visible,
+     leftSide:left,rightSide:right,oppositeFacesRequireSeparateViews:true,
+     usedOccluderHiding:false,skippedRayOcclusions:false};
+ };
+ function _a18SupportRays(q){
  return [
    _auditAnyVisibleSurface(q.body,[q.body]),
    _auditAnyVisibleSurface(q.boom,[q.boom])
