@@ -511,6 +511,15 @@ window.__modelAOpticalClearanceProbe=()=>{
   const ray=new THREE.Raycaster(origin,new THREE.Vector3(0,1,0),0,100);
   const boreMeshes=[...tag(head,'A18BodySegment'),one(head,'A18TopOpticalInterface'),bottom];
   const opticalAxialCoreOpen=ray.intersectObjects(boreMeshes,false).length===0;
+  // Raycast the entire radius, not merely the axial centreline: otherwise
+  // an apparent bore can conceal a cylinder/gearbox collision.
+  const radialSamples=[...Array(12)].map((_,i)=>{
+    const a=i*2*Math.PI/12;
+    const p=head.localToWorld(new THREE.Vector3(9.5*Math.cos(a),-50,9.5*Math.sin(a)));
+    return new THREE.Raycaster(p,new THREE.Vector3(0,1,0),0,100)
+      .intersectObjects(boreMeshes,false).length===0;
+  });
+  const opticalRadius9p5MmOpen=radialSamples.every(Boolean);
   const screwPostClearance=bolts.map(s=>Number((box(s).min.x-box(fixed).max.x).toFixed(3)));
   return {available:true,railCount:rails.length,shoeCount:shoes.length,
     slidingGuideGapMm:railGap,
@@ -523,7 +532,8 @@ window.__modelAOpticalClearanceProbe=()=>{
     nosepieceMountNeckAxialOverlapMm:Number(Math.max(0,
       Math.min(box(bottom).max.y,box(neck).max.y)-
       Math.max(box(bottom).min.y,box(neck).min.y)).toFixed(2)),
-    opticalAxialCoreOpen,
+    opticalAxialCoreOpen,opticalRadius9p5MmOpen,
+    radialOpticalClearanceSamples:radialSamples.length,
     axialBoreDiameterCandidateMm:head.userData.A18OpticalThroughBoreDiameterCandidateMm,
     externalOpticalClearanceCandidateMm:head.userData.A18ExternalOpticalClearanceCandidateMm,
     opticalAxisOutsideFocusBody:head.userData.A18OpticalAxisOutsideFocusBody,
@@ -3835,7 +3845,24 @@ function platformA(){
    // Real optical aperture across the focus body; Ø20 remains unmeasured.
     // V144: don't pretend the drive gearbox is a hollow optical tube.
     const focusBodyDepthZ=-48; // unmeasured topology candidate
-    const bodyMid=add(g,cub(84,38,88,mats.dark,bodyX,2,focusBodyDepthZ));
+    // Unlike V142's fake through-gearbox lens hole, this is a genuine
+    // open-front edge relief so a 20mm optical cylinder stays outside the
+    // focus drive solid. This notch is an unmeasured C-grade fit.
+    const focusShell=(w,h,bottomY)=>{
+      const half=w/2;
+      const cutLeft=Math.max(-half,-bodyX-12),cutRight=-bodyX+12;
+      const pts=[[-half,44],[half,44],[half,-44],[cutRight,-44],
+        [cutRight,-27],[cutLeft,-27]];
+      if(cutLeft>-half+.001)pts.push([cutLeft,-44],[-half,-44]);
+      const outline=new THREE.Shape();
+      pts.forEach(([x,z],i)=>i?outline.lineTo(x,z):outline.moveTo(x,z));
+      outline.closePath();
+      const geometry=new THREE.ExtrudeGeometry(outline,{depth:h,bevelEnabled:false,steps:1});
+      geometry.rotateX(-Math.PI/2);
+      const mesh=mk(geometry,mats.dark);mesh.position.set(bodyX,bottomY,focusBodyDepthZ);
+      return add(g,mesh);
+    };
+    const bodyMid=focusShell(84,38,-17);
    bodyMid.userData.A18PhotoConstrainedMainBody=true;
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
@@ -3864,9 +3891,9 @@ function platformA(){
      screw.rotation.x=Math.PI/2;
      screw.userData.A18FaceMountScrewCandidate=true;
    }
-   const bodyLower=add(g,cub(70,18,88,mats.dark,bodyX,-26,focusBodyDepthZ));
+   const bodyLower=focusShell(70,18,-35);
    bodyLower.userData.A18BodySegment='lower';
-   const bodyUpper=add(g,cub(76,14,88,mats.dark,bodyX,28,focusBodyDepthZ));
+   const bodyUpper=focusShell(76,14,21);
    bodyUpper.userData.A18BodySegment='upper';
    const front=add(g,cub(70,44,1.4,mats.black,bodyX,1,44.7));
    front.userData.A18FrontFace=true;
