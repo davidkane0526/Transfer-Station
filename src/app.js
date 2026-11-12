@@ -502,7 +502,7 @@ window.__modelAOpticalClearanceProbe=()=>{
     axialBorePhysicallyMeasured:false,
     sleeveBoltOverlap:bolts.map(s=>overlap(s,clamp)),
     screwPostClearanceMm:screwPostClearance,
-    clampFastenersEngaged:screwPostClearance.every(v>0)&&bolts.every(s=>overlap(s,clamp)>0),
+    clampFastenersEngaged:screwPostClearance.every(v=>v>0)&&bolts.every(s=>overlap(s,clamp)>0),
     a10a18PartBoundaryVerified:false,oemFocusModuleIdentified:false,
     fabricationReady:false};
  };
