@@ -1020,8 +1020,8 @@ try{
  console.log('V106 A18 optical closeup QA:',JSON.stringify(a18Optical));
  assert.equal(a18Optical?.available,true);
  assert.equal(a18Optical.mode,'optical');
- assert.equal(a18Optical.selectedVisibilityScore,4,
-   'A18 optical audit must find one view with body, both coarse wheels and A19 turret all directly visible');
+ assert(a18Optical.selectedVisibilityScore>=3,
+   'A18 frontal audit must show the body, the A19 turret and at least one focus control');
  assert(Math.abs(a18Optical.projection.centerX)<.28&&Math.abs(a18Optical.projection.centerY)<.28,
    'A18/A19 optical chain must be centered in its dedicated optical audit frame');
  assert(a18Optical.projection.width>.30&&a18Optical.projection.height>.28,
@@ -1030,8 +1030,18 @@ try{
    'A18 optical audit must fit the complete target instead of cropping it off-screen');
  assert(a18Optical.fitScale>=1,'A18 audit framing scale must be reported');
  assert.equal(a18Optical.bodyRay.clear,true);
- assert.equal(a18Optical.leftCoarseRay.clear,true);
- assert.equal(a18Optical.rightCoarseRay.clear,true);
+ assert(a18Optical.leftCoarseRay.clear||a18Optical.rightCoarseRay.clear,
+   'A18 main audit must expose at least one actual coarse focus wheel');
+ const bilateral=await page.evaluate(()=>window.__A18BilateralFocusVisibilityProbe?.());
+ console.log('V144 A18 actual left/right focus visibility:',JSON.stringify(bilateral));
+ assert.equal(bilateral?.available,true);
+ assert.equal(bilateral.leftVisible,true,
+   'A18 left wheel must be inspectable from the left without hide tricks');
+ assert.equal(bilateral.rightVisible,true,
+   'A18 right wheel must be inspectable from the right without hide tricks');
+ assert.equal(bilateral.oppositeFacesRequireSeparateViews,true);
+ assert.equal(bilateral.usedOccluderHiding,false);
+ assert.equal(bilateral.skippedRayOcclusions,false);
  assert.equal(a18Optical.turretRay.clear,true,
    'A19 turret must be directly inspectable in the lower/front optical audit view');
  assert.equal(a18Optical.A11IsSeparatePart,true,
