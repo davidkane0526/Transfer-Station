@@ -3956,7 +3956,9 @@ function platformA(){
     for(const o of [bodyMid,bodyLower,bodyUpper,front,fixedWebL,
       fixedWebR,movingSpine,movingRing,movingUpright,upperEar])
       o.userData.A18CurrentPhotoFitBody=true;
-    const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,31,0,'y'));
+    // Scene parked optical assembly adds a 1mm net interface offset;
+    // the A08 bottom face must NOT overlap the A18 upper sleeve.
+    const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,30,0,'y'));
     topCollar.userData.A18TopOpticalInterface=true;
     g.userData.A18SupportTopology='dual-fixed-cast-gussets-plus-one-moving-bored-yoke';
     g.userData.A18V144FourRodForkRemoved=true;
