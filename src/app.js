@@ -3883,7 +3883,7 @@ function platformA(){
       const mesh=mk(geometry,mats.dark);mesh.position.set(bodyX,bottomY,focusBodyDepthZ);
       return add(g,mesh);
     };
-    const bodyMid=focusShell(84,38,-17);
+    const bodyMid=add(g,cub(84,38,88,mats.dark,bodyX,2,focusBodyDepthZ));
    bodyMid.userData.A18PhotoConstrainedMainBody=true;
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
@@ -3912,9 +3912,21 @@ function platformA(){
      screw.rotation.x=Math.PI/2;
      screw.userData.A18FaceMountScrewCandidate=true;
    }
-   const bodyLower=focusShell(70,18,-35);
+   // This lower gearbox casting needs a real open FRONT relief for the
+    // moving nosepiece annulus; V144 cut the wrong (rear) edge instead.
+    const lowerOutline=new THREE.Shape();
+    [[-35,-44],[35,-44],[35,44],[6.5,44],[6.5,12],[-35,12]]
+      .forEach(([x,z],i)=>i?lowerOutline.lineTo(x,z):lowerOutline.moveTo(x,z));
+    lowerOutline.closePath();
+    const lowerGeometry=new THREE.ExtrudeGeometry(lowerOutline,{
+      depth:18,bevelEnabled:false,steps:1
+    });
+    lowerGeometry.rotateX(-Math.PI/2);
+    const bodyLower=add(g,mk(lowerGeometry,mats.dark));
+    bodyLower.position.set(bodyX,-35,focusBodyDepthZ);
+    bodyLower.userData.A18LowerFrontOpticalRelief=true;
    bodyLower.userData.A18BodySegment='lower';
-   const bodyUpper=focusShell(76,14,21);
+   const bodyUpper=add(g,cub(76,14,88,mats.dark,bodyX,28,focusBodyDepthZ));
    bodyUpper.userData.A18BodySegment='upper';
    // V145: MGZ30-family SILHOUETTE REFERENCE ONLY (not an OEM identity).
     // Replace V144's four exposed rods and four disconnected web patches
@@ -3928,9 +3940,9 @@ function platformA(){
     fixedWebR.userData.A18FixedSideWeb='right';
     // Lower yoke: a straight load-bearing spine and a *bored* circular
     // end flange.  Unlike a black painted disc, it has a true axial hole.
-    const movingSpine=add(g,cub(38,7,56,mats.dark,36,-33.5,27));
+    const movingSpine=add(g,cub(38,7,56,mats.dark,36,-31.5,27));
     movingSpine.userData.A18MovingNosepieceSpine=true;
-    const movingRing=add(g,sleeve(29,18.2,7,mats.dark,0,-33.5,0,'y'));
+    const movingRing=add(g,sleeve(29,18.2,7,mats.dark,0,-31.5,0,'y'));
     movingRing.userData.A18MovingNosepieceRing=true;
     // A moving upright supports the upper optical adapter but stays clear
     // of both stationary side-gussets (1 mm running clearance on right).
@@ -3947,7 +3959,7 @@ function platformA(){
     g.userData.A18V144FourRodForkRemoved=true;
     g.userData.A18V144FourFreeStrapsRemoved=true;
     g.userData.A18ManufacturerIdentityVerified=false;
-    const bottomCollar=add(g,sleeve(24,18.1,8,mats.black,0,-39,0,'y'));
+    const bottomCollar=add(g,sleeve(24,18.1,8,mats.black,0,-31,0,'y'));
    bottomCollar.userData.A18NosepieceInterface=true;
     g.userData.A18OpticalThroughBoreDiameterCandidateMm=0;
      g.userData.A18ExternalOpticalClearanceCandidateMm=20;

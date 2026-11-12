@@ -1095,7 +1095,10 @@ def make_a():
     # Open front-edge notch, NOT an invented closed axial hole through drive
     # mechanics. Its 24mm span clears an illustrative Ø20 optical cylinder
     # centred on sample X=78, lateral Y=0. Geometry remains candidate only.
-    a18_body=a18_body.cut(box(24,17,70,cx,-12.5,165)).clean()
+    # V145: unlike V144's incorrect narrow relief at the mechanical side,
+    # open the LOWER body's front-left quadrant to the actual 58mm yoke
+    # outline. Mid/upper focus housing stays closed and visually box-like.
+    a18_body=a18_body.cut(box(92,32,18,cx-14.5,-20,165)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     # V145: two STATIONARY cast side webs engage rear gearbox and fixed
@@ -1106,8 +1109,8 @@ def make_a():
     add('A','A18FW2','FIXED_RIGHT_FOCUS_SIDE_GUSSET_CANDIDATE',
         box(34,70,36,cx+48,19,185),'C')
     add('A','A18SB','MOVING_NOSEPIECE_YOKE_SPINE_CANDIDATE',
-        box(38,56,7,cx+36,27,163),'C')
-    saddle_ring=vz(29,7,cx,0,163).cut(vz(18.2,7.2,cx,0,162.9))
+        box(38,56,7,cx+36,27,165),'C')
+    saddle_ring=vz(29,7,cx,0,165).cut(vz(18.2,7.2,cx,0,164.9))
     add('A','A18SR','MOVING_NOSEPIECE_BORED_RING_CANDIDATE',
         saddle_ring,'C')
     add('A','A18VR','MOVING_OPTICAL_UPRIGHT_CANDIDATE',
@@ -1135,7 +1138,7 @@ def make_a():
     add('A','A18T','HOLLOW_TOP_OPTICAL_COUPLER_CANDIDATE',
         vz(22,8,cx,0,227).cut(vz(13.1,8.2,cx,0,226.9)),'C')
     add('A','A18N','HOLLOW_NOSEPIECE_SOCKET_CANDIDATE',
-        vz(24,8,cx,0,157).cut(vz(18.1,8.2,cx,0,156.9)),'C')
+        vz(24,8,cx,0,165).cut(vz(18.1,8.2,cx,0,164.9)),'C')
     # Continuous left/right focus chains: body -> hub -> coarse -> fine.
     add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x-51,-48,200),'C')
     add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x+39,-48,200),'C')

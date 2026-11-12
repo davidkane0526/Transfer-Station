@@ -1125,6 +1125,7 @@ try{
  assert.equal(chain.castRightEngagesGuide,true);
  assert.equal(chain.yokeMovesWithCarriage,true);
  assert.equal(chain.yokeContactsNosepiece,true);
+ assert.equal(chain.nosepieceMountNeckAxialOverlapMm>=1.9,true);
  assert.equal(chain.movingUprightContactsYoke,true);
  assert.equal(chain.upperEarContactsUpright,true);
  assert.equal(chain.upperEarContactsOpticalCollar,true);

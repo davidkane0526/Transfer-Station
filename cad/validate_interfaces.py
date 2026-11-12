@@ -935,7 +935,7 @@ report['V108_A10_A18_component_boundary']={
 optical_axis_probe=vz(9.9,70,78,0,165)
 check(a18_shape.intersect(optical_axis_probe).Volume()<1e-4,
       'V142 A18 requires a true through-bore for the optical axis')
-for key,z in (('A18T',231),('A18N',161)):
+for key,z in (('A18T',231),('A18N',169)):
     coupler=part(A,key)[0]
     check(coupler.intersect(vz(9.9,8,78,0,z)).Volume()<1e-4,
           'V145 '+key+' optical coupler must actually be hollow')
@@ -1010,8 +1010,13 @@ check(moving_up.intersect(part(A,'A18FW2')[0]).Volume()<1e-4,
       'V145 moving optical upright cannot penetrate stationary right gusset')
 check(abs(top_flange.BoundingBox().zmax-235)<.02,
       'V145 A18 top flange must FACE-MATE to OEM TTL200-A bottom at 235mm')
-check(abs(bottom_flange.BoundingBox().zmin-157)<.02,
-      'V145 bottom sleeve shall reach A19 connector insertion zone')
+check(abs(bottom_flange.BoundingBox().zmin-165)<.02,
+      'V145 bottom sleeve should sit ON turret top plane, not interpenetrate it')
+check(moving_ring.intersect(part(A,'A19')[0]).Volume()<1e-4 and
+      bottom_flange.intersect(part(A,'A19')[0]).Volume()<1e-4,
+      'V145 both moving annulus and nosepiece sleeve must CLEAR A19 turret')
+check(moving_ring.intersect(a18_shape).Volume()<1e-4,
+      'V145 yoke must run in the front relief, not through static lower gearbox')
 report['V145_compact_microscope_support_chain']={
   'fixed_cast_gussets':2,'moving_lower_yoke':1,
   'actual_bored_yoke_ring':True,'moving_optical_upright':1,
