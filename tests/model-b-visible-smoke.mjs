@@ -1139,7 +1139,8 @@ try{
  assert.equal(chain.fabricationReady,false);
  // V111 hidden MGZ30-family topology study: compare a direct-post-clamp
  // architecture without changing the installed/photo-fit default.
- assert.equal(await page.evaluate(()=>window.__focusA18MGZ30FamilyStudy?.()),true);
+ assert.equal(await page.locator('#btn-a18-mgz-study').isVisible(),true);
+ await page.locator('#btn-a18-mgz-study').click();
  await page.waitForTimeout(220);
  const mgzStudy=await page.evaluate(()=>window.__A18MGZ30FamilyStudyProbe?.());
  console.log('V111 A18 MGZ30-family topology study:',JSON.stringify(mgzStudy));
@@ -1149,6 +1150,13 @@ try{
    'MGZ30 family study must never silently replace the installed photo-fit geometry');
  assert.equal(mgzStudy.exactVendorGeometry,false);
  assert.equal(mgzStudy.photoFitMainBodyEnvelopeRetained,true);
+ assert.equal(mgzStudy.coarseFocusKnobCount,2);
+ assert.equal(mgzStudy.fineFocusKnobCount,2);
+ assert.equal(mgzStudy.topCoverScrewCount,4);
+ assert.equal(mgzStudy.radialClampBoltPresent,true);
+ assert.equal(mgzStudy.fiveObjectiveTurretVendorVerified,true);
+ assert.equal(mgzStudy.fiveObjectiveTurretReconstructed,false);
+ assert.match(mgzStudy.fiveObjectiveTurretNotModeledReason,/photo-fit/);
  assert.equal(mgzStudy.vendorDirectPostDiameterMm,38.1);
  assert.equal(mgzStudy.currentScenePostDiameterMm,26);
  assert.equal(mgzStudy.postDiameterConflictMm,12.1,
@@ -1166,7 +1174,7 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
- assert.equal(await page.evaluate(()=>window.__setA18MGZ30FamilyStudy?.(false)),true);
+ await page.locator('#btn-a18-mgz-study').click();
  const mgzRestored=await page.evaluate(()=>window.__A18MGZ30FamilyStudyProbe?.());
  assert.equal(mgzRestored.studyVisible,false);
  assert.equal(mgzRestored.currentSeparateBoomVisible,true);

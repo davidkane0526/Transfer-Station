@@ -1156,10 +1156,20 @@ def make_a():
     # and a direct vertical Ø38.1mm post clamp. This is topology comparison,
     # not exact MGZ30 CAD and not evidence that the real post is Ø38.1mm.
     mgz_study_body=box(84,88,70,a18_body_x,0,165)
+    # Bilateral coarse/fine focus drums from the official MGZ30 family
+    # topology. Detailed knurl/thread profiles remain simplified.
+    mgz_knobs=[]
+    for sign in (-1,1):
+        mgz_knobs.extend((
+            vx(9,12,cx+sign*30,0,200),
+            vx(18,14,cx+sign*42,0,200),
+            vx(11,8,cx+sign*56,0,200)))
     mgz_study_bridge=box(60,43,38,cx+12,-65,181)
     mgz_study_ring=vz(26,18,cx,-112,191).cut(
         vz(19.05,18.2,cx,-112,190.9))
-    mgz_study=(mgz_study_body.fuse(mgz_study_bridge,mgz_study_ring).clean())
+    mgz_cover_screws=[vz(2.2,1.6,cx+dx,dy,234) for dx in (-29,29) for dy in (-29,29)]
+    mgz_study=(mgz_study_body.fuse(*mgz_knobs,mgz_study_bridge,
+        mgz_study_ring,*mgz_cover_screws).clean())
     add('A','A18MGZ',
         'MGZ30_FAMILY_INTEGRAL_REAR_POST_CLAMP_TOPOLOGY_STUDY_NOT_INSTALLED',
         mgz_study,'C')
@@ -1198,7 +1208,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V145'
+CAD_REVISION='V146'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

@@ -1035,6 +1035,8 @@ check(mgz_study.intersect(mgz_bore_probe).Volume()<1e-4,
       'V111 MGZ30-family study must retain an open vertical Ø38.1mm-class post bore')
 check(mgz_bb.ymin<-137 and mgz_bb.ymax>43,
       'V111 MGZ30-family study must span from direct post clamp to photo-fit focus body')
+check(mgz_study.intersect(vz(18.9,18.2,78,-112,190.9)).Volume()<1e-4,
+      'V146 MGZ30-family study must preserve the Ø38.1mm direct-post clamp bore')
 uninstalled_csv=ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv'
 uninstalled_text=uninstalled_csv.read_text(encoding='utf-8-sig') if uninstalled_csv.exists() else ''
 check(uninstalled_csv.exists() and 'A18MGZ' in uninstalled_text and 'A05C1302' in uninstalled_text and

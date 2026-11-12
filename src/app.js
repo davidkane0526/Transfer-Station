@@ -3995,16 +3995,41 @@ function platformA(){
    mgz30Study.visible=false;g.add(mgz30Study);
    const mgzStudyBody=add(mgz30Study,cub(84,70,88,mats.dark,bodyX,0,0));
    mgzStudyBody.userData.MGZ30FamilyStudyBody=true;
+   // V146: manufacturer-family details, kept in the uninstalled study only.
+   for(const sign of [-1,1]){
+     const hub=add(mgz30Study,cyl(9,12,mats.dark,bodyX+sign*45,0,0,64));
+     hub.rotation.z=Math.PI/2;hub.userData.MGZ30StudyFocusHub=sign;
+     const coarse=add(mgz30Study,cyl(18,14,mats.black,bodyX+sign*56,0,0,64));
+     coarse.rotation.z=Math.PI/2;coarse.userData.MGZ30StudyCoarseKnob=sign;
+     const fine=add(mgz30Study,cyl(11,8,mats.dark,bodyX+sign*67,0,0,64));
+     fine.rotation.z=Math.PI/2;fine.userData.MGZ30StudyFineKnob=sign;
+     for(let q=0;q<6;q++){
+       const ring=add(mgz30Study,torus(18.08,.24,mats.ink,bodyX+sign*(50.5+q*2.3),0,0));
+       ring.rotation.y=Math.PI/2;ring.userData.MGZ30StudyCoarseKnurl=sign;
+     }
+   }
+   for(const x of [bodyX-29,bodyX+29])for(const z of [-29,29]){
+     const screw=add(mgz30Study,cyl(2.2,1.6,mats.silver,x,35.5,z,24));
+     screw.userData.MGZ30StudyTopCoverScrew=true;
+   }
    const mgzRearBridge=add(mgz30Study,cub(60,38,43,mats.dark,12,0,-65));
    mgzRearBridge.userData.MGZ30FamilyIntegralRearBridge=true;
    const mgzPostClamp=add(mgz30Study,sleeve(26,19.05,18,mats.dark,0,0,-112,'y'));
    mgzPostClamp.userData.MGZ30FamilyPostClampRing=true;
+   const clampBolt=add(mgz30Study,cyl(2.5,10,mats.steel,25,0,-112,24));
+   clampBolt.rotation.z=Math.PI/2;clampBolt.userData.MGZ30StudyRadialClampBolt=true;
+   const clampHead=add(mgz30Study,cyl(4,3,mats.silver,31,0,-112,24));
+   clampHead.rotation.z=Math.PI/2;clampHead.userData.MGZ30StudyRadialClampHead=true;
    mgzPostClamp.userData.MGZ30FamilyPostBoreDiameterMm=38.1;
    mgzPostClamp.userData.MGZ30FamilyClampOuterDiameterCandidateMm=52;
    mgz30Study.userData.MGZ30FamilyTopologyStudy=true;
    mgz30Study.userData.installedByDefault=false;
    mgz30Study.userData.exactVendorGeometry=false;
    mgz30Study.userData.photoFitMainBodyEnvelopeRetained=true;
+   mgz30Study.userData.MGZ30VendorFeatures=['30mm Z travel','coaxial coarse/fine focus','five-objective turret','direct Ø1.5in post mounting','30mm cage / SM1 / SM2 dovetail'];
+   mgz30Study.userData.MGZ30FiveObjectiveTurretVendorVerified=true;
+   mgz30Study.userData.MGZ30FiveObjectiveTurretReconstructed=false;
+   mgz30Study.userData.MGZ30ReasonTurretNotReconstructed='photo-fit only supports two visible objective positions; unseen ports and pitch circle are not measured';
    mgz30Study.userData.vendorDirectPostDiameterMm=38.1;
    mgz30Study.userData.currentScenePostDiameterMm=26;
    g.userData.MGZ30FamilyTopologyStudyGroup=mgz30Study;
@@ -6005,8 +6030,18 @@ window.__A18MGZ30FamilyStudyProbe=()=>{
  const bridgeBox=new THREE.Box3().setFromObject(q.bridge);
  const ringBox=new THREE.Box3().setFromObject(q.ring);
  const xzAlignment=Math.hypot(ringPos.x-postPos.x,ringPos.z-postPos.z);
+ const coarseKnobs=q.study.children.filter(o=>o.userData.MGZ30StudyCoarseKnob);
+ const fineKnobs=q.study.children.filter(o=>o.userData.MGZ30StudyFineKnob);
+ const topScrews=q.study.children.filter(o=>o.userData.MGZ30StudyTopCoverScrew);
  return {
    available:true,
+   coarseFocusKnobCount:coarseKnobs.length,
+   fineFocusKnobCount:fineKnobs.length,
+   topCoverScrewCount:topScrews.length,
+   radialClampBoltPresent:q.study.children.some(o=>o.userData.MGZ30StudyRadialClampBolt),
+   fiveObjectiveTurretVendorVerified:Boolean(q.study.userData.MGZ30FiveObjectiveTurretVendorVerified),
+   fiveObjectiveTurretReconstructed:Boolean(q.study.userData.MGZ30FiveObjectiveTurretReconstructed),
+   fiveObjectiveTurretNotModeledReason:q.study.userData.MGZ30ReasonTurretNotReconstructed,
    studyVisible:q.study.visible,
    installedByDefault:Boolean(q.study.userData.installedByDefault),
    exactVendorGeometry:Boolean(q.study.userData.exactVendorGeometry),
@@ -6053,7 +6088,10 @@ function switchPlatform(next){
   for(const id of ['btn-photo108','btn-photo109','btn-control-cabinet'])$(id).hidden=next==='A';
   $('btn-a-external').hidden=next!=='A';
    $('btn-a18-optical').hidden=next!=='A';
-   $('btn-a18-support').hidden=next!=='A';lastAExternalCameraFit=null;
+   $('btn-a18-support').hidden=next!=='A';
+   $('btn-a18-mgz-study').hidden=next!=='A';
+   $('btn-a18-mgz-study').textContent='MGZ30候选对照';
+   lastAExternalCameraFit=null;
   const photoA=next==='A'&&!aWorkingPoseMode;
   $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
   $('sample-move-label').textContent='样品 X';
@@ -6207,6 +6245,18 @@ $('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
 $('btn-a-external').onclick=focusAExternal;
  $('btn-a18-optical').onclick=focusA18OpticalAudit;
  $('btn-a18-support').onclick=focusA18SupportAudit;
+ $('btn-a18-mgz-study').onclick=()=>{
+   const state=window.__A18MGZ30FamilyStudyProbe?.();
+   if(state?.studyVisible){
+     if(window.__setA18MGZ30FamilyStudy(false)){
+       $('btn-a18-mgz-study').textContent='MGZ30候选对照';
+       focusA18SupportAudit();
+     }
+     return;
+   }
+   if(window.__focusA18MGZ30FamilyStudy?.())
+     $('btn-a18-mgz-study').textContent='恢复照片拟合';
+ };
  $('btn-control-cabinet').onclick=()=>{
    // The controller has a front YUDIAN panel and open-top internal
    // SE-600-48/B23 modules. A dedicated raised viewpoint exposes
