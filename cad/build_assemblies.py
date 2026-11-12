@@ -1102,7 +1102,7 @@ def make_a():
     # All dimensions here are C-grade topology candidates.
     for idx,x in enumerate((cx-15,cx+59),1):
         for suffix,z in (('U',217),('L',175)):
-            beam=box(8,54,6,x,22,z)
+            beam=box(8,60,6,x,19,z)
             add('A',f'A18B{idx}{suffix}','FOCUS_FRONT_CANTILEVER_FORK_CANDIDATE',
                 beam,'C')
     # Four auxiliary straps link both optical annular mounts to the
