@@ -1505,7 +1505,9 @@ try{
  assert.match(a18VendorText,/BXFM-F（次候选）/);
  assert.match(a18VendorText,/84mm/);
  assert.match(a18VendorText,/Ø32H8/);
- assert.match(a18VendorText,/MGZ30 \/ T-Scope/);
+ assert.match(a18VendorText,/MGZ30 Focus Block（主候选）/);
+ assert.match(a18VendorText,/官方T-Scope是独立完整显微镜系统/);
+ assert.match(a18VendorText,/五物镜盘也不能误写成MGZ30单独调焦块的已确认配置/);
  assert.match(a18VendorText,/SA02041502/);
  assert.match(a18VendorText,/SA08041102/);
  assert.match(a18VendorText,/不再作为A18直接身份/);
