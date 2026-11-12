@@ -1158,16 +1158,20 @@ def make_a():
     mgz_study_body=box(84,88,70,a18_body_x,0,165)
     # Bilateral coarse/fine focus drums from the official MGZ30 family
     # topology. Detailed knurl/thread profiles remain simplified.
-    mgz_knobs=[]
-    for sign in (-1,1):
-        mgz_knobs.extend((
-            vx(9,12,cx+sign*30,0,200),
-            vx(18,14,cx+sign*42,0,200),
-            vx(11,8,cx+sign*56,0,200)))
+    mgz_knobs=[
+        # Left side, cylinders run +X and deliberately overlap by 0.5mm.
+        vx(9,12,a18_body_x-42.5,0,200),
+        vx(18,14,a18_body_x-56,0,200),
+        vx(11,8,a18_body_x-63.5,0,200),
+        # Right side, same coaxial stack and 0.5mm engagement.
+        vx(9,12,a18_body_x+30.5,0,200),
+        vx(18,14,a18_body_x+42,0,200),
+        vx(11,8,a18_body_x+55.5,0,200)
+    ]
     mgz_study_bridge=box(60,43,38,cx+12,-65,181)
     mgz_study_ring=vz(26,18,cx,-112,191).cut(
         vz(19.05,18.2,cx,-112,190.9))
-    mgz_cover_screws=[vz(2.2,1.6,cx+dx,dy,234) for dx in (-29,29) for dy in (-29,29)]
+    mgz_cover_screws=[vz(2.2,1.6,a18_body_x+dx,dy,234) for dx in (-29,29) for dy in (-29,29)]
     mgz_study=(mgz_study_body.fuse(*mgz_knobs,mgz_study_bridge,
         mgz_study_ring,*mgz_cover_screws).clean())
     add('A','A18MGZ',
