@@ -453,6 +453,32 @@ window.__modelAOpticalClearanceProbe=()=>{
    physicalCollisionCertification:false};
 };
 
+ window.__A19MechanicalNosepieceProbe=()=>{
+    if(platform!=='A')return {available:false};
+    const root=parts.get('A19')?.g;
+    if(!root)return {available:false};
+    root.updateWorldMatrix(true,true);
+    const disc=root.children.find(o=>o.userData.A19TurretEnvelopeCandidate);
+    const seats=root.children.filter(o=>o.userData.A19ObjectiveSocket);
+    const pivots=root.children.filter(o=>o.userData.A19ObjectivePivot);
+    if(!disc||seats.length!==2||pivots.length!==2)return {available:false};
+    const axes=seats.map((seat,i)=>{
+      const p=seat.getWorldPosition(new THREE.Vector3());
+      const ray=new THREE.Raycaster(new THREE.Vector3(p.x,root.position.y+7,p.z),new THREE.Vector3(0,-1,0),0,24);
+      const discOpen=ray.intersectObject(disc,false).length===0;
+      const seatOpen=ray.intersectObject(seat,false).length===0;
+      const sb=new THREE.Box3().setFromObject(seat),db=new THREE.Box3().setFromObject(disc);
+      const inserted=Math.max(0,Math.min(sb.max.y,db.max.y)-Math.max(sb.min.y,db.min.y));
+      return {discOpen,seatOpen,inserted:Number(inserted.toFixed(2)),
+        hasMount:pivots[i].children.some(o=>o.userData.A19ObjectiveMountShank)};
+    });
+    return {available:true,boreCount:disc.userData.A19InstalledPortThroughBores,
+      seatCount:seats.length,objectiveCount:pivots.length,
+      allTrueBores:axes.every(x=>x.discOpen&&x.seatOpen),
+      allSocketsInserted:axes.every(x=>x.inserted>=1.9),
+      allMounted:axes.every(x=>x.hasMount),
+      unseenPortCountUnknown:true,machiningGrade:false,axes};
+  };
  window.__A18MechanicalTopologyProbe=()=>{
   if(platform!=='A')return {available:false};
   const head=parts.get('A18')?.g,post=parts.get('A10')?.g,turret=parts.get('A19')?.g;
@@ -3853,7 +3879,7 @@ function platformA(){
      hub.rotation.z=Math.PI/2;hub.userData.A18FocusHub=sign;
      const coarse=add(g,cyl(18,14,mats.black,bodyX+sign*56,0,0,64));
      coarse.rotation.z=Math.PI/2;coarse.userData.A18CoarseFocusKnob=sign;
-     const fine=add(g,cyl(11,8,mats.silver,bodyX+sign*67,0,0,64));
+     const fine=add(g,cyl(11,8,mats.dark,bodyX+sign*67,0,0,64));
      fine.rotation.z=Math.PI/2;fine.userData.A18FineFocusKnob=sign;
      for(let q=0;q<6;q++){
        const ring=add(g,torus(18.08,.24,mats.ink,bodyX+sign*(50.5+q*2.3),0,0));
@@ -3970,14 +3996,22 @@ function platformA(){
    label(g,'A18 显微镜调焦主体',bodyX,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
-   const turret=add(g,cyl(36,10,mats.black,0,0,0,72));
+   // V143: real bores ONLY for the two photographed mounted objectives.
+   const turret=add(g,drilledDisc(36,10,mats.black,[[-18,0,11.8],[18,0,11.8]]));
    turret.userData.A19TurretEnvelopeCandidate=true;
+   turret.userData.A19InstalledPortThroughBores=2;
    add(g,torus(34,1,mats.steel,0,0,0));
    const neck=add(g,cyl(18,5,mats.dark,0,5.5,0,64));
    neck.userData.A19A18MountNeck=true;
+   for(const [i,x] of [-18,18].entries()){
+      const socket=add(g,sleeve(13.5,11.65,3,mats.dark,x,-4.5,0,'y'));
+      socket.userData.A19ObjectiveSocket=i?'center':'left';
+   }
    const objective=(x,angle,labelText,bandMat,side)=>{
      const pivot=new THREE.Group();pivot.position.set(x,-5,0);
      pivot.rotation.z=angle;g.add(pivot);pivot.userData.A19ObjectivePivot=side;
+     const mount=add(pivot,cyl(10.9,4,mats.dark,0,1,0,56));
+     mount.userData.A19ObjectiveMountShank=side;
      const upper=add(pivot,cyl(11.5,14,mats.black,0,-7,0,56));
      upper.userData.objectiveLabel=labelText;upper.userData.A19ObjectiveBarrel=side;
      const mid=add(pivot,cyl(10,16,mats.dark,0,-22,0,56));
@@ -3993,6 +4027,8 @@ function platformA(){
    objective(-18,-Math.PI/8,'JH-TOP MPLAN family? · 精确SKU/倍率/NA待复核',mats.copper,'left');
    objective(18,0,'Olympus/Evident PlanFL family? · 精确SKU/倍率/NA待复核',mats.silver,'center');
    g.userData.installedObjectiveCount=2;
+   g.userData.A19InstalledPortCount=2;
+   g.userData.A19UnseenPortsNotModeled=true;
    g.userData.objectiveTurretPortCountUnverified=true;
    g.userData.objectiveDimensionsArePhotoCandidates=true;
    label(g,'A19 转换盘 + 两支实拍物镜 · 外形细化 / 型号仍待复核',0,22,0);
@@ -5878,7 +5914,9 @@ function switchPlatform(next){
   // V132: Platform A has no user-facing photo-reference workflow.
   // Hide B-only inspection shortcuts so A does not expose unrelated photo views.
   for(const id of ['btn-photo108','btn-photo109','btn-control-cabinet'])$(id).hidden=next==='A';
-  $('btn-a-external').hidden=next!=='A';lastAExternalCameraFit=null;
+  $('btn-a-external').hidden=next!=='A';
+   $('btn-a18-optical').hidden=next!=='A';
+   $('btn-a18-support').hidden=next!=='A';lastAExternalCameraFit=null;
   const photoA=next==='A'&&!aWorkingPoseMode;
   $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
   $('sample-move-label').textContent='样品 X';
@@ -6030,6 +6068,8 @@ $('btn-photo108').onclick=()=>focusBPhoto('108');
 $('btn-photo109').onclick=()=>focusBPhoto('109');
 $('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
 $('btn-a-external').onclick=focusAExternal;
+ $('btn-a18-optical').onclick=focusA18OpticalAudit;
+ $('btn-a18-support').onclick=focusA18SupportAudit;
  $('btn-control-cabinet').onclick=()=>{
    // The controller has a front YUDIAN panel and open-top internal
    // SE-600-48/B23 modules. A dedicated raised viewpoint exposes
