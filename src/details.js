@@ -13,7 +13,8 @@ export function enrichParts(partMap, platform, onMesh){
     dialFace=new THREE.MeshStandardMaterial({color:0xe8e2d6,metalness:.45,roughness:.43}),
     green=new THREE.MeshPhysicalMaterial({color:0x173e45,transparent:true,opacity:.9,metalness:.25,roughness:.1}),
     offwhite=new THREE.MeshPhysicalMaterial({color:0xe1e1dd,metalness:.26,roughness:.36,clearcoat:.32}),
-    blue=new THREE.MeshStandardMaterial({color:0x1e5a89,metalness:.5,roughness:.34});
+    blue=new THREE.MeshStandardMaterial({color:0x1e5a89,metalness:.5,roughness:.34}),
+    rubber=new THREE.MeshStandardMaterial({color:0x171a1d,metalness:.03,roughness:.94});
   const extras=[];
   function add(g,mesh){mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);extras.push(mesh);return mesh}
   const box=(g,w,h,d,x,y,z,m,r=.8)=>{
