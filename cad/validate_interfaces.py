@@ -987,8 +987,15 @@ for i in (1,2):
               f'V144 fork {i}{suffix} attaches to front sliding guide')
     for suffix,optic in (('U','A18T'),('L','A18N')):
         strap=part(A,f'A18S{i}{suffix}')[0]
-        check(strap.intersect(a18_shape).Volume()>1,
-              f'V144 optical strap {i}{suffix} attaches to rear housing')
+        direct_body_contact=strap.intersect(a18_shape).Volume()>1
+        if i==1 and suffix=='L':
+            joining_lug=part(A,'A18SL')[0]
+            check(joining_lug.intersect(a18_shape).Volume()>1 and
+                  joining_lug.intersect(strap).Volume()>1,
+                  'V144 left lower optical strap needs a real rear lug joint')
+        else:
+            check(direct_body_contact,
+                  f'V144 optical strap {i}{suffix} attaches to rear housing')
         check(strap.intersect(part(A,optic)[0]).Volume()>1,
               f'V144 optical strap {i}{suffix} attaches to optical sleeve')
 report['V144_separated_focus_block_from_optics']={
