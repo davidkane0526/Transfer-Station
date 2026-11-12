@@ -1477,6 +1477,9 @@ try{
  assert.equal(fr5025.postDiameterMm,25);
  assert.equal(fr5025.holderDiameterMm,50);
  assert.equal(fr5025.centerDistanceMm,165);
+ assert.match(fr5025.centerDistanceDatum,/endpoints are not specified/);
+ assert.equal(fr5025.assemblyViewDimensionMm,135);
+ assert.match(fr5025.assemblyViewDimensionDatum,/endpoints are not specified/);
  assert.equal(fr5025.fineAdjustmentAccuracyMm,0.02);
  assert.equal(fr5025.integratedEArm,true);
  const fr7625=dA.A18LYLIGHTFocusRackCandidates.find(c=>c.sku==='FR7625CF');
@@ -1531,7 +1534,9 @@ try{
  assert.match(a18VendorText,/2012 Rev C工程图标注微调225µm\/rev/);
  assert.match(a18VendorText,/2014目录微调250µm\/rev/);
  assert.match(a18VendorText,/LYLIGHT FR5025CF（高优先级结构候选，非型号确认）/);
- assert.match(a18VendorText,/165mm中心距/);
+ assert.match(a18VendorText,/产品图标注中心距165mm/);
+ assert.match(a18VendorText,/完整支架示意另标135mm/);
+ assert.match(a18VendorText,/不能直接把165mm映射为当前立柱中心至光轴距离/);
  assert.match(a18VendorText,/0.02mm微调精度/);
  assert.match(a18VendorText,/A10横臂可能其实是A18调焦架的一部分/);
  assert.match(a18VendorText,/LYLIGHT FR7625CF（同族变体）/);

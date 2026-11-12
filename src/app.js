@@ -4120,8 +4120,9 @@ function platformA(){
    g.userData.BXFMFWidthMatchProvesIdentity=false;
    g.userData.LYLIGHTFocusRackCandidates=[
      {sku:'FR5025CF',postDiameterMm:25,holderDiameterMm:50,
-      centerDistanceMm:165,fineAdjustmentAccuracyMm:0.02,
-      coarseFine:true,integratedEArm:true,finish:'black'},
+      centerDistanceMm:165,centerDistanceDatum:'vendor product image callout; exact endpoints are not specified',
+      assemblyViewDimensionMm:135,assemblyViewDimensionDatum:'separate full-stand illustration callout; exact endpoints are not specified',
+      fineAdjustmentAccuracyMm:0.02,coarseFine:true,integratedEArm:true,finish:'black'},
      {sku:'FR7625CF',postDiameterMm:25,holderDiameterMm:76,
       centerDistanceMm:null,fineAdjustmentAccuracyMm:null,
       coarseFine:true,integratedEArm:true,finish:'vendor product image'}
@@ -4608,7 +4609,8 @@ function updateDetail(part){
    const lyText=ly.map(c=>c.sku+'：Ø'+c.postDiameterMm+'立柱孔 / Ø'+
      c.holderDiameterMm+'镜体接口'+(c.centerDistanceMm?
      ' / 中心距'+c.centerDistanceMm+'mm':' / 中心距待核')+
-     (c.fineAdjustmentAccuracyMm?' / 微调精度'+c.fineAdjustmentAccuracyMm+'mm':' / 微调精度待核')).join('；');
+     (c.fineAdjustmentAccuracyMm?' / 微调精度'+c.fineAdjustmentAccuracyMm+'mm':' / 微调精度待核')+
+     (c.assemblyViewDimensionMm?' / 整机示意另标'+c.assemblyViewDimensionMm+'mm':'')).join('；');
    const boliText=boli.map(c=>c.sku+'：Ø'+c.postDiameterMm+'立柱 / Ø'+
      c.holderDiameterMm+'镜体'+(c.centerDistanceMm?
      ' / 中心距'+c.centerDistanceMm+'mm':' / 中心距待核')+
@@ -4619,8 +4621,8 @@ function updateDetail(part){
      'data-bxfmf-applied="'+Boolean(a18?.userData.BXFMFGeometryApplied)+'" '+
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
-     '<b>A18 厂商候选矩阵（V149）</b><p>'+
-     '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认）：</b>厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、165mm中心距及0.02mm微调精度；这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
+     '<b>A18 厂商候选矩阵（V150）</b><p>'+
+     '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认）：</b>厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、产品图标注中心距165mm及0.02mm微调精度；同一PDF的完整支架示意另标135mm。两条尺寸的端点基准未充分说明，不能直接把165mm映射为当前立柱中心至光轴距离。这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
      '<a href="https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/" target="_blank" rel="noopener noreferrer">FR5025CF产品页</a> · '+
      '<a href="https://www.lylight.com/wp-content/uploads/2024/05/FR5025CF-coarse-and-fine-adjustment-focus-rack-LYLIGHT.pdf" target="_blank" rel="noopener noreferrer">厂商产品图/规格PDF</a>。'+
      'FR5025CF资料不是完整尺寸工程图或原生STEP；除已标注接口和中心距外，机身外廓、臂厚、孔位和紧固结构仍未知。'+
