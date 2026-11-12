@@ -1414,8 +1414,8 @@ try{
  assert.equal(dA.A18MGZ30VendorPostDiameterMm,38.1);
  assert.equal(dA.A18MGZ30VendorObjectiveAdapterThread,'M26×36 TPI');
  assert.equal(dA.A18MGZ30VendorRMSAdaptersIncluded,5);
- assert.equal(dA.A18TSCOPEVendorTurretPorts,5);
- assert.equal(dA.A18TSCOPEVendorTurretThread,'M26×36 TPI');
+ assert.equal(dA.A18MGZ30VendorTurretPorts,5);
+ assert.equal(dA.A18MGZ30VendorTurretThread,'M26×36 TPI');
  assert.equal(dA.A18TSCOPEVendorTubeLens,'ITL200');
  assert.equal(dA.A18CurrentTubeLensModel,'TTL200-A');
  assert.equal(dA.A18CompleteTSCOPEModelConfirmed,false);
