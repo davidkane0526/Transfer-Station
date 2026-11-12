@@ -3869,21 +3869,23 @@ function platformA(){
     // Unlike V142's fake through-gearbox lens hole, this is a genuine
     // open-front edge relief so a 20mm optical cylinder stays outside the
     // focus drive solid. This notch is an unmeasured C-grade fit.
+    // Full-height FRONT-edge relief for optical shaft radius 9.9mm.
+    // Previous V144 focusShell accidentally notched the REAR edge.
     const focusShell=(w,h,bottomY)=>{
-      const half=w/2;
-      const cutLeft=Math.max(-half,-bodyX-12),cutRight=-bodyX+12;
-      const pts=[[-half,44],[half,44],[half,-44],[cutRight,-44],
-        [cutRight,-27],[cutLeft,-27]];
-      if(cutLeft>-half+.001)pts.push([cutLeft,-44],[-half,-44]);
+      const half=w/2,cl=-bodyX-10.5,cr=-bodyX+10.5;
+      const pts=[[-half,-44],[half,-44],[half,44],
+        [cr,44],[cr,34],[cl,34],[cl,44],[-half,44]];
       const outline=new THREE.Shape();
       pts.forEach(([x,z],i)=>i?outline.lineTo(x,z):outline.moveTo(x,z));
       outline.closePath();
-      const geometry=new THREE.ExtrudeGeometry(outline,{depth:h,bevelEnabled:false,steps:1});
+      const geometry=new THREE.ExtrudeGeometry(outline,{
+        depth:h,bevelEnabled:false,steps:1
+      });
       geometry.rotateX(-Math.PI/2);
       const mesh=mk(geometry,mats.dark);mesh.position.set(bodyX,bottomY,focusBodyDepthZ);
       return add(g,mesh);
     };
-    const bodyMid=add(g,cub(84,38,88,mats.dark,bodyX,2,focusBodyDepthZ));
+    const bodyMid=focusShell(84,38,-17);
    bodyMid.userData.A18PhotoConstrainedMainBody=true;
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
@@ -3926,7 +3928,7 @@ function platformA(){
     bodyLower.position.set(bodyX,-35,focusBodyDepthZ);
     bodyLower.userData.A18LowerFrontOpticalRelief=true;
    bodyLower.userData.A18BodySegment='lower';
-   const bodyUpper=add(g,cub(76,14,88,mats.dark,bodyX,28,focusBodyDepthZ));
+   const bodyUpper=focusShell(76,14,21);
    bodyUpper.userData.A18BodySegment='upper';
    // V145: MGZ30-family SILHOUETTE REFERENCE ONLY (not an OEM identity).
     // Replace V144's four exposed rods and four disconnected web patches
