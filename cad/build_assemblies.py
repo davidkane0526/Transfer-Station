@@ -1137,13 +1137,23 @@ def make_a():
         'MGZ30_FAMILY_INTEGRAL_REAR_POST_CLAMP_TOPOLOGY_STUDY_NOT_INSTALLED',
         mgz_study,'C')
 
-    add('A','A19','MICROSCOPE_OBJECTIVE_TURRET_72mm_PHOTO_ENVELOPE',
-        vz(36,10,cx,0,155),'C')
+    # Only two installed objectives are photo-supported. Do not invent empty ports.
+    turret=vz(36,10,cx,0,155)
+    for xx in (cx-18,cx+18):
+        turret=turret.cut(vz(11.8,10.2,xx,0,154.9))
+    add('A','A19','PHOTO_TWO_PORT_NOSEPIECE_REAL_BORE_CANDIDATE',turret.clean(),'C')
+    for i,xx in enumerate((cx-18,cx+18),1):
+        seat=vz(13.5,3,xx,0,154).cut(vz(11.65,3.2,xx,0,153.9))
+        add('A',f'A19P{i}','HOLLOW_OBJECTIVE_SOCKET_CANDIDATE',seat,'C')
     add('A','A19N','MICROSCOPE_OBJECTIVE_TURRET_NECK_PROXY',
         vz(18,5,cx,0,163),'C')
     objective_pivot=Vector(cx-18,0,155)
     objective_axis=Vector(cx-18,1,155)
     left_tilt=lambda sh:sh.rotate(objective_pivot,objective_axis,22.5)
+    add('A','A19M1','LEFT_OBJECTIVE_MOUNT_NECK_CANDIDATE',
+        left_tilt(vz(10.9,4,cx-18,0,154)),'C')
+    add('A','A19M2','CENTER_OBJECTIVE_MOUNT_NECK_CANDIDATE',
+        vz(10.9,4,cx+18,0,154),'C')
     left_obj=vz(11.5,14,cx-18,0,141).fuse(
         vz(10,16,cx-18,0,125),
         vz(8.2,9,cx-18,0,116))
@@ -1161,7 +1171,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V142'
+CAD_REVISION='V143'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
