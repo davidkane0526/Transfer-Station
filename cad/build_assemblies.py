@@ -1099,6 +1099,9 @@ def make_a():
     # open the LOWER body's front-left quadrant to the actual 58mm yoke
     # outline. Mid/upper focus housing stays closed and visually box-like.
     a18_body=a18_body.cut(box(92,32,18,cx-14.5,-20,165)).clean()
+    # Full-height narrow shaft clearance, independent of the lower
+    # 58mm nosepiece yoke. This is an OPEN FRONT notch, not a gearbox bore.
+    a18_body=a18_body.cut(box(21,13,70,cx,-7.5,165)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     # V145: two STATIONARY cast side webs engage rear gearbox and fixed
