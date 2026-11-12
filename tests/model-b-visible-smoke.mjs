@@ -1520,7 +1520,7 @@ try{
  assert.match(a18VendorText,/立柱夹持壳体/);
  assert.match(a18VendorText,/A10横臂/);
  assert.match(a18VendorText,/禁止作为独立已确认采购件/);
- assert.match(a18VendorText,/实拍几何纠错/);
+ assert.match(a18VendorText,/实拍几何与零件边界/);
  assert.match(a18VendorText,/24mm/);
  assert.match(a18VendorText,/BXFM-F（次候选）/);
  assert.match(a18VendorText,/84mm/);
