@@ -866,6 +866,22 @@ report['V92_A11_focus_clearance']={
     'lamp_body_right_focus_intersection_mm3':0,
     'vendor_lamp_geometry_preserved':True
 }
+# V143 two true optical-seat through-holes, not black painted spots.
+for i,xx in enumerate((78-18,78+18),1):
+    disc=part(A,'A19')[0]
+    seat=part(A,f'A19P{i}')[0]
+    check(disc.intersect(vz(11.5,10.2,xx,0,154.9)).Volume()<1e-4,
+          'V143 mounted objective position requires an open through-port')
+    check(seat.intersect(vz(11.5,3.2,xx,0,153.9)).Volume()<1e-4,
+          'V143 inserted retaining seat needs an actual annular bore')
+    check(seat.BoundingBox().zmax>=disc.BoundingBox().zmin+1.9,
+          'V143 socket must enter the turret by at least 2mm')
+    check(len(part(A,f'A19M{i}'))==1,
+          'V143 each installed objective requires a separate insertion neck')
+report['V143_A19_two_port_nosepiece']={
+  'visible_installed_objectives':2,
+  'true_bored_positions':2,'unseen_ports_verified':False,
+  'actual_mount_thread_verified':False,'ready_for_machining':False}
 check(abs(a19.zmin-155)<.02 and abs(a19.zmax-165)<.02,
       'V79 objective turret remains a distinct 10mm component below microscope head')
 check(111.4+2<o1.zmin<121 and o1.zmax<=160 and
