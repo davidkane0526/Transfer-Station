@@ -1092,6 +1092,10 @@ def make_a():
     # Real open Ø20 vertical optical clearance (unmeasured candidate).
     # V144: axial light path is IN FRONT OF, not THROUGH, the focus gearbox.
     # Do not put a fabricated Ø20 bore through an unidentified focus block.
+    # Open front-edge notch, NOT an invented closed axial hole through drive
+    # mechanics. Its 24mm span clears an illustrative Ø20 optical cylinder
+    # centred on sample X=78, lateral Y=0. Geometry remains candidate only.
+    a18_body=a18_body.cut(box(24,17,70,cx,-12.5,165)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     # V144 rear focus block -> true fixed front guide cantilever fork.
