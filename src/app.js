@@ -4150,7 +4150,7 @@ function platformA(){
    g.userData.fullFivePortTurretConfirmed=false;
    g.userData.MCTLMP2DirectIdentityRejected=true;
    g.userData.MCTLMP2VendorEnvelopeMm=[211.5,130,58.8];
-   g.userData.vendorCandidateDecision='LYLIGHT FR5025CF high-priority integrated E-arm topology candidate; MGZ30 conditional direct-post focus-block candidate with OEM-confirmed five-position turret; BXFM-F secondary; 76mm Boli/LYLIGHT variants unresolved because the current previews are too small; none confirmed';
+   g.userData.vendorCandidateDecision='LYLIGHT FR5025CF high-priority integrated E-arm topology candidate; A10/A18 rear-housing boundary unresolved; MGZ30 conditional direct-post focus-block candidate with OEM-confirmed five-position turret; BXFM-F secondary; 76mm Boli/LYLIGHT variants unresolved because the current previews are too small; none confirmed';
    label(g,'A18 显微镜调焦主体',bodyX,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
