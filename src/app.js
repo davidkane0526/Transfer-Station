@@ -4001,7 +4001,7 @@ function platformA(){
      hub.rotation.z=Math.PI/2;hub.userData.MGZ30StudyFocusHub=sign;
      const coarse=add(mgz30Study,cyl(18,14,mats.black,bodyX+sign*56,0,0,64));
      coarse.rotation.z=Math.PI/2;coarse.userData.MGZ30StudyCoarseKnob=sign;
-     const fine=add(mgz30Study,cyl(11,8,mats.dark,bodyX+sign*67,0,0,64));
+     const fine=add(mgz30Study,cyl(11,8,mats.dark,bodyX+sign*66.5,0,0,64));
      fine.rotation.z=Math.PI/2;fine.userData.MGZ30StudyFineKnob=sign;
      for(let q=0;q<6;q++){
        const ring=add(mgz30Study,torus(18.08,.24,mats.ink,bodyX+sign*(50.5+q*2.3),0,0));
