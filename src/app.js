@@ -400,7 +400,7 @@ window.__modelAOpticalClearanceProbe=()=>{
    ).intersectObject(boomShell,false).length;
    const postPos=new THREE.Vector3();fixedPost.getWorldPosition(postPos);
    boomBoreOpen=boreRay(postPos.x,postPos.z)===0;
-   boomNearbyMetal=boreRay(postPos.x,postPos.z+22)>0;
+   boomNearbyMetal=boreRay(postPos.x,postPos.z+15)>0;
  }
  const headRoot=parts.get('A18')?.g;
   const headSegments=headRoot?.children.filter(o=>o.isMesh&&o.userData.A18BodySegment)??[];
@@ -3649,9 +3649,11 @@ function platformA(){
     // A18 head by 40.5mm. Shorten to 86mm (world Z -130..-44).
     // plate() rotates shape +Y into scene -Z, so the stationary Ø26
     // support post at local Z=0 has a genuine Ø26.6 bore at shape Y=25.
-    const boomShell=add(movingBoom,plate(34,86,25,mats.dark,
-      [[0,25,13.3]]));
-    boomShell.position.set(0,187.5,25);
+    // V144 post clamp meets the relocated focus body at world Z=-92;
+    // optics stay over the sample at Z=0, free of the gearbox housing.
+    const boomShell=add(movingBoom,plate(34,38,25,mats.dark,
+      [[0,1,13.3]]));
+    boomShell.position.set(0,187.5,1);
     // V142: put both clamp bolts into the actual split sleeve instead of
     // floating at the edge of the old 34.2-mm ring. Thread is unverified.
     const boomCollar=add(movingBoom,sleeve(19.5,13.3,15,mats.dark,0,199,0,'y'));
@@ -3666,7 +3668,7 @@ function platformA(){
       head.userData.A10ClampBoltHeadCandidate=true;
     }
     boomShell.userData.A10BoomFrontFaceJointToA18=true;
-    boomShell.userData.A10BoomLengthCandidateMm=86;
+    boomShell.userData.A10BoomLengthCandidateMm=38;
     boomShell.userData.A10BoomTruePostThroughBore=true;
     boomShell.userData.A10BoreDiameterCandidateMm=26.6;
     boomShell.userData.A10A18ComponentBoundaryVerified=false;
@@ -3828,9 +3830,9 @@ function platformA(){
    // The 24 mm value is a photo-ratio candidate, not a ruler measurement.
    const bodyX=24;
    // Real optical aperture across the focus body; Ø20 remains unmeasured.
-    const bore=[[-bodyX,0,10]];
-    const bodyMid=add(g,plate(84,88,38,mats.dark,bore));
-    bodyMid.position.set(bodyX,-17,0);
+    // V144: don't pretend the drive gearbox is a hollow optical tube.
+    const focusBodyDepthZ=-48; // unmeasured topology candidate
+    const bodyMid=add(g,cub(84,38,88,mats.dark,bodyX,2,focusBodyDepthZ));
    bodyMid.userData.A18PhotoConstrainedMainBody=true;
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
@@ -3859,15 +3861,28 @@ function platformA(){
      screw.rotation.x=Math.PI/2;
      screw.userData.A18FaceMountScrewCandidate=true;
    }
-   const bodyLower=add(g,plate(70,88,18,mats.dark,bore));
-    bodyLower.position.set(bodyX,-35,0);
+   const bodyLower=add(g,cub(70,18,88,mats.dark,bodyX,-26,focusBodyDepthZ));
    bodyLower.userData.A18BodySegment='lower';
-   const bodyUpper=add(g,plate(76,88,14,mats.dark,bore));
-    bodyUpper.position.set(bodyX,21,0);
+   const bodyUpper=add(g,cub(76,14,88,mats.dark,bodyX,28,focusBodyDepthZ));
    bodyUpper.userData.A18BodySegment='upper';
    const front=add(g,cub(70,44,1.4,mats.black,bodyX,1,44.7));
    front.userData.A18FrontFace=true;
-   for(const o of [bodyMid,bodyLower,bodyUpper,front])o.userData.A18CurrentPhotoFitBody=true;
+   // Four fixed bridging rails connect the focus gearbox and forward slide.
+    const forkMembers=[];
+    for(const x of [-11,59])for(const y of [-22,20]){
+      const member=add(g,cub(8,6,54,mats.dark,x,y,22));
+      member.userData.A18ForwardSupportForkCandidate=true;
+      forkMembers.push(member);
+    }
+    // A forked upper/lower optical attachment leaves the axial light path open.
+    const opticalStraps=[];
+    for(const x of [-17,17])for(const y of [-36,36]){
+      const member=add(g,cub(8,8,30,mats.dark,x,y,-9));
+      member.userData.A18OpticalMountSupportCandidate=true;
+      opticalStraps.push(member);
+    }
+    for(const o of [bodyMid,bodyLower,bodyUpper,front,...forkMembers,...opticalStraps])
+      o.userData.A18CurrentPhotoFitBody=true;
    const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,39,0,'y'));
    topCollar.userData.A18TopOpticalInterface=true;
    const bottomCollar=add(g,sleeve(24,18.1,8,mats.black,0,-39,0,'y'));
