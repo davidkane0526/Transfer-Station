@@ -4580,6 +4580,9 @@ function updateDetail(part){
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
      '<b>A18 厂商候选矩阵（V108）</b><p>'+
      '<b>Thorlabs MGZ30 / T-Scope（主候选）：</b>原厂是黑色封闭矩形调焦块，30mm Z行程、Ø1.5in立柱、5孔M26×36 TPI转盘，并支持30mm cage / SM1 / SM2。'+
+     '<b>官方调焦参数：</b>粗调40 mm/rev，微调250 µm/rev；'+
+     '<a href="https://www.thorlabs.com/focus-block-and-accessories" target="_blank" rel="noopener noreferrer">Thorlabs产品页</a> · '+
+     '<a href="https://www.thorlabs.com/catalogpages/v21/1739.pdf" target="_blank" rel="noopener noreferrer">官方目录规格</a>。'+
      '这不仅比银色开架BXFM-F更符合191–193外观，而且与已确认的TTL200-A、MWWHL4及SM1/SM2光路形成同一Thorlabs生态。'+
      'MGZ30仍为主候选，但V108新增更关键的零件边界：原厂MGZ30后部立柱夹持壳体属于调焦块本体，并直接安装在Ø1.5in立柱上；如果实机确为MGZ30，当前独立A10横臂可能其实属于A18后壳，继续把两者分别采购/加工会造成重复结构。'+
      '现有191–193低清图还不能确认后侧分缝或Ø38.1mm立柱，因此A10/A18仍保持两个照片拟合实体，但零件边界标记为未闭合。原厂291.7/130/100.2mm图纸尺寸也未强套坐标轴。<br>'+

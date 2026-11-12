@@ -1137,13 +1137,13 @@ try{
  assert.equal(chain.a10a18PartBoundaryVerified,false);
  assert.equal(chain.oemFocusModuleIdentified,false);
  assert.equal(chain.fabricationReady,false);
- // V111 hidden MGZ30-family topology study: compare a direct-post-clamp
+ // V146 MGZ30-family topology study: compare a direct-post-clamp
  // architecture without changing the installed/photo-fit default.
  assert.equal(await page.locator('#btn-a18-mgz-study').isVisible(),true);
  await page.locator('#btn-a18-mgz-study').click();
  await page.waitForTimeout(220);
  const mgzStudy=await page.evaluate(()=>window.__A18MGZ30FamilyStudyProbe?.());
- console.log('V111 A18 MGZ30-family topology study:',JSON.stringify(mgzStudy));
+ console.log('V146 A18 MGZ30-family topology study:',JSON.stringify(mgzStudy));
  assert.equal(mgzStudy?.available,true);
  assert.equal(mgzStudy.studyVisible,true);
  assert.equal(mgzStudy.installedByDefault,false,
@@ -1170,7 +1170,7 @@ try{
  assert(Math.abs(mgzStudy.projection.centerX)<.35&&Math.abs(mgzStudy.projection.centerY)<.35);
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
-   await page.screenshot({path:'Transfer-Station-A-V111-MGZ30-Family-Topology-Study.png',
+   await page.screenshot({path:'Transfer-Station-A-V146-MGZ30-Family-Topology-Study.png',
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
