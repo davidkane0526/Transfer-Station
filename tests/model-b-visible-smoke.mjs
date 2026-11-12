@@ -1101,7 +1101,10 @@ try{
  assert(chain.adapterToNosepieceOverlapMm3>100);
  assert(chain.nosepieceMountNeckAxialOverlapMm>=1.9);
  assert.equal(chain.opticalAxialCoreOpen,true);
- assert.equal(chain.axialBoreDiameterCandidateMm,20);
+ assert.equal(chain.axialBoreDiameterCandidateMm,0);
+ assert.equal(chain.externalOpticalClearanceCandidateMm,20);
+ assert.equal(chain.opticalAxisOutsideFocusBody,true);
+ assert.equal(chain.focusBodySetbackCandidateMm,48);
  assert.equal(chain.axialBorePhysicallyMeasured,false);
  assert.equal(chain.clampFastenersEngaged,true);
  assert.equal(chain.a10a18PartBoundaryVerified,false);
@@ -1250,7 +1253,7 @@ try{
    'A10 boom must have actual through-bore clearing the fixed microscope post');
  assert.equal(opticsRaised.supportBoomNearbySolidMetal,true,
    'Boom must retain metal around the candidate Ø26.6 post-bore');
-  assert.equal(opticsRaised.boomLengthCandidateMm,86);
+  assert.equal(opticsRaised.boomLengthCandidateMm,38);
   assert.equal(opticsRaised.boomHousingFrontGapMm,0,
     'A10 boom must meet the A18 rear mounting face, not float');
   assert.equal(opticsRaised.boomHousingOverlapMm3,0,
