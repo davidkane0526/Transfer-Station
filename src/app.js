@@ -525,6 +525,9 @@ window.__modelAOpticalClearanceProbe=()=>{
       Math.max(box(bottom).min.y,box(neck).min.y)).toFixed(2)),
     opticalAxialCoreOpen,
     axialBoreDiameterCandidateMm:head.userData.A18OpticalThroughBoreDiameterCandidateMm,
+    externalOpticalClearanceCandidateMm:head.userData.A18ExternalOpticalClearanceCandidateMm,
+    opticalAxisOutsideFocusBody:head.userData.A18OpticalAxisOutsideFocusBody,
+    focusBodySetbackCandidateMm:head.userData.A18FocusBlockSetbackCandidateMm,
     axialBorePhysicallyMeasured:false,
     sleeveBoltOverlap:bolts.map(s=>overlap(s,clamp)),
     screwPostClearanceMm:screwPostClearance,
@@ -3887,17 +3890,21 @@ function platformA(){
    topCollar.userData.A18TopOpticalInterface=true;
    const bottomCollar=add(g,sleeve(24,18.1,8,mats.black,0,-39,0,'y'));
    bottomCollar.userData.A18NosepieceInterface=true;
-    g.userData.A18OpticalThroughBoreDiameterCandidateMm=20;
+    g.userData.A18OpticalThroughBoreDiameterCandidateMm=0;
+     g.userData.A18ExternalOpticalClearanceCandidateMm=20;
+     g.userData.A18OpticalAxisOutsideFocusBody=true;
+     g.userData.A18FocusBlockSetbackCandidateMm=48;
+     g.userData.A18FocusBlockSetbackMeasured=false;
     g.userData.A18OpticalThroughBoreMeasured=false;
    for(const sign of [-1,1]){
-     const hub=add(g,cyl(9,12,mats.dark,bodyX+sign*45,0,0,64));
+     const hub=add(g,cyl(9,12,mats.dark,bodyX+sign*45,0,focusBodyDepthZ,64));
      hub.rotation.z=Math.PI/2;hub.userData.A18FocusHub=sign;
-     const coarse=add(g,cyl(18,14,mats.black,bodyX+sign*56,0,0,64));
+     const coarse=add(g,cyl(18,14,mats.black,bodyX+sign*56,0,focusBodyDepthZ,64));
      coarse.rotation.z=Math.PI/2;coarse.userData.A18CoarseFocusKnob=sign;
-     const fine=add(g,cyl(11,8,mats.dark,bodyX+sign*67,0,0,64));
+     const fine=add(g,cyl(11,8,mats.dark,bodyX+sign*67,0,focusBodyDepthZ,64));
      fine.rotation.z=Math.PI/2;fine.userData.A18FineFocusKnob=sign;
      for(let q=0;q<6;q++){
-       const ring=add(g,torus(18.08,.24,mats.ink,bodyX+sign*(50.5+q*2.3),0,0));
+       const ring=add(g,torus(18.08,.24,mats.ink,bodyX+sign*(50.5+q*2.3),0,focusBodyDepthZ));
        ring.rotation.y=Math.PI/2;ring.userData.A18CoarseFocusKnurl=sign;
      }
    }
@@ -5860,7 +5867,7 @@ function _a18MGZ30StudyTargets(){
 window.__setA18MGZ30FamilyStudy=(on)=>{
  if(platform!=='A')return false;
  const q=_a18MGZ30StudyTargets();if(!q)return false;
- q.a18.children.filter(o=>o.userData.A18CurrentPhotoFitBody).forEach(o=>o.visible=!on);
+ q.a18.children.filter(o=>o.isMesh).forEach(o=>o.visible=!on);
  q.study.visible=Boolean(on);
  q.boom.visible=!on;
  q.a18.userData.MGZ30FamilyTopologyStudyInstalled=Boolean(on);
