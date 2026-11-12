@@ -1104,6 +1104,9 @@ try{
  assert.equal(chain.axialBoreDiameterCandidateMm,0);
  assert.equal(chain.externalOpticalClearanceCandidateMm,20);
  assert.equal(chain.opticalAxisOutsideFocusBody,true);
+ assert.equal(chain.opticalRadius9p5MmOpen,true,
+   'V144 19mm diameter optical shaft must clear actual housing surfaces');
+ assert.equal(chain.radialOpticalClearanceSamples,12);
  assert.equal(chain.focusBodySetbackCandidateMm,48);
  assert.equal(chain.axialBorePhysicallyMeasured,false);
  assert.equal(chain.clampFastenersEngaged,true);
