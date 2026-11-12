@@ -3869,12 +3869,13 @@ function platformA(){
     // Unlike V142's fake through-gearbox lens hole, this is a genuine
     // open-front edge relief so a 20mm optical cylinder stays outside the
     // focus drive solid. This notch is an unmeasured C-grade fit.
-    // Full-height FRONT-edge relief for optical shaft radius 9.9mm.
-    // Previous V144 focusShell accidentally notched the REAR edge.
+    // Full-height FRONT-edge relief for a 9.9mm optical clearance.
+    // rotateX(-PI/2) maps input shape-Y to NEGATIVE scene-Z.
+    // Negative shape-Y is thus the physical FRONT.
     const focusShell=(w,h,bottomY)=>{
       const half=w/2,cl=-bodyX-10.5,cr=-bodyX+10.5;
-      const pts=[[-half,-44],[half,-44],[half,44],
-        [cr,44],[cr,34],[cl,34],[cl,44],[-half,44]];
+      const pts=[[-half,44],[half,44],[half,-44],
+        [cr,-44],[cr,-34],[cl,-34],[cl,-44],[-half,-44]];
       const outline=new THREE.Shape();
       pts.forEach(([x,z],i)=>i?outline.lineTo(x,z):outline.moveTo(x,z));
       outline.closePath();
@@ -3917,7 +3918,7 @@ function platformA(){
    // This lower gearbox casting needs a real open FRONT relief for the
     // moving nosepiece annulus; V144 cut the wrong (rear) edge instead.
     const lowerOutline=new THREE.Shape();
-    [[-35,-44],[35,-44],[35,44],[6.5,44],[6.5,12],[-35,12]]
+    [[-35,44],[35,44],[35,-44],[6.5,-44],[6.5,-12],[-35,-12]]
       .forEach(([x,z],i)=>i?lowerOutline.lineTo(x,z):lowerOutline.moveTo(x,z));
     lowerOutline.closePath();
     const lowerGeometry=new THREE.ExtrudeGeometry(lowerOutline,{
