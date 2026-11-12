@@ -1103,7 +1103,7 @@ def make_a():
                 beam,'C')
     # Four auxiliary straps link both optical annular mounts to the
     # rear focus block without filling the front optical channel.
-    for idx,x in enumerate((cx-17,cx+17),1):
+    for idx,x in enumerate((cx-15,cx+17),1):
         for suffix,z in (('U',232),('L',160)):
             strap=box(8,30,8,x,-9,z)
             add('A',f'A18S{idx}{suffix}','OFFSET_OPTICAL_MOUNT_STRAP_CANDIDATE',
