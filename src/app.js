@@ -3899,8 +3899,8 @@ function platformA(){
    front.userData.A18FrontFace=true;
    // Four fixed bridging rails connect the focus gearbox and forward slide.
     const forkMembers=[];
-    for(const x of [-11,59])for(const y of [-22,20]){
-      const member=add(g,cub(8,6,54,mats.dark,x,y,22));
+    for(const x of [-15,59])for(const y of [-22,20]){
+      const member=add(g,cub(8,6,60,mats.dark,x,y,19));
       member.userData.A18ForwardSupportForkCandidate=true;
       forkMembers.push(member);
     }
