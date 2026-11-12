@@ -3879,7 +3879,7 @@ function platformA(){
     }
     // A forked upper/lower optical attachment leaves the axial light path open.
     const opticalStraps=[];
-    for(const x of [-17,17])for(const y of [-36,36]){
+    for(const x of [-15,17])for(const y of [-36,36]){
       const member=add(g,cub(8,8,30,mats.dark,x,y,-9));
       member.userData.A18OpticalMountSupportCandidate=true;
       opticalStraps.push(member);
