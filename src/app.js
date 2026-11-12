@@ -509,8 +509,17 @@ window.__modelAOpticalClearanceProbe=()=>{
   const railGap=shoes.map((s,i)=>Number((box(s).min.z-box(strips[i]).max.z).toFixed(3)));
   const origin=head.localToWorld(new THREE.Vector3(0,-50,0));
   const ray=new THREE.Raycaster(origin,new THREE.Vector3(0,1,0),0,100);
-  const boreMeshes=[...tag(head,'A18BodySegment'),one(head,'A18TopOpticalInterface'),bottom];
+  const boredYoke=one(head,'A18MovingNosepieceRing');
+  const boreMeshes=[...tag(head,'A18BodySegment'),one(head,'A18TopOpticalInterface'),bottom,boredYoke];
   const opticalAxialCoreOpen=ray.intersectObjects(boreMeshes,false).length===0;
+  const gussets=tag(head,'A18FixedSideWeb');
+  const yokeBar=one(head,'A18MovingNosepieceSpine');
+  const movingUp=one(head,'A18MovingOpticalUpright');
+  const topEar=one(head,'A18MovingTopOpticalEar');
+  const topRing=one(head,'A18TopOpticalInterface');
+  const ttl=parts.get('A08')?.g;
+  const a08JointGap=ttl&&topRing?
+    Number((box(ttl).min.y-box(topRing).max.y).toFixed(2)):null;
   // Raycast the entire radius, not merely the axial centreline: otherwise
   // an apparent bore can conceal a cylinder/gearbox collision.
   const radialSamples=[...Array(12)].map((_,i)=>{
@@ -533,6 +542,18 @@ window.__modelAOpticalClearanceProbe=()=>{
       Math.min(box(bottom).max.y,box(neck).max.y)-
       Math.max(box(bottom).min.y,box(neck).min.y)).toFixed(2)),
     opticalAxialCoreOpen,opticalRadius9p5MmOpen,
+    fixedCastSideWebs:gussets.length,
+    movingYokePresent:!!yokeBar&&!!boredYoke,
+    removedV144BarForest:tag(head,'A18ForwardSupportForkCandidate').length===0,
+    removedV144DisconnectedStraps:tag(head,'A18OpticalMountSupportCandidate').length===0,
+    castLeftEngagesGuide:!!gussets[0]&&overlap(gussets[0],rails[0])>5,
+    castRightEngagesGuide:!!gussets[1]&&overlap(gussets[1],rails[1])>5,
+    yokeMovesWithCarriage:!!yokeBar&&overlap(yokeBar,carriage)>100,
+    yokeContactsNosepiece:!!boredYoke&&overlap(boredYoke,bottom)>5,
+    movingUprightContactsYoke:!!movingUp&&!!yokeBar&&overlap(movingUp,yokeBar)>5,
+    upperEarContactsUpright:!!topEar&&!!movingUp&&overlap(topEar,movingUp)>5,
+    upperEarContactsOpticalCollar:!!topEar&&!!topRing&&overlap(topEar,topRing)>5,
+    ttl200AFaceMatingGapMm:a08JointGap,
     radialOpticalClearanceSamples:radialSamples.length,
     axialBoreDiameterCandidateMm:head.userData.A18OpticalThroughBoreDiameterCandidateMm,
     externalOpticalClearanceCandidateMm:head.userData.A18ExternalOpticalClearanceCandidateMm,
@@ -3895,33 +3916,38 @@ function platformA(){
    bodyLower.userData.A18BodySegment='lower';
    const bodyUpper=focusShell(76,14,21);
    bodyUpper.userData.A18BodySegment='upper';
-   const front=add(g,cub(70,44,1.4,mats.black,bodyX,1,44.7));
-   front.userData.A18FrontFace=true;
-   // Four fixed bridging rails connect the focus gearbox and forward slide.
-    const forkMembers=[];
-    for(const x of [-15,59])for(const y of [-22,20]){
-      const member=add(g,cub(8,6,60,mats.dark,x,y,19));
-      member.userData.A18ForwardSupportForkCandidate=true;
-      forkMembers.push(member);
-    }
-    // Left lower web otherwise only face-touched the stepped shell.
-    // A separate connected lug occupies rear depth Z=-28..-16 only,
-    // clear of the optical shaft at local Z=0.
-    const lowerLeftJoiningLug=add(g,cub(12,8,12,mats.dark,-15,-34,-22));
-    lowerLeftJoiningLug.userData.A18LowerLeftOpticalSupportLugCandidate=true;
-    lowerLeftJoiningLug.userData.A18CurrentPhotoFitBody=true;
-    // A forked upper/lower optical attachment leaves the axial light path open.
-    const opticalStraps=[];
-    for(const x of [-15,17])for(const y of [-36,36]){
-      const member=add(g,cub(8,8,30,mats.dark,x,y,-9));
-      member.userData.A18OpticalMountSupportCandidate=true;
-      opticalStraps.push(member);
-    }
-    for(const o of [bodyMid,bodyLower,bodyUpper,front,...forkMembers,...opticalStraps])
+   // V145: MGZ30-family SILHOUETTE REFERENCE ONLY (not an OEM identity).
+    // Replace V144's four exposed rods and four disconnected web patches
+    // with TWO stationary cast side-gussets and ONE moving lower yoke.
+    // Never fuse the moving objective carrier to the stationary gearbox.
+    const front=add(g,cub(32,44,1.4,mats.black,43,1,44.7));
+    front.userData.A18FrontFace=true;
+    const fixedWebL=add(g,cub(14,40,70,mats.dark,-19,0,18));
+    fixedWebL.userData.A18FixedSideWeb='left';
+    const fixedWebR=add(g,cub(34,36,70,mats.dark,48,3,19));
+    fixedWebR.userData.A18FixedSideWeb='right';
+    // Lower yoke: a straight load-bearing spine and a *bored* circular
+    // end flange.  Unlike a black painted disc, it has a true axial hole.
+    const movingSpine=add(g,cub(38,7,56,mats.dark,36,-33.5,27));
+    movingSpine.userData.A18MovingNosepieceSpine=true;
+    const movingRing=add(g,sleeve(29,18.2,7,mats.dark,0,-33.5,0,'y'));
+    movingRing.userData.A18MovingNosepieceRing=true;
+    // A moving upright supports the upper optical adapter but stays clear
+    // of both stationary side-gussets (1 mm running clearance on right).
+    const movingUpright=add(g,cub(8,70,10,mats.dark,26,-1,8));
+    movingUpright.userData.A18MovingOpticalUpright=true;
+    const upperEar=add(g,cub(12,8,10,mats.dark,25,30,5));
+    upperEar.userData.A18MovingTopOpticalEar=true;
+    for(const o of [bodyMid,bodyLower,bodyUpper,front,fixedWebL,
+      fixedWebR,movingSpine,movingRing,movingUpright,upperEar])
       o.userData.A18CurrentPhotoFitBody=true;
-   const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,39,0,'y'));
-   topCollar.userData.A18TopOpticalInterface=true;
-   const bottomCollar=add(g,sleeve(24,18.1,8,mats.black,0,-39,0,'y'));
+    const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,31,0,'y'));
+    topCollar.userData.A18TopOpticalInterface=true;
+    g.userData.A18SupportTopology='dual-fixed-cast-gussets-plus-one-moving-bored-yoke';
+    g.userData.A18V144FourRodForkRemoved=true;
+    g.userData.A18V144FourFreeStrapsRemoved=true;
+    g.userData.A18ManufacturerIdentityVerified=false;
+    const bottomCollar=add(g,sleeve(24,18.1,8,mats.black,0,-39,0,'y'));
    bottomCollar.userData.A18NosepieceInterface=true;
     g.userData.A18OpticalThroughBoreDiameterCandidateMm=0;
      g.userData.A18ExternalOpticalClearanceCandidateMm=20;

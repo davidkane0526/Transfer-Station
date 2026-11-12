@@ -1117,6 +1117,19 @@ try{
  assert.equal(chain.opticalRadius9p5MmOpen,true,
    'V144 19mm diameter optical shaft must clear actual housing surfaces');
  assert.equal(chain.radialOpticalClearanceSamples,12);
+ assert.equal(chain.fixedCastSideWebs,2);
+ assert.equal(chain.movingYokePresent,true);
+ assert.equal(chain.removedV144BarForest,true);
+ assert.equal(chain.removedV144DisconnectedStraps,true);
+ assert.equal(chain.castLeftEngagesGuide,true);
+ assert.equal(chain.castRightEngagesGuide,true);
+ assert.equal(chain.yokeMovesWithCarriage,true);
+ assert.equal(chain.yokeContactsNosepiece,true);
+ assert.equal(chain.movingUprightContactsYoke,true);
+ assert.equal(chain.upperEarContactsUpright,true);
+ assert.equal(chain.upperEarContactsOpticalCollar,true);
+ assert.equal(chain.ttl200AFaceMatingGapMm,0,
+   'TTL200-A body and A18 top sleeve must meet at a face, not overlap');
  assert.equal(chain.focusBodySetbackCandidateMm,48);
  assert.equal(chain.axialBorePhysicallyMeasured,false);
  assert.equal(chain.clampFastenersEngaged,true);

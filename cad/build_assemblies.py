@@ -1098,27 +1098,24 @@ def make_a():
     a18_body=a18_body.cut(box(24,17,70,cx,-12.5,165)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
-    # V144 rear focus block -> true fixed front guide cantilever fork.
-    # All dimensions here are C-grade topology candidates.
-    for idx,x in enumerate((cx-15,cx+59),1):
-        for suffix,z in (('U',217),('L',175)):
-            beam=box(8,60,6,x,19,z)
-            add('A',f'A18B{idx}{suffix}','FOCUS_FRONT_CANTILEVER_FORK_CANDIDATE',
-                beam,'C')
-    # V144 left-lower optical web needs a connecting lug: the stepped
-    # lower shell's x-left boundary otherwise touches the web at one plane.
-    # The lug joins the rear housing and strap without occupying optical air.
-    add('A','A18SL','LOWER_LEFT_OPTICAL_SUPPORT_REAL_JOINING_LUG_CANDIDATE',
-        box(12,12,8,cx-15,-22,162),'C')
-    # Four auxiliary straps link both optical annular mounts to the
-    # rear focus block without filling the front optical channel.
-    for idx,x in enumerate((cx-15,cx+17),1):
-        for suffix,z in (('U',232),('L',160)):
-            strap=box(8,30,8,x,-9,z)
-            add('A',f'A18S{idx}{suffix}','OFFSET_OPTICAL_MOUNT_STRAP_CANDIDATE',
-                strap,'C')
+    # V145: two STATIONARY cast side webs engage rear gearbox and fixed
+    # guides; the lower ONE-PIECE yoke belongs to the MOVING objective slide.
+    # No artificial four-bar forest is present in installed STEP geometry.
+    add('A','A18FW1','FIXED_LEFT_FOCUS_SIDE_GUSSET_CANDIDATE',
+        box(14,70,40,cx-19,18,200),'C')
+    add('A','A18FW2','FIXED_RIGHT_FOCUS_SIDE_GUSSET_CANDIDATE',
+        box(34,70,36,cx+48,19,203),'C')
+    add('A','A18SB','MOVING_NOSEPIECE_YOKE_SPINE_CANDIDATE',
+        box(38,56,7,cx+36,27,166.5),'C')
+    saddle_ring=vz(29,7,cx,0,166.5).cut(vz(18.2,7.2,cx,0,166.4))
+    add('A','A18SR','MOVING_NOSEPIECE_BORED_RING_CANDIDATE',
+        saddle_ring,'C')
+    add('A','A18VR','MOVING_OPTICAL_UPRIGHT_CANDIDATE',
+        box(8,10,70,cx+26,8,199),'C')
+    add('A','A18UL','MOVING_TOP_INTERFACE_EAR_CANDIDATE',
+        box(12,10,8,cx+25,5,230),'C')
     add('A','A18F','RECESSED_FOCUS_FRONT_COVER_CANDIDATE',
-        box(70,1.4,44,a18_body_x,44.7,179),'C')
+        box(32,1.4,44,cx+43,44.7,179),'C')
     # Two guides and wear strips on stationary body, with distinct moving shoes.
     for i,dx in enumerate((-11,59),1):
         x=cx+dx
@@ -1136,9 +1133,9 @@ def make_a():
         add('A',f'A18CW{i}','FOCUS_SLIDING_SHOE_CANDIDATE',
             box(11,2,28,cx+dx,49.4,167),'C')
     add('A','A18T','HOLLOW_TOP_OPTICAL_COUPLER_CANDIDATE',
-        vz(22,8,cx,0,235).cut(vz(13.1,8.2,cx,0,234.9)),'C')
+        vz(22,8,cx,0,231).cut(vz(13.1,8.2,cx,0,230.9)),'C')
     add('A','A18N','HOLLOW_NOSEPIECE_SOCKET_CANDIDATE',
-        vz(24,8,cx,0,157).cut(vz(18.1,8.2,cx,0,156.9)),'C')
+        vz(24,8,cx,0,161).cut(vz(18.1,8.2,cx,0,160.9)),'C')
     # Continuous left/right focus chains: body -> hub -> coarse -> fine.
     add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x-51,-48,200),'C')
     add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x+39,-48,200),'C')
@@ -1195,7 +1192,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V144'
+CAD_REVISION='V145'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

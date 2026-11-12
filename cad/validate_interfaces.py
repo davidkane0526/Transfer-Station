@@ -935,10 +935,10 @@ report['V108_A10_A18_component_boundary']={
 optical_axis_probe=vz(9.9,70,78,0,165)
 check(a18_shape.intersect(optical_axis_probe).Volume()<1e-4,
       'V142 A18 requires a true through-bore for the optical axis')
-for key,z in (('A18T',235),('A18N',157)):
+for key,z in (('A18T',231),('A18N',161)):
     coupler=part(A,key)[0]
     check(coupler.intersect(vz(9.9,8,78,0,z)).Volume()<1e-4,
-          'V142 '+key+' optical coupler must actually be hollow')
+          'V145 '+key+' optical coupler must actually be hollow')
 fixed_rails=[part(A,f'A18G{i}')[0] for i in (1,2)]
 wear_strips=[part(A,f'A18W{i}')[0] for i in (1,2)]
 moving_shoes=[part(A,f'A18CW{i}')[0] for i in (1,2)]
@@ -971,39 +971,53 @@ report['V142_A_microscope_mechanical_chain']={
     'fixed_rail_count':2,'moving_shoe_count':2,
     'radial_lock_fastener_count':2,'oem_clamp_verified':False,
     'A10_A18_part_boundary_verified':False,'fabrication_ready':False}
-# V144: new rear-drive to front-optics fork is a real contact chain.
+# V145: distinguish FIXED focus guide from MOVING optical nosepiece.
+# A geometric connection must exist on both ends of each material piece.
 check(a18_shape.intersect(vz(9.9,70,78,0,165)).Volume()<1e-4,
-      'V144 optical axis must not be bored through mechanical drive housing')
-check(abs(a18_shape.BoundingBox().ymax+4)<.02 and
-      abs(a18_shape.BoundingBox().ymin+92)<.02,
-      'V144 focus block is behind (not centered on) optical axis')
+      'V145 gearbox may not intercept centre optical shaft')
+check(abs(a18_shape.BoundingBox().ymax+4)<.02,
+      'V145 rear gearbox retains optical-axis separation')
 for i in (1,2):
-    rail=part(A,f'A18G{i}')[0]
-    for suffix in ('U','L'):
-        beam=part(A,f'A18B{i}{suffix}')[0]
-        check(beam.intersect(a18_shape).Volume()>5,
-              f'V144 fork {i}{suffix} attaches to rear focus housing')
-        check(beam.intersect(rail).Volume()>1,
-              f'V144 fork {i}{suffix} attaches to front sliding guide')
-    for suffix,optic in (('U','A18T'),('L','A18N')):
-        strap=part(A,f'A18S{i}{suffix}')[0]
-        direct_body_contact=strap.intersect(a18_shape).Volume()>1
-        if i==1 and suffix=='L':
-            joining_lug=part(A,'A18SL')[0]
-            check(joining_lug.intersect(a18_shape).Volume()>1 and
-                  joining_lug.intersect(strap).Volume()>1,
-                  'V144 left lower optical strap needs a real rear lug joint')
-        else:
-            check(direct_body_contact,
-                  f'V144 optical strap {i}{suffix} attaches to rear housing')
-        check(strap.intersect(part(A,optic)[0]).Volume()>1,
-              f'V144 optical strap {i}{suffix} attaches to optical sleeve')
-report['V144_separated_focus_block_from_optics']={
-  'rear_drive_body_depth_mm':[-92,-4],
-  'optical_axis_depth_mm':0,'body_depth_setback_photo_measured':False,
-  'mechanical_gearbox_axial_hole_invented':False,
-  'fixed_front_cantilever_members':4,'optic_connection_straps':4,
-  'full_radial_clearance_verified':False,'fabrication_ready':False}
+    web=part(A,f'A18FW{i}')[0]
+    guide=part(A,f'A18G{i}')[0]
+    check(web.intersect(a18_shape).Volume()>5,
+          f'V145 fixed web {i} must join stationary gearbox')
+    check(web.intersect(guide).Volume()>1,
+          f'V145 fixed web {i} must join fixed guide')
+moving_bar=part(A,'A18SB')[0]
+moving_ring=part(A,'A18SR')[0]
+moving_carriage=part(A,'A18C')[0]
+moving_adapter=part(A,'A18AD')[0]
+moving_up=part(A,'A18VR')[0]
+top_ear=part(A,'A18UL')[0]
+top_flange=part(A,'A18T')[0]
+bottom_flange=part(A,'A18N')[0]
+check(moving_bar.intersect(moving_ring).Volume()>20,
+      'V145 yoke spine must meet its annular optical mount')
+check(moving_bar.intersect(moving_carriage).Volume()>20 and
+      moving_bar.intersect(moving_adapter).Volume()>10,
+      'V145 yoke must move WITH carriage and dovetail adapter')
+check(moving_ring.intersect(bottom_flange).Volume()>20,
+      'V145 bored moving ring must physically seat nosepiece flange')
+check(moving_ring.intersect(vz(18.0,7.2,78,0,166.4)).Volume()<1e-4,
+      'V145 actual through-aperture cannot be blocked by fake opaque ring')
+check(moving_up.intersect(moving_bar).Volume()>20 and
+      moving_up.intersect(top_ear).Volume()>20,
+      'V145 vertical optical upright must link moving yoke to upper ear')
+check(top_ear.intersect(top_flange).Volume()>1,
+      'V145 upper optical ear must touch real annular sleeve material')
+check(moving_up.intersect(part(A,'A18FW2')[0]).Volume()<1e-4,
+      'V145 moving optical upright cannot penetrate stationary right gusset')
+check(abs(top_flange.BoundingBox().zmax-235)<.02,
+      'V145 A18 top flange must FACE-MATE to OEM TTL200-A bottom at 235mm')
+check(abs(bottom_flange.BoundingBox().zmin-157)<.02,
+      'V145 bottom sleeve shall reach A19 connector insertion zone')
+report['V145_compact_microscope_support_chain']={
+  'fixed_cast_gussets':2,'moving_lower_yoke':1,
+  'actual_bored_yoke_ring':True,'moving_optical_upright':1,
+  'v144_floating_rod_count':0,'v144_disconnected_web_count':0,
+  'top_flange_abuts_TTL200A_at_mm':235,'OEM_id_confirmed':False,
+  'all_dimensions_photo_measured':False,'fabrication_ready':False}
 # V111: non-installed MGZ30-family topology study. This is deliberately
 # separate from the default A10/A18 photo-fit assembly.
 mgz_study_parts=part(A,'A18MGZ')
