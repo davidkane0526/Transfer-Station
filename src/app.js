@@ -3904,6 +3904,12 @@ function platformA(){
       member.userData.A18ForwardSupportForkCandidate=true;
       forkMembers.push(member);
     }
+    // Left lower web otherwise only face-touched the stepped shell.
+    // A separate connected lug occupies rear depth Z=-28..-16 only,
+    // clear of the optical shaft at local Z=0.
+    const lowerLeftJoiningLug=add(g,cub(12,8,12,mats.dark,-15,-34,-22));
+    lowerLeftJoiningLug.userData.A18LowerLeftOpticalSupportLugCandidate=true;
+    lowerLeftJoiningLug.userData.A18CurrentPhotoFitBody=true;
     // A forked upper/lower optical attachment leaves the axial light path open.
     const opticalStraps=[];
     for(const x of [-15,17])for(const y of [-36,36]){
