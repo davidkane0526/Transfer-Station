@@ -3998,6 +3998,9 @@ function platformA(){
  addPart('A19',sx,160,0,g=>{
    // V143: real bores ONLY for the two photographed mounted objectives.
    const turret=add(g,drilledDisc(36,10,mats.black,[[-18,0,11.8],[18,0,11.8]]));
+   // ExtrudeGeometry starts at y=0, unlike centered CylinderGeometry.
+   // Restore the original 155..165mm turret envelope to avoid hitting A18.
+   turret.position.y=-5;
    turret.userData.A19TurretEnvelopeCandidate=true;
    turret.userData.A19InstalledPortThroughBores=2;
    add(g,torus(34,1,mats.steel,0,0,0));
