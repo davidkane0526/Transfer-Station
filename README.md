@@ -3,9 +3,9 @@
 ## V146 · MGZ30 厂商族拓扑对照可视化
 
 - 新增独立的 **MGZ30候选对照** 视图入口，不替换默认照片拟合模型。对照视图补齐双侧粗/微调焦旋钮、上盖螺钉、后置整体桥接件及直接立柱夹环；浏览器回归会生成并归档 V146 对照截图。
-- Thorlabs 官方资料列出 MGZ30 具有 30 mm Z 行程、粗调 40 mm/rev、微调 250 µm/rev、五物镜转换盘、Ø1.5 in 立柱安装，以及 30 mm cage/SM1/SM2 接口。当前照片拟合只建有两支可见物镜，转换盘其余端口位置与孔距未测，因此不臆造五孔盘。
+- Thorlabs 官方资料列出 MGZ30 调焦块具有 30 mm Z 行程、粗调 40 mm/rev、微调 250 µm/rev、Ø1.5 in 立柱安装及 M26×36 TPI 物镜转接接口。**五物镜转换盘属于完整 T-Scope 系统，不应误写成 MGZ30 单独调焦块的配置。**官方 T-Scope 使用 ITL200 管镜，而当前 A08 按 TTL200-A 建模，因此当前整套光学组件不能直接认定为 T-Scope。
 - **直连立柱存在硬冲突**：厂商 Ø38.1 mm 与当前照片估计 Ø26 mm 相差 12.1 mm。对照视图保留冲突，不把未测立柱强行改成 Ø38.1 mm。
-- 官方资料：[MGZ30 产品页](https://www.thorlabs.com/focus-block-and-accessories) · [官方目录规格](https://www.thorlabs.com/catalogpages/v21/1739.pdf)
+- 官方资料：[MGZ30 产品页](https://www.thorlabs.com/focus-block-and-accessories) · [MGZ30 目录规格](https://www.thorlabs.com/catalogpages/v21/1739.pdf) · [T-Scope 目录规格](https://www.thorlabs.com/catalogpages/v21/1738.pdf)
 - STEP 中的 A18MGZ 仍属于未安装对照研究，不进入平台 A 完整装配。
 
 ## V145 · 平台 A 显微镜前伸承载机构合并为完整机械件

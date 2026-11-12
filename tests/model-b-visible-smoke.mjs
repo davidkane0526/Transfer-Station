@@ -1154,9 +1154,12 @@ try{
  assert.equal(mgzStudy.fineFocusKnobCount,2);
  assert.equal(mgzStudy.topCoverScrewCount,4);
  assert.equal(mgzStudy.radialClampBoltPresent,true);
- assert.equal(mgzStudy.fiveObjectiveTurretVendorVerified,true);
- assert.equal(mgzStudy.fiveObjectiveTurretReconstructed,false);
- assert.match(mgzStudy.fiveObjectiveTurretNotModeledReason,/photo-fit/);
+ assert.equal(mgzStudy.tscopeFiveObjectiveTurretVendorVerified,true);
+ assert.equal(mgzStudy.tscopeFiveObjectiveTurretReconstructed,false);
+ assert.match(mgzStudy.tscopeFiveObjectiveTurretNotModeledReason,/photo-fit/);
+ assert.equal(mgzStudy.tscopeTubeLensModel,'ITL200');
+ assert.equal(mgzStudy.currentTubeLensModel,'TTL200-A');
+ assert.equal(mgzStudy.completeTSCOPEMatch,false);
  assert.equal(mgzStudy.vendorDirectPostDiameterMm,38.1);
  assert.equal(mgzStudy.currentScenePostDiameterMm,26);
  assert.equal(mgzStudy.postDiameterConflictMm,12.1,
@@ -1407,8 +1410,14 @@ try{
    'MGZ30 remains topology comparison only; no auto-identification');
  assert.equal(dA.A18MGZ30VendorTravelMm,30);
  assert.equal(dA.A18MGZ30VendorPostDiameterMm,38.1);
- assert.equal(dA.A18MGZ30VendorTurretPorts,5);
- assert.equal(dA.A18MGZ30VendorTurretThread,'M26×36 TPI');
+ assert.equal(dA.A18MGZ30VendorObjectiveAdapterThread,'M26×36 TPI');
+ assert.equal(dA.A18MGZ30VendorRMSAdaptersIncluded,5);
+ assert.equal(dA.A18TSCOPEVendorTurretPorts,5);
+ assert.equal(dA.A18TSCOPEVendorTurretThread,'M26×36 TPI');
+ assert.equal(dA.A18TSCOPEVendorTubeLens,'ITL200');
+ assert.equal(dA.A18CurrentTubeLensModel,'TTL200-A');
+ assert.equal(dA.A18CompleteTSCOPEModelConfirmed,false);
+ assert.equal(dA.A18CompleteTSCOPEITL200Mismatch,true);
  assert.equal(dA.A18MGZ30SupportsSM1SM2,true);
  assert.equal(dA.A18MGZ30GeometryApplied,false,
    'MGZ30 vendor geometry cannot replace the photo-constrained A18 before identity is verified');

@@ -803,8 +803,14 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30CandidateOnly:Boolean(gA18.userData.MGZ30CandidateOnly),
      A18MGZ30VendorTravelMm:gA18.userData.MGZ30VendorTravelMm,
      A18MGZ30VendorPostDiameterMm:gA18.userData.MGZ30VendorPostDiameterMm,
-     A18MGZ30VendorTurretPorts:gA18.userData.MGZ30VendorTurretPorts,
-     A18MGZ30VendorTurretThread:gA18.userData.MGZ30VendorTurretThread,
+     A18MGZ30VendorObjectiveAdapterThread:gA18.userData.MGZ30VendorObjectiveAdapterThread,
+     A18MGZ30VendorRMSAdaptersIncluded:gA18.userData.MGZ30VendorRMSAdaptersIncluded,
+     A18TSCOPEVendorTurretPorts:gA18.userData.TSCOPEVendorTurretPorts,
+     A18TSCOPEVendorTurretThread:gA18.userData.TSCOPEVendorTurretThread,
+     A18TSCOPEVendorTubeLens:gA18.userData.TSCOPEVendorTubeLens,
+     A18CurrentTubeLensModel:gA18.userData.CurrentTubeLensModel,
+     A18CompleteTSCOPEModelConfirmed:Boolean(gA18.userData.CompleteTSCOPEModelConfirmed),
+     A18CompleteTSCOPEITL200Mismatch:Boolean(gA18.userData.CompleteTSCOPEITL200Mismatch),
      A18MGZ30SupportsSM1SM2:Boolean(gA18.userData.MGZ30SupportsSM1SM2),
      A18MGZ30GeometryApplied:Boolean(gA18.userData.MGZ30GeometryApplied),
      A18MGZ30CandidatePriority:gA18.userData.MGZ30CandidatePriority,
@@ -4026,10 +4032,13 @@ function platformA(){
    mgz30Study.userData.installedByDefault=false;
    mgz30Study.userData.exactVendorGeometry=false;
    mgz30Study.userData.photoFitMainBodyEnvelopeRetained=true;
-   mgz30Study.userData.MGZ30VendorFeatures=['30mm Z travel','coaxial coarse/fine focus','five-objective turret','direct Ø1.5in post mounting','30mm cage / SM1 / SM2 dovetail'];
-   mgz30Study.userData.MGZ30FiveObjectiveTurretVendorVerified=true;
-   mgz30Study.userData.MGZ30FiveObjectiveTurretReconstructed=false;
-   mgz30Study.userData.MGZ30ReasonTurretNotReconstructed='photo-fit only supports two visible objective positions; unseen ports and pitch circle are not measured';
+   mgz30Study.userData.MGZ30VendorFeatures=['30mm Z travel','coaxial coarse/fine focus','direct Ø1.5in post mounting','M26×36 TPI objective adapters','30mm cage / SM1 / SM2 dovetail'];
+   mgz30Study.userData.TSCOPEFiveObjectiveTurretVendorVerified=true;
+   mgz30Study.userData.TSCOPEFiveObjectiveTurretReconstructed=false;
+   mgz30Study.userData.TSCOPETurretNotModeledReason='the five-position turret belongs to the complete T-Scope system; the current photo-fit only supports two visible objective positions and does not measure the remaining ports';
+   mgz30Study.userData.TSCOPEVendorTubeLens='ITL200';
+   mgz30Study.userData.currentPhotoFitTubeLens='TTL200-A';
+   mgz30Study.userData.completeTSCOPEMatch=false;
    mgz30Study.userData.vendorDirectPostDiameterMm=38.1;
    mgz30Study.userData.currentScenePostDiameterMm=26;
    g.userData.MGZ30FamilyTopologyStudyGroup=mgz30Study;
@@ -4052,8 +4061,14 @@ function platformA(){
    g.userData.MGZ30CandidateOnly=true;
    g.userData.MGZ30VendorTravelMm=30;
    g.userData.MGZ30VendorPostDiameterMm=38.1;
-   g.userData.MGZ30VendorTurretPorts=5;
-   g.userData.MGZ30VendorTurretThread='M26×36 TPI';
+   g.userData.MGZ30VendorObjectiveAdapterThread='M26×36 TPI';
+   g.userData.MGZ30VendorRMSAdaptersIncluded=5;
+   g.userData.TSCOPEVendorTurretPorts=5;
+   g.userData.TSCOPEVendorTurretThread='M26×36 TPI';
+   g.userData.TSCOPEVendorTubeLens='ITL200';
+   g.userData.CurrentTubeLensModel='TTL200-A';
+   g.userData.CompleteTSCOPEModelConfirmed=false;
+   g.userData.CompleteTSCOPEITL200Mismatch=true;
    g.userData.MGZ30SupportsSM1SM2=true;
    g.userData.MGZ30GeometryApplied=false;
    // V92 evidence weighting: the MGZ30 OEM photo is a black enclosed block,
@@ -4579,10 +4594,11 @@ function updateDetail(part){
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
      '<b>A18 厂商候选矩阵（V108）</b><p>'+
-     '<b>Thorlabs MGZ30 / T-Scope（主候选）：</b>原厂是黑色封闭矩形调焦块，30mm Z行程、Ø1.5in立柱、5孔M26×36 TPI转盘，并支持30mm cage / SM1 / SM2。'+
-     '<b>官方调焦参数：</b>粗调40 mm/rev，微调250 µm/rev；'+
-     '<a href="https://www.thorlabs.com/focus-block-and-accessories" target="_blank" rel="noopener noreferrer">Thorlabs产品页</a> · '+
-     '<a href="https://www.thorlabs.com/catalogpages/v21/1739.pdf" target="_blank" rel="noopener noreferrer">官方目录规格</a>。'+
+     '<b>Thorlabs MGZ30 Focus Block（主候选）：</b>黑色封闭式手动调焦块，30mm Z行程、Ø1.5in立柱安装，粗调40 mm/rev、微调250 µm/rev；配套物镜转接接口为M26×36 TPI，并兼容30mm cage / SM1 / SM2。'+
+     '<a href="https://www.thorlabs.com/focus-block-and-accessories" target="_blank" rel="noopener noreferrer">MGZ30产品页</a> · '+
+     '<a href="https://www.thorlabs.com/catalogpages/v21/1739.pdf" target="_blank" rel="noopener noreferrer">MGZ30官方目录规格</a>。'+
+     '<b>完整T-Scope的区别：</b>官方T-Scope是独立完整显微镜系统，包含ITL200管镜和五物镜转换盘（M26×36 TPI）。当前模型A08按TTL200-A建模，因此不能将现有整套光学组件直接认定为T-Scope；五物镜盘也不能误写成MGZ30单独调焦块的已确认配置。'+
+     '<a href="https://www.thorlabs.com/catalogpages/v21/1738.pdf" target="_blank" rel="noopener noreferrer">T-Scope官方目录规格</a>。'+
      '这不仅比银色开架BXFM-F更符合191–193外观，而且与已确认的TTL200-A、MWWHL4及SM1/SM2光路形成同一Thorlabs生态。'+
      'MGZ30仍为主候选，但V108新增更关键的零件边界：原厂MGZ30后部立柱夹持壳体属于调焦块本体，并直接安装在Ø1.5in立柱上；如果实机确为MGZ30，当前独立A10横臂可能其实属于A18后壳，继续把两者分别采购/加工会造成重复结构。'+
      '现有191–193低清图还不能确认后侧分缝或Ø38.1mm立柱，因此A10/A18仍保持两个照片拟合实体，但零件边界标记为未闭合。原厂291.7/130/100.2mm图纸尺寸也未强套坐标轴。<br>'+
@@ -6042,9 +6058,12 @@ window.__A18MGZ30FamilyStudyProbe=()=>{
    fineFocusKnobCount:fineKnobs.length,
    topCoverScrewCount:topScrews.length,
    radialClampBoltPresent:q.study.children.some(o=>o.userData.MGZ30StudyRadialClampBolt),
-   fiveObjectiveTurretVendorVerified:Boolean(q.study.userData.MGZ30FiveObjectiveTurretVendorVerified),
-   fiveObjectiveTurretReconstructed:Boolean(q.study.userData.MGZ30FiveObjectiveTurretReconstructed),
-   fiveObjectiveTurretNotModeledReason:q.study.userData.MGZ30ReasonTurretNotReconstructed,
+   tscopeFiveObjectiveTurretVendorVerified:Boolean(q.study.userData.TSCOPEFiveObjectiveTurretVendorVerified),
+   tscopeFiveObjectiveTurretReconstructed:Boolean(q.study.userData.TSCOPEFiveObjectiveTurretReconstructed),
+   tscopeFiveObjectiveTurretNotModeledReason:q.study.userData.TSCOPETurretNotModeledReason,
+    tscopeTubeLensModel:q.study.userData.TSCOPEVendorTubeLens,
+    currentTubeLensModel:q.study.userData.currentPhotoFitTubeLens,
+    completeTSCOPEMatch:Boolean(q.study.userData.completeTSCOPEMatch),
    studyVisible:q.study.visible,
    installedByDefault:Boolean(q.study.userData.installedByDefault),
    exactVendorGeometry:Boolean(q.study.userData.exactVendorGeometry),
