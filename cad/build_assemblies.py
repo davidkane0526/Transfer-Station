@@ -1105,6 +1105,11 @@ def make_a():
             beam=box(8,60,6,x,19,z)
             add('A',f'A18B{idx}{suffix}','FOCUS_FRONT_CANTILEVER_FORK_CANDIDATE',
                 beam,'C')
+    # V144 left-lower optical web needs a connecting lug: the stepped
+    # lower shell's x-left boundary otherwise touches the web at one plane.
+    # The lug joins the rear housing and strap without occupying optical air.
+    add('A','A18SL','LOWER_LEFT_OPTICAL_SUPPORT_REAL_JOINING_LUG_CANDIDATE',
+        box(12,12,8,cx-15,-22,162),'C')
     # Four auxiliary straps link both optical annular mounts to the
     # rear focus block without filling the front optical channel.
     for idx,x in enumerate((cx-15,cx+17),1):
