@@ -971,6 +971,32 @@ report['V142_A_microscope_mechanical_chain']={
     'fixed_rail_count':2,'moving_shoe_count':2,
     'radial_lock_fastener_count':2,'oem_clamp_verified':False,
     'A10_A18_part_boundary_verified':False,'fabrication_ready':False}
+# V144: new rear-drive to front-optics fork is a real contact chain.
+check(a18_shape.intersect(vz(9.9,70,78,0,165)).Volume()<1e-4,
+      'V144 optical axis must not be bored through mechanical drive housing')
+check(abs(a18_shape.BoundingBox().ymax+4)<.02 and
+      abs(a18_shape.BoundingBox().ymin+92)<.02,
+      'V144 focus block is behind (not centered on) optical axis')
+for i in (1,2):
+    rail=part(A,f'A18G{i}')[0]
+    for suffix in ('U','L'):
+        beam=part(A,f'A18B{i}{suffix}')[0]
+        check(beam.intersect(a18_shape).Volume()>5,
+              f'V144 fork {i}{suffix} attaches to rear focus housing')
+        check(beam.intersect(rail).Volume()>1,
+              f'V144 fork {i}{suffix} attaches to front sliding guide')
+    for suffix,optic in (('U','A18T'),('L','A18N')):
+        strap=part(A,f'A18S{i}{suffix}')[0]
+        check(strap.intersect(a18_shape).Volume()>1,
+              f'V144 optical strap {i}{suffix} attaches to rear housing')
+        check(strap.intersect(part(A,optic)[0]).Volume()>1,
+              f'V144 optical strap {i}{suffix} attaches to optical sleeve')
+report['V144_separated_focus_block_from_optics']={
+  'rear_drive_body_depth_mm':[-92,-4],
+  'optical_axis_depth_mm':0,'body_depth_setback_photo_measured':False,
+  'mechanical_gearbox_axial_hole_invented':False,
+  'fixed_front_cantilever_members':4,'optic_connection_straps':4,
+  'full_radial_clearance_verified':False,'fabrication_ready':False}
 # V111: non-installed MGZ30-family topology study. This is deliberately
 # separate from the default A10/A18 photo-fit assembly.
 mgz_study_parts=part(A,'A18MGZ')
@@ -1453,10 +1479,10 @@ check(a_support_boom.translate(Vector(0,0,18)).intersect(a_scope_col).Volume()<1
 check(a_support_boom.intersect(vz(2,25,78,-90,220)).Volume()>50,
       'V69 boom retains real metal adjacent to the post clearance')
 # V142: the reinforced post collar projects 1.5 mm beyond the old
-# Y=-130 beam tail. The critical FRONT mating face must still end at Y=-44.
+# Y=-130 beam tail. The FRONT mating face now ends at Y=-92.
 check(abs(a_support_boom.BoundingBox().ymin+131.5)<.02 and
-      abs(a_support_boom.BoundingBox().ymax+44)<.02,
-      'V142 A10 collar may overhang rearward 1.5mm but the boom front must meet A18')
+      abs(a_support_boom.BoundingBox().ymax+92)<.02,
+      'V144 post collar overhang and rear gearbox face meeting y=-92')
 a_head=part(A,'A18')[0]
 check(abs(a_head.BoundingBox().ymin-a_support_boom.BoundingBox().ymax)<.02,
       'V74 A10 front beam and A18 housing rear must mate flush')
