@@ -1483,7 +1483,7 @@ check(a_support_boom.intersect(a_scope_col).Volume()<1e-4,
       'V69 A10 boom must not cut through actual solid microscope post')
 check(a_support_boom.translate(Vector(0,0,18)).intersect(a_scope_col).Volume()<1e-4,
       'V69 retracted 18mm optical carrier remains clear of the fixed post')
-check(a_support_boom.intersect(vz(2,25,78,-90,220)).Volume()>50,
+check(a_support_boom.intersect(vz(2,25,78,-97,220)).Volume()>50,
       'V69 boom retains real metal adjacent to the post clearance')
 # V142: the reinforced post collar projects 1.5 mm beyond the old
 # Y=-130 beam tail. The FRONT mating face now ends at Y=-92.
@@ -1513,7 +1513,7 @@ report['V69_A10_post_support_collision']={
     'boom_raised_18mm_clearance':True,
     'boomhousing_rear_face_gap_mm':0,
     'boomhousing_solid_intersection_mm3':0,
-    'candidate_boom_length_mm':86,
+    'candidate_boom_length_mm':38,
     'boom_support_mount_bolt_verified':False,
     'photographic_OEM_interface_verified':False
 }
