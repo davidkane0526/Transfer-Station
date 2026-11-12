@@ -1,5 +1,13 @@
 # Transfer Station
 
+## V149 · 显微镜 A10/A18 厂商候选重新审查
+
+- 新增 LYLIGHT FR5025CF 一体式 E-arm 调焦架候选：厂商资料标注 Ø25mm 立柱孔、Ø50mm 镜体接口、165mm 中心距和 0.02mm 微调精度。该结构可能意味着当前 A10 横臂属于 A18 调焦架的一部分，不能分别计件采购。
+- 新增 FR7625CF 76mm 镜体环变体作为同族对照；Boli 76/25mm 调焦架仍保留为未决候选，现有 128×170 预览不足以确认或排除。
+- **纠正 V146 厂商资料归属**：Thorlabs MGZ30 本体包含五物镜转换盘，五个 M26×36 TPI 接口并附五个 RMS 转接件。2012 Rev C 图纸标注微调 225µm/rev，2014 目录为 250µm/rev，存在版本差异。
+- MGZ30 仍为条件候选，LYLIGHT FR5025CF 为高优先级结构候选，BXFM-F 为次候选；没有型号确认，任何候选几何都未应用到默认装配。
+- [V149 候选型号、接口尺寸与证据边界](docs/V149_A18_VENDOR_CANDIDATE_AUDIT.md)
+
 ## V148 · 修复平台 A 温控柜运行时异常，恢复场景回归
 
 - 修复 `src/details.js` 中 A33 后侧电缆密封圈引用未声明的 `rubber` 材质，新增低金属度、深色弹性体材质定义。
@@ -12,7 +20,7 @@
 ## V146 · MGZ30 厂商族拓扑对照可视化
 
 - 新增独立的 **MGZ30候选对照** 视图入口，不替换默认照片拟合模型。对照视图补齐双侧粗/微调焦旋钮、上盖螺钉、后置整体桥接件及直接立柱夹环；浏览器回归会生成并归档 V146 对照截图。
-- Thorlabs 官方资料列出 MGZ30 调焦块具有 30 mm Z 行程、粗调 40 mm/rev、微调 250 µm/rev、Ø1.5 in 立柱安装及 M26×36 TPI 物镜转接接口。**五物镜转换盘属于完整 T-Scope 系统，不应误写成 MGZ30 单独调焦块的配置。**官方 T-Scope 使用 ITL200 管镜，而当前 A08 按 TTL200-A 建模，因此当前整套光学组件不能直接认定为 T-Scope。
+- Thorlabs 官方资料列出 MGZ30 调焦块具有 30 mm Z 行程、粗调 40 mm/rev、微调 250 µm/rev、Ø1.5 in 立柱安装及 M26×36 TPI 物镜转接接口。**MGZ30 本体包含五物镜转换盘**；完整 T-Scope 另配 ITL200 管镜。官方 T-Scope 使用 ITL200 管镜，而当前 A08 按 TTL200-A 建模，因此当前整套光学组件不能直接认定为 T-Scope。
 - **直连立柱存在硬冲突**：厂商 Ø38.1 mm 与当前照片估计 Ø26 mm 相差 12.1 mm。对照视图保留冲突，不把未测立柱强行改成 Ø38.1 mm。
 - 官方资料：[MGZ30 产品页](https://www.thorlabs.com/focus-block-and-accessories) · [MGZ30 目录规格](https://www.thorlabs.com/catalogpages/v21/1739.pdf) · [T-Scope 目录规格](https://www.thorlabs.com/catalogpages/v21/1738.pdf)
 - STEP 中的 A18MGZ 仍属于未安装对照研究，不进入平台 A 完整装配。

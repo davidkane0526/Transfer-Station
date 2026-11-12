@@ -805,8 +805,8 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30VendorPostDiameterMm:gA18.userData.MGZ30VendorPostDiameterMm,
      A18MGZ30VendorObjectiveAdapterThread:gA18.userData.MGZ30VendorObjectiveAdapterThread,
      A18MGZ30VendorRMSAdaptersIncluded:gA18.userData.MGZ30VendorRMSAdaptersIncluded,
-     A18TSCOPEVendorTurretPorts:gA18.userData.TSCOPEVendorTurretPorts,
-     A18TSCOPEVendorTurretThread:gA18.userData.TSCOPEVendorTurretThread,
+     A18MGZ30VendorTurretPorts:gA18.userData.MGZ30VendorTurretPorts,
+     A18MGZ30VendorTurretThread:gA18.userData.MGZ30VendorTurretThread,
      A18TSCOPEVendorTubeLens:gA18.userData.TSCOPEVendorTubeLens,
      A18CurrentTubeLensModel:gA18.userData.CurrentTubeLensModel,
      A18CompleteTSCOPEModelConfirmed:Boolean(gA18.userData.CompleteTSCOPEModelConfirmed),
@@ -843,6 +843,12 @@ window.__modelAPhoto194Probe=()=>{
      A18BXFMFGeometryApplied:Boolean(gA18.userData.BXFMFGeometryApplied),
      A18BXFMFWidth84MatchesCurrentPhotoFit:Boolean(gA18.userData.BXFMFWidth84MatchesCurrentPhotoFit),
      A18BXFMFWidthMatchProvesIdentity:Boolean(gA18.userData.BXFMFWidthMatchProvesIdentity),
+     A18LYLIGHTFocusRackCandidates:gA18.userData.LYLIGHTFocusRackCandidates,
+     A18LYLIGHTFocusRackGeometryApplied:Boolean(gA18.userData.LYLIGHTFocusRackGeometryApplied),
+     A18LYLIGHTFocusRackCandidatePriority:gA18.userData.LYLIGHTFocusRackCandidatePriority,
+     A18LYLIGHTFocusRackIdentityConfirmed:Boolean(gA18.userData.LYLIGHTFocusRackIdentityConfirmed),
+     A18LYLIGHTIntegratedEArmMayAbsorbA10:Boolean(gA18.userData.LYLIGHTIntegratedEArmMayAbsorbA10),
+     A18Visible50mmScopeRingConfirmed:Boolean(gA18.userData.visible50mmScopeRingConfirmed),
      A18Boli76x25Candidates:gA18.userData.Boli76x25Candidates,
      A18BoliFocusRackGeometryApplied:Boolean(gA18.userData.BoliFocusRackGeometryApplied),
      A18Boli76RingDirectIdentityRejected:Boolean(gA18.userData.Boli76RingDirectIdentityRejected),
@@ -4032,10 +4038,12 @@ function platformA(){
    mgz30Study.userData.installedByDefault=false;
    mgz30Study.userData.exactVendorGeometry=false;
    mgz30Study.userData.photoFitMainBodyEnvelopeRetained=true;
-   mgz30Study.userData.MGZ30VendorFeatures=['30mm Z travel','coaxial coarse/fine focus','direct Ø1.5in post mounting','M26×36 TPI objective adapters','30mm cage / SM1 / SM2 dovetail'];
-   mgz30Study.userData.TSCOPEFiveObjectiveTurretVendorVerified=true;
-   mgz30Study.userData.TSCOPEFiveObjectiveTurretReconstructed=false;
-   mgz30Study.userData.TSCOPETurretNotModeledReason='the five-position turret belongs to the complete T-Scope system; the current photo-fit only supports two visible objective positions and does not measure the remaining ports';
+   mgz30Study.userData.MGZ30VendorFeatures=['30mm Z travel','coaxial coarse/fine focus','direct Ø1.5in post mounting','built-in five-objective turret with five M26×36 TPI ports and five included RMS adapters','30mm cage / SM1 / SM2 dovetail'];
+   mgz30Study.userData.MGZ30FiveObjectiveTurretVendorVerified=true;
+   mgz30Study.userData.MGZ30FiveObjectiveTurretReconstructed=false;
+   mgz30Study.userData.MGZ30VendorTurretPortCount=5;
+   mgz30Study.userData.MGZ30VendorTurretThread='M26×36 TPI';
+   mgz30Study.userData.MGZ30TurretNotModeledReason='Thorlabs catalog 1739 explicitly states that each MGZ30 post-mountable focus block includes a five-objective turret. The current study mesh does not reconstruct the five-port carrier or adapter geometry because the exact port-circle dimensions have not yet been verified from OEM CAD; the two visible photo-fit positions do not establish the actual port count.';
    mgz30Study.userData.TSCOPEVendorTubeLens='ITL200';
    mgz30Study.userData.currentPhotoFitTubeLens='TTL200-A';
    mgz30Study.userData.completeTSCOPEMatch=false;
@@ -4063,19 +4071,18 @@ function platformA(){
    g.userData.MGZ30VendorPostDiameterMm=38.1;
    g.userData.MGZ30VendorObjectiveAdapterThread='M26×36 TPI';
    g.userData.MGZ30VendorRMSAdaptersIncluded=5;
-   g.userData.TSCOPEVendorTurretPorts=5;
-   g.userData.TSCOPEVendorTurretThread='M26×36 TPI';
+   g.userData.MGZ30VendorTurretPorts=5;
+   g.userData.MGZ30VendorTurretThread='M26×36 TPI';
    g.userData.TSCOPEVendorTubeLens='ITL200';
    g.userData.CurrentTubeLensModel='TTL200-A';
    g.userData.CompleteTSCOPEModelConfirmed=false;
    g.userData.CompleteTSCOPEITL200Mismatch=true;
    g.userData.MGZ30SupportsSM1SM2=true;
    g.userData.MGZ30GeometryApplied=false;
-   // V92 evidence weighting: the MGZ30 OEM photo is a black enclosed block,
-   // unlike the visibly open silver BXFM-F casting. The installed A08 TTL200-A,
-   // A11 MWWHL4 and SM1/SM2 stack also form a coherent Thorlabs ecosystem.
-   // This raises MGZ30 to PRIMARY candidate but still does not prove identity.
-   g.userData.MGZ30CandidatePriority='primary';
+   // V149: MGZ30 remains conditional. Its built-in five-position turret is
+   // OEM-confirmed, but the current low-resolution photos do not establish
+   // the five-port carrier, Ø38.1mm post or rear housing boundary.
+   g.userData.MGZ30CandidatePriority='conditional';
    g.userData.MGZ30BlackEnclosedFinishMatch=true;
    g.userData.MGZ30ThorlabsEcosystemMatch=true;
    g.userData.MGZ30VendorDrawingPostDiameterMm=38.0;
@@ -4111,6 +4118,19 @@ function platformA(){
    g.userData.BXFMFGeometryApplied=false;
    g.userData.BXFMFWidth84MatchesCurrentPhotoFit=true;
    g.userData.BXFMFWidthMatchProvesIdentity=false;
+   g.userData.LYLIGHTFocusRackCandidates=[
+     {sku:'FR5025CF',postDiameterMm:25,holderDiameterMm:50,
+      centerDistanceMm:165,fineAdjustmentAccuracyMm:0.02,
+      coarseFine:true,integratedEArm:true,finish:'black'},
+     {sku:'FR7625CF',postDiameterMm:25,holderDiameterMm:76,
+      centerDistanceMm:null,fineAdjustmentAccuracyMm:null,
+      coarseFine:true,integratedEArm:true,finish:'vendor product image'}
+   ];
+   g.userData.LYLIGHTFocusRackGeometryApplied=false;
+   g.userData.LYLIGHTFocusRackCandidatePriority='high-structural';
+   g.userData.LYLIGHTFocusRackIdentityConfirmed=false;
+   g.userData.LYLIGHTIntegratedEArmMayAbsorbA10=true;
+   g.userData.visible50mmScopeRingConfirmed=false;
    g.userData.Boli76x25Candidates=[
      {sku:'SA08041302',postDiameterMm:25,holderDiameterMm:76,
       centerDistanceMm:null,coaxialFineFocus:true},
@@ -4120,8 +4140,8 @@ function platformA(){
       centerDistanceMm:140,coaxialFineFocus:false}
    ];
    g.userData.BoliFocusRackGeometryApplied=false;
-   g.userData.Boli76RingDirectIdentityRejected=true;
-   g.userData.Boli76RingRejectionReason='photos191-193 do not show the exposed 76mm annular E-arm holder';
+   g.userData.Boli76RingDirectIdentityRejected=false;
+   g.userData.Boli76RingRejectionReason='The current 128×170 px previews are insufficient to confirm or reject a 76mm annular E-arm; retain this family as an unresolved comparison candidate pending full-resolution rear and side views.';
    g.userData.currentScenePostDiameterMm=26;
    g.userData.currentScenePostDiameterMeasured=false;
    g.userData.currentScenePostToOpticalAxisMm=112;
@@ -4130,7 +4150,7 @@ function platformA(){
    g.userData.fullFivePortTurretConfirmed=false;
    g.userData.MCTLMP2DirectIdentityRejected=true;
    g.userData.MCTLMP2VendorEnvelopeMm=[211.5,130,58.8];
-   g.userData.vendorCandidateDecision='MGZ30 primary but conditional on unresolved A10/A18 rear-housing boundary; BXFM-F secondary; exposed 76mm E-arm direct identity rejected; none confirmed';
+   g.userData.vendorCandidateDecision='LYLIGHT FR5025CF high-priority integrated E-arm topology candidate; MGZ30 conditional direct-post focus-block candidate with OEM-confirmed five-position turret; BXFM-F secondary; 76mm Boli/LYLIGHT variants unresolved because the current previews are too small; none confirmed';
    label(g,'A18 显微镜调焦主体',bodyX,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
@@ -4584,32 +4604,39 @@ function updateDetail(part){
  const a18VendorHtml=(platform==='A'&&part.id==='A18')?(()=>{
    const a18=parts.get('A18')?.g;
    const boli=a18?.userData.Boli76x25Candidates??[];
+   const ly=a18?.userData.LYLIGHTFocusRackCandidates??[];
+   const lyText=ly.map(c=>c.sku+'：Ø'+c.postDiameterMm+'立柱孔 / Ø'+
+     c.holderDiameterMm+'镜体接口'+(c.centerDistanceMm?
+     ' / 中心距'+c.centerDistanceMm+'mm':' / 中心距待核')+
+     (c.fineAdjustmentAccuracyMm?' / 微调精度'+c.fineAdjustmentAccuracyMm+'mm':' / 微调精度待核')).join('；');
    const boliText=boli.map(c=>c.sku+'：Ø'+c.postDiameterMm+'立柱 / Ø'+
      c.holderDiameterMm+'镜体'+(c.centerDistanceMm?
      ' / 中心距'+c.centerDistanceMm+'mm':' / 中心距待核')+
      (c.coaxialFineFocus?' / 粗微同轴':' / 粗调')).join('；');
    return '<div class="field" id="a18-vendor-comparison" data-confirmed="false" '+
      'data-mgz30-applied="'+Boolean(a18?.userData.MGZ30GeometryApplied)+'" '+
+     'data-lylight-applied="'+Boolean(a18?.userData.LYLIGHTFocusRackGeometryApplied)+'" '+
      'data-bxfmf-applied="'+Boolean(a18?.userData.BXFMFGeometryApplied)+'" '+
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
-     '<b>A18 厂商候选矩阵（V108）</b><p>'+
-     '<b>Thorlabs MGZ30 Focus Block（主候选）：</b>黑色封闭式手动调焦块，30mm Z行程、Ø1.5in立柱安装，粗调40 mm/rev、微调250 µm/rev；配套物镜转接接口为M26×36 TPI，并兼容30mm cage / SM1 / SM2。'+
+     '<b>A18 厂商候选矩阵（V149）</b><p>'+
+     '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认）：</b>厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、165mm中心距及0.02mm微调精度；这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
+     '<a href="https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/" target="_blank" rel="noopener noreferrer">FR5025CF产品页</a> · '+
+     '<a href="https://www.lylight.com/wp-content/uploads/2024/05/FR5025CF-coarse-and-fine-adjustment-focus-rack-LYLIGHT.pdf" target="_blank" rel="noopener noreferrer">厂商产品图/规格PDF</a>。'+
+     'FR5025CF资料不是完整尺寸工程图或原生STEP；除已标注接口和中心距外，机身外廓、臂厚、孔位和紧固结构仍未知。'+
+     '<b>LYLIGHT FR7625CF（同族变体）：</b>25mm立柱孔、76mm镜体环，采用粗/微调结构；当前公开产品页未提供可核验的中心距和微调精度。该型号用于核对环径变体，不代表照片已经确认76mm环。'+
+     '<a href="https://www.lylight.com/product/focus-bracket-coarse-fine-adjustment-knob-focusing-rack-76mm25mm/" target="_blank" rel="noopener noreferrer">FR7625CF产品页</a>。'+
+     '<b>候选规格汇总：</b>'+esc(lyText)+'。上述尺寸是厂商候选数据，不是本机实测。当前场景Ø26mm立柱与112mm立柱至光轴距离均未实测，不能据此直接确认或排除FR5025CF。'+
+     '<br><b>Thorlabs MGZ30 Focus Block（条件候选）：</b>30mm Z行程、粗调40mm/rev、2014目录微调250µm/rev、Ø1.5in（38.1mm）立柱安装；MGZ30本体包含五物镜转换盘，五个M26×36 TPI接口并附五个RMS转接件，顶部兼容30mm cage / SM1 / SM2。'+
      '<a href="https://www.thorlabs.com/focus-block-and-accessories" target="_blank" rel="noopener noreferrer">MGZ30产品页</a> · '+
-     '<a href="https://www.thorlabs.com/catalogpages/v21/1739.pdf" target="_blank" rel="noopener noreferrer">MGZ30官方目录规格</a>。'+
-     '<b>完整T-Scope的区别：</b>官方T-Scope是独立完整显微镜系统，包含ITL200管镜和五物镜转换盘（M26×36 TPI）。当前模型A08按TTL200-A建模，因此不能将现有整套光学组件直接认定为T-Scope；五物镜盘也不能误写成MGZ30单独调焦块的已确认配置。'+
-     '<a href="https://www.thorlabs.com/catalogpages/v21/1738.pdf" target="_blank" rel="noopener noreferrer">T-Scope官方目录规格</a>。'+
-     '这不仅比银色开架BXFM-F更符合191–193外观，而且与已确认的TTL200-A、MWWHL4及SM1/SM2光路形成同一Thorlabs生态。'+
-     'MGZ30仍为主候选，但V108新增更关键的零件边界：原厂MGZ30后部立柱夹持壳体属于调焦块本体，并直接安装在Ø1.5in立柱上；如果实机确为MGZ30，当前独立A10横臂可能其实属于A18后壳，继续把两者分别采购/加工会造成重复结构。'+
-     '现有191–193低清图还不能确认后侧分缝或Ø38.1mm立柱，因此A10/A18仍保持两个照片拟合实体，但零件边界标记为未闭合。原厂291.7/130/100.2mm图纸尺寸也未强套坐标轴。<br>'+
-     '<b>Olympus/Evident BXFM-F（次候选）：</b>其84mm宽度、Ø32H8立柱孔、4-M8后固定和30mm行程仍有尺寸/拓扑相似性；'+
-     '但原厂是明显银色开架铸件，而191–193中的A18表现为黑色封闭块，因此V92降为次候选。84mm吻合不能作为型号证明。<br>'+
-     '<b>实拍几何纠错：</b>191/193显示相机/物镜光轴位于主体左侧而非几何中心，V92已把主体与双侧调焦组件整体向右偏移24mm，光轴/转盘保持原位；24mm是照片比例候选，不是尺测值。<br>'+
-     '<b>25mm立柱 / Ø76大抱环调焦架：</b>'+esc(boliText)+'。'+
-     'V91直接对照厂家产品外形后降级：这类产品具有非常醒目的外露Ø76环抱式E-arm，照片191–193没有对应结构，因此不再作为A18直接身份，只保留尺寸族对照。<br>'+
-     '<b>MCT-LMP2：</b>211.5×130×58.8mm包络、40mm行程及密集前板孔阵继续排除直接身份。<br>'+
-     '<b>当前决定：</b>MGZ30为条件主候选，BXFM-F为次候选；任何一个都未确认。当前A10横臂禁止作为独立已确认采购件。'+
-     '需要A18后侧高清图/分缝、立柱直径尺图、后安装面或转盘底视图，才能判断A10横臂是否应并入A18并允许替换三维实体。</p></div>';
+     '<a href="https://www.thorlabs.com/catalogpages/v21/1739.pdf" target="_blank" rel="noopener noreferrer">2014官方目录</a> · '+
+     '<a href="https://oxxius.ru/upload/iblock/645/z5e9spl0ippo9o526roo4qt3zxyzg0bk/21618_E0W.pdf" target="_blank" rel="noopener noreferrer">2012 Rev C工程图</a>。'+
+     '需注意：2012 Rev C工程图标注微调225µm/rev，与2014目录250µm/rev存在版本差异，未核清前不把二者混为同一规格。MGZ30后部立柱夹持壳体与调焦块一体，若实机为MGZ30，A10独立横臂可能属于A18后壳。'+
+     '<b>MGZ30与完整T-Scope的区别：</b>五物镜盘是MGZ30本体的厂商特征，不是T-Scope专属；官方T-Scope是独立完整显微镜系统，配套ITL200管镜。当前A08按TTL200-A建模，因此不能将现有整套光学组件直接认定为T-Scope。现有MGZ30研究网格尚未重建五孔盘的精确几何，不能称为原厂CAD复刻。'+
+     '<b>Olympus/Evident BXFM-F（次候选）：</b>84mm宽度、Ø32H8立柱孔、4-M8后固定和30mm行程有尺寸/拓扑相似性，但原厂为银色开架铸件，与照片中的黑色封闭外观不完全一致；84mm吻合不能作为型号证明。'+
+     '<b>Boli 76mm/25mm调焦架：</b>'+esc(boliText)+'。当前191–193预览只有约128×170像素，既不能确认，也不足以排除外露76mm环形E-arm；该家族保留为未决对照，不作为已识别实机。'+
+     '<b>实拍几何与零件边界：</b>V92的主体右偏24mm仍为照片比例候选，不是尺测值。A10/A18边界尚未闭合；FR5025CF一体式E-arm和MGZ30一体后夹持是两种不同候选拓扑，不能把二者拼接或同时计件。A10横臂禁止作为独立已确认采购件。'+
+     '<b>当前决定：</b>FR5025CF为高优先级结构候选；MGZ30为条件性直接立柱安装候选；BXFM-F为次候选；76mm环形变体未决；没有任何型号已确认，也没有候选几何应用到默认装配。下一步必须核对高清后视/侧视、立柱直径、镜体环内径、中心距、后壳分缝和物镜盘底视图。</p></div>';
  })():'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
  const engineeringHtml=
@@ -6058,9 +6085,11 @@ window.__A18MGZ30FamilyStudyProbe=()=>{
    fineFocusKnobCount:fineKnobs.length,
    topCoverScrewCount:topScrews.length,
    radialClampBoltPresent:q.study.children.some(o=>o.userData.MGZ30StudyRadialClampBolt),
-   tscopeFiveObjectiveTurretVendorVerified:Boolean(q.study.userData.TSCOPEFiveObjectiveTurretVendorVerified),
-   tscopeFiveObjectiveTurretReconstructed:Boolean(q.study.userData.TSCOPEFiveObjectiveTurretReconstructed),
-   tscopeFiveObjectiveTurretNotModeledReason:q.study.userData.TSCOPETurretNotModeledReason,
+   mgz30FiveObjectiveTurretVendorVerified:Boolean(q.study.userData.MGZ30FiveObjectiveTurretVendorVerified),
+   mgz30FiveObjectiveTurretReconstructed:Boolean(q.study.userData.MGZ30FiveObjectiveTurretReconstructed),
+   mgz30VendorTurretPortCount:q.study.userData.MGZ30VendorTurretPortCount,
+   mgz30VendorTurretThread:q.study.userData.MGZ30VendorTurretThread,
+   mgz30TurretNotModeledReason:q.study.userData.MGZ30TurretNotModeledReason,
     tscopeTubeLensModel:q.study.userData.TSCOPEVendorTubeLens,
     currentTubeLensModel:q.study.userData.currentPhotoFitTubeLens,
     completeTSCOPEMatch:Boolean(q.study.userData.completeTSCOPEMatch),

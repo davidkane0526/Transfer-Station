@@ -1154,9 +1154,11 @@ try{
  assert.equal(mgzStudy.fineFocusKnobCount,2);
  assert.equal(mgzStudy.topCoverScrewCount,4);
  assert.equal(mgzStudy.radialClampBoltPresent,true);
- assert.equal(mgzStudy.tscopeFiveObjectiveTurretVendorVerified,true);
- assert.equal(mgzStudy.tscopeFiveObjectiveTurretReconstructed,false);
- assert.match(mgzStudy.tscopeFiveObjectiveTurretNotModeledReason,/photo-fit/);
+ assert.equal(mgzStudy.mgz30FiveObjectiveTurretVendorVerified,true);
+ assert.equal(mgzStudy.mgz30FiveObjectiveTurretReconstructed,false);
+ assert.equal(mgzStudy.mgz30VendorTurretPortCount,5);
+ assert.equal(mgzStudy.mgz30VendorTurretThread,'M26×36 TPI');
+ assert.match(mgzStudy.mgz30TurretNotModeledReason,/MGZ30 post-mountable focus block includes a five-objective turret/);
  assert.equal(mgzStudy.tscopeTubeLensModel,'ITL200');
  assert.equal(mgzStudy.currentTubeLensModel,'TTL200-A');
  assert.equal(mgzStudy.completeTSCOPEMatch,false);
@@ -1421,7 +1423,7 @@ try{
  assert.equal(dA.A18MGZ30SupportsSM1SM2,true);
  assert.equal(dA.A18MGZ30GeometryApplied,false,
    'MGZ30 vendor geometry cannot replace the photo-constrained A18 before identity is verified');
- assert.equal(dA.A18MGZ30CandidatePriority,'primary');
+ assert.equal(dA.A18MGZ30CandidatePriority,'conditional');
  assert.equal(dA.A18MGZ30BlackEnclosedFinishMatch,true);
  assert.equal(dA.A18MGZ30ThorlabsEcosystemMatch,true);
  assert.equal(dA.A18MGZ30VendorDrawingPostDiameterMm,38);
@@ -1459,9 +1461,9 @@ try{
  assert.equal(dA.A18Boli76x25Candidates.find(c=>c.sku==='SA08041102').centerDistanceMm,140);
  assert.equal(dA.A18BoliFocusRackGeometryApplied,false,
    '25mm-post rack candidates are comparison evidence only');
- assert.equal(dA.A18Boli76RingDirectIdentityRejected,true,
+ assert.equal(dA.A18Boli76RingDirectIdentityRejected,false,
    'Exposed 76mm E-arm topology is absent from photos191-193');
- assert.match(dA.A18Boli76RingRejectionReason,/76mm annular E-arm/);
+ assert.match(dA.A18Boli76RingRejectionReason,/128×170 px previews are insufficient/);
  assert.equal(dA.A18CurrentScenePostDiameterMm,26);
  assert.equal(dA.A18CurrentScenePostDiameterMeasured,false,
    'Current Ø26 A10 post is a scene fit, not a physical ruler measurement');
@@ -1469,8 +1471,25 @@ try{
  assert.equal(dA.A18CurrentScenePostToOpticalAxisMeasured,false,
    'Current 112mm post-to-axis distance is not allowed to hard-reject a vendor candidate');
  assert.equal(dA.A18Visible76mmScopeRingConfirmed,false);
+ assert.equal(dA.A18Visible50mmScopeRingConfirmed,false);
+ assert.equal(dA.A18LYLIGHTFocusRackCandidates.length,2);
+ const fr5025=dA.A18LYLIGHTFocusRackCandidates.find(c=>c.sku==='FR5025CF');
+ assert.equal(fr5025.postDiameterMm,25);
+ assert.equal(fr5025.holderDiameterMm,50);
+ assert.equal(fr5025.centerDistanceMm,165);
+ assert.equal(fr5025.fineAdjustmentAccuracyMm,0.02);
+ assert.equal(fr5025.integratedEArm,true);
+ const fr7625=dA.A18LYLIGHTFocusRackCandidates.find(c=>c.sku==='FR7625CF');
+ assert.equal(fr7625.postDiameterMm,25);
+ assert.equal(fr7625.holderDiameterMm,76);
+ assert.equal(fr7625.centerDistanceMm,null);
+ assert.equal(fr7625.fineAdjustmentAccuracyMm,null);
+ assert.equal(dA.A18LYLIGHTFocusRackGeometryApplied,false);
+ assert.equal(dA.A18LYLIGHTFocusRackCandidatePriority,'high-structural');
+ assert.equal(dA.A18LYLIGHTFocusRackIdentityConfirmed,false);
+ assert.equal(dA.A18LYLIGHTIntegratedEArmMayAbsorbA10,true);
  assert.equal(dA.A18FullFivePortTurretConfirmed,false);
- assert.match(dA.A18VendorCandidateDecision,/MGZ30 primary.*conditional/i);
+ assert.match(dA.A18VendorCandidateDecision,/LYLIGHT FR5025CF high-priority.*MGZ30 conditional/i);
  assert.match(dA.A18VendorCandidateDecision,/A10\/A18 rear-housing boundary/);
  assert.match(dA.A18VendorCandidateDecision,/BXFM-F secondary/);
  assert.match(dA.A18VendorCandidateDecision,/76mm E-arm direct identity rejected/);
@@ -1488,11 +1507,12 @@ try{
  assert.equal(await a18VendorCard.isVisible(),false,'A18 candidate matrix is engineering data, not primary user UI');
  assert.equal(await a18VendorCard.getAttribute('data-confirmed'),'false');
  assert.equal(await a18VendorCard.getAttribute('data-mgz30-applied'),'false');
+ assert.equal(await a18VendorCard.getAttribute('data-lylight-applied'),'false');
  assert.equal(await a18VendorCard.getAttribute('data-bxfmf-applied'),'false');
  assert.equal(await a18VendorCard.getAttribute('data-boli-applied'),'false');
- assert.equal(await a18VendorCard.getAttribute('data-boli76-direct-rejected'),'true');
+ assert.equal(await a18VendorCard.getAttribute('data-boli76-direct-rejected'),'false');
  const a18VendorText=await a18VendorCard.innerText();
- assert.match(a18VendorText,/MGZ30 Focus Block（主候选）/);
+ assert.match(a18VendorText,/MGZ30 Focus Block（条件候选）/);
  assert.match(a18VendorText,/官方T-Scope是独立完整显微镜系统/);
  assert.match(a18VendorText,/ITL200/);
  assert.match(a18VendorText,/TTL200-A/);
@@ -1505,12 +1525,20 @@ try{
  assert.match(a18VendorText,/BXFM-F（次候选）/);
  assert.match(a18VendorText,/84mm/);
  assert.match(a18VendorText,/Ø32H8/);
- assert.match(a18VendorText,/MGZ30 Focus Block（主候选）/);
+ assert.match(a18VendorText,/MGZ30 Focus Block（条件候选）/);
  assert.match(a18VendorText,/官方T-Scope是独立完整显微镜系统/);
- assert.match(a18VendorText,/五物镜盘也不能误写成MGZ30单独调焦块的已确认配置/);
+ assert.match(a18VendorText,/MGZ30本体包含五物镜转换盘/);
+ assert.match(a18VendorText,/2012 Rev C工程图标注微调225µm\/rev/);
+ assert.match(a18VendorText,/2014目录微调250µm\/rev/);
+ assert.match(a18VendorText,/LYLIGHT FR5025CF（高优先级结构候选，非型号确认）/);
+ assert.match(a18VendorText,/165mm中心距/);
+ assert.match(a18VendorText,/0.02mm微调精度/);
+ assert.match(a18VendorText,/A10横臂可能其实是A18调焦架的一部分/);
+ assert.match(a18VendorText,/LYLIGHT FR7625CF（同族变体）/);
+ assert.match(a18VendorText,/不能确认，也不足以排除外露76mm环形E-arm/);
  assert.match(a18VendorText,/SA02041502/);
  assert.match(a18VendorText,/SA08041102/);
- assert.match(a18VendorText,/不再作为A18直接身份/);
+ assert.match(a18VendorText,/该家族保留为未决对照/);
  assert.match(a18VendorText,/不能作为型号证明/);
  await page.locator('#bom-query').evaluate(el=>{el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));});
  assert.equal(dA.A15LinearHandleCount,2);
