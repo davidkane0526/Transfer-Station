@@ -1073,6 +1073,20 @@ try{
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
+ // V143 installed two-objective port geometry, not a filled turret disc.
+ const a19Mechanical=await page.evaluate(()=>window.__A19MechanicalNosepieceProbe?.());
+ console.log('V143 A19 true-geometry nosepiece:',JSON.stringify(a19Mechanical));
+ assert.equal(a19Mechanical?.available,true);
+ assert.equal(a19Mechanical.boreCount,2);
+ assert.equal(a19Mechanical.seatCount,2);
+ assert.equal(a19Mechanical.objectiveCount,2);
+ assert.equal(a19Mechanical.allTrueBores,true);
+ assert.equal(a19Mechanical.allSocketsInserted,true);
+ assert.equal(a19Mechanical.allMounted,true);
+ assert.equal(a19Mechanical.unseenPortCountUnknown,true);
+ assert.equal(a19Mechanical.machiningGrade,false);
+ assert.equal(await page.locator('#btn-a18-optical').isVisible(),true);
+ assert.equal(await page.locator('#btn-a18-support').isVisible(),true);
  // V142 evaluate the ACTUAL rendered microscope guide, bore and clamp meshes.
  const chain=await page.evaluate(()=>window.__A18MechanicalTopologyProbe?.());
  console.log('V142 A microscope mechanical topology:',JSON.stringify(chain));
