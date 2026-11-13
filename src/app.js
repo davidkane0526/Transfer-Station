@@ -2173,15 +2173,11 @@ function filmB(){
    // front fastener pairs, and a +X micrometer with a steel thimble.
    add(g,cub(40,7,40,mats.black,0,3.5,0));
    add(g,cub(40,7,37,mats.dark,0,10.5,0));
-   addGoniometerDovetailRails(g,'A04L');
-   const topPlate=add(g,cub(40,3,40,mats.dark,0,18.5,0));
-   topPlate.userData.A04L40mmMovingTopPlate=true;
-   addCandidateThreadedHoles(g,'A04L',20,[
-     ...[-16,16].flatMap(x=>[-16,16].map(z=>({x,z,r:1.45,thread:'4-M3-pattern-candidate'}))),
-     ...[-10,10].flatMap(x=>[-10,10].map(z=>({x,z,r:1.0,thread:'4-M2-pattern-candidate'}))),
-     {x:0,z:0,r:2.7,thread:'M6-center-candidate'}
-   ]);
-   addGoniometerAngleScale(g,'A04L');
+   for(const x of [-14.1,14.1]){
+     const edge=add(g,cub(10,7,35,mats.black,x,15,0));
+     edge.rotation.z=x<0?.07:-.07;
+   }
+   add(g,cub(40,3,40,mats.dark,0,18.5,0)); // nominal top at Y=20
    // Photo94: two upper screws in front notch and two front body screws
    // near right-hand actuator mount. None assigned an unverified thread.
    for(const x of [-5,5]){
@@ -3372,11 +3368,15 @@ function platformA(){
    // front fastener pairs, and a +X micrometer with a steel thimble.
    add(g,cub(40,7,40,mats.black,0,3.5,0));
    add(g,cub(40,7,37,mats.dark,0,10.5,0));
-   for(const x of [-14.1,14.1]){
-     const edge=add(g,cub(10,7,35,mats.black,x,15,0));
-     edge.rotation.z=x<0?.07:-.07;
-   }
-   add(g,cub(40,3,40,mats.dark,0,18.5,0)); // nominal top at Y=20
+   addGoniometerDovetailRails(g,'A04L');
+   const topPlate=add(g,cub(40,3,40,mats.dark,0,18.5,0));
+   topPlate.userData.A04L40mmMovingTopPlate=true;
+   addCandidateThreadedHoles(g,'A04L',20,[
+     ...[-16,16].flatMap(x=>[-16,16].map(z=>({x,z,r:1.45,thread:'4-M3-pattern-candidate'}))),
+     ...[-10,10].flatMap(x=>[-10,10].map(z=>({x,z,r:1.0,thread:'4-M2-pattern-candidate'}))),
+     {x:0,z:0,r:2.7,thread:'M6-center-candidate'}
+   ]);
+   addGoniometerAngleScale(g,'A04L');
    // Photo94: two upper screws in front notch and two front body screws
    // near right-hand actuator mount. None assigned an unverified thread.
    for(const x of [-5,5]){
