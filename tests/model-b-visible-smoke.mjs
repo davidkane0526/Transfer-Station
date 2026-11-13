@@ -1161,7 +1161,7 @@ try{
  assert.equal(mgzStudy.mgz30FineAdjustmentCurrentUmPerRev,225);
  assert.equal(mgzStudy.mgz30FineAdjustmentRevCUmPerRev,225);
  assert.equal(mgzStudy.mgz30FineAdjustment2014CatalogUmPerRev,250);
- assert.match(mgzStudy.mgz30FineAdjustmentSpecNote,/current Thorlabs product page and 2012 Rev C drawing: 225/);
+ assert.match(mgzStudy.mgz30FineAdjustmentSpecNote,/Current Thorlabs product page and 2012 Rev C drawing: 225/);
  assert.match(mgzStudy.mgz30TurretNotModeledReason,/MGZ30 post-mountable focus block includes a five-objective turret/);
  assert.equal(mgzStudy.tscopeTubeLensModel,'ITL200');
  assert.equal(mgzStudy.currentTubeLensModel,'TTL200-A');
