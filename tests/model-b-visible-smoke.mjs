@@ -1253,6 +1253,56 @@ try{
  assert.equal(lylightRestored.currentSeparateBoomVisible,true);
  assert.equal(lylightRestored.currentPhotoFitBodyVisible,true);
 
+ // V158: LYLIGHT FR8425 84mm/25mm focus-block topology candidate.
+ // Only nominal mount size and post-hole diameter come from the vendor page;
+ // the body, bearing guides, rack, bridge and controls are topology proxies.
+ assert.equal(await page.locator('#btn-a18-fr8425-study').isVisible(),true);
+ await page.locator('#btn-a18-fr8425-study').click();
+ await page.waitForTimeout(220);
+ const fr8425Study=await page.evaluate(()=>window.__A18FR8425StudyProbe?.());
+ console.log('V158 A18 LYLIGHT FR8425 84/25 topology study:',JSON.stringify(fr8425Study));
+ assert.equal(fr8425Study?.available,true);
+ assert.equal(fr8425Study.studyVisible,true);
+ assert.equal(fr8425Study.installedByDefault,false);
+ assert.equal(fr8425Study.exactVendorGeometry,false);
+ assert.equal(fr8425Study.nativeCADRetrieved,false);
+ assert.equal(fr8425Study.manufacturerIdentityConfirmed,false);
+ assert.equal(fr8425Study.nominalScopeMountDiameterMm,84);
+ assert.equal(fr8425Study.nominalPostHoleDiameterMm,25);
+ assert.equal(fr8425Study.focusGuideType,'ball-bearing linear guide');
+ assert.equal(fr8425Study.driveType,'rack and pinion');
+ assert.equal(fr8425Study.fineFocusSpecificationPublished,false);
+ assert.equal(fr8425Study.focusTravelMm,null);
+ assert.equal(fr8425Study.vendorCenterDistanceMm,null);
+ assert.equal(fr8425Study.scenePhotoFitPostToOpticalAxisMm,112);
+ assert.equal(fr8425Study.scenePhotoFitDistanceMeasured,false);
+ assert.equal(fr8425Study.modeledRingClearOpeningMm,84);
+ assert.equal(fr8425Study.ringClearOpeningIsInferred,true);
+ assert.equal(fr8425Study.ringBoreOpen,true);
+ assert.equal(fr8425Study.postBoreOpen,true);
+ assert.equal(fr8425Study.guideRailCount,2);
+ assert.equal(fr8425Study.bearingBlockCount,4);
+ assert.equal(fr8425Study.rackToothCount,11);
+ assert.equal(fr8425Study.coarseKnobCount,1);
+ assert.equal(fr8425Study.tensionKnobCount,1);
+ assert(Math.abs(fr8425Study.postRingCenterDistanceXZMm-112)<0.1);
+ assert.equal(fr8425Study.sceneBoomVisible,false);
+ assert.equal(fr8425Study.photoFitBodyVisible,false);
+ assert.equal(fr8425Study.A08Visible,false);
+ assert.equal(fr8425Study.A19Visible,false);
+ assert(Math.abs(fr8425Study.projection.centerX)<.35&&Math.abs(fr8425Study.projection.centerY)<.35);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V158-LYLIGHT-FR8425-84-25-Study.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+ await page.locator('#btn-a18-fr8425-study').click();
+ const fr8425Restored=await page.evaluate(()=>window.__A18FR8425StudyProbe?.());
+ assert.equal(fr8425Restored.studyVisible,false);
+ assert.equal(fr8425Restored.sceneBoomVisible,true);
+ assert.equal(fr8425Restored.photoFitBodyVisible,true);
+
  // V155: Olympus BXFM-F drawing-constrained study. It remains a separate
  // candidate view and never replaces the installed photo-fit geometry.
  assert.equal(await page.locator('#btn-a18-bxfm-study').isVisible(),true);
@@ -1618,7 +1668,15 @@ try{
    'Current 112mm post-to-axis distance is not allowed to hard-reject a vendor candidate');
  assert.equal(dA.A18Visible76mmScopeRingConfirmed,false);
  assert.equal(dA.A18Visible50mmScopeRingConfirmed,false);
- assert.equal(dA.A18LYLIGHTFocusRackCandidates.length,2);
+ assert.equal(dA.A18LYLIGHTFocusRackCandidates.length,3);
+ const fr8425=dA.A18LYLIGHTFocusRackCandidates.find(c=>c.sku==='FR8425');
+ assert.equal(fr8425.postDiameterMm,25);
+ assert.equal(fr8425.holderDiameterMm,84);
+ assert.equal(fr8425.centerDistanceMm,null);
+ assert.equal(fr8425.coarseFine,false);
+ assert.equal(fr8425.focusGuide,'ball-bearing');
+ assert.equal(fr8425.drive,'rack-and-pinion');
+ assert.match(fr8425.sceneEnvelopeMatch,/84mm.*84mm/);
  const fr5025=dA.A18LYLIGHTFocusRackCandidates.find(c=>c.sku==='FR5025CF');
  assert.equal(fr5025.postDiameterMm,25);
  assert.equal(fr5025.holderDiameterMm,50);
@@ -1691,6 +1749,8 @@ try{
  assert.match(a18VendorText,/Thorlabs MGZ30产品页（未列微调值）/);
  assert.match(a18VendorText,/Volition CAD下载入口（DXF\/SolidWorks\/STEP）/);
  assert.match(a18VendorText,/文件尚未实际取得或与Thorlabs工程图比对/);
+ assert.match(a18VendorText,/LYLIGHT FR8425（新增尺寸匹配候选，非型号确认）/);
+ assert.match(a18VendorText,/84mm显微镜安装规格、Ø25mm立柱孔、滚珠导向和齿轮齿条粗调机构/);
  assert.match(a18VendorText,/LYLIGHT FR5025CF（高优先级结构候选，非型号确认）/);
  assert.match(a18VendorText,/产品图标注中心距165mm/);
  assert.match(a18VendorText,/完整支架示意另标135mm/);

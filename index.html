@@ -2,10 +2,10 @@
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="干法转移平台工程复原：显微镜、玻片移动台、样品平移旋转台与嵌入式真空加热台的交互式3D装配。">
 <title>Transfer Station | 交互式工程装配</title>
-<link rel="stylesheet" href="./src/styles.css?v=V157">
+<link rel="stylesheet" href="./src/styles.css?v=V158">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script></head>
 <body><header class="top">
-<div><div class="eyebrow">TRANSFER STATION · V157</div><h1>干法转移平台</h1><p class="subtitle">交互式 3D 装配 · BOM · 实物对照</p></div>
+<div><div class="eyebrow">TRANSFER STATION · V158</div><h1>干法转移平台</h1><p class="subtitle">交互式 3D 装配 · BOM · 实物对照</p></div>
 <div class="top-actions"><a href="./photo-review.html" class="photo-review-link">实物对照</a><button id="open-bom">BOM</button><a href="https://github.com/davidkane0526/Transfer-Station" target="_blank" rel="noreferrer">GitHub</a></div>
 </header>
 <div class="layout">
@@ -36,7 +36,7 @@
  </div>
 </div>
 </div>
-<div class="control-block"><div class="title">视图</div><div class="buttons"><button id="btn-home">默认视角</button><button id="btn-top">俯视</button><button id="btn-optical">光学俯视</button><button id="btn-front">正视</button><button id="btn-rear">后侧接口</button><button id="btn-control-cabinet">控制箱内部</button><button id="btn-a-external" hidden title="查看平台A泵、LED驱动器、温控箱与软管的候选结构">A 泵·控制器</button><button id="btn-a18-optical" hidden>A 显微镜正面</button><button id="btn-a18-support" hidden>A 显微镜支架</button><button id="btn-a18-mgz-study" hidden title="MGZ30厂商族拓扑对照，非实机型号确认">MGZ30候选对照</button><button id="btn-a18-bxfm-study" hidden title="Olympus BXFM-F原厂四视图尺寸图重建，仅作候选对照">BXFM-F图纸对照</button><button id="btn-a18-lylight-study" hidden title="LYLIGHT FR5025CF一体式E-arm厂商拓扑对照；不代表已确认实机型号">FR5025CF候选对照</button><button id="btn-iso">轴测</button><button id="btn-film-stack">玻片侧</button><button id="btn-film-holder">夹具</button><button id="btn-photo108">照片108·磁座面</button><button id="btn-photo109">照片109·T25M面</button><button id="btn-sample-stack">样品侧</button></div>
+<div class="control-block"><div class="title">视图</div><div class="buttons"><button id="btn-home">默认视角</button><button id="btn-top">俯视</button><button id="btn-optical">光学俯视</button><button id="btn-front">正视</button><button id="btn-rear">后侧接口</button><button id="btn-control-cabinet">控制箱内部</button><button id="btn-a-external" hidden title="查看平台A泵、LED驱动器、温控箱与软管的候选结构">A 泵·控制器</button><button id="btn-a18-optical" hidden>A 显微镜正面</button><button id="btn-a18-support" hidden>A 显微镜支架</button><button id="btn-a18-mgz-study" hidden title="MGZ30厂商族拓扑对照，非实机型号确认">MGZ30候选对照</button><button id="btn-a18-bxfm-study" hidden title="Olympus BXFM-F原厂四视图尺寸图重建，仅作候选对照">BXFM-F图纸对照</button><button id="btn-a18-lylight-study" hidden title="LYLIGHT FR5025CF一体式E-arm厂商拓扑对照；不代表已确认实机型号">FR5025CF候选对照</button><button id="btn-a18-fr8425-study" hidden title="LYLIGHT FR8425 84mm安装规格、25mm立柱孔的厂商族拓扑候选；非原厂CAD">FR8425 84/25候选</button><button id="btn-iso">轴测</button><button id="btn-film-stack">玻片侧</button><button id="btn-film-holder">夹具</button><button id="btn-photo108">照片108·磁座面</button><button id="btn-photo109">照片109·T25M面</button><button id="btn-sample-stack">样品侧</button></div>
 <div class="control-line"><label for="explode">爆炸分解</label><span id="explode-value">0%</span></div><input id="explode" type="range" min="0" max="100" step="1" value="0" style="width:100%">
 <div class="control-line"><label for="translate">玻片 X</label><span id="translate-value">0 mm</span></div><input id="translate" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
 <div class="control-line"><label for="translate-depth">玻片 Y</label><span id="translate-depth-value">0 mm</span></div><input id="translate-depth" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
@@ -98,4 +98,4 @@
  <div class="bom-summary" id="bom-summary" aria-live="polite"></div>
 
 <div class="table-wrap"><table><thead><tr><th>ID</th><th>子系统</th><th>零件 / 类别</th><th>原厂 / 型号</th><th>数量</th><th>尺寸(mm)</th><th>材料 / 替代厂商</th><th>单价和币种</th><th>小计</th><th>价格来源 / 日期</th><th>原厂图纸 / CAD</th><th>照片</th></tr></thead><tbody id="bom-body"></tbody></table></div></div></div>
-<script type="module" src="./src/app.js?v=V157"></script></body></html>
+<script type="module" src="./src/app.js?v=V158"></script></body></html>

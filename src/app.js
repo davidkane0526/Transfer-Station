@@ -4172,6 +4172,124 @@ function platformA(){
    g.userData.LYLIGHTFR5025CFStudyInstalled=false;
    g.userData.LYLIGHTFR5025CFGeometryApplied=false;
    g.userData.LYLIGHTFR5025CFIdentityConfirmed=false;
+
+   // V158: LYLIGHT FR8425 84mm / 25mm focus-block family study.
+   // Manufacturer page confirms an 84mm microscope mounting size, a 25mm
+   // post hole, ball-bearing guide and rack-and-pinion coarse focus.
+   // No complete dimensioned drawing/native CAD is published. All dimensions
+   // other than 84mm/25mm below are visual topology proxies. The 112mm
+   // distance is the current photo-fit candidate, NOT an OEM dimension.
+   const fr8425Study=new THREE.Group();
+   fr8425Study.name='A18_LYLIGHT_FR8425_84MM_25MM_FOCUS_BLOCK_STUDY';
+   fr8425Study.visible=false;g.add(fr8425Study);
+   Object.assign(fr8425Study.userData,{
+     LYLIGHTFR8425Study:true,manufacturer:'LYLIGHT',model:'FR8425',
+     installedByDefault:false,exactVendorGeometry:false,nativeCADRetrieved:false,
+     manufacturerIdentityConfirmed:false,nominalScopeMountDiameterMm:84,
+     nominalPostHoleDiameterMm:25,focusGuideType:'ball-bearing linear guide',
+     driveType:'rack and pinion',fineFocusSpecificationPublished:false,
+     focusTravelMm:null,vendorCenterDistanceMm:null,
+     scenePhotoFitPostToOpticalAxisMm:112,scenePhotoFitDistanceMeasured:false,
+     photoFitBodyCenterOffsetMm:24,photoFitBodyCenterOffsetMeasured:false,
+     modeledRingClearOpeningMm:84,ringClearOpeningIsInferred:true,
+     modeledPostBoreMm:25,modeledGuideRailCount:2,modeledBearingBlockCount:4,
+     modeledCoarseKnobCount:1,modeledTensionKnobCount:1,
+     vendorProductPage:'https://www.lylight.com/product/focus-block-84mm-25mm-pole-focus-rack-focusing-mount/',
+     drawingAvailable:false,stepAvailable:false
+   });
+   // Nominal 84mm microscope holder interface. Wall thickness/OD are visual
+   // proxies because the public product page does not dimension the ring.
+   const fr8425Ring=add(fr8425Study,sleeve(48,42,14,mats.dark,0,0,0,'y'));
+   fr8425Ring.userData.FR8425Nominal84mmMountInterface=true;
+   fr8425Ring.userData.FR8425ModeledClearOpeningMm=84;
+   fr8425Ring.userData.FR8425ClearOpeningIsInferred=true;
+   const ringFrontLip=add(fr8425Study,sleeve(49,42,2,mats.black,0,8,0,'y'));
+   ringFrontLip.userData.FR8425MountRingFrontLipProxy=true;
+   const ringRearLip=add(fr8425Study,sleeve(49,42,2,mats.black,0,-8,0,'y'));
+   ringRearLip.userData.FR8425MountRingRearLipProxy=true;
+   const ringClampPad=add(fr8425Study,cub(9,15,10,mats.dark,46,0,0));
+   ringClampPad.userData.FR8425RingClampPadProxy=true;
+   const ringClampBolt=add(fr8425Study,cyl(2.4,12,mats.steel,52,0,0,24));
+   ringClampBolt.rotation.z=Math.PI/2;
+   ringClampBolt.userData.FR8425RingClampBoltProxy=true;
+   const ringClampHead=add(fr8425Study,cyl(4.2,3,mats.silver,59,0,0,24));
+   ringClampHead.rotation.z=Math.PI/2;
+   ringClampHead.userData.FR8425RingClampHeadProxy=true;
+
+   // Compact focus housing with paired ball-bearing guide rails.
+   // Body envelope and rail spacing are not manufacturer dimensions.
+   const fr8425Housing=add(fr8425Study,cub(78,66,34,mats.dark,0,-4,-46));
+   fr8425Housing.userData.FR8425FocusHousingProxy=true;
+   const fr8425Face=add(fr8425Study,plate(68,56,3,mats.black,[[0,0,2.4]]));
+   fr8425Face.position.set(0,-4,-27);
+   fr8425Face.userData.FR8425FrontCoverProxy=true;
+   for(const sign of [-1,1]){
+     const rail=add(fr8425Study,cyl(3,58,mats.steel,sign*23,-4,-48,32));
+     rail.userData.FR8425BallBearingGuideRail=sign;
+     for(const y of [-20,17]){
+       const bearing=add(fr8425Study,cub(11,16,12,mats.black,sign*23,y,-48));
+       bearing.userData.FR8425BallBearingCarriage={side:sign,y};
+       for(const dx of [-3.2,3.2]){
+         const fastener=add(fr8425Study,cyl(1.5,1.4,mats.silver,sign*23+dx,y,-41.7,16));
+         fastener.userData.FR8425BearingFastenerProxy=true;
+       }
+     }
+   }
+   // Rack teeth and one coarse-focus knob. The opposite smaller adjuster is
+   // a tension-control visual proxy, not a claimed fine-focus knob.
+   for(let y=-28;y<=22;y+=5){
+     const tooth=add(fr8425Study,cub(4,2.8,5,mats.steel,0,y,-66));
+     tooth.userData.FR8425RackToothProxy=true;
+   }
+   const pinion=add(fr8425Study,cyl(8,10,mats.steel,42,-4,-62,40));
+   pinion.rotation.z=Math.PI/2;
+   pinion.userData.FR8425PinionProxy=true;
+   const coarseKnob=add(fr8425Study,cyl(17,14,mats.black,53,-4,-62,64));
+   coarseKnob.rotation.z=Math.PI/2;
+   coarseKnob.userData.FR8425CoarseFocusKnob=true;
+   for(let q=0;q<8;q++){
+     const ridge=add(fr8425Study,torus(16.9,.32,mats.ink,46+q*2,-4,-62));
+     ridge.rotation.y=Math.PI/2;
+     ridge.userData.FR8425CoarseKnurl=true;
+   }
+   const coarseCap=add(fr8425Study,cyl(6,2.5,mats.silver,62,-4,-62,32));
+   coarseCap.rotation.z=Math.PI/2;
+   coarseCap.userData.FR8425CoarseKnobCap=true;
+   const tensionKnob=add(fr8425Study,cyl(6,8,mats.dark,-45,-4,-62,40));
+   tensionKnob.rotation.z=Math.PI/2;
+   tensionKnob.userData.FR8425TensionAdjusterProxy=true;
+   const tensionCap=add(fr8425Study,cyl(3.5,2,mats.silver,-50,-4,-62,32));
+   tensionCap.rotation.z=Math.PI/2;
+   tensionCap.userData.FR8425TensionAdjusterCap=true;
+
+   // Integrated rear clamp and sloped bridge. Only the Ø25mm post hole is
+   // an OEM interface; bridge length and clamp shape remain unverified.
+   const fr8425PostClamp=add(fr8425Study,sleeve(18,12.5,24,mats.dark,0,19,-112,'y'));
+   fr8425PostClamp.userData.FR8425PostClamp=true;
+   fr8425PostClamp.userData.FR8425PostBoreDiameterMm=25;
+   const fr8425Arm=add(fr8425Study,cub(34,14,64,mats.dark,0,9.5,-80));
+   fr8425Arm.rotation.x=Math.asin(19/64);
+   fr8425Arm.userData.FR8425IntegralSupportBridgeProxy=true;
+   for(const sign of [-1,1]){
+     const rib=add(fr8425Study,cub(7,10,55,mats.black,sign*13,10,-81));
+     rib.rotation.x=Math.asin(19/64);
+     rib.userData.FR8425BridgeSideRibProxy=sign;
+   }
+   const postClampBolt=add(fr8425Study,cyl(2.5,12,mats.steel,18,19,-112,24));
+   postClampBolt.rotation.z=Math.PI/2;
+   postClampBolt.userData.FR8425PostClampBoltProxy=true;
+   const postClampHead=add(fr8425Study,cyl(4.4,3,mats.silver,25,19,-112,24));
+   postClampHead.rotation.z=Math.PI/2;
+   postClampHead.userData.FR8425PostClampHeadProxy=true;
+   for(const x of [-27,27]){
+     const topScrew=add(fr8425Study,cyl(2,1.8,mats.silver,x,30,-45,24));
+     topScrew.userData.FR8425HousingCoverScrewProxy=true;
+   }
+   label(fr8425Study,'LYLIGHT FR8425 · 84mm / 25mm 调焦块候选（非原厂CAD）',0,55,-48);
+   g.userData.LYLIGHTFR8425StudyGroup=fr8425Study;
+   g.userData.LYLIGHTFR8425StudyAvailable=true;
+   g.userData.LYLIGHTFR8425GeometryApplied=false;
+   g.userData.LYLIGHTFR8425IdentityConfirmed=false;
    // V155: Olympus BXFM-F drawing-constrained comparison. Not OEM STEP,
    // not installed, and not evidence that the photographed unit is BXFM-F.
    const bxfmStudy=new THREE.Group();
@@ -4328,6 +4446,10 @@ function platformA(){
    g.userData.BXFMFWidth84MatchesCurrentPhotoFit=true;
    g.userData.BXFMFWidthMatchProvesIdentity=false;
    g.userData.LYLIGHTFocusRackCandidates=[
+     {sku:'FR8425',postDiameterMm:25,holderDiameterMm:84,
+      centerDistanceMm:null,fineAdjustmentAccuracyMm:null,
+      coarseFine:false,focusGuide:'ball-bearing',drive:'rack-and-pinion',
+      sceneEnvelopeMatch:'84mm nominal mount matches current 84mm photo-fit body envelope; identity unconfirmed'},
      {sku:'FR5025CF',postDiameterMm:25,holderDiameterMm:50,
       centerDistanceMm:165,centerDistanceDatum:'vendor product image callout; exact endpoints are not specified',
       assemblyViewDimensionMm:135,assemblyViewDimensionDatum:'separate full-stand illustration callout; exact endpoints are not specified',
@@ -4337,7 +4459,13 @@ function platformA(){
       coarseFine:true,integratedEArm:true,finish:'vendor product image'}
    ];
    g.userData.LYLIGHTFocusRackGeometryApplied=false;
-   g.userData.LYLIGHTFocusRackCandidatePriority='high-structural';
+   g.userData.LYLIGHTFocusRackCandidatePriority='high-dimensional-candidate';
+   g.userData.LYLIGHTFR8425CandidatePriority='high-envelope-match-only';
+   g.userData.LYLIGHTFR8425MountDiameterMm=84;
+   g.userData.LYLIGHTFR8425PostHoleDiameterMm=25;
+   g.userData.LYLIGHTFR8425FineFocusPublished=false;
+   g.userData.LYLIGHTFR8425DrawingAvailable=false;
+   g.userData.LYLIGHTFR8425NativeCADAvailable=false;
    g.userData.LYLIGHTFR5025CFStudyAvailable=true;
    g.userData.LYLIGHTFR5025CFStudyInstalledByDefault=false;
    g.userData.LYLIGHTFR5025CFStudyGeometryApplied=false;
@@ -4840,7 +4968,9 @@ function updateDetail(part){
      'data-bxfmf-applied="'+Boolean(a18?.userData.BXFMFGeometryApplied)+'" '+
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
-     '<b>A18 厂商候选矩阵（V157）</b><p>'+
+     '<b>A18 厂商候选矩阵（V158）</b><p>'+
+     '<b>LYLIGHT FR8425（新增尺寸匹配候选，非型号确认）：</b> 厂商产品页明确列出84mm显微镜安装规格、Ø25mm立柱孔、滚珠导向和齿轮齿条粗调机构。当前照片拟合主体最大宽度也是84mm，因此FR8425比此前只按50mm/76mm镜体接口推断的候选更值得优先核对；但84mm只是名义安装尺寸与照片包络相符，不能证明型号相同。公开页面没有给出中心距、完整外廓、焦程、精细调焦参数或尺寸工程图，也没有可核验的STEP。V158新增独立FR8425拓扑对照模型，使用84mm名义安装环、Ø25mm贯穿立柱孔、双滚珠导向代理、齿条/单侧粗调旋钮和后部连接桥；除84mm与Ø25mm接口外，其余外廓、导轨间距、旋钮、桥臂长度均为可视化代理，112mm只沿用当前照片拟合候选，不是厂商中心距。该候选不替换默认A18，也不作为采购/加工定型。'+
+     '<a href="https://www.lylight.com/product/focus-block-84mm-25mm-pole-focus-rack-focusing-mount/" target="_blank" rel="noopener noreferrer">LYLIGHT FR8425厂商产品页</a>。'+
      '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认）：</b> V157新增独立E-arm对照模型。厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、产品图标注中心距165mm及0.02mm微调精度；同一PDF的完整支架示意另标135mm。两条尺寸的端点基准未充分说明，不能直接把165mm映射为当前立柱中心至光轴距离。这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
      '<a href="https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/" target="_blank" rel="noopener noreferrer">FR5025CF产品页</a> · '+
      '<a href="https://www.chutongelec.com/wp-content/uploads/2018/08/FR5025CF-TOP-VIEW.jpg" target="_blank" rel="noopener noreferrer">FR5025CF顶部产品图</a> · '+
@@ -6283,6 +6413,7 @@ window.__setA18MGZ30FamilyStudy=(on)=>{
  if(on){
    window.__setA18LYLIGHTStudy?.(false);
    window.__setA18BXFMFStudy?.(false);
+   window.__setA18FR8425Study?.(false);
  }
  const bxfm=q.a18.children.find(o=>o.userData.BXFMFDrawingStudy);
  const lylight=q.a18.children.find(o=>o.userData.LYLIGHTFR5025CFStudy);
@@ -6381,6 +6512,7 @@ window.__setA18LYLIGHTStudy=(on)=>{
  if(on){
    window.__setA18MGZ30FamilyStudy?.(false);
    window.__setA18BXFMFStudy?.(false);
+   window.__setA18FR8425Study?.(false);
  }
  q.a18.children.filter(o=>o.isMesh||o.isCSS2DObject).forEach(o=>o.visible=!on);
  const mgz=q.a18.children.find(o=>o.userData.MGZ30FamilyTopologyStudy);
@@ -6465,6 +6597,90 @@ window.__A18LYLIGHTStudyProbe=()=>{
    projection:_auditProjection(_auditBoxFor([q.study]))
  };
 };
+function _a18FR8425StudyTargets(){
+ const a18=parts.get('A18')?.g,a10=parts.get('A10')?.g;
+ if(!a18||!a10)return null;
+ const study=a18.children.find(o=>o.userData.LYLIGHTFR8425Study);
+ const ring=study?.children.find(o=>o.userData.FR8425Nominal84mmMountInterface);
+ const clamp=study?.children.find(o=>o.userData.FR8425PostClamp);
+ const arm=study?.children.find(o=>o.userData.FR8425IntegralSupportBridgeProxy);
+ const post=a10.children.find(o=>o.userData.A10FixedOpticalPost);
+ const boom=a10.userData.opticsMovingBoom?.children.find(o=>o.userData.A10BoomFrontFaceJointToA18);
+ if(!study||!ring||!clamp||!arm||!post||!boom)return null;
+ return {a18,a10,study,ring,clamp,arm,post,boom};
+}
+window.__setA18FR8425Study=(on)=>{
+ if(platform!=='A')return false;
+ const q=_a18FR8425StudyTargets();if(!q)return false;
+ if(on){
+   window.__setA18MGZ30FamilyStudy?.(false);
+   window.__setA18BXFMFStudy?.(false);
+   window.__setA18LYLIGHTStudy?.(false);
+ }
+ q.a18.children.filter(o=>o.isMesh||o.isCSS2DObject).forEach(o=>o.visible=!on);
+ for(const key of ['MGZ30FamilyTopologyStudy','BXFMFDrawingStudy','LYLIGHTFR5025CFStudy']){
+   const other=q.a18.children.find(o=>o.userData[key]);if(other)other.visible=false;
+ }
+ q.study.visible=Boolean(on);
+ q.boom.visible=!on;
+ for(const id of ['A08','A09','A14','A19','A20']){const p=parts.get(id);if(p)p.g.visible=!on;}
+ q.a18.userData.LYLIGHTFR8425StudyInstalled=Boolean(on);
+ currentRoot.updateWorldMatrix(true,true);
+ return true;
+};
+window.__focusA18FR8425Study=()=>{
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ if(!window.__setA18FR8425Study(true))return false;
+ const q=_a18FR8425StudyTargets(),box=_auditBoxFor([q.study]);
+ const target=box.getCenter(new THREE.Vector3());
+ camera.position.copy(target).add(new THREE.Vector3(185,100,-245));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+};
+window.__A18FR8425StudyProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a18FR8425StudyTargets();if(!q)return {available:false};
+ const ringBox=new THREE.Box3().setFromObject(q.ring);
+ const clampBox=new THREE.Box3().setFromObject(q.clamp);
+ const ringSize=new THREE.Vector3(),clampSize=new THREE.Vector3();
+ ringBox.getSize(ringSize);clampBox.getSize(clampSize);
+ const ringRay=new THREE.Raycaster(q.study.localToWorld(new THREE.Vector3(0,-30,0)),new THREE.Vector3(0,1,0),0,60);
+ const postRay=new THREE.Raycaster(q.study.localToWorld(new THREE.Vector3(0,-30,-112)),new THREE.Vector3(0,1,0),0,60);
+ const coarse=q.study.children.filter(o=>o.userData.FR8425CoarseFocusKnob);
+ const tension=q.study.children.filter(o=>o.userData.FR8425TensionAdjusterProxy);
+ const rails=q.study.children.filter(o=>o.userData.FR8425BallBearingGuideRail);
+ const bearings=q.study.children.filter(o=>o.userData.FR8425BallBearingCarriage);
+ const teeth=q.study.children.filter(o=>o.userData.FR8425RackToothProxy);
+ const postPos=q.post.getWorldPosition(new THREE.Vector3());
+ const ringPos=q.ring.getWorldPosition(new THREE.Vector3());
+ const centerDistanceXZ=Math.hypot(ringPos.x-postPos.x,ringPos.z-postPos.z);
+ const photoFitBodyVisible=q.a18.children.some(o=>o.userData.A18CurrentPhotoFitBody&&o.visible);
+ return {
+   available:true,studyVisible:q.study.visible,installedByDefault:Boolean(q.study.userData.installedByDefault),
+   exactVendorGeometry:Boolean(q.study.userData.exactVendorGeometry),nativeCADRetrieved:Boolean(q.study.userData.nativeCADRetrieved),
+   manufacturerIdentityConfirmed:Boolean(q.study.userData.manufacturerIdentityConfirmed),
+   nominalScopeMountDiameterMm:q.study.userData.nominalScopeMountDiameterMm,
+   nominalPostHoleDiameterMm:q.study.userData.nominalPostHoleDiameterMm,
+   focusGuideType:q.study.userData.focusGuideType,driveType:q.study.userData.driveType,
+   fineFocusSpecificationPublished:Boolean(q.study.userData.fineFocusSpecificationPublished),
+   focusTravelMm:q.study.userData.focusTravelMm,vendorCenterDistanceMm:q.study.userData.vendorCenterDistanceMm,
+   scenePhotoFitPostToOpticalAxisMm:q.study.userData.scenePhotoFitPostToOpticalAxisMm,
+   scenePhotoFitDistanceMeasured:Boolean(q.study.userData.scenePhotoFitDistanceMeasured),
+   modeledRingClearOpeningMm:q.study.userData.modeledRingClearOpeningMm,
+   ringClearOpeningIsInferred:Boolean(q.study.userData.ringClearOpeningIsInferred),
+   ringBoreOpen:ringRay.intersectObject(q.ring,false).length===0,
+   postBoreOpen:postRay.intersectObject(q.clamp,false).length===0,
+   guideRailCount:rails.length,bearingBlockCount:bearings.length,rackToothCount:teeth.length,
+   coarseKnobCount:coarse.length,tensionKnobCount:tension.length,
+   postRingCenterDistanceXZMm:Number(centerDistanceXZ.toFixed(2)),
+   ringEnvelopeMm:ringSize.toArray().map(x=>Number(x.toFixed(2))),
+   postClampEnvelopeMm:clampSize.toArray().map(x=>Number(x.toFixed(2))),
+   sceneBoomVisible:q.boom.visible,photoFitBodyVisible,
+   A08Visible:Boolean(parts.get('A08')?.g.visible),A19Visible:Boolean(parts.get('A19')?.g.visible),
+   projection:_auditProjection(_auditBoxFor([q.study]))
+ };
+};
 function _a18BXFMFStudyTargets(){
  const a18=parts.get('A18')?.g,a10=parts.get('A10')?.g;
  if(!a18||!a10)return null;
@@ -6483,6 +6699,7 @@ window.__setA18BXFMFStudy=(on)=>{
  if(on){
    window.__setA18MGZ30FamilyStudy?.(false);
    window.__setA18LYLIGHTStudy?.(false);
+   window.__setA18FR8425Study?.(false);
  }
  q.a18.children.filter(o=>o.isMesh).forEach(o=>o.visible=!on);
  const mgz=q.a18.children.find(o=>o.userData.MGZ30FamilyTopologyStudy);if(mgz)mgz.visible=false;
@@ -6556,6 +6773,7 @@ function switchPlatform(next){
   if(platform==='A'&&next!=='A'){
     window.__setA18MGZ30FamilyStudy?.(false);
     window.__setA18BXFMFStudy?.(false);
+    window.__setA18FR8425Study?.(false);
   }
   clearCadFeatureCandidates();
   platform=next;
@@ -6580,6 +6798,8 @@ function switchPlatform(next){
    $('btn-a18-bxfm-study').textContent='BXFM-F图纸对照';
    $('btn-a18-lylight-study').hidden=next!=='A';
    $('btn-a18-lylight-study').textContent='FR5025CF候选对照';
+   $('btn-a18-fr8425-study').hidden=next!=='A';
+   $('btn-a18-fr8425-study').textContent='FR8425 84/25候选';
    lastAExternalCameraFit=null;
   const photoA=next==='A'&&!aWorkingPoseMode;
   $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
@@ -6777,6 +6997,22 @@ $('btn-a-external').onclick=focusAExternal;
      $('btn-a18-lylight-study').textContent='恢复照片拟合';
      $('btn-a18-mgz-study').textContent='MGZ30候选对照';
      $('btn-a18-bxfm-study').textContent='BXFM-F图纸对照';
+   }
+ };
+ $('btn-a18-fr8425-study').onclick=()=>{
+   const state=window.__A18FR8425StudyProbe?.();
+   if(state?.studyVisible){
+     if(window.__setA18FR8425Study(false)){
+       $('btn-a18-fr8425-study').textContent='FR8425 84/25候选';
+       focusA18SupportAudit();
+     }
+     return;
+   }
+   if(window.__focusA18FR8425Study?.()){
+     $('btn-a18-fr8425-study').textContent='恢复照片拟合';
+     $('btn-a18-mgz-study').textContent='MGZ30候选对照';
+     $('btn-a18-bxfm-study').textContent='BXFM-F图纸对照';
+     $('btn-a18-lylight-study').textContent='FR5025CF候选对照';
    }
  };
  $('btn-control-cabinet').onclick=()=>{
