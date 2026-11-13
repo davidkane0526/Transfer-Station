@@ -1,4 +1,4 @@
-"""Post-build mechanical checks for V51 candidate STEP assemblies.
+"""Post-build mechanical checks for current candidate STEP assemblies.
 
 Verifies geometric continuity and *candidate* blind-hole depth, not real
 manufacturer thread engagement, applied torque, heat paths, or safe machining.
@@ -820,19 +820,35 @@ check(abs(a18.xlen-84)<.02 and abs(a18.ylen-88)<.02 and
       'V81 microscope focus body uses stepped photo-constrained max 84x88x70 envelope')
 check(not (A/'A18R.step').exists(),
       'V81 unsupported 160mm horizontal microscope tube must remain deleted')
-for side,hub_key,coarse_key,fine_key in (
-    ('left','A18HL','A18FL','A18FLL'),
-    ('right','A18HR','A18FR','A18FRL')):
-    hub=part(A,hub_key)[0];coarse=part(A,coarse_key)[0];fine=part(A,fine_key)[0]
+body_center_x=(a18.xmin+a18.xmax)/2
+for side,sign,hub_key,coarse_key,fine_key,cap_key in (
+    ('left',-1,'A18HL','A18FL','A18FLL','A18FCL'),
+    ('right',1,'A18HR','A18FR','A18FRL','A18FCR')):
+    hub=part(A,hub_key)[0];coarse=part(A,coarse_key)[0]
+    fine=part(A,fine_key)[0];cap=part(A,cap_key)[0]
+    hb=hub.BoundingBox();cb=coarse.BoundingBox()
+    fb=fine.BoundingBox();eb=cap.BoundingBox()
     check(a18_shape.intersect(hub).Volume()>100,
-          f'V81 {side} focus hub must engage A18 body, not float')
-    check(hub.intersect(coarse).Volume()>100,
-          f'V81 {side} focus hub must engage coarse wheel')
+          f'V162 {side} focus hub must engage A18 body, not float')
+    check(hub.distance(coarse)<.02,
+          f'V162 {side} focus hub and coarse wheel must meet without a forced overlap')
     check(coarse.distance(fine)<.02,
-          f'V81 {side} coarse/fine focus wheels must be contiguous')
-check(abs(part(A,'A18FL')[0].BoundingBox().xlen-
-          part(A,'A18FR')[0].BoundingBox().xlen)<.02,
-      'V81 bilateral coarse focus wheels must use symmetric candidate lengths')
+          f'V162 {side} coarse/fine focus wheels must be contiguous')
+    check(fine.distance(cap)<.02,
+          f'V162 {side} fine wheel and end cap must be contiguous')
+    check(abs(hb.xlen-8)<.02 and abs(hb.ylen-15)<.02 and abs(hb.zlen-15)<.02,
+          f'V162 {side} focus hub must match Ø15 x 8mm candidate')
+    check(abs(cb.xlen-10)<.02 and abs(cb.ylen-28.6)<.02 and abs(cb.zlen-28.6)<.02,
+          f'V162 {side} coarse wheel must match Ø28mm body with 0.3mm knurl crown')
+    check(abs(fb.xlen-7)<.02 and abs(fb.ylen-16)<.02 and abs(fb.zlen-16)<.02,
+          f'V162 {side} fine knob must match Ø16 x 7mm candidate')
+    check(abs(eb.xlen-2.2)<.02 and abs(eb.ylen-10.4)<.02 and abs(eb.zlen-10.4)<.02,
+          f'V162 {side} fine end cap must match Ø10.4 x 2.2mm candidate')
+    check(abs((hb.xmin+hb.xmax)/2-(body_center_x+sign*43))<.02 and
+          abs((cb.xmin+cb.xmax)/2-(body_center_x+sign*52))<.02 and
+          abs((fb.xmin+fb.xmax)/2-(body_center_x+sign*60.5))<.02,
+          f'V162 {side} hub/coarse/fine axial centres must be symmetric')
+
 check(not (A/'A11M.step').exists(),
       'V79 invented MWWHL4 mechanical gooseneck support must remain deleted')
 a11=part(A,'A11')[0].BoundingBox()

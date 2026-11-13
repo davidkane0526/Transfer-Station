@@ -1142,13 +1142,36 @@ def make_a():
         vz(22,8,cx,0,227).cut(vz(13.1,8.2,cx,0,226.9)),'C')
     add('A','A18N','HOLLOW_NOSEPIECE_SOCKET_CANDIDATE',
         vz(24,8,cx,0,165).cut(vz(18.1,8.2,cx,0,164.9)),'C')
-    # Continuous left/right focus chains: body -> hub -> coarse -> fine.
-    add('A','A18HL','LEFT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x-51,-48,200),'C')
-    add('A','A18HR','RIGHT_FOCUS_HUB_PHOTO_CANDIDATE',vx(9,12,a18_body_x+39,-48,200),'C')
-    add('A','A18FL','LEFT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,a18_body_x-63,-48,200),'C')
-    add('A','A18FR','RIGHT_COARSE_FOCUS_DRUM_PHOTO_CANDIDATE',vx(18,14,a18_body_x+49,-48,200),'C')
-    add('A','A18FLL','LEFT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x-71,-48,200),'C')
-    add('A','A18FRL','RIGHT_FINE_FOCUS_KNOB_PHOTO_CANDIDATE',vx(11,8,a18_body_x+63,-48,200),'C')
+    # V162: synchronize the installed STEP focus chain with web A18 V160/V161.
+    # vx() uses an axial START coordinate; centres are +/-43, +/-52 and +/-60.5mm.
+    # Ø15x8 hub -> Ø28x10 coarse handwheel -> Ø16x7 fine knob.
+    # All dimensions remain photo-fit candidates, not measured manufacturing data.
+    for sign,side in ((-1,'LEFT'),(1,'RIGHT')):
+        hub_start=a18_body_x+sign*43-4
+        coarse_start=a18_body_x+sign*52-5
+        fine_start=a18_body_x+sign*60.5-3.5
+        endcap_start=a18_body_x+sign*65-1.1
+        add('A','A18H'+('L' if sign<0 else 'R'),
+            f'{side}_FOCUS_HUB_D15_X8_PHOTO_CANDIDATE',
+            vx(7.5,8,hub_start,-48,200),'C')
+        coarse=vx(14,10,coarse_start,-48,200)
+        # Five narrow circumferential knurl bands, matching the web geometry.
+        for q in range(5):
+            ring_center=a18_body_x+sign*(48+q*1.8)
+            ring_start=ring_center-.18
+            ring=vx(14.3,.36,ring_start,-48,200).cut(
+                vx(13.94,.38,ring_start-.01,-48,200))
+            coarse=coarse.fuse(ring)
+        coarse=coarse.clean()
+        add('A','A18F'+('L' if sign<0 else 'R'),
+            f'{side}_COARSE_FOCUS_D28_X10_WITH_FIVE_KNURL_BANDS',
+            coarse,'C')
+        add('A','A18F'+('LL' if sign<0 else 'RL'),
+            f'{side}_FINE_FOCUS_KNOB_D16_X7_PHOTO_CANDIDATE',
+            vx(8,7,fine_start,-48,200),'C')
+        add('A','A18FC'+('L' if sign<0 else 'R'),
+            f'{side}_FINE_FOCUS_END_CAP_D10P4_X2P2_PHOTO_CANDIDATE',
+            vx(5.2,2.2,endcap_start,-48,200),'C')
 
     # V111: separate, NOT-installed MGZ30 family-topology study.
     # Reuse the current photo-fit main-body envelope and current post center,
@@ -1212,7 +1235,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V146'
+CAD_REVISION='V162'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

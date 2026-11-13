@@ -5931,7 +5931,7 @@ function _auditAnyVisibleSurface(targetObj,allowedRoots){
      candidates.push({point,facing,triangle});
    }
    candidates.sort((a,b)=>b.facing-a.facing);
-   const sampleCount=Math.min(24,candidates.length);
+   const sampleCount=Math.min(8,candidates.length);
    for(let sampleIndex=0;sampleIndex<sampleCount;sampleIndex++){
      const candidateIndex=sampleCount===1?0:
        Math.round(sampleIndex*(candidates.length-1)/(sampleCount-1));
