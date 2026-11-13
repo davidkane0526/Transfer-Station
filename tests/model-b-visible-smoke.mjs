@@ -1200,6 +1200,64 @@ try{
  assert.equal(mgzRestored.currentSeparateBoomVisible,true);
  assert.equal(mgzRestored.currentPhotoFitBodyVisible,true);
 
+ // V155: Olympus BXFM-F drawing-constrained study. It remains a separate
+ // candidate view and never replaces the installed photo-fit geometry.
+ assert.equal(await page.locator('#btn-a18-bxfm-study').isVisible(),true);
+ await page.locator('#btn-a18-bxfm-study').click();
+ await page.waitForTimeout(220);
+ const bxfmStudy=await page.evaluate(()=>window.__A18BXFMFStudyProbe?.());
+ console.log('V155 A18 BXFM-F drawing study:',JSON.stringify(bxfmStudy));
+ assert.equal(bxfmStudy?.available,true);
+ assert.equal(bxfmStudy.studyVisible,true);
+ assert.equal(bxfmStudy.installedByDefault,false);
+ assert.equal(bxfmStudy.exactVendorGeometry,false);
+ assert.equal(bxfmStudy.nativeCADRetrieved,false);
+ assert.equal(bxfmStudy.manufacturerIdentityConfirmed,false);
+ assert.equal(bxfmStudy.drawingSource,'BXFM Instructions Manual, Main Dimension Diagram, page 23');
+ assert.equal(bxfmStudy.bodyWidthMm,84);
+ assert.equal(bxfmStudy.bodySideHeightMm,80);
+ assert.equal(bxfmStudy.overallFrontEnvelopeHeightMm,100);
+ assert.equal(bxfmStudy.overallDepthMm,82);
+ assert.equal(bxfmStudy.pillarMountHoleDiameterMm,32);
+ assert.equal(bxfmStudy.pillarMountHoleTolerance,'H8 (+0.039/0)');
+ assert.equal(bxfmStudy.rearM8HoleCount,4);
+ assert.equal(bxfmStudy.rearM8HoleDepthMm,8);
+ assert.equal(bxfmStudy.rearM8PitchMm,36);
+ assert.equal(bxfmStudy.rearM4HoleCount,4);
+ assert.equal(bxfmStudy.rearM4HoleDepthMm,9);
+ assert.equal(bxfmStudy.bottomM4HoleCount,4);
+ assert.equal(bxfmStudy.bottomM4HoleDepthMm,7);
+ assert.equal(bxfmStudy.bottomM4PitchXmm,66.2);
+ assert.equal(bxfmStudy.focusTravelMm,30);
+ assert.equal(bxfmStudy.coarseFocusMmPerRev,36);
+ assert.equal(bxfmStudy.fineFocusMmPerRev,.2);
+ assert.equal(bxfmStudy.weightKg,1.9);
+ assert.equal(bxfmStudy.coarseKnobCount,2);
+ assert.equal(bxfmStudy.fineKnobCount,2);
+ assert.deepEqual(bxfmStudy.rearPlateHoleCounts,{m8:4,m4:4});
+ assert.equal(bxfmStudy.bottomPlateHoleCount,4);
+ assert.equal(bxfmStudy.opticalPortDiameterCandidateMm,28);
+ assert.equal(bxfmStudy.opticalPortDiameterDimensioned,false);
+ assert.equal(bxfmStudy.rearM4HolePositionsMapped,false);
+ assert.equal(bxfmStudy.pillarHolePositionRegisteredToPhoto,false);
+ assert.equal(bxfmStudy.sideKnobDiametersDimensioned,false);
+ assert.equal(bxfmStudy.scenePostDiameterCandidateMm,26);
+ assert.equal(bxfmStudy.postRequiresAdapterOrClamp,true);
+ assert.equal(bxfmStudy.sceneBoomVisible,false);
+ assert.equal(bxfmStudy.photoFitBodyVisible,false);
+ assert(Math.abs(bxfmStudy.projection.centerX)<.35&&Math.abs(bxfmStudy.projection.centerY)<.35);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V155-BXFMF-Drawing-Study.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+ await page.locator('#btn-a18-bxfm-study').click();
+ const bxfmRestored=await page.evaluate(()=>window.__A18BXFMFStudyProbe?.());
+ assert.equal(bxfmRestored.studyVisible,false);
+ assert.equal(bxfmRestored.sceneBoomVisible,true);
+ assert.equal(bxfmRestored.photoFitBodyVisible,true);
+
  // V130: user establishes photo 1 as the canonical installed orientation.
  // Photos 2 and 3 are views captured after rotating the mechanism; they are
  // side-topology evidence and must not be used to flip/mirror the physical model.
