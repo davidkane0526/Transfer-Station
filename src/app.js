@@ -811,6 +811,15 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30FineAdjustmentRevCUmPerRev:gA18.userData.MGZ30FineAdjustmentRevCUmPerRev,
      A18MGZ30FineAdjustment2014CatalogUmPerRev:gA18.userData.MGZ30FineAdjustment2014CatalogUmPerRev,
      A18MGZ30FineAdjustmentSpecNote:gA18.userData.MGZ30FineAdjustmentSpecNote,
+     A18MGZ30VendorDrawingMountingHoleCount:gA18.userData.MGZ30VendorDrawingMountingHoleCount,
+     A18MGZ30VendorDrawingMountingHoleThread:gA18.userData.MGZ30VendorDrawingMountingHoleThread,
+     A18MGZ30VendorDrawingCalloutsUnmappedMm:gA18.userData.MGZ30VendorDrawingCalloutsUnmappedMm,
+     A18MGZ30VendorDrawingApproxWeightKg:gA18.userData.MGZ30VendorDrawingApproxWeightKg,
+     A18MGZ30VendorCurrentPackageWeightKg:gA18.userData.MGZ30VendorCurrentPackageWeightKg,
+     A18MGZ30VendorWeightDefinitionsResolved:Boolean(gA18.userData.MGZ30VendorWeightDefinitionsResolved),
+     A18MGZ30VendorDrawingNotForManufacturing:Boolean(gA18.userData.MGZ30VendorDrawingNotForManufacturing),
+     A18MGZ30FivePortTurretConflictsWithPhotoFitA19:Boolean(gA18.userData.MGZ30FivePortTurretConflictsWithPhotoFitA19),
+     A18MGZ30PhotoFitA19VisiblePortCount:gA18.userData.MGZ30PhotoFitA19VisiblePortCount,
      A18TSCOPEVendorTubeLens:gA18.userData.TSCOPEVendorTubeLens,
      A18CurrentTubeLensModel:gA18.userData.CurrentTubeLensModel,
      A18CompleteTSCOPEModelConfirmed:Boolean(gA18.userData.CompleteTSCOPEModelConfirmed),
@@ -823,6 +832,9 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30VendorDrawingPostDiameterMm:gA18.userData.MGZ30VendorDrawingPostDiameterMm,
      A18MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm:gA18.userData.MGZ30VendorDrawingMaxEnvelopeDimensionsSeenMm,
      A18MGZ30VendorDrawingAxisMappingApplied:Boolean(gA18.userData.MGZ30VendorDrawingAxisMappingApplied),
+     A19PhotoFitVisiblePortCount:parts.get('A19')?.g.userData.A19PhotoFitVisiblePortCount??null,
+     A19MGZ30FivePortConflictUnresolved:Boolean(parts.get('A19')?.g.userData.A19MGZ30FivePortConflictUnresolved),
+     A19MGZ30CandidateVendorPortCount:parts.get('A19')?.g.userData.A19MGZ30CandidateVendorPortCount??null,
      A18MGZ30IntegralRearPostClampHousing:Boolean(gA18.userData.MGZ30IntegralRearPostClampHousing),
      A18MGZ30DirectPostMountNoSeparateBoom:Boolean(gA18.userData.MGZ30DirectPostMountNoSeparateBoom),
      A18MGZ30CandidateWouldReclassifyA10BoomIntoA18:Boolean(gA18.userData.MGZ30CandidateWouldReclassifyA10BoomIntoA18),
@@ -4047,6 +4059,17 @@ function platformA(){
    mgz30Study.userData.MGZ30FiveObjectiveTurretReconstructed=false;
    mgz30Study.userData.MGZ30VendorTurretPortCount=5;
    mgz30Study.userData.MGZ30VendorTurretThread='M26×36 TPI';
+   mgz30Study.userData.MGZ30VendorDrawingMountingHoleCount=4;
+   mgz30Study.userData.MGZ30VendorDrawingMountingHoleThread='4-40 UNC';
+   mgz30Study.userData.MGZ30VendorDrawingCalloutsUnmappedMm=[185.0,30.0,202.2,80.0,57.8,268.7,73.7,68.0,291.7,100.2,130.0];
+   mgz30Study.userData.MGZ30VendorDrawingApproxWeightKg=4.55;
+   mgz30Study.userData.MGZ30VendorCurrentPackageWeightKg=1.79;
+   mgz30Study.userData.MGZ30VendorWeightDefinitionsResolved=false;
+   mgz30Study.userData.MGZ30VendorDrawingRevision='C';
+   mgz30Study.userData.MGZ30VendorDrawingDate='2012-08-14';
+   mgz30Study.userData.MGZ30VendorDrawingNotForManufacturing=true;
+   mgz30Study.userData.MGZ30FivePortTurretConflictsWithPhotoFitA19=true;
+   mgz30Study.userData.MGZ30PhotoFitA19VisiblePortCount=2;
    mgz30Study.userData.MGZ30FineAdjustmentCurrentUmPerRev=225;
    mgz30Study.userData.MGZ30FineAdjustmentRevCUmPerRev=225;
    mgz30Study.userData.MGZ30FineAdjustment2014CatalogUmPerRev=250;
@@ -4081,6 +4104,17 @@ function platformA(){
    g.userData.MGZ30VendorRMSAdaptersIncluded=5;
    g.userData.MGZ30VendorTurretPorts=5;
    g.userData.MGZ30VendorTurretThread='M26×36 TPI';
+   g.userData.MGZ30VendorDrawingMountingHoleCount=4;
+   g.userData.MGZ30VendorDrawingMountingHoleThread='4-40 UNC';
+   g.userData.MGZ30VendorDrawingCalloutsUnmappedMm=[185.0,30.0,202.2,80.0,57.8,268.7,73.7,68.0,291.7,100.2,130.0];
+   g.userData.MGZ30VendorDrawingApproxWeightKg=4.55;
+   g.userData.MGZ30VendorCurrentPackageWeightKg=1.79;
+   g.userData.MGZ30VendorWeightDefinitionsResolved=false;
+   g.userData.MGZ30VendorDrawingRevision='C';
+   g.userData.MGZ30VendorDrawingDate='2012-08-14';
+   g.userData.MGZ30VendorDrawingNotForManufacturing=true;
+   g.userData.MGZ30FivePortTurretConflictsWithPhotoFitA19=true;
+   g.userData.MGZ30PhotoFitA19VisiblePortCount=2;
    g.userData.MGZ30FineAdjustmentCurrentUmPerRev=225;
    g.userData.MGZ30FineAdjustmentRevCUmPerRev=225;
    g.userData.MGZ30FineAdjustment2014CatalogUmPerRev=250;
@@ -4202,6 +4236,9 @@ function platformA(){
    objective(18,0,'Olympus/Evident PlanFL family? · 精确SKU/倍率/NA待复核',mats.silver,'center');
    g.userData.installedObjectiveCount=2;
    g.userData.A19InstalledPortCount=2;
+   g.userData.A19PhotoFitVisiblePortCount=2;
+   g.userData.A19MGZ30FivePortConflictUnresolved=true;
+   g.userData.A19MGZ30CandidateVendorPortCount=5;
    g.userData.A19UnseenPortsNotModeled=true;
    g.userData.objectiveTurretPortCountUnverified=true;
    g.userData.objectiveDimensionsArePhotoCandidates=true;
@@ -4643,10 +4680,13 @@ function updateDetail(part){
      '<b>候选规格汇总：</b>'+esc(lyText)+'。上述尺寸是厂商候选数据，不是本机实测。当前场景Ø26mm立柱与112mm立柱至光轴距离均未实测，不能据此直接确认或排除FR5025CF。'+
      '<br><b>Thorlabs MGZ30 Focus Block（条件候选）：</b>30mm Z行程、粗调40mm/rev、现行Thorlabs产品页及2012 Rev C工程图均标注微调225µm/rev；2014官方目录另标250µm/rev，作为历史版本差异保留。立柱安装Ø1.5in（38.1mm）；MGZ30本体包含五物镜转换盘，五个M26×36 TPI接口并附五个RMS转接件，顶部兼容30mm cage / SM1 / SM2。'+
      '<a href="https://www.thorlabs.com/thorproduct.cfm?partnumber=MGZ30" target="_blank" rel="noopener noreferrer">Thorlabs MGZ30现行产品页</a> · '+
+     '<a href="https://www.thorlabs.com/images/GuideImages/5791_MGZ30_SGL.jpg" target="_blank" rel="noopener noreferrer">MGZ30原厂产品图（候选对照）</a> · '+
      '<a href="https://www.govolition.com/product/V40-MGZ30" target="_blank" rel="noopener noreferrer">Volition CAD下载入口（DXF/SolidWorks/STEP）</a> · '+
      '<a href="https://www.thorlabs.com/catalogpages/v21/1739.pdf" target="_blank" rel="noopener noreferrer">2014官方目录</a> · '+
      '<a href="https://oxxius.ru/upload/iblock/645/z5e9spl0ippo9o526roo4qt3zxyzg0bk/21618_E0W.pdf" target="_blank" rel="noopener noreferrer">2012 Rev C工程图</a>。'+
-     'Volition页面列出MGZ30的AutoCAD DXF、SolidWorks和STEP下载项，但文件尚未实际取得或与Thorlabs工程图比对，不能据此声称已获得原厂STEP。规格复核：现行Thorlabs产品页与2012 Rev C工程图均标注微调225µm/rev；2014官方目录标注250µm/rev，保留为历史资料差异，候选模型采用225µm/rev作为现行规格参考。MGZ30后部立柱夹持壳体与调焦块一体，若实机为MGZ30，A10独立横臂可能属于A18后壳。'+
+     'Volition页面列出MGZ30的AutoCAD DXF、SolidWorks和STEP下载项，但文件尚未实际取得或与Thorlabs工程图比对，不能据此声称已获得原厂STEP。2012 Rev C工程图还标注4×4-40 UNC安装孔、五个M26×36 TPI物镜接口、5个RMS适配器和30mm调焦行程；其外廓尺寸调用值包括185.0、202.2、80.0、57.8、268.7、73.7、68.0、291.7、100.2和130.0mm，尚未完成坐标轴/尺寸端点映射。图纸明确注明“仅供信息参考，不可用于制造”，因此这些数值不直接写入模型约束。图纸标题栏约重4.55kg，现行产品页列的是约1.79kg包装重量，定义不同且尚未核清，不用于模型质量估算。规格复核：现行Thorlabs产品页与2012 Rev C工程图均标注微调225µm/rev；2014官方目录标注250µm/rev，保留为历史资料差异，候选模型采用225µm/rev作为现行规格参考。'+
+     '<b>A19转换盘关键差异：</b>照片拟合模型目前只绘制两个可见物镜通孔；这不是已经确认的两位置转盘。MGZ30原厂结构为五位置转盘，二者目前存在未解决的孔位数量差异。低清照片无法确认其余三个位置是否被遮挡、为空位或属于其他结构，必须通过转换盘底视图或原厂CAD核实，不能将当前两孔模型当成MGZ30完整转盘。'+
+     'MGZ30后部立柱夹持壳体与调焦块一体，若实机为MGZ30，A10独立横臂可能属于A18后壳。'+
      '<b>MGZ30与完整T-Scope的区别：</b>五物镜盘是MGZ30本体的厂商特征，不是T-Scope专属；官方T-Scope是独立完整显微镜系统，配套ITL200管镜。当前A08按TTL200-A建模，因此不能将现有整套光学组件直接认定为T-Scope。现有MGZ30研究网格尚未重建五孔盘的精确几何，不能称为原厂CAD复刻。'+
      '<b>Olympus/Evident BXFM-F（次候选）：</b>84mm宽度、Ø32H8立柱孔、4-M8后固定和30mm行程有尺寸/拓扑相似性，但原厂为银色开架铸件，与照片中的黑色封闭外观不完全一致；84mm吻合不能作为型号证明。'+
      '<b>Boli 76mm/25mm调焦架：</b>'+esc(boliText)+'。当前191–193预览只有约128×170像素，既不能确认，也不足以排除外露76mm环形E-arm；该家族保留为未决对照，不作为已识别实机。'+
@@ -6108,6 +6148,15 @@ window.__A18MGZ30FamilyStudyProbe=()=>{
    mgz30FineAdjustmentRevCUmPerRev:q.study.userData.MGZ30FineAdjustmentRevCUmPerRev,
    mgz30FineAdjustment2014CatalogUmPerRev:q.study.userData.MGZ30FineAdjustment2014CatalogUmPerRev,
    mgz30FineAdjustmentSpecNote:q.study.userData.MGZ30FineAdjustmentSpecNote,
+   mgz30DrawingMountingHoleCount:q.study.userData.MGZ30VendorDrawingMountingHoleCount,
+   mgz30DrawingMountingHoleThread:q.study.userData.MGZ30VendorDrawingMountingHoleThread,
+   mgz30DrawingCalloutsUnmappedMm:q.study.userData.MGZ30VendorDrawingCalloutsUnmappedMm,
+   mgz30DrawingApproxWeightKg:q.study.userData.MGZ30VendorDrawingApproxWeightKg,
+   mgz30CurrentPackageWeightKg:q.study.userData.MGZ30VendorCurrentPackageWeightKg,
+   mgz30WeightDefinitionsResolved:Boolean(q.study.userData.MGZ30VendorWeightDefinitionsResolved),
+   mgz30DrawingNotForManufacturing:Boolean(q.study.userData.MGZ30VendorDrawingNotForManufacturing),
+   mgz30FivePortTurretConflictsWithPhotoFitA19:Boolean(q.study.userData.MGZ30FivePortTurretConflictsWithPhotoFitA19),
+   mgz30PhotoFitA19VisiblePortCount:q.study.userData.MGZ30PhotoFitA19VisiblePortCount,
    mgz30TurretNotModeledReason:q.study.userData.MGZ30TurretNotModeledReason,
     tscopeTubeLensModel:q.study.userData.TSCOPEVendorTubeLens,
     currentTubeLensModel:q.study.userData.currentPhotoFitTubeLens,
