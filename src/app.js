@@ -5892,23 +5892,55 @@ function _a05ExposedGlassEdgePoint(q){
 }
 function _auditAnyVisibleSurface(targetObj,allowedRoots){
  if(!targetObj)return {clear:false,firstPart:null,sample:null};
- const b=new THREE.Box3().setFromObject(targetObj);
- const c=b.getCenter(new THREE.Vector3());
- const samples=[
-   ['center',c.clone()],
-   ['xmin',new THREE.Vector3(b.min.x,c.y,c.z)],
-   ['xmax',new THREE.Vector3(b.max.x,c.y,c.z)],
-   ['ymin',new THREE.Vector3(c.x,b.min.y,c.z)],
-   ['ymax',new THREE.Vector3(c.x,b.max.y,c.z)],
-   ['zmin',new THREE.Vector3(c.x,c.y,b.min.z)],
-   ['zmax',new THREE.Vector3(c.x,c.y,b.max.z)]
- ];
+ // V161: sample real world-space mesh triangles, not the axis-aligned
+ // bounding-box face centres. The latter can miss the exposed side of a
+ // rotated cylindrical focus wheel or probe points that are not on its mesh.
+ const meshes=[];
+ if(targetObj.isMesh)meshes.push(targetObj);
+ else targetObj.traverse?.(o=>{if(o.isMesh)meshes.push(o);});
  let fallback=null;
- for(const [sample,p] of samples){
-   const r=_auditRayClearPoint(p,allowedRoots);
-   const q={...r,sample};
-   if(r.clear)return q;
-   if(!fallback)fallback=q;
+ for(let meshIndex=0;meshIndex<meshes.length;meshIndex++){
+   const mesh=meshes[meshIndex];
+   if(!_isEffectivelyVisible(mesh))continue;
+   const geometry=mesh.geometry,positions=geometry?.attributes?.position;
+   if(!positions)continue;
+   mesh.updateWorldMatrix(true,false);
+   const index=geometry.index;
+   const vertexCount=index?.count??positions.count;
+   const triangleCount=Math.floor(vertexCount/3);
+   if(!triangleCount)continue;
+   const bounds=new THREE.Box3().setFromObject(mesh);
+   const center=bounds.getCenter(new THREE.Vector3());
+   const towardCamera=camera.position.clone().sub(center).normalize();
+   const stride=Math.max(1,Math.ceil(triangleCount/256));
+   const candidates=[];
+   for(let triangle=0;triangle<triangleCount;triangle+=stride){
+     const base=triangle*3;
+     const ia=index?index.getX(base):base;
+     const ib=index?index.getX(base+1):base+1;
+     const ic=index?index.getX(base+2):base+2;
+     const a=new THREE.Vector3().fromBufferAttribute(positions,ia).applyMatrix4(mesh.matrixWorld);
+     const b=new THREE.Vector3().fromBufferAttribute(positions,ib).applyMatrix4(mesh.matrixWorld);
+     const c=new THREE.Vector3().fromBufferAttribute(positions,ic).applyMatrix4(mesh.matrixWorld);
+     const normal=b.clone().sub(a).cross(c.clone().sub(a));
+     const normalLength=normal.length();
+     if(normalLength<1e-9)continue;
+     normal.multiplyScalar(1/normalLength);
+     const facing=normal.dot(towardCamera);
+     const point=a.add(b).add(c).multiplyScalar(1/3).addScaledVector(normal,.02);
+     candidates.push({point,facing,triangle});
+   }
+   candidates.sort((a,b)=>b.facing-a.facing);
+   const sampleCount=Math.min(24,candidates.length);
+   for(let sampleIndex=0;sampleIndex<sampleCount;sampleIndex++){
+     const candidateIndex=sampleCount===1?0:
+       Math.round(sampleIndex*(candidates.length-1)/(sampleCount-1));
+     const candidate=candidates[candidateIndex];
+     const r=_auditRayClearPoint(candidate.point,allowedRoots);
+     const q={...r,sample:`mesh-${meshIndex}-triangle-${candidate.triangle}`};
+     if(r.clear)return q;
+     if(!fallback)fallback=q;
+   }
  }
  return fallback??{clear:false,firstPart:null,sample:null};
 }
