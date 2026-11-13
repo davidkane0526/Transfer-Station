@@ -889,6 +889,30 @@ try{
  await photoShot('Transfer-Station-A-Photo194-FilmUpper.png','#btn-photo94');
  await photoShot('Transfer-Station-A-Photo195-FilmLower.png','#btn-photo97');
  await photoShot('Transfer-Station-A-Photo196-G40.png','#btn-photo196');
+ const goniometers=await page.evaluate(()=>window.__platformAGoniometerProbe?.());
+ console.log('V159 GCM-VC13M / GCM-G stage detail QA:',JSON.stringify(goniometers));
+ assert.equal(goniometers?.available,true);
+ assert.equal(goniometers.A03.topHoleCandidateCount,13);
+ assert.equal(goniometers.A03.baseCounterboreCandidateCount,4);
+ assert.equal(goniometers.A03.vendorModel,'Daheng GCM-VC13M');
+ assert.equal(goniometers.A03.travelMm,13);
+ for(const id of ['A04L','A04']){
+  assert.equal(goniometers[id].angleScalePanelCount,1,id+' missing front angle scale panel');
+  assert.equal(goniometers[id].angleScaleArcCount,1,id+' missing curved vernier arc');
+  assert.equal(goniometers[id].angleScaleTickCount,13,id+' angle scale tick count mismatch');
+  assert.equal(goniometers[id].dovetailSideRailCount,2,id+' missing paired dovetail guide rails');
+  assert.equal(goniometers[id].topHoleCandidateCount,9,id+' missing OEM-pattern top-hole proxies');
+  assert.equal(goniometers[id].driveCount,1,id+' must have one independent micrometer drive');
+  assert.equal(goniometers[id].topHoleCoordinatesVerified,false);
+ }
+ assert.equal(goniometers.lowerGoniometerBelowUpper,true);
+ assert.equal(goniometers.lowerSkuConfirmed,false);
+ assert.equal(goniometers.upperSkuConfirmed,true);
+ await page.waitForTimeout(220);
+ const gcmBox=await page.locator('#viewer').boundingBox();assert(gcmBox);
+ await page.screenshot({path:'Transfer-Station-A-V159-GCM-Stack-Detail.png',
+   clip:{x:gcmBox.x,y:gcmBox.y,width:gcmBox.width,height:gcmBox.height},
+   animations:'disabled',timeout:30000});
  // V95: dedicated closeups are mandatory because general photo views can
  // crop the exact component being modified.
  assert.equal(await page.evaluate(()=>window.__focusA05MovingAudit?.()),true);

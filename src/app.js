@@ -235,6 +235,25 @@ window.__platformAFramingProbe=()=>{
    topWorldYmm:Number(topBox.max.y.toFixed(1)),
    mode:aWorkingPoseMode?'installed180':'photo-reference'};
 };
+window.__platformAGoniometerProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const inspect=id=>{
+  const root=parts.get(id)?.g;if(!root)return null;
+  const tagged=key=>{const found=[];root.traverse(o=>{if(o.userData[key]!==undefined)found.push(o)});return found;};
+  return {present:true,angleScaleTickCount:tagged(id+'AngleScaleTick').length,angleScaleArcCount:tagged(id+'AngleScaleArc').length,
+   angleScalePanelCount:tagged(id+'AngleScalePanel').length,topHoleCandidateCount:tagged(id+'TopThreadCandidate').length,
+   dovetailSideRailCount:tagged(id+'DovetailSideRail').length,driveCount:tagged(id==='A04'?'A04DriveDrum':'A04LDriveDrum').length,
+   driveDirection:id==='A04'?'+X':'-X',vendorPlatformMm:root.userData.vendorPlatformMm??[40,40],
+   vendorThicknessMm:root.userData.vendorThicknessMm??20,topHoleCoordinatesVerified:Boolean(root.userData.topHoleCoordinatesVerified)};
+ };
+ const a03=parts.get('A03')?.g,a03Holes=[];a03?.traverse(o=>{if(o.userData.A03TopThreadCandidate!==undefined)a03Holes.push(o)});
+ const lower=parts.get('A04L'),upper=parts.get('A04');
+ return {available:Boolean(a03&&lower&&upper),
+  A03:{topHoleCandidateCount:a03Holes.length,baseCounterboreCandidateCount:a03?.userData.vendorBaseCounterboreProxyCount??0,
+   vendorModel:a03?.userData.vendorModel??null,platformMm:a03?.userData.vendorPlatformMm??null,travelMm:a03?.userData.vendorTravelMm??null},
+  A04L:inspect('A04L'),A04:inspect('A04'),lowerGoniometerBelowUpper:Boolean(lower&&upper&&lower.base.y<upper.base.y),
+  lowerSkuConfirmed:Boolean(lower?.g.userData.oemCandidateConfirmed),upperSkuConfirmed:Boolean(upper?.g.userData.upperConfirmedPhoto94==='GCM-G40M60L')};
+};
 window.__platformAStageFrontProbe=()=>{
  if(platform!=='A')return {available:false};
  const stage=parts.get('A15')?.g,mag=parts.get('A17')?.g;
@@ -1788,6 +1807,65 @@ function drilledDisc(radius,height,material,bores){
  geo.rotateX(-Math.PI/2);
  return mk(geo,material);
 }
+function addCandidateThreadedHoles(parent,id,topY,holes){
+ const made=[];
+ for(const h of holes){
+  const recess=add(parent,cyl(h.r,.42,mats.ink,h.x,topY-.21,h.z,32));
+  recess.userData[id+'TopThreadCandidate']=h.thread;
+  recess.userData[id+'TopThreadCoordinatesVerified']=false;
+  const rim=add(parent,torus(h.r+.28,.14,mats.steel,h.x,topY+.015,h.z));
+  rim.rotation.x=Math.PI/2;rim.userData[id+'TopThreadRimCandidate']=h.thread;
+  made.push(recess);
+ }
+ parent.userData[id+'TopHolePatternCandidate']=true;
+ parent.userData[id+'TopHoleCoordinatesVerified']=false;
+ return made;
+}
+function addGoniometerDovetailRails(g,id){
+ const profiles=[
+  {side:'left',points:[[-20,7],[-11,7],[-14,15],[-20,15]]},
+  {side:'right',points:[[11,7],[20,7],[20,15],[14,15]]}
+ ];
+ for(const p of profiles){
+  const shape=new THREE.Shape();
+  p.points.forEach(([x,y],i)=>i?shape.lineTo(x,y):shape.moveTo(x,y));
+  shape.closePath();
+  const geo=new THREE.ExtrudeGeometry(shape,{depth:34,bevelEnabled:false,steps:1});
+  geo.translate(0,0,-17);
+  const rail=add(g,mk(geo,mats.black));
+  rail.userData[id+'DovetailSideRail']=p.side;
+  rail.userData[id+'DovetailProfileCandidate']=true;
+ }
+}
+function addGoniometerAngleScale(g,id){
+ const frontZ=21.25,centerY=4.0,radius=13.2;
+ const panel=add(g,cub(33,14.5,1.0,mats.silver,0,10.5,20.72));
+ panel.userData[id+'AngleScalePanel']=true;
+ const points=[];
+ for(let i=0;i<=40;i++){const a=(22+i*136/40)*Math.PI/180;points.push(new THREE.Vector3(radius*Math.cos(a),centerY+radius*Math.sin(a),frontZ));}
+ const curve=new THREE.CatmullRomCurve3(points);
+ const arc=add(g,new THREE.Mesh(new THREE.TubeGeometry(curve,56,.28,6,false),mats.ink));
+ arc.userData[id+'AngleScaleArc']=true;
+ const ticks=[];
+ for(let d=-6;d<=6;d++){
+  const a=(90+d*10)*Math.PI/180,outer=radius-.7,inner=radius-(d%3===0?3.0:2.0);
+  const p1=new THREE.Vector3(inner*Math.cos(a),centerY+inner*Math.sin(a),frontZ+.34);
+  const p2=new THREE.Vector3(outer*Math.cos(a),centerY+outer*Math.sin(a),frontZ+.34);
+  const dx=p2.x-p1.x,dy=p2.y-p1.y,len=Math.hypot(dx,dy);
+  const tick=add(g,cub(d%3===0?.62:.42,len,.42,mats.ink,(p1.x+p2.x)/2,(p1.y+p2.y)/2,frontZ+.35));
+  tick.rotation.z=Math.atan2(dy,dx)-Math.PI/2;
+  tick.userData[id+'AngleScaleTick']=d;ticks.push(tick);
+ }
+ const pointer=add(g,cub(1.1,5.6,.65,mats.dark,0,centerY+radius-1.4,frontZ+.55));
+ pointer.userData[id+'AngleScalePointerCandidate']=true;
+ const pivot=add(g,cyl(2.25,1.8,mats.silver,0,centerY+radius-1.0,frontZ+1.0,32));
+ pivot.rotation.x=Math.PI/2;pivot.userData[id+'AngleScalePivotCandidate']=true;
+ g.userData[id+'AngleScaleTickCount']=ticks.length;
+ g.userData[id+'AngleScaleResolutionDegOEM']=.1;
+ g.userData[id+'AngleScaleExactGraduationVerified']=false;
+ g.userData[id+'AngleScaleGeometryPhotoConstrained']=true;
+ return {panel,arc,ticks,pointer,pivot};
+}
 function addPart(id,x,y,z,make,meta={}){
  const part=PARTS[platform].find(p=>p.id===id);if(!part)throw new Error('Metadata not found: '+id);
  const g=new THREE.Group();g.position.set(x,y,z);g.userData={partId:id,group:part.group};
@@ -2095,11 +2173,15 @@ function filmB(){
    // front fastener pairs, and a +X micrometer with a steel thimble.
    add(g,cub(40,7,40,mats.black,0,3.5,0));
    add(g,cub(40,7,37,mats.dark,0,10.5,0));
-   for(const x of [-14.1,14.1]){
-     const edge=add(g,cub(10,7,35,mats.black,x,15,0));
-     edge.rotation.z=x<0?.07:-.07;
-   }
-   add(g,cub(40,3,40,mats.dark,0,18.5,0)); // nominal top at Y=20
+   addGoniometerDovetailRails(g,'A04L');
+   const topPlate=add(g,cub(40,3,40,mats.dark,0,18.5,0));
+   topPlate.userData.A04L40mmMovingTopPlate=true;
+   addCandidateThreadedHoles(g,'A04L',20,[
+     ...[-16,16].flatMap(x=>[-16,16].map(z=>({x,z,r:1.45,thread:'4-M3-pattern-candidate'}))),
+     ...[-10,10].flatMap(x=>[-10,10].map(z=>({x,z,r:1.0,thread:'4-M2-pattern-candidate'}))),
+     {x:0,z:0,r:2.7,thread:'M6-center-candidate'}
+   ]);
+   addGoniometerAngleScale(g,'A04L');
    // Photo94: two upper screws in front notch and two front body screws
    // near right-hand actuator mount. None assigned an unverified thread.
    for(const x of [-5,5]){
@@ -3193,6 +3275,11 @@ function platformA(){
    // micrometer. Exact internal bearing cross-sections remain unmeasured.
    const base=add(g,cub(65,8,65,mats.black,0,4,0));
    base.userData.A03VendorBasePlate=true;
+   // Shallow appearance proxies for the four OEM-style corner recesses; exact bores are not dimensioned.
+   for(const x of [-25,25])for(const z of [-25,25]){
+     const recess=add(g,cyl(3.6,.38,mats.ink,x,7.81,z,32));recess.userData.A03BaseCounterboreCandidate=true;
+     const rim=add(g,torus(3.9,.16,mats.steel,x,8.015,z));rim.rotation.x=Math.PI/2;rim.userData.A03BaseCounterboreRimCandidate=true;
+   }
 
    // Manufacturer imagery shows an OPEN centre with two upright guide
    // structures, not the former 45×71.5mm solid black wall.
@@ -3225,6 +3312,12 @@ function platformA(){
    outputPlate.userData.A15VC13CatalogReferenceHeightMm=126;
    outputPlate.userData.A15VC13LowerPoseHeightMm=119.5;
    outputPlate.userData.A03VendorPlatformMm=[65,65];
+   addCandidateThreadedHoles(movingVC13,'A03',86,[
+     ...[-25,25].flatMap(x=>[-25,25].map(z=>({x,z,r:2.7,thread:'M6-pattern-candidate'}))),
+     ...[-16,16].flatMap(x=>[-16,16].map(z=>({x,z,r:1.45,thread:'M3-pattern-candidate'}))),
+     ...[-10,10].flatMap(x=>[-10,10].map(z=>({x,z,r:1.0,thread:'M2-pattern-candidate'}))),
+     {x:0,z:0,r:2.7,thread:'M6-center-candidate'}
+   ]);
    for(const sign of [-1,1]){
      const tongue=add(movingVC13,cub(3.4,28,8,mats.dark,
        sign*27.7,72,6));
@@ -3240,6 +3333,9 @@ function platformA(){
    g.userData.vendorLoadCapacityKg=3;
    g.userData.vendorWeightKg=.39;
    g.userData.vendorOpenFrameTopologyApplied=true;
+   g.userData.vendorTopHolePatternProxyCount=13;
+   g.userData.vendorBaseCounterboreProxyCount=4;
+   g.userData.vendorHoleCoordinatesVerified=false;
    g.userData.vendorInternalRailSectionVerified=false;
    g.userData.motionProxyNotCollisionCertified=true;
 
@@ -3323,6 +3419,9 @@ function platformA(){
    g.userData.photo195196LowerDriveDirection='-X';
    g.userData.lowerDriveOpposesUpperG40=true;
    g.userData.oldFrontFacingDepthDriveRejected=true;
+   g.userData.vendorDovetailGuideFamily='ground dovetail';
+   g.userData.vendorVernierResolutionDeg=.1;
+   g.userData.topHoleCoordinatesVerified=false;
    label(g,'A04L GCM-G40M40L',-4,40,0);
  },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  addPart('A04',ax,aUpperG40Y,az,g=>{
@@ -3330,11 +3429,15 @@ function platformA(){
    // Lower partner is not positively identified. G40M60L body:
    add(g,cub(40,7,40,mats.black,0,3.5,0));
    add(g,cub(40,7,37,mats.dark,0,10.5,0));
-   for(const x of [-14.1,14.1]){
-     const rocker=add(g,cub(10,7,35,mats.black,x,15,0));
-     rocker.rotation.z=x<0?.07:-.07;
-   }
-   add(g,cub(40,3,40,mats.dark,0,18.5,0));
+   addGoniometerDovetailRails(g,'A04');
+   const topPlate=add(g,cub(40,3,40,mats.dark,0,18.5,0));
+   topPlate.userData.A04G40M60LMovingTopPlate=true;
+   addCandidateThreadedHoles(g,'A04',20,[
+     ...[-16,16].flatMap(x=>[-16,16].map(z=>({x,z,r:1.45,thread:'4-M3-pattern-candidate'}))),
+     ...[-10,10].flatMap(x=>[-10,10].map(z=>({x,z,r:1.0,thread:'4-M2-pattern-candidate'}))),
+     {x:0,z:0,r:2.7,thread:'M6-center-candidate'}
+   ]);
+   addGoniometerAngleScale(g,'A04');
    // Photos195/196: the UPPER labelled GCM-G40M60L micrometer is RIGHT (+X).
    add(g,cub(16,15,29,mats.black,24,8,0));
    const stem=add(g,cyl(5.5,18,mats.steel,27,10,0,40));stem.rotation.z=Math.PI/2;
@@ -3347,6 +3450,13 @@ function platformA(){
    addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
    g.userData.upperConfirmedPhoto94='GCM-G40M60L';
    g.userData.photo196UpperDriveDirection='+X';
+   g.userData.vendorPlatformMm=[40,40];
+   g.userData.vendorThicknessMm=20;
+   g.userData.vendorRotationCenterMm=60;
+   g.userData.vendorTravelDeg=5;
+   g.userData.vendorDovetailGuideFamily='ground dovetail';
+   g.userData.vendorVernierResolutionDeg=.1;
+   g.userData.topHoleCoordinatesVerified=false;
    label(g,'A04 GCM-G40M60L',-4,40,0);
  },{explode:[-25,53,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
  const aBent=photo94BracketCandidate({stageCenterX:ax,stageTopY:aBracketTopY,
