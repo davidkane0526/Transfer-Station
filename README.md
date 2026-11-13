@@ -1,5 +1,12 @@
 # Transfer Station
 
+## V164 · 发布脚本与 CAD 产物命名修复
+
+- 修复 Pages 证据检查脚本中多余的反斜杠，避免 Bash 将 V157/V158 图片文件名解析为语法错误。
+- CAD Actions 不再把产物名称硬编码为 V141；运行时从 `cad/build_assemblies.py` 读取 `CAD_REVISION`，生成与 STEP 文件版本一致的 Artifact 名称。
+- 本次不修改实体几何；网页模型版本仍为 V163，CAD 模型版本仍为 V162。
+- [V164 发布与 CAD 产物命名修复记录](docs/V164_WORKFLOW_AND_ARTIFACT_VERSIONING.md)
+
 ## V163 · A18 调焦尺寸审计字段补全
 
 - V162 浏览器回归已越过 A18 粗调轮可见性断言，随后在检查粗调轮直径时发现 `undefined !== 28`。

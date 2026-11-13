@@ -128,7 +128,7 @@ jobs:
             Transfer-Station-A-V106-A18-Optical-Closeup.png \
             Transfer-Station-A-V106-A18-Support-Closeup.png \
             Transfer-Station-A-V155-BXFMF-Drawing-Study.png \
-            Transfer-Station-A-V157-LYLIGHT-FR5025CF-Study.png \\
+            Transfer-Station-A-V157-LYLIGHT-FR5025CF-Study.png \
             Transfer-Station-A-V158-LYLIGHT-FR8425-84-25-Study.png; do
             test -s "$name" || { echo "::error::A real-photo matching render is missing: $name"; exit 1; }
             cp "$name" assets/photo-review/
