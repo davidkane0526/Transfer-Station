@@ -807,6 +807,10 @@ window.__modelAPhoto194Probe=()=>{
      A18MGZ30VendorRMSAdaptersIncluded:gA18.userData.MGZ30VendorRMSAdaptersIncluded,
      A18MGZ30VendorTurretPorts:gA18.userData.MGZ30VendorTurretPorts,
      A18MGZ30VendorTurretThread:gA18.userData.MGZ30VendorTurretThread,
+     A18MGZ30FineAdjustmentCurrentUmPerRev:gA18.userData.MGZ30FineAdjustmentCurrentUmPerRev,
+     A18MGZ30FineAdjustmentRevCUmPerRev:gA18.userData.MGZ30FineAdjustmentRevCUmPerRev,
+     A18MGZ30FineAdjustment2014CatalogUmPerRev:gA18.userData.MGZ30FineAdjustment2014CatalogUmPerRev,
+     A18MGZ30FineAdjustmentSpecNote:gA18.userData.MGZ30FineAdjustmentSpecNote,
      A18TSCOPEVendorTubeLens:gA18.userData.TSCOPEVendorTubeLens,
      A18CurrentTubeLensModel:gA18.userData.CurrentTubeLensModel,
      A18CompleteTSCOPEModelConfirmed:Boolean(gA18.userData.CompleteTSCOPEModelConfirmed),
@@ -4043,6 +4047,10 @@ function platformA(){
    mgz30Study.userData.MGZ30FiveObjectiveTurretReconstructed=false;
    mgz30Study.userData.MGZ30VendorTurretPortCount=5;
    mgz30Study.userData.MGZ30VendorTurretThread='M26×36 TPI';
+   mgz30Study.userData.MGZ30FineAdjustmentCurrentUmPerRev=225;
+   mgz30Study.userData.MGZ30FineAdjustmentRevCUmPerRev=225;
+   mgz30Study.userData.MGZ30FineAdjustment2014CatalogUmPerRev=250;
+   mgz30Study.userData.MGZ30FineAdjustmentSpecNote='Current Thorlabs product page and 2012 Rev C drawing: 225 µm/rev; 2014 catalog: 250 µm/rev historical discrepancy.';
    mgz30Study.userData.MGZ30TurretNotModeledReason='Thorlabs catalog 1739 explicitly states that each MGZ30 post-mountable focus block includes a five-objective turret. The current study mesh does not reconstruct the five-port carrier or adapter geometry because the exact port-circle dimensions have not yet been verified from OEM CAD; the two visible photo-fit positions do not establish the actual port count.';
    mgz30Study.userData.TSCOPEVendorTubeLens='ITL200';
    mgz30Study.userData.currentPhotoFitTubeLens='TTL200-A';
@@ -4073,6 +4081,10 @@ function platformA(){
    g.userData.MGZ30VendorRMSAdaptersIncluded=5;
    g.userData.MGZ30VendorTurretPorts=5;
    g.userData.MGZ30VendorTurretThread='M26×36 TPI';
+   g.userData.MGZ30FineAdjustmentCurrentUmPerRev=225;
+   g.userData.MGZ30FineAdjustmentRevCUmPerRev=225;
+   g.userData.MGZ30FineAdjustment2014CatalogUmPerRev=250;
+   g.userData.MGZ30FineAdjustmentSpecNote='Current Thorlabs product page and 2012 Rev C drawing: 225 µm/rev; 2014 catalog: 250 µm/rev historical discrepancy.';
    g.userData.TSCOPEVendorTubeLens='ITL200';
    g.userData.CurrentTubeLensModel='TTL200-A';
    g.userData.CompleteTSCOPEModelConfirmed=false;
@@ -4629,12 +4641,12 @@ function updateDetail(part){
      '<b>LYLIGHT FR7625CF（同族变体）：</b>25mm立柱孔、76mm镜体环，采用粗/微调结构；当前公开产品页未提供可核验的中心距和微调精度。该型号用于核对环径变体，不代表照片已经确认76mm环。'+
      '<a href="https://www.lylight.com/product/focus-bracket-coarse-fine-adjustment-knob-focusing-rack-76mm25mm/" target="_blank" rel="noopener noreferrer">FR7625CF产品页</a>。'+
      '<b>候选规格汇总：</b>'+esc(lyText)+'。上述尺寸是厂商候选数据，不是本机实测。当前场景Ø26mm立柱与112mm立柱至光轴距离均未实测，不能据此直接确认或排除FR5025CF。'+
-     '<br><b>Thorlabs MGZ30 Focus Block（条件候选）：</b>30mm Z行程、粗调40mm/rev、2014目录微调250µm/rev、Ø1.5in（38.1mm）立柱安装；MGZ30本体包含五物镜转换盘，五个M26×36 TPI接口并附五个RMS转接件，顶部兼容30mm cage / SM1 / SM2。'+
-     '<a href="https://www.thorlabs.com/focus-block-and-accessories" target="_blank" rel="noopener noreferrer">MGZ30产品页</a> · '+
+     '<br><b>Thorlabs MGZ30 Focus Block（条件候选）：</b>30mm Z行程、粗调40mm/rev、现行Thorlabs产品页及2012 Rev C工程图均标注微调225µm/rev；2014官方目录另标250µm/rev，作为历史版本差异保留。立柱安装Ø1.5in（38.1mm）；MGZ30本体包含五物镜转换盘，五个M26×36 TPI接口并附五个RMS转接件，顶部兼容30mm cage / SM1 / SM2。'+
+     '<a href="https://www.thorlabs.com/thorproduct.cfm?partnumber=MGZ30" target="_blank" rel="noopener noreferrer">Thorlabs MGZ30现行产品页</a> · '+
      '<a href="https://www.govolition.com/product/V40-MGZ30" target="_blank" rel="noopener noreferrer">Volition CAD下载入口（DXF/SolidWorks/STEP）</a> · '+
      '<a href="https://www.thorlabs.com/catalogpages/v21/1739.pdf" target="_blank" rel="noopener noreferrer">2014官方目录</a> · '+
      '<a href="https://oxxius.ru/upload/iblock/645/z5e9spl0ippo9o526roo4qt3zxyzg0bk/21618_E0W.pdf" target="_blank" rel="noopener noreferrer">2012 Rev C工程图</a>。'+
-     'Volition页面列出MGZ30的AutoCAD DXF、SolidWorks和STEP下载项，但文件尚未实际取得或与Thorlabs工程图比对，不能据此声称已获得原厂STEP。需注意：2012 Rev C工程图标注微调225µm/rev，与2014目录250µm/rev存在版本差异，未核清前不把二者混为同一规格。MGZ30后部立柱夹持壳体与调焦块一体，若实机为MGZ30，A10独立横臂可能属于A18后壳。'+
+     'Volition页面列出MGZ30的AutoCAD DXF、SolidWorks和STEP下载项，但文件尚未实际取得或与Thorlabs工程图比对，不能据此声称已获得原厂STEP。规格复核：现行Thorlabs产品页与2012 Rev C工程图均标注微调225µm/rev；2014官方目录标注250µm/rev，保留为历史资料差异，候选模型采用225µm/rev作为现行规格参考。MGZ30后部立柱夹持壳体与调焦块一体，若实机为MGZ30，A10独立横臂可能属于A18后壳。'+
      '<b>MGZ30与完整T-Scope的区别：</b>五物镜盘是MGZ30本体的厂商特征，不是T-Scope专属；官方T-Scope是独立完整显微镜系统，配套ITL200管镜。当前A08按TTL200-A建模，因此不能将现有整套光学组件直接认定为T-Scope。现有MGZ30研究网格尚未重建五孔盘的精确几何，不能称为原厂CAD复刻。'+
      '<b>Olympus/Evident BXFM-F（次候选）：</b>84mm宽度、Ø32H8立柱孔、4-M8后固定和30mm行程有尺寸/拓扑相似性，但原厂为银色开架铸件，与照片中的黑色封闭外观不完全一致；84mm吻合不能作为型号证明。'+
      '<b>Boli 76mm/25mm调焦架：</b>'+esc(boliText)+'。当前191–193预览只有约128×170像素，既不能确认，也不足以排除外露76mm环形E-arm；该家族保留为未决对照，不作为已识别实机。'+
@@ -6092,6 +6104,10 @@ window.__A18MGZ30FamilyStudyProbe=()=>{
    mgz30FiveObjectiveTurretReconstructed:Boolean(q.study.userData.MGZ30FiveObjectiveTurretReconstructed),
    mgz30VendorTurretPortCount:q.study.userData.MGZ30VendorTurretPortCount,
    mgz30VendorTurretThread:q.study.userData.MGZ30VendorTurretThread,
+   mgz30FineAdjustmentCurrentUmPerRev:q.study.userData.MGZ30FineAdjustmentCurrentUmPerRev,
+   mgz30FineAdjustmentRevCUmPerRev:q.study.userData.MGZ30FineAdjustmentRevCUmPerRev,
+   mgz30FineAdjustment2014CatalogUmPerRev:q.study.userData.MGZ30FineAdjustment2014CatalogUmPerRev,
+   mgz30FineAdjustmentSpecNote:q.study.userData.MGZ30FineAdjustmentSpecNote,
    mgz30TurretNotModeledReason:q.study.userData.MGZ30TurretNotModeledReason,
     tscopeTubeLensModel:q.study.userData.TSCOPEVendorTubeLens,
     currentTubeLensModel:q.study.userData.currentPhotoFitTubeLens,

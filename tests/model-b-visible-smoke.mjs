@@ -1158,6 +1158,10 @@ try{
  assert.equal(mgzStudy.mgz30FiveObjectiveTurretReconstructed,false);
  assert.equal(mgzStudy.mgz30VendorTurretPortCount,5);
  assert.equal(mgzStudy.mgz30VendorTurretThread,'M26×36 TPI');
+ assert.equal(mgzStudy.mgz30FineAdjustmentCurrentUmPerRev,225);
+ assert.equal(mgzStudy.mgz30FineAdjustmentRevCUmPerRev,225);
+ assert.equal(mgzStudy.mgz30FineAdjustment2014CatalogUmPerRev,250);
+ assert.match(mgzStudy.mgz30FineAdjustmentSpecNote,/current Thorlabs product page and 2012 Rev C drawing: 225/);
  assert.match(mgzStudy.mgz30TurretNotModeledReason,/MGZ30 post-mountable focus block includes a five-objective turret/);
  assert.equal(mgzStudy.tscopeTubeLensModel,'ITL200');
  assert.equal(mgzStudy.currentTubeLensModel,'TTL200-A');
@@ -1416,6 +1420,9 @@ try{
  assert.equal(dA.A18MGZ30VendorRMSAdaptersIncluded,5);
  assert.equal(dA.A18MGZ30VendorTurretPorts,5);
  assert.equal(dA.A18MGZ30VendorTurretThread,'M26×36 TPI');
+ assert.equal(dA.A18MGZ30FineAdjustmentCurrentUmPerRev,225);
+ assert.equal(dA.A18MGZ30FineAdjustmentRevCUmPerRev,225);
+ assert.equal(dA.A18MGZ30FineAdjustment2014CatalogUmPerRev,250);
  assert.equal(dA.A18TSCOPEVendorTubeLens,'ITL200');
  assert.equal(dA.A18CurrentTubeLensModel,'TTL200-A');
  assert.equal(dA.A18CompleteTSCOPEModelConfirmed,false);
@@ -1531,8 +1538,10 @@ try{
  assert.match(a18VendorText,/MGZ30 Focus Block（条件候选）/);
  assert.match(a18VendorText,/官方T-Scope是独立完整显微镜系统/);
  assert.match(a18VendorText,/MGZ30本体包含五物镜转换盘/);
- assert.match(a18VendorText,/2012 Rev C工程图标注微调225µm\/rev/);
- assert.match(a18VendorText,/2014目录微调250µm\/rev/);
+ assert.match(a18VendorText,/现行Thorlabs产品页及2012 Rev C工程图均标注微调225µm\/rev/);
+ assert.match(a18VendorText,/2014官方目录另标250µm\/rev/);
+ assert.match(a18VendorText,/候选模型采用225µm\/rev作为现行规格参考/);
+ assert.match(a18VendorText,/Thorlabs MGZ30现行产品页/);
  assert.match(a18VendorText,/Volition CAD下载入口（DXF\/SolidWorks\/STEP）/);
  assert.match(a18VendorText,/文件尚未实际取得或与Thorlabs工程图比对/);
  assert.match(a18VendorText,/LYLIGHT FR5025CF（高优先级结构候选，非型号确认）/);

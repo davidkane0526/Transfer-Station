@@ -1,5 +1,13 @@
 # Transfer Station
 
+## V152 · MGZ30 微调规格版本复核
+
+- 现行 Thorlabs MGZ30 产品页与 2012 Rev C 工程图均标注 **225 µm/rev**；Volition 产品资料页也列出 225 µm/rev。
+- 2014 Thorlabs 官方目录另标 **250 µm/rev**，作为历史目录差异保留，不再把它当作现行规格。
+- 候选数据、用户可见 A18 厂商对照、BOM 备注和自动化探针统一记录现行参考值 225 µm/rev，同时保留 250 µm/rev 历史值。
+- 不改变默认显微镜几何；MGZ30 仍是条件候选。
+- [V152 MGZ30 微调规格审计](docs/V152_MGZ30_FINE_ADJUSTMENT_SPEC_AUDIT.md)
+
 ## V151 · MGZ30 CAD 文件来源补充
 
 - 找到 Volition 的 MGZ30 产品资料页，页面列出 AutoCAD DXF、SolidWorks 和 STEP 格式的 CAD 下载项。
