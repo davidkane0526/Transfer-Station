@@ -1,52 +1,42 @@
-# V152 · MGZ30 微调规格版本审计
+# V152 · MGZ30 微调规格来源审计（更正后）
 
 日期：2026-11-13。
 
-## 1. 现行产品资料
+## 1. 可核验来源
 
-Thorlabs 现行 MGZ30 产品页列出：
-- Z 轴行程：30 mm
-- 粗调：40 mm/rev
-- 微调：225 µm/rev
-- 立柱安装：Ø1.5 in（38.1 mm）
-- 内置五物镜转换盘，M26 × 36 TPI 接口，随附五个 RMSA7 转接件
+| 资料 | 微调值 | 来源等级与处理 |
+|---|---:|---|
+| Thorlabs 2012 Rev C 工程图 | 225 µm/rev | Thorlabs 原厂图纸，标题栏标明 Rev C、2012-08-14 |
+| Volition MGZ30 产品资料页 | 225 µm/rev | 第三方产品资料页，作为交叉核对，不等同于 Thorlabs 现行官方规格 |
+| Thorlabs 2014 官方目录 | 250 µm/rev | Thorlabs 官方历史目录 |
+| Thorlabs 现行 MGZ30 商品页 | 未公布 | 可访问页面列出产品、包装重量及 CAD 文档入口，但未显示微调数值 |
 
 来源：
-- [Thorlabs MGZ30 现行产品页](https://www.thorlabs.com/thorproduct.cfm?partnumber=MGZ30)
+- [Thorlabs MGZ30 现行商品页](https://www.thorlabs.com/thorproduct.cfm?partnumber=MGZ30)
+- [Thorlabs 2012 Rev C 工程图](https://oxxius.ru/upload/iblock/645/z5e9spl0ippo9o526roo4qt3zxyzg0bk/21618_E0W.pdf)
 - [Volition MGZ30 产品资料页](https://www.govolition.com/product/V40-MGZ30)
+- [Thorlabs 2014 官方目录](https://www.thorlabs.com/catalogpages/v21/1739.pdf)
 
-## 2. 历史资料差异
+## 2. 当前结论
 
-| 资料 | 微调规格 | 处理 |
-|---|---:|---|
-| Thorlabs 2012 Rev C 工程图 | 225 µm/rev | 与现行产品页一致 |
-| Thorlabs 现行产品页 | 225 µm/rev | 当前候选参数参考 |
-| Volition 产品资料页 | 225 µm/rev | 第三方页面，作为交叉核对 |
-| Thorlabs 2014 官方目录 | 250 µm/rev | 保留为历史目录差异 |
+**MGZ30 微调规格的现行值尚未核定。**
 
-2014 目录的 250 µm/rev 与其余三项资料不一致。当前没有证据说明这是型号变更、版本变更还是目录录入差异，因此不推测原因，也不将两项数值平均或混用。
+2012 Rev C 工程图与 Volition 第三方资料页均列出 225 µm/rev；2014 Thorlabs 官方目录列出 250 µm/rev。Thorlabs 现行商品页没有公布微调数值，因此不能据其商品页认定 225 µm/rev 为现行规格，也不能把 250 µm/rev 直接判定为过时规格。
 
-## 3. 对模型与 BOM 的处理
+当前不推测差异原因，不取平均值，不在模型中指定单一现行值。
 
-- MGZ30 条件候选的现行微调参数统一记录为 225 µm/rev。
-- 250 µm/rev 仅作为 2014 历史目录值保留。
-- 用户可见 A18 候选对照、工程探针、BOM 备注和自动化测试同步记录两个值及其来源。
-- 不据此修改任何默认显微镜外形、支架、轴线、接口或 A10/A18 零件边界。
-- MGZ30 仍未被确认为实机型号；其五孔转换盘几何也尚未取得并验证原厂 CAD。
+## 3. 数据结构处理
 
-## 4. 下一步结构核对顺序
+- fineAdjustmentRevCUmPerRev = 225
+- fineAdjustmentVolitionListingUmPerRev = 225
+- fineAdjustment2014CatalogUmPerRev = 250
+- fineAdjustmentOfficialCurrentPagePublishesValue = false
+- fineAdjustmentVersionResolved = false
 
-1. 获取并核验 MGZ30 原厂 STEP/DXF 文件，检查后部 Ø1.5 in 立柱夹持、焦块后壳、五孔转换盘及上部 dovetail 接口。
-2. 与照片 191–193 的机身轮廓、调焦旋钮、A10 后支撑和两支可见物镜进行同视角比对。
-3. 在确认实机柱径与 A10/A18 分缝后，再决定是否替换默认模型几何。
+候选数据、A18 说明、BOM 备注和自动化探针均保留上述来源及未决状态。任何一项都不作为默认装配的几何约束。
 
-**V152 只修正厂商规格的现行/历史版本归属，不修改默认装配。**
+## 4. 后续核实方式
 
+需由 Thorlabs 针对 MGZ30 当前生产版本确认微调每转行程，并说明 2012 Rev C 图纸与 2014 目录数值差异。未取得厂商确认前，保持规格未决。
 
-## V153 补充：工程图尺寸边界与 A19 转盘差异
-
-Thorlabs 2012 Rev C 工程图标注 4×4-40 UNC 安装孔、五个 M26×36 TPI 物镜接口、五个 RMS 转接件，并列出多个尺寸调用值。图纸明确注明“仅供信息参考，不可用于制造”，且括号尺寸可能存在计算/舍入误差。因此只记录为候选识别依据，不将未映射尺寸写入默认几何约束。
-
-MGZ30 原厂五位置转盘与 A19 当前仅绘制两个可见通孔之间存在未解决差异。当前两孔照片拟合不是已确认的两位置转盘，亦不能直接替代 MGZ30 五位置转盘。
-
-图纸标题栏约重 4.55kg；现行产品页列出的约 1.79kg 是包装重量，二者定义不同，未用于模型质量估算。
+**本审计只修正来源归属，不改变 A18/A19 默认几何。**

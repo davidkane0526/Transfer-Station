@@ -8,12 +8,19 @@
 - 增加 MGZ30 原厂产品图链接作为候选对照；不改变默认几何。
 - [V153 MGZ30 工程图与 A19 转盘审计](docs/V153_MGZ30_DRAWING_AND_A19_TURRET_AUDIT.md)
 
+## V154 · 更正 MGZ30 微调规格证据归属
+
+- 更正 V152 的过度表述：Thorlabs 现行 MGZ30 商品页没有公布微调数值，不能称其确认 225 µm/rev。
+- 2012 Rev C 工程图为 225 µm/rev；Volition 第三方资料页也列 225 µm/rev；Thorlabs 2014 官方目录为 250 µm/rev。
+- 现行规格暂不判定，候选数据库和 BOM 保留两个来源值，不再把 225 标记为当前值。
+- [V154 证据来源更正记录](docs/V154_MGZ30_FINE_SPEC_SOURCE_CORRECTION.md)
+
 ## V152 · MGZ30 微调规格版本复核
 
-- 现行 Thorlabs MGZ30 产品页与 2012 Rev C 工程图均标注 **225 µm/rev**；Volition 产品资料页也列出 225 µm/rev。
-- 2014 Thorlabs 官方目录另标 **250 µm/rev**，作为历史目录差异保留，不再把它当作现行规格。
-- 候选数据、用户可见 A18 厂商对照、BOM 备注和自动化探针统一记录现行参考值 225 µm/rev，同时保留 250 µm/rev 历史值。
-- 不改变默认显微镜几何；MGZ30 仍是条件候选。
+- 2012 Rev C 工程图标注 **225 µm/rev**；Volition 第三方资料页也列出 225 µm/rev。
+- Thorlabs 2014 官方目录标注 **250 µm/rev**。
+- Thorlabs 现行 MGZ30 商品页未公布微调数值，因此当前规格未决，不把 225 µm/rev 标记为现行规格。
+- 候选数据库、A18 对照、BOM 和自动化探针保留上述来源差异，不将其写入默认几何。
 - [V152 MGZ30 微调规格审计](docs/V152_MGZ30_FINE_ADJUSTMENT_SPEC_AUDIT.md)
 
 ## V151 · MGZ30 CAD 文件来源补充
