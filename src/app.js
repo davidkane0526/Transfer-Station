@@ -806,6 +806,11 @@ window.__modelAPhoto194Probe=()=>{
      A18FineKnobCount:a18Fine.length,
      A18FocusChainGapsMm:a18FocusGaps,
      A18FocusChainsContinuous:a18FocusChainsContinuous,
+     // V163: expose the already-stored candidate dimensions through this probe.
+     // Tests and the UI audit must read the same model metadata, not undefined.
+     A18CoarseKnobDiameterCandidateMm:gA18.userData.A18CoarseKnobDiameterCandidateMm,
+     A18FineKnobDiameterCandidateMm:gA18.userData.A18FineKnobDiameterCandidateMm,
+     A18KnobDimensionsMeasured:Boolean(gA18.userData.A18KnobDimensionsMeasured),
      A18PhotoBodyCenterOffsetFromOpticalAxisMm:gA18.userData.photoBodyCenterOffsetFromOpticalAxisMm,
      A18PhotoBodyCenterOffsetMeasured:Boolean(gA18.userData.photoBodyCenterOffsetMeasured),
      A18BodyCenteredOnOpticalAxis:Boolean(gA18.userData.bodyCenteredOnOpticalAxis),
