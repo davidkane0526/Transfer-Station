@@ -1200,6 +1200,59 @@ try{
  assert.equal(mgzRestored.currentSeparateBoomVisible,true);
  assert.equal(mgzRestored.currentPhotoFitBodyVisible,true);
 
+
+ // V157: LYLIGHT FR5025CF integrated E-arm topology study.
+ // The study uses a 112 mm photo-fit center distance, while preserving the
+ // vendor's 165/135 mm callouts as unresolved reference values.
+ assert.equal(await page.locator('#btn-a18-lylight-study').isVisible(),true);
+ await page.locator('#btn-a18-lylight-study').click();
+ await page.waitForTimeout(220);
+ const lylightStudy=await page.evaluate(()=>window.__A18LYLIGHTStudyProbe?.());
+ console.log('V157 A18 LYLIGHT FR5025CF topology study:',JSON.stringify(lylightStudy));
+ assert.equal(lylightStudy?.available,true);
+ assert.equal(lylightStudy.studyVisible,true);
+ assert.equal(lylightStudy.installedByDefault,false);
+ assert.equal(lylightStudy.exactVendorGeometry,false);
+ assert.equal(lylightStudy.nativeCADRetrieved,false);
+ assert.equal(lylightStudy.manufacturerIdentityConfirmed,false);
+ assert.equal(lylightStudy.integratedEArmTopology,true);
+ assert.equal(lylightStudy.integratedArmCount,1);
+ assert.equal(lylightStudy.postBoreDiameterMm,25);
+ assert.equal(lylightStudy.postHoleThrough,true);
+ assert.equal(lylightStudy.scopeHolderInnerDiameterMm,50);
+ assert.equal(lylightStudy.fineAdjustmentAccuracyMm,0.02);
+ assert.equal(lylightStudy.coarseKnobCount,2);
+ assert.equal(lylightStudy.fineKnobCount,2);
+ assert.equal(lylightStudy.vendorProductImageCenterDistanceCalloutMm,165);
+ assert.equal(lylightStudy.vendorFullStandIllustrationCalloutMm,135);
+ assert.equal(lylightStudy.vendorCenterDistanceDatumResolved,false);
+ assert.equal(lylightStudy.scenePhotoFitPostToOpticalAxisMm,112);
+ assert.equal(lylightStudy.scenePhotoFitDistanceMeasured,false);
+ assert(Math.abs(lylightStudy.postRingCenterDistanceXZMm-112)<0.1);
+ assert.equal(lylightStudy.vendor165MinusScenePhotoFitMm,53);
+ assert.equal(lylightStudy.vendor135MinusScenePhotoFitMm,23);
+ assert(Math.abs(lylightStudy.ringOpticalAxisOffsetXZMm)<0.1);
+ assert.equal(lylightStudy.currentScenePostDiameterCandidateMm,26);
+ assert.equal(lylightStudy.currentScenePostDiameterMeasured,false);
+ assert.equal(lylightStudy.nominalPostHoleInterferenceMm,1);
+ assert.equal(lylightStudy.postHoleOpen,true);
+ assert.equal(lylightStudy.sceneBoomVisible,false);
+ assert.equal(lylightStudy.photoFitBodyVisible,false);
+ assert.equal(lylightStudy.A08Visible,false);
+ assert.equal(lylightStudy.A19Visible,false);
+ assert(Math.abs(lylightStudy.projection.centerX)<.35&&Math.abs(lylightStudy.projection.centerY)<.35);
+ {
+   const box=await page.locator('#viewer').boundingBox();assert(box);
+   await page.screenshot({path:'Transfer-Station-A-V157-LYLIGHT-FR5025CF-Study.png',
+     clip:{x:box.x,y:box.y,width:box.width,height:box.height},
+     animations:'disabled',timeout:30000});
+ }
+ await page.locator('#btn-a18-lylight-study').click();
+ const lylightRestored=await page.evaluate(()=>window.__A18LYLIGHTStudyProbe?.());
+ assert.equal(lylightRestored.studyVisible,false);
+ assert.equal(lylightRestored.currentSeparateBoomVisible,true);
+ assert.equal(lylightRestored.currentPhotoFitBodyVisible,true);
+
  // V155: Olympus BXFM-F drawing-constrained study. It remains a separate
  // candidate view and never replaces the installed photo-fit geometry.
  assert.equal(await page.locator('#btn-a18-bxfm-study').isVisible(),true);

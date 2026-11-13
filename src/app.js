@@ -4085,6 +4085,93 @@ function platformA(){
    mgz30Study.userData.vendorDirectPostDiameterMm=38.1;
    mgz30Study.userData.currentScenePostDiameterMm=26;
    g.userData.MGZ30FamilyTopologyStudyGroup=mgz30Study;
+
+   // V157: LYLIGHT FR5025CF integrated E-arm topology study.
+   // Family-level reconstruction from the vendor product image and stated
+   // interfaces; NOT OEM CAD and NOT an installed/identified model.
+   // The 112 mm scene distance remains a photo-fit candidate; vendor 165/135
+   // callouts are preserved but not forced into the geometry.
+   const lylightStudy=new THREE.Group();
+   lylightStudy.name='A18_LYLIGHT_FR5025CF_INTEGRATED_EARM_STUDY';
+   lylightStudy.visible=false;g.add(lylightStudy);
+   const lylightBody=add(lylightStudy,plate(82,62,48,mats.dark,[[0,0,12.5]]));
+   lylightBody.position.set(0,-24,-112);
+   lylightBody.userData.LYLIGHTFR5025CFFocusHousing=true;
+   lylightBody.userData.LYLIGHTFR5025CFPostBoreDiameterMm=25;
+   lylightBody.userData.LYLIGHTFR5025CFPostBoreThrough=true;
+   const armRiseMm=49,armRunMm=112,armLengthMm=Math.hypot(armRiseMm,armRunMm);
+   const integratedArm=add(lylightStudy,cub(42,18,armLengthMm,mats.dark,
+     0,armRiseMm/2,-armRunMm/2));
+   integratedArm.rotation.x=-Math.atan2(armRiseMm,armRunMm);
+   integratedArm.userData.LYLIGHTFR5025CFIntegratedArm=true;
+   integratedArm.userData.LYLIGHTFR5025CFArmLengthPhotoFitMm=Number(armLengthMm.toFixed(2));
+   const scopeRing=add(lylightStudy,sleeve(31,25,14,mats.dark,0,49,0,'y'));
+   scopeRing.userData.LYLIGHTFR5025CFScopeRing=true;
+   scopeRing.userData.LYLIGHTFR5025CFScopeHolderInnerDiameterMm=50;
+   const ringRim=add(lylightStudy,torus(26.2,.8,mats.silver,0,49,0));
+   ringRim.rotation.x=Math.PI/2;
+   ringRim.userData.LYLIGHTFR5025CFScopeRingRim=true;
+   const ringClamp=add(lylightStudy,cyl(2.4,9,mats.silver,33,49,0,24));
+   ringClamp.rotation.z=Math.PI/2;
+   ringClamp.userData.LYLIGHTFR5025CFScopeRingClampScrew=true;
+   // The manufacturer describes large focusing knobs on both sides.
+   // Knob diameters and gear details remain visual proxies.
+   for(const sign of [-1,1]){
+     const coarse=add(lylightStudy,cyl(18,14,mats.black,sign*48,0,-112,64));
+     coarse.rotation.z=Math.PI/2;
+     coarse.userData.LYLIGHTFR5025CFCoarseKnob=sign;
+     for(let q=0;q<6;q++){
+       const ridge=add(lylightStudy,torus(17.9,.35,mats.ink,sign*(42+q*2),0,-112));
+       ridge.rotation.y=Math.PI/2;
+       ridge.userData.LYLIGHTFR5025CFCoarseKnurl=sign;
+     }
+     const fine=add(lylightStudy,cyl(10,8,mats.dark,sign*61,0,-112,56));
+     fine.rotation.z=Math.PI/2;
+     fine.userData.LYLIGHTFR5025CFFineKnob=sign;
+     const cap=add(lylightStudy,cyl(7,2.5,mats.silver,sign*66,0,-112,48));
+     cap.rotation.z=Math.PI/2;
+     cap.userData.LYLIGHTFR5025CFFineKnobCap=sign;
+   }
+   const postLock=add(lylightStudy,cyl(2.2,9,mats.silver,42,0,-112,24));
+   postLock.rotation.z=Math.PI/2;
+   postLock.userData.LYLIGHTFR5025CFPostLockScrew=true;
+   for(const x of [-29,29]){
+     const screw=add(lylightStudy,cyl(2.2,2,mats.silver,x,25,-132,24));
+     screw.userData.LYLIGHTFR5025CFCoverScrew=true;
+   }
+   lylightStudy.userData.LYLIGHTFR5025CFStudy=true;
+   lylightStudy.userData.manufacturer='LYLIGHT';
+   lylightStudy.userData.model='FR5025CF';
+   lylightStudy.userData.installedByDefault=false;
+   lylightStudy.userData.exactVendorGeometry=false;
+   lylightStudy.userData.nativeCADRetrieved=false;
+   lylightStudy.userData.manufacturerIdentityConfirmed=false;
+   lylightStudy.userData.integratedEArmTopologyFromVendorImage=true;
+   lylightStudy.userData.postBoreDiameterMm=25;
+   lylightStudy.userData.scopeHolderInnerDiameterMm=50;
+   lylightStudy.userData.fineAdjustmentAccuracyMm=0.02;
+   lylightStudy.userData.largeFocusKnobsOnBothSides=true;
+   lylightStudy.userData.vendorProductImageCenterDistanceCalloutMm=165;
+   lylightStudy.userData.vendorFullStandIllustrationCalloutMm=135;
+   lylightStudy.userData.vendorCenterDistanceDatumResolved=false;
+   lylightStudy.userData.scenePhotoFitPostToOpticalAxisMm=112;
+   lylightStudy.userData.scenePhotoFitDistanceMeasured=false;
+   lylightStudy.userData.vendor165MinusScenePhotoFitMm=53;
+   lylightStudy.userData.vendor135MinusScenePhotoFitMm=23;
+   lylightStudy.userData.currentScenePostDiameterCandidateMm=26;
+   lylightStudy.userData.currentScenePostDiameterMeasured=false;
+   lylightStudy.userData.nominalPostHoleInterferenceMm=1;
+   lylightStudy.userData.photoFitCenterDistanceApplied=true;
+   lylightStudy.userData.vendorCenterDistanceApplied=false;
+   lylightStudy.userData.vendorProductPage='https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/';
+   lylightStudy.userData.vendorSpecificationPdf='https://www.lylight.com/wp-content/uploads/2024/05/FR5025CF-coarse-and-fine-adjustment-focus-rack-LYLIGHT.pdf';
+   lylightStudy.userData.referenceProductImage='https://www.chutongelec.com/wp-content/uploads/2018/08/FR5025CF-TOP-VIEW.jpg';
+   label(lylightStudy,'FR5025CF 一体式 E-arm · 厂商拓扑候选 / 非原厂CAD',0,105,-56);
+   g.userData.LYLIGHTFR5025CFStudyGroup=lylightStudy;
+   g.userData.LYLIGHTFR5025CFStudyAvailable=true;
+   g.userData.LYLIGHTFR5025CFStudyInstalled=false;
+   g.userData.LYLIGHTFR5025CFGeometryApplied=false;
+   g.userData.LYLIGHTFR5025CFIdentityConfirmed=false;
    // V155: Olympus BXFM-F drawing-constrained comparison. Not OEM STEP,
    // not installed, and not evidence that the photographed unit is BXFM-F.
    const bxfmStudy=new THREE.Group();
@@ -4251,6 +4338,13 @@ function platformA(){
    ];
    g.userData.LYLIGHTFocusRackGeometryApplied=false;
    g.userData.LYLIGHTFocusRackCandidatePriority='high-structural';
+   g.userData.LYLIGHTFR5025CFStudyAvailable=true;
+   g.userData.LYLIGHTFR5025CFStudyInstalledByDefault=false;
+   g.userData.LYLIGHTFR5025CFStudyGeometryApplied=false;
+   g.userData.LYLIGHTFR5025CFVendorProductImageCenterDistanceMm=165;
+   g.userData.LYLIGHTFR5025CFVendorStandIllustrationCenterDistanceMm=135;
+   g.userData.LYLIGHTFR5025CFPhotoFitCenterDistanceMm=112;
+   g.userData.LYLIGHTFR5025CFVendorCenterDistanceDatumResolved=false;
    g.userData.LYLIGHTFocusRackIdentityConfirmed=false;
    g.userData.LYLIGHTIntegratedEArmMayAbsorbA10=true;
    g.userData.visible50mmScopeRingConfirmed=false;
@@ -4746,11 +4840,12 @@ function updateDetail(part){
      'data-bxfmf-applied="'+Boolean(a18?.userData.BXFMFGeometryApplied)+'" '+
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
-     '<b>A18 厂商候选矩阵（V151）</b><p>'+
-     '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认）：</b>厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、产品图标注中心距165mm及0.02mm微调精度；同一PDF的完整支架示意另标135mm。两条尺寸的端点基准未充分说明，不能直接把165mm映射为当前立柱中心至光轴距离。这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
+     '<b>A18 厂商候选矩阵（V157）</b><p>'+
+     '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认；V157新增独立E-arm对照模型）：</b>厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、产品图标注中心距165mm及0.02mm微调精度；同一PDF的完整支架示意另标135mm。两条尺寸的端点基准未充分说明，不能直接把165mm映射为当前立柱中心至光轴距离。这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
      '<a href="https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/" target="_blank" rel="noopener noreferrer">FR5025CF产品页</a> · '+
+     '<a href="https://www.chutongelec.com/wp-content/uploads/2018/08/FR5025CF-TOP-VIEW.jpg" target="_blank" rel="noopener noreferrer">FR5025CF顶部产品图</a> · '+
      '<a href="https://www.lylight.com/wp-content/uploads/2024/05/FR5025CF-coarse-and-fine-adjustment-focus-rack-LYLIGHT.pdf" target="_blank" rel="noopener noreferrer">厂商产品图/规格PDF</a>。'+
-     'FR5025CF资料不是完整尺寸工程图或原生STEP；除已标注接口和中心距外，机身外廓、臂厚、孔位和紧固结构仍未知。'+
+     'FR5025CF资料不是完整尺寸工程图或原生STEP；除已标注接口和中心距外，机身外廓、臂厚、孔位和紧固结构仍未知。V157增加“FR5025CF候选对照”独立视图：按厂商图的Ø25mm立柱孔、Ø50mm镜体环、双侧大调焦旋钮及一体式E-arm拓扑建模；臂长只采用当前照片拟合112mm候选，不把厂商产品图165mm或整机示意135mm强行映射到模型。故显示53mm/23mm中心距差异，作为待核对尺寸基准，不是型号排除结论；该模型不是原厂CAD，也不替换默认A18。'+
      '<b>LYLIGHT FR7625CF（同族变体）：</b>25mm立柱孔、76mm镜体环，采用粗/微调结构；当前公开产品页未提供可核验的中心距和微调精度。该型号用于核对环径变体，不代表照片已经确认76mm环。'+
      '<a href="https://www.lylight.com/product/focus-bracket-coarse-fine-adjustment-knob-focusing-rack-76mm25mm/" target="_blank" rel="noopener noreferrer">FR7625CF产品页</a>。'+
      '<b>候选规格汇总：</b>'+esc(lyText)+'。上述尺寸是厂商候选数据，不是本机实测。当前场景Ø26mm立柱与112mm立柱至光轴距离均未实测，不能据此直接确认或排除FR5025CF。'+
@@ -6185,8 +6280,14 @@ function _a18MGZ30StudyTargets(){
 window.__setA18MGZ30FamilyStudy=(on)=>{
  if(platform!=='A')return false;
  const q=_a18MGZ30StudyTargets();if(!q)return false;
+ if(on){
+   window.__setA18LYLIGHTStudy?.(false);
+   window.__setA18BXFMFStudy?.(false);
+ }
  const bxfm=q.a18.children.find(o=>o.userData.BXFMFDrawingStudy);
+ const lylight=q.a18.children.find(o=>o.userData.LYLIGHTFR5025CFStudy);
  if(on&&bxfm)bxfm.visible=false;
+ if(on&&lylight)lylight.visible=false;
  if(on)for(const id of ['A08','A19','A20']){const p=parts.get(id);if(p)p.g.visible=true;}
  q.a18.children.filter(o=>o.isMesh).forEach(o=>o.visible=!on);
  q.study.visible=Boolean(on);
@@ -6261,6 +6362,109 @@ window.__A18MGZ30FamilyStudyProbe=()=>{
    projection:_auditProjection(_auditBoxFor([q.study]))
  };
 };
+
+function _a18LYLIGHTStudyTargets(){
+ const a18=parts.get('A18')?.g,a10=parts.get('A10')?.g;
+ if(!a18||!a10)return null;
+ const study=a18.children.find(o=>o.userData.LYLIGHTFR5025CFStudy);
+ const body=study?.children.find(o=>o.userData.LYLIGHTFR5025CFFocusHousing);
+ const arm=study?.children.find(o=>o.userData.LYLIGHTFR5025CFIntegratedArm);
+ const ring=study?.children.find(o=>o.userData.LYLIGHTFR5025CFScopeRing);
+ const post=a10.children.find(o=>o.userData.A10FixedOpticalPost);
+ const boom=a10.userData.opticsMovingBoom?.children.find(o=>o.userData.A10BoomFrontFaceJointToA18);
+ if(!study||!body||!arm||!ring||!post||!boom)return null;
+ return {a18,a10,study,body,arm,ring,post,boom};
+}
+window.__setA18LYLIGHTStudy=(on)=>{
+ if(platform!=='A')return false;
+ const q=_a18LYLIGHTStudyTargets();if(!q)return false;
+ if(on){
+   window.__setA18MGZ30FamilyStudy?.(false);
+   window.__setA18BXFMFStudy?.(false);
+ }
+ q.a18.children.filter(o=>o.isMesh||o.isCSS2DObject).forEach(o=>o.visible=!on);
+ const mgz=q.a18.children.find(o=>o.userData.MGZ30FamilyTopologyStudy);
+ const bxfm=q.a18.children.find(o=>o.userData.BXFMFDrawingStudy);
+ if(mgz)mgz.visible=false;
+ if(bxfm)bxfm.visible=false;
+ q.study.visible=Boolean(on);
+ q.boom.visible=!on;
+ for(const id of ['A08','A09','A14','A19','A20']){
+   const p=parts.get(id);if(p)p.g.visible=!on;
+ }
+ q.a18.userData.LYLIGHTFR5025CFStudyInstalled=Boolean(on);
+ currentRoot.updateWorldMatrix(true,true);
+ return true;
+};
+window.__focusA18LYLIGHTStudy=()=>{
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ if(!window.__setA18LYLIGHTStudy(true))return false;
+ const q=_a18LYLIGHTStudyTargets(),box=_auditBoxFor([q.study]);
+ const target=box.getCenter(new THREE.Vector3());
+ camera.position.copy(target).add(new THREE.Vector3(185,95,-235));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
+};
+window.__A18LYLIGHTStudyProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a18LYLIGHTStudyTargets();if(!q)return {available:false};
+ const postPos=q.post.getWorldPosition(new THREE.Vector3());
+ const ringPos=q.ring.getWorldPosition(new THREE.Vector3());
+ const bodyBox=new THREE.Box3().setFromObject(q.body);
+ const armBox=new THREE.Box3().setFromObject(q.arm);
+ const ringBox=new THREE.Box3().setFromObject(q.ring);
+ const bodyRayOrigin=q.study.localToWorld(new THREE.Vector3(0,-60,-112));
+ const boreRay=new THREE.Raycaster(bodyRayOrigin,new THREE.Vector3(0,1,0),0,120);
+ const postHoleOpen=boreRay.intersectObject(q.body,false).length===0;
+ const coarse=q.study.children.filter(o=>o.userData.LYLIGHTFR5025CFCoarseKnob);
+ const fine=q.study.children.filter(o=>o.userData.LYLIGHTFR5025CFFineKnob);
+ const integratedArms=q.study.children.filter(o=>o.userData.LYLIGHTFR5025CFIntegratedArm);
+ const photoFitBodyVisible=q.a18.children.some(o=>o.userData.A18CurrentPhotoFitBody&&o.visible);
+ const opticalAxisWorld=new THREE.Vector3(q.a18.position.x,ringPos.y,q.a18.position.z);
+ const postRingXZ=Math.hypot(ringPos.x-postPos.x,ringPos.z-postPos.z);
+ const ringOpticalAxisXZ=Math.hypot(ringPos.x-opticalAxisWorld.x,ringPos.z-opticalAxisWorld.z);
+ const bodySize=new THREE.Vector3(),armSize=new THREE.Vector3(),ringSize=new THREE.Vector3();
+ bodyBox.getSize(bodySize);armBox.getSize(armSize);ringBox.getSize(ringSize);
+ return {
+   available:true,studyVisible:q.study.visible,
+   installedByDefault:Boolean(q.study.userData.installedByDefault),
+   exactVendorGeometry:Boolean(q.study.userData.exactVendorGeometry),
+   nativeCADRetrieved:Boolean(q.study.userData.nativeCADRetrieved),
+   manufacturerIdentityConfirmed:Boolean(q.study.userData.manufacturerIdentityConfirmed),
+   integratedEArmTopology:Boolean(q.study.userData.integratedEArmTopologyFromVendorImage),
+   integratedArmCount:integratedArms.length,
+   postBoreDiameterMm:q.study.userData.postBoreDiameterMm,
+   postHoleThrough:Boolean(q.body.userData.LYLIGHTFR5025CFPostBoreThrough),
+   scopeHolderInnerDiameterMm:q.study.userData.scopeHolderInnerDiameterMm,
+   fineAdjustmentAccuracyMm:q.study.userData.fineAdjustmentAccuracyMm,
+   coarseKnobCount:coarse.length,fineKnobCount:fine.length,
+   vendorProductImageCenterDistanceCalloutMm:q.study.userData.vendorProductImageCenterDistanceCalloutMm,
+   vendorFullStandIllustrationCalloutMm:q.study.userData.vendorFullStandIllustrationCalloutMm,
+   vendorCenterDistanceDatumResolved:Boolean(q.study.userData.vendorCenterDistanceDatumResolved),
+   scenePhotoFitPostToOpticalAxisMm:q.study.userData.scenePhotoFitPostToOpticalAxisMm,
+   scenePhotoFitDistanceMeasured:Boolean(q.study.userData.scenePhotoFitDistanceMeasured),
+   postRingCenterDistanceXZMm:Number(postRingXZ.toFixed(2)),
+   vendor165MinusScenePhotoFitMm:q.study.userData.vendor165MinusScenePhotoFitMm,
+   vendor135MinusScenePhotoFitMm:q.study.userData.vendor135MinusScenePhotoFitMm,
+   ringOpticalAxisOffsetXZMm:Number(ringOpticalAxisXZ.toFixed(2)),
+   currentScenePostDiameterCandidateMm:q.study.userData.currentScenePostDiameterCandidateMm,
+   currentScenePostDiameterMeasured:Boolean(q.study.userData.currentScenePostDiameterMeasured),
+   nominalPostHoleInterferenceMm:q.study.userData.nominalPostHoleInterferenceMm,
+   postHoleOpen,
+   sceneBoomVisible:q.boom.visible,
+   photoFitBodyVisible,
+   currentSeparateBoomVisible:q.boom.visible,
+   currentPhotoFitBodyVisible:photoFitBodyVisible,
+   A08Visible:Boolean(parts.get('A08')?.g.visible),
+   A09Visible:Boolean(parts.get('A09')?.g.visible),
+   A19Visible:Boolean(parts.get('A19')?.g.visible),
+   bodyEnvelopeMm:bodySize.toArray().map(x=>Number(x.toFixed(2))),
+   armEnvelopeMm:armSize.toArray().map(x=>Number(x.toFixed(2))),
+   ringEnvelopeMm:ringSize.toArray().map(x=>Number(x.toFixed(2))),
+   projection:_auditProjection(_auditBoxFor([q.study]))
+ };
+};
 function _a18BXFMFStudyTargets(){
  const a18=parts.get('A18')?.g,a10=parts.get('A10')?.g;
  if(!a18||!a10)return null;
@@ -6276,7 +6480,10 @@ function _a18BXFMFStudyTargets(){
 window.__setA18BXFMFStudy=(on)=>{
  if(platform!=='A')return false;
  const q=_a18BXFMFStudyTargets();if(!q)return false;
- if(on)window.__setA18MGZ30FamilyStudy?.(false);
+ if(on){
+   window.__setA18MGZ30FamilyStudy?.(false);
+   window.__setA18LYLIGHTStudy?.(false);
+ }
  q.a18.children.filter(o=>o.isMesh).forEach(o=>o.visible=!on);
  const mgz=q.a18.children.find(o=>o.userData.MGZ30FamilyTopologyStudy);if(mgz)mgz.visible=false;
  q.study.visible=Boolean(on);q.boom.visible=!on;
@@ -6371,6 +6578,8 @@ function switchPlatform(next){
    $('btn-a18-mgz-study').textContent='MGZ30候选对照';
    $('btn-a18-bxfm-study').hidden=next!=='A';
    $('btn-a18-bxfm-study').textContent='BXFM-F图纸对照';
+   $('btn-a18-lylight-study').hidden=next!=='A';
+   $('btn-a18-lylight-study').textContent='FR5025CF候选对照';
    lastAExternalCameraFit=null;
   const photoA=next==='A'&&!aWorkingPoseMode;
   $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
@@ -6537,6 +6746,7 @@ $('btn-a-external').onclick=focusAExternal;
    if(window.__focusA18MGZ30FamilyStudy?.()){
      $('btn-a18-mgz-study').textContent='恢复照片拟合';
      $('btn-a18-bxfm-study').textContent='BXFM-F图纸对照';
+     $('btn-a18-lylight-study').textContent='FR5025CF候选对照';
    }
  };
  $('btn-a18-bxfm-study').onclick=()=>{
@@ -6551,6 +6761,22 @@ $('btn-a-external').onclick=focusAExternal;
    if(window.__focusA18BXFMFStudy?.()){
      $('btn-a18-bxfm-study').textContent='恢复照片拟合';
      $('btn-a18-mgz-study').textContent='MGZ30候选对照';
+     $('btn-a18-lylight-study').textContent='FR5025CF候选对照';
+   }
+ };
+ $('btn-a18-lylight-study').onclick=()=>{
+   const state=window.__A18LYLIGHTStudyProbe?.();
+   if(state?.studyVisible){
+     if(window.__setA18LYLIGHTStudy(false)){
+       $('btn-a18-lylight-study').textContent='FR5025CF候选对照';
+       focusA18SupportAudit();
+     }
+     return;
+   }
+   if(window.__focusA18LYLIGHTStudy?.()){
+     $('btn-a18-lylight-study').textContent='恢复照片拟合';
+     $('btn-a18-mgz-study').textContent='MGZ30候选对照';
+     $('btn-a18-bxfm-study').textContent='BXFM-F图纸对照';
    }
  };
  $('btn-control-cabinet').onclick=()=>{
