@@ -4841,7 +4841,7 @@ function updateDetail(part){
      'data-boli-applied="'+Boolean(a18?.userData.BoliFocusRackGeometryApplied)+'" '+
      'data-boli76-direct-rejected="'+Boolean(a18?.userData.Boli76RingDirectIdentityRejected)+'">'+
      '<b>A18 厂商候选矩阵（V157）</b><p>'+
-     '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认；V157新增独立E-arm对照模型）：</b>厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、产品图标注中心距165mm及0.02mm微调精度；同一PDF的完整支架示意另标135mm。两条尺寸的端点基准未充分说明，不能直接把165mm映射为当前立柱中心至光轴距离。这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
+     '<b>LYLIGHT FR5025CF（高优先级结构候选，非型号确认）：</b> V157新增独立E-arm对照模型。厂商产品图展示黑色一体式粗/微调E-arm调焦架，调焦块、连接臂和镜体环属于同一机械组件。厂商资料给出25mm立柱孔、50mm镜体接口、产品图标注中心距165mm及0.02mm微调精度；同一PDF的完整支架示意另标135mm。两条尺寸的端点基准未充分说明，不能直接把165mm映射为当前立柱中心至光轴距离。这意味着当前A10横臂可能其实是A18调焦架的一部分，而不是独立采购件。'+
      '<a href="https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/" target="_blank" rel="noopener noreferrer">FR5025CF产品页</a> · '+
      '<a href="https://www.chutongelec.com/wp-content/uploads/2018/08/FR5025CF-TOP-VIEW.jpg" target="_blank" rel="noopener noreferrer">FR5025CF顶部产品图</a> · '+
      '<a href="https://www.lylight.com/wp-content/uploads/2024/05/FR5025CF-coarse-and-fine-adjustment-focus-rack-LYLIGHT.pdf" target="_blank" rel="noopener noreferrer">厂商产品图/规格PDF</a>。'+
