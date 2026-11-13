@@ -1238,6 +1238,9 @@ try{
  assert.equal(bxfmStudy.bottomPlateHoleCount,4);
  assert.equal(bxfmStudy.opticalPortDiameterCandidateMm,28);
  assert.equal(bxfmStudy.opticalPortDiameterDimensioned,false);
+ assert.equal(bxfmStudy.pillarBoreThroughBody,true);
+ assert.equal(bxfmStudy.pillarHoleThrough,true);
+ assert.equal(bxfmStudy.pillarHoleDepthSpecified,false);
  assert.equal(bxfmStudy.rearM4HolePositionsMapped,false);
  assert.equal(bxfmStudy.pillarHolePositionRegisteredToPhoto,false);
  assert.equal(bxfmStudy.sideKnobDiametersDimensioned,false);

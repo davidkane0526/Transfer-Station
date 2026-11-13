@@ -4095,6 +4095,7 @@ function platformA(){
      drawingSource:'BXFM Instructions Manual, Main Dimension Diagram, page 23',
      bodyWidthMm:84,bodySideHeightMm:80,overallFrontEnvelopeHeightMm:100,overallDepthMm:82,
      pillarMountHoleDiameterMm:32,pillarMountHoleTolerance:'H8 (+0.039/0)',
+     pillarHoleThrough:true,pillarHoleDepthSpecified:false,
      rearM8HoleCount:4,rearM8HoleDepthMm:8,rearM8PitchMm:36,
      rearM4HoleCount:4,rearM4HoleDepthMm:9,bottomM4HoleCount:4,bottomM4HoleDepthMm:7,bottomM4PitchXmm:66.2,
      focusTravelMm:30,coarseFocusMmPerRev:36,fineFocusMmPerRev:.2,weightKg:1.9,
@@ -4105,9 +4106,11 @@ function platformA(){
      geometryLimit:'Drawing-constrained envelope and interfaces; knob diameters, optical aperture and some hole coordinates remain visual/schematic, not manufacturing geometry.'
    });
    g.add(bxfmStudy);
-   const bxfmBody=add(bxfmStudy,plate(84,80,74,mats.silver,[[0,0,14]]));
-   bxfmBody.rotation.x=Math.PI/2;bxfmBody.position.z=-37;
-   bxfmBody.userData.BXFMFMainBody=true;bxfmBody.userData.drawingEnvelopeMm=[84,80,74];
+   const bxfmBody=add(bxfmStudy,plate(84,74,80,mats.silver,[[0,0,16]]));
+   bxfmBody.position.y=-40;
+   bxfmBody.userData.BXFMFMainBody=true;
+   bxfmBody.userData.BXFMFPillarBoreThroughBody=true;
+   bxfmBody.userData.drawingEnvelopeMm=[84,80,74];
    const bxfmFront=add(bxfmStudy,plate(84,100,4,mats.silver,[[0,0,14]]));
    bxfmFront.rotation.x=Math.PI/2;bxfmFront.position.z=37;
    bxfmFront.userData.BXFMFFrontOpticalPlate=true;bxfmFront.userData.opticalApertureDiaCandidateMm=28;
@@ -4125,8 +4128,8 @@ function platformA(){
    bxfmBottom.position.y=-44;bxfmBottom.userData.BXFMFBottomMountPlate=true;
    bxfmBottom.userData.BXFMFBottomM4HoleCount=4;bxfmBottom.userData.BXFMFPillarHoleDiaMm=32;
    bxfmBottom.userData.BXFMFPillarHolePositionSchematic=true;
-   const bxfmTop=add(bxfmStudy,plate(84,74,4,mats.silver));bxfmTop.position.y=40;
-   bxfmTop.userData.BXFMFTopCover=true;
+   const bxfmTop=add(bxfmStudy,plate(84,74,4,mats.silver,[[0,0,16]]));bxfmTop.position.y=40;
+   bxfmTop.userData.BXFMFTopCover=true;bxfmTop.userData.BXFMFPillarHoleDiaMm=32;
    const bxfmOpticalRim=add(bxfmStudy,sleeve(16,14,4,mats.dark,0,0,41,'z'));
    bxfmOpticalRim.userData.BXFMFOpticalPortCandidate=true;
    const bxfmPillarRim=add(bxfmStudy,sleeve(18,16,4,mats.dark,0,-44,0,'y'));
@@ -4761,7 +4764,7 @@ function updateDetail(part){
      '<b>A19转换盘关键差异：</b>照片拟合模型目前只绘制两个可见物镜通孔；这不是已经确认的两位置转盘。MGZ30原厂结构为五位置转盘，二者目前存在未解决的孔位数量差异。低清照片无法确认其余三个位置是否被遮挡、为空位或属于其他结构，必须通过转换盘底视图或原厂CAD核实，不能将当前两孔模型当成MGZ30完整转盘。'+
      'MGZ30后部立柱夹持壳体与调焦块一体，若实机为MGZ30，A10独立横臂可能属于A18后壳。'+
      '<b>MGZ30与完整T-Scope的区别：</b>五物镜盘是MGZ30本体的厂商特征，不是T-Scope专属；官方T-Scope是独立完整显微镜系统，配套ITL200管镜。当前A08按TTL200-A建模，因此不能将现有整套光学组件直接认定为T-Scope。现有MGZ30研究网格尚未重建五孔盘的精确几何，不能称为原厂CAD复刻。'+
-     '<b>Olympus/Evident BXFM-F（次候选）：</b>原厂手册第23页提供正、侧、后、底四视图。图纸标注主体宽84mm、侧视高度80mm、正视包络高度100mm、总深度82mm、Ø32H8立柱孔、后部4-M8深8mm、后部4-M4深9mm、底部4-M4深7mm；调焦行程30mm，粗调36mm/rev，微调0.2mm/rev。已建立独立图纸对照模型，但不是原厂STEP，旋钮直径、光学孔径及部分孔位仍是示意。当前场景Ø26mm立柱不能直接视为与Ø32H8孔完成配合；实机身份仍未确认。'+
+     '<b>Olympus/Evident BXFM-F（次候选）：</b>原厂手册第23页提供正、侧、后、底四视图。图纸标注主体宽84mm、侧视高度80mm、正视包络高度100mm、总深度82mm、Ø32H8立柱孔、后部4-M8深8mm、后部4-M4深9mm、底部4-M4深7mm；调焦行程30mm，粗调36mm/rev，微调0.2mm/rev。已建立独立图纸对照模型，但不是原厂STEP，旋钮直径、光学孔径及部分孔位仍是示意。当前场景Ø26mm立柱不能直接视为与Ø32H8孔完成配合；实机身份仍未确认。84mm宽度吻合不能作为型号证明。'+
      '<a href="https://arstek.ru/upload/medialibrary/documents/instruktsii-po-ekspluatatsii/olympus/BX-FM_GB_18.02.2010.pdf" target="_blank" rel="noopener noreferrer">BXFM-F原厂尺寸图手册（第23页）</a> · '+
      '<a href="https://evidentscientific.com/zh/products/upright/bxfm" target="_blank" rel="noopener noreferrer">Evident BXFM产品页</a> · '+
      '<a href="https://adobeassets.evidentscientific.com/content/dam/mis/bxfm/manuals/AX8562_07_BXFM_Inst_E.pdf" target="_blank" rel="noopener noreferrer">Evident官方使用手册</a> · '+
@@ -6314,6 +6317,9 @@ window.__A18BXFMFStudyProbe=()=>{
    bottomPlateHoleCount:q.bottom.userData.BXFMFBottomM4HoleCount,
    opticalPortDiameterCandidateMm:q.study.userData.opticalPortDiameterCandidateMm,
    opticalPortDiameterDimensioned:Boolean(q.study.userData.opticalPortDiameterDimensioned),
+   pillarBoreThroughBody:Boolean(q.body.userData.BXFMFPillarBoreThroughBody),
+   pillarHoleThrough:Boolean(q.study.userData.pillarHoleThrough),
+   pillarHoleDepthSpecified:Boolean(q.study.userData.pillarHoleDepthSpecified),
    rearM4HolePositionsMapped:Boolean(q.study.userData.rearM4HolePositionsMapped),
    pillarHolePositionRegisteredToPhoto:Boolean(q.study.userData.pillarHolePositionRegisteredToPhoto),
    sideKnobDiametersDimensioned:Boolean(q.study.userData.sideKnobDiametersDimensioned),
