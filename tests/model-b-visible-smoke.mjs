@@ -1625,6 +1625,9 @@ try{
  assert.equal(dA.A18MGZ30FineAdjustmentOfficialCurrentPagePublishesValue,false);
  assert.equal(dA.A18MGZ30FineAdjustmentVersionResolved,false);
  assert.equal(dA.A18MGZ30VendorDrawingMountingHoleCount,4);
+ assert.equal(dA.A18CoarseKnobDiameterCandidateMm,28);
+ assert.equal(dA.A18FineKnobDiameterCandidateMm,16);
+ assert.equal(dA.A18KnobDimensionsMeasured,false);
  assert.equal(dA.A18MGZ30VendorDrawingMountingHoleThread,'4-40 UNC');
  assert.deepEqual(dA.A18MGZ30VendorDrawingCalloutsUnmappedMm,[185,30,202.2,80,57.8,268.7,73.7,68,291.7,100.2,130]);
  assert.equal(dA.A18MGZ30VendorDrawingApproxWeightKg,4.55);

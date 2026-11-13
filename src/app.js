@@ -4113,16 +4113,33 @@ function platformA(){
      g.userData.A18FocusBlockSetbackMeasured=false;
     g.userData.A18OpticalThroughBoreMeasured=false;
    for(const sign of [-1,1]){
-     const hub=add(g,cyl(9,12,mats.dark,bodyX+sign*45,0,focusBodyDepthZ,64));
-     hub.rotation.z=Math.PI/2;hub.userData.A18FocusHub=sign;
-     const coarse=add(g,cyl(18,14,mats.black,bodyX+sign*56,0,focusBodyDepthZ,64));
-     coarse.rotation.z=Math.PI/2;coarse.userData.A18CoarseFocusKnob=sign;
-     const fine=add(g,cyl(11,8,mats.dark,bodyX+sign*67,0,focusBodyDepthZ,64));
-     fine.rotation.z=Math.PI/2;fine.userData.A18FineFocusKnob=sign;
-     for(let q=0;q<6;q++){
-       const ring=add(g,torus(18.08,.24,mats.ink,bodyX+sign*(50.5+q*2.3),0,focusBodyDepthZ));
-       ring.rotation.y=Math.PI/2;ring.userData.A18CoarseFocusKnurl=sign;
+     const hub=add(g,cyl(7.5,8,mats.dark,bodyX+sign*43,0,focusBodyDepthZ,64));
+     hub.rotation.z=Math.PI/2;
+     hub.userData.A18FocusHub=sign;
+     hub.userData.A18FocusHubDiameterCandidateMm=15;
+     // The previous Ø36 x 14mm drum and six widely spaced torus rings
+     // read as a long ribbed tube in the close-up render. The photo only
+     // supports a compact side adjuster silhouette, not that oversized drum.
+     // Reduce the coarse handwheel to Ø28 x 10mm and use narrow, close-set
+     // knurl bands. Dimensions remain visual candidates pending a ruler view.
+     const coarse=add(g,cyl(14,10,mats.black,bodyX+sign*52,0,focusBodyDepthZ,64));
+     coarse.rotation.z=Math.PI/2;
+     coarse.userData.A18CoarseFocusKnob=sign;
+     coarse.userData.A18CoarseFocusKnobDiameterCandidateMm=28;
+     coarse.userData.A18CoarseFocusKnobWidthCandidateMm=10;
+     const fine=add(g,cyl(8,7,mats.dark,bodyX+sign*60.5,0,focusBodyDepthZ,64));
+     fine.rotation.z=Math.PI/2;
+     fine.userData.A18FineFocusKnob=sign;
+     fine.userData.A18FineFocusKnobDiameterCandidateMm=16;
+     fine.userData.A18FineFocusKnobWidthCandidateMm=7;
+     for(let q=0;q<5;q++){
+       const ring=add(g,torus(14.12,.18,mats.ink,bodyX+sign*(48+q*1.8),0,focusBodyDepthZ));
+       ring.rotation.y=Math.PI/2;
+       ring.userData.A18CoarseFocusKnurl=sign;
      }
+     const endCap=add(g,cyl(5.2,2.2,mats.silver,bodyX+sign*65,0,focusBodyDepthZ,48));
+     endCap.rotation.z=Math.PI/2;
+     endCap.userData.A18FineFocusEndCap=sign;
    }
    // V111: hidden manufacturer-FAMILY topology study. It does NOT replace
    // the installed photo-fit A18. The study keeps the current photo-fit
@@ -4475,6 +4492,10 @@ function platformA(){
    g.userData.MGZ30FamilyTopologyStudyExactVendorGeometry=false;
    g.userData.microscopeHeadModelUnverified=true;
    g.userData.focusKnobPairCount=2;
+   g.userData.A18FocusKnobScaleRevision='V160 compact handwheel; previous Ø36mm drum reduced to Ø28mm candidate';
+   g.userData.A18CoarseKnobDiameterCandidateMm=28;
+   g.userData.A18FineKnobDiameterCandidateMm=16;
+   g.userData.A18KnobDimensionsMeasured=false;
    g.userData.removedUnsupportedHorizontalTube=true;
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
