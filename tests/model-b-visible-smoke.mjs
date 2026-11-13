@@ -1716,7 +1716,7 @@ try{
  assert.equal(fr7625.centerDistanceMm,null);
  assert.equal(fr7625.fineAdjustmentAccuracyMm,null);
  assert.equal(dA.A18LYLIGHTFocusRackGeometryApplied,false);
- assert.equal(dA.A18LYLIGHTFocusRackCandidatePriority,'high-structural');
+ assert.equal(dA.A18LYLIGHTFocusRackCandidatePriority,'high-dimensional-candidate');
  assert.equal(dA.A18LYLIGHTFocusRackIdentityConfirmed,false);
  assert.equal(dA.A18LYLIGHTIntegratedEArmMayAbsorbA10,true);
  assert.equal(dA.A18FullFivePortTurretConfirmed,false);
