@@ -223,7 +223,45 @@ jobs:
             echo "enabled=false" >> "$GITHUB_OUTPUT"
             echo "::notice::Enable GitHub Pages: Settings > Pages > Source = GitHub Actions, then rerun this workflow."
           fi
-      - name: Upload downloadable source package
+      - name: Build and verify portable COMPLETE project ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          git archive --format=zip --output=Transfer-Station-Complete-Source.zip HEAD
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile
+          path=Path('Transfer-Station-Complete-Source.zip')
+          required={
+            '.github/workflows/pages.yml',
+            '.github/workflows/build-cad.yml',
+            '.github/workflows/deep-browser-qa.yml',
+            '.github/workflows/audit-vendor-cad.yml',
+            '.gitignore','README.md','index.html','photo-review.html',
+            'src/app.js','src/parts.js',
+            'cad/build_assemblies.py','cad/validate_interfaces.py',
+            'tests/model-b-visible-smoke.mjs','assets/photos/191.webp',
+            'assets/photos/192.webp','assets/photos/193.webp',
+          }
+          with zipfile.ZipFile(path) as z:
+            names=z.namelist()
+            assert len(names)==len(set(names)), 'Duplicate ZIP paths'
+            assert required<=set(names), 'Incomplete project ZIP: '+str(sorted(required-set(names)))
+            assert z.testzip() is None, 'ZIP CRC failure'
+            assert not any(n.startswith(('.git/','node_modules/','build/')) for n in names), 'Generated files in source ZIP'
+            print(f'Complete ZIP verified: {len(names)} entries, {path.stat().st_size} bytes')
+          PY
+          sha256sum Transfer-Station-Complete-Source.zip > Transfer-Station-Complete-Source.zip.sha256
+      - name: Upload full project archive (not just the viewer)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Transfer-Station-Complete-Source
+          path: |
+            Transfer-Station-Complete-Source.zip
+            Transfer-Station-Complete-Source.zip.sha256
+          retention-days: 90
+          if-no-files-found: error
+      - name: Upload downloadable interactive viewer package
         uses: actions/upload-artifact@v4
         with:
           name: Transfer-Station-Interactive-Viewer
