@@ -1518,6 +1518,46 @@ try{
   assert(opticsRaised.boomHousingMatingFaceAreaMm2>=800,
     'A10 joint must be a physical face, not a zero-area contact');
  assert.equal(opticsRaised.supportBoomCandidatePostBoreDiameterMm,26.6);
+ const wdr=await page.evaluate(()=>window.__modelAOpticalReferenceProbe?.());
+ assert.equal(wdr?.available,true);
+ assert.deepEqual(wdr.cameraProxyToLensDistanceMm,[60,105]);
+ assert.equal(wdr.drawingReferenceWorkingDistanceMm,148);
+ assert.equal(wdr.distributorWorkingDistanceMm,151.8);
+ assert.equal(wdr.minimumReferenceShortfallWithinCameraProxyMm,43);
+ assert.equal(wdr.manufacturerReferenceOutsideCameraProxy,true);
+ assert.equal(wdr.sensorPlaneMeasured,false);
+ assert.equal(wdr.opticalImageFormationCertified,false);
+ const mount=await page.evaluate(()=>window.__modelAA10A18BoundaryProbe?.());
+ assert.equal(mount?.available,true);
+ assert.equal(mount.boomToHousingFaceGapMm,0);
+ assert.equal(mount.boomHousingAabbOverlapMm3,0);
+ assert.equal(mount.faceContactOnly,true);
+ assert.equal(mount.A10A18PhysicalPartBoundaryVerified,false);
+ assert.equal(mount.safeForFabrication,false);
+ assert.equal(await page.locator('#btn-a-optical-spacing').isVisible(),true);
+ await page.locator('#btn-a-optical-spacing').click();
+ assert.equal((await page.evaluate(()=>window.__modelAOpticalReferenceProbe?.())).onlyTechnicalReferenceOverlayVisible,true);
+ assert.equal((await page.evaluate(()=>window.__modelAOpticalReferenceProbe?.())).referenceOverlayIsPhysicalPart,false);
+ assert.equal(await page.locator('#a-optical-reference-summary').getAttribute('data-shortfall'),'43');
+ assert.equal(await page.locator('#a-optical-reference-summary').getAttribute('data-certified'),'false');
+ assert.match(await page.locator('#a-optical-reference-summary').innerText(),/参考像面不在当前相机外壳代理范围内/);
+ await page.locator('#viewer').screenshot({path:'Transfer-Station-A-V169-Optical-Reference-Plane.png',animations:'disabled',timeout:30000});
+ await page.locator('#a-optical-reference-summary').screenshot({path:'Transfer-Station-A-V169-Optical-Reference-Detail.png',animations:'disabled',timeout:30000});
+ // Close nonphysical reference overlay before the rest of the scene audits.
+ await page.locator('#btn-a-optical-spacing').click();
+ assert.equal((await page.evaluate(()=>window.__modelAOpticalReferenceProbe?.())).onlyTechnicalReferenceOverlayVisible,false);
+ await page.locator('#btn-a18-optical').click();
+ await page.locator('#btn-a18-support').click();
+ await page.locator('#open-bom').click();
+ await page.locator('#bom-query').fill('A10');
+ const a10Row=page.locator('#bom-body tr').filter({hasText:/^\s*A10\b/});
+ assert.equal(await a10Row.count(),1);
+ await a10Row.click();
+ await page.locator('#close-bom').click();
+ assert.equal(await page.locator('#a10-a18-interface-summary').getAttribute('data-verified'),'false');
+ await page.locator('#a10-a18-interface-summary').screenshot({path:'Transfer-Station-A-V169-A10A18-Interface-Detail.png',animations:'disabled',timeout:30000});
+ // Return to the normal A18 view and clear selection for later screenshot QA.
+ await page.locator('#btn-a18-optical').click();
  assert.equal(opticsRaised.actualParkingLiftMm,18);
  assert.equal(opticsRaised.opticPartIds.length,7);
  assert.equal(opticsRaised.currentBroadphaseCollisions.length,0,

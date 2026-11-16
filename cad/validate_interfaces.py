@@ -1602,6 +1602,31 @@ check(a_optical_tube.intersect(a_lens).Volume()<1e-3,
       'V166 candidate A14 cannot penetrate OEM housing')
 check(abs(a_cam.BoundingBox().zmin-a_optical_tube.BoundingBox().zmax)<.02,
       'A camera candidate underside must touch SM2 sleeve envelope')
+# V169: this is a LIMITATION audit, not permission to assume a C-mount sensor.
+# OEM TTN116903 Rev B specifies reference working distance 148mm; a
+# distributor lists 151.8mm. The A09 45mm body is a PHOTO-FIT BOX only.
+wd_min=148.0
+wd_alternative=151.8
+lens_camera_side_z=a_lens.BoundingBox().zmax
+camera_proxy_sensor_window=[round(a_cam.BoundingBox().zmin-lens_camera_side_z,2),
+                            round(a_cam.BoundingBox().zmax-lens_camera_side_z,2)]
+shortfall=round(max(0,wd_min-camera_proxy_sensor_window[1]),2)
+check(camera_proxy_sensor_window==[60.0,105.0],
+      'V169 photo-fit camera proxy vs tube lens exit is 60..105mm, not optical WD')
+check(shortfall==43.0,
+      'V169 unresolved minimum OEM reference WD shortfall must be explicit')
+report['V169_A08_A09_optical_reference']={
+ 'lens_camera_side_z_mm':round(lens_camera_side_z,2),
+ 'camera_proxy_sensor_window_mm':camera_proxy_sensor_window,
+ 'ttl200a_oem_rev_b_reference_wd_mm':wd_min,
+ 'ttl200a_distributor_wd_mm':wd_alternative,
+ 'minimum_reference_shortfall_inside_proxy_mm':shortfall,
+ 'camera_body_is_photo_fit_proxy':True,
+ 'actual_sensor_plane_known':False,
+ 'actual_optical_orientation_verified':False,
+ 'optical_image_formation_certified':False,
+ 'note':'Do not change A14 length to force reference WD without real camera sensor data'
+}
 report['V59_A_global_candidate_readiness']={
   'clamp_to_heater_nominal_edge_clearance_mm':round(a_heater.xmin-a_clamp.BoundingBox().xmax,2),
   'A17_A16_footprint_gap_mm':round(a_base_gap,2),

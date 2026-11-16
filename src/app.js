@@ -27,6 +27,7 @@ import {aControlRoutes,auditAControlRoutes} from './a-control-interfaces.js';
 import {A_THERMAL,aVacuumRoute,auditAThermalTopology} from './a-thermal-datums.js';
 import {A_EXTERNAL_FOCUS_IDS,calculateAExternalCamera} from './a-external-camera.js';
 import {A20261108PhotoAngles,aPhotoCameraPose,aPhotoOrientationEvidence} from './a-photo-angle-registration.js';
+import {auditTubeLensToCameraProxy,TTL200A_OPTICAL_EVIDENCE} from './a-optical-reference.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
@@ -515,6 +516,50 @@ window.__modelAOpticalClearanceProbe=()=>{
       allMounted:axes.every(x=>x.hasMount),
       unseenPortCountUnknown:true,machiningGrade:false,axes};
   };
+
+// V169: audit the ACTUAL installed mesh datums in all optical poses.
+// The 45mm camera box is a photo-fit proxy, NOT a measured sensor plane.
+window.__modelAOpticalReferenceProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const lens=parts.get('A08')?.g,adapter=parts.get('A14')?.g,cameraRoot=parts.get('A09')?.g;
+ const shells=lens?.children.filter(o=>o.isMesh&&o.userData.A08OEMShellSegment)??[];
+ const housing=cameraRoot?.children.find(o=>o.isMesh&&o.userData.A09CameraHousingProxy);
+ const sleeve=adapter?.children.find(o=>o.isMesh);
+ if(shells.length!==3||!housing||!sleeve)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const lensBox=new THREE.Box3();
+ shells.forEach(o=>lensBox.union(new THREE.Box3().setFromObject(o)));
+ const cameraBox=new THREE.Box3().setFromObject(housing);
+ const tubeBox=new THREE.Box3().setFromObject(sleeve);
+ return {...auditTubeLensToCameraProxy({
+   lensCameraSideYmm:lensBox.max.y,
+   cameraLowerYmm:cameraBox.min.y,
+   cameraUpperYmm:cameraBox.max.y,
+   adapterLowerYmm:tubeBox.min.y,
+   adapterUpperYmm:tubeBox.max.y
+ }),
+   onlyTechnicalReferenceOverlayVisible:Boolean(lens.userData.A08WDReferenceOverlay?.visible),
+   referenceOverlayIsPhysicalPart:false,
+   referenceGuideLengthMm:TTL200A_OPTICAL_EVIDENCE.drawingReferenceWorkingDistanceMm
+ };
+};
+window.__modelAA10A18BoundaryProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const optic=window.__modelAOpticalClearanceProbe?.();
+ if(!optic?.available)return {available:false};
+ return {
+   available:true,
+   boomToHousingFaceGapMm:optic.boomHousingFrontGapMm,
+   boomToHousingCandidateFaceAreaMm2:optic.boomHousingMatingFaceAreaMm2,
+   boomHousingAabbOverlapMm3:optic.boomHousingOverlapMm3,
+   boomClampedToPost:Boolean(optic.supportBoomRealPostBore),
+   faceContactOnly:optic.boomHousingFrontGapMm===0&&optic.boomHousingOverlapMm3===0,
+   fasteningHoleCoordinatesVerified:false,
+   independentA10BoomSKUVerified:false,
+   A10A18PhysicalPartBoundaryVerified:false,
+   safeForFabrication:false
+ };
+};
  window.__A18MechanicalTopologyProbe=()=>{
   if(platform!=='A')return {available:false};
   const head=parts.get('A18')?.g,post=parts.get('A10')?.g,turret=parts.get('A19')?.g;
@@ -3910,10 +3955,33 @@ function platformA(){
   g.userData.A08OEMDrawingAperturesMm=[31.0,25.1];
   g.userData.A08DrawingIsNotForManufacturing=true;
   g.userData.A08LensInternalsUnverified=true;
+  // V169: removable TECHNICAL reference, never a physical support or lens.
+  // Original TTL200-A Rev B reference working distance: 148mm from camera
+  // side of the housing to an illustrative image plane. Actual sensor unknown.
+  const opticalReferenceOverlay=new THREE.Group();
+  opticalReferenceOverlay.name='A08_TTL200A_REFERENCE_IMAGE_PLANE_NOT_PHYSICAL';
+  const ring=new THREE.Mesh(new THREE.RingGeometry(12,19,64),
+    new THREE.MeshBasicMaterial({color:0x53dbf5,side:THREE.DoubleSide,
+      transparent:true,opacity:.85,depthWrite:false}));
+  ring.rotation.x=Math.PI/2;
+  ring.position.y=28+TTL200A_OPTICAL_EVIDENCE.drawingReferenceWorkingDistanceMm;
+  ring.userData.A08OnlyTechnicalReference=true;
+  opticalReferenceOverlay.add(ring);
+  const guide=new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0,28,0),
+    new THREE.Vector3(0,28+TTL200A_OPTICAL_EVIDENCE.drawingReferenceWorkingDistanceMm,0)
+  ]),new THREE.LineDashedMaterial({color:0x53dbf5,transparent:true,opacity:.7,
+    dashSize:4,gapSize:3,depthWrite:false}));
+  guide.computeLineDistances();guide.userData.A08OnlyTechnicalReference=true;
+  opticalReferenceOverlay.add(guide);
+  opticalReferenceOverlay.visible=false;
+  g.add(opticalReferenceOverlay);
+  g.userData.A08WDReferenceOverlay=opticalReferenceOverlay;
   label(g,'TTL200-A · Ø55.9 × 28 mm / 双端SM2',0,41,0);
  },{explode:[0,35,0]});
  addPart('A09',sx,323,0,g=>{
-  add(g,cub(50,45,44,mats.dark,0,22.5,0));
+  const housing=add(g,cub(50,45,44,mats.dark,0,22.5,0));
+  housing.userData.A09CameraHousingProxy=true;
   add(g,cyl(15,12,mats.silver,0,0,0));
   label(g,'Daheng Imaging 工业相机',0,72,0);
  },{explode:[0,92,0]});
@@ -5177,6 +5245,30 @@ function updateDetail(part){
      '<b>当前决定：</b>FR5025CF为高优先级结构候选；MGZ30为条件性直接立柱安装候选；BXFM-F为次候选；76mm环形变体未决；没有任何型号已确认，也没有候选几何应用到默认装配。下一步必须核对高清后视/侧视、立柱直径、镜体环内径、中心距、后壳分缝和物镜盘底视图。</p></div>';
  })():'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
+ const opticalReference=(platform==='A'&&['A08','A09','A14','A18'].includes(part.id))?
+   window.__modelAOpticalReferenceProbe?.():null;
+ const opticalHtml=opticalReference?.available?
+   '<div class="field" id="a-optical-reference-summary" data-certified="false" '+
+   'data-shortfall="'+opticalReference.minimumReferenceShortfallWithinCameraProxyMm+'">'+
+   '<b>管镜至相机光路校核（待实测）</b><p>当前相机外壳代理距管镜出射端 '+
+   opticalReference.cameraProxyToLensDistanceMm.join('–')+' mm；TTL200-A 原厂图纸参考工作距离 '+
+   opticalReference.drawingReferenceWorkingDistanceMm+' mm，第三方资料为 '+
+   opticalReference.distributorWorkingDistanceMm+' mm。'+
+   (opticalReference.manufacturerReferenceOutsideCameraProxy?
+    '参考像面不在当前相机外壳代理范围内，至少相差 '+
+    opticalReference.minimumReferenceShortfallWithinCameraProxyMm+' mm。':
+    '当前相机包络覆盖参考位置，但未确认像面。')+
+   '相机型号、传感器位置及管镜方向均未确认，<b>当前几何不代表可成像光路</b>。'+
+   '</p></div>':'';
+ const interfaceBoundary=(platform==='A'&&['A10','A18'].includes(part.id))?
+   window.__modelAA10A18BoundaryProbe?.():null;
+ const boundaryHtml=interfaceBoundary?.available?
+   '<div class="field" id="a10-a18-interface-summary" data-verified="false">'+
+   '<b>A10/A18 后支撑接口（待确认）</b><p>模型端面间距 '+
+   interfaceBoundary.boomToHousingFaceGapMm+' mm、接触面代理面积 '+
+   interfaceBoundary.boomToHousingCandidateFaceAreaMm2+' mm²；'+
+   '真实螺钉孔位、分件边界及横臂独立型号均未证实。端面贴合不代表真实紧固，'+
+   '<b>A10 横臂不可据此单独采购或加工</b>。</p></div>':'';
  const engineeringHtml=
    '<div id="part-detail-engineering" hidden>'+
    '<div data-role="detail-text">'+esc(part.detail)+'</div>'+
@@ -5194,6 +5286,7 @@ function updateDetail(part){
  const metaHtml=usefulMeta.length?'<p class="meta">'+esc([...new Set(usefulMeta)].join(' · '))+'</p>':'';
  el.innerHTML='<h2>'+esc(part.name)+'</h2>'+metaHtml+
  '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
+ opticalHtml+boundaryHtml+
  (hasUsefulPrice?'<div class="field"><b>价格</b><p>'+esc(priceText)+'</p></div>':'')+
  '<div class="field" id="selected-source-field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
  engineeringHtml;
@@ -7002,6 +7095,8 @@ function switchPlatform(next){
   $('btn-a-external').hidden=next!=='A';
    $('btn-a18-optical').hidden=next!=='A';
    $('btn-a18-support').hidden=next!=='A';
+   $('btn-a-optical-spacing').hidden=next!=='A';
+   $('btn-a-optical-spacing').textContent='A 光路距离核查';
    $('btn-a18-mgz-study').hidden=next!=='A';
    $('btn-a18-mgz-study').textContent='MGZ30候选对照';
    $('btn-a18-bxfm-study').hidden=next!=='A';
@@ -7164,6 +7259,33 @@ $('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
 $('btn-a-external').onclick=focusAExternal;
  $('btn-a18-optical').onclick=focusA18OpticalAudit;
  $('btn-a18-support').onclick=focusA18SupportAudit;
+
+function focusAOpticalReferenceView(){
+ const lens=parts.get('A08')?.g,cam=parts.get('A09')?.g;
+ const adapter=parts.get('A14')?.g,overlay=lens?.userData.A08WDReferenceOverlay;
+ if(!lens||!cam||!adapter||!overlay)return false;
+ currentRoot.updateWorldMatrix(true,true);
+ const bbox=new THREE.Box3();
+ for(const o of [lens,cam,adapter,overlay])bbox.union(new THREE.Box3().setFromObject(o));
+ const center=bbox.getCenter(new THREE.Vector3());
+ const size=bbox.getSize(new THREE.Vector3());
+ const height=Math.max(size.y,size.x,size.z,1);
+ const distance=Math.max(250,height/(2*Math.tan(camera.fov*Math.PI/360))*.95);
+ const offset=new THREE.Vector3(.35,.16,1).normalize().multiplyScalar(distance);
+ camera.position.copy(center).add(offset);
+ orbit.target.copy(center);camera.up.set(0,1,0);camera.lookAt(center);orbit.update();
+ return true;
+}
+ $('btn-a-optical-spacing').onclick=()=>{
+   if(platform!=='A')return;
+   const overlay=parts.get('A08')?.g?.userData.A08WDReferenceOverlay;
+   if(!overlay)return;
+   overlay.visible=!overlay.visible;
+   $('btn-a-optical-spacing').textContent=overlay.visible?'关闭光路校核':'A 光路距离核查';
+   $('btn-a-optical-spacing').setAttribute('aria-pressed',String(overlay.visible));
+   if(overlay.visible){focusAOpticalReferenceView();selectPart('A14');}
+   else selectPart(null);
+ };
  $('btn-a18-mgz-study').onclick=()=>{
    const state=window.__A18MGZ30FamilyStudyProbe?.();
    if(state?.studyVisible){
