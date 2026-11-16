@@ -1585,13 +1585,21 @@ report['V46_A10_microscope_anchor_audit']={
 a_lens=part(A,'A08')[0]
 a_optical_tube=part(A,'A14')[0]
 a_cam=part(A,'A09')[0]
-check(abs(a_lens.BoundingBox().zlen-28)<.02,
-      'TTL200-A 28mm mechanical housing must not be 85mm CAD proxy')
-check(abs(a_optical_tube.BoundingBox().zmin-257)<.02 and
+check(abs(a_lens.BoundingBox().zlen-28)<.02 and
+      abs(a_lens.BoundingBox().xlen-55.9)<.02 and
+      abs(a_lens.BoundingBox().ylen-55.9)<.02,
+      'V166 TTL200-A OEM outer Ø55.9 x 28mm')
+check(a_lens.intersect(vz(12.4,28.2,78,0,234.9)).Volume()<1e-3,
+      'V166 axial aperture in tube lens must be truly open')
+check(a_lens.intersect(vz(15.4,3.0,78,0,235)).Volume()<1e-3,
+      'V166 OEM lower Ø31 face opening')
+check(a_lens.intersect(vz(12.4,3.0,78,0,260)).Volume()<1e-3,
+      'V166 OEM upper Ø25.1 face opening')
+check(abs(a_optical_tube.BoundingBox().zmin-259.8)<.02 and
       abs(a_optical_tube.BoundingBox().zmax-323)<.02,
-      'V59 A14 open SM2 candidate must overlap the raised lens 6mm and reach camera underside')
+      'V166 candidate A14 enters only top SM2 shoulder')
 check(a_optical_tube.intersect(a_lens).Volume()<1e-3,
-      'SM2 candidate tube must NOT become a solid plug through the lens')
+      'V166 candidate A14 cannot penetrate OEM housing')
 check(abs(a_cam.BoundingBox().zmin-a_optical_tube.BoundingBox().zmax)<.02,
       'A camera candidate underside must touch SM2 sleeve envelope')
 report['V59_A_global_candidate_readiness']={
@@ -1605,8 +1613,12 @@ report['V59_A_global_candidate_readiness']={
   'A20_camera_cable_route_physically_verified':False,
   'A10_microscope_foot_contacts_A01':True,
   'A08_TTL200A_real_housing_length_mm':28,
-  'A14_candidate_SM2_sleeve_length_mm':66,
-  'A14_insert_overlap_mm':6,
+  'A08_OEM_outer_diameter_mm':55.9,
+  'A08_OEM_two_thread_lengths_mm':[3.2,3.2],
+  'A08_drawing_aperture_diameters_mm':[31.0,25.1],
+  'A08_real_optical_elements_modeled':False,
+  'A14_candidate_SM2_sleeve_length_mm':63.2,
+  'A14_insert_overlap_mm':3.2,
   'A17_actual_magnetic_model_verified':False,
   'A05_actual_glass_grip_model_verified':False,
   'A14_camera_mounting_thread_verified':False,

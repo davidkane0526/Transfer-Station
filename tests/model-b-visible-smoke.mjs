@@ -1455,7 +1455,17 @@ try{
  assert.equal(detailsA.available,true);
  assert.equal(detailsA.ghostVerticalKnurlGroups,0,'A03 must not contain floating second micrometer');
  assert.equal(detailsA.duplicateGoniometerKnurlGroups,0,'A04 must not contain duplicated shaft');
- assert.deepEqual(detailsA.nominalTubeCollarHeightsMm,[2,12,20]);
+ assert.deepEqual(detailsA.nominalTubeCollarHeightsMm,[],
+   'V166 decorative collars must not remain on OEM tube lens');
+ assert.equal(detailsA.A08OEMShellSegmentCount,3);
+ assert.equal(detailsA.A08ActualEnvelopeDiameterMm,55.9);
+ assert.equal(detailsA.A08ActualEnvelopeLengthMm,28);
+ assert.equal(detailsA.A08OEMOuterDiameterMm,55.9);
+ assert.equal(detailsA.A08OEMEndThreadLengthMm,3.2);
+ assert.deepEqual(detailsA.A08OEMDrawingAperturesMm,[31,25.1]);
+ assert.equal(detailsA.A08OpticalAxisOpen,true);
+ assert.equal(detailsA.A08RealInternalGlassReconstructed,false);
+ assert.equal(detailsA.A08SM2ThreadHelixModeled,false);
  assert.equal(detailsA.verticalNameplateMounted,true);
  const aDefault=await page.evaluate(()=>window.__platformAWorkingPoseProbe?.());
  assert.equal(aDefault.mode,'installed180');

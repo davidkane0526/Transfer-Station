@@ -941,8 +941,16 @@ def make_a():
             vx(4,2.6,cx+22.9,-112+dz,219)).clean()
         add('A',f'A10K{i}','RADIAL_CLAMP_FASTENER_CANDIDATE',clamp_bolt,'C')
     # V59: photo191–193 show a taller camera/microscope stack; no ruler is present.
-    add('A','A08','TTL200A_nominal_28mm_housing_CANDIDATE',
-        vz(26,28,cx,0,235),'D')
+    # V166 OEM TTN116903 Rev B: Ø55.9 central body, 28mm overall,
+    # two external SM2 shoulders Ø51.689x3.2. No optical glass modeled.
+    a08_lower=vz(51.689/2,3.2,cx,0,235)
+    a08_body=vz(55.9/2,21.6,cx,0,238.2)
+    a08_upper=vz(51.689/2,3.2,cx,0,259.8)
+    a08_shell=a08_lower.fuse(a08_body,a08_upper).clean()
+    a08_shell=a08_shell.cut(vz(15.5,3.3,cx,0,234.95))
+    a08_shell=a08_shell.cut(vz(12.55,25.0,cx,0,238.15)).clean()
+    add('A','A08','TTL200A_OEM_D55P9_L28_SM2_ENDS_3P2_APERTURE_STEP',
+        a08_shell,'D')
     add('A','A09','Daheng_camera',box(50,44,45,cx,0,323),'P')
     # V79: Thorlabs MWWHL4. Use vendor-constrained Ø30.5mm finned
     # housing and SM1 mounting interface; REMOVE the invented gooseneck
@@ -1068,10 +1076,10 @@ def make_a():
         box(76,1.6,22,260+pid_dx,176,113),'C')
     add('A','A33SV','SETPOINT_READOUT_DISPLAY_PROXY',
         box(76,1.6,18,260+pid_dx,176,88),'C')
-    # TTL200-A uses EXTERNAL SM2 both ends. A14 remains an OPEN
-    # candidate mating sleeve until the real adapter stack is identified.
-    sleeve_A14=vz(28,66,cx,0,257).cut(vz(26.1,66.2,cx,0,256.9))
-    add('A','A14','UNKNOWN_SM2_MATING_OPTICAL_TUBE_66mm_CANDIDATE',sleeve_A14,'C')
+    # V166 A14 enters only the 3.2mm upper SM2 shoulder.
+    # Thread helix and camera flange remain unverified.
+    sleeve_A14=vz(28,63.2,cx,0,259.8).cut(vz(26.1,63.4,cx,0,259.7))
+    add('A','A14','UNKNOWN_SM2_MATING_TUBE_63P2mm_CANDIDATE',sleeve_A14,'C')
 
     # V92 A18: photos191/193 show the optical axis lies near the LEFT side
     # of the black housing rather than at its geometric center. Keep optical
@@ -1235,7 +1243,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V165'
+CAD_REVISION='V166'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
