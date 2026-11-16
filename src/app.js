@@ -554,8 +554,14 @@ window.__modelAOpticalClearanceProbe=()=>{
   const topEar=one(head,'A18MovingTopOpticalEar');
   const topRing=one(head,'A18TopOpticalInterface');
   const ttl=parts.get('A08')?.g;
-  const a08JointGap=ttl&&topRing?
-    Number((box(ttl).min.y-box(topRing).max.y).toFixed(2)):null;
+  // V167: use ONLY the real OEM shell. The old green decorative disc
+  // protruded 1mm below it and once hid an actual A08/A18 seam gap.
+  const ttlShells=ttl?.children.filter(o=>o.userData.A08OEMShellSegment)??[];
+  const ttlBox=new THREE.Box3();
+  ttlShells.forEach(o=>ttlBox.union(box(o)));
+  const flangeBox=topRing?box(topRing):null;
+  const a08JointGap=ttlShells.length&&flangeBox?
+    Number((ttlBox.min.y-flangeBox.max.y).toFixed(2)):null;
   // Raycast the entire radius, not merely the axial centreline: otherwise
   // an apparent bore can conceal a cylinder/gearbox collision.
   const radialSamples=[...Array(12)].map((_,i)=>{
@@ -590,6 +596,9 @@ window.__modelAOpticalClearanceProbe=()=>{
     upperEarContactsUpright:!!topEar&&!!movingUp&&overlap(topEar,movingUp)>5,
     upperEarContactsOpticalCollar:!!topEar&&!!topRing&&overlap(topEar,topRing)>5,
     ttl200AFaceMatingGapMm:a08JointGap,
+    ttlOEMShellSegmentCount:ttlShells.length,
+    ttlOEMLowerFaceWorldYmm:ttlShells.length?Number(ttlBox.min.y.toFixed(2)):null,
+    A18TopFlangeWorldYmm:flangeBox?Number(flangeBox.max.y.toFixed(2)):null,
     radialOpticalClearanceSamples:radialSamples.length,
     axialBoreDiameterCandidateMm:head.userData.A18OpticalThroughBoreDiameterCandidateMm,
     externalOpticalClearanceCandidateMm:head.userData.A18ExternalOpticalClearanceCandidateMm,
@@ -4131,9 +4140,9 @@ function platformA(){
     for(const o of [bodyMid,bodyLower,bodyUpper,front,fixedWebL,
       fixedWebR,movingSpine,movingRing,movingUpright,upperEar])
       o.userData.A18CurrentPhotoFitBody=true;
-    // Scene parked optical assembly adds a 1mm net interface offset;
-    // the A08 bottom face must NOT overlap the A18 upper sleeve.
-    const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,30,0,'y'));
+    // V167: CAD A18T top is Y=235 but old web A18T ended at234.
+    // The previous false-zero gap was caused by an opaque decoration.
+    const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,31,0,'y'));
     topCollar.userData.A18TopOpticalInterface=true;
     g.userData.A18SupportTopology='dual-fixed-cast-gussets-plus-one-moving-bored-yoke';
     g.userData.A18V144FourRodForkRemoved=true;

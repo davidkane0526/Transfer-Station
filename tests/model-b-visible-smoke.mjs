@@ -1153,8 +1153,11 @@ try{
  assert.equal(chain.movingUprightContactsYoke,true);
  assert.equal(chain.upperEarContactsUpright,true);
  assert.equal(chain.upperEarContactsOpticalCollar,true);
+ assert.equal(chain.ttlOEMShellSegmentCount,3);
+ assert.equal(chain.ttlOEMLowerFaceWorldYmm,235);
+ assert.equal(chain.A18TopFlangeWorldYmm,235);
  assert.equal(chain.ttl200AFaceMatingGapMm,0,
-   'TTL200-A body and A18 top sleeve must meet at a face, not overlap');
+   'V167 real OEM shell and A18 flange must meet on Y=235, not fake decoration');
  assert.equal(chain.focusBodySetbackCandidateMm,48);
  assert.equal(chain.axialBorePhysicallyMeasured,false);
  assert.equal(chain.clampFastenersEngaged,true);
