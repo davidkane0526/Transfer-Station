@@ -16,7 +16,10 @@ export const A09_CAMERA_INTERFACE_EVIDENCE=Object.freeze({
   frontRingCandidateDiameterMm:30,
   adapterTubeCandidateInternalDiameterMm:52.2
 });
-const fixed=x=>Number(x.toFixed(2));
+const fixed=x=>{
+  const value=Number(x.toFixed(2));
+  return Object.is(value,-0)?0:value;
+};
 export function auditA09CameraCoupling({tubeInnerDiameterMm,frontRingOuterDiameterMm,mouthDiameterMm,
     cameraBodyLowerYmm,adapterUpperYmm,cameraModelConfirmed=false,installedAdapterCount=0}){
   const values=[tubeInnerDiameterMm,frontRingOuterDiameterMm,mouthDiameterMm,cameraBodyLowerYmm,adapterUpperYmm];
