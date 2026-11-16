@@ -1527,6 +1527,28 @@ try{
  assert.equal(wdr.manufacturerReferenceOutsideCameraProxy,true);
  assert.equal(wdr.sensorPlaneMeasured,false);
  assert.equal(wdr.opticalImageFormationCertified,false);
+ const camJoint=await page.evaluate(()=>window.__modelAA09CameraInterfaceProbe?.());
+ assert.equal(camJoint?.available,true);
+ assert.equal(camJoint.candidateMouthDiameterMm,24.4);
+ assert.equal(camJoint.candidateBlindMouthDepthMm,10);
+ assert.equal(camJoint.unbridgedNominalRadialGapMm,11.1);
+ assert.equal(camJoint.cameraToTubeAxialFaceGapMm,0);
+ assert.equal(camJoint.axialFaceTouchIsNotThreadEngagement,true);
+ assert.equal(camJoint.webOpticalMouthClearBeforeCandidateBlindEnd,true,
+   'V170 web camera entry MUST be a real open aperture, not a solid disc');
+ assert.equal(camJoint.webBlindEndIsOpaqueBeyond10Mm,true,
+   'V170 unknown camera internals must remain a blind-end, not a fake sensor');
+ assert.equal(camJoint.installedCameraThreadAdapterCount,0);
+ assert.equal(camJoint.suggestedAdapterInstalled,false);
+ assert.equal(camJoint.cameraCmountInterfaceConfirmed,false);
+ assert.equal(camJoint.physicalJointVerified,false);
+ const camFocus=await page.evaluate(()=>window.__modelAA09CameraMouthStudyView?.());
+ assert.equal(camFocus.available,true);
+ assert.equal(camFocus.temporaryAdapterHidden,true);
+ await page.locator('#viewer').screenshot({path:'Transfer-Station-A-V170-A09-Open-Camera-Entrance.png',animations:'disabled',timeout:30000});
+ assert.equal(await page.evaluate(()=>window.__modelAA09CameraMouthStudyRestore?.()),true);
+
+
  const mount=await page.evaluate(()=>window.__modelAA10A18BoundaryProbe?.());
  assert.equal(mount?.available,true);
  assert.equal(mount.boomToHousingFaceGapMm,0);
@@ -1544,6 +1566,10 @@ try{
    Math.abs(referenceFrame.minY),Math.abs(referenceFrame.maxY))<.98,
    'A08–A09 reference plane and camera must fit within the optical close-up viewport');
  assert.equal(await page.locator('#a-optical-reference-summary').getAttribute('data-shortfall'),'43');
+ assert.equal(await page.locator('#a09-camera-coupling-summary').getAttribute('data-verified'),'false');
+ assert.equal(await page.locator('#a09-camera-coupling-summary').getAttribute('data-radial-gap'),'11.1');
+ assert.match(await page.locator('#a09-camera-coupling-summary').innerText(),/缺少已确认的转接件/);
+
  assert.equal(await page.locator('#a-optical-reference-summary').getAttribute('data-certified'),'false');
  assert.match(await page.locator('#a-optical-reference-summary').innerText(),/参考像面不在当前相机外壳代理范围内/);
  await page.locator('#viewer').screenshot({path:'Transfer-Station-A-V169-Optical-Reference-Plane.png',animations:'disabled',timeout:30000});

@@ -61,6 +61,8 @@ jobs:
           node --check src/a-working-layout.js
           node tests/a-working-layout.mjs
           node tests/a-optical-reference.mjs
+          node --check src/a-camera-interface.js
+          node tests/a-camera-interface.mjs
           node --check src/a-control-interfaces.js
           node tests/a-control-interfaces.mjs
           node --check src/a-external-camera.js
@@ -131,6 +133,7 @@ jobs:
             Transfer-Station-A-V169-Optical-Reference-Plane.png \
             Transfer-Station-A-V169-Optical-Reference-Detail.png \
             Transfer-Station-A-V169-A10A18-Interface-Detail.png \
+            Transfer-Station-A-V170-A09-Open-Camera-Entrance.png \
             Transfer-Station-A-V155-BXFMF-Drawing-Study.png \
             Transfer-Station-A-V157-LYLIGHT-FR5025CF-Study.png \
             Transfer-Station-A-V158-LYLIGHT-FR8425-84-25-Study.png; do
@@ -181,6 +184,7 @@ jobs:
             Transfer-Station-A-V169-Optical-Reference-Plane.png
             Transfer-Station-A-V169-Optical-Reference-Detail.png
             Transfer-Station-A-V169-A10A18-Interface-Detail.png
+            Transfer-Station-A-V170-A09-Open-Camera-Entrance.png
             Transfer-Station-A-V146-MGZ30-Family-Topology-Study.png
             Transfer-Station-A-V155-BXFMF-Drawing-Study.png
             Transfer-Station-A-V157-LYLIGHT-FR5025CF-Study.png

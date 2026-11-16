@@ -28,10 +28,11 @@ import {A_THERMAL,aVacuumRoute,auditAThermalTopology} from './a-thermal-datums.j
 import {A_EXTERNAL_FOCUS_IDS,calculateAExternalCamera} from './a-external-camera.js';
 import {A20261108PhotoAngles,aPhotoCameraPose,aPhotoOrientationEvidence} from './a-photo-angle-registration.js';
 import {auditTubeLensToCameraProxy,TTL200A_OPTICAL_EVIDENCE} from './a-optical-reference.js';
+import {auditA09CameraCoupling,A09_CAMERA_INTERFACE_EVIDENCE} from './a-camera-interface.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
-const scene=new THREE.Scene();scene.background=new THREE.Color('#102034');scene.fog=new THREE.Fog('#102034',750,1500);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#16293c');scene.fog=new THREE.Fog('#16293c',750,1500);
 const camera=new THREE.PerspectiveCamera(39,1,0.1,3200);
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -41,14 +42,16 @@ const orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=tr
 scene.add(new THREE.HemisphereLight(0xd7ecff,0x304057,2.05));
 const sun=new THREE.DirectionalLight(0xffffff,2.4);sun.position.set(240,550,210);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-450;sun.shadow.camera.right=450;sun.shadow.camera.top=450;sun.shadow.camera.bottom=-450;scene.add(sun);
 const rim=new THREE.DirectionalLight(0x60a9ed,.9);rim.position.set(-350,250,-180);scene.add(rim);
+// V170: front oblique fill prevents black anodized focus rails disappearing in shadow.
+const inspectionFill=new THREE.DirectionalLight(0xe8f4ff,1.55);inspectionFill.position.set(-80,210,380);scene.add(inspectionFill);
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(2000,2000),new THREE.MeshStandardMaterial({color:'#112031',roughness:.95}));floor.rotation.x=-Math.PI/2;floor.position.y=-3;floor.receiveShadow=true;scene.add(floor);
 const mats={
-board:new THREE.MeshStandardMaterial({color:'#353d45',metalness:.78,roughness:.43}),
+board:new THREE.MeshStandardMaterial({color:'#46535e',metalness:.55,roughness:.45}),
 steel:new THREE.MeshStandardMaterial({color:'#a9bccc',metalness:.75,roughness:.29}),
 lowerStage:new THREE.MeshStandardMaterial({color:'#7d8d9c',metalness:.77,roughness:.37}),
 silver:new THREE.MeshStandardMaterial({color:'#b7c2c9',metalness:.8,roughness:.3}),
-dark:new THREE.MeshStandardMaterial({color:'#313d4b',metalness:.65,roughness:.39}),
-black:new THREE.MeshStandardMaterial({color:'#1a242e',metalness:.35,roughness:.48}),
+dark:new THREE.MeshStandardMaterial({color:'#465461',metalness:.38,roughness:.46}),
+black:new THREE.MeshStandardMaterial({color:'#293640',metalness:.24,roughness:.52}),
 microscope:new THREE.MeshStandardMaterial({color:'#d4dce2',metalness:.55,roughness:.38}),
 white:new THREE.MeshStandardMaterial({color:'#f0ecde',roughness:.83}),
 ceramic:new THREE.MeshStandardMaterial({color:'#e6d7be',roughness:.68}),
@@ -542,6 +545,55 @@ window.__modelAOpticalReferenceProbe=()=>{
    referenceOverlayIsPhysicalPart:false,
    referenceGuideLengthMm:TTL200A_OPTICAL_EVIDENCE.drawingReferenceWorkingDistanceMm
  };
+};
+// V170: disambiguate axial face-touch from a true SM2-to-camera fitting.
+window.__modelAA09CameraInterfaceProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const cameraRoot=parts.get('A09')?.g,adapter=parts.get('A14')?.g;
+ const housing=cameraRoot?.children.find(o=>o.userData.A09CameraHousingProxy);
+ const ring=cameraRoot?.children.find(o=>o.userData.A09FrontRingDiameterCandidateMm);
+ const tube=adapter?.children.find(o=>o.isMesh);
+ const blindEnd=cameraRoot?.children.find(o=>o.userData.A09UnknownInternalBlindEnd);
+ if(!housing||!ring||!tube||!blindEnd)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const cameraBox=new THREE.Box3().setFromObject(housing);
+ const tubeBox=new THREE.Box3().setFromObject(tube);
+ const from=cameraRoot.localToWorld(new THREE.Vector3(0,-.1,0));
+ const dir=new THREE.Vector3(0,1,0).transformDirection(cameraRoot.matrixWorld);
+ const meshes=[housing,ring,blindEnd];
+ const rayDepth=far=>new THREE.Raycaster(from,dir,0,far).intersectObjects(meshes,false).length;
+ const mechanical=auditA09CameraCoupling({
+   tubeInnerDiameterMm:A09_CAMERA_INTERFACE_EVIDENCE.adapterTubeCandidateInternalDiameterMm,
+   frontRingOuterDiameterMm:ring.userData.A09FrontRingDiameterCandidateMm,
+   mouthDiameterMm:cameraRoot.userData.A09CandidateMouthDiameterMm,
+   cameraBodyLowerYmm:cameraBox.min.y,adapterUpperYmm:tubeBox.max.y,
+   cameraModelConfirmed:false,installedAdapterCount:0
+ });
+ return {...mechanical,webOpticalMouthClearBeforeCandidateBlindEnd:rayDepth(9.9)===0,
+   webBlindEndIsOpaqueBeyond10Mm:rayDepth(12)>0,
+   cameraOpticalEntryIsNotSolidDisc:true,
+   adapterSuggestedButNotInstalled:true};
+};
+// QA-only isolated underside view. Never alters the assembly or exports.
+window.__modelAA09CameraMouthStudyView=()=>{
+ if(platform!=='A')return {available:false};
+ const unit=parts.get('A09')?.g,adapter=parts.get('A14')?.g;
+ if(!unit||!adapter)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const target=unit.localToWorld(new THREE.Vector3(0,1.2,0));
+ unit.userData.A09MouthStudyPriorAdapterVisibility=adapter.visible;
+ adapter.visible=false; // isolate camera mouth so A14 does not block underside
+ camera.position.copy(target).add(new THREE.Vector3(65,-100,105));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return {available:true,temporaryAdapterHidden:true,originalAdapterVisible:unit.userData.A09MouthStudyPriorAdapterVisibility,
+   candidateOnly:true};
+};
+window.__modelAA09CameraMouthStudyRestore=()=>{
+ const unit=parts.get('A09')?.g,adapter=parts.get('A14')?.g;
+ if(!unit||!adapter)return false;
+ adapter.visible=unit.userData.A09MouthStudyPriorAdapterVisibility??true;
+ delete unit.userData.A09MouthStudyPriorAdapterVisibility;
+ return true;
 };
 window.__modelAA10A18BoundaryProbe=()=>{
  if(platform!=='A')return {available:false};
@@ -3980,10 +4032,30 @@ function platformA(){
   label(g,'TTL200-A · Ø55.9 × 28 mm / 双端SM2',0,41,0);
  },{explode:[0,35,0]});
  addPart('A09',sx,323,0,g=>{
-  const housing=add(g,cub(50,45,44,mats.dark,0,22.5,0));
+  // V170: the old solid Ø30 disc CLOSED THE OPTICAL ENTRANCE. A real
+  // camera must have an open front entrance (but sensor position is unknown).
+  // This is a PHOTO-FIT 50×45×44mm square with CANDIDATE Ø24.4×10mm
+  // blind port. Its exact flange interface is NOT identified/qualified.
+  const outline=new THREE.Shape();
+  outline.moveTo(-25,-22);outline.lineTo(25,-22);
+  outline.lineTo(25,22);outline.lineTo(-25,22);outline.closePath();
+  const mouth=new THREE.Path();mouth.absarc(0,0,12.2,0,Math.PI*2,true);
+  outline.holes.push(mouth);
+  const geometry=new THREE.ExtrudeGeometry(outline,{depth:45,steps:1,
+    bevelEnabled:false,curveSegments:64});
+  geometry.rotateX(-Math.PI/2); // extrusion follows +local Y (same as CAD +Z)
+  const housing=add(g,mk(geometry,mats.dark));
   housing.userData.A09CameraHousingProxy=true;
-  add(g,cyl(15,12,mats.silver,0,0,0));
-  label(g,'Daheng Imaging 工业相机',0,72,0);
+  housing.userData.A09TrueOpenEntranceCandidate=true;
+  const blindEnd=add(g,cyl(12.2,35,mats.dark,0,27.5,0));
+  blindEnd.userData.A09UnknownInternalBlindEnd=true; // NOT a sensor plane
+  const collar=add(g,sleeve(15,12.2,2.4,mats.silver,0,1.2,0,'y'));
+  collar.userData.A09FrontRingDiameterCandidateMm=30;
+  g.userData.A09CandidateMouthDiameterMm=24.4;
+  g.userData.A09CandidateMouthDepthMm=10;
+  g.userData.A09TrueSensorPlaneUnknown=true;
+  g.userData.A09ThreadFamilyUnverified=true;
+  label(g,'Daheng Imaging · 相机接口待识别',0,72,0);
  },{explode:[0,92,0]});
  addPart('A11',sx+96,220,0,g=>{
    // Thorlabs MWWHL4 vendor geometry: Ø30.5mm heat sink, approximately
@@ -5260,6 +5332,19 @@ function updateDetail(part){
     '当前相机包络覆盖参考位置，但未确认像面。')+
    '相机型号、传感器位置及管镜方向均未确认，<b>当前几何不代表可成像光路</b>。'+
    '</p></div>':'';
+ const cameraJoint=(platform==='A'&&['A09','A14'].includes(part.id))?
+   window.__modelAA09CameraInterfaceProbe?.():null;
+ const cameraJointHtml=cameraJoint?.available?
+   '<div class="field" id="a09-camera-coupling-summary" data-verified="false" '+
+   'data-radial-gap="'+cameraJoint.unbridgedNominalRadialGapMm+'">'+
+   '<b>相机镜筒接口：缺少已确认的转接件</b><p>A14候选镜筒内孔 Ø'+
+   cameraJoint.tubeInnerDiameterMm+' mm，相机入口代理外环 Ø'+
+   cameraJoint.candidateFrontRingOuterDiameterMm+' mm，两者名义径向差 '+
+   cameraJoint.unbridgedNominalRadialGapMm+' mm。轴向端面接触不等于螺纹啮合；'+
+   '当前未安装任何已确认转接件。Thorlabs SM2A55仅作为SM2内螺纹至C-mount外螺纹的'+
+   '<a target="_blank" rel="noopener noreferrer" href="'+
+   A09_CAMERA_INTERFACE_EVIDENCE.thorlabsAdapterUrl+'">厂家接口候选</a>，'+
+   '但A09的C-mount身份、螺纹匹配、实际光程均未核实，不得直接采购/加工。</p></div>':'';
  const interfaceBoundary=(platform==='A'&&['A10','A18'].includes(part.id))?
    window.__modelAA10A18BoundaryProbe?.():null;
  const boundaryHtml=interfaceBoundary?.available?
@@ -5286,7 +5371,7 @@ function updateDetail(part){
  const metaHtml=usefulMeta.length?'<p class="meta">'+esc([...new Set(usefulMeta)].join(' · '))+'</p>':'';
  el.innerHTML='<h2>'+esc(part.name)+'</h2>'+metaHtml+
  '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
- opticalHtml+boundaryHtml+
+ opticalHtml+cameraJointHtml+boundaryHtml+
  (hasUsefulPrice?'<div class="field"><b>价格</b><p>'+esc(priceText)+'</p></div>':'')+
  '<div class="field" id="selected-source-field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
  engineeringHtml;

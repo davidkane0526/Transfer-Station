@@ -951,7 +951,11 @@ def make_a():
     a08_shell=a08_shell.cut(vz(12.55,25.0,cx,0,238.15)).clean()
     add('A','A08','TTL200A_OEM_D55P9_L28_SM2_ENDS_3P2_APERTURE_STEP',
         a08_shell,'D')
-    add('A','A09','Daheng_camera',box(50,44,45,cx,0,323),'P')
+    # V170: no fabricated opaque Ø30 disk on optical axis. Real cameras
+    # have front optical entrance; here only a Ø24.4 x 10mm BLIND port
+    # is a candidate. Unknown actual sensor plane remains opaque beyond.
+    a09_body=box(50,44,45,cx,0,323).cut(vz(12.2,10,cx,0,323)).clean()
+    add('A','A09','DAHENG_CAMERA_PHOTO_PROXY_OPEN_BLIND_PORT_D24P4_L10',a09_body,'P')
     # V79: Thorlabs MWWHL4. Use vendor-constrained Ø30.5mm finned
     # housing and SM1 mounting interface; REMOVE the invented gooseneck
     # that made a black cylinder appear to hang below the microscope.
@@ -1243,7 +1247,7 @@ def make_a():
     camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
         (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
     add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V169'
+CAD_REVISION='V170'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

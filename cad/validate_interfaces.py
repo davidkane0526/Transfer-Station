@@ -1602,6 +1602,31 @@ check(a_optical_tube.intersect(a_lens).Volume()<1e-3,
       'V166 candidate A14 cannot penetrate OEM housing')
 check(abs(a_cam.BoundingBox().zmin-a_optical_tube.BoundingBox().zmax)<.02,
       'A camera candidate underside must touch SM2 sleeve envelope')
+# V170: an opaque camera inlet blocked the optical axis in the STEP proxy.
+# Cut only a 10mm blind candidate entrance, never invent a sensor plane.
+check(a_cam.intersect(vz(12.0,9.8,78,0,323.1)).Volume()<1e-3,
+      'V170 A09 camera face must contain a real Ø24.4×10mm blind entrance')
+check(a_cam.intersect(vz(11.5,2,78,0,334)).Volume()>100,
+      'V170 camera interior behind the candidate entrance remains unknown/solid')
+# A14 Ø52.2 internal aperture and A09 Ø30 candidate face collar have a
+# radial gap; genuine SM2A55 could only be considered after camera SKU ID.
+interface_radial_gap_mm=round((52.2-30.0)/2,2)
+check(interface_radial_gap_mm==11.1,
+      'V170 missing SM2-camera thread adapter must not be mislabeled connected')
+report['V170_A09_camera_port_and_thread_family']={
+  'camera_photo_proxy_xyz_mm':[50,44,45],
+  'front_optical_mouth_diameter_candidate_mm':24.4,
+  'front_optical_mouth_blind_depth_candidate_mm':10,
+  'A14_internal_diameter_candidate_mm':52.2,
+  'camera_front_ring_outer_diameter_candidate_mm':30,
+  'unbridged_nominal_radial_gap_mm':interface_radial_gap_mm,
+  'A14_A09_face_touch_but_not_thread_engagement':True,
+  'installed_verified_camera_adapter_count':0,
+  'Thorlabs_SM2A55_only_uninstalled_OEM_family_comparator':True,
+  'actual_camera_C_mount_verified':False,
+  'sensor_plane_known':False,
+  'mechanical_connection_qualified':False
+}
 # V169: this is a LIMITATION audit, not permission to assume a C-mount sensor.
 # OEM TTN116903 Rev B specifies reference working distance 148mm; a
 # distributor lists 151.8mm. The A09 45mm body is a PHOTO-FIT BOX only.
