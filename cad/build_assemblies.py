@@ -899,9 +899,9 @@ def make_a():
     add('A','A07FB','sample_stage_front_adjustment_knob_candidate',vy(4.5,2,cx,39.5,92),'C')
     for i,xx in enumerate((cx-12,cx+12),1):
         add('A',f'A07FS{i}','sample_stage_front_plate_lower_screw_candidate',vy(2.1,2,xx,34.5,84),'C')
-    # V58: viewer always contains this 28x28x1.4mm sample-chip proxy;
-    # prior STEP omitted it and would falsely put the PDMS into metal.
-    add('A','A07W','sample_chip_28x28x1p4_THICKNESS_UNVERIFIED',
+    # V171: optional transfer-study chip, exported as individual part only.
+    # Not a permanently installed hot-stage metal-top component.
+    add('A','A07W','OPTIONAL_DEMO_sample_chip_28x28x1p4_UNVERIFIED',
         box(28,28,1.4,cx,0,110.0),'C')
     # V45: previous STEP A10 post started at Z=32 and floated 12mm
     # above the only A01 board top (Z=20). A single connected base
@@ -975,18 +975,27 @@ def make_a():
     add('A','A21RK','RING_RADIAL_SET_SCREW_AND_HEAD_UNVERIFIED',
         vz(1.6,9,187.5,0,235.25).fuse(vz(4,3,187.5,0,243.5)),'C')
     # Thorlabs MWWHL4 drawing MTN006388: Ø30.5 x 60.1 mm total envelope.
+    # V171 true front 6mm SM1 receiving bore, facing -X to microscope.
+    # The installed SM1RC ring at x187.5 clamps a smooth housing land;
+    # radiator fins are kept behind the ring rather than intersecting it.
     led=vx(15.25,60.1,led_root_x+6,0,led_z)
-    for q in [10+4.8*i for i in range(11)]:
-        led=led.fuse(vx(15.75,1.1,led_root_x+q-.55,0,led_z))
-    add('A','A11','MWWHL4_OEM_O30p5_x_60p1_SM1_DEPTH6',
+    led=led.cut(vx(11.9,6.01,led_root_x+5.99,0,led_z)).clean()
+    for q in [23+4.8*i for i in range(8)]:
+        led=led.fuse(vx(15.75,1.05,led_root_x+q-.525,0,led_z))
+    led=led.clean()
+    add('A','A11','MWWHL4_OEM_O30p5_x_60p1_FRONT_SM1_OPEN6',
         led,'D')
-    # Emitter face stays inside the documented 60.1mm housing envelope.
-    add('A','A11E','MWWHL4_emitter_face_WITHIN_OEM_ENVELOPE',
-        vx(10.8,.2,led_root_x+65.9,0,led_z),'C')
+    # V171 OEM photo shows the LED die on a visible small front PCB,
+    # NOT a featureless 17.8mm beige emitter disk. Circuit artwork and
+    # component package are schematic visual proxies only.
+    add('A','A11E','MWWHL4_FRONT_LED_PCB_OEM_STYLE_CANDIDATE',
+        vx(10.4,.45,led_root_x+11.525,0,led_z),'C')
+    add('A','A11LED','MWWHL4_WARM_WHITE_LED_DIE_VISUAL_PROXY',
+        box(1.05,2.0,2.0,led_root_x+11.05,0,led_z-1),'C')
     led_cable=cable_path([
-        (led_root_x+43,0,led_z-14),
-        (led_root_x+44,3,led_z-22),
-        (led_root_x+48,8,led_z-30),
+        (led_root_x+55,0,led_z-14),
+        (led_root_x+56,3,led_z-20),
+        (led_root_x+56,9,led_z-29),
         (led_root_x+55,12,led_z-38)],2.2)
     add('A','A11C','MWWHL4_ELECTRICAL_CABLE_NOT_MECHANICAL_SUPPORT',
         led_cable,'C')
@@ -1244,11 +1253,12 @@ def make_a():
         left_tilt(vz(12.4,2,cx-18,0,124)),'C')
     add('A','A19R2','CENTER_VERTICAL_OBJECTIVE_COLOR_BAND_PROXY',
         vz(12.4,2,cx+18,0,124),'C')
-    camera_cable=cable_path([(cx+18,0,368),(cx+22,-18,385),(cx+40,-38,395),
-        (cx+62,-40,382),(cx+76,-26,355),(cx+80,-5,330),(cx+76,15,305)],2.4)
-    add('A','A20','CAMERA_CABLE_LOOP_ROUTE_PHOTO191_192_CANDIDATE',camera_cable,'C')
-CAD_REVISION='V170'
-UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102'})
+    camera_cable=cable_path([(cx+18,0,367),(cx+22,-15,388),(cx+38,-36,392),
+        (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
+        (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
+    add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
+CAD_REVISION='V171'
+UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
     """V132 installed A: user-facing work geometry excludes hidden vendor studies.
@@ -1294,7 +1304,9 @@ def export(sys):
         with (target.parent/'uninstalled_study_parts.csv').open('w',encoding='utf-8-sig',newline='') as f:
             w=csv.writer(f);w.writerow(['id','description','reason'])
             for key,name,_,_ in excluded:
-                w.writerow([key,name,'not installed on user-approved bare A bracket'])
+                reason=('optional sample demonstration, NOT fixed to hot stage' if key=='A07W'
+                        else 'not installed on user-approved bare A bracket')
+                w.writerow([key,name,reason])
     return dict(system=sys,assembly_components=len(published),
                 excluded_uninstalled=[p[0] for p in excluded],
                 approved_installed_shape='photo1_canonical_rigid180_with_photo5_vertical_wing_clamp' if sys=='A' else 'manufacturer_and_photo_B',

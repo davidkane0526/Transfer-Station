@@ -852,6 +852,30 @@ for side,sign,hub_key,coarse_key,fine_key,cap_key in (
 check(not (A/'A11M.step').exists(),
       'V79 invented MWWHL4 mechanical gooseneck support must remain deleted')
 a11=part(A,'A11')[0].BoundingBox()
+# V171 OEM LED aperture faces -X and remains free of the physical SM1RC land.
+led_shell=part(A,'A11')[0]
+check(led_shell.intersect(vx(11.7,5.8,174+6.05,0,220)).Volume()<1e-3,
+      'V171 MWWHL4 front -X SM1 bore must be physically open over ~6mm')
+check(part(A,'A11E')[0].BoundingBox().xmin<190,
+      'V171 MWWHL4 emitter PCB is at microscope-facing -X, not outer +X end')
+a11_pcb=part(A,'A11E')[0]
+a11_die=part(A,'A11LED')[0]
+check(abs(a11_pcb.BoundingBox().ylen-20.8)<.05 and
+      abs(a11_pcb.BoundingBox().zlen-20.8)<.05,
+      'V171 visible PCB replaces featureless Ø17.8 ceramic emitter disk')
+check(a11_die.BoundingBox().xmin<a11_pcb.BoundingBox().xmin and
+      a11_die.BoundingBox().xmax>a11_pcb.BoundingBox().xmin,
+      'V171 warm-white LED chip faces outward from front PCB')
+check(a11_die.intersect(led_shell).Volume()<1e-5 and
+      a11_pcb.intersect(led_shell).Volume()<1e-5,
+      'V171 LED PCB and chip sit inside optical inlet without intersecting SM1 housing')
+land_outer=vx(16,6,184.5,0,220)
+land_annulus=land_outer.cut(vx(15.35,6.2,184.4,0,220))
+check(led_shell.intersect(land_annulus).Volume()<1e-3,
+      'V171 SM1RC candidate ring clearance cannot be occupied by LED cooling fins')
+check(part(A,'A11C')[0].distance(part(A,'A22')[0])<.01,
+      'V171 LED pigtail must be continuous with external A22 route')
+
 check(abs(a11.ylen-31.5)<1.0 and abs(a11.zlen-31.5)<1.0 and
       abs(a11.xlen-60.1)<.12,
       'V79 MWWHL4 uses OEM drawing Ø30.5 x 60.1mm axial envelope')
@@ -1149,6 +1173,9 @@ report['V84_A_microscope_vendor_candidate_matrix']={
     'candidate_geometry_may_replace_photo_model_without_new_evidence':False
 }
 a20=part(A,'A20')[0].BoundingBox()
+check(part(A,'A20')[0].intersect(box_probe(10,10,10,110,-152,43)).Volume()>0,
+      'V171 camera wire should reach rear service exit beyond board instead of hanging mid-air')
+
 check(part(A,'A20')[0].isValid() and a20.zmax>390,
       'V59 camera cable is a continuous valid routed solid above the camera')
 report['V82_A04_vendor_pairing_candidate']={
@@ -2228,8 +2255,8 @@ check(tipbb.zmin>glass.zmax,'B objective proxy is above slide; no through-slide 
 import csv
 verification=json.loads((ROOT/'build'/'verification.json').read_text())
 a_complete=next(x for x in verification if x['system']=='A')
-check(set(a_complete['excluded_uninstalled'])=={'A18MGZ','A05C1302','A06GCM1102'},
-      'V116 complete A STEP may exclude only explicit A18MGZ/A05C1302/A06GCM1102 studies; required transfer hardware must remain installed')
+check(set(a_complete['excluded_uninstalled'])=={'A18MGZ','A05C1302','A06GCM1102','A07W'},
+      'V171 installed A STEP must exclude only three studies and optional loose A07W sample; clamp/glass stay')
 check(a_complete['approved_installed_shape']=='photo1_canonical_rigid180_with_photo5_vertical_wing_clamp',
       'V79 official A STEP must use the rigid-180 installed film-chain definition')
 check(abs(a_complete['photo_A_stage_center_x_mm']-(-60.75))<.001,
@@ -2239,6 +2266,8 @@ with (ROOT/'build'/'platform_A'/'part_levels.csv').open(encoding='utf-8-sig',new
 required={'A05','A05C','A05CS1','A05CS2','A05G','A05GP'}
 check(required.issubset(installed_ids),
       'V130 installed A BOM must include photo5 clamp, vertical wing screws, glass and PDMS')
+check('A07W' not in installed_ids and (ROOT/'build'/'platform_A'/'parts'/'A07W.step').exists(),
+      'V171 A07W is individual optional sample reference, NOT installed in complete heater STEP')
 check('A15FK' not in installed_ids,
       'V79 installed A part-level BOM must not resurrect floating A15FK control')
 study_csv=ROOT/'build'/'platform_A'/'uninstalled_study_parts.csv'
@@ -2246,8 +2275,8 @@ research_ids=set()
 if study_csv.exists():
     with study_csv.open(encoding='utf-8-sig',newline='') as f:
         research_ids={row['id'] for row in csv.DictReader(f)}
-check(research_ids=={'A18MGZ','A05C1302','A06GCM1102'},
-      'V116 uninstalled-study list must contain only A18MGZ/A05C1302/A06GCM1102, never required transfer hardware')
+check(research_ids=={'A18MGZ','A05C1302','A06GCM1102','A07W'},
+      'V171 uninstalled parts contain only three manufacturer studies plus the optional A07W demonstration chip')
 report['V132_A_user_corrected_installed_assembly']={
     'complete_film_chain_yaw_deg':180,
     'installed_transfer_parts':sorted(required),

@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const app=fs.readFileSync(new URL('../src/app.js',import.meta.url),'utf8');
+const markup=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const cad=fs.readFileSync(new URL('../cad/build_assemblies.py',import.meta.url),'utf8');
+assert.match(app,/let showSampleDemonstration=false;/);
+assert.match(app,/substrate.visible=showSampleDemonstration;/);
+assert.match(app,/part.id==='A07W'\)g.visible=showSampleDemonstration;/);
+assert.match(app,/A11EmittingDirectionLocal='-X'/);
+assert.match(app,/A11CableExitLocal=\[55,-38,12\]/);
+assert.match(app,/A11ExposedOEMStyleLEDPCB=true/);
+assert.match(app,/A11FrontFacingWarmWhiteLEDDIE=true/);
+assert.match(cad,/MWWHL4_FRONT_LED_PCB_OEM_STYLE_CANDIDATE/);
+assert.match(cad,/MWWHL4_WARM_WHITE_LED_DIE_VISUAL_PROXY/);
+assert.match(markup,/id="toggle-sample-demo" aria-pressed="false"/);
+assert.match(cad,/UNINSTALLED_A_STUDY_IDS=frozenset\(\{'A18MGZ','A05C1302','A06GCM1102','A07W'\}\)/);
+console.log('V171 default bare heater, optional demonstration, LED direction: 11 assertions passed');

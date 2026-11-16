@@ -65,6 +65,7 @@ jobs:
           node tests/a-camera-interface.mjs
           node --check src/a-control-interfaces.js
           node tests/a-control-interfaces.mjs
+          node tests/v171-default-physical-surface.mjs
           node --check src/a-external-camera.js
           node tests/a-external-camera.mjs
           node --check src/a-thermal-datums.js

@@ -76,9 +76,40 @@ external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
 let platform='B', bPhoto94Mode=false, aWorkingPoseMode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
     filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleShiftDepth=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
 let aThermalCutaway=false;
+// V171: optional transfer samples are NOT permanent hot-stage hardware.
+let showSampleDemonstration=false;
 // Read-only platform state for automated browser QA.
 window.__activePlatformProbe=()=>({platform,photoVariant:bPhoto94Mode?'archive':'current',
  aPose:platform==='A'?(aWorkingPoseMode?'installed180':'photo-reference'):null,partCount:parts.size});
+// V171 actual rendering state; the unloaded chip remains an optional study.
+window.__hotStageSurfaceProbe=()=>{
+ const chip=parts.get('A07W')?.g;
+ const chuck=parts.get(platform==='A'?'A07':'B11')?.g;
+ return {available:Boolean(chuck),platform,optionalSampleMode:showSampleDemonstration,
+   A07WVisible:platform==='A'?(chip?.visible??null):null,
+   BSubstrateVisible:platform==='B'?(sampleSubstrate?.visible??null):null,
+   demoChipIsChuckComponent:false,
+   visibleDefaultSurfaceIsBareMetal:!showSampleDemonstration};
+};
+window.__platformALampRearRoutingProbe=()=>{
+ if(platform!=='A')return {available:false};
+ const lamp=parts.get('A11')?.g,cam=parts.get('A20')?.g;
+ const p=lamp?.userData.A11CableExitLocal,wire=aControlRoutes({
+   opticalLiftMm:aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0
+ }).paths.led[0];
+ const actual=p&&lamp?lamp.localToWorld(new THREE.Vector3(...p)):null;
+ const last=cam?cam.localToWorld(new THREE.Vector3(32,-275,-152)).toArray():null;
+ return {available:Boolean(actual&&last),sourceBeamDirection:lamp?.userData.A11EmittingDirectionLocal,
+   frontSM1LocalXmm:lamp?.userData.A11SM1FrontLocalXmm,
+   mountingRingClearOfFins:lamp?.children.filter(o=>o.userData.A11HeatSinkFin)
+     .every(o=>o.position.x>19.5)??false,
+   bulbFollowsOpticalLift:true,
+   cableJoinGapMm:actual?Number(actual.distanceTo(new THREE.Vector3(...wire)).toFixed(3)):null,
+   cameraCableFinalExitCandidate:last,
+   cameraCableEndpointUnknown:true,
+   cameraTailEndsBeyondRearBoard:last?last[2]<-150:false};
+};
+
  // Photo-referenced A is the default view, not an unverified mirror.
  window.__platformAPhotoTruthProbe=()=>{
   if(platform!=='A')return {available:false};
@@ -2862,7 +2893,11 @@ function rotaryB(){
    g.userData.rearVacuumBoreNotBlocked=true;
    label(g,'B15 真空接头',4,12,-48);
  },{explode:[0,60,-20],rotateSample:true,translateSample:true,translateSampleDepth:true});
- const substrate=cub(24,.6,24,mats.glass,0,121.5+rise,0);currentRoot.add(substrate);sampleSubstrate=substrate;
+ // V171: the blue square is a DEMONSTRATION substrate, not part of the chuck.
+ const substrate=cub(24,.6,24,mats.glass,0,121.5+rise,0);
+ substrate.userData.optionalSampleReference=true;
+ substrate.visible=showSampleDemonstration;
+ currentRoot.add(substrate);sampleSubstrate=substrate;
 }
 function microscopeB(){
  const sx=CONFIG.B.sampleX,sz=CONFIG.B.scopeZ,
@@ -3923,6 +3958,7 @@ function platformA(){
     const sampleChip=add(g,cub(28,1.4,28,mats.glass,0,.7,0));
     sampleChip.userData.A07SampleChipProxy=true;
     sampleChip.userData.A07SampleChipThicknessUnverified=true;
+    sampleChip.userData.optionalSampleReference=true;
     g.userData.sampleMaterialAndThicknessUnverified=true;
     label(g,'A07W 样品片',0,14,0);
  },{explode:[0,92,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
@@ -4058,38 +4094,62 @@ function platformA(){
   label(g,'Daheng Imaging · 相机接口待识别',0,72,0);
  },{explode:[0,92,0]});
  addPart('A11',sx+96,220,0,g=>{
-   // Thorlabs MWWHL4 vendor geometry: Ø30.5mm heat sink, approximately
-   // 60mm overall axial envelope, internal SM1 thread at the optical end.
-   // V79 removes the invented flexible support that made a black cylinder
-   // hang below a fictitious A18 horizontal tube.
-   // V133: the single actual mounting ring now belongs to A21.
-   // No duplicate unsupported ring on A11.
-   // Thorlabs MWWHL4 mechanical drawing MTN006388: Ø30.5 mm housing,
-   // 60.1 mm total axial envelope, SM1 internal thread depth 6 mm.
-   const ledBody=add(g,cyl(15.25,60.1,mats.dark,36.05,0,0,72));
-   ledBody.rotation.z=Math.PI/2;
+   // V171 OEM Thorlabs MTN006388: total Ø30.5x60.1 and SM1 female depth 6.
+   // Optical opening faces -X TOWARDS the microscope, not away from it.
+   // LED emitter inside the module is a visual proxy; no lens/beam designed.
+   const ledBody=add(g,sleeve(15.25,11.9,60.1,mats.dark,36.05,0,0,'x'));
    ledBody.userData.A11OEMHousingDiameterMm=30.5;
    ledBody.userData.A11OEMHousingLengthMm=60.1;
    ledBody.userData.A11SM1InternalThreadDepthMm=6;
-   for(let x=10;x<=58;x+=4.8){
-     const fin=add(g,cyl(15.75,1.1,mats.black,x,0,0,72));
+   ledBody.userData.A11FrontBoreReal=true;
+   // Close only the BACK of the housing. The front 6mm remains a true bore.
+   const interior=add(g,cyl(11.88,54.1,mats.black,39.05,0,0,72));
+   interior.rotation.z=Math.PI/2;
+   interior.userData.A11InternalSolidBehindSM1Bore=true;
+   // SM1RC clamps the smooth 30.5mm land near world X=187.5;
+   // do not put fins through the mount's 30.7mm ID.
+   for(let x=23;x<=61;x+=4.8){
+     const fin=add(g,cyl(15.75,1.05,mats.black,x,0,0,72));
      fin.rotation.z=Math.PI/2;fin.userData.A11HeatSinkFin=true;
    }
-   // Keep the emitter face INSIDE the documented 60.1 mm envelope.
-   const emitter=add(g,cyl(10.8,.2,mats.ceramic,66.0,0,0,48));
-   emitter.rotation.z=Math.PI/2;emitter.userData.A11EmitterFace=true;
-   // Electrical lead only. It is NOT a mechanical gooseneck support.
-   const cable=add(g,tube([[43,-14,0],[44,-22,3],[48,-30,8],[55,-38,12]],2.2,mats.black));
+   // V171 OEM photo + MTN006388 Rev D section: exposed LED PCB at
+   // the microscope-facing SM1 mouth; NOT an invented opaque glass disc.
+   // Exact PCB diameter/LED die packaging is schematic, not OEM CAD.
+   const pcb=add(g,cyl(10.4,.45,mats.ink,11.75,0,0,48));
+   pcb.rotation.z=Math.PI/2;pcb.userData.A11EmitterFace=true;
+   pcb.userData.A11ExposedOEMStyleLEDPCB=true;
+   pcb.userData.A11PCBGeometryMeasured=false;
+   const gold=new THREE.MeshStandardMaterial({color:'#edc04f',roughness:.54,
+     metalness:.06,emissive:'#93640b',emissiveIntensity:.18});
+   const ledChip=add(g,cub(1.05,2.0,2.0,gold,11.05,0,0));
+   ledChip.userData.A11FrontFacingWarmWhiteLEDDIE=true;
+   ledChip.userData.A11LEDDieSizeIsVisualProxy=true;
+   for(const [dy,dz] of [[-6,2],[6,2],[-4.7,-5],[4.7,-5]]){
+     const contact=add(g,cyl(.75,.25,mats.copper,11.5,dy,dz,16));
+     contact.rotation.z=Math.PI/2;
+     contact.userData.A11PCBContactVisualProxy=true;
+   }
+   for(const dy of [-7.5,7.5]){
+     const fastener=add(g,cyl(1.0,.28,mats.steel,11.5,dy,-.8,16));
+     fastener.rotation.z=Math.PI/2;
+     fastener.userData.A11PCBVisibleFastenerVisualProxy=true;
+   }
+   g.userData.A11RealOEMVisualSource='MWWHL4 front board photo / MTN006388 Rev D';
+   // Cable on REAR half exits the housing and continuously joins A22.
+   const cable=add(g,tube([[55,-14,0],[56,-20,3],[56,-29,9],[55,-38,12]],2.2,mats.black));
    cable.userData.A11ElectricalCable=true;
    g.userData.A11MountingMethodVerified=false;
    g.userData.A11NoInventedGooseneckSupport=true;
+   g.userData.A11EmittingDirectionLocal='-X';
+   g.userData.A11SM1FrontLocalXmm=6;
+   g.userData.A11CableExitLocal=[55,-38,12];
    g.userData.A11PhotoPlacementOffsetFromOpticalAxisMm=96;
    g.userData.A11PlacementOffsetMeasured=false;
    g.userData.A11CollisionFreePlacementCandidate=true;
    g.userData.A11PlacementShiftFromV87Mm=46;
    g.userData.A11PlacementShiftFromV91Mm=24;
    g.userData.A11FollowsA18PhotoBodyOffset=true;
-   label(g,'A11 Thorlabs MWWHL4',35,28,0);
+   label(g,'A11 MWWHL4 · 前端SM1（支架仍待确认）',35,28,0);
  },{explode:[22,20,22]});
  addPart('A12',262,0,-80,g=>{
   // Thorlabs LEDD1B T-Cube envelope: W60 x H73 x D104mm.
@@ -4861,11 +4921,18 @@ function platformA(){
    label(g,'A19 转换盘 + 两支实拍物镜 · 外形细化 / 型号仍待复核',0,22,0);
  },{explode:[0,22,0]});
  addPart('A20',sx,323,0,g=>{
-   const points=[[18,44,0],[22,65,-12],[40,80,-24],[60,72,-22],[74,50,-8],[80,22,8],[76,-18,18]];
+   // V171: camera cable no longer terminates in mid-air next to the lens.
+   // Cable runs BACK along the stand and exits beyond the rear breadboard;
+   // the remote data endpoint is still UNKNOWN (do not invent a plug).
+   const points=[[18,44,0],[22,65,-15],[38,69,-36],[44,56,-64],
+     [43,34,-96],[36,-6,-123],[26,-98,-126],[18,-185,-128],[32,-275,-152]];
    const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));
-   const cable=add(g,new THREE.Mesh(new THREE.TubeGeometry(curve,80,2.4,10,false),mats.black));
-   cable.userData.A20CameraCableRouteCandidate=true;g.userData.electricalInterfaceVerified=false;
-   label(g,'A20 相机线缆',82,24,18);
+   const cable=add(g,new THREE.Mesh(new THREE.TubeGeometry(curve,108,2.4,10,false),mats.black));
+   cable.userData.A20CameraCableRouteCandidate=true;
+   cable.userData.A20NoMidAirCameraCableEnd=true;
+   g.userData.A20RearServiceExitWorldCandidate=[sx+32,48,-152];
+   g.userData.electricalInterfaceVerified=false;
+   label(g,'A20 相机后侧服务线束（终点待核）',0,-45,-129);
  },{explode:[0,45,20]});
  // V133 LED support: SM1RC is an OEM-compatible ring; independent base,
  // pole and adjustable bridge are UNVERIFIED engineering alternatives.
@@ -5477,6 +5544,8 @@ function updateTransforms(){
   // V131: user photos 1-3 show the bare clamp state. Keep A05G in the
   // engineering model, but render glass/PDMS only in the installed pose.
   if(platform==='A'&&part.id==='A05G')g.visible=aWorkingPoseMode;
+  // The user explicitly rejected the blue rectangle appearing on either chuck.
+  if(platform==='A'&&part.id==='A07W')g.visible=showSampleDemonstration;
   if(platform==='A'&&part.id==='A21'&&g.userData.ledAdjustableCarrier){
     // Only A21 upper collar and ring follow the optical parking lift.
     g.userData.ledAdjustableCarrier.position.y=
@@ -5523,6 +5592,7 @@ function updateTransforms(){
    }
  }
  if(sampleSubstrate&&platform==='B'){
+   sampleSubstrate.visible=showSampleDemonstration;
    const tx=stageLocalTranslation(sampleShift,angle);
    const tz=stageLocalDepthTranslation(sampleShiftDepth,angle);
    sampleSubstrate.position.set(CONFIG.B.sampleX+tx.x+tz.x,
@@ -5998,7 +6068,9 @@ renderer.domElement.addEventListener('pointerdown',ev=>{
 renderer.domElement.addEventListener('pointerup',ev=>{
  if(!pointerDown||Math.hypot(ev.clientX-pointerDown.x,ev.clientY-pointerDown.y)>6)return;
  const bounds=renderer.domElement.getBoundingClientRect();pointer.set(((ev.clientX-bounds.left)/bounds.width)*2-1,-((ev.clientY-bounds.top)/bounds.height)*2+1);
- raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(hitMeshes.filter(x=>x.visible&&x.parent?.visible),false);
+ raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(hitMeshes.filter(x=>{
+   let n=x;while(n){if(!n.visible)return false;n=n.parent;}return true;
+ }),false);
  let found=false;
  for(const hit of hits){let cur=hit.object;while(cur&&!cur.userData.partId)cur=cur.parent;
    if(cur?.userData.partId){selectPart(cur.userData.partId);found=true;break;}}
@@ -7484,6 +7556,12 @@ function proxyReplaced(o){
 $('toggle-holes').onclick=e=>{
  showHoles=!showHoles;e.currentTarget.classList.toggle('on',showHoles);
  holes.forEach(h=>h.visible=showHoles&&!proxyReplaced(h));
+};
+$('toggle-sample-demo').onclick=()=>{
+ showSampleDemonstration=!showSampleDemonstration;
+ $('toggle-sample-demo').classList.toggle('on',showSampleDemonstration);
+ $('toggle-sample-demo').setAttribute('aria-pressed',String(showSampleDemonstration));
+ updateTransforms();
 };
 $('toggle-a-thermal').onclick=()=>setAThermalCutaway(!aThermalCutaway);
 $('toggle-labels').onclick=e=>{showLabels=!showLabels;e.currentTarget.classList.toggle('on',showLabels);selectedLabels()};

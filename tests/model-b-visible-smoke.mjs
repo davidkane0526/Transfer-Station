@@ -29,6 +29,17 @@ try{
    throw e;
  }
  assert.equal(await page.locator('#platform-caption').innerText(),'平台 B');
+ // V171: default bare metal on both hot stages, optional demo only.
+ const bareB=await page.evaluate(()=>window.__hotStageSurfaceProbe?.());
+ assert.equal(bareB?.platform,'B');
+ assert.equal(bareB?.BSubstrateVisible,false);
+ assert.equal(bareB?.visibleDefaultSurfaceIsBareMetal,true);
+ assert.equal(await page.locator('#toggle-sample-demo').getAttribute('aria-pressed'),'false');
+ await page.locator('#toggle-sample-demo').evaluate(el=>el.click());
+ assert.equal((await page.evaluate(()=>window.__hotStageSurfaceProbe?.())).BSubstrateVisible,true);
+ await page.locator('#toggle-sample-demo').evaluate(el=>el.click());
+ assert.equal((await page.evaluate(()=>window.__hotStageSurfaceProbe?.())).BSubstrateVisible,false);
+
  assert.equal(await page.locator('#photo-scope-note').isHidden(),true);
  assert.equal(await page.locator('#b-photo-profile').isHidden(),true);
  assert.equal(await page.locator('#photo-crosscheck').isHidden(),true);
@@ -654,6 +665,23 @@ try{
  console.log('V51 platform switch diagnostic:',JSON.stringify(switchState));
  assert.deepEqual(failures,[],'Browser runtime error while switching from B to A: '+failures.join(' | '));
  assert.equal(switchState.platform,'A','Archive button did not switch the active scene to platform A');
+ const bareA=await page.evaluate(()=>window.__hotStageSurfaceProbe?.());
+ assert.equal(bareA?.platform,'A');
+ assert.equal(bareA?.A07WVisible,false);
+ assert.equal(bareA?.demoChipIsChuckComponent,false);
+ await page.locator('#toggle-sample-demo').evaluate(el=>el.click());
+ assert.equal((await page.evaluate(()=>window.__hotStageSurfaceProbe?.())).A07WVisible,true);
+ await page.locator('#toggle-sample-demo').evaluate(el=>el.click());
+ assert.equal((await page.evaluate(()=>window.__hotStageSurfaceProbe?.())).A07WVisible,false);
+ const lamp171=await page.evaluate(()=>window.__platformALampRearRoutingProbe?.());
+ assert.equal(lamp171?.available,true);
+ assert.equal(lamp171.sourceBeamDirection,'-X');
+ assert.equal(lamp171.frontSM1LocalXmm,6);
+ assert.equal(lamp171.mountingRingClearOfFins,true);
+ assert.equal(lamp171.cableJoinGapMm,0,'A11 pigtail must join A22');
+ assert.equal(lamp171.cameraTailEndsBeyondRearBoard,true);
+ assert.equal(lamp171.cameraCableEndpointUnknown,true);
+
  assert.equal(switchState.caption,'平台 A · 工作位');
  assert.equal(await page.locator('#platform-caption').innerText(),'平台 A · 工作位');
  assert.equal(await page.locator('#a-pose-selector').isHidden(),true,
@@ -1970,7 +1998,7 @@ try{
  await page.locator('#open-bom').evaluate(el=>el.click());
  const aChipRow=page.locator('#bom-body tr').filter({hasText:/^\s*A07W\b/});
  assert.equal(await aChipRow.count(),1,
-   'A07W sample chip must be a distinct BOM/scene/STEP part, not hidden in A07 metal');
+   'A07W remains optional in BOM and individual STEP, never fused to the hot-stage metal');
  await page.locator('#close-bom').evaluate(el=>el.click());
  assert.equal(aContactBefore.clampFastenerProxyCount,2);
  assert.equal(aContactBefore.dimensionsForFabricationValidated,false);

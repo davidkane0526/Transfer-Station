@@ -354,6 +354,11 @@ export function enrichParts(partMap, platform, onMesh){
        // Keep only a side marking attached to the actual cylindrical body.
        const tag=decal(g,'THORLABS',20,5,36,0,15.45,'front','#e2e7e9');
        tag.userData.A11BodyAttachedBrandDecoration=true;
+       // Warm-white LED modules have a manufacturer warning patch on the
+       // finned body. Decal is a 2D graphic, not additional mechanical solid.
+       const warning=decal(g,'LED  RADIATION',23,7,49,0,16.1,'front',
+         '#282215','#ddb73b');
+       warning.userData.A11WarningLabelSchematic=true;
        g.userData.noDuplicateDecorativeEmitterDiscs=true;
      });
      decoration('A13',(g)=>{
