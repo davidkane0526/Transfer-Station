@@ -1538,6 +1538,11 @@ try{
  await page.locator('#btn-a-optical-spacing').click();
  assert.equal((await page.evaluate(()=>window.__modelAOpticalReferenceProbe?.())).onlyTechnicalReferenceOverlayVisible,true);
  assert.equal((await page.evaluate(()=>window.__modelAOpticalReferenceProbe?.())).referenceOverlayIsPhysicalPart,false);
+ const referenceFrame=await page.evaluate(()=>window.__modelAOpticalReferenceFramingProbe?.());
+ assert.equal(referenceFrame?.available,true);
+ assert(Math.max(Math.abs(referenceFrame.minX),Math.abs(referenceFrame.maxX),
+   Math.abs(referenceFrame.minY),Math.abs(referenceFrame.maxY))<.98,
+   'A08–A09 reference plane and camera must fit within the optical close-up viewport');
  assert.equal(await page.locator('#a-optical-reference-summary').getAttribute('data-shortfall'),'43');
  assert.equal(await page.locator('#a-optical-reference-summary').getAttribute('data-certified'),'false');
  assert.match(await page.locator('#a-optical-reference-summary').innerText(),/参考像面不在当前相机外壳代理范围内/);
@@ -1553,7 +1558,8 @@ try{
  const a10Row=page.locator('#bom-body tr').filter({hasText:/^\s*A10\b/});
  assert.equal(await a10Row.count(),1);
  await a10Row.click();
- await page.locator('#close-bom').click();
+ // Clicking a BOM row already closes the drawer; do not click its hidden close button.
+ assert.equal(await page.locator('#bom-drawer').evaluate(el=>el.classList.contains('open')),false);
  assert.equal(await page.locator('#a10-a18-interface-summary').getAttribute('data-verified'),'false');
  await page.locator('#a10-a18-interface-summary').screenshot({path:'Transfer-Station-A-V169-A10A18-Interface-Detail.png',animations:'disabled',timeout:30000});
  // Return to the normal A18 view and clear selection for later screenshot QA.

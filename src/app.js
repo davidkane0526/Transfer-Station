@@ -7270,12 +7270,38 @@ function focusAOpticalReferenceView(){
  const center=bbox.getCenter(new THREE.Vector3());
  const size=bbox.getSize(new THREE.Vector3());
  const height=Math.max(size.y,size.x,size.z,1);
- const distance=Math.max(250,height/(2*Math.tan(camera.fov*Math.PI/360))*.95);
+ // V169 QA: the first closeup cropped the 148mm reference ring and lens base.
+ // Increase margin so the reference plane and complete tube lens fit in frame.
+ const distance=Math.max(310,height/(2*Math.tan(camera.fov*Math.PI/360))*1.55);
  const offset=new THREE.Vector3(.35,.16,1).normalize().multiplyScalar(distance);
  camera.position.copy(center).add(offset);
  orbit.target.copy(center);camera.up.set(0,1,0);camera.lookAt(center);orbit.update();
  return true;
 }
+// V169 integration QA: verify projected framing of the physical camera,
+ // OEM lens shell, and separately identified nonphysical reference guide.
+ window.__modelAOpticalReferenceFramingProbe=()=>{
+  if(platform!=='A')return {available:false};
+  const lens=parts.get('A08')?.g,cam=parts.get('A09')?.g;
+  const shell=lens?.children.filter(o=>o.isMesh&&o.userData.A08OEMShellSegment)??[];
+  const housing=cam?.children.find(o=>o.isMesh&&o.userData.A09CameraHousingProxy);
+  const reference=lens?.userData.A08WDReferenceOverlay;
+  if(shell.length!==3||!housing||!reference?.visible)return {available:false};
+  currentRoot.updateWorldMatrix(true,true);
+  camera.updateMatrixWorld(true);camera.updateProjectionMatrix();
+  const bounds=new THREE.Box3();
+  for(const obj of [...shell,housing,reference])
+    bounds.union(new THREE.Box3().setFromObject(obj));
+  const xs=[bounds.min.x,bounds.max.x],ys=[bounds.min.y,bounds.max.y],
+        zs=[bounds.min.z,bounds.max.z];
+  const projected=[];
+  for(const x of xs)for(const y of ys)for(const z of zs)
+    projected.push(new THREE.Vector3(x,y,z).project(camera));
+  return {available:true,
+    minX:Math.min(...projected.map(v=>v.x)),maxX:Math.max(...projected.map(v=>v.x)),
+    minY:Math.min(...projected.map(v=>v.y)),maxY:Math.max(...projected.map(v=>v.y)),
+    referenceOverlayIsPhysicalPart:false};
+ };
  $('btn-a-optical-spacing').onclick=()=>{
    if(platform!=='A')return;
    const overlay=parts.get('A08')?.g?.userData.A08WDReferenceOverlay;
