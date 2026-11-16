@@ -10,7 +10,7 @@ import vtk
 from PIL import Image,ImageOps,ImageDraw,ImageFont
 
 ROOT=Path(__file__).resolve().parent
-OUT=ROOT/'visual_review'/'V171'
+OUT=ROOT/'visual_review'/'V172'
 OUT.mkdir(parents=True,exist_ok=True)
 
 def family(k):
@@ -18,7 +18,7 @@ def family(k):
   if k.startswith(pre):return pre
  return k[:3]
 COLORS={
-'A10':(.20,.28,.34),'A18':(.63,.71,.75),'A19':(.22,.26,.31),'A21':(.32,.43,.51),
+'A10':(.10,.12,.14),'A18':(.63,.71,.75),'A19':(.22,.26,.31),'A21':(.32,.43,.51),
 'A11':(.13,.15,.17),'A08':(.27,.32,.37),'A09':(.40,.50,.59),'A14':(.29,.31,.35),
 'A20':(.09,.12,.13),'A07':(.75,.81,.84),'A31':(.73,.50,.24),'A32':(.20,.24,.29),
 'A26':(.82,.72,.52),'A27':(.86,.56,.28),'A28':(.52,.60,.64),

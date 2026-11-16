@@ -1146,6 +1146,13 @@ try{
  assert.equal(a19Mechanical.allSocketsInserted,true);
  assert.equal(a19Mechanical.allMounted,true);
  assert.equal(a19Mechanical.unseenPortCountUnknown,true);
+ assert.equal(a19Mechanical.selectedPortOpticalAxisGapMm,0,
+   'V172 right vertical objective must be coaxial with A08/A18 optical axis');
+ assert.equal(a19Mechanical.otherVisibleObjectiveOffsetMm,-36);
+ assert.equal(a19Mechanical.realNeckBore,true);
+ assert.equal(a19Mechanical.selectedPortRayClear,true,
+   'V172 optical ray cannot be blocked by a solid nosepiece hub or adapter');
+ assert.equal(a19Mechanical.indexingMechanismVerified,false);
  assert.equal(a19Mechanical.machiningGrade,false);
  assert.equal(await page.locator('#btn-a18-optical').isVisible(),true);
  assert.equal(await page.locator('#btn-a18-support').isVisible(),true);
@@ -1721,10 +1728,12 @@ try{
    'WebGL geometry itself—not only metadata—must offset the A18 body 24mm from top optical axis');
  assert.equal(dA.A18ActualBodyToBottomOpticalOffsetMm,24,
    'Bottom nosepiece interface must remain on optical axis while A18 body is offset');
- assert.equal(dA.A18ActualBodyToTurretOffsetMm,24,
-   'A19 turret must stay on optical axis rather than following the housing center');
+ assert.equal(dA.A18ActualBodyToTurretOffsetMm,42,
+   'V172 nosepiece plate has offset pivot so an objective can reach the optical axis');
  assert.equal(dA.A18TopOpticalCenterWorldX,dA.A18BottomOpticalCenterWorldX);
- assert.equal(dA.A18TopOpticalCenterWorldX,dA.A19TurretCenterWorldX);
+ assert.equal(dA.A19TurretPivotOffsetFromAxisCandidateMm,-18);
+ assert.equal(dA.A19TurretCenterWorldX,dA.A18TopOpticalCenterWorldX-18);
+ assert.equal(dA.A19SelectedObjectiveCenterWorldX,dA.A18TopOpticalCenterWorldX);
  assert.equal(dA.A18MGZ30CandidateOnly,true,
    'MGZ30 remains topology comparison only; no auto-identification');
  assert.equal(dA.A18MGZ30VendorTravelMm,30);

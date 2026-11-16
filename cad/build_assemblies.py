@@ -1133,12 +1133,12 @@ def make_a():
     add('A','A18FW2','FIXED_RIGHT_FOCUS_SIDE_GUSSET_CANDIDATE',
         box(34,70,36,cx+48,19,185),'C')
     add('A','A18SB','MOVING_NOSEPIECE_YOKE_SPINE_CANDIDATE',
-        box(38,56,7,cx+36,27,165),'C')
+        box(38,56,7,cx+37,27,165),'C')
     saddle_ring=vz(29,7,cx,0,165).cut(vz(18.2,7.2,cx,0,164.9))
     add('A','A18SR','MOVING_NOSEPIECE_BORED_RING_CANDIDATE',
         saddle_ring,'C')
-    add('A','A18VR','MOVING_OPTICAL_UPRIGHT_CANDIDATE',
-        box(8,10,70,cx+26,8,164),'C')
+    add('A','A18VR','MOVING_OPTICAL_UPRIGHT_CLEAR_OF_TURRET_CANDIDATE',
+        box(8,10,69,cx+26,8,165),'C')
     add('A','A18UL','MOVING_TOP_INTERFACE_EAR_CANDIDATE',
         box(12,10,8,cx+25,5,226),'C')
     add('A','A18F','RECESSED_FOCUS_FRONT_COVER_CANDIDATE',
@@ -1154,8 +1154,10 @@ def make_a():
         box(54,7,15,a18_body_x,49,167.5),'C')
     add('A','A18CB','FOCUS_CARRIAGE_OPTICAL_BRIDGE_CANDIDATE',
         box(42,8,12,cx+3,43.5,165),'C')
-    add('A','A18AD','FOCUS_OPTICAL_NOSEPIECE_ADAPTER_CANDIDATE',
-        box(44,37,5,cx+3,23,163.5),'C')
+    # V172: V171 adapter cut through turret by 1.5mm and intercepted a
+    # portion of its optical aperture. Remain behind the 11.8mm ray cone.
+    add('A','A18AD','FOCUS_OPTICAL_NOSEPIECE_ADAPTER_CLEAR_OF_TURRET_CANDIDATE',
+        box(44,23,5,cx+3,30,165),'C')
     for i,dx in enumerate((-7.6,55.6),1):
         add('A',f'A18CW{i}','FOCUS_SLIDING_SHOE_CANDIDATE',
             box(11,2,28,cx+dx,49.4,167),'C')
@@ -1222,42 +1224,48 @@ def make_a():
         'MGZ30_FAMILY_INTEGRAL_REAR_POST_CLAMP_TOPOLOGY_STUDY_NOT_INSTALLED',
         mgz_study,'C')
 
-    # Only two installed objectives are photo-supported. Do not invent empty ports.
-    turret=vz(36,10,cx,0,155)
-    for xx in (cx-18,cx+18):
+    # V172: physical optical centre is cx=78. Previously both visible
+    # two-port bores were at cx±18: neither objective was in the optical
+    # path. Shift the unverified plate's centre to cx-18 so the vertical
+    # selected port is at cx, the other visible inclined port at cx-36.
+    # This is a conditional photo-fit, NOT proof of OEM turret indexing.
+    turret=vz(36,10,cx-18,0,155)
+    for xx in (cx-36,cx):
         turret=turret.cut(vz(11.8,10.2,xx,0,154.9))
     add('A','A19','PHOTO_TWO_PORT_NOSEPIECE_REAL_BORE_CANDIDATE',turret.clean(),'C')
-    for i,xx in enumerate((cx-18,cx+18),1):
+    for i,xx in enumerate((cx-36,cx),1):
         seat=vz(13.5,3,xx,0,154).cut(vz(11.65,3.2,xx,0,153.9))
         add('A',f'A19P{i}','HOLLOW_OBJECTIVE_SOCKET_CANDIDATE',seat,'C')
-    add('A','A19N','MICROSCOPE_OBJECTIVE_TURRET_NECK_PROXY',
-        vz(18,5,cx,0,163),'C')
-    objective_pivot=Vector(cx-18,0,155)
-    objective_axis=Vector(cx-18,1,155)
+    # V172: previously solid A19N blocked optical axis even though
+    # A18N above it and A19 below it were bored sleeves.
+    add('A','A19N','OPEN_D24_OPTICAL_NECK_CANDIDATE',
+        vz(18,5,cx,0,163).cut(vz(12,5.2,cx,0,162.9)),'C')
+    objective_pivot=Vector(cx-36,0,155)
+    objective_axis=Vector(cx-36,1,155)
     left_tilt=lambda sh:sh.rotate(objective_pivot,objective_axis,22.5)
     add('A','A19M1','LEFT_OBJECTIVE_MOUNT_NECK_CANDIDATE',
-        left_tilt(vz(10.9,4,cx-18,0,154)),'C')
+        left_tilt(vz(10.9,4,cx-36,0,154)),'C')
     add('A','A19M2','CENTER_OBJECTIVE_MOUNT_NECK_CANDIDATE',
-        vz(10.9,4,cx+18,0,154),'C')
-    left_obj=vz(11.5,14,cx-18,0,141).fuse(
-        vz(10,16,cx-18,0,125),
-        vz(8.2,9,cx-18,0,116))
-    center_obj=vz(11.5,14,cx+18,0,141).fuse(
-        vz(10,16,cx+18,0,125),
-        vz(8.2,9,cx+18,0,116))
+        vz(10.9,4,cx,0,154),'C')
+    left_obj=vz(11.5,14,cx-36,0,141).fuse(
+        vz(10,16,cx-36,0,125),
+        vz(8.2,9,cx-36,0,116))
+    center_obj=vz(11.5,14,cx,0,141).fuse(
+        vz(10,16,cx,0,125),
+        vz(8.2,9,cx,0,116))
     add('A','A19O1','JHTOP_MPLAN_FAMILY_LEFT_INCLINED_PHOTO_CANDIDATE',
         left_tilt(left_obj),'C')
     add('A','A19O2','PLANFL_FAMILY_CENTER_VERTICAL_TEXT_READING_UNVERIFIED',
         center_obj,'C')
     add('A','A19R1','LEFT_INCLINED_OBJECTIVE_COLOR_BAND_PROXY',
-        left_tilt(vz(12.4,2,cx-18,0,124)),'C')
+        left_tilt(vz(12.4,2,cx-36,0,124)),'C')
     add('A','A19R2','CENTER_VERTICAL_OBJECTIVE_COLOR_BAND_PROXY',
-        vz(12.4,2,cx+18,0,124),'C')
+        vz(12.4,2,cx,0,124),'C')
     camera_cable=cable_path([(cx+18,0,367),(cx+22,-15,388),(cx+38,-36,392),
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V171'
+CAD_REVISION='V172'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

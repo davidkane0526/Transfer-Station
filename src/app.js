@@ -543,8 +543,30 @@ window.__modelAOpticalClearanceProbe=()=>{
       return {discOpen,seatOpen,inserted:Number(inserted.toFixed(2)),
         hasMount:pivots[i].children.some(o=>o.userData.A19ObjectiveMountShank)};
     });
+    const a08=parts.get('A08')?.g;
+    const a18=parts.get('A18')?.g;
+    const neck=root.children.find(o=>o.userData.A19A18MountNeck);
+    const adapter=a18?.children.find(o=>o.userData.A18ObjectiveDovetailAdapterCandidate);
+    const selected=seats.find(o=>o.userData.A19ObjectiveSocket==='center');
+    const spare=seats.find(o=>o.userData.A19ObjectiveSocket==='left');
+    const opticalPosition=a08?.localToWorld(new THREE.Vector3(0,0,0));
+    const selectedPosition=selected?.getWorldPosition(new THREE.Vector3());
+    const sparePosition=spare?.getWorldPosition(new THREE.Vector3());
+    const opticalAxisGapMm=opticalPosition&&selectedPosition?
+      Number(Math.hypot(opticalPosition.x-selectedPosition.x,opticalPosition.z-selectedPosition.z).toFixed(2)):null;
+    const otherObjectiveOffsetMm=opticalPosition&&sparePosition?
+      Number((sparePosition.x-opticalPosition.x).toFixed(2)):null;
+    const holeRay=new THREE.Raycaster(new THREE.Vector3(opticalPosition.x,
+      selectedPosition.y+12,opticalPosition.z),new THREE.Vector3(0,-1,0),0,17);
+    const axialPlugs=[disc,neck,adapter].filter(Boolean);
+    const selectedPortRayClear=holeRay.intersectObjects(axialPlugs,false).length===0;
+    const realNeckBore=Boolean(neck?.userData.A19TrueOpenCoaxialMount);
     return {available:true,boreCount:disc.userData.A19InstalledPortThroughBores,
       seatCount:seats.length,objectiveCount:pivots.length,
+      selectedPortOpticalAxisGapMm:opticalAxisGapMm,
+      otherVisibleObjectiveOffsetMm:otherObjectiveOffsetMm,
+      realNeckBore,selectedPortRayClear,
+      indexingMechanismVerified:false,
       allTrueBores:axes.every(x=>x.discOpen&&x.seatOpen),
       allSocketsInserted:axes.every(x=>x.inserted>=1.9),
       allMounted:axes.every(x=>x.hasMount),
@@ -925,6 +947,8 @@ window.__modelAPhoto194Probe=()=>{
    const a18TopOpticalCenterWorldX=a18Top?centerX(a18Top):null;
    const a18BottomOpticalCenterWorldX=a18Bottom?centerX(a18Bottom):null;
    const a19TurretCenterWorldX=a19Turret?centerX(a19Turret):null;
+   const a19SelectedSeat=parts.get('A19')?.g.children.find(o=>o.userData.A19ObjectiveSocket==='center');
+   const a19SelectedObjectiveCenterWorldX=a19SelectedSeat?centerX(a19SelectedSeat):null;
    const ringBox=box(lampRing),lampBox=box(lamp);
    const ringToBodyGapMm=d(Math.max(0,ringBox.min.x-a18BodyBox.max.x,
      a18BodyBox.min.x-ringBox.max.x));
@@ -978,6 +1002,8 @@ window.__modelAPhoto194Probe=()=>{
      A18TopOpticalCenterWorldX:a18TopOpticalCenterWorldX,
      A18BottomOpticalCenterWorldX:a18BottomOpticalCenterWorldX,
      A19TurretCenterWorldX:a19TurretCenterWorldX,
+     A19SelectedObjectiveCenterWorldX:a19SelectedObjectiveCenterWorldX,
+     A19TurretPivotOffsetFromAxisCandidateMm:a19Turret?.userData.A19PivotOffsetFromOpticalAxisCandidateMm??null,
      A18ActualBodyToTopOpticalOffsetMm:(a18TopOpticalCenterWorldX===null)?null:d(a18BodyCenterWorldX-a18TopOpticalCenterWorldX),
      A18ActualBodyToBottomOpticalOffsetMm:(a18BottomOpticalCenterWorldX===null)?null:d(a18BodyCenterWorldX-a18BottomOpticalCenterWorldX),
      A18ActualBodyToTurretOffsetMm:(a19TurretCenterWorldX===null)?null:d(a18BodyCenterWorldX-a19TurretCenterWorldX),
@@ -3978,8 +4004,11 @@ function platformA(){
       head.userData.A10CandidateBoltHead=true;
     }
     // V59: taller photographed camera/microscope stack; post length remains candidate.
-    const fixedPost=add(g,cyl(13,372,mats.steel,0,199,0)); // fixed optical post
+    // V172 photo191/192/193: the actual column reads dark, not bright silver.
+    // Surface finish and post diameter remain unmeasured photo candidates.
+    const fixedPost=add(g,cyl(13,372,mats.black,0,199,0));
     fixedPost.userData.A10FixedOpticalPost=true;
+    fixedPost.userData.A10DarkColumnPhotoMatchCandidate=true;
     fixedPost.userData.A10PostDiameterCandidateMm=26;
     fixedPost.userData.A10PostDiameterMeasured=false;
     const movingBoom=new THREE.Group();g.add(movingBoom);
@@ -4292,7 +4321,9 @@ function platformA(){
       const shoe=add(g,cub(11,28,2,mats.steel,x,-19,49.4));
       shoe.userData.A18SlidingShoeCandidate=x<0?'left':'right';
     }
-   const adapter=add(g,cub(44,5,37,mats.black,3,-34,23));
+   // V172 retract from the rotating nosepiece and its full optical inlet.
+   // Previous Z=163.5..168.5 in STEP penetrated the turret by 1.5 mm.
+   const adapter=add(g,cub(44,5,23,mats.black,3,-32.5,30));
    adapter.userData.A18ObjectiveDovetailAdapterCandidate=true;
     // The adapter previously stopped 4 mm short of its carrier.
     const opticalBridge=add(g,cub(42,12,8,mats.dark,3,-29,43.5));
@@ -4330,13 +4361,14 @@ function platformA(){
     fixedWebR.userData.A18FixedSideWeb='right';
     // Lower yoke: a straight load-bearing spine and a *bored* circular
     // end flange.  Unlike a black painted disc, it has a true axial hole.
-    const movingSpine=add(g,cub(38,7,56,mats.dark,36,-31.5,27));
+    const movingSpine=add(g,cub(38,7,56,mats.dark,37,-31.5,27));
     movingSpine.userData.A18MovingNosepieceSpine=true;
     const movingRing=add(g,sleeve(29,18.2,7,mats.dark,0,-31.5,0,'y'));
     movingRing.userData.A18MovingNosepieceRing=true;
     // A moving upright supports the upper optical adapter but stays clear
     // of both stationary side-gussets (1 mm running clearance on right).
-    const movingUpright=add(g,cub(8,70,10,mats.dark,26,-1,8));
+    // V172 lifts moving upright 1mm clear of independent turret top.
+    const movingUpright=add(g,cub(8,69,10,mats.dark,26,-.5,8));
     movingUpright.userData.A18MovingOpticalUpright=true;
     const upperEar=add(g,cub(12,8,10,mats.dark,25,30,5));
     upperEar.userData.A18MovingTopOpticalEar=true;
@@ -4878,16 +4910,24 @@ function platformA(){
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
    // V143: real bores ONLY for the two photographed mounted objectives.
+   // V172: right VERTICAL objective must lie on the A08/A18 optical axis.
+   // V171 placed visible ports at -18/+18, so neither was optically aligned.
+   // Candidate 2-port plate centre is offset -18; its two true ports are
+   // x=-36 and x=0. Actual indexing spindle/port count remains unverified.
    const turret=add(g,drilledDisc(36,10,mats.black,[[-18,0,11.8],[18,0,11.8]]));
    // ExtrudeGeometry starts at y=0, unlike centered CylinderGeometry.
    // Restore the original 155..165mm turret envelope to avoid hitting A18.
-   turret.position.y=-5;
+   turret.position.set(-18,-5,0);
    turret.userData.A19TurretEnvelopeCandidate=true;
+   turret.userData.A19PivotOffsetFromOpticalAxisCandidateMm=-18;
    turret.userData.A19InstalledPortThroughBores=2;
    add(g,torus(34,1,mats.steel,0,0,0));
-   const neck=add(g,cyl(18,5,mats.dark,0,5.5,0,64));
+   // A19N used to be an opaque Ø36 cylinder sealing the entire optical
+   // path. The mount now uses a real Ø24 open bore beneath A18N.
+   const neck=add(g,sleeve(18,12,5,mats.dark,0,5.5,0,'y'));
    neck.userData.A19A18MountNeck=true;
-   for(const [i,x] of [-18,18].entries()){
+   neck.userData.A19TrueOpenCoaxialMount=true;
+   for(const [i,x] of [-36,0].entries()){
       const socket=add(g,sleeve(13.5,11.65,3,mats.dark,x,-4.5,0,'y'));
       socket.userData.A19ObjectiveSocket=i?'center':'left';
    }
@@ -4908,10 +4948,14 @@ function platformA(){
      lens.userData.objectiveOpticProxy=true;
      return pivot;
    };
-   objective(-18,-Math.PI/8,'JH-TOP MPLAN family? · 精确SKU/倍率/NA待复核',mats.copper,'left');
-   objective(18,0,'Olympus/Evident PlanFL family? · 精确SKU/倍率/NA待复核',mats.silver,'center');
+   objective(-36,-Math.PI/8,'JH-TOP MPLAN family? · 精确SKU/倍率/NA待复核',mats.copper,'left');
+   objective(0,0,'Olympus/Evident PlanFL family? · 精确SKU/倍率/NA待复核',mats.silver,'center');
    g.userData.installedObjectiveCount=2;
-   g.userData.A19InstalledPortCount=2;
+   g.userData.A19SelectedObjectiveOffsetFromA08OpticalAxisMm=0;
+   g.userData.A19OtherVisibleObjectiveOffsetMm=-36;
+   g.userData.A19MechanismForIndexingVerified=false;
+   g.userData.A19SelectedPortOpticalBoreCandidateMm=23.6;
+   g.userData.installedObjectiveCount=2;
    g.userData.A19PhotoFitVisiblePortCount=2;
    g.userData.A19MGZ30FivePortConflictUnresolved=true;
    g.userData.A19MGZ30CandidateVendorPortCount=5;

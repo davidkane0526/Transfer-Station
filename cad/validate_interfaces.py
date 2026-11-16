@@ -907,7 +907,7 @@ report['V92_A11_focus_clearance']={
     'vendor_lamp_geometry_preserved':True
 }
 # V143 two true optical-seat through-holes, not black painted spots.
-for i,xx in enumerate((78-18,78+18),1):
+for i,xx in enumerate((78-36,78),1):
     disc=part(A,'A19')[0]
     seat=part(A,f'A19P{i}')[0]
     check(disc.intersect(vz(11.5,10.2,xx,0,154.9)).Volume()<1e-4,
@@ -918,6 +918,35 @@ for i,xx in enumerate((78-18,78+18),1):
           'V143 socket must enter the turret by at least 2mm')
     check(len(part(A,f'A19M{i}'))==1,
           'V143 each installed objective requires a separate insertion neck')
+# V172: for the first time verify a PHYSICALLY OPEN COAXIAL PATH, rather
+# than only confirming two bores somewhere else on the turret disk.
+a19_disc=part(A,'A19')[0]
+a19_neck=part(A,'A19N')[0]
+a19_vertical=part(A,'A19O2')[0]
+a18_adapter=part(A,'A18AD')[0]
+a18_moving_upright=part(A,'A18VR')[0]
+selected_axis=vz(10.5,18.2,78,0,154.9)
+check(a19_disc.intersect(selected_axis).Volume()<1e-4 and
+      a19_neck.intersect(selected_axis).Volume()<1e-4 and
+      part(A,'A18N')[0].intersect(selected_axis).Volume()<1e-4,
+      'V172 selected right objective optical bore must stay open across turret, neck and coupler')
+check(a18_adapter.intersect(selected_axis).Volume()<1e-4,
+      'V172 focus adapter must not clip selected optical aperture')
+check(a18_adapter.intersect(a19_disc).Volume()<1e-4 and
+      a18_adapter.intersect(a19_neck).Volume()<1e-4 and
+      part(A,'A18SB')[0].intersect(a19_neck).Volume()<1e-4 and
+      a18_moving_upright.intersect(a19_disc).Volume()<1e-4,
+      'V172 turret and optical neck must clear adapter, moving yoke and upright')
+check(abs((a19_vertical.BoundingBox().xmin+a19_vertical.BoundingBox().xmax)/2-78)<.05,
+      'V172 selected vertical objective barrel must align with actual A08 optical axis')
+check(abs((a19_disc.BoundingBox().xmin+a19_disc.BoundingBox().xmax)/2-60)<.05,
+      'V172 2-port plate pivot offset should be -18 mm relative to the actual 78mm axis')
+report['V172_optical_path']={
+  'optical_axis_x_mm':78,'selected_objective_x_mm':78,
+  'other_inclined_objective_nominal_x_mm':42,'turret_plate_axis_x_mm':60,
+  'true_coaxial_port_count':1,'A19N_solid_plug_removed':True,
+  'A18_adapter_clears_turret_and_aperture':True,
+  'OEM_indexing_mechanism_confirmed':False,'fabrication_ready':False}
 report['V143_A19_two_port_nosepiece']={
   'visible_installed_objectives':2,
   'true_bored_positions':2,'unseen_ports_verified':False,
@@ -926,7 +955,7 @@ check(abs(a19.zmin-155)<.02 and abs(a19.zmax-165)<.02,
       'V79 objective turret remains a distinct 10mm component below microscope head')
 check(111.4+2<o1.zmin<121 and o1.zmax<=160 and
       abs(o2.zmin-116)<.02 and abs(o2.zmax-155)<.02 and
-      o1.xmin<78-18-12 and abs(o2.xmin-(78+18-11.5))<.02,
+      o1.xmin<78-36-12 and abs(o2.xmin-(78-11.5))<.02,
       'V79 two photographed objectives remain distinct and above sample while left objective is inclined')
 check(abs(part(A,'A19R1')[0].BoundingBox().xmin-
           part(A,'A19O1')[0].BoundingBox().xmin)<15,
