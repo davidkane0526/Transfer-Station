@@ -339,15 +339,9 @@ export function enrichParts(partMap, platform, onMesh){
     });
     decoration('A06',(g)=>{analogScale(g,31.8,8); g.userData.A06NoFalseMicrometerDecoration=true;});
      decoration('A08',(g)=>{
-        // A08 TTL200-A housing nominal local Y=0..28mm only.
-        // Rings Y73 and Y84 were disconnected ghost geometry.
-        for(const y of [2,12,20]){
-          const rim=cyl(g,26.5,1.2,0,y,0,ring);
-          rim.userData.A08HousingCollarCandidate=true;
-        }
-        g.userData.A08HousingCollarsConfinedToNominal28mm=true;
-        decal(g,'THORLABS TTL200-A',31,8,0,14,26.4,'front','#dce5f1');
-        cyl(g,12,2,0,0,0,green);
+        // V166: accurate OEM body and shoulders. No fake collars or optical plug.
+        decal(g,'THORLABS TTL200-A',31,8,0,14,27.8,'front','#dce5f1');
+        g.userData.A08DecorativeSolidOpticalPlugRemoved=true;
      });
      decoration('A09',(g)=>{
         for(let y of [2,43])cyl(g,17,2.2,0,y,0,ring);
