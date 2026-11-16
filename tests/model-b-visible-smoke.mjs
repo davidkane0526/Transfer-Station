@@ -1154,10 +1154,11 @@ try{
  assert.equal(chain.upperEarContactsUpright,true);
  assert.equal(chain.upperEarContactsOpticalCollar,true);
  assert.equal(chain.ttlOEMShellSegmentCount,3);
- assert.equal(chain.ttlOEMLowerFaceWorldYmm,235);
- assert.equal(chain.A18TopFlangeWorldYmm,235);
+ assert(Number.isFinite(chain.ttlOEMLowerFaceWorldYmm));
+ assert.equal(chain.ttlOEMLowerFaceWorldYmm,chain.A18TopFlangeWorldYmm,
+   'V168 OEM shell and flange must meet at same world height in any parked pose');
  assert.equal(chain.ttl200AFaceMatingGapMm,0,
-   'V167 real OEM shell and A18 flange must meet on Y=235, not fake decoration');
+   'V168 test actual mesh faces, not fake decoration or a static rest datum');
  assert.equal(chain.focusBodySetbackCandidateMm,48);
  assert.equal(chain.axialBorePhysicallyMeasured,false);
  assert.equal(chain.clampFastenersEngaged,true);
