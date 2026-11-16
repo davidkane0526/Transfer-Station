@@ -560,8 +560,11 @@ window.__modelAOpticalClearanceProbe=()=>{
   const ttlBox=new THREE.Box3();
   ttlShells.forEach(o=>ttlBox.union(box(o)));
   const flangeBox=topRing?box(topRing):null;
-  const a08JointGap=ttlShells.length&&flangeBox?
+  const roundedJointGap=ttlShells.length&&flangeBox?
     Number((ttlBox.min.y-flangeBox.max.y).toFixed(2)):null;
+  // V168: IEEE-754 -0 is numerically zero but strict-equality audits
+  // distinguish it from +0. Normalize only signed zero, never a real gap.
+  const a08JointGap=Object.is(roundedJointGap,-0)?0:roundedJointGap;
   // Raycast the entire radius, not merely the axial centreline: otherwise
   // an apparent bore can conceal a cylinder/gearbox collision.
   const radialSamples=[...Array(12)].map((_,i)=>{
