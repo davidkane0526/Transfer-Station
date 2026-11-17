@@ -1036,10 +1036,9 @@ check(len(side_fasteners)>=4,
 dial=part(A,'A18D')[0]
 db=dial.BoundingBox()
 check(db.xlen>28 and db.zlen>28 and db.ymin>=-4.2 and db.ymax<=1.4,
-      'V177 front focus/index dial must be mounted on the photo-facing A18 face; '+
-      'bbox xlen='+db.xlen.toFixed(3)+' ylen='+db.ylen.toFixed(3)+
-      ' zlen='+db.zlen.toFixed(3)+' ymin='+db.ymin.toFixed(3)+
-      ' ymax='+db.ymax.toFixed(3))
+      f'V177 front focus/index dial must be mounted on the photo-facing A18 face; '
+      f'bbox xlen={db.xlen:.3f} ylen={db.ylen:.3f} zlen={db.zlen:.3f} '
+      f'ymin={db.ymin:.3f} ymax={db.ymax:.3f}')
 front_fasteners=part(A,'A18S')
 check(len(front_fasteners)>=4,
       'V177 front housing must show four fastener heads')
