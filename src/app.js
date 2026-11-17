@@ -4446,16 +4446,18 @@ function platformA(){
     fixedWebR.userData.A18FixedSideWeb='right';
     // Lower yoke: a straight load-bearing spine and a *bored* circular
     // end flange.  Unlike a black painted disc, it has a true axial hole.
-    const movingSpine=add(g,cub(38,7,56,mats.dark,bodyX+13,-31.5,27));
+    // V188: keep the moving nosepiece spine on its independently verified
+    // optical-carrier offset; do not translate it with the asymmetric focus shell.
+    const movingSpine=add(g,cub(38,7,56,mats.dark,37,-31.5,27));
     movingSpine.userData.A18MovingNosepieceSpine=true;
     const movingRing=add(g,sleeve(29,18.2,7,mats.dark,0,-31.5,0,'y'));
     movingRing.userData.A18MovingNosepieceRing=true;
     // A moving upright supports the upper optical adapter but stays clear
     // of both stationary side-gussets (1 mm running clearance on right).
     // V172 lifts moving upright 1mm clear of independent turret top.
-    const movingUpright=add(g,cub(8,69,10,mats.dark,bodyX+2,-.5,8));
+    const movingUpright=add(g,cub(8,69,10,mats.dark,26,-.5,8));
     movingUpright.userData.A18MovingOpticalUpright=true;
-    const upperEar=add(g,cub(12,8,10,mats.dark,bodyX+1,30,5));
+    const upperEar=add(g,cub(12,8,10,mats.dark,25,30,5));
     upperEar.userData.A18MovingTopOpticalEar=true;
     for(const o of [bodyMid,bodyLower,bodyUpper,front,fixedWebL,
       fixedWebR,movingSpine,movingRing,movingUpright,upperEar])
@@ -4964,7 +4966,7 @@ function platformA(){
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V187';
+   g.userData.A18PhotoRebuildRevision='V188';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;

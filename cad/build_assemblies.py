@@ -1152,14 +1152,14 @@ def make_a():
     add('A','A18FW2','FIXED_RIGHT_FOCUS_SIDE_GUSSET_CANDIDATE',
         box(34,70,36,cx+11,19,185),'C')
     add('A','A18SB','MOVING_NOSEPIECE_YOKE_SPINE_CANDIDATE',
-        box(38,56,7,cx,27,165),'C')
+        box(38,56,7,cx+37,27,165),'C')
     saddle_ring=vz(29,7,cx,0,165).cut(vz(18.2,7.2,cx,0,164.9))
     add('A','A18SR','MOVING_NOSEPIECE_BORED_RING_CANDIDATE',
         saddle_ring,'C')
     add('A','A18VR','MOVING_OPTICAL_UPRIGHT_CLEAR_OF_TURRET_CANDIDATE',
-        box(8,10,69,cx-11,8,165),'C')
+        box(8,10,69,cx+26,8,165),'C')
     add('A','A18UL','MOVING_TOP_INTERFACE_EAR_CANDIDATE',
-        box(12,10,8,cx-12,5,226),'C')
+        box(12,10,8,cx+25,5,226),'C')
     add('A','A18F','RECESSED_FOCUS_FRONT_COVER_CANDIDATE',
         box(32,1.4,44,cx+6,44.7,179),'C')
     # Two guides and wear strips on stationary body, with distinct moving shoes.
@@ -1360,7 +1360,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V187'
+CAD_REVISION='V188'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
