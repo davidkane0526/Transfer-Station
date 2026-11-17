@@ -1703,19 +1703,19 @@ report['V46_A10_microscope_anchor_audit']={
 a_lens=part(A,'A08')[0]
 a_optical_tube=part(A,'A14')[0]
 a_cam=part(A,'A09')[0]
-check(abs(a_lens.BoundingBox().zlen-28)<.02 and
+check(abs(a_lens.BoundingBox().zlen-34.4)<.02 and
       abs(a_lens.BoundingBox().xlen-55.9)<.02 and
       abs(a_lens.BoundingBox().ylen-55.9)<.02,
-      'V166 TTL200-A OEM outer Ø55.9 x 28mm')
-check(a_lens.intersect(vz(12.4,28.2,78,0,234.9)).Volume()<1e-3,
-      'V166 axial aperture in tube lens must be truly open')
+      'V184 TTL200-A overall length 34.4mm: 28mm housing plus two 3.2mm shoulders')
+check(a_lens.intersect(vz(12.4,34.6,78,0,234.9)).Volume()<1e-3,
+      'V184 axial aperture must remain open through the complete 34.4mm lens envelope')
 check(a_lens.intersect(vz(15.4,3.0,78,0,235)).Volume()<1e-3,
-      'V166 OEM lower Ø31 face opening')
-check(a_lens.intersect(vz(12.4,3.0,78,0,260)).Volume()<1e-3,
-      'V166 OEM upper Ø25.1 face opening')
-check(abs(a_optical_tube.BoundingBox().zmin-259.8)<.02 and
+      'V184 OEM lower Ø31 face opening')
+check(a_lens.intersect(vz(12.4,3.0,78,0,266.2)).Volume()<1e-3,
+      'V184 OEM upper Ø25.1 face opening')
+check(abs(a_optical_tube.BoundingBox().zmin-266.2)<.02 and
       abs(a_optical_tube.BoundingBox().zmax-323)<.02,
-      'V166 candidate A14 enters only top SM2 shoulder')
+      'V184 candidate A14 enters only the upper 3.2mm SM2 shoulder')
 check(a_optical_tube.intersect(a_lens).Volume()<1e-3,
       'V166 candidate A14 cannot penetrate OEM housing')
 check(abs(a_cam.BoundingBox().zmin-a_optical_tube.BoundingBox().zmax)<.02,
@@ -1766,10 +1766,10 @@ lens_camera_side_z=a_lens.BoundingBox().zmax
 camera_proxy_sensor_window=[round(a_cam.BoundingBox().zmin-lens_camera_side_z,2),
                             round(a_cam.BoundingBox().zmax-lens_camera_side_z,2)]
 shortfall=round(max(0,wd_min-camera_proxy_sensor_window[1]),2)
-check(camera_proxy_sensor_window==[60.0,105.0],
-      'V169 photo-fit camera proxy vs tube lens exit is 60..105mm, not optical WD')
-check(shortfall==43.0,
-      'V169 unresolved minimum OEM reference WD shortfall must be explicit')
+check(camera_proxy_sensor_window==[53.6,98.6],
+      'V184 photo-fit camera proxy vs TTL200-A camera-side face is 53.6..98.6mm, not optical WD')
+check(shortfall==49.4,
+      'V184 unresolved minimum OEM reference WD shortfall must be explicit')
 report['V169_A08_A09_optical_reference']={
  'lens_camera_side_z_mm':round(lens_camera_side_z,2),
  'camera_proxy_sensor_window_mm':camera_proxy_sensor_window,
@@ -1780,7 +1780,7 @@ report['V169_A08_A09_optical_reference']={
  'actual_sensor_plane_known':False,
  'actual_optical_orientation_verified':False,
  'optical_image_formation_certified':False,
- 'note':'Do not change A14 length to force reference WD without real camera sensor data'
+ 'note':'A14 length follows the mechanical SM2 shoulder-to-camera envelope; do not change it to force the unknown sensor plane onto the reference WD'
 }
 report['V59_A_global_candidate_readiness']={
   'clamp_to_heater_nominal_edge_clearance_mm':round(a_heater.xmin-a_clamp.BoundingBox().xmax,2),
@@ -1793,11 +1793,12 @@ report['V59_A_global_candidate_readiness']={
   'A20_camera_cable_route_physically_verified':False,
   'A10_microscope_foot_contacts_A01':True,
   'A08_TTL200A_real_housing_length_mm':28,
+  'A08_TTL200A_overall_mechanical_length_mm':34.4,
   'A08_OEM_outer_diameter_mm':55.9,
   'A08_OEM_two_thread_lengths_mm':[3.2,3.2],
   'A08_drawing_aperture_diameters_mm':[31.0,25.1],
   'A08_real_optical_elements_modeled':False,
-  'A14_candidate_SM2_sleeve_length_mm':63.2,
+  'A14_candidate_SM2_sleeve_length_mm':56.8,
   'A14_insert_overlap_mm':3.2,
   'A17_actual_magnetic_model_verified':False,
   'A05_actual_glass_grip_model_verified':False,

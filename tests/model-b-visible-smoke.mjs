@@ -1502,7 +1502,9 @@ try{
    'V166 decorative collars must not remain on OEM tube lens');
  assert.equal(detailsA.A08OEMShellSegmentCount,3);
  assert.equal(detailsA.A08ActualEnvelopeDiameterMm,55.9);
- assert.equal(detailsA.A08ActualEnvelopeLengthMm,28);
+ assert.equal(detailsA.A08ActualEnvelopeLengthMm,34.4);
+ assert.equal(detailsA.A08OEMHousingLengthMm,28);
+ assert.equal(detailsA.A08OEMOverallLengthMm,34.4);
  assert.equal(detailsA.A08OEMOuterDiameterMm,55.9);
  assert.equal(detailsA.A08OEMEndThreadLengthMm,3.2);
  assert.deepEqual(detailsA.A08OEMDrawingAperturesMm,[31,25.1]);
@@ -1559,10 +1561,12 @@ try{
  assert.equal(opticsRaised.supportBoomCandidatePostBoreDiameterMm,26.6);
  const wdr=await page.evaluate(()=>window.__modelAOpticalReferenceProbe?.());
  assert.equal(wdr?.available,true);
- assert.deepEqual(wdr.cameraProxyToLensDistanceMm,[60,105]);
+ assert.deepEqual(wdr.cameraProxyToLensDistanceMm,[53.6,98.6]);
+ assert.equal(wdr.lensCameraSideYmm,269.4);
+ assert.equal(wdr.candidateAdapterLengthMm,56.8);
  assert.equal(wdr.drawingReferenceWorkingDistanceMm,148);
  assert.equal(wdr.distributorWorkingDistanceMm,151.8);
- assert.equal(wdr.minimumReferenceShortfallWithinCameraProxyMm,43);
+ assert.equal(wdr.minimumReferenceShortfallWithinCameraProxyMm,49.4);
  assert.equal(wdr.manufacturerReferenceOutsideCameraProxy,true);
  assert.equal(wdr.sensorPlaneMeasured,false);
  assert.equal(wdr.opticalImageFormationCertified,false);

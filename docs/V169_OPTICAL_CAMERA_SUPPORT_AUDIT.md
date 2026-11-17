@@ -2,14 +2,14 @@
 
 ## 1. 厂商依据与证据边界
 
-- Thorlabs TTL200-A 原厂图纸 TTN116903-E0W Rev B（2018-05-11）列出：Ø55.9×28mm壳体、两端3.2mm SM2、光学有效焦距200mm、**参考工作距离148mm**。图纸标有 FOR INFORMATION ONLY / NOT FOR MANUFACTURING PURPOSES。
+- Thorlabs TTL200-A 图纸 TTN116903-E0W Rev B（2018-05-11）列出：Ø55.9mm外径、28mm中央壳体、两端各3.2mm SM2肩（总长34.4mm）、有效焦距200mm及**参考工作距离148mm**。图纸标有 FOR INFORMATION ONLY / NOT FOR MANUFACTURING PURPOSES。
 - 第三方经销商 Volition 提供的是 **151.8mm** 工作距离。两项来源存在差异，因此不把148和151.8之差当成厂家容差，也不武断选一项为当前规格。
 - 原厂PDF：https://www.oxxius.ru/upload/iblock/439/nnqcz1typ0xi4j8o1473uwc5izf6lyzm/TTN116903_E0W.pdf
 - Volition：https://www.govolition.com/product/V40-TTL200-A
 
 ## 2. 当前网页/STEP自洽性与新发现
 
-A08代理壳体相机侧端面在静态Z=263mm；A14候选包络为Z=259.8..323mm；A09 45mm高相机代理机身在Z=323..368mm。因此镜片出射端至相机代理机身内的任何可能像面距离只能是60..105mm，**比148mm参考距离至少短43mm**。随工作位整体抬高18mm，这些差值保持不变。
+V184按图纸重新解释A08尺寸后，其相机侧端面为静态Z=269.4mm；A14候选包络为Z=266.2..323mm；A09 45mm高相机代理机身仍在Z=323..368mm。因此镜片相机侧端面至相机代理机身内的可能像面距离为53.6..98.6mm，**距148mm参考工作距离至少仍差49.4mm**。随工作位整体抬高18mm，这些差值保持不变。
 
 这不能推导实际相机传感器位置或断言实机不能成像。A09真实型号、接口、传感器位置、A08管镜正反、其它转接件及光程没有得到实测。V169选择**保留照片拟合装配外形并暴露冲突**，而不是把A14强行拉长成某个捏造的长度。
 
@@ -23,7 +23,7 @@ A08代理壳体相机侧端面在静态Z=263mm；A14候选包络为Z=259.8..323m
 - `tests/a-optical-reference.mjs`：数值边界、工作姿态平移不变、候选延长不能自动认证以及无效输入测试。
 - `src/app.js`：从真实网格读取A08/A09/A14世界包络；新增`__modelAOpticalReferenceProbe`与`__modelAA10A18BoundaryProbe`；零件选择时直接显示简明诊断；新增可关闭的青色虚线参考像面（不是实际零件）。
 - `photo-review.html`：增加A08/A09参考像面渲染、光学距离数据，以及A10/A18支撑边界报告截图；CI保证这些图片真实存在，而不是展示过时旧版本截图。
-- `cad/validate_interfaces.py`：STEP导出后独立检查60–105mm相机代理窗口和43mm光学参考短缺，并写入报告，绝不把模型通过判定改成“已满足光学设计”。
+- `cad/validate_interfaces.py`：V184后STEP独立检查53.6–98.6mm相机代理窗口和49.4mm光学参考短缺，并写入报告，绝不把模型通过判定改成“已满足光学设计”。
 - `.github/workflows/pages.yml`：将新增纯计算单元测试纳入原有CI基础验证阶段。
 
 ## 5. 本次不可声称

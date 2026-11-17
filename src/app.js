@@ -205,7 +205,7 @@ window.__platformADetailTopologyProbe=()=>{
  const shellSize=shellBounds.getSize(new THREE.Vector3());
  const rayOrigin=tube.localToWorld(new THREE.Vector3(0,-2,0));
  const rayDirection=new THREE.Vector3(0,1,0).transformDirection(tube.matrixWorld);
- const opticalAxisClear=new THREE.Raycaster(rayOrigin,rayDirection,0,32)
+ const opticalAxisClear=new THREE.Raycaster(rayOrigin,rayDirection,0,36.6)
    .intersectObjects(shell,false).length===0;
  return {available:true,ghostVerticalKnurlGroups:bigSubgroups(vertical),
    duplicateGoniometerKnurlGroups:bigSubgroups(gonio),
@@ -213,6 +213,8 @@ window.__platformADetailTopologyProbe=()=>{
    A08OEMShellSegmentCount:shell.length,
    A08ActualEnvelopeDiameterMm:Number(Math.max(shellSize.x,shellSize.z).toFixed(2)),
    A08ActualEnvelopeLengthMm:Number(shellSize.y.toFixed(2)),
+   A08OEMHousingLengthMm:tube.userData.A08OEMHousingLengthMm,
+   A08OEMOverallLengthMm:tube.userData.A08OEMOverallLengthMm,
    A08OEMOuterDiameterMm:tube.userData.A08OEMOuterDiameterMm,
    A08OEMEndThreadLengthMm:tube.userData.A08OEMEndThreadLengthMm,
    A08OEMDrawingAperturesMm:tube.userData.A08OEMDrawingAperturesMm,
@@ -4114,16 +4116,19 @@ function platformA(){
     label(g,'A10 显微镜支架',0,267,60);
  },{explode:[0,15,-30]});
  addPart('A08',sx,235,0,g=>{
-  // V166 Thorlabs TTL200-A OEM drawing TTN116903 Rev B (11 May 2018).
-  // Overall 28mm; main housing OD55.9; two external SM2 shoulders 3.2mm.
+  // V184 Thorlabs TTL200-A OEM drawing TTN116903 Rev B (11 May 2018).
+  // The 28mm dimension is the CENTRAL HOUSING length; each SM2 shoulder
+  // adds 3.2mm, so the complete mechanical envelope is 34.4mm.
   // Thread helix, lens elements and real optical orientation are not modeled.
   const threadR=51.689/2;
   const lower=add(g,sleeve(threadR,15.5,3.2,mats.black,0,1.6,0,'y'));
   lower.userData.A08OEMShellSegment='lower-SM2';
-  const main=add(g,sleeve(27.95,12.55,21.6,mats.black,0,14,0,'y'));
+  const main=add(g,sleeve(27.95,12.55,28,mats.black,0,17.2,0,'y'));
   main.userData.A08OEMShellSegment='main-housing';
-  const upper=add(g,sleeve(threadR,12.55,3.2,mats.black,0,26.4,0,'y'));
+  const upper=add(g,sleeve(threadR,12.55,3.2,mats.black,0,32.8,0,'y'));
   upper.userData.A08OEMShellSegment='upper-SM2';
+  g.userData.A08OEMHousingLengthMm=28;
+  g.userData.A08OEMOverallLengthMm=34.4;
   g.userData.A08OEMOuterDiameterMm=55.9;
   g.userData.A08OEMEndThreadLengthMm=3.2;
   g.userData.A08OEMDrawingAperturesMm=[31.0,25.1];
@@ -4138,12 +4143,12 @@ function platformA(){
     new THREE.MeshBasicMaterial({color:0x53dbf5,side:THREE.DoubleSide,
       transparent:true,opacity:.85,depthWrite:false}));
   ring.rotation.x=Math.PI/2;
-  ring.position.y=28+TTL200A_OPTICAL_EVIDENCE.drawingReferenceWorkingDistanceMm;
+  ring.position.y=34.4+TTL200A_OPTICAL_EVIDENCE.drawingReferenceWorkingDistanceMm;
   ring.userData.A08OnlyTechnicalReference=true;
   opticalReferenceOverlay.add(ring);
   const guide=new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(0,28,0),
-    new THREE.Vector3(0,28+TTL200A_OPTICAL_EVIDENCE.drawingReferenceWorkingDistanceMm,0)
+    new THREE.Vector3(0,34.4,0),
+    new THREE.Vector3(0,34.4+TTL200A_OPTICAL_EVIDENCE.drawingReferenceWorkingDistanceMm,0)
   ]),new THREE.LineDashedMaterial({color:0x53dbf5,transparent:true,opacity:.7,
     dashSize:4,gapSize:3,depthWrite:false}));
   guide.computeLineDistances();guide.userData.A08OnlyTechnicalReference=true;
@@ -4151,7 +4156,7 @@ function platformA(){
   opticalReferenceOverlay.visible=false;
   g.add(opticalReferenceOverlay);
   g.userData.A08WDReferenceOverlay=opticalReferenceOverlay;
-  label(g,'TTL200-A · Ø55.9 × 28 mm / 双端SM2',0,41,0);
+  label(g,'TTL200-A · 壳体28 + 双端SM2肩3.2 mm',0,41,0);
  },{explode:[0,35,0]});
  addPart('A09',sx,323,0,g=>{
   // V170: the old solid Ø30 disc CLOSED THE OPTICAL ENTRANCE. A real
@@ -4337,10 +4342,11 @@ function platformA(){
    g.userData.A33ControllerCandidateNoEnergizedPinout=true;
    label(g,'A33 温控控制箱 · 控制器型号待核',0,172,75);
  },{explode:[40,0,35]});
- addPart('A14',sx,259.8,0,g=>{
-   // V166: OEM TTL200-A upper threaded shoulder is only 3.2mm.
-   // Candidate length63.2 keeps its upper end at camera Y=323.
-   add(g,sleeve(28,26.1,63.2,mats.dark,0,31.6,0,'y'));
+ addPart('A14',sx,266.2,0,g=>{
+   // V184: start on the actual upper SM2 shoulder at Y=266.2.
+   // 56.8mm candidate tube ends at the unchanged camera underside Y=323.
+   add(g,sleeve(28,26.1,56.8,mats.dark,0,28.4,0,'y'));
+   g.userData.A14CandidateLengthMm=56.8;
    g.userData.A14CandidateTopShoulderEngagementMm=3.2;
    g.userData.A14ActualMatingThreadUnverified=true;
    label(g,'A14 SM2 接续镜筒（型号待核）',0,78,0);

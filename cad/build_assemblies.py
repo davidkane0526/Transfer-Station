@@ -940,16 +940,15 @@ def make_a():
         clamp_bolt=vx(2.5,9,cx+14,-112+dz,219).fuse(
             vx(4,2.6,cx+22.9,-112+dz,219)).clean()
         add('A',f'A10K{i}','RADIAL_CLAMP_FASTENER_CANDIDATE',clamp_bolt,'C')
-    # V59: photo191–193 show a taller camera/microscope stack; no ruler is present.
-    # V166 OEM TTN116903 Rev B: Ø55.9 central body, 28mm overall,
-    # two external SM2 shoulders Ø51.689x3.2. No optical glass modeled.
+    # V184 OEM TTN116903 Rev B: 28mm CENTRAL HOUSING plus two 3.2mm
+    # external SM2 shoulders; complete axial envelope is 34.4mm.
     a08_lower=vz(51.689/2,3.2,cx,0,235)
-    a08_body=vz(55.9/2,21.6,cx,0,238.2)
-    a08_upper=vz(51.689/2,3.2,cx,0,259.8)
+    a08_body=vz(55.9/2,28.0,cx,0,238.2)
+    a08_upper=vz(51.689/2,3.2,cx,0,266.2)
     a08_shell=a08_lower.fuse(a08_body,a08_upper).clean()
     a08_shell=a08_shell.cut(vz(15.5,3.3,cx,0,234.95))
-    a08_shell=a08_shell.cut(vz(12.55,25.0,cx,0,238.15)).clean()
-    add('A','A08','TTL200A_OEM_D55P9_L28_SM2_ENDS_3P2_APERTURE_STEP',
+    a08_shell=a08_shell.cut(vz(12.55,31.4,cx,0,238.15)).clean()
+    add('A','A08','TTL200A_OEM_D55P9_HOUSING_L28_OVERALL_L34P4_SM2_ENDS_3P2',
         a08_shell,'D')
     # V170: no fabricated opaque Ø30 disk on optical axis. Real cameras
     # have front optical entrance; here only a Ø24.4 x 10mm BLIND port
@@ -1105,10 +1104,10 @@ def make_a():
         box(76,1.6,22,260+pid_dx,176,113),'C')
     add('A','A33SV','SETPOINT_READOUT_DISPLAY_PROXY',
         box(76,1.6,18,260+pid_dx,176,88),'C')
-    # V166 A14 enters only the 3.2mm upper SM2 shoulder.
-    # Thread helix and camera flange remain unverified.
-    sleeve_A14=vz(28,63.2,cx,0,259.8).cut(vz(26.1,63.4,cx,0,259.7))
-    add('A','A14','UNKNOWN_SM2_MATING_TUBE_63P2mm_CANDIDATE',sleeve_A14,'C')
+    # V184 A14 enters only the 3.2mm upper SM2 shoulder and still meets
+    # the camera proxy underside at Z=323; actual camera thread is unknown.
+    sleeve_A14=vz(28,56.8,cx,0,266.2).cut(vz(26.1,57.0,cx,0,266.1))
+    add('A','A14','UNKNOWN_SM2_MATING_TUBE_56P8mm_CANDIDATE',sleeve_A14,'C')
 
     # V92 A18: photos191/193 show the optical axis lies near the LEFT side
     # of the black housing rather than at its geometric center. Keep optical
