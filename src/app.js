@@ -7114,7 +7114,17 @@ window.__A18PhotoLeftRightProbe=()=>{
    dialNormal.clone().negate()
  );
  photoDialRay.far=120;
- const firstPhotoHit=photoDialRay.intersectObject(currentRoot,true)[0]?.object??null;
+ // Raycaster does not automatically skip invisible Three.js objects.
+ // Exclude hidden manufacturer studies and other non-installed candidates.
+ const visiblePhotoMeshes=[];
+ const collectVisiblePhotoMeshes=(o,parentVisible=true)=>{
+   const visible=parentVisible&&o.visible!==false;
+   if(!visible)return;
+   if(o.isMesh)visiblePhotoMeshes.push(o);
+   for(const child of o.children)collectVisiblePhotoMeshes(child,visible);
+ };
+ collectVisiblePhotoMeshes(currentRoot);
+ const firstPhotoHit=photoDialRay.intersectObjects(visiblePhotoMeshes,false)[0]?.object??null;
  const isPhotoDialHit=o=>Boolean(o&&(
    o.userData.A18FrontFocusDial||o.userData.A18FrontFocusDialRim||
    o.userData.A18FrontFocusDialFace||o.userData.A18FrontDialCross||
