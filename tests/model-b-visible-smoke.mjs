@@ -1562,7 +1562,10 @@ try{
  const wdr=await page.evaluate(()=>window.__modelAOpticalReferenceProbe?.());
  assert.equal(wdr?.available,true);
  assert.deepEqual(wdr.cameraProxyToLensDistanceMm,[53.6,98.6]);
- assert.equal(wdr.lensCameraSideYmm,269.4);
+ // Static CAD datum is Z=269.4mm. The default browser working pose raises
+ // the complete optical stack by 18mm, so this world-space probe reads 287.4mm.
+ assert.equal(wdr.lensCameraSideYmm,287.4,
+   'V184 optical reference probe must report the +18mm raised working pose');
  assert.equal(wdr.candidateAdapterLengthMm,56.8);
  assert.equal(wdr.drawingReferenceWorkingDistanceMm,148);
  assert.equal(wdr.distributorWorkingDistanceMm,151.8);
