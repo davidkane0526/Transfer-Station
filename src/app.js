@@ -4441,11 +4441,11 @@ function platformA(){
     // Never fuse the moving objective carrier to the stationary gearbox.
     const front=add(g,cub(32,44,1.4,mats.black,43,1,44.7));
     front.userData.A18FrontFace=true;
-    // V191: fixed side webs belong to the independent guide/carriage carrier,
-    // not the asymmetrically shifted outer focus shell.
+    // V192: +Z reference view has screen-right=+X. Keep the left/right
+    // cast webs in that order while overlapping both the gearbox and guides.
     const fixedWebL=add(g,cub(14,40,70,mats.dark,-19,0,18));
     fixedWebL.userData.A18FixedSideWeb='left';
-    const fixedWebR=add(g,cub(34,36,70,mats.dark,48,3,19));
+    const fixedWebR=add(g,cub(34,36,70,mats.dark,45,3,19));
     fixedWebR.userData.A18FixedSideWeb='right';
     // Lower yoke: a straight load-bearing spine and a *bored* circular
     // end flange.  Unlike a black painted disc, it has a true axial hole.
@@ -4969,7 +4969,7 @@ function platformA(){
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V191';
+   g.userData.A18PhotoRebuildRevision='V192';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;
@@ -7118,6 +7118,10 @@ window.__A18PhotoLeftRightProbe=()=>{
    o.userData.A18SidePortFrameFastener);
  if(!body||!dial||!cable||!portParts.length)return {available:false};
  const bodyBox=new THREE.Box3().setFromObject(body);
+ const leftWeb=a18.children.find(o=>o.userData.A18FixedSideWeb==='left');
+ const rightWeb=a18.children.find(o=>o.userData.A18FixedSideWeb==='right');
+ const leftWebCenter=leftWeb?new THREE.Box3().setFromObject(leftWeb).getCenter(new THREE.Vector3()):null;
+ const rightWebCenter=rightWeb?new THREE.Box3().setFromObject(rightWeb).getCenter(new THREE.Vector3()):null;
  const portBox=new THREE.Box3(),cableBox=new THREE.Box3().setFromObject(cable);
  for(const o of portParts)portBox.union(new THREE.Box3().setFromObject(o));
  const bodyCenterX=bodyBox.getCenter(new THREE.Vector3()).x;
@@ -7155,6 +7159,9 @@ window.__A18PhotoLeftRightProbe=()=>{
    viewConvention:'reference cutout viewed from +Z; screen-right is +X',
    bodyCenterWorldX:round(bodyCenterX),
    opticalAxisWorldX:round(opticalAxisX),
+   fixedWebWorldXCenters:leftWebCenter&&rightWebCenter?
+     [round(leftWebCenter.x),round(rightWebCenter.x)]:null,
+   fixedWebOrderOnPhoto:Boolean(leftWebCenter&&rightWebCenter&&leftWebCenter.x<rightWebCenter.x),
    sidePortWorldXBounds:[round(portBox.min.x),round(portBox.max.x)],
    sidePortOnPhotoRight:portBox.min.x>bodyCenterX,
    cableWorldXBounds:[round(cableBox.min.x),round(cableBox.max.x)],
