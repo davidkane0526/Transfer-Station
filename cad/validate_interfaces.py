@@ -1033,12 +1033,14 @@ check(side_port.distance(a18_shape)<.02,
 side_fasteners=part(A,'A18OPS')
 check(len(side_fasteners)>=4,
       'V177 side optical port frame must carry four visible fasteners')
-dial=part(A,'A18D')[0]
+dial_solids=part(A,'A18D')
+dial=cq.Compound.makeCompound(dial_solids)
 db=dial.BoundingBox()
-check(db.xlen>28 and db.zlen>28 and db.ymin>=-4.2 and db.ymax<=1.4,
-      f'V177 front focus/index dial must be mounted on the photo-facing A18 face; '
-      f'bbox xlen={db.xlen:.3f} ylen={db.ylen:.3f} zlen={db.zlen:.3f} '
-      f'ymin={db.ymin:.3f} ymax={db.ymax:.3f}')
+check(len(dial_solids)>=2 and all(s.isValid() for s in dial_solids) and
+      db.xlen>28 and db.zlen>28 and db.ymin>=-4.2 and db.ymax<=1.4,
+      f'V177 front focus/index dial compound must be mounted on the photo-facing A18 face; '
+      f'solids={len(dial_solids)} bbox xlen={db.xlen:.3f} ylen={db.ylen:.3f} '
+      f'zlen={db.zlen:.3f} ymin={db.ymin:.3f} ymax={db.ymax:.3f}')
 front_fasteners=part(A,'A18S')
 check(len(front_fasteners)>=4,
       'V177 front housing must show four fastener heads')
