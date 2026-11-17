@@ -1109,7 +1109,7 @@ def make_a():
     sleeve_A14=vz(28,56.8,cx,0,266.2).cut(vz(26.1,57.0,cx,0,266.1))
     add('A','A14','UNKNOWN_SM2_MATING_TUBE_56P8mm_CANDIDATE',sleeve_A14,'C')
 
-    # V190: the high-resolution +Z/front cutout sets the OUTER focus shell
+    # V191: the high-resolution +Z/front cutout sets the OUTER focus shell
     # centre to cx-13mm. The fixed guide rails, moving carriage/shoes and
     # nosepiece carrier form an independent subassembly at their own validated
     # coordinates; they are not translated with the asymmetric outer shell.
@@ -1148,9 +1148,9 @@ def make_a():
     # guides; the lower ONE-PIECE yoke belongs to the MOVING objective slide.
     # No artificial four-bar forest is present in installed STEP geometry.
     add('A','A18FW1','FIXED_LEFT_FOCUS_SIDE_GUSSET_CANDIDATE',
-        box(14,70,40,cx-56,18,180),'C')
+        box(14,70,40,cx-19,18,180),'C')
     add('A','A18FW2','FIXED_RIGHT_FOCUS_SIDE_GUSSET_CANDIDATE',
-        box(34,70,36,cx+11,19,185),'C')
+        box(34,70,36,cx+48,19,185),'C')
     add('A','A18SB','MOVING_NOSEPIECE_YOKE_SPINE_CANDIDATE',
         box(38,56,7,cx+37,27,165),'C')
     saddle_ring=vz(29,7,cx,0,165).cut(vz(18.2,7.2,cx,0,164.9))
@@ -1360,7 +1360,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V190'
+CAD_REVISION='V191'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

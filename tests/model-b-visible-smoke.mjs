@@ -1738,7 +1738,7 @@ try{
  assert.equal(dA.A18SidePortMountFramePresent,true);
  assert.equal(dA.A18FrontFocusDialPresent,true);
  assert.equal(dA.A18FrontFaceFastenersPresent,true);
- assert.equal(dA.A18PhotoRebuildRevision,'V190');
+ assert.equal(dA.A18PhotoRebuildRevision,'V191');
  assert.equal(await page.evaluate(()=>window.__focusA18PhotoReferenceView?.()),true);
  await page.waitForTimeout(220);
  const a18Sides=await page.evaluate(()=>window.__A18PhotoLeftRightProbe?.());
@@ -1748,42 +1748,42 @@ try{
  assert.equal(a18Sides.cableOnPhotoLeft,true,
    'V183 cable must remain on viewer-left in the +Z reference-photo view');
  assert.equal(a18Sides.dialOnPhotoLeftHalf,true,
-   'V190 front-face index dial must remain on the photo-left half of the housing');
+   'V191 front-face index dial must remain on the photo-left half of the housing');
  assert.equal(a18Sides.dialLeftOfOpticalAxis,true,
-   'V190 front-face dial centre must be left of the central optical axis');
+   'V191 front-face dial centre must be left of the central optical axis');
  assert(a18Sides.dialFractionFromBodyLeft>=.29&&a18Sides.dialFractionFromBodyLeft<=.36,
-   'V190 front dial centre must sit near 32% of the body width from photo-left');
+   'V191 front dial centre must sit near 32% of the body width from photo-left');
  assert.equal(a18Sides.cableOutsidePhotoLeftBodyEdge,true,
-   'V190 cable must remain outside the body left edge, not merely left of the optical axis');
+   'V191 cable must remain outside the body left edge, not merely left of the optical axis');
  assert.equal(a18Sides.sidePortLengthMm,145,
-   'V190 horizontal side port must match the 145mm photo-ratio envelope');
+   'V191 horizontal side port must match the 145mm photo-ratio envelope');
  assert.deepEqual(a18Sides.bodyWorldXBounds,[23,107]);
  assert.equal(a18Sides.dialFacesPhotoFront,true,
    'V183 index dial face must face the same +Z side as the supplied cutout');
  assert.equal(a18Sides.dialVisibleFromPhotoFront,true,
    'V183 index dial must be the first visible surface along the photo-front ray');
  assert.equal(a18Sides.photoReferenceCameraFromFront,true,
-   'V190 photo-reference camera must remain on the +Z/front side, not a mirrored rear view');
+   'V191 photo-reference camera must remain on the +Z/front side, not a mirrored rear view');
  assert(a18Sides.photoReferenceCameraAzimuthDeg<10,
-   'V190 photo-reference camera must be close to front-on so the index dial remains visible');
+   'V191 photo-reference camera must be close to front-on so the index dial remains visible');
  assert.deepEqual(a18Sides.photoReferenceVisiblePartIds,['A08','A09','A18','A19'],
-   'V190 comparison view must isolate camera, TTL200-A tube, focus body and nosepiece');
+   'V191 comparison view must isolate camera, TTL200-A tube, focus body and nosepiece');
  assert(Math.max(a18Sides.photoReferenceProjection.width,a18Sides.photoReferenceProjection.height)>1.35,
-   'V190 isolated microscope-head projection must occupy at least 67.5% of the viewer');
+   'V191 isolated microscope-head projection must occupy at least 67.5% of the viewer');
  assert(Math.max(a18Sides.photoReferenceProjection.width,a18Sides.photoReferenceProjection.height)<=1.55,
-   'V190 isolated microscope-head projection must fit without clipping');
+   'V191 isolated microscope-head projection must fit without clipping');
  assert(a18Sides.sidePortWorldXBounds[0]>a18Sides.bodyCenterWorldX);
  assert(a18Sides.cableWorldXBounds[1]<a18Sides.opticalAxisWorldX);
  assert(a18Sides.dialWorldX<a18Sides.bodyCenterWorldX);
- console.log('V190 A18 high-resolution photo-ratio and left/right audit:',a18Sides);
+ console.log('V191 A18 high-resolution photo-ratio and left/right audit:',a18Sides);
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
-   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V190-A18-Isolated-Photo-Reference-View.png',
+   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V191-A18-Isolated-Photo-Reference-View.png',
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
  assert.equal(await page.evaluate(()=>window.__restoreA18PhotoReferenceView?.()),true,
-   'V190 photo-reference view must restore all hidden components and the previous camera');
+   'V191 photo-reference view must restore all hidden components and the previous camera');
  assert.equal(dA.A18VendorIdentificationPending,true);
  assert.equal(dA.A18BodySegmentCount,3,
    'A18 must be a stepped photo-constrained body, not one oversized black box');
@@ -1800,7 +1800,7 @@ try{
  assert.equal(dA.A18OpticalAxisLocalXmm,0);
  assert.equal(dA.A18BodyLeftEdgeLocalXmm,-55);
  assert(Math.abs(dA.A18OpticalAxisFractionFromBodyLeft-(55/84))<1e-6,
-   'V190 high-resolution cutout places the optical axis at about 65.5% of the housing width from photo-left');
+   'V191 high-resolution cutout places the optical axis at about 65.5% of the housing width from photo-left');
  assert.equal(dA.A18ActualBodyToTopOpticalOffsetMm,-13,
    'WebGL geometry itself—not only metadata—must offset the A18 body centre 13mm left of top optical axis');
  assert.equal(dA.A18ActualBodyToBottomOpticalOffsetMm,-13,

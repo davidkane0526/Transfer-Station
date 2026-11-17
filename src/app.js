@@ -4441,9 +4441,11 @@ function platformA(){
     // Never fuse the moving objective carrier to the stationary gearbox.
     const front=add(g,cub(32,44,1.4,mats.black,43,1,44.7));
     front.userData.A18FrontFace=true;
-    const fixedWebL=add(g,cub(14,40,70,mats.dark,bodyX-43,0,18));
+    // V191: fixed side webs belong to the independent guide/carriage carrier,
+    // not the asymmetrically shifted outer focus shell.
+    const fixedWebL=add(g,cub(14,40,70,mats.dark,-19,0,18));
     fixedWebL.userData.A18FixedSideWeb='left';
-    const fixedWebR=add(g,cub(34,36,70,mats.dark,bodyX+24,3,19));
+    const fixedWebR=add(g,cub(34,36,70,mats.dark,48,3,19));
     fixedWebR.userData.A18FixedSideWeb='right';
     // Lower yoke: a straight load-bearing spine and a *bored* circular
     // end flange.  Unlike a black painted disc, it has a true axial hole.
@@ -4967,7 +4969,7 @@ function platformA(){
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V190';
+   g.userData.A18PhotoRebuildRevision='V191';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;
