@@ -345,7 +345,9 @@ export function enrichParts(partMap, platform, onMesh){
      });
      decoration('A09',(g)=>{
         for(let y of [2,43])cyl(g,17,2.2,0,y,0,ring);
-        decal(g,'DAHENG IMAGING',42,9,0,24,23,'front','#c5e3fa');
+        // The camera brand is not legible in the supplied microscope photos.
+        // Do not engrave a guessed manufacturer onto an unidentified body.
+        g.userData.A09UnsupportedBrandDecalRemoved=true;
         box(g,12,8,12,26,22,0,matte,.5);
      });
      decoration('A11',(g)=>{

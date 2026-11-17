@@ -960,7 +960,13 @@ def make_a():
     # have front optical entrance; here only a Ø24.4 x 10mm BLIND port
     # is a candidate. Unknown actual sensor plane remains opaque beyond.
     a09_body=box(50,44,45,cx,0,323).cut(vz(12.2,10,cx,0,323)).clean()
-    add('A','A09','PHOTO_FIT_CAMERA_HOUSING_OPEN_BLIND_PORT_D24P4_L10',a09_body,'P')
+    # V199: STEP +Y front has screen-left=+X. Cut a candidate side entry
+    # through the camera wall and attach a hollow strain-relief connector.
+    a09_side_bore=vx(1.6,5.4,cx+19.7,0,366)
+    a09_side_connector=vx(4.2,5.2,cx+24.8,0,366).cut(
+        vx(1.6,5.4,cx+24.7,0,366))
+    a09_body=a09_body.cut(a09_side_bore).fuse(a09_side_connector).clean()
+    add('A','A09','PHOTO_FIT_CAMERA_HOUSING_OPEN_BLIND_PORT_AND_LEFT_CABLE_ENTRY',a09_body,'P')
     # V181: two top studs and four side-panel fasteners visible in the photo.
     a09_posts=[]
     for x in (cx-18,cx+18):
@@ -1259,12 +1265,18 @@ def make_a():
             a18_front_screws.append(screw.fuse(slot))
     add('A','A18S','FOUR_FRONT_HOUSING_FASTENERS_PHOTO_FIT',
         cq.Compound.makeCompound(a18_front_screws),'C')
-    # V182: route the cable on photo-left (-X), opposite the +X side port.
+    # V199: A18 cable begins inside the A09 side entry. A18 is mirrored at
+    # export, so this local -X path becomes STEP +X (photo-left in +Y view).
     a18_cable=cable_path([
-        (cx-70,0,366),(cx-78,6,350),(cx-90,10,320),(cx-104,10,285),
-        (cx-112,10,245),(cx-110,8,215),(cx-104,4,185),(cx-98,-2,155),(cx-90,-8,140)
+        (cx-24,0,366),(cx-30,0,366),(cx-35,0,366),(cx-42,3,361),
+        (cx-56,6,350),(cx-70,8,332),(cx-84,10,308),(cx-95,10,280),
+        (cx-101,10,248),(cx-102,8,215),(cx-98,4,180),(cx-90,-2,145),
+        (cx-82,-8,110),(cx-78,-12,60)
     ],1.5)
-    add('A','A18CBL','PHOTO_FIT_LEFT_SIDE_FLEXIBLE_CABLE_ROUTE',a18_cable,'C')
+    a18_cable_boot=vx(4.3,5,cx-35,0,366).cut(
+        vx(1.6,5.2,cx-35.1,0,366))
+    a18_cable=cq.Compound.makeCompound([a18_cable,a18_cable_boot])
+    add('A','A18CBL','PHOTO_LEFT_CAMERA_CABLE_WITH_HOLLOW_STRAIN_RELIEF',a18_cable,'C')
     # V162: synchronize the installed STEP focus chain with web A18 V160/V161.
     # vx() uses an axial START coordinate; centres are +/-43, +/-52 and +/-60.5mm.
     # Ø15x8 hub -> Ø28x10 coarse handwheel -> Ø16x7 fine knob.
@@ -1374,7 +1386,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V195'
+CAD_REVISION='V199'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

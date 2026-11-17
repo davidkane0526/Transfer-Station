@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright-core';
+import {PARTS} from '../src/parts.js';
 
 const browser=await chromium.launch({
  headless:true,executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',
@@ -1592,6 +1593,14 @@ try{
    'V181 camera housing must show the two top metal studs from the reference photo');
  assert.equal(camJoint.cameraFrontScrewCount,4,
    'V181 camera housing must show four side-panel fasteners');
+ assert.equal(camJoint.cameraCablePortCount,1,
+   'V199 A09 camera must carry the photo-left cable connector');
+ assert.equal(camJoint.unsupportedBrandDecalRemoved,true,
+   'V199 must not engrave an unverified DAHENG brand onto the camera');
+ assert.equal(camJoint.cameraManufacturerIdentityConfirmed,false);
+ const a09Catalog=PARTS.A.find(p=>p.id==='A09');
+ assert.equal(a09Catalog.maker,'未知');
+ assert.equal(a09Catalog.model,'型号待识别');
  assert.equal(camJoint.suggestedAdapterInstalled,false);
  assert.equal(camJoint.cameraCmountInterfaceConfirmed,false);
  assert.equal(camJoint.physicalJointVerified,false);
@@ -1741,7 +1750,8 @@ try{
  assert.equal(dA.A18SidePortMountFramePresent,true);
  assert.equal(dA.A18FrontFocusDialPresent,true);
  assert.equal(dA.A18FrontFaceFastenersPresent,true);
- assert.equal(dA.A18PhotoRebuildRevision,'V193');
+ assert.equal(dA.A18PhotoRebuildRevision,'V199');
+ const overlayBefore=await page.evaluate(()=>window.__A18PhotoReferenceOverlayProbe?.());
  assert.equal(await page.evaluate(()=>window.__focusA18PhotoReferenceView?.()),true);
  await page.waitForTimeout(220);
  const a18Sides=await page.evaluate(()=>window.__A18PhotoLeftRightProbe?.());
@@ -1756,8 +1766,16 @@ try{
    'V191 front-face dial centre must be left of the central optical axis');
  assert(a18Sides.dialFractionFromBodyLeft>=.29&&a18Sides.dialFractionFromBodyLeft<=.36,
    'V191 front dial centre must sit near 32% of the body width from photo-left');
- assert.equal(a18Sides.cableOutsidePhotoLeftBodyEdge,true,
-   'V191 cable must remain outside the body left edge, not merely left of the optical axis');
+ assert.equal(a18Sides.cableLowerRunOutsidePhotoLeftBodyEdge,true,
+   'V199 lower cable run must clear the focus-body left edge after leaving the camera connector');
+ assert.equal(a18Sides.cameraCablePortPresent,true);
+ assert.equal(a18Sides.cameraCablePortPhotoLeft,true);
+ assert.equal(a18Sides.cableStrainReliefPresent,true);
+ assert.equal(a18Sides.cableStartsInsideCameraCandidate,true);
+ assert.equal(a18Sides.cableStartGapMm,0,
+   'V199 cable route must begin at the candidate A09 side entry');
+ assert(a18Sides.cablePortBootOverlapMm>=0,
+   'V199 cable boot must meet the A09 connector without a visible gap');
  assert.equal(a18Sides.sidePortLengthMm,145,
    'V191 horizontal side port must match the 145mm photo-ratio envelope');
  assert.deepEqual(a18Sides.bodyWorldXBounds,[23,107]);
@@ -1771,6 +1789,16 @@ try{
    'V183 index dial must be the first visible surface along the photo-front ray');
  assert.equal(a18Sides.photoReferenceCameraFromFront,true,
    'V191 photo-reference camera must remain on the +Z/front side, not a mirrored rear view');
+ const overlayDuring=await page.evaluate(()=>window.__A18PhotoReferenceOverlayProbe?.());
+ assert.equal(overlayDuring.activePartId,null,
+   'V199 photo-reference screenshot must not retain the previously selected A10 part');
+ assert.deepEqual(overlayDuring.visibleLabelTexts,[],
+   'V199 photo-reference screenshot must not retain selected CSS2D labels');
+ assert.equal(overlayDuring.measurementOverlayVisible,false,
+   'V199 photo-reference screenshot must not show the stale blue selection box');
+ assert.equal(overlayDuring.measurementTextHidden,true);
+ assert.equal(overlayDuring.hoverHelpHidden,true);
+ assert.equal(overlayDuring.platformCaption,'平台 A · 显微镜头部正面参考视图');
  assert(a18Sides.photoReferenceCameraAzimuthDeg<10,
    'V191 photo-reference camera must be close to front-on so the index dial remains visible');
  assert.deepEqual(a18Sides.photoReferenceVisiblePartIds,['A08','A09','A18','A19'],
@@ -1790,12 +1818,19 @@ try{
  console.log('V193 A18 high-resolution photo-ratio and left/right audit:',a18Sides);
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
-   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V193-A18-Isolated-Photo-Reference-View.png',
+   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V199-A18-Isolated-Photo-Reference-View.png',
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
  assert.equal(await page.evaluate(()=>window.__restoreA18PhotoReferenceView?.()),true,
-   'V191 photo-reference view must restore all hidden components and the previous camera');
+   'V199 photo-reference view must restore all hidden components and the previous camera');
+ const overlayAfter=await page.evaluate(()=>window.__A18PhotoReferenceOverlayProbe?.());
+ assert.equal(overlayAfter.activePartId,overlayBefore.activePartId);
+ assert.deepEqual(overlayAfter.visibleLabelTexts,overlayBefore.visibleLabelTexts);
+ assert.equal(overlayAfter.measurementOverlayVisible,overlayBefore.measurementOverlayVisible);
+ assert.equal(overlayAfter.measurementTextHidden,overlayBefore.measurementTextHidden);
+ assert.equal(overlayAfter.hoverHelpHidden,overlayBefore.hoverHelpHidden);
+ assert.equal(overlayAfter.platformCaption,overlayBefore.platformCaption);
  assert.equal(dA.A18VendorIdentificationPending,true);
  assert.equal(dA.A18BodySegmentCount,3,
    'A18 must be a stepped photo-constrained body, not one oversized black box');

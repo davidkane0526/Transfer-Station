@@ -1104,8 +1104,21 @@ front_fasteners=part(A,'A18S')
 check(len(front_fasteners)>=4,
       'V177 front housing must show four fastener heads')
 photo_cable=part(A,'A18CBL')[0]
-check(photo_cable.isValid() and photo_cable.BoundingBox().zlen>200,
-      'V195 STEP +Y front view: photo-left (+X) cable must be a continuous routed solid')
+check(photo_cable.isValid() and photo_cable.BoundingBox().zlen>250,
+      'V199 STEP +Y front view: camera cable and hollow boot must form a valid routed assembly')
+check(photo_cable.intersect(a_cam).Volume()<1e-3,
+      'V199 camera cable must pass through the hollow A09 side entry without solid interference')
+check(photo_cable.distance(a_cam)<.2,
+      'V199 cable/connector interface must be physically contiguous within candidate clearance')
+check(photo_cable.BoundingBox().xmin>a18_cx+20 and
+      photo_cable.BoundingBox().xmax>a18_cx+130,
+      'V199 STEP +Y front view: cable must leave the camera port and descend on photo-left (+X)')
+report['V199_A18_camera_cable_route']={
+    'cameraPortConnected':True,
+    'cableAndBootValid':photo_cable.isValid(),
+    'photoSide':'left',
+    'lowerTerminationIdentified':False
+}
 for key,z in (('A18T',231),('A18N',169)):
     coupler=part(A,key)[0]
     check(coupler.intersect(vz(9.9,8,78,0,z)).Volume()<1e-4,
@@ -1782,6 +1795,21 @@ check(a_cam.intersect(vz(12.0,9.8,78,0,323.1)).Volume()<1e-3,
       'V170 A09 camera face must contain a real Ø24.4×10mm blind entrance')
 check(a_cam.intersect(vz(11.5,2,78,0,334)).Volume()>100,
       'V170 camera interior behind the candidate entrance remains unknown/solid')
+camera_side_bore=vx(1.5,5.4,78+19.7,0,366)
+camera_connector_bore=vx(1.5,5.4,78+24.7,0,366)
+check(a_cam.intersect(camera_side_bore).Volume()<1e-3,
+      'V199 A09 photo-left camera cable entry must be a true side bore')
+check(a_cam.intersect(camera_connector_bore).Volume()<1e-3,
+      'V199 hollow camera connector must remain open for the cable')
+check(abs(a_cam.BoundingBox().xmax-108)<.02,
+      'V199 A09 photo-left connector must project from the STEP +X camera face')
+report['V199_A09_camera_cable_port']={
+    'stepPhotoLeftAxis':'+X',
+    'sideEntryDiameterCandidateMm':3.2,
+    'hollowConnectorOuterDiameterCandidateMm':8.4,
+    'cameraManufacturerVerified':False,
+    'connectorTypeVerified':False
+}
 a09_posts=part(A,'A09P')
 a09_screws=part(A,'A09S')
 check(len(a09_posts)==2 and all(s.isValid() for s in a09_posts),

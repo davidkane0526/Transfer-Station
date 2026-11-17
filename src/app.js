@@ -631,7 +631,10 @@ window.__modelAA09CameraInterfaceProbe=()=>{
    cameraOpticalEntryIsNotSolidDisc:true,
    adapterSuggestedButNotInstalled:true,
    cameraTopPostCount:cameraRoot.children.filter(o=>o.userData.A09CameraTopPost).length,
-   cameraFrontScrewCount:cameraRoot.children.filter(o=>o.userData.A09CameraFrontScrew).length};
+   cameraFrontScrewCount:cameraRoot.children.filter(o=>o.userData.A09CameraFrontScrew).length,
+   cameraCablePortCount:cameraRoot.children.filter(o=>o.userData.A09CameraCablePortCandidate).length,
+   unsupportedBrandDecalRemoved:Boolean(cameraRoot.userData.A09UnsupportedBrandDecalRemoved),
+   cameraManufacturerIdentityConfirmed:false};
 };
 // QA-only isolated underside view. Never alters the assembly or exports.
 window.__modelAA09CameraMouthStudyView=()=>{
@@ -4199,6 +4202,13 @@ function platformA(){
   }
   g.userData.A09TopPostCountCandidate=2;
   g.userData.A09FrontScrewCountCandidate=4;
+  // V199: candidate side connector on the photo-left face. The cable and
+  // connector family are visible in the reference, but the electrical port
+  // type and camera SKU are not identified.
+  const cameraCablePort=add(g,sleeve(4.2,1.6,5.2,mats.black,-27.4,43,0,'x'));
+  cameraCablePort.userData.A09CameraCablePortCandidate=true;
+  cameraCablePort.userData.A09CameraCablePortPhotoSide='left';
+  g.userData.A09CameraCablePortManufacturerUnverified=true;
   g.userData.A09CandidateMouthDiameterMm=24.4;
   g.userData.A09CandidateMouthDepthMm=10;
   g.userData.A09TrueSensorPlaneUnknown=true;
@@ -4568,12 +4578,22 @@ function platformA(){
       screw.rotation.x=Math.PI/2;
       screw.userData.A18FrontFaceFastener=true;
     }
-    // V182: the cable is on photo-left (-X), not the opposite housing side.
-    const photoCable=add(g,tube([
-      [-70,166,0],[-78,150,6],[-90,120,10],[-104,85,10],
-      [-112,45,10],[-110,15,8],[-104,-15,4],[-98,-40,-2],[-90,-60,-8]
-    ],1.5,mats.rubber));
+    // V199: the photo-left cable starts at the A09 camera side connector,
+    // passes through a hollow strain-relief boot, then descends outside the
+    // left edge of the focus body. Its lower electrical termination is unknown.
+    const photoCableBoot=add(g,sleeve(4.3,1.6,5,mats.rubber,-32.5,166,0,'x'));
+    photoCableBoot.userData.A18PhotoCableStrainReliefCandidate=true;
+    const photoCablePoints=[
+      [-24,166,0],[-30,166,0],[-35,166,0],[-42,161,3],
+      [-56,150,6],[-70,132,8],[-84,108,10],[-95,80,10],
+      [-101,48,10],[-102,15,8],[-98,-20,4],[-90,-55,-2],
+      [-82,-90,-8],[-78,-140,-12]
+    ];
+    const photoCable=add(g,tube(photoCablePoints,1.5,mats.rubber));
     photoCable.userData.A18PhotoSideCableCandidate=true;
+    photoCable.userData.A18PhotoCablePointsLocal=photoCablePoints;
+    photoCable.userData.A18PhotoCableStartConnectedToA09Candidate=true;
+    photoCable.userData.A18PhotoCableLowerTerminationIdentified=false;
 
     g.userData.A18OpticalThroughBoreDiameterCandidateMm=0;
      g.userData.A18ExternalOpticalClearanceCandidateMm=20;
@@ -4984,7 +5004,7 @@ function platformA(){
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V193';
+   g.userData.A18PhotoRebuildRevision='V199';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;
@@ -7126,6 +7146,10 @@ window.__A18PhotoLeftRightProbe=()=>{
  const body=a18.children.find(o=>o.userData.A18PhotoConstrainedMainBody);
  const dial=a18.children.find(o=>o.userData.A18FrontFocusDial);
  const cable=a18.children.find(o=>o.userData.A18PhotoSideCableCandidate);
+ const cableBoot=a18.children.find(o=>o.userData.A18PhotoCableStrainReliefCandidate);
+ const cameraRoot=parts.get('A09')?.g;
+ const cameraCablePort=cameraRoot?.children.find(o=>o.userData.A09CameraCablePortCandidate);
+ const cablePoints=cable?.userData.A18PhotoCablePointsLocal??[];
  const portParts=a18.children.filter(o=>
    o.userData.A18SideOpticalPortMountCandidate||
    o.userData.A18SideOpticalPortCandidate||
@@ -7135,7 +7159,8 @@ window.__A18PhotoLeftRightProbe=()=>{
    o.userData.A18SidePortGripRib||
    o.userData.A18SidePortMountFrameCandidate||
    o.userData.A18SidePortFrameFastener);
- if(!body||!dial||!cable||!portParts.length)return {available:false};
+ if(!body||!dial||!cable||!cableBoot||!cameraRoot||!cameraCablePort||
+    !cablePoints.length||!portParts.length)return {available:false};
  const bodyBox=new THREE.Box3().setFromObject(body);
  const leftWeb=a18.children.find(o=>o.userData.A18FixedSideWeb==='left');
  const rightWeb=a18.children.find(o=>o.userData.A18FixedSideWeb==='right');
@@ -7145,6 +7170,19 @@ window.__A18PhotoLeftRightProbe=()=>{
  for(const o of portParts)portBox.union(new THREE.Box3().setFromObject(o));
  const bodyCenterX=bodyBox.getCenter(new THREE.Vector3()).x;
  const opticalAxisX=a18.localToWorld(new THREE.Vector3(0,0,0)).x;
+ const cameraCableStart=a18.localToWorld(new THREE.Vector3(...cablePoints[0]));
+ const cameraCablePortStart=cameraRoot.localToWorld(new THREE.Vector3(-24,43,0));
+ const cableStartGapMm=cameraCableStart.distanceTo(cameraCablePortStart);
+ const cablePortBox=new THREE.Box3().setFromObject(cameraCablePort);
+ const cableBootBox=new THREE.Box3().setFromObject(cableBoot);
+ const cablePortBootOverlapMm=Math.max(0,
+   Math.min(cablePortBox.max.x,cableBootBox.max.x)-
+   Math.max(cablePortBox.min.x,cableBootBox.min.x));
+ const lowerCablePoints=cablePoints.filter(p=>p[1]<=-20);
+ const lowerCableWorldX=lowerCablePoints.map(p=>
+   a18.localToWorld(new THREE.Vector3(...p)).x);
+ const cableLowerRunOutsidePhotoLeftBodyEdge=lowerCableWorldX.length>0&&
+   Math.max(...lowerCableWorldX)<bodyBox.min.x;
  const dialPos=dial.getWorldPosition(new THREE.Vector3());
  const dialFractionFromBodyLeft=(dialPos.x-bodyBox.min.x)/Math.max(1e-9,bodyBox.max.x-bodyBox.min.x);
  const dialNormal=new THREE.Vector3(0,1,0)
@@ -7185,6 +7223,13 @@ window.__A18PhotoLeftRightProbe=()=>{
    sidePortOnPhotoRight:portBox.min.x>bodyCenterX,
    cableWorldXBounds:[round(cableBox.min.x),round(cableBox.max.x)],
    cableOnPhotoLeft:cableBox.max.x<opticalAxisX,
+   cameraCablePortPresent:Boolean(cameraCablePort.userData.A09CameraCablePortCandidate),
+   cameraCablePortPhotoLeft:cameraCablePort.position.x<0,
+   cableStrainReliefPresent:Boolean(cableBoot.userData.A18PhotoCableStrainReliefCandidate),
+   cableStartsInsideCameraCandidate:cablePoints[0][0]>-25,
+   cableStartGapMm:round(cableStartGapMm),
+   cablePortBootOverlapMm:round(cablePortBootOverlapMm),
+   cableLowerRunOutsidePhotoLeftBodyEdge,
    dialWorldX:round(dialPos.x),
    dialOnPhotoLeftHalf:dialPos.x<bodyCenterX,
    dialNormalWorldZ:round(dialNormal.z),
@@ -7196,7 +7241,6 @@ window.__A18PhotoLeftRightProbe=()=>{
    photoReferenceCameraFromFront:cameraOffset.z>0&&cameraAzimuthDeg<10,
    bodyWorldXBounds:[round(bodyBox.min.x),round(bodyBox.max.x)],
    sidePortLengthMm:round(portBox.max.x-portBox.min.x),
-   cableOutsidePhotoLeftBodyEdge:cableBox.max.x<bodyBox.min.x,
    dialLeftOfOpticalAxis:dialPos.x<opticalAxisX,
    dialFractionFromBodyLeft:round(dialFractionFromBodyLeft),
    photoReferenceVisiblePartIds:a18.userData.A18PhotoReferenceVisiblePartIds??[],
@@ -7214,12 +7258,21 @@ window.__focusA18PhotoReferenceView=()=>{
      visibility:[...parts.entries()].map(([id,p])=>[id,p.g.visible]),
      cameraPosition:camera.position.clone(),
      orbitTarget:orbit.target.clone(),
-     cameraUp:camera.up.clone()
+     cameraUp:camera.up.clone(),
+     activeId:active?.part?.id??null,
+     hoverHelpText:$('hover-help')?.textContent??'',
+     hoverHelpHidden:Boolean($('hover-help')?.hidden),
+     measurementText:$('measurement-text')?.textContent??'',
+     measurementTextHidden:Boolean($('measurement-text')?.hidden),
+     measurementOverlayVisible:measurementOverlay.visible,
+     platformCaption:$('platform-caption')?.textContent??''
    };
  }
- // Isolate the same microscope-head stack shown in the transparent cutout.
- // Unrelated light source, stage and support groups are hidden only in this
- // comparison view and restored after the screenshot.
+ selectPart(null);
+ measurementOverlay.visible=false;
+ $('hover-help').hidden=true;
+ $('measurement-text').hidden=true;
+ $('platform-caption').textContent='平台 A · 显微镜头部正面参考视图';
  const keep=['A08','A09','A18','A19'];
  const keepSet=new Set(keep);
  for(const [id,p] of parts.entries())p.g.visible=keepSet.has(id);
@@ -7231,10 +7284,7 @@ window.__focusA18PhotoReferenceView=()=>{
  let offset=new THREE.Vector3(42,52,420);
  camera.position.copy(target).add(offset);
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
- // V198: fill the isolated reference frame as well as preventing clipping.
- // Earlier logic only pulled the camera back when the head exceeded 1.5 NDC;
- // it never moved closer when the projection was too small. Iteratively target
- // 1.45 NDC while preserving the exact front-view direction and left/right.
+ // V198: camera distance is adjusted without mirroring or rotating components.
  let fitScale=1;
  for(let n=0;n<4;n++){
    const p=_auditProjection(box);
@@ -7246,7 +7296,6 @@ window.__focusA18PhotoReferenceView=()=>{
    camera.position.copy(target).add(offset);
    orbit.target.copy(target);camera.lookAt(target);orbit.update();
  }
- // Final hard ceiling: never crop the camera, TTL200-A, A18 body or A19 turret.
  for(let n=0;n<4;n++){
    const p=_auditProjection(box);
    const needed=Math.max(p.width/1.5,p.height/1.5,1);
@@ -7261,17 +7310,34 @@ window.__focusA18PhotoReferenceView=()=>{
  q.a18.userData.A18PhotoReferenceVisiblePartIds=keep;
  return true;
 };
+window.__A18PhotoReferenceOverlayProbe=()=>({
+ activePartId:active?.part?.id??null,
+ visibleLabelTexts:labels.filter(l=>l.visible).map(l=>l.element?.textContent??''),
+ measurementOverlayVisible:measurementOverlay.visible,
+ measurementTextHidden:Boolean($('measurement-text')?.hidden),
+ hoverHelpHidden:Boolean($('hover-help')?.hidden),
+ platformCaption:$('platform-caption')?.textContent??''
+});
 window.__restoreA18PhotoReferenceView=()=>{
  if(!a18PhotoReferenceSnapshot)return false;
- for(const [id,visible] of a18PhotoReferenceSnapshot.visibility){
+ const snapshot=a18PhotoReferenceSnapshot;
+ for(const [id,visible] of snapshot.visibility){
    const p=parts.get(id);if(p)p.g.visible=visible;
  }
- camera.position.copy(a18PhotoReferenceSnapshot.cameraPosition);
- orbit.target.copy(a18PhotoReferenceSnapshot.orbitTarget);
- camera.up.copy(a18PhotoReferenceSnapshot.cameraUp);
+ camera.position.copy(snapshot.cameraPosition);
+ orbit.target.copy(snapshot.orbitTarget);
+ camera.up.copy(snapshot.cameraUp);
  camera.lookAt(orbit.target);orbit.update();
- a18PhotoReferenceSnapshot=null;
  currentRoot.updateWorldMatrix(true,true);
+ a18PhotoReferenceSnapshot=null;
+ if(snapshot.activeId&&parts.has(snapshot.activeId))selectPart(snapshot.activeId);
+ else selectPart(null);
+ $('hover-help').textContent=snapshot.hoverHelpText;
+ $('hover-help').hidden=snapshot.hoverHelpHidden;
+ $('measurement-text').textContent=snapshot.measurementText;
+ $('measurement-text').hidden=snapshot.measurementTextHidden;
+ $('platform-caption').textContent=snapshot.platformCaption;
+ measurementOverlay.visible=snapshot.measurementOverlayVisible;
  return true;
 };
 window.__A18SupportCloseupProbe=()=>{
