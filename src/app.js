@@ -4345,7 +4345,12 @@ function platformA(){
    // This lower gearbox casting needs a real open FRONT relief for the
     // moving nosepiece annulus; V144 cut the wrong (rear) edge instead.
     const lowerOutline=new THREE.Shape();
-    [[-35,44],[35,44],[35,-44],[18,-44],[18,-26],[-18,-26],[-18,-44],[-35,-44]]
+    // V176: this lower gearbox is offset 24mm from the optical axis.
+    // Apply the same -bodyX relief offset as the middle/upper shell so the
+    // full Ø19mm optical clearance is not blocked by the lower casting.
+    const lowerCl=-bodyX-18,lowerCr=-bodyX+18;
+    [[-35,44],[35,44],[35,-44],[lowerCr,-44],[lowerCr,-26],
+      [lowerCl,-26],[lowerCl,-44],[-35,-44]]
       .forEach(([x,z],i)=>i?lowerOutline.lineTo(x,z):lowerOutline.moveTo(x,z));
     lowerOutline.closePath();
     const lowerGeometry=new THREE.ExtrudeGeometry(lowerOutline,{
