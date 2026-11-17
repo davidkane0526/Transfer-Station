@@ -1774,8 +1774,8 @@ try{
  assert.equal(a18Sides.cableStartsInsideCameraCandidate,true);
  assert.equal(a18Sides.cableStartGapMm,0,
    'V199 cable route must begin at the candidate A09 side entry');
- assert(a18Sides.cablePortBootOverlapMm>=0,
-   'V199 cable boot must meet the A09 connector without a visible gap');
+ assert.equal(a18Sides.cablePortBootGapMm,0,
+   'V200 cable boot must meet the A09 connector without a visible axial gap');
  assert.equal(a18Sides.sidePortLengthMm,145,
    'V191 horizontal side port must match the 145mm photo-ratio envelope');
  assert.deepEqual(a18Sides.bodyWorldXBounds,[23,107]);

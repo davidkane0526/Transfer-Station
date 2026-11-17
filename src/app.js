@@ -7178,6 +7178,9 @@ window.__A18PhotoLeftRightProbe=()=>{
  const cablePortBootOverlapMm=Math.max(0,
    Math.min(cablePortBox.max.x,cableBootBox.max.x)-
    Math.max(cablePortBox.min.x,cableBootBox.min.x));
+ const cablePortBootGapMm=Math.max(0,
+   Math.max(cablePortBox.min.x-cableBootBox.max.x,
+            cableBootBox.min.x-cablePortBox.max.x));
  const lowerCablePoints=cablePoints.filter(p=>p[1]<=-20);
  const lowerCableWorldX=lowerCablePoints.map(p=>
    a18.localToWorld(new THREE.Vector3(...p)).x);
@@ -7229,6 +7232,7 @@ window.__A18PhotoLeftRightProbe=()=>{
    cableStartsInsideCameraCandidate:cablePoints[0][0]>-25,
    cableStartGapMm:round(cableStartGapMm),
    cablePortBootOverlapMm:round(cablePortBootOverlapMm),
+   cablePortBootGapMm:round(cablePortBootGapMm),
    cableLowerRunOutsidePhotoLeftBodyEdge,
    dialWorldX:round(dialPos.x),
    dialOnPhotoLeftHalf:dialPos.x<bodyCenterX,

@@ -1111,8 +1111,8 @@ check(photo_cable.intersect(a_cam).Volume()<1e-3,
 check(photo_cable.distance(a_cam)<.2,
       'V199 cable/connector interface must be physically contiguous within candidate clearance')
 check(photo_cable.BoundingBox().xmin>a18_cx+20 and
-      photo_cable.BoundingBox().xmax>a18_cx+130,
-      'V199 STEP +Y front view: cable must leave the camera port and descend on photo-left (+X)')
+      photo_cable.BoundingBox().xmax>a18_shape.BoundingBox().xmax+40,
+      'V200 STEP +Y front view: cable must leave the camera port and descend beyond the photo-left body edge (+X)')
 report['V199_A18_camera_cable_route']={
     'cameraPortConnected':True,
     'cableAndBootValid':photo_cable.isValid(),
