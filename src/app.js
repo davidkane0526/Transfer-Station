@@ -570,7 +570,9 @@ window.__modelAOpticalClearanceProbe=()=>{
       allTrueBores:axes.every(x=>x.discOpen&&x.seatOpen),
       allSocketsInserted:axes.every(x=>x.inserted>=1.9),
       allMounted:axes.every(x=>x.hasMount),
-      unseenPortCountUnknown:true,machiningGrade:false,axes};
+      unseenPortCountUnknown:true,machiningGrade:false,axes,
+      raycastGeometryClean:Boolean(disc.geometry?.attributes?.normal),
+      raycastDegenerateTrianglesRemoved:disc.userData.degenerateTrianglesRemoved??0};
   };
 
 // V169: audit the ACTUAL installed mesh datums in all optical poses.
@@ -1994,17 +1996,57 @@ function plate(w,d,h,material,holesArray=[],pocket=null){
  const geo=new THREE.ExtrudeGeometry(s,{depth:h,bevelEnabled:false,curveSegments:20,steps:1});
  geo.rotateX(-Math.PI/2);return mk(geo,material);
 }
+// Remove zero-area triangles from the circular multi-bore extrusions. Three.js
+// 0.164's Mesh.raycast interpolates the face normal and can throw when a
+// triangulation produces a degenerate triangle (barycentric interpolation
+// returns null). Preserve original normals/UVs for all valid triangles.
+function removeDegenerateTriangles(geometry,epsilonSq=1e-16){
+ const position=geometry.getAttribute('position');
+ if(!position)return {geometry,removed:0};
+ const normal=geometry.getAttribute('normal'),uv=geometry.getAttribute('uv');
+ const index=geometry.index,count=index?index.count:position.count;
+ const positions=[],normals=[],uvs=[];
+ const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3();
+ const ab=new THREE.Vector3(),ac=new THREE.Vector3(),cross=new THREE.Vector3();
+ let removed=0;
+ for(let i=0;i+2<count;i+=3){
+   const ia=index?index.getX(i):i;
+   const ib=index?index.getX(i+1):i+1;
+   const ic=index?index.getX(i+2):i+2;
+   a.fromBufferAttribute(position,ia);
+   b.fromBufferAttribute(position,ib);
+   c.fromBufferAttribute(position,ic);
+   ab.subVectors(b,a);ac.subVectors(c,a);cross.crossVectors(ab,ac);
+   if(cross.lengthSq()<=epsilonSq){removed++;continue;}
+   for(const v of [ia,ib,ic]){
+     positions.push(position.getX(v),position.getY(v),position.getZ(v));
+     if(normal)normals.push(normal.getX(v),normal.getY(v),normal.getZ(v));
+     if(uv)uvs.push(uv.getX(v),uv.getY(v));
+   }
+ }
+ const clean=new THREE.BufferGeometry();
+ clean.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+ if(normal)clean.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+ else clean.computeVertexNormals();
+ if(uv)clean.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+ if(positions.length)clean.addGroup(0,positions.length/3,0);
+ clean.computeBoundingBox();clean.computeBoundingSphere();
+ return {geometry:clean,removed};
+}
 // Round stage face with real cut-through mounting holes. A painted
 // circle/torus is not a mechanical bore and cannot accept an engaged screw.
 function drilledDisc(radius,height,material,bores){
  const shape=new THREE.Shape();
  shape.absarc(0,0,radius,0,2*Math.PI,false);
  addHoles(shape,bores);
- const geo=new THREE.ExtrudeGeometry(shape,{
+ const raw=new THREE.ExtrudeGeometry(shape,{
   depth:height,bevelEnabled:false,curveSegments:96,steps:1
  });
- geo.rotateX(-Math.PI/2);
- return mk(geo,material);
+ raw.rotateX(-Math.PI/2);
+ const cleaned=removeDegenerateTriangles(raw);
+ const mesh=mk(cleaned.geometry,material);
+ mesh.userData.degenerateTrianglesRemoved=cleaned.removed;
+ return mesh;
 }
 function addCandidateThreadedHoles(parent,id,topY,holes){
  const made=[];
@@ -5019,6 +5061,7 @@ function platformA(){
    // Restore the original 155..165mm turret envelope to avoid hitting A18.
    turret.position.set(-18,-5,0);
    turret.userData.A19TurretEnvelopeCandidate=true;
+   turret.userData.A19DegenerateTrianglesRemoved=turret.userData.degenerateTrianglesRemoved??0;
    turret.userData.A19PivotOffsetFromOpticalAxisCandidateMm=-18;
    turret.userData.A19InstalledPortThroughBores=2;
    add(g,torus(34,1,mats.steel,0,0,0));

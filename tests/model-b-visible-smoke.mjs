@@ -1150,6 +1150,10 @@ try{
    'V172 right vertical objective must be coaxial with A08/A18 optical axis');
  assert.equal(a19Mechanical.otherVisibleObjectiveOffsetMm,-36);
  assert.equal(a19Mechanical.realNeckBore,true);
+ assert.equal(a19Mechanical.raycastGeometryClean,true,
+   'V180 A19 nosepiece mesh must retain a valid normal attribute for raycasting');
+ assert(a19Mechanical.raycastDegenerateTrianglesRemoved>=0,
+   'V180 A19 reports the number of degenerate extrusion triangles removed');
  assert.equal(a19Mechanical.selectedPortRayClear,true,
    'V172 optical ray cannot be blocked by a solid nosepiece hub or adapter');
  assert.equal(a19Mechanical.indexingMechanismVerified,false);
