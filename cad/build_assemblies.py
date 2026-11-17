@@ -1109,11 +1109,11 @@ def make_a():
     sleeve_A14=vz(28,56.8,cx,0,266.2).cut(vz(26.1,57.0,cx,0,266.1))
     add('A','A14','UNKNOWN_SM2_MATING_TUBE_56P8mm_CANDIDATE',sleeve_A14,'C')
 
-    # V92 A18: photos191/193 show the optical axis lies near the LEFT side
-    # of the black housing rather than at its geometric center. Keep optical
-    # collars/turret/objectives at cx and shift only housing/focus controls
-    # +24 mm in X. This is a photo-ratio candidate, not a ruler measurement.
-    # The rear Y=-44 mounting plane still mates to A10 over a real overlap.
+    # V189: the high-resolution +Z/front transparent cutout supersedes the
+    # low-resolution 191/193 previews. Keep the optical chain at cx and place
+    # the 84mm focus housing centre at cx-13mm (photo-ratio candidate only).
+    # The rear mounting plane remains registered to A10; moving yoke parts
+    # retain their independent optical-carrier coordinates.
     # MGZ30 is comparison-only; MCT-LMP2 direct identity is rejected by its
     # 211.5x130x58.8mm vendor envelope and dense front-hole pattern.
     # A 34mm-wide continuous internal/rear spine overlaps all three
@@ -1177,7 +1177,7 @@ def make_a():
     # portion of its optical aperture. Remain behind the 11.8mm ray cone.
     add('A','A18AD','FOCUS_OPTICAL_NOSEPIECE_ADAPTER_CLEAR_OF_TURRET_CANDIDATE',
         box(44,23,5,cx+3,30,165),'C')
-    for i,dx in enumerate((-7.6,55.6),1):
+    for i,dx in enumerate((-44.6,18.6),1):
         add('A',f'A18CW{i}','FOCUS_SLIDING_SHOE_CANDIDATE',
             box(11,2,28,cx+dx,49.4,167),'C')
     add('A','A18T','HOLLOW_TOP_OPTICAL_COUPLER_CANDIDATE',
@@ -1360,7 +1360,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V188'
+CAD_REVISION='V189'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

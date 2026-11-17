@@ -4966,7 +4966,7 @@ function platformA(){
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V188';
+   g.userData.A18PhotoRebuildRevision='V189';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;
