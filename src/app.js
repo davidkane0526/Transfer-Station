@@ -4400,7 +4400,7 @@ function platformA(){
     centralBarrel.userData.A18CentralOpticalBarrelCandidate=true;
     centralBarrel.userData.A18CentralOpticalBarrelODmm=34;
     centralBarrel.userData.A18CentralOpticalBarrelIDmm=25;
-    const lowerBarrelCollar=add(g,sleeve(18.1,17,4,mats.dark,0,-29,0,'y'));
+    const lowerBarrelCollar=add(g,sleeve(18.1,16.9,4,mats.dark,0,-29,0,'y'));
     lowerBarrelCollar.userData.A18CentralBarrelLowerCollar=true;
     const upperBarrelCollar=add(g,sleeve(17.1,12.5,4,mats.dark,0,29,0,'y'));
     upperBarrelCollar.userData.A18CentralBarrelUpperCollar=true;

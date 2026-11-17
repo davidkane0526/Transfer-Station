@@ -1171,7 +1171,7 @@ def make_a():
     # V173: central hollow optical barrel with locating collars at both ends.
     a18_vtube=vz(17,54,cx,0,173).cut(vz(12.5,54.2,cx,0,172.9))
     a18_vtube=a18_vtube.fuse(
-        vz(18.1,4,cx,0,169).cut(vz(17,4.2,cx,0,168.9)),
+        vz(18.1,4,cx,0,169).cut(vz(16.9,4.2,cx,0,168.9)),
         vz(17.1,4,cx,0,227).cut(vz(12.5,4.2,cx,0,226.9))
     ).clean()
     add('A','A18VT','PHOTO_FIT_CENTRAL_HOLLOW_OPTICAL_BARREL_OD34_ID25',a18_vtube,'C')
