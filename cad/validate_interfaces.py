@@ -1080,8 +1080,9 @@ check(abs(side_port.BoundingBox().xlen-145)<.02 and
 body_center_x=(a18_shape.BoundingBox().xmin+a18_shape.BoundingBox().xmax)/2
 check(side_port.BoundingBox().xmax<body_center_x,
       'V194 STEP +Y front frame: photo-right side port must lie on -X')
-check(part(A,'A18CBL')[0].BoundingBox().xmin>(a18_cx+55),
-      'V194 STEP +Y front frame: photo-left cable must lie beyond the +X body edge')
+check(part(A,'A18CBL')[0].BoundingBox().xmin>a18_cx+20 and
+      part(A,'A18CBL')[0].BoundingBox().xmax>a18_shape.BoundingBox().xmax+40,
+      'V201 STEP +Y front frame: cable must begin at the camera side port and its lower run must clear the +X/photo-left body edge')
 dial_box=cq.Compound.makeCompound(part(A,'A18D')).BoundingBox()
 dial_center_x=(dial_box.xmin+dial_box.xmax)/2
 dial_fraction=((a18_cx+55)-dial_center_x)/84
