@@ -1119,7 +1119,7 @@ def make_a():
     # A 34mm-wide continuous internal/rear spine overlaps all three
     # stepped shells. This prevents STEP export from degenerating into three
     # merely face-touching solids while leaving the external silhouette unchanged.
-    a18_body_x=cx+24
+    a18_body_x=cx-13
     a18_core=box(34,88,70,a18_body_x,-48,165)
     a18_body=(a18_core
               .fuse(box(70,88,18,a18_body_x,-48,165),
@@ -1139,31 +1139,31 @@ def make_a():
     # 58mm nosepiece yoke. This is an OPEN FRONT notch, not a gearbox bore.
     # V173: widen the front relief to clear the separate Ø34/Ø25 hollow barrel.
     a18_body=a18_body.cut(box(34,20,70,cx,-14,165)).clean()
-    # V182: the cutout's photo-right port exits the +X face of the housing.
-    # The body spans x=cx-18..cx+66; bore the right face from cx+42..cx+66.
-    a18_body=a18_body.cut(vx(9.5,24.2,cx+42,-48,222)).clean()
+    # V187: body centre cx-13, right face cx+29. The +X side bore reaches
+    # 24.2mm inward from that face and remains coaxial with the 145mm tube.
+    a18_body=a18_body.cut(vx(9.5,24.2,cx+5.8,-48,222)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     # V145: two STATIONARY cast side webs engage rear gearbox and fixed
     # guides; the lower ONE-PIECE yoke belongs to the MOVING objective slide.
     # No artificial four-bar forest is present in installed STEP geometry.
     add('A','A18FW1','FIXED_LEFT_FOCUS_SIDE_GUSSET_CANDIDATE',
-        box(14,70,40,cx-19,18,180),'C')
+        box(14,70,40,cx-56,18,180),'C')
     add('A','A18FW2','FIXED_RIGHT_FOCUS_SIDE_GUSSET_CANDIDATE',
-        box(34,70,36,cx+48,19,185),'C')
+        box(34,70,36,cx+11,19,185),'C')
     add('A','A18SB','MOVING_NOSEPIECE_YOKE_SPINE_CANDIDATE',
-        box(38,56,7,cx+37,27,165),'C')
+        box(38,56,7,cx,27,165),'C')
     saddle_ring=vz(29,7,cx,0,165).cut(vz(18.2,7.2,cx,0,164.9))
     add('A','A18SR','MOVING_NOSEPIECE_BORED_RING_CANDIDATE',
         saddle_ring,'C')
     add('A','A18VR','MOVING_OPTICAL_UPRIGHT_CLEAR_OF_TURRET_CANDIDATE',
-        box(8,10,69,cx+26,8,165),'C')
+        box(8,10,69,cx-11,8,165),'C')
     add('A','A18UL','MOVING_TOP_INTERFACE_EAR_CANDIDATE',
-        box(12,10,8,cx+25,5,226),'C')
+        box(12,10,8,cx-12,5,226),'C')
     add('A','A18F','RECESSED_FOCUS_FRONT_COVER_CANDIDATE',
-        box(32,1.4,44,cx+43,44.7,179),'C')
+        box(32,1.4,44,cx+6,44.7,179),'C')
     # Two guides and wear strips on stationary body, with distinct moving shoes.
-    for i,dx in enumerate((-11,59),1):
+    for i,dx in enumerate((-48,22),1):
         x=cx+dx
         add('A',f'A18G{i}','FOCUS_FIXED_GUIDE_RAIL_CANDIDATE',
             box(4,3,47,x,45.5,170.5),'C')
@@ -1191,52 +1191,54 @@ def make_a():
         vz(17.1,4,cx,0,227).cut(vz(12.5,4.2,cx,0,226.9))
     ).clean()
     add('A','A18VT','PHOTO_FIT_CENTRAL_HOLLOW_OPTICAL_BARREL_OD34_ID25',a18_vtube,'C')
-    # V182: same-side registration as the source cutout: +X is photo-right.
-    # A18 body right face is x=cx+66; the tube projects 90mm outboard.
-    a18_op_frame=box(6,28,28,cx+69,-48,208).cut(
-        vx(9.5,6.2,cx+65.9,-48,222))
-    a18_op_flange=vx(17,6,cx+66,-48,222).cut(
-        vx(9.5,6.2,cx+65.9,-48,222))
-    a18_op_near=vx(13.5,34,cx+72,-48,222).cut(
-        vx(9.5,34.2,cx+71.9,-48,222))
-    a18_op_grip=vx(16,4,cx+106,-48,222).cut(
-        vx(9.5,4.2,cx+105.9,-48,222))
-    a18_op_far=vx(14,42,cx+110,-48,222).cut(
-        vx(9.5,42.2,cx+109.9,-48,222))
-    a18_op_rim=vx(15.5,4,cx+152,-48,222).cut(
-        vx(9.5,4.2,cx+151.9,-48,222))
+    # V187: photo-right (+X) port. The high-resolution cutout ratio gives
+    # ~145mm from housing face to distal rim. Outer diameters are candidates.
+    a18_op_frame=box(6,28,28,cx+32,-48,208).cut(
+        vx(9.5,6.2,cx+28.9,-48,222))
+    a18_op_flange=vx(17,6,cx+29,-48,222).cut(
+        vx(9.5,6.2,cx+28.9,-48,222))
+    a18_op_near=vx(17,82,cx+35,-48,222).cut(
+        vx(9.5,82.2,cx+34.9,-48,222))
+    a18_op_grip=vx(19,22,cx+117,-48,222).cut(
+        vx(9.5,22.2,cx+116.9,-48,222))
+    a18_op_far=vx(16.5,31,cx+139,-48,222).cut(
+        vx(9.5,31.2,cx+138.9,-48,222))
+    a18_op_rim=vx(18,4,cx+170,-48,222).cut(
+        vx(9.5,4.2,cx+169.9,-48,222))
     a18_op_ribs=[]
-    for x in (cx+116,cx+124,cx+132,cx+140,cx+148):
+    for x in (cx+121,cx+125,cx+129,cx+133,cx+137):
         a18_op_ribs.append(
-            vx(14.3,.52,x-.26,-48,222).cut(vx(13.9,.54,x-.27,-48,222)))
+            vx(19,.52,x-.26,-48,222).cut(vx(18.6,.54,x-.27,-48,222)))
     a18_op=a18_op_frame.fuse(
         a18_op_flange,a18_op_near,a18_op_grip,a18_op_far,a18_op_rim,*a18_op_ribs).clean()
-    add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_90MM_TWO_SECTION_OPEN_MOUNT',a18_op,'C')
+    add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_145MM_TWO_TUBE_SECTIONS_OPEN_MOUNT',a18_op,'C')
     a18_op_screws=[]
     for yy in (-60.5,-35.5):
         for zz in (209.5,234.5):
-            a18_op_screws.append(vx(1.8,1.5,cx+72,yy,zz))
+            a18_op_screws.append(vx(1.8,1.5,cx+35,yy,zz))
     add('A','A18OPS','FOUR_MOUNT_FRAME_FASTENERS_PHOTO_FIT',
         cq.Compound.makeCompound(a18_op_screws),'C')
-    # V177: front-face focus/index dial and four visible housing fasteners.
-    dial_base=vy(14,2.6,96,-4.1,205)
-    dial_rim=vy(14.7,1.2,96,-1.6,205).cut(vy(13.7,1.4,96,-1.7,205))
-    dial_face=vy(12.8,.9,96,-.5,205)
+    # V187: front dial sits at about 32% of the 84mm body width from photo-left.
+    # Diameter 40mm is a high-resolution photo-ratio candidate, not measured.
+    dial_x=cx-28
+    dial_base=vy(20,2.6,dial_x,-4.1,205)
+    dial_rim=vy(20.7,1.2,dial_x,-1.6,205).cut(vy(19.5,1.4,dial_x,-1.7,205))
+    dial_face=vy(18.8,.9,dial_x,-.5,205)
     dial_parts=[dial_base,dial_rim,dial_face,
-        box(17,.8,.8,87,.3,204.6),
-        box(.8,.8,17,95.6,.3,196.5),
-        vy(2,1,96,.3,205)]
+        box(17,.8,.8,dial_x,.3,204.6),
+        box(.8,.8,17,dial_x,.3,196.5),
+        vy(2.5,1,dial_x,.3,205)]
     for q in range(12):
         a=q*2*3.141592653589793/12
-        x=96+11*__import__('math').cos(a)
-        z=205+11*__import__('math').sin(a)
+        x=dial_x+17.5*__import__('math').cos(a)
+        z=205+17.5*__import__('math').sin(a)
         dial_parts.append(box(1.8,.7,.6,x-.9,.3,z-.3))
     a18_dial=dial_parts[0]
     for piece in dial_parts[1:]:
         a18_dial=a18_dial.fuse(piece)
     add('A','A18D','PHOTO_FIT_FRONT_FACE_INDEX_FOCUS_DIAL',a18_dial.clean(),'C')
     a18_front_screws=[]
-    for xx in (73,131):
+    for xx in (cx-42,cx+16):
         for zz in (178,232):
             screw=vy(2.2,1.5,xx,-4,zz)
             slot=box(2.4,.6,.5,xx-1.2,-2.4,zz-.25)
@@ -1245,8 +1247,8 @@ def make_a():
         cq.Compound.makeCompound(a18_front_screws),'C')
     # V182: route the cable on photo-left (-X), opposite the +X side port.
     a18_cable=cable_path([
-        (70,0,366),(64,6,350),(55,10,320),(48,10,285),
-        (46,10,245),(48,10,215),(52,10,185),(56,10,155),(60,8,140)
+        (cx-70,0,366),(cx-78,6,350),(cx-90,10,320),(cx-104,10,285),
+        (cx-112,10,245),(cx-110,8,215),(cx-104,4,185),(cx-98,-2,155),(cx-90,-8,140)
     ],1.5)
     add('A','A18CBL','PHOTO_FIT_LEFT_SIDE_FLEXIBLE_CABLE_ROUTE',a18_cable,'C')
     # V162: synchronize the installed STEP focus chain with web A18 V160/V161.
@@ -1358,7 +1360,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V184'
+CAD_REVISION='V187'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

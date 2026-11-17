@@ -4352,12 +4352,12 @@ function platformA(){
    label(g,'A14 SM2 接续镜筒（型号待核）',0,78,0);
  },{explode:[0,25,0]});
  addPart('A18',sx,200,0,g=>{
-   // V92: photos191/193 show that the camera/objective optical axis is NOT
-   // centered in the black focus housing. Keep the optical chain at local X=0
-   // and shift only the housing/focus-control body 24 mm to the right. This
-   // puts the optical axis ~18 mm inside the 84 mm body left edge (~21% of width).
-   // The 24 mm value is a photo-ratio candidate, not a ruler measurement.
-   const bodyX=24;
+   // V187: the new high-resolution transparent cutout supersedes the older
+   // 128x170px Photo191/193 previews used by V92. In the +Z/front view, the
+   // optical axis is about 65.5% across the 84mm body from its left edge.
+   // The body centre is therefore 13mm LEFT of the axis (photo-ratio fit).
+   // This is not a ruler measurement.
+   const bodyX=-13;
    // Real optical aperture across the focus body; Ø20 remains unmeasured.
     // V144: don't pretend the drive gearbox is a hollow optical tube.
     const focusBodyDepthZ=-48; // unmeasured topology candidate
@@ -4387,17 +4387,17 @@ function platformA(){
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
    // MGZ30-like guiding topology is only a candidate, not OEM identity.
-   for(const x of [-11,59]){
+   for(const x of [bodyX-35,bodyX+35]){
      const guide=add(g,cub(4,47,3,mats.black,x,-6,45.5));
      guide.userData.A18FrontSlidingGuideCandidate=true;
      const wear=add(g,cub(2,43,1,mats.steel,x,-6,47.2));
      wear.userData.A18FrontGuideWearStripCandidate=true;
    }
-   const carriage=add(g,cub(54,15,7,mats.dark,24,-25,49));
+   const carriage=add(g,cub(54,15,7,mats.dark,bodyX,-25,49));
    carriage.userData.A18DovetailCarriageCandidate=true;
     // Guide shoes belong to the moving carriage and engage it on both sides.
     // The 0.7 mm clearance to stationary wear strips is a scene candidate.
-    for(const x of [-7.6,55.6]){
+    for(const x of [bodyX-31.6,bodyX+31.6]){
       const shoe=add(g,cub(11,28,2,mats.steel,x,-19,49.4));
       shoe.userData.A18SlidingShoeCandidate=x<0?'left':'right';
     }
@@ -4408,7 +4408,7 @@ function platformA(){
     // The adapter previously stopped 4 mm short of its carrier.
     const opticalBridge=add(g,cub(42,12,8,mats.dark,3,-29,43.5));
     opticalBridge.userData.A18OpticalCarrierBridgeCandidate=true;
-   for(const x of [-10,58])for(const y of [-9,17]){
+   for(const x of [bodyX-34,bodyX+34])for(const y of [-9,17]){
      const screw=add(g,cyl(2.25,1.4,mats.steel,x,y,47.2,24));
      screw.rotation.x=Math.PI/2;
      screw.userData.A18FaceMountScrewCandidate=true;
@@ -4416,7 +4416,7 @@ function platformA(){
    // This lower gearbox casting needs a real open FRONT relief for the
     // moving nosepiece annulus; V144 cut the wrong (rear) edge instead.
     const lowerOutline=new THREE.Shape();
-    // V176: this lower gearbox is offset 24mm from the optical axis.
+    // V187: the focus-body centre is 13mm left of the optical axis.
     // Apply the same -bodyX relief offset as the middle/upper shell so the
     // full Ø19mm optical clearance is not blocked by the lower casting.
     const lowerCl=-bodyX-18,lowerCr=-bodyX+18;
@@ -4438,24 +4438,24 @@ function platformA(){
     // Replace V144's four exposed rods and four disconnected web patches
     // with TWO stationary cast side-gussets and ONE moving lower yoke.
     // Never fuse the moving objective carrier to the stationary gearbox.
-    const front=add(g,cub(32,44,1.4,mats.black,43,1,44.7));
+    const front=add(g,cub(32,44,1.4,mats.black,bodyX+19,1,44.7));
     front.userData.A18FrontFace=true;
-    const fixedWebL=add(g,cub(14,40,70,mats.dark,-19,0,18));
+    const fixedWebL=add(g,cub(14,40,70,mats.dark,bodyX-43,0,18));
     fixedWebL.userData.A18FixedSideWeb='left';
-    const fixedWebR=add(g,cub(34,36,70,mats.dark,48,3,19));
+    const fixedWebR=add(g,cub(34,36,70,mats.dark,bodyX+24,3,19));
     fixedWebR.userData.A18FixedSideWeb='right';
     // Lower yoke: a straight load-bearing spine and a *bored* circular
     // end flange.  Unlike a black painted disc, it has a true axial hole.
-    const movingSpine=add(g,cub(38,7,56,mats.dark,37,-31.5,27));
+    const movingSpine=add(g,cub(38,7,56,mats.dark,bodyX+13,-31.5,27));
     movingSpine.userData.A18MovingNosepieceSpine=true;
     const movingRing=add(g,sleeve(29,18.2,7,mats.dark,0,-31.5,0,'y'));
     movingRing.userData.A18MovingNosepieceRing=true;
     // A moving upright supports the upper optical adapter but stays clear
     // of both stationary side-gussets (1 mm running clearance on right).
     // V172 lifts moving upright 1mm clear of independent turret top.
-    const movingUpright=add(g,cub(8,69,10,mats.dark,26,-.5,8));
+    const movingUpright=add(g,cub(8,69,10,mats.dark,bodyX+2,-.5,8));
     movingUpright.userData.A18MovingOpticalUpright=true;
-    const upperEar=add(g,cub(12,8,10,mats.dark,25,30,5));
+    const upperEar=add(g,cub(12,8,10,mats.dark,bodyX+1,30,5));
     upperEar.userData.A18MovingTopOpticalEar=true;
     for(const o of [bodyMid,bodyLower,bodyUpper,front,fixedWebL,
       fixedWebR,movingSpine,movingRing,movingUpright,upperEar])
@@ -4481,26 +4481,24 @@ function platformA(){
     const upperBarrelCollar=add(g,sleeve(17.1,12.5,4,mats.dark,0,29,0,'y'));
     upperBarrelCollar.userData.A18CentralBarrelUpperCollar=true;
 
-    // V182 reference convention is the SAME SIDE as the supplied cutout:
-    // camera looks from +Z; screen-right is +X. The tube exits the body's
-    // +X/photo-right face, while the cable runs on the -X/photo-left side.
-    // The body centre is x=24, so mirror the former -X tube coordinates
-    // about that centre without mirroring the front-face dial.
-    const photoRightX=x=>48-x;
-    const sidePortMount=add(g,sleeve(17,9.5,6,mats.black,photoRightX(-21),22,-48,'x'));
+    // V187: +Z/front is the reference side; screen-right is +X.
+    // The high-resolution cutout ratio gives ~145mm from housing face to tip.
+    // Two hollow tube sections are separated by a larger knurled grip collar.
+    const bodyRightX=bodyX+42;
+    const sidePortMount=add(g,sleeve(17,9.5,6,mats.black,bodyRightX+3,22,-48,'x'));
     sidePortMount.userData.A18SideOpticalPortMountCandidate=true;
-    const sidePortNear=add(g,sleeve(13.5,9.5,34,mats.dark,photoRightX(-41),22,-48,'x'));
+    const sidePortNear=add(g,sleeve(17,9.5,82,mats.dark,bodyRightX+6+41,22,-48,'x'));
     sidePortNear.userData.A18SideOpticalPortCandidate=true;
     sidePortNear.userData.A18SideOpticalPortOpenBore=true;
-    const sidePortGrip=add(g,sleeve(16,9.5,4,mats.black,photoRightX(-60),22,-48,'x'));
+    const sidePortGrip=add(g,sleeve(19,9.5,22,mats.black,bodyRightX+6+82+11,22,-48,'x'));
     sidePortGrip.userData.A18SideOpticalPortGripCollar=true;
-    const sidePortFar=add(g,sleeve(14,9.5,42,mats.dark,photoRightX(-83),22,-48,'x'));
+    const sidePortFar=add(g,sleeve(16.5,9.5,31,mats.dark,bodyRightX+6+82+22+15.5,22,-48,'x'));
     sidePortFar.userData.A18SideOpticalPortExtensionCandidate=true;
     sidePortFar.userData.A18SideOpticalPortOpenBore=true;
-    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,photoRightX(-106),22,-48,'x'));
+    const sidePortRim=add(g,sleeve(18,9.5,4,mats.black,bodyRightX+145-2,22,-48,'x'));
     sidePortRim.userData.A18SideOpticalPortRimCandidate=true;
     for(let q=0;q<5;q++){
-      const rib=add(g,torus(14.3,.28,mats.ink,116+q*8,22,-48));
+      const rib=add(g,torus(19,.3,mats.ink,121+q*4,22,-48));
       rib.rotation.y=Math.PI/2;
       rib.userData.A18SidePortGripRib=true;
     }
@@ -4513,21 +4511,22 @@ function platformA(){
     const frameGeometry=new THREE.ExtrudeGeometry(frameShape,{depth:6,bevelEnabled:false,steps:1});
     frameGeometry.rotateY(Math.PI/2);
     const sidePortFrame=add(g,new THREE.Mesh(frameGeometry,mats.dark));
-    sidePortFrame.position.set(66,22,-48);
+    sidePortFrame.position.set(bodyRightX,22,-48);
     sidePortFrame.userData.A18SidePortMountFrameCandidate=true;
     for(const yy of [9.5,34.5])for(const zz of [-60.5,-35.5]){
-      const screw=add(g,cyl(1.8,1.5,mats.silver,72.75,yy,zz,32));
+      const screw=add(g,cyl(1.8,1.5,mats.silver,bodyRightX+6.75,yy,zz,32));
       screw.rotation.z=Math.PI/2;
       screw.userData.A18SidePortFrameFastener=true;
     }
-    // V177: round front-face focus/index dial with cross and graduations.
-    const dialX=18,dialY=5,dialZ=-2.8;
-    const dialBase=add(g,cyl(14,2.4,mats.black,dialX,dialY,dialZ,64));
+    // V187: the front dial is photo-left of the optical axis, centred at
+    // about 32% of the 84mm housing width from its left edge.
+    const dialX=bodyX-15,dialY=5,dialZ=-2.8;
+    const dialBase=add(g,cyl(20,2.4,mats.black,dialX,dialY,dialZ,72));
     dialBase.rotation.x=Math.PI/2;
     dialBase.userData.A18FrontFocusDial=true;
-    const dialRim=add(g,torus(14.5,.65,mats.silver,dialX,dialY,dialZ+.9));
+    const dialRim=add(g,torus(20.4,.6,mats.silver,dialX,dialY,dialZ+.9));
     dialRim.userData.A18FrontFocusDialRim=true;
-    const dialFace=add(g,cyl(12.8,.9,mats.dark,dialX,dialY,dialZ+1.3,64));
+    const dialFace=add(g,cyl(18.8,.9,mats.dark,dialX,dialY,dialZ+1.3,72));
     dialFace.rotation.x=Math.PI/2;
     dialFace.userData.A18FrontFocusDialFace=true;
     add(g,cub(17,.8,.7,mats.silver,dialX,dialY,dialZ+1.8)).userData.A18FrontDialCross=true;
@@ -4535,22 +4534,24 @@ function platformA(){
     for(let q=0;q<12;q++){
       const a=q*Math.PI/6;
       const tick=add(g,cub(1.8,.7,.6,mats.silver,
-        dialX+11*Math.cos(a),dialY+11*Math.sin(a),dialZ+1.8));
+        dialX+17.5*Math.cos(a),dialY+17.5*Math.sin(a),dialZ+1.8));
       tick.rotation.z=a;
       tick.userData.A18FrontDialTick=true;
     }
-    const dialHub=add(g,cyl(2,.8,mats.silver,dialX,dialY,dialZ+1.9,32));
+    const dialHub=add(g,cyl(2.5,.8,mats.silver,dialX,dialY,dialZ+1.9,32));
     dialHub.rotation.x=Math.PI/2;
     dialHub.userData.A18FrontDialHub=true;
-    for(const xx of [-5,53])for(const yy of [-22,32]){
+    g.userData.A18FrontFocusDialDiameterCandidateMm=40;
+    g.userData.A18FrontFocusDialDiameterMeasured=false;
+    for(const xx of [bodyX-29,bodyX+29])for(const yy of [-22,32]){
       const screw=add(g,cyl(2.2,1.5,mats.silver,xx,yy,-3.25,32));
       screw.rotation.x=Math.PI/2;
       screw.userData.A18FrontFaceFastener=true;
     }
     // V182: the cable is on photo-left (-X), not the opposite housing side.
     const photoCable=add(g,tube([
-      [-8,166,0],[-14,150,6],[-23,120,10],[-30,85,10],
-      [-32,45,10],[-30,15,8],[-26,-15,4],[-22,-40,-2],[-18,-60,-8]
+      [-70,166,0],[-78,150,6],[-90,120,10],[-104,85,10],
+      [-112,45,10],[-110,15,8],[-104,-15,4],[-98,-40,-2],[-90,-60,-8]
     ],1.5,mats.rubber));
     photoCable.userData.A18PhotoSideCableCandidate=true;
 
@@ -4952,13 +4953,18 @@ function platformA(){
    g.userData.removedUnsupportedHorizontalTube=true;
    g.userData.A18CentralOpticalBarrelPresent=true;
    g.userData.A18SideOpticalPortPresent=true;
-   g.userData.A18SideOpticalPortLengthCandidateMm=90;
+   g.userData.A18SideOpticalPortLengthCandidateMm=145;
+   g.userData.A18SideOpticalPortMainOuterDiameterCandidateMm=34;
+   g.userData.A18SideOpticalPortGripOuterDiameterCandidateMm=38;
+   g.userData.A18SideOpticalPortDimensionsMeasured=false;
+   g.userData.A18FrontFocusDialDiameterCandidateMm=40;
+   g.userData.A18FrontFocusDialDiameterMeasured=false;
    g.userData.A18SideOpticalPortSectionCount=2;
    g.userData.A18PhotoSideCablePresent=true;
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V183';
+   g.userData.A18PhotoRebuildRevision='V187';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;
@@ -5608,7 +5614,7 @@ function updateDetail(part){
      '<a href="https://adobeassets.evidentscientific.com/content/dam/mis/bxfm/manuals/AX8562_07_BXFM_Inst_E.pdf" target="_blank" rel="noopener noreferrer">Evident官方使用手册</a> · '+
      '<a href="https://www.ntc-tech.com/products/olympus-bxfm-f-modular-focusing-system-module" target="_blank" rel="noopener noreferrer">BXFM-F实物多角度照片（经销商）</a> · '+
      '<b>Boli 76mm/25mm调焦架：</b>'+esc(boliText)+'。当前191–193预览只有约128×170像素，既不能确认，也不足以排除外露76mm环形E-arm；该家族保留为未决对照，不作为已识别实机。'+
-     '<b>实拍几何与零件边界：</b>V92的主体右偏24mm仍为照片比例候选，不是尺测值。A10/A18边界尚未闭合；FR5025CF一体式E-arm和MGZ30一体后夹持是两种不同候选拓扑，不能把二者拼接或同时计件。A10横臂禁止作为独立已确认采购件。'+
+     '<b>实拍几何与零件边界：</b>V187依据2026-11-17高清透明底照片，将主体中心修正为相对光轴左偏13mm候选，取代V92基于低清191–193预览的右偏24mm假设；仍非尺测值。A10/A18边界尚未闭合；FR5025CF一体式E-arm和MGZ30一体后夹持是两种不同候选拓扑，不能把二者拼接或同时计件。A10横臂禁止作为独立已确认采购件。'+
      '<b>当前决定：</b>FR5025CF为高优先级结构候选；MGZ30为条件性直接立柱安装候选；BXFM-F为次候选；76mm环形变体未决；没有任何型号已确认，也没有候选几何应用到默认装配。下一步必须核对高清后视/侧视、立柱直径、镜体环内径、中心距、后壳分缝和物镜盘底视图。</p></div>';
  })():'';
  const interfaceHtml=reviews.length?reviews.map(item=>'<p><b>'+esc(item.id)+' · 待核验</b> '+esc(item.known)+'<span class="marked-note">尚需确认：'+esc(item.missing.join('、'))+'</span></p>').join(''):'<p>当前未建立该部件的独立接口验收记录；外观与报价不代表装配验收。</p>'; 
@@ -7112,6 +7118,7 @@ window.__A18PhotoLeftRightProbe=()=>{
  const bodyCenterX=bodyBox.getCenter(new THREE.Vector3()).x;
  const opticalAxisX=a18.localToWorld(new THREE.Vector3(0,0,0)).x;
  const dialPos=dial.getWorldPosition(new THREE.Vector3());
+ const dialFractionFromBodyLeft=(dialPos.x-bodyBox.min.x)/Math.max(1e-9,bodyBox.max.x-bodyBox.min.x);
  const dialNormal=new THREE.Vector3(0,1,0)
    .applyQuaternion(dial.getWorldQuaternion(new THREE.Quaternion())).normalize();
  const round=n=>Number(n.toFixed(2));
@@ -7155,17 +7162,41 @@ window.__A18PhotoLeftRightProbe=()=>{
    photoDialRayFirstHitTag:firstPhotoHit?Object.keys(firstPhotoHit.userData??{}).filter(k=>k.startsWith('A18')).slice(0,4):[],
    photoReferenceCameraOffset:[round(cameraOffset.x),round(cameraOffset.y),round(cameraOffset.z)],
    photoReferenceCameraAzimuthDeg:round(cameraAzimuthDeg),
-   photoReferenceCameraFromFront:cameraOffset.z>0&&cameraAzimuthDeg<10
+   photoReferenceCameraFromFront:cameraOffset.z>0&&cameraAzimuthDeg<10,
+   bodyWorldXBounds:[round(bodyBox.min.x),round(bodyBox.max.x)],
+   sidePortLengthMm:round(portBox.max.x-portBox.min.x),
+   cableOutsidePhotoLeftBodyEdge:cableBox.max.x<bodyBox.min.x,
+   dialLeftOfOpticalAxis:dialPos.x<opticalAxisX,
+   dialFractionFromBodyLeft:round(dialFractionFromBodyLeft),
+   photoReferenceVisiblePartIds:a18.userData.A18PhotoReferenceVisiblePartIds??[],
+   photoReferenceProjection:_auditProjection(_auditBoxFor(
+     ['A08','A09','A18','A19'].map(id=>parts.get(id)?.g).filter(Boolean)))
  };
 };
+let a18PhotoReferenceSnapshot=null;
 window.__focusA18PhotoReferenceView=()=>{
  if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
  currentRoot.updateWorldMatrix(true,true);
  const q=_a18AuditTargets();if(!q)return false;
- const box=_auditBoxFor([q.a18,q.a19]);
+ if(!a18PhotoReferenceSnapshot){
+   a18PhotoReferenceSnapshot={
+     visibility:[...parts.entries()].map(([id,p])=>[id,p.g.visible]),
+     cameraPosition:camera.position.clone(),
+     orbitTarget:orbit.target.clone(),
+     cameraUp:camera.up.clone()
+   };
+ }
+ // Isolate the same microscope-head stack shown in the transparent cutout.
+ // Unrelated light source, stage and support groups are hidden only in this
+ // comparison view and restored after the screenshot.
+ const keep=['A08','A09','A18','A19'];
+ const keepSet=new Set(keep);
+ for(const [id,p] of parts.entries())p.g.visible=keepSet.has(id);
+ currentRoot.updateWorldMatrix(true,true);
+ const photoGroups=keep.map(id=>parts.get(id)?.g).filter(Boolean);
+ if(photoGroups.length!==4)return false;
+ const box=_auditBoxFor(photoGroups);
  const target=box.getCenter(new THREE.Vector3());
- // V183: use the same near-front +Z view as the supplied cutout. A large
- // +X camera offset made the side tube look right but hid the front dial.
  let offset=new THREE.Vector3(42,52,420);
  camera.position.copy(target).add(offset);
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
@@ -7181,6 +7212,20 @@ window.__focusA18PhotoReferenceView=()=>{
  }
  q.a18.userData.A18PhotoReferenceCameraOffset=offset.toArray().map(x=>Number(x.toFixed(2)));
  q.a18.userData.A18PhotoReferenceFitScale=Number(fitScale.toFixed(3));
+ q.a18.userData.A18PhotoReferenceVisiblePartIds=keep;
+ return true;
+};
+window.__restoreA18PhotoReferenceView=()=>{
+ if(!a18PhotoReferenceSnapshot)return false;
+ for(const [id,visible] of a18PhotoReferenceSnapshot.visibility){
+   const p=parts.get(id);if(p)p.g.visible=visible;
+ }
+ camera.position.copy(a18PhotoReferenceSnapshot.cameraPosition);
+ orbit.target.copy(a18PhotoReferenceSnapshot.orbitTarget);
+ camera.up.copy(a18PhotoReferenceSnapshot.cameraUp);
+ camera.lookAt(orbit.target);orbit.update();
+ a18PhotoReferenceSnapshot=null;
+ currentRoot.updateWorldMatrix(true,true);
  return true;
 };
 window.__A18SupportCloseupProbe=()=>{
