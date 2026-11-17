@@ -4400,21 +4400,21 @@ function platformA(){
     centralBarrel.userData.A18CentralOpticalBarrelCandidate=true;
     centralBarrel.userData.A18CentralOpticalBarrelODmm=34;
     centralBarrel.userData.A18CentralOpticalBarrelIDmm=25;
-    const lowerBarrelCollar=add(g,sleeve(18,17,4,mats.dark,0,-29,0,'y'));
+    const lowerBarrelCollar=add(g,sleeve(18.1,17,4,mats.dark,0,-29,0,'y'));
     lowerBarrelCollar.userData.A18CentralBarrelLowerCollar=true;
     const upperBarrelCollar=add(g,sleeve(17.1,12.5,4,mats.dark,0,29,0,'y'));
     upperBarrelCollar.userData.A18CentralBarrelUpperCollar=true;
 
     // V173: right-facing stepped hollow optical port, separate from A11 LED.
-    const sidePortMount=add(g,sleeve(17,9.5,5,mats.black,64,14,-48,'x'));
+    const sidePortMount=add(g,sleeve(17,9.5,5,mats.black,64,22,-48,'x'));
     sidePortMount.userData.A18SideOpticalPortMountCandidate=true;
-    const sidePort=add(g,sleeve(14,9.5,48,mats.dark,90,14,-48,'x'));
+    const sidePort=add(g,sleeve(14,9.5,48,mats.dark,90,22,-48,'x'));
     sidePort.userData.A18SideOpticalPortCandidate=true;
     sidePort.userData.A18SideOpticalPortOpenBore=true;
-    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,114,14,-48,'x'));
+    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,114,22,-48,'x'));
     sidePortRim.userData.A18SideOpticalPortRimCandidate=true;
     for(let q=0;q<5;q++){
-      const rib=add(g,torus(14.3,.28,mats.ink,74+q*8,14,-48));
+      const rib=add(g,torus(14.3,.28,mats.ink,74+q*8,22,-48));
       rib.rotation.y=Math.PI/2;
       rib.userData.A18SidePortGripRib=true;
     }

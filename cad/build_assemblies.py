@@ -1125,7 +1125,7 @@ def make_a():
     # V173: widen the front relief to clear the separate Ø34/Ø25 hollow barrel.
     a18_body=a18_body.cut(box(34,20,70,cx,-14,165)).clean()
     # V173: real horizontal side-port bore through the A18 casting.
-    a18_body=a18_body.cut(vx(9.5,24.2,cx+42,-48,214)).clean()
+    a18_body=a18_body.cut(vx(9.5,24.2,cx+42,-48,222)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     # V145: two STATIONARY cast side webs engage rear gearbox and fixed
@@ -1171,14 +1171,14 @@ def make_a():
     # V173: central hollow optical barrel with locating collars at both ends.
     a18_vtube=vz(17,54,cx,0,173).cut(vz(12.5,54.2,cx,0,172.9))
     a18_vtube=a18_vtube.fuse(
-        vz(18,4,cx,0,169).cut(vz(17,4.2,cx,0,168.9)),
+        vz(18.1,4,cx,0,169).cut(vz(17,4.2,cx,0,168.9)),
         vz(17.1,4,cx,0,227).cut(vz(12.5,4.2,cx,0,226.9))
     ).clean()
     add('A','A18VT','PHOTO_FIT_CENTRAL_HOLLOW_OPTICAL_BARREL_OD34_ID25',a18_vtube,'C')
     # V173: right-facing horizontal optical port, distinct from the A11 LED.
-    a18_op_flange=vx(17,6,144,-48,214).cut(vx(9.5,6.2,143.9,-48,214))
-    a18_op_tube=vx(14,44,150,-48,214).cut(vx(9.5,44.2,149.9,-48,214))
-    a18_op_rim=vx(15.5,4,194,-48,214).cut(vx(9.5,4.2,193.9,-48,214))
+    a18_op_flange=vx(17,6,144,-48,222).cut(vx(9.5,6.2,143.9,-48,222))
+    a18_op_tube=vx(14,44,150,-48,222).cut(vx(9.5,44.2,149.9,-48,222))
+    a18_op_rim=vx(15.5,4,194,-48,222).cut(vx(9.5,4.2,193.9,-48,222))
     a18_op=a18_op_flange.fuse(a18_op_tube,a18_op_rim).clean()
     add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_OPEN_ANNULAR',a18_op,'C')
     # V173: flexible cable loops down the left side of the vertical optical barrel.
