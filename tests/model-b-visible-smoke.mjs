@@ -1615,7 +1615,9 @@ try{
  assert(Math.max(Math.abs(referenceFrame.minX),Math.abs(referenceFrame.maxX),
    Math.abs(referenceFrame.minY),Math.abs(referenceFrame.maxY))<.98,
    'A08–A09 reference plane and camera must fit within the optical close-up viewport');
- assert.equal(await page.locator('#a-optical-reference-summary').getAttribute('data-shortfall'),'43');
+ // V184 recalculated the camera proxy envelope after correcting TTL200-A's
+ // full 34.4mm mechanical length and A14's 56.8mm candidate sleeve.
+ assert.equal(await page.locator('#a-optical-reference-summary').getAttribute('data-shortfall'),'49.4');
  assert.equal(await page.locator('#a09-camera-coupling-summary').getAttribute('data-verified'),'false');
  assert.equal(await page.locator('#a09-camera-coupling-summary').getAttribute('data-radial-gap'),'11.1');
  assert.match(await page.locator('#a09-camera-coupling-summary').innerText(),/缺少已确认的转接件/);
