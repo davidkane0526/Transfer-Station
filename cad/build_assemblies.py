@@ -1176,11 +1176,15 @@ def make_a():
     ).clean()
     add('A','A18VT','PHOTO_FIT_CENTRAL_HOLLOW_OPTICAL_BARREL_OD34_ID25',a18_vtube,'C')
     # V177: square open mounting frame around the photo-right optical port.
-    a18_op_frame=box(6,28,28,54,-62,208).cut(vx(9.5,6.2,53.9,-48,222))
+    a18_op_frame=box(6,28,28,57,-48,208).cut(vx(9.5,6.2,53.9,-48,222))
     a18_op_flange=vx(17,6,54,-48,222).cut(vx(9.5,6.2,53.9,-48,222))
     a18_op_tube=vx(14,44,10,-48,222).cut(vx(9.5,44.2,9.9,-48,222))
     a18_op_rim=vx(15.5,4,6,-48,222).cut(vx(9.5,4.2,5.9,-48,222))
-    a18_op=a18_op_frame.fuse(a18_op_flange,a18_op_tube,a18_op_rim).clean()
+    a18_op_ribs=[]
+    for x in (18,26,34,42,50):
+        a18_op_ribs.append(
+            vx(14.3,.52,x-.26,-48,222).cut(vx(13.9,.54,x-.27,-48,222)))
+    a18_op=a18_op_frame.fuse(a18_op_flange,a18_op_tube,a18_op_rim,*a18_op_ribs).clean()
     add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_WITH_SQUARE_OPEN_MOUNT',a18_op,'C')
     a18_op_screws=[]
     for yy in (-60.5,-35.5):
@@ -1206,7 +1210,7 @@ def make_a():
         a18_dial=a18_dial.fuse(piece)
     add('A','A18D','PHOTO_FIT_FRONT_FACE_INDEX_FOCUS_DIAL',a18_dial.clean(),'C')
     a18_front_screws=[]
-    for xx in (73,125):
+    for xx in (73,131):
         for zz in (178,232):
             screw=vy(2.2,1.5,xx,-4,zz)
             slot=box(2.4,.6,.5,xx-1.2,-2.4,zz-.25)
