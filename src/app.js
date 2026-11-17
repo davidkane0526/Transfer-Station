@@ -4441,11 +4441,21 @@ function platformA(){
     // Never fuse the moving objective carrier to the stationary gearbox.
     const front=add(g,cub(32,44,1.4,mats.black,43,1,44.7));
     front.userData.A18FrontFace=true;
-    // V192: +Z reference view has screen-right=+X. Keep the left/right
-    // cast webs in that order while overlapping both the gearbox and guides.
+    // V193: +Z reference view has screen-right=+X. The right web has a
+    // rear/lower attachment foot to meet the shifted gearbox while its main
+    // web stays clear of the moving optical upright.
     const fixedWebL=add(g,cub(14,40,70,mats.dark,-19,0,18));
     fixedWebL.userData.A18FixedSideWeb='left';
-    const fixedWebR=add(g,cub(34,36,70,mats.dark,45,3,19));
+    const rightWebProfile=new THREE.Shape();
+    [[28,16],[65,16],[65,-54],[31,-54],[31,4],[28,4]]
+      .forEach(([x,z],i)=>i?rightWebProfile.lineTo(x,z):rightWebProfile.moveTo(x,z));
+    rightWebProfile.closePath();
+    const rightWebGeometry=new THREE.ExtrudeGeometry(rightWebProfile,{
+      depth:36,bevelEnabled:false,steps:1
+    });
+    rightWebGeometry.rotateX(-Math.PI/2);
+    const fixedWebR=add(g,mk(rightWebGeometry,mats.dark));
+    fixedWebR.position.y=-15;
     fixedWebR.userData.A18FixedSideWeb='right';
     // Lower yoke: a straight load-bearing spine and a *bored* circular
     // end flange.  Unlike a black painted disc, it has a true axial hole.
@@ -4969,7 +4979,7 @@ function platformA(){
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V192';
+   g.userData.A18PhotoRebuildRevision='V193';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;

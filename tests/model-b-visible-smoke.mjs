@@ -1738,7 +1738,7 @@ try{
  assert.equal(dA.A18SidePortMountFramePresent,true);
  assert.equal(dA.A18FrontFocusDialPresent,true);
  assert.equal(dA.A18FrontFaceFastenersPresent,true);
- assert.equal(dA.A18PhotoRebuildRevision,'V192');
+ assert.equal(dA.A18PhotoRebuildRevision,'V193');
  assert.equal(await page.evaluate(()=>window.__focusA18PhotoReferenceView?.()),true);
  await page.waitForTimeout(220);
  const a18Sides=await page.evaluate(()=>window.__A18PhotoLeftRightProbe?.());
@@ -1759,9 +1759,9 @@ try{
    'V191 horizontal side port must match the 145mm photo-ratio envelope');
  assert.deepEqual(a18Sides.bodyWorldXBounds,[23,107]);
  assert.equal(a18Sides.fixedWebOrderOnPhoto,true,
-   'V192 +Z photo view: labelled left fixed web must be on screen-left of labelled right web');
+   'V193 +Z photo view: labelled left fixed web must be on screen-left of labelled right web');
  assert(a18Sides.fixedWebWorldXCenters[0]<a18Sides.fixedWebWorldXCenters[1],
-   'V192 fixed web world X coordinates must preserve the photo-left/photo-right order');
+   'V193 fixed web world X coordinates must preserve the photo-left/photo-right order');
  assert.equal(a18Sides.dialFacesPhotoFront,true,
    'V183 index dial face must face the same +Z side as the supplied cutout');
  assert.equal(a18Sides.dialVisibleFromPhotoFront,true,
@@ -1779,10 +1779,10 @@ try{
  assert(a18Sides.sidePortWorldXBounds[0]>a18Sides.bodyCenterWorldX);
  assert(a18Sides.cableWorldXBounds[1]<a18Sides.opticalAxisWorldX);
  assert(a18Sides.dialWorldX<a18Sides.bodyCenterWorldX);
- console.log('V192 A18 high-resolution photo-ratio and left/right audit:',a18Sides);
+ console.log('V193 A18 high-resolution photo-ratio and left/right audit:',a18Sides);
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
-   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V192-A18-Isolated-Photo-Reference-View.png',
+   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V193-A18-Isolated-Photo-Reference-View.png',
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }

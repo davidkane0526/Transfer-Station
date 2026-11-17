@@ -1144,12 +1144,15 @@ for i in (1,2):
     check(web.intersect(guide).Volume()>1,
           f'V145 fixed web {i} must join fixed guide')
 left_web_box=part(A,'A18FW1')[0].BoundingBox()
-right_web_box=part(A,'A18FW2')[0].BoundingBox()
+right_web=part(A,'A18FW2')[0]
+right_web_box=right_web.BoundingBox()
 check((left_web_box.xmin+left_web_box.xmax)/2 <
       (right_web_box.xmin+right_web_box.xmax)/2,
-      'V192 +Z photo view: labelled left fixed web must project left of labelled right web')
+      'V193 +Z photo view: labelled left fixed web must project left of labelled right web')
 check(right_web_box.xmin < a18_shape.BoundingBox().xmax,
-      'V192 right fixed web must overlap the shifted focus body, not leave a 2mm gap')
+      'V193 stepped right fixed web foot must overlap the shifted focus body')
+check(right_web.isValid() and len(right_web.Solids())==1,
+      'V193 right fixed web main wall and rear attachment foot must form one valid solid')
 moving_bar=part(A,'A18SB')[0]
 moving_ring=part(A,'A18SR')[0]
 moving_carriage=part(A,'A18C')[0]
