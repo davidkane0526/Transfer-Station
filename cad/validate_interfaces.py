@@ -819,7 +819,7 @@ check(abs(a18.xlen-84)<.02 and abs(a18.ylen-88)<.02 and
       abs(a18.zmin-165)<.02 and abs(a18.zmax-235)<.02,
       'V81 microscope focus body uses stepped photo-constrained max 84x88x70 envelope')
 check(not (A/'A18R.step').exists(),
-      'V81 unsupported 160mm horizontal microscope tube must remain deleted')
+      'V81 obsolete unsupported 160mm tube proxy must remain deleted')
 body_center_x=(a18.xmin+a18.xmax)/2
 for side,sign,hub_key,coarse_key,fine_key,cap_key in (
     ('left',-1,'A18HL','A18FL','A18FLL','A18FCL'),
@@ -836,18 +836,22 @@ for side,sign,hub_key,coarse_key,fine_key,cap_key in (
           f'V162 {side} coarse/fine focus wheels must be contiguous')
     check(fine.distance(cap)<.02,
           f'V162 {side} fine wheel and end cap must be contiguous')
-    check(abs(hb.xlen-8)<.02 and abs(hb.ylen-15)<.02 and abs(hb.zlen-15)<.02,
-          f'V162 {side} focus hub must match Ø15 x 8mm candidate')
-    check(abs(cb.xlen-10)<.02 and abs(cb.ylen-28.6)<.02 and abs(cb.zlen-28.6)<.02,
-          f'V162 {side} coarse wheel must match Ø28mm body with 0.3mm knurl crown')
-    check(abs(fb.xlen-7)<.02 and abs(fb.ylen-16)<.02 and abs(fb.zlen-16)<.02,
-          f'V162 {side} fine knob must match Ø16 x 7mm candidate')
-    check(abs(eb.xlen-2.2)<.02 and abs(eb.ylen-10.4)<.02 and abs(eb.zlen-10.4)<.02,
-          f'V162 {side} fine end cap must match Ø10.4 x 2.2mm candidate')
+    check(abs(hb.xlen-10)<.02 and abs(hb.ylen-18)<.02 and abs(hb.zlen-18)<.02,
+          f'V173 {side} focus hub must match Ø18 x 10mm candidate')
+    check(abs(cb.xlen-14)<.02 and abs(cb.ylen-42.6)<.02 and abs(cb.zlen-42.6)<.02,
+          f'V173 {side} coarse wheel must match Ø42mm body with 0.3mm knurl crown')
+    check(abs(fb.xlen-8)<.02 and abs(fb.ylen-22)<.02 and abs(fb.zlen-22)<.02,
+          f'V173 {side} fine knob must match Ø22 x 8mm candidate')
+    check(abs(eb.xlen-2.2)<.02 and abs(eb.ylen-12)<.02 and abs(eb.zlen-12)<.02,
+          f'V173 {side} fine end cap must match Ø12 x 2.2mm candidate')
     check(abs((hb.xmin+hb.xmax)/2-(body_center_x+sign*43))<.02 and
-          abs((cb.xmin+cb.xmax)/2-(body_center_x+sign*52))<.02 and
-          abs((fb.xmin+fb.xmax)/2-(body_center_x+sign*60.5))<.02,
-          f'V162 {side} hub/coarse/fine axial centres must be symmetric')
+          abs((cb.xmin+cb.xmax)/2-(body_center_x+sign*53))<.02 and
+          abs((fb.xmin+fb.xmax)/2-(body_center_x+sign*64))<.02,
+          f'V173 {side} hub/coarse/fine axial centres must be symmetric')
+    check(abs(hb.zmin-169)<.02 and abs(hb.zmax-187)<.02 and
+          abs(cb.zmin-157)<.02 and abs(cb.zmax-199)<.02 and
+          abs(fb.zmin-167)<.02 and abs(fb.zmax-189)<.02,
+          f'V173 {side} focus wheels must sit low on the housing as in the photo')
 
 check(not (A/'A11M.step').exists(),
       'V79 invented MWWHL4 mechanical gooseneck support must remain deleted')
@@ -1000,14 +1004,42 @@ report['V108_A10_A18_component_boundary']={
     'safe_for_separate_A10_boom_fabrication':False
 }
 
-# V142 real microscope geometry checks: no fake filled axial light path.
+# V142/V173 microscope geometry checks: central and side optical paths.
 optical_axis_probe=vz(9.9,70,78,0,165)
 check(a18_shape.intersect(optical_axis_probe).Volume()<1e-4,
-      'V142 A18 requires a true through-bore for the optical axis')
+      'V142 A18 housing must leave the central optical axis clear')
+central_barrel=part(A,'A18VT')[0]
+check(abs(central_barrel.BoundingBox().zmin-169)<.02 and
+      abs(central_barrel.BoundingBox().zmax-231)<.02 and
+      abs(central_barrel.BoundingBox().xlen-36)<.02 and
+      abs(central_barrel.BoundingBox().ylen-36)<.02,
+      'V173 central optical barrel must be a stepped hollow sleeve with end collars')
+check(central_barrel.intersect(optical_axis_probe).Volume()<1e-4,
+      'V173 central optical barrel must retain its open optical core')
+side_port=part(A,'A18OP')[0]
+check(abs(side_port.BoundingBox().xmin-144)<.02 and
+      abs(side_port.BoundingBox().xmax-198)<.02 and
+      abs(side_port.BoundingBox().zmin-197)<.02 and
+      abs(side_port.BoundingBox().zmax-231)<.02,
+      'V173 right-facing side optical port must match the photo-fit envelope')
+side_port_axis=vx(9.4,54.2,144,-48,214)
+check(side_port.intersect(side_port_axis).Volume()<1e-4,
+      'V173 side optical port must retain an open axial bore')
+body_side_axis=vx(9.4,24.2,120,-48,214)
+check(a18_shape.intersect(body_side_axis).Volume()<1e-4,
+      'V173 A18 housing must have a true side-port bore')
+check(side_port.distance(a18_shape)<.02,
+      'V173 side port flange must meet the A18 housing')
+photo_cable=part(A,'A18CBL')[0]
+check(photo_cable.isValid() and photo_cable.BoundingBox().zlen>200,
+      'V173 left-side cable must be a continuous routed solid')
 for key,z in (('A18T',231),('A18N',169)):
     coupler=part(A,key)[0]
     check(coupler.intersect(vz(9.9,8,78,0,z)).Volume()<1e-4,
           'V145 '+key+' optical coupler must actually be hollow')
+check(central_barrel.distance(part(A,'A18T')[0])<.02 and
+      central_barrel.distance(part(A,'A18N')[0])<.02,
+      'V173 central barrel must register at both annular couplers')
 fixed_rails=[part(A,f'A18G{i}')[0] for i in (1,2)]
 wear_strips=[part(A,f'A18W{i}')[0] for i in (1,2)]
 moving_shoes=[part(A,f'A18CW{i}')[0] for i in (1,2)]

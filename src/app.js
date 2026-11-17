@@ -877,6 +877,9 @@ window.__modelAPhoto194Probe=()=>{
    const lampRing=gA21?.userData.ledAdjustableCarrier?.children.find(o=>o.userData.A21SM1RCStyleMountingRing);
    const cable=gA11?.children.find(o=>o.userData.A11ElectricalCable);
    const housing=gA18?.children.find(o=>o.userData.A18PhotoConstrainedMainBody);
+   const centralBarrel=gA18?.children.find(o=>o.userData.A18CentralOpticalBarrelCandidate);
+   const sidePort=gA18?.children.find(o=>o.userData.A18SideOpticalPortCandidate);
+   const photoSideCable=gA18?.children.find(o=>o.userData.A18PhotoSideCableCandidate);
    const bend=mesh('A05','A05VerticalSheetWeb');
    const drum=mesh('A04','A04DriveDrum');
    const sampleStem=mesh('A02','stageActuatorStem');
@@ -979,6 +982,11 @@ window.__modelAPhoto194Probe=()=>{
      A15NoDuplicateDecorativeStageActuators:Boolean(gA15.userData.noDuplicateDecorativeStageActuators),
      inventedLampGooseneckPresent:gA11.children.some(o=>o.userData.A11PhysicallyConnectedSupportProxy),
      unsupportedA18HorizontalTubePresent:gA18.children.some(o=>o.userData.A18HorizontalTubeCandidate),
+     A18CentralOpticalBarrelPresent:Boolean(centralBarrel),
+     A18SideOpticalPortPresent:Boolean(sidePort),
+     A18SideOpticalPortOpenBore:Boolean(sidePort?.userData.A18SideOpticalPortOpenBore),
+     A18PhotoSideCablePresent:Boolean(photoSideCable),
+     A18PhotoRebuildRevision:gA18.userData.A18PhotoRebuildRevision,
      A18VendorIdentificationPending:Boolean(gA18.userData.vendorIdentificationPending),
      A18BodySegmentCount:a18Segments.length,
      A18MaxBodyWidthMm:a18MaxBodyWidthMm,
@@ -4289,9 +4297,10 @@ function platformA(){
     // rotateX(-PI/2) maps input shape-Y to NEGATIVE scene-Z.
     // Negative shape-Y is thus the physical FRONT.
     const focusShell=(w,h,bottomY)=>{
-      const half=w/2,cl=-bodyX-10.5,cr=-bodyX+10.5;
+      // V173: open a 36mm-wide front relief for the separate hollow barrel.
+      const half=w/2,cl=-bodyX-18,cr=-bodyX+18;
       const pts=[[-half,44],[half,44],[half,-44],
-        [cr,-44],[cr,-34],[cl,-34],[cl,-44],[-half,-44]];
+        [cr,-44],[cr,-26],[cl,-26],[cl,-44],[-half,-44]];
       const outline=new THREE.Shape();
       pts.forEach(([x,z],i)=>i?outline.lineTo(x,z):outline.moveTo(x,z));
       outline.closePath();
@@ -4336,7 +4345,7 @@ function platformA(){
    // This lower gearbox casting needs a real open FRONT relief for the
     // moving nosepiece annulus; V144 cut the wrong (rear) edge instead.
     const lowerOutline=new THREE.Shape();
-    [[-35,44],[35,44],[35,-44],[6.5,-44],[6.5,-12],[-35,-12]]
+    [[-35,44],[35,44],[35,-44],[18,-44],[18,-26],[-18,-26],[-18,-44],[-35,-44]]
       .forEach(([x,z],i)=>i?lowerOutline.lineTo(x,z):lowerOutline.moveTo(x,z));
     lowerOutline.closePath();
     const lowerGeometry=new THREE.ExtrudeGeometry(lowerOutline,{
@@ -4377,7 +4386,7 @@ function platformA(){
       o.userData.A18CurrentPhotoFitBody=true;
     // V167: CAD A18T top is Y=235 but old web A18T ended at234.
     // The previous false-zero gap was caused by an opaque decoration.
-    const topCollar=add(g,sleeve(22,13.1,8,mats.black,0,31,0,'y'));
+    const topCollar=add(g,sleeve(22,17.1,8,mats.black,0,31,0,'y'));
     topCollar.userData.A18TopOpticalInterface=true;
     g.userData.A18SupportTopology='dual-fixed-cast-gussets-plus-one-moving-bored-yoke';
     g.userData.A18V144FourRodForkRemoved=true;
@@ -4385,6 +4394,37 @@ function platformA(){
     g.userData.A18ManufacturerIdentityVerified=false;
     const bottomCollar=add(g,sleeve(24,18.1,8,mats.black,0,-31,0,'y'));
    bottomCollar.userData.A18NosepieceInterface=true;
+
+    // V173: central hollow optical barrel, with stepped locating collars.
+    const centralBarrel=add(g,sleeve(17,12.5,54,mats.black,0,0,0,'y'));
+    centralBarrel.userData.A18CentralOpticalBarrelCandidate=true;
+    centralBarrel.userData.A18CentralOpticalBarrelODmm=34;
+    centralBarrel.userData.A18CentralOpticalBarrelIDmm=25;
+    const lowerBarrelCollar=add(g,sleeve(18,17,4,mats.dark,0,-29,0,'y'));
+    lowerBarrelCollar.userData.A18CentralBarrelLowerCollar=true;
+    const upperBarrelCollar=add(g,sleeve(17.1,12.5,4,mats.dark,0,29,0,'y'));
+    upperBarrelCollar.userData.A18CentralBarrelUpperCollar=true;
+
+    // V173: right-facing stepped hollow optical port, separate from A11 LED.
+    const sidePortMount=add(g,sleeve(17,9.5,5,mats.black,64,14,-48,'x'));
+    sidePortMount.userData.A18SideOpticalPortMountCandidate=true;
+    const sidePort=add(g,sleeve(14,9.5,48,mats.dark,90,14,-48,'x'));
+    sidePort.userData.A18SideOpticalPortCandidate=true;
+    sidePort.userData.A18SideOpticalPortOpenBore=true;
+    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,114,14,-48,'x'));
+    sidePortRim.userData.A18SideOpticalPortRimCandidate=true;
+    for(let q=0;q<5;q++){
+      const rib=add(g,torus(14.3,.28,mats.ink,74+q*8,14,-48));
+      rib.rotation.y=Math.PI/2;
+      rib.userData.A18SidePortGripRib=true;
+    }
+    // V173: cable loops down the left side of the optical tube.
+    const photoCable=add(g,tube([
+      [-8,166,0],[-14,150,6],[-23,120,10],[-30,85,10],
+      [-32,45,10],[-30,15,8],[-26,-15,4],[-22,-40,-2],[-18,-60,-8]
+    ],1.5,mats.rubber));
+    photoCable.userData.A18PhotoSideCableCandidate=true;
+
     g.userData.A18OpticalThroughBoreDiameterCandidateMm=0;
      g.userData.A18ExternalOpticalClearanceCandidateMm=20;
      g.userData.A18OpticalAxisOutsideFocusBody=true;
@@ -4392,33 +4432,38 @@ function platformA(){
      g.userData.A18FocusBlockSetbackMeasured=false;
     g.userData.A18OpticalThroughBoreMeasured=false;
    for(const sign of [-1,1]){
-     const hub=add(g,cyl(7.5,8,mats.dark,bodyX+sign*43,0,focusBodyDepthZ,64));
+     // V173: larger coarse wheels and separate concentric fine controls
+     // sit low on the housing as in the newly supplied reference photo.
+     const hub=add(g,cyl(9,10,mats.dark,bodyX+sign*43,-22,focusBodyDepthZ,64));
      hub.rotation.z=Math.PI/2;
      hub.userData.A18FocusHub=sign;
-     hub.userData.A18FocusHubDiameterCandidateMm=15;
-     // The previous Ø36 x 14mm drum and six widely spaced torus rings
-     // read as a long ribbed tube in the close-up render. The photo only
-     // supports a compact side adjuster silhouette, not that oversized drum.
-     // Reduce the coarse handwheel to Ø28 x 10mm and use narrow, close-set
-     // knurl bands. Dimensions remain visual candidates pending a ruler view.
-     const coarse=add(g,cyl(14,10,mats.black,bodyX+sign*52,0,focusBodyDepthZ,64));
+     hub.userData.A18FocusHubDiameterCandidateMm=18;
+     const coarse=add(g,cyl(21,14,mats.black,bodyX+sign*53,-22,focusBodyDepthZ,72));
      coarse.rotation.z=Math.PI/2;
      coarse.userData.A18CoarseFocusKnob=sign;
-     coarse.userData.A18CoarseFocusKnobDiameterCandidateMm=28;
-     coarse.userData.A18CoarseFocusKnobWidthCandidateMm=10;
-     const fine=add(g,cyl(8,7,mats.dark,bodyX+sign*60.5,0,focusBodyDepthZ,64));
+     coarse.userData.A18CoarseFocusKnobDiameterCandidateMm=42;
+     coarse.userData.A18CoarseFocusKnobWidthCandidateMm=14;
+     const fine=add(g,cyl(11,8,mats.dark,bodyX+sign*64,-22,focusBodyDepthZ,64));
      fine.rotation.z=Math.PI/2;
      fine.userData.A18FineFocusKnob=sign;
-     fine.userData.A18FineFocusKnobDiameterCandidateMm=16;
-     fine.userData.A18FineFocusKnobWidthCandidateMm=7;
+     fine.userData.A18FineFocusKnobDiameterCandidateMm=22;
+     fine.userData.A18FineFocusKnobWidthCandidateMm=8;
      for(let q=0;q<5;q++){
-       const ring=add(g,torus(14.12,.18,mats.ink,bodyX+sign*(48+q*1.8),0,focusBodyDepthZ));
+       const ring=add(g,torus(21.3,.25,mats.ink,
+         bodyX+sign*(47+q*2.6),-22,focusBodyDepthZ));
        ring.rotation.y=Math.PI/2;
        ring.userData.A18CoarseFocusKnurl=sign;
      }
-     const endCap=add(g,cyl(5.2,2.2,mats.silver,bodyX+sign*65,0,focusBodyDepthZ,48));
+     const endCap=add(g,cyl(6,2.2,mats.silver,bodyX+sign*69,-22,focusBodyDepthZ,48));
      endCap.rotation.z=Math.PI/2;
      endCap.userData.A18FineFocusEndCap=sign;
+     for(let q=0;q<12;q++){
+       const a=q*Math.PI/6;
+       const tick=add(g,cub(.7,.8,2.0,mats.silver,
+         bodyX+sign*70.1,-22+10.4*Math.cos(a),
+         focusBodyDepthZ+10.4*Math.sin(a)));
+       tick.userData.A18FineScaleTick=true;
+     }
    }
    // V111: hidden manufacturer-FAMILY topology study. It does NOT replace
    // the installed photo-fit A18. The study keeps the current photo-fit
@@ -4771,11 +4816,15 @@ function platformA(){
    g.userData.MGZ30FamilyTopologyStudyExactVendorGeometry=false;
    g.userData.microscopeHeadModelUnverified=true;
    g.userData.focusKnobPairCount=2;
-   g.userData.A18FocusKnobScaleRevision='V160 compact handwheel; previous Ø36mm drum reduced to Ø28mm candidate';
-   g.userData.A18CoarseKnobDiameterCandidateMm=28;
-   g.userData.A18FineKnobDiameterCandidateMm=16;
+   g.userData.A18FocusKnobScaleRevision='V173 photo-fit Ø42mm coarse / Ø22mm fine controls; dimensions unmeasured';
+   g.userData.A18CoarseKnobDiameterCandidateMm=42;
+   g.userData.A18FineKnobDiameterCandidateMm=22;
    g.userData.A18KnobDimensionsMeasured=false;
    g.userData.removedUnsupportedHorizontalTube=true;
+   g.userData.A18CentralOpticalBarrelPresent=true;
+   g.userData.A18SideOpticalPortPresent=true;
+   g.userData.A18PhotoSideCablePresent=true;
+   g.userData.A18PhotoRebuildRevision='V173';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;

@@ -1108,7 +1108,7 @@ def make_a():
     a18_core=box(34,88,70,a18_body_x,-48,165)
     a18_body=(a18_core
               .fuse(box(70,88,18,a18_body_x,-48,165),
-                    box(84,88,38,a18_body_x,-48,179),
+                    box(84,88,38,a18_body_x,-48,183),
                     box(76,88,14,a18_body_x,-48,221)).clean())
     # Real open Ø20 vertical optical clearance (unmeasured candidate).
     # V144: axial light path is IN FRONT OF, not THROUGH, the focus gearbox.
@@ -1122,7 +1122,10 @@ def make_a():
     a18_body=a18_body.cut(box(92,32,18,cx-14.5,-20,165)).clean()
     # Full-height narrow shaft clearance, independent of the lower
     # 58mm nosepiece yoke. This is an OPEN FRONT notch, not a gearbox bore.
-    a18_body=a18_body.cut(box(21,13,70,cx,-7.5,165)).clean()
+    # V173: widen the front relief to clear the separate Ø34/Ø25 hollow barrel.
+    a18_body=a18_body.cut(box(34,20,70,cx,-14,165)).clean()
+    # V173: real horizontal side-port bore through the A18 casting.
+    a18_body=a18_body.cut(vx(9.5,24.2,cx+42,-48,214)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     # V145: two STATIONARY cast side webs engage rear gearbox and fixed
@@ -1162,39 +1165,67 @@ def make_a():
         add('A',f'A18CW{i}','FOCUS_SLIDING_SHOE_CANDIDATE',
             box(11,2,28,cx+dx,49.4,167),'C')
     add('A','A18T','HOLLOW_TOP_OPTICAL_COUPLER_CANDIDATE',
-        vz(22,8,cx,0,227).cut(vz(13.1,8.2,cx,0,226.9)),'C')
+        vz(22,8,cx,0,227).cut(vz(17.1,8.2,cx,0,226.9)),'C')
     add('A','A18N','HOLLOW_NOSEPIECE_SOCKET_CANDIDATE',
         vz(24,8,cx,0,165).cut(vz(18.1,8.2,cx,0,164.9)),'C')
+    # V173: central hollow optical barrel with locating collars at both ends.
+    a18_vtube=vz(17,54,cx,0,173).cut(vz(12.5,54.2,cx,0,172.9))
+    a18_vtube=a18_vtube.fuse(
+        vz(18,4,cx,0,169).cut(vz(17,4.2,cx,0,168.9)),
+        vz(17.1,4,cx,0,227).cut(vz(12.5,4.2,cx,0,226.9))
+    ).clean()
+    add('A','A18VT','PHOTO_FIT_CENTRAL_HOLLOW_OPTICAL_BARREL_OD34_ID25',a18_vtube,'C')
+    # V173: right-facing horizontal optical port, distinct from the A11 LED.
+    a18_op_flange=vx(17,6,144,-48,214).cut(vx(9.5,6.2,143.9,-48,214))
+    a18_op_tube=vx(14,44,150,-48,214).cut(vx(9.5,44.2,149.9,-48,214))
+    a18_op_rim=vx(15.5,4,194,-48,214).cut(vx(9.5,4.2,193.9,-48,214))
+    a18_op=a18_op_flange.fuse(a18_op_tube,a18_op_rim).clean()
+    add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_OPEN_ANNULAR',a18_op,'C')
+    # V173: flexible cable loops down the left side of the vertical optical barrel.
+    a18_cable=cable_path([
+        (70,0,366),(64,6,350),(55,10,320),(48,10,285),
+        (46,10,245),(48,10,215),(52,10,185),(56,10,155),(60,8,140)
+    ],1.5)
+    add('A','A18CBL','PHOTO_FIT_LEFT_SIDE_FLEXIBLE_CABLE_ROUTE',a18_cable,'C')
     # V162: synchronize the installed STEP focus chain with web A18 V160/V161.
     # vx() uses an axial START coordinate; centres are +/-43, +/-52 and +/-60.5mm.
     # Ø15x8 hub -> Ø28x10 coarse handwheel -> Ø16x7 fine knob.
     # All dimensions remain photo-fit candidates, not measured manufacturing data.
     for sign,side in ((-1,'LEFT'),(1,'RIGHT')):
-        hub_start=a18_body_x+sign*43-4
-        coarse_start=a18_body_x+sign*52-5
-        fine_start=a18_body_x+sign*60.5-3.5
-        endcap_start=a18_body_x+sign*65-1.1
+        hub_start=a18_body_x+sign*43-5
+        coarse_start=a18_body_x+sign*53-7
+        fine_start=a18_body_x+sign*64-4
+        endcap_start=a18_body_x+sign*69-1.1
         add('A','A18H'+('L' if sign<0 else 'R'),
-            f'{side}_FOCUS_HUB_D15_X8_PHOTO_CANDIDATE',
-            vx(7.5,8,hub_start,-48,200),'C')
-        coarse=vx(14,10,coarse_start,-48,200)
-        # Five narrow circumferential knurl bands, matching the web geometry.
+            f'{side}_FOCUS_HUB_D18_X10_PHOTO_CANDIDATE',
+            vx(9,10,hub_start,-48,178),'C')
+        coarse=vx(21,14,coarse_start,-48,178)
         for q in range(5):
-            ring_center=a18_body_x+sign*(48+q*1.8)
+            ring_center=a18_body_x+sign*(47+q*2.6)
             ring_start=ring_center-.18
-            ring=vx(14.3,.36,ring_start,-48,200).cut(
-                vx(13.94,.38,ring_start-.01,-48,200))
+            ring=vx(21.3,.36,ring_start,-48,178).cut(
+                vx(21.0,.38,ring_start-.01,-48,178))
             coarse=coarse.fuse(ring)
         coarse=coarse.clean()
         add('A','A18F'+('L' if sign<0 else 'R'),
-            f'{side}_COARSE_FOCUS_D28_X10_WITH_FIVE_KNURL_BANDS',
+            f'{side}_COARSE_FOCUS_D42_X14_WITH_FIVE_KNURL_BANDS',
             coarse,'C')
+        fine=vx(11,8,fine_start,-48,178)
+        fine_ticks=[]
+        for q in range(12):
+            a=q*2*3.141592653589793/12
+            yy=-48+10.4*__import__('math').cos(a)
+            zz=178+10.4*__import__('math').sin(a)
+            fine_ticks.append(box(.7,.8,2.0,a18_body_x+sign*70.1,yy,zz))
         add('A','A18F'+('LL' if sign<0 else 'RL'),
-            f'{side}_FINE_FOCUS_KNOB_D16_X7_PHOTO_CANDIDATE',
-            vx(8,7,fine_start,-48,200),'C')
+            f'{side}_FINE_FOCUS_KNOB_D22_X8_PHOTO_CANDIDATE',
+            fine,'C')
+        add('A','A18FT'+('L' if sign<0 else 'R'),
+            f'{side}_FINE_FOCUS_FACE_INDEX_MARKS_VISUAL_PROXY',
+            cq.Compound.makeCompound(fine_ticks),'C')
         add('A','A18FC'+('L' if sign<0 else 'R'),
-            f'{side}_FINE_FOCUS_END_CAP_D10P4_X2P2_PHOTO_CANDIDATE',
-            vx(5.2,2.2,endcap_start,-48,200),'C')
+            f'{side}_FINE_FOCUS_END_CAP_D12_X2P2_PHOTO_CANDIDATE',
+            vx(6,2.2,endcap_start,-48,178),'C')
 
     # V111: separate, NOT-installed MGZ30 family-topology study.
     # Reuse the current photo-fit main-body envelope and current post center,

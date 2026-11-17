@@ -1706,7 +1706,12 @@ try{
  assert.equal(dA.inventedLampGooseneckPresent,false,
    'Old invented MWWHL4 mechanical gooseneck must stay deleted');
  assert.equal(dA.unsupportedA18HorizontalTubePresent,false,
-   'Old unexplained 160mm A18 black horizontal tube must stay deleted');
+   'Old unexplained 160mm A18 tube proxy must stay deleted');
+ assert.equal(dA.A18CentralOpticalBarrelPresent,true);
+ assert.equal(dA.A18SideOpticalPortPresent,true);
+ assert.equal(dA.A18SideOpticalPortOpenBore,true);
+ assert.equal(dA.A18PhotoSideCablePresent,true);
+ assert.equal(dA.A18PhotoRebuildRevision,'V173');
  assert.equal(dA.A18VendorIdentificationPending,true);
  assert.equal(dA.A18BodySegmentCount,3,
    'A18 must be a stepped photo-constrained body, not one oversized black box');
@@ -1748,8 +1753,8 @@ try{
  assert.equal(dA.A18MGZ30FineAdjustmentOfficialCurrentPagePublishesValue,false);
  assert.equal(dA.A18MGZ30FineAdjustmentVersionResolved,false);
  assert.equal(dA.A18MGZ30VendorDrawingMountingHoleCount,4);
- assert.equal(dA.A18CoarseKnobDiameterCandidateMm,28);
- assert.equal(dA.A18FineKnobDiameterCandidateMm,16);
+ assert.equal(dA.A18CoarseKnobDiameterCandidateMm,42);
+ assert.equal(dA.A18FineKnobDiameterCandidateMm,22);
  assert.equal(dA.A18KnobDimensionsMeasured,false);
  assert.equal(dA.A18MGZ30VendorDrawingMountingHoleThread,'4-40 UNC');
  assert.deepEqual(dA.A18MGZ30VendorDrawingCalloutsUnmappedMm,[185,30,202.2,80,57.8,268.7,73.7,68,291.7,100.2,130]);
