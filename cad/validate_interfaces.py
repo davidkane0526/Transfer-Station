@@ -1105,12 +1105,13 @@ front_fasteners=part(A,'A18S')
 check(len(front_fasteners)>=4,
       'V177 front housing must show four fastener heads')
 photo_cable=part(A,'A18CBL')[0]
+camera_shape_for_cable=part(A,'A09')[0]
 check(photo_cable.isValid() and photo_cable.BoundingBox().zlen>250,
       'V199 STEP +Y front view: camera cable and hollow boot must form a valid routed assembly')
-check(photo_cable.intersect(a_cam).Volume()<1e-3,
-      'V199 camera cable must pass through the hollow A09 side entry without solid interference')
-check(photo_cable.distance(a_cam)<.2,
-      'V199 cable/connector interface must be physically contiguous within candidate clearance')
+check(photo_cable.intersect(camera_shape_for_cable).Volume()<1e-3,
+      'V202 camera cable must pass through the hollow A09 side entry without solid interference')
+check(photo_cable.distance(camera_shape_for_cable)<.2,
+      'V202 cable/connector interface must be physically contiguous within candidate clearance')
 check(photo_cable.BoundingBox().xmin>a18_cx+20 and
       photo_cable.BoundingBox().xmax>a18_shape.BoundingBox().xmax+40,
       'V200 STEP +Y front view: cable must leave the camera port and descend beyond the photo-left body edge (+X)')
