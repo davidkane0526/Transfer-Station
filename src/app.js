@@ -6287,10 +6287,23 @@ function _auditRayClear(targetObj,allowedRoots,{transparentSkipRoots=[]}={}){
  const target=targetObj.getWorldPosition(new THREE.Vector3());
  const dir=target.clone().sub(camera.position),dist=dir.length();
  const ray=new THREE.Raycaster(camera.position,dir.normalize(),0,dist+2);
- // Raycaster traverses children even when an ancestor group is hidden. Audit
- // rendered visibility, not only leaf-mesh visibility, otherwise hidden vendor
- // studies become phantom occluders.
- const hits=ray.intersectObject(currentRoot,true).filter(h=>_isEffectivelyVisible(h.object));
+ // Raycast visible leaf objects one at a time so a malformed mesh can be
+ // identified instead of aborting the complete assembly audit without context.
+ const hits=[],raycastErrors=[];
+ currentRoot.traverse(obj=>{
+   if(typeof obj.raycast!=='function'||!_isEffectivelyVisible(obj))return;
+   try{obj.raycast(ray,hits);}
+   catch(error){
+     const g=obj.geometry,p=g?.attributes?.position,n=g?.attributes?.normal,idx=g?.index;
+     const owner=[...parts.entries()].find(([,v])=>_isWithin(obj,v.g))?.[0]??null;
+     raycastErrors.push({name:obj.name||null,owner,
+       A18Tags:Object.keys(obj.userData||{}).filter(k=>k.startsWith('A18')||k.startsWith('GCM')),
+       geometry:g?.type||null,positionCount:p?.count??null,
+       normalCount:n?.count??null,indexCount:idx?.count??null,error:error.message});
+   }
+ });
+ if(raycastErrors.length)throw new Error('Invalid visible mesh raycast geometry: '+JSON.stringify(raycastErrors));
+ hits.sort((a,b)=>a.distance-b.distance);
  const skipped=[];
  for(const hit of hits){
    const root=[...parts.entries()].find(([,v])=>_isWithin(hit.object,v.g));
