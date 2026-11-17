@@ -1578,6 +1578,10 @@ try{
  assert.equal(camJoint.webBlindEndIsOpaqueBeyond10Mm,true,
    'V170 unknown camera internals must remain a blind-end, not a fake sensor');
  assert.equal(camJoint.installedCameraThreadAdapterCount,0);
+ assert.equal(camJoint.cameraTopPostCount,2,
+   'V181 camera housing must show the two top metal studs from the reference photo');
+ assert.equal(camJoint.cameraFrontScrewCount,4,
+   'V181 camera housing must show four side-panel fasteners');
  assert.equal(camJoint.suggestedAdapterInstalled,false);
  assert.equal(camJoint.cameraCmountInterfaceConfirmed,false);
  assert.equal(camJoint.physicalJointVerified,false);
@@ -1714,11 +1718,13 @@ try{
  assert.equal(dA.A18CentralOpticalBarrelPresent,true);
  assert.equal(dA.A18SideOpticalPortPresent,true);
  assert.equal(dA.A18SideOpticalPortOpenBore,true);
+ assert.equal(dA.A18SideOpticalPortLengthCandidateMm,90);
+ assert.equal(dA.A18SideOpticalPortSectionCount,2);
  assert.equal(dA.A18PhotoSideCablePresent,true);
  assert.equal(dA.A18SidePortMountFramePresent,true);
  assert.equal(dA.A18FrontFocusDialPresent,true);
  assert.equal(dA.A18FrontFaceFastenersPresent,true);
- assert.equal(dA.A18PhotoRebuildRevision,'V177');
+ assert.equal(dA.A18PhotoRebuildRevision,'V181');
  assert.equal(dA.A18VendorIdentificationPending,true);
  assert.equal(dA.A18BodySegmentCount,3,
    'A18 must be a stepped photo-constrained body, not one oversized black box');

@@ -627,7 +627,9 @@ window.__modelAA09CameraInterfaceProbe=()=>{
  return {...mechanical,webOpticalMouthClearBeforeCandidateBlindEnd:rayDepth(9.9)===0,
    webBlindEndIsOpaqueBeyond10Mm:rayDepth(12)>0,
    cameraOpticalEntryIsNotSolidDisc:true,
-   adapterSuggestedButNotInstalled:true};
+   adapterSuggestedButNotInstalled:true,
+   cameraTopPostCount:cameraRoot.children.filter(o=>o.userData.A09CameraTopPost).length,
+   cameraFrontScrewCount:cameraRoot.children.filter(o=>o.userData.A09CameraFrontScrew).length};
 };
 // QA-only isolated underside view. Never alters the assembly or exports.
 window.__modelAA09CameraMouthStudyView=()=>{
@@ -987,6 +989,8 @@ window.__modelAPhoto194Probe=()=>{
      A18CentralOpticalBarrelPresent:Boolean(centralBarrel),
      A18SideOpticalPortPresent:Boolean(sidePort),
      A18SideOpticalPortOpenBore:Boolean(sidePort?.userData.A18SideOpticalPortOpenBore),
+     A18SideOpticalPortLengthCandidateMm:gA18.userData.A18SideOpticalPortLengthCandidateMm,
+     A18SideOpticalPortSectionCount:gA18.userData.A18SideOpticalPortSectionCount,
      A18PhotoSideCablePresent:Boolean(photoSideCable),
      A18SidePortMountFramePresent:gA18.children.some(o=>o.userData.A18SidePortMountFrameCandidate),
      A18FrontFocusDialPresent:gA18.children.some(o=>o.userData.A18FrontFocusDial),
@@ -4169,11 +4173,27 @@ function platformA(){
   blindEnd.userData.A09UnknownInternalBlindEnd=true; // NOT a sensor plane
   const collar=add(g,sleeve(15,12.2,2.4,mats.silver,0,1.2,0,'y'));
   collar.userData.A09FrontRingDiameterCandidateMm=30;
+  // V181: two top metal studs and four side-panel fasteners visible in the photo.
+  for(const x of [-18,18]){
+    const postBase=add(g,cyl(3,1.2,mats.dark,x,45.6,0,48));
+    postBase.userData.A09CameraTopPostBase=true;
+    const post=add(g,cyl(2.2,11,mats.silver,x,51.5,0,48));
+    post.userData.A09CameraTopPost=true;
+    const cap=add(g,cyl(2.8,1.4,mats.dark,x,57.4,0,48));
+    cap.userData.A09CameraTopPostCap=true;
+  }
+  for(const x of [-18,18])for(const y of [10,35]){
+    const screw=add(g,cyl(2.4,2,mats.silver,x,y,-23,32));
+    screw.rotation.x=Math.PI/2;
+    screw.userData.A09CameraFrontScrew=true;
+  }
+  g.userData.A09TopPostCountCandidate=2;
+  g.userData.A09FrontScrewCountCandidate=4;
   g.userData.A09CandidateMouthDiameterMm=24.4;
   g.userData.A09CandidateMouthDepthMm=10;
   g.userData.A09TrueSensorPlaneUnknown=true;
   g.userData.A09ThreadFamilyUnverified=true;
-  label(g,'Daheng Imaging · 相机接口待识别',0,72,0);
+  label(g,'相机本体 · 接口待识别',0,72,0);
  },{explode:[0,92,0]});
  addPart('A11',sx+96,220,0,g=>{
    // V171 OEM Thorlabs MTN006388: total Ø30.5x60.1 and SM1 female depth 6.
@@ -4458,13 +4478,19 @@ function platformA(){
     // V177: orient the port and cable to the reference-photo viewing side.
     const sidePortMount=add(g,sleeve(17,9.5,6,mats.black,-21,22,-48,'x'));
     sidePortMount.userData.A18SideOpticalPortMountCandidate=true;
-    const sidePort=add(g,sleeve(14,9.5,44,mats.dark,-46,22,-48,'x'));
-    sidePort.userData.A18SideOpticalPortCandidate=true;
-    sidePort.userData.A18SideOpticalPortOpenBore=true;
-    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,-70,22,-48,'x'));
+    // V181: two hollow sections extend 90mm from the focus housing.
+    const sidePortNear=add(g,sleeve(13.5,9.5,34,mats.dark,-41,22,-48,'x'));
+    sidePortNear.userData.A18SideOpticalPortCandidate=true;
+    sidePortNear.userData.A18SideOpticalPortOpenBore=true;
+    const sidePortGrip=add(g,sleeve(16,9.5,4,mats.black,-60,22,-48,'x'));
+    sidePortGrip.userData.A18SideOpticalPortGripCollar=true;
+    const sidePortFar=add(g,sleeve(14,9.5,42,mats.dark,-83,22,-48,'x'));
+    sidePortFar.userData.A18SideOpticalPortExtensionCandidate=true;
+    sidePortFar.userData.A18SideOpticalPortOpenBore=true;
+    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,-106,22,-48,'x'));
     sidePortRim.userData.A18SideOpticalPortRimCandidate=true;
     for(let q=0;q<5;q++){
-      const rib=add(g,torus(14.3,.28,mats.ink,-28-q*8,22,-48));
+      const rib=add(g,torus(14.3,.28,mats.ink,-66-q*8,22,-48));
       rib.rotation.y=Math.PI/2;
       rib.userData.A18SidePortGripRib=true;
     }
@@ -4916,8 +4942,10 @@ function platformA(){
    g.userData.removedUnsupportedHorizontalTube=true;
    g.userData.A18CentralOpticalBarrelPresent=true;
    g.userData.A18SideOpticalPortPresent=true;
+   g.userData.A18SideOpticalPortLengthCandidateMm=90;
+   g.userData.A18SideOpticalPortSectionCount=2;
    g.userData.A18PhotoSideCablePresent=true;
-   g.userData.A18PhotoRebuildRevision='V177';
+   g.userData.A18PhotoRebuildRevision='V181';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;

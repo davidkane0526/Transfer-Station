@@ -955,7 +955,23 @@ def make_a():
     # have front optical entrance; here only a Ø24.4 x 10mm BLIND port
     # is a candidate. Unknown actual sensor plane remains opaque beyond.
     a09_body=box(50,44,45,cx,0,323).cut(vz(12.2,10,cx,0,323)).clean()
-    add('A','A09','DAHENG_CAMERA_PHOTO_PROXY_OPEN_BLIND_PORT_D24P4_L10',a09_body,'P')
+    add('A','A09','PHOTO_FIT_CAMERA_HOUSING_OPEN_BLIND_PORT_D24P4_L10',a09_body,'P')
+    # V181: two top studs and four side-panel fasteners visible in the photo.
+    a09_posts=[]
+    for x in (cx-18,cx+18):
+        a09_posts.append(
+            vz(3,1.2,x,0,367.5).fuse(
+                vz(2.2,11,x,0,368.5),
+                vz(2.8,1.4,x,0,379.3)).clean())
+    add('A','A09P','TWO_CAMERA_TOP_STUDS_PHOTO_FIT',
+        cq.Compound.makeCompound(a09_posts),'C')
+    a09_screws=[]
+    for x in (cx-18,cx+18):
+        for z in (334,357):
+            a09_screws.append(
+                vy(1.7,2,x,-22.5,z).fuse(vy(2.4,1.8,x,-23.8,z)).clean())
+    add('A','A09S','FOUR_CAMERA_SIDE_PANEL_FASTENERS_PHOTO_FIT',
+        cq.Compound.makeCompound(a09_screws),'C')
     # V79: Thorlabs MWWHL4. Use vendor-constrained Ø30.5mm finned
     # housing and SM1 mounting interface; REMOVE the invented gooseneck
     # that made a black cylinder appear to hang below the microscope.
@@ -1178,14 +1194,17 @@ def make_a():
     # V177: square open mounting frame around the photo-right optical port.
     a18_op_frame=box(6,28,28,57,-48,208).cut(vx(9.5,6.2,53.9,-48,222))
     a18_op_flange=vx(17,6,54,-48,222).cut(vx(9.5,6.2,53.9,-48,222))
-    a18_op_tube=vx(14,44,10,-48,222).cut(vx(9.5,44.2,9.9,-48,222))
-    a18_op_rim=vx(15.5,4,6,-48,222).cut(vx(9.5,4.2,5.9,-48,222))
+    a18_op_near=vx(13.5,34,20,-48,222).cut(vx(9.5,34.2,19.9,-48,222))
+    a18_op_grip=vx(16,4,16,-48,222).cut(vx(9.5,4.2,15.9,-48,222))
+    a18_op_far=vx(14,42,-26,-48,222).cut(vx(9.5,42.2,-26.1,-48,222))
+    a18_op_rim=vx(15.5,4,-30,-48,222).cut(vx(9.5,4.2,-30.1,-48,222))
     a18_op_ribs=[]
-    for x in (18,26,34,42,50):
+    for x in (-22,-14,-6,2,10):
         a18_op_ribs.append(
             vx(14.3,.52,x-.26,-48,222).cut(vx(13.9,.54,x-.27,-48,222)))
-    a18_op=a18_op_frame.fuse(a18_op_flange,a18_op_tube,a18_op_rim,*a18_op_ribs).clean()
-    add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_WITH_SQUARE_OPEN_MOUNT',a18_op,'C')
+    a18_op=a18_op_frame.fuse(
+        a18_op_flange,a18_op_near,a18_op_grip,a18_op_far,a18_op_rim,*a18_op_ribs).clean()
+    add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_90MM_TWO_SECTION_OPEN_MOUNT',a18_op,'C')
     a18_op_screws=[]
     for yy in (-60.5,-35.5):
         for zz in (209.5,234.5):
@@ -1332,7 +1351,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V177'
+CAD_REVISION='V181'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

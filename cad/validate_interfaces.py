@@ -1017,19 +1017,21 @@ check(abs(central_barrel.BoundingBox().zmin-169)<.02 and
 check(central_barrel.intersect(optical_axis_probe).Volume()<1e-4,
       'V173 central optical barrel must retain its open optical core')
 side_port=part(A,'A18OP')[0]
-check(abs(side_port.BoundingBox().xmin-6)<.02 and
+check(abs(side_port.BoundingBox().xmin+30)<.02 and
       abs(side_port.BoundingBox().xmax-60)<.02 and
       abs(side_port.BoundingBox().zmin-205)<.02 and
       abs(side_port.BoundingBox().zmax-239)<.02,
-      'V177 photo-right side optical port must match the mirrored photo-fit envelope')
-side_port_axis=vx(9.4,54.2,6,-48,222)
+      'V181 photo-right two-section optical port must match the 90mm photo-fit envelope')
+side_port_axis=vx(9.4,90.2,-30,-48,222)
 check(side_port.intersect(side_port_axis).Volume()<1e-4,
-      'V177 side optical port must retain an open axial bore')
+      'V181 two-section side optical port must retain an open 90mm axial bore')
 body_side_axis=vx(9.4,24.2,60,-48,222)
 check(a18_shape.intersect(body_side_axis).Volume()<1e-4,
-      'V173 A18 housing must have a true side-port bore')
+      'V181 A18 housing must have a true side-port bore at the same face as A18OP')
 check(side_port.distance(a18_shape)<.02,
       'V177 side port mounting frame must meet the A18 housing')
+check(abs(side_port.BoundingBox().xlen-90)<.02,
+      'V181 A18 horizontal optical tube must extend 90mm from the housing face')
 side_fasteners=part(A,'A18OPS')
 check(len(side_fasteners)>=4,
       'V177 side optical port frame must carry four visible fasteners')
@@ -1713,6 +1715,18 @@ check(a_cam.intersect(vz(12.0,9.8,78,0,323.1)).Volume()<1e-3,
       'V170 A09 camera face must contain a real Ø24.4×10mm blind entrance')
 check(a_cam.intersect(vz(11.5,2,78,0,334)).Volume()>100,
       'V170 camera interior behind the candidate entrance remains unknown/solid')
+a09_posts=part(A,'A09P')
+a09_screws=part(A,'A09S')
+check(len(a09_posts)==2 and all(s.isValid() for s in a09_posts),
+      'V181 camera housing must have two valid top studs')
+check(all(abs(s.BoundingBox().zmin-367.5)<.02 and
+          abs(s.BoundingBox().zmax-380.7)<.02 for s in a09_posts),
+      'V181 camera top studs must sit on the housing top face')
+check(len(a09_screws)==4 and all(s.isValid() for s in a09_screws),
+      'V181 camera side panel must have four valid fasteners')
+check(all(abs(s.BoundingBox().ymin+23.8)<.02 and
+          abs(s.BoundingBox().ymax+20.5)<.02 for s in a09_screws),
+      'V181 camera fasteners must mount flush on the visible side face')
 # A14 Ø52.2 internal aperture and A09 Ø30 candidate face collar have a
 # radial gap; genuine SM2A55 could only be considered after camera SKU ID.
 interface_radial_gap_mm=round((52.2-30.0)/2,2)
