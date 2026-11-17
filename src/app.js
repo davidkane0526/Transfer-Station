@@ -4352,11 +4352,12 @@ function platformA(){
    label(g,'A14 SM2 接续镜筒（型号待核）',0,78,0);
  },{explode:[0,25,0]});
  addPart('A18',sx,200,0,g=>{
-   // V187: the new high-resolution transparent cutout supersedes the older
+   // V190: the high-resolution transparent cutout supersedes the older
    // 128x170px Photo191/193 previews used by V92. In the +Z/front view, the
-   // optical axis is about 65.5% across the 84mm body from its left edge.
-   // The body centre is therefore 13mm LEFT of the axis (photo-ratio fit).
-   // This is not a ruler measurement.
+   // optical axis is about 65.5% across the 84mm outer housing from its left
+   // edge. The shell centre is therefore 13mm LEFT of the axis (photo-ratio fit).
+   // The guide/carriage/nosepiece carrier is a separate subassembly and keeps
+   // its own validated coordinates; do not translate it with this outer shell.
    const bodyX=-13;
    // Real optical aperture across the focus body; Ø20 remains unmeasured.
     // V144: don't pretend the drive gearbox is a hollow optical tube.
@@ -4387,17 +4388,17 @@ function platformA(){
    bodyMid.userData.A18BodySegment='middle';
    bodyMid.userData.A18RearMountFaceBody=true;
    // MGZ30-like guiding topology is only a candidate, not OEM identity.
-   for(const x of [bodyX-35,bodyX+35]){
+   for(const x of [-11,59]){
      const guide=add(g,cub(4,47,3,mats.black,x,-6,45.5));
      guide.userData.A18FrontSlidingGuideCandidate=true;
      const wear=add(g,cub(2,43,1,mats.steel,x,-6,47.2));
      wear.userData.A18FrontGuideWearStripCandidate=true;
    }
-   const carriage=add(g,cub(54,15,7,mats.dark,bodyX,-25,49));
+   const carriage=add(g,cub(54,15,7,mats.dark,24,-25,49));
    carriage.userData.A18DovetailCarriageCandidate=true;
     // Guide shoes belong to the moving carriage and engage it on both sides.
     // The 0.7 mm clearance to stationary wear strips is a scene candidate.
-    for(const x of [bodyX-31.6,bodyX+31.6]){
+    for(const x of [-7.6,55.6]){
       const shoe=add(g,cub(11,28,2,mats.steel,x,-19,49.4));
       shoe.userData.A18SlidingShoeCandidate=x<0?'left':'right';
     }
@@ -4438,7 +4439,7 @@ function platformA(){
     // Replace V144's four exposed rods and four disconnected web patches
     // with TWO stationary cast side-gussets and ONE moving lower yoke.
     // Never fuse the moving objective carrier to the stationary gearbox.
-    const front=add(g,cub(32,44,1.4,mats.black,bodyX+19,1,44.7));
+    const front=add(g,cub(32,44,1.4,mats.black,43,1,44.7));
     front.userData.A18FrontFace=true;
     const fixedWebL=add(g,cub(14,40,70,mats.dark,bodyX-43,0,18));
     fixedWebL.userData.A18FixedSideWeb='left';
@@ -4966,7 +4967,7 @@ function platformA(){
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V189';
+   g.userData.A18PhotoRebuildRevision='V190';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;

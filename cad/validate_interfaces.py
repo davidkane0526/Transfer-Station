@@ -937,13 +937,13 @@ check(a19_disc.intersect(selected_axis).Volume()<1e-4 and
 check(a18_adapter.intersect(selected_axis).Volume()<1e-4,
       'V172 focus adapter must not clip selected optical aperture')
 check(a18_adapter.intersect(a19_disc).Volume()<1e-4,
-      'V189 optical adapter must clear the A19 turret disk')
+      'V190 optical adapter must clear the A19 turret disk')
 check(a18_adapter.intersect(a19_neck).Volume()<1e-4,
-      'V189 optical adapter must clear the A19 neck')
+      'V190 optical adapter must clear the A19 neck')
 check(part(A,'A18SB')[0].intersect(a19_neck).Volume()<1e-4,
-      'V189 independently positioned moving yoke spine must clear the A19 neck')
+      'V190 independently positioned moving yoke spine must clear the A19 neck')
 check(a18_moving_upright.intersect(a19_disc).Volume()<1e-4,
-      'V189 independently positioned moving upright must clear the A19 turret disk')
+      'V190 independently positioned moving upright must clear the A19 turret disk')
 check(abs((a19_vertical.BoundingBox().xmin+a19_vertical.BoundingBox().xmax)/2-78)<.05,
       'V172 selected vertical objective barrel must align with actual A08 optical axis')
 check(abs((a19_disc.BoundingBox().xmin+a19_disc.BoundingBox().xmax)/2-60)<.05,

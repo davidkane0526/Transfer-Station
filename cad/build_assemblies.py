@@ -1109,11 +1109,11 @@ def make_a():
     sleeve_A14=vz(28,56.8,cx,0,266.2).cut(vz(26.1,57.0,cx,0,266.1))
     add('A','A14','UNKNOWN_SM2_MATING_TUBE_56P8mm_CANDIDATE',sleeve_A14,'C')
 
-    # V189: the high-resolution +Z/front transparent cutout supersedes the
-    # low-resolution 191/193 previews. Keep the optical chain at cx and place
-    # the 84mm focus housing centre at cx-13mm (photo-ratio candidate only).
-    # The rear mounting plane remains registered to A10; moving yoke parts
-    # retain their independent optical-carrier coordinates.
+    # V190: the high-resolution +Z/front cutout sets the OUTER focus shell
+    # centre to cx-13mm. The fixed guide rails, moving carriage/shoes and
+    # nosepiece carrier form an independent subassembly at their own validated
+    # coordinates; they are not translated with the asymmetric outer shell.
+    # The rear mounting plane remains registered to A10.
     # MGZ30 is comparison-only; MCT-LMP2 direct identity is rejected by its
     # 211.5x130x58.8mm vendor envelope and dense front-hole pattern.
     # A 34mm-wide continuous internal/rear spine overlaps all three
@@ -1161,23 +1161,23 @@ def make_a():
     add('A','A18UL','MOVING_TOP_INTERFACE_EAR_CANDIDATE',
         box(12,10,8,cx+25,5,226),'C')
     add('A','A18F','RECESSED_FOCUS_FRONT_COVER_CANDIDATE',
-        box(32,1.4,44,cx+6,44.7,179),'C')
+        box(32,1.4,44,cx+43,44.7,179),'C')
     # Two guides and wear strips on stationary body, with distinct moving shoes.
-    for i,dx in enumerate((-48,22),1):
+    for i,dx in enumerate((-11,59),1):
         x=cx+dx
         add('A',f'A18G{i}','FOCUS_FIXED_GUIDE_RAIL_CANDIDATE',
             box(4,3,47,x,45.5,170.5),'C')
         add('A',f'A18W{i}','FOCUS_GUIDE_WEAR_STRIP_CANDIDATE',
             box(2,1,43,x,47.2,172.5),'C')
     add('A','A18C','FOCUS_MOVING_CARRIAGE_CANDIDATE',
-        box(54,7,15,a18_body_x,49,167.5),'C')
+        box(54,7,15,cx+24,49,167.5),'C')
     add('A','A18CB','FOCUS_CARRIAGE_OPTICAL_BRIDGE_CANDIDATE',
         box(42,8,12,cx+3,43.5,165),'C')
     # V172: V171 adapter cut through turret by 1.5mm and intercepted a
     # portion of its optical aperture. Remain behind the 11.8mm ray cone.
     add('A','A18AD','FOCUS_OPTICAL_NOSEPIECE_ADAPTER_CLEAR_OF_TURRET_CANDIDATE',
         box(44,23,5,cx+3,30,165),'C')
-    for i,dx in enumerate((-44.6,18.6),1):
+    for i,dx in enumerate((-7.6,55.6),1):
         add('A',f'A18CW{i}','FOCUS_SLIDING_SHOE_CANDIDATE',
             box(11,2,28,cx+dx,49.4,167),'C')
     add('A','A18T','HOLLOW_TOP_OPTICAL_COUPLER_CANDIDATE',
@@ -1360,7 +1360,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V189'
+CAD_REVISION='V190'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):
