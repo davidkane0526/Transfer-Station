@@ -6976,7 +6976,11 @@ function _a18CoarseRoots(q,sign){
 }
 function _a18OpticalRays(q){
  return [
-   _auditRayClear(q.body,[q.a18]),
+   // The A18 shell's geometric centre can sit behind the A19 turret even
+   // when a substantial part of the shell is visibly exposed. Audit an
+   // actual front-facing triangle on the body mesh instead of its centroid.
+   // This keeps the test physical: no component is hidden or skipped.
+   _auditAnyVisibleSurface(q.body,[q.body]),
    _auditAnyVisibleSurface(q.coarseL,_a18CoarseRoots(q,-1)),
    _auditAnyVisibleSurface(q.coarseR,_a18CoarseRoots(q,1)),
    _auditRayClear(q.turret,[q.a19])

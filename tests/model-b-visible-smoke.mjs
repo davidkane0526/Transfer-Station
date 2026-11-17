@@ -1081,7 +1081,10 @@ try{
  assert(a18Optical.projection.width<1.65&&a18Optical.projection.height<1.65,
    'A18 optical audit must fit the complete target instead of cropping it off-screen');
  assert(a18Optical.fitScale>=1,'A18 audit framing scale must be reported');
- assert.equal(a18Optical.bodyRay.clear,true);
+ assert.equal(a18Optical.bodyRay.clear,true,
+   'A18 housing must expose a real mesh surface to the optical audit camera');
+ assert(a18Optical.bodyRay.sample,
+   'A18 body visibility must be proven by a sampled surface triangle, not its hidden centre');
  assert(a18Optical.leftCoarseRay.clear||a18Optical.rightCoarseRay.clear,
    'A18 main audit must expose at least one actual coarse focus wheel');
  const bilateral=await page.evaluate(()=>window.__A18BilateralFocusVisibilityProbe?.());
