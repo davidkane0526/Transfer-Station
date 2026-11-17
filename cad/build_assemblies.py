@@ -44,6 +44,12 @@ def hollow_hose(points,outer_r=3.5,inner_r=2.2):
     return shell
 
 def add(sys,key,name,solid,grade='C'):
+    # STEP front view is +Y with +Z up, so screen-right is -X.
+    # The browser A18 reference view is +Z with +Y up, so screen-right
+    # is +X. Reflect only the A18 family about the optical axis (X=78)
+    # before STEP export to preserve the same physical photo-side layout.
+    if sys=='A' and key.startswith('A18'):
+        solid=solid.mirror('YZ',Vector(78,0,0))
     assert solid.isValid(),(sys,key)
     PARTS[sys].append((key,name,grade,solid))
     dest=OUT/('platform_'+sys)/'parts'
@@ -1109,8 +1115,11 @@ def make_a():
     sleeve_A14=vz(28,56.8,cx,0,266.2).cut(vz(26.1,57.0,cx,0,266.1))
     add('A','A14','UNKNOWN_SM2_MATING_TUBE_56P8mm_CANDIDATE',sleeve_A14,'C')
 
-    # V193: the high-resolution +Z/front cutout sets the OUTER focus shell
-    # centre to cx-13mm. The fixed guide rails, moving carriage/shoes and
+    # V194: construct A18 in the browser photo-local frame. add() reflects
+    # the entire A18 family for the STEP +Y front view, where screen-right=-X.
+    # This keeps the same physical left/right layout in both renderers.
+    # The high-resolution cutout sets the outer focus shell 13mm photo-left
+    # of the optical axis. The fixed guide rails, moving carriage/shoes and
     # nosepiece carrier form an independent subassembly at their own validated
     # coordinates; they are not translated with the asymmetric outer shell.
     # The rear mounting plane remains registered to A10.
@@ -1365,7 +1374,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V193'
+CAD_REVISION='V194'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

@@ -956,20 +956,36 @@ report['V172_optical_path']={
   'OEM_indexing_mechanism_confirmed':False,'fabrication_ready':False}
 report['V187_A18_high_resolution_photo_fit']={
     'reference':'user high-resolution transparent cutout, 2026-11-17',
-    'photo_view_convention':'+Z front; screen-right +X',
-    'body_center_offset_from_optical_axis_mm':-13,
+    'browser_view_convention':'+Z front; screen-right +X',
+    'step_view_convention':'+Y front; screen-right -X',
+    'body_center_offset_from_optical_axis_photo_mm':-13,
+    'body_center_offset_from_optical_axis_step_global_x_mm':13,
     'body_offset_measured':False,
     'optical_axis_fraction_from_body_left':round(55/84,4),
-    'front_dial_center_x_mm':50,
+    'front_dial_center_x_mm':106,
     'front_dial_diameter_candidate_mm':40,
     'front_dial_diameter_measured':False,
     'side_port_length_candidate_mm':145,
     'side_port_main_outer_diameter_candidate_mm':34,
     'side_port_grip_outer_diameter_candidate_mm':38,
     'side_port_dimensions_measured':False,
-    'side_port_world_x_bounds_mm':[107,252],
+    'side_port_step_global_x_bounds_mm':[-96,49],
+    'side_port_step_global_x_sign':'-X',
+    'cable_step_global_x_sign':'+X',
+    'front_dial_step_global_x_sign':'+X',
     'cable_outside_photo_left_body_edge':True,
     'manufacturing_ready':False
+}
+report['V194_A18_STEP_view_coordinate_handedness']={
+    'browser_camera':'camera +Z; up +Y; screen-right +X',
+    'step_camera':'camera +Y; up +Z; screen-right -X',
+    'A18_STEP_reflection_plane':'YZ through optical axis X=78mm',
+    'photo_right_side_port_STEP_sign':'-X',
+    'photo_left_cable_STEP_sign':'+X',
+    'photo_left_front_dial_STEP_sign':'+X',
+    'webgl_geometry_mirrored':False,
+    'step_A18_family_mirrored':True,
+    'photo_geometry_equivalent':True
 }
 report['V143_A19_two_port_nosepiece']={
   'visible_installed_objectives':2,
@@ -989,12 +1005,12 @@ check(abs(part(A,'A19R1')[0].BoundingBox().xmin-
 a18_bb=part(A,'A18')[0].BoundingBox()
 a18t_bb=part(A,'A18T')[0].BoundingBox()
 a18n_bb=part(A,'A18N')[0].BoundingBox()
-check(abs((a18_bb.xmin+a18_bb.xmax)/2-(78-13))<.05,
-      'V187 A18 housing centre must be 13mm left of the optical axis from the high-resolution cutout')
-check(abs(a18_bb.xmin-(78-55))<.05 and abs(a18_bb.xmax-(78+29))<.05,
-      'V187 A18 84mm body must place the optical axis at 55/84 of its width from photo-left')
-check(abs((78-a18_bb.xmin)/84-55/84)<1e-6,
-      'V187 optical axis fraction must match the high-resolution photo-ratio fit')
+check(abs((a18_bb.xmin+a18_bb.xmax)/2-(78+13))<.05,
+      'V194 STEP +Y front frame: A18 body centre is +13mm in CAD X, i.e. photo-left')
+check(abs(a18_bb.xmin-(78-29))<.05 and abs(a18_bb.xmax-(78+55))<.05,
+      'V194 mirrored STEP body must place the optical axis 55/84 from the photo-left (+X) edge')
+check(abs((a18_bb.xmax-78)/84-55/84)<1e-6,
+      'V194 STEP optical-axis fraction must match the high-resolution photo-ratio fit')
 check(abs((a18t_bb.xmin+a18t_bb.xmax)/2-78)<.05 and
       abs((a18n_bb.xmin+a18n_bb.xmax)/2-78)<.05,
       'V92 top/bottom optical interfaces must remain on original optical axis')
@@ -1044,31 +1060,32 @@ check(central_barrel.intersect(optical_axis_probe).Volume()<1e-4,
 # loop variable named cx, so a bare cx here would silently refer to B geometry.
 a18_cx=78
 side_port=part(A,'A18OP')[0]
-check(abs(side_port.BoundingBox().xmin-(a18_cx+29))<.02 and
-      abs(side_port.BoundingBox().xmax-(a18_cx+174))<.02 and
+check(abs(side_port.BoundingBox().xmin-(a18_cx-174))<.02 and
+      abs(side_port.BoundingBox().xmax-(a18_cx-29))<.02 and
       abs(side_port.BoundingBox().zmin-203)<.02 and
       abs(side_port.BoundingBox().zmax-241)<.02,
-      'V187 photo-right (+X) two-tube optical port must match the 145mm photo-fit envelope')
-side_port_axis=vx(9.4,145.2,a18_cx+29,-48,222)
+      'V194 STEP +Y front frame: photo-right side port is on -X and matches the 145mm envelope')
+side_port_axis=vx(9.4,145.2,a18_cx-174,-48,222)
 check(side_port.intersect(side_port_axis).Volume()<1e-4,
-      'V187 +X/photo-right optical port must retain an open 145mm axial bore')
-body_side_axis=vx(9.4,24.2,a18_cx+5.8,-48,222)
+      'V194 -X/photo-right optical port must retain an open 145mm axial bore')
+body_side_axis=vx(9.4,24.2,a18_cx-29.8,-48,222)
 check(a18_shape.intersect(body_side_axis).Volume()<1e-4,
-      'V182 A18 housing must have a true +X/photo-right side-port bore at the same face as A18OP')
+      'V194 A18 housing must have a true -X/photo-right side-port bore aligned with A18OP')
 check(side_port.distance(a18_shape)<.02,
-      'V182 photo-right side port mounting frame must meet the A18 housing')
-check(abs(side_port.BoundingBox().xlen-145)<.02,
-      'V187 A18 horizontal optical tube must extend 145mm from the +X/photo-right housing face')
+      'V194 photo-right side-port mounting frame must meet the A18 housing')
+check(abs(side_port.BoundingBox().xlen-145)<.02 and
+      abs(side_port.BoundingBox().xmax-a18_shape.BoundingBox().xmin)<.02,
+      'V194 A18 horizontal optical tube must extend 145mm outward from the -X/photo-right housing face')
 body_center_x=(a18_shape.BoundingBox().xmin+a18_shape.BoundingBox().xmax)/2
-check(side_port.BoundingBox().xmin>body_center_x,
-      'V182 A18 side port must lie on photo-right (+X), not photo-left (-X)')
-check(part(A,'A18CBL')[0].BoundingBox().xmax<(a18_cx-55),
-      'V187 A18 cable must remain outside the photo-left edge of the 84mm focus body')
+check(side_port.BoundingBox().xmax<body_center_x,
+      'V194 STEP +Y front frame: photo-right side port must lie on -X')
+check(part(A,'A18CBL')[0].BoundingBox().xmin>(a18_cx+55),
+      'V194 STEP +Y front frame: photo-left cable must lie beyond the +X body edge')
 dial_box=cq.Compound.makeCompound(part(A,'A18D')).BoundingBox()
 dial_center_x=(dial_box.xmin+dial_box.xmax)/2
-dial_fraction=(dial_center_x-(a18_cx-55))/84
-check(dial_center_x<body_center_x and dial_center_x<a18_cx,
-      'V187 A18 front dial must sit on photo-left and left of the optical axis')
+dial_fraction=((a18_cx+55)-dial_center_x)/84
+check(dial_center_x>body_center_x and dial_center_x>a18_cx,
+      'V194 STEP +Y front frame: front dial must be on photo-left (+X) and left of the optical axis')
 check(.29<=dial_fraction<=.36,
       'V187 A18 front dial centre must occupy about 32% of the housing width from photo-left')
 side_fasteners=part(A,'A18OPS')
@@ -1146,9 +1163,9 @@ for i in (1,2):
 left_web_box=part(A,'A18FW1')[0].BoundingBox()
 right_web=part(A,'A18FW2')[0]
 right_web_box=right_web.BoundingBox()
-check((left_web_box.xmin+left_web_box.xmax)/2 <
+check((left_web_box.xmin+left_web_box.xmax)/2 >
       (right_web_box.xmin+right_web_box.xmax)/2,
-      'V193 +Z photo view: labelled left fixed web must project left of labelled right web')
+      'V194 STEP +Y front view: screen-right is -X, so labelled left web has larger CAD X than right web')
 check(right_web_box.xmin < a18_shape.BoundingBox().xmax,
       'V193 stepped right fixed web foot must overlap the shifted focus body')
 check(right_web.isValid() and len(right_web.Solids())==1,
