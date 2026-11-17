@@ -1742,7 +1742,7 @@ try{
  await page.waitForTimeout(220);
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
-   await page.screenshot({path:'Transfer-Station-A-V182-A18-Photo-Reference-View.png',
+   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V182-A18-Photo-Reference-View.png',
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }
