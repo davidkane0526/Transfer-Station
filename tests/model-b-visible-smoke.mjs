@@ -1724,25 +1724,32 @@ try{
  assert.equal(dA.A18SidePortMountFramePresent,true);
  assert.equal(dA.A18FrontFocusDialPresent,true);
  assert.equal(dA.A18FrontFaceFastenersPresent,true);
- assert.equal(dA.A18PhotoRebuildRevision,'V182');
+ assert.equal(dA.A18PhotoRebuildRevision,'V183');
+ assert.equal(await page.evaluate(()=>window.__focusA18PhotoReferenceView?.()),true);
+ await page.waitForTimeout(220);
  const a18Sides=await page.evaluate(()=>window.__A18PhotoLeftRightProbe?.());
- assert.equal(a18Sides?.available,true,'V182 A18 photo-side probe must resolve all reference-side parts');
+ assert.equal(a18Sides?.available,true,'V183 A18 photo-side probe must resolve all reference-side parts');
  assert.equal(a18Sides.sidePortOnPhotoRight,true,
-   'V182 +X side port must be on viewer-right in the +Z reference-photo view');
+   'V183 +X side port must be on viewer-right in the +Z reference-photo view');
  assert.equal(a18Sides.cableOnPhotoLeft,true,
-   'V182 cable must remain on viewer-left in the +Z reference-photo view');
+   'V183 cable must remain on viewer-left in the +Z reference-photo view');
  assert.equal(a18Sides.dialOnPhotoLeftHalf,true,
-   'V182 front-face index dial must remain on the left half of the housing');
+   'V183 front-face index dial must remain on the left half of the housing');
  assert.equal(a18Sides.dialFacesPhotoFront,true,
-   'V182 index dial face must face the same +Z side as the supplied cutout');
+   'V183 index dial face must face the same +Z side as the supplied cutout');
+ assert.equal(a18Sides.dialVisibleFromPhotoFront,true,
+   'V183 index dial must be the first visible surface along the photo-front ray');
+ assert.equal(a18Sides.photoReferenceCameraFromFront,true,
+   'V183 photo-reference camera must remain on the +Z/front side, not a mirrored rear view');
+ assert(a18Sides.photoReferenceCameraAzimuthDeg<10,
+   'V183 photo-reference camera must be close to front-on so the index dial remains visible');
  assert(a18Sides.sidePortWorldXBounds[0]>a18Sides.bodyCenterWorldX);
  assert(a18Sides.cableWorldXBounds[1]<a18Sides.opticalAxisWorldX);
  assert(a18Sides.dialWorldX<a18Sides.bodyCenterWorldX);
- assert.equal(await page.evaluate(()=>window.__focusA18PhotoReferenceView?.()),true);
- await page.waitForTimeout(220);
+ console.log('V183 A18 left/right and dial-visibility audit:',a18Sides);
  {
    const box=await page.locator('#viewer').boundingBox();assert(box);
-   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V182-A18-Photo-Reference-View.png',
+   await page.screenshot({path:'assets/photo-review/Transfer-Station-A-V183-A18-Photo-Reference-View.png',
      clip:{x:box.x,y:box.y,width:box.width,height:box.height},
      animations:'disabled',timeout:30000});
  }

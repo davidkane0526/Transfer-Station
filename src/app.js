@@ -4952,7 +4952,7 @@ function platformA(){
    g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
    g.userData.A18PhotoSidePortSign='+X';
    g.userData.A18PhotoCableSign='-X';
-   g.userData.A18PhotoRebuildRevision='V182';
+   g.userData.A18PhotoRebuildRevision='V183';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;
@@ -7109,6 +7109,19 @@ window.__A18PhotoLeftRightProbe=()=>{
  const dialNormal=new THREE.Vector3(0,1,0)
    .applyQuaternion(dial.getWorldQuaternion(new THREE.Quaternion())).normalize();
  const round=n=>Number(n.toFixed(2));
+ const photoDialRay=new THREE.Raycaster(
+   dialPos.clone().add(dialNormal.clone().multiplyScalar(80)),
+   dialNormal.clone().negate()
+ );
+ photoDialRay.far=120;
+ const firstPhotoHit=photoDialRay.intersectObject(currentRoot,true)[0]?.object??null;
+ const isPhotoDialHit=o=>Boolean(o&&(
+   o.userData.A18FrontFocusDial||o.userData.A18FrontFocusDialRim||
+   o.userData.A18FrontFocusDialFace||o.userData.A18FrontDialCross||
+   o.userData.A18FrontDialTick||o.userData.A18FrontDialHub
+ ));
+ const cameraOffset=camera.position.clone().sub(orbit.target);
+ const cameraAzimuthDeg=Math.atan2(Math.abs(cameraOffset.x),Math.abs(cameraOffset.z))*180/Math.PI;
  return {
    available:true,
    viewConvention:'reference cutout viewed from +Z; screen-right is +X',
@@ -7121,7 +7134,12 @@ window.__A18PhotoLeftRightProbe=()=>{
    dialWorldX:round(dialPos.x),
    dialOnPhotoLeftHalf:dialPos.x<bodyCenterX,
    dialNormalWorldZ:round(dialNormal.z),
-   dialFacesPhotoFront:dialNormal.z>.9
+   dialFacesPhotoFront:dialNormal.z>.9,
+   dialVisibleFromPhotoFront:isPhotoDialHit(firstPhotoHit),
+   photoDialRayFirstHitTag:firstPhotoHit?Object.keys(firstPhotoHit.userData??{}).filter(k=>k.startsWith('A18')).slice(0,4):[],
+   photoReferenceCameraOffset:[round(cameraOffset.x),round(cameraOffset.y),round(cameraOffset.z)],
+   photoReferenceCameraAzimuthDeg:round(cameraAzimuthDeg),
+   photoReferenceCameraFromFront:cameraOffset.z>0&&cameraAzimuthDeg<10
  };
 };
 window.__focusA18PhotoReferenceView=()=>{
@@ -7130,8 +7148,23 @@ window.__focusA18PhotoReferenceView=()=>{
  const q=_a18AuditTargets();if(!q)return false;
  const box=_auditBoxFor([q.a18,q.a19]);
  const target=box.getCenter(new THREE.Vector3());
- camera.position.copy(target).add(new THREE.Vector3(110,80,300));
+ // V183: use the same near-front +Z view as the supplied cutout. A large
+ // +X camera offset made the side tube look right but hid the front dial.
+ let offset=new THREE.Vector3(42,52,420);
+ camera.position.copy(target).add(offset);
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ let fitScale=1;
+ for(let n=0;n<4;n++){
+   const p=_auditProjection(box);
+   const needed=Math.max(p.width/1.5,p.height/1.5,1);
+   if(needed<=1.01)break;
+   fitScale*=needed;
+   offset.multiplyScalar(needed);
+   camera.position.copy(target).add(offset);
+   orbit.target.copy(target);camera.lookAt(target);orbit.update();
+ }
+ q.a18.userData.A18PhotoReferenceCameraOffset=offset.toArray().map(x=>Number(x.toFixed(2)));
+ q.a18.userData.A18PhotoReferenceFitScale=Number(fitScale.toFixed(3));
  return true;
 };
 window.__A18SupportCloseupProbe=()=>{
