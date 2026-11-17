@@ -1374,7 +1374,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V194'
+CAD_REVISION='V195'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

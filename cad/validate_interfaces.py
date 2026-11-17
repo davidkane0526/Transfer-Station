@@ -822,8 +822,9 @@ check(not (A/'A18R.step').exists(),
       'V81 obsolete unsupported 160mm tube proxy must remain deleted')
 body_center_x=(a18.xmin+a18.xmax)/2
 for side,sign,hub_key,coarse_key,fine_key,cap_key in (
-    ('left',-1,'A18HL','A18FL','A18FLL','A18FCL'),
-    ('right',1,'A18HR','A18FR','A18FRL','A18FCR')):
+    # STEP +Y front view: screen-left is +X, screen-right is -X.
+    ('left',1,'A18HL','A18FL','A18FLL','A18FCL'),
+    ('right',-1,'A18HR','A18FR','A18FRL','A18FCR')):
     hub=part(A,hub_key)[0];coarse=part(A,coarse_key)[0]
     fine=part(A,fine_key)[0];cap=part(A,cap_key)[0]
     hb=hub.BoundingBox();cb=coarse.BoundingBox()
@@ -976,7 +977,7 @@ report['V187_A18_high_resolution_photo_fit']={
     'cable_outside_photo_left_body_edge':True,
     'manufacturing_ready':False
 }
-report['V194_A18_STEP_view_coordinate_handedness']={
+report['V195_A18_STEP_view_coordinate_handedness']={
     'browser_camera':'camera +Z; up +Y; screen-right +X',
     'step_camera':'camera +Y; up +Z; screen-right -X',
     'A18_STEP_reflection_plane':'YZ through optical axis X=78mm',
@@ -1068,7 +1069,7 @@ check(abs(side_port.BoundingBox().xmin-(a18_cx-174))<.02 and
 side_port_axis=vx(9.4,145.2,a18_cx-174,-48,222)
 check(side_port.intersect(side_port_axis).Volume()<1e-4,
       'V194 -X/photo-right optical port must retain an open 145mm axial bore')
-body_side_axis=vx(9.4,24.2,a18_cx-29.8,-48,222)
+body_side_axis=vx(9.4,24.2,a18_cx-30,-48,222)
 check(a18_shape.intersect(body_side_axis).Volume()<1e-4,
       'V194 A18 housing must have a true -X/photo-right side-port bore aligned with A18OP')
 check(side_port.distance(a18_shape)<.02,
@@ -1104,7 +1105,7 @@ check(len(front_fasteners)>=4,
       'V177 front housing must show four fastener heads')
 photo_cable=part(A,'A18CBL')[0]
 check(photo_cable.isValid() and photo_cable.BoundingBox().zlen>200,
-      'V182 photo-left (-X) cable must be a continuous routed solid')
+      'V195 STEP +Y front view: photo-left (+X) cable must be a continuous routed solid')
 for key,z in (('A18T',231),('A18N',169)):
     coupler=part(A,key)[0]
     check(coupler.intersect(vz(9.9,8,78,0,z)).Volume()<1e-4,
@@ -1248,12 +1249,12 @@ report['V84_A_microscope_vendor_candidate_matrix']={
     'A18_vendor_and_model_verified':False,
     'current_photo_constrained_body_envelope_mm':[84,88,70],
     'current_photo_constrained_body_geometry_retained':True,
-    'photo_body_center_offset_from_optical_axis_mm':24,
+    'photo_body_center_offset_from_optical_axis_mm':-13,
     'photo_body_center_offset_physically_measured':False,
     'body_centered_on_optical_axis':False,
     'A10_A18_rear_face_gap_mm':abs(a10a_bb.ymax-a18_contact_bb.ymin),
     'A10_A18_projected_contact_area_mm2':a10a_a18_contact_area,
-    'optical_axis_fraction_from_body_left':18/84,
+    'optical_axis_fraction_from_body_left':55/84,
     'current_scene_A10_post_diameter_mm':26,
     'current_scene_A10_post_diameter_physically_measured':False,
     'current_scene_post_to_optical_axis_mm':112,
