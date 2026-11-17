@@ -1140,8 +1140,9 @@ def make_a():
     # 58mm nosepiece yoke. This is an OPEN FRONT notch, not a gearbox bore.
     # V173: widen the front relief to clear the separate Ø34/Ø25 hollow barrel.
     a18_body=a18_body.cut(box(34,20,70,cx,-14,165)).clean()
-    # V173: real horizontal side-port bore through the A18 casting.
-    a18_body=a18_body.cut(vx(9.5,24.2,cx-18,-48,222)).clean()
+    # V182: the cutout's photo-right port exits the +X face of the housing.
+    # The body spans x=cx-18..cx+66; bore the right face from cx+42..cx+66.
+    a18_body=a18_body.cut(vx(9.5,24.2,cx+42,-48,222)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     # V145: two STATIONARY cast side webs engage rear gearbox and fixed
@@ -1191,15 +1192,22 @@ def make_a():
         vz(17.1,4,cx,0,227).cut(vz(12.5,4.2,cx,0,226.9))
     ).clean()
     add('A','A18VT','PHOTO_FIT_CENTRAL_HOLLOW_OPTICAL_BARREL_OD34_ID25',a18_vtube,'C')
-    # V177: square open mounting frame around the photo-right optical port.
-    a18_op_frame=box(6,28,28,57,-48,208).cut(vx(9.5,6.2,53.9,-48,222))
-    a18_op_flange=vx(17,6,54,-48,222).cut(vx(9.5,6.2,53.9,-48,222))
-    a18_op_near=vx(13.5,34,20,-48,222).cut(vx(9.5,34.2,19.9,-48,222))
-    a18_op_grip=vx(16,4,16,-48,222).cut(vx(9.5,4.2,15.9,-48,222))
-    a18_op_far=vx(14,42,-26,-48,222).cut(vx(9.5,42.2,-26.1,-48,222))
-    a18_op_rim=vx(15.5,4,-30,-48,222).cut(vx(9.5,4.2,-30.1,-48,222))
+    # V182: same-side registration as the source cutout: +X is photo-right.
+    # A18 body right face is x=cx+66; the tube projects 90mm outboard.
+    a18_op_frame=box(6,28,28,cx+69,-48,208).cut(
+        vx(9.5,6.2,cx+65.9,-48,222))
+    a18_op_flange=vx(17,6,cx+66,-48,222).cut(
+        vx(9.5,6.2,cx+65.9,-48,222))
+    a18_op_near=vx(13.5,34,cx+72,-48,222).cut(
+        vx(9.5,34.2,cx+71.9,-48,222))
+    a18_op_grip=vx(16,4,cx+106,-48,222).cut(
+        vx(9.5,4.2,cx+105.9,-48,222))
+    a18_op_far=vx(14,42,cx+110,-48,222).cut(
+        vx(9.5,42.2,cx+109.9,-48,222))
+    a18_op_rim=vx(15.5,4,cx+152,-48,222).cut(
+        vx(9.5,4.2,cx+151.9,-48,222))
     a18_op_ribs=[]
-    for x in (-22,-14,-6,2,10):
+    for x in (cx+116,cx+124,cx+132,cx+140,cx+148):
         a18_op_ribs.append(
             vx(14.3,.52,x-.26,-48,222).cut(vx(13.9,.54,x-.27,-48,222)))
     a18_op=a18_op_frame.fuse(
@@ -1208,7 +1216,7 @@ def make_a():
     a18_op_screws=[]
     for yy in (-60.5,-35.5):
         for zz in (209.5,234.5):
-            a18_op_screws.append(vx(1.8,1.5,52.5,yy,zz))
+            a18_op_screws.append(vx(1.8,1.5,cx+72,yy,zz))
     add('A','A18OPS','FOUR_MOUNT_FRAME_FASTENERS_PHOTO_FIT',
         cq.Compound.makeCompound(a18_op_screws),'C')
     # V177: front-face focus/index dial and four visible housing fasteners.
@@ -1236,10 +1244,10 @@ def make_a():
             a18_front_screws.append(screw.fuse(slot))
     add('A','A18S','FOUR_FRONT_HOUSING_FASTENERS_PHOTO_FIT',
         cq.Compound.makeCompound(a18_front_screws),'C')
-    # V177: flexible cable loops down the photo-left side of the optical barrel.
+    # V182: route the cable on photo-left (-X), opposite the +X side port.
     a18_cable=cable_path([
-        (86,0,366),(92,6,350),(101,10,320),(108,10,285),
-        (110,10,245),(108,10,215),(104,10,185),(100,10,155),(96,8,140)
+        (70,0,366),(64,6,350),(55,10,320),(48,10,285),
+        (46,10,245),(48,10,215),(52,10,185),(56,10,155),(60,8,140)
     ],1.5)
     add('A','A18CBL','PHOTO_FIT_LEFT_SIDE_FLEXIBLE_CABLE_ROUTE',a18_cable,'C')
     # V162: synchronize the installed STEP focus chain with web A18 V160/V161.
@@ -1351,7 +1359,7 @@ def make_a():
         (cx+44,-64,379),(cx+43,-96,357),(cx+36,-123,317),
         (cx+26,-126,225),(cx+18,-128,138),(cx+32,-152,48)],2.4)
     add('A','A20','CAMERA_REAR_CABLE_TO_BOARD_SERVICE_EXIT_UNVERIFIED',camera_cable,'C')
-CAD_REVISION='V181'
+CAD_REVISION='V182'
 UNINSTALLED_A_STUDY_IDS=frozenset({'A18MGZ','A05C1302','A06GCM1102','A07W'})
 A_INSTALLED_FILM_CENTER_X=-60.75
 def _installed_a_solid(key,shape):

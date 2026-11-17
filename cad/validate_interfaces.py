@@ -1017,21 +1017,29 @@ check(abs(central_barrel.BoundingBox().zmin-169)<.02 and
 check(central_barrel.intersect(optical_axis_probe).Volume()<1e-4,
       'V173 central optical barrel must retain its open optical core')
 side_port=part(A,'A18OP')[0]
-check(abs(side_port.BoundingBox().xmin+30)<.02 and
-      abs(side_port.BoundingBox().xmax-60)<.02 and
+check(abs(side_port.BoundingBox().xmin-(cx+66))<.02 and
+      abs(side_port.BoundingBox().xmax-(cx+156))<.02 and
       abs(side_port.BoundingBox().zmin-205)<.02 and
       abs(side_port.BoundingBox().zmax-239)<.02,
-      'V181 photo-right two-section optical port must match the 90mm photo-fit envelope')
-side_port_axis=vx(9.4,90.2,-30,-48,222)
+      'V182 photo-right (+X) two-section optical port must match the 90mm photo-fit envelope')
+side_port_axis=vx(9.4,90.2,cx+66,-48,222)
 check(side_port.intersect(side_port_axis).Volume()<1e-4,
-      'V181 two-section side optical port must retain an open 90mm axial bore')
-body_side_axis=vx(9.4,24.2,60,-48,222)
+      'V182 two-section +X/photo-right side optical port must retain an open 90mm axial bore')
+body_side_axis=vx(9.4,24.2,cx+42,-48,222)
 check(a18_shape.intersect(body_side_axis).Volume()<1e-4,
-      'V181 A18 housing must have a true side-port bore at the same face as A18OP')
+      'V182 A18 housing must have a true +X/photo-right side-port bore at the same face as A18OP')
 check(side_port.distance(a18_shape)<.02,
-      'V177 side port mounting frame must meet the A18 housing')
+      'V182 photo-right side port mounting frame must meet the A18 housing')
 check(abs(side_port.BoundingBox().xlen-90)<.02,
-      'V181 A18 horizontal optical tube must extend 90mm from the housing face')
+      'V182 A18 horizontal optical tube must extend 90mm from the +X/photo-right housing face')
+body_center_x=(a18_shape.BoundingBox().xmin+a18_shape.BoundingBox().xmax)/2
+check(side_port.BoundingBox().xmin>body_center_x,
+      'V182 A18 side port must lie on photo-right (+X), not photo-left (-X)')
+check(part(A,'A18CBL')[0].BoundingBox().xmax<cx,
+      'V182 A18 cable must remain on photo-left (-X) of the central optical axis')
+dial_box=cq.Compound.makeCompound(part(A,'A18D')).BoundingBox()
+check((dial_box.xmin+dial_box.xmax)/2<body_center_x,
+      'V182 A18 front-face index dial must remain on the photo-left half of the housing')
 side_fasteners=part(A,'A18OPS')
 check(len(side_fasteners)>=4,
       'V177 side optical port frame must carry four visible fasteners')
@@ -1048,7 +1056,7 @@ check(len(front_fasteners)>=4,
       'V177 front housing must show four fastener heads')
 photo_cable=part(A,'A18CBL')[0]
 check(photo_cable.isValid() and photo_cable.BoundingBox().zlen>200,
-      'V173 left-side cable must be a continuous routed solid')
+      'V182 photo-left (-X) cable must be a continuous routed solid')
 for key,z in (('A18T',231),('A18N',169)):
     coupler=part(A,key)[0]
     check(coupler.intersect(vz(9.9,8,78,0,z)).Volume()<1e-4,

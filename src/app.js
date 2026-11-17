@@ -4475,22 +4475,26 @@ function platformA(){
     const upperBarrelCollar=add(g,sleeve(17.1,12.5,4,mats.dark,0,29,0,'y'));
     upperBarrelCollar.userData.A18CentralBarrelUpperCollar=true;
 
-    // V177: orient the port and cable to the reference-photo viewing side.
-    const sidePortMount=add(g,sleeve(17,9.5,6,mats.black,-21,22,-48,'x'));
+    // V182 reference convention is the SAME SIDE as the supplied cutout:
+    // camera looks from +Z; screen-right is +X. The tube exits the body's
+    // +X/photo-right face, while the cable runs on the -X/photo-left side.
+    // The body centre is x=24, so mirror the former -X tube coordinates
+    // about that centre without mirroring the front-face dial.
+    const photoRightX=x=>48-x;
+    const sidePortMount=add(g,sleeve(17,9.5,6,mats.black,photoRightX(-21),22,-48,'x'));
     sidePortMount.userData.A18SideOpticalPortMountCandidate=true;
-    // V181: two hollow sections extend 90mm from the focus housing.
-    const sidePortNear=add(g,sleeve(13.5,9.5,34,mats.dark,-41,22,-48,'x'));
+    const sidePortNear=add(g,sleeve(13.5,9.5,34,mats.dark,photoRightX(-41),22,-48,'x'));
     sidePortNear.userData.A18SideOpticalPortCandidate=true;
     sidePortNear.userData.A18SideOpticalPortOpenBore=true;
-    const sidePortGrip=add(g,sleeve(16,9.5,4,mats.black,-60,22,-48,'x'));
+    const sidePortGrip=add(g,sleeve(16,9.5,4,mats.black,photoRightX(-60),22,-48,'x'));
     sidePortGrip.userData.A18SideOpticalPortGripCollar=true;
-    const sidePortFar=add(g,sleeve(14,9.5,42,mats.dark,-83,22,-48,'x'));
+    const sidePortFar=add(g,sleeve(14,9.5,42,mats.dark,photoRightX(-83),22,-48,'x'));
     sidePortFar.userData.A18SideOpticalPortExtensionCandidate=true;
     sidePortFar.userData.A18SideOpticalPortOpenBore=true;
-    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,-106,22,-48,'x'));
+    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,photoRightX(-106),22,-48,'x'));
     sidePortRim.userData.A18SideOpticalPortRimCandidate=true;
     for(let q=0;q<5;q++){
-      const rib=add(g,torus(14.3,.28,mats.ink,-66-q*8,22,-48));
+      const rib=add(g,torus(14.3,.28,mats.ink,116+q*8,22,-48));
       rib.rotation.y=Math.PI/2;
       rib.userData.A18SidePortGripRib=true;
     }
@@ -4503,10 +4507,10 @@ function platformA(){
     const frameGeometry=new THREE.ExtrudeGeometry(frameShape,{depth:6,bevelEnabled:false,steps:1});
     frameGeometry.rotateY(Math.PI/2);
     const sidePortFrame=add(g,new THREE.Mesh(frameGeometry,mats.dark));
-    sidePortFrame.position.set(-24,22,-48);
+    sidePortFrame.position.set(66,22,-48);
     sidePortFrame.userData.A18SidePortMountFrameCandidate=true;
     for(const yy of [9.5,34.5])for(const zz of [-60.5,-35.5]){
-      const screw=add(g,cyl(1.8,1.5,mats.silver,-24.75,yy,zz,32));
+      const screw=add(g,cyl(1.8,1.5,mats.silver,72.75,yy,zz,32));
       screw.rotation.z=Math.PI/2;
       screw.userData.A18SidePortFrameFastener=true;
     }
@@ -4537,10 +4541,10 @@ function platformA(){
       screw.rotation.x=Math.PI/2;
       screw.userData.A18FrontFaceFastener=true;
     }
-    // V177: flexible cable lies on the photo-left side of the optical tube.
+    // V182: the cable is on photo-left (-X), not the opposite housing side.
     const photoCable=add(g,tube([
-      [8,166,0],[14,150,6],[23,120,10],[30,85,10],
-      [32,45,10],[30,15,8],[26,-15,4],[22,-40,-2],[18,-60,-8]
+      [-8,166,0],[-14,150,6],[-23,120,10],[-30,85,10],
+      [-32,45,10],[-30,15,8],[-26,-15,4],[-22,-40,-2],[-18,-60,-8]
     ],1.5,mats.rubber));
     photoCable.userData.A18PhotoSideCableCandidate=true;
 
@@ -4945,7 +4949,10 @@ function platformA(){
    g.userData.A18SideOpticalPortLengthCandidateMm=90;
    g.userData.A18SideOpticalPortSectionCount=2;
    g.userData.A18PhotoSideCablePresent=true;
-   g.userData.A18PhotoRebuildRevision='V181';
+   g.userData.A18PhotoViewConvention='camera +Z; screen-right +X';
+   g.userData.A18PhotoSidePortSign='+X';
+   g.userData.A18PhotoCableSign='-X';
+   g.userData.A18PhotoRebuildRevision='V182';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;
@@ -7074,6 +7081,58 @@ window.__A18OpticalCloseupProbe=()=>{
    turretRay:_a18OpticalRays(q)[3],
    ..._a18CommonAudit(q)
  };
+};
+window.__A18PhotoLeftRightProbe=()=>{
+ if(platform!=='A')return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const a18=parts.get('A18')?.g;
+ if(!a18)return {available:false};
+ const body=a18.children.find(o=>o.userData.A18PhotoConstrainedMainBody);
+ const dial=a18.children.find(o=>o.userData.A18FrontFocusDial);
+ const cable=a18.children.find(o=>o.userData.A18PhotoSideCableCandidate);
+ const portParts=a18.children.filter(o=>
+   o.userData.A18SideOpticalPortMountCandidate||
+   o.userData.A18SideOpticalPortCandidate||
+   o.userData.A18SideOpticalPortGripCollar||
+   o.userData.A18SideOpticalPortExtensionCandidate||
+   o.userData.A18SideOpticalPortRimCandidate||
+   o.userData.A18SidePortGripRib||
+   o.userData.A18SidePortMountFrameCandidate||
+   o.userData.A18SidePortFrameFastener);
+ if(!body||!dial||!cable||!portParts.length)return {available:false};
+ const bodyBox=new THREE.Box3().setFromObject(body);
+ const portBox=new THREE.Box3(),cableBox=new THREE.Box3().setFromObject(cable);
+ for(const o of portParts)portBox.union(new THREE.Box3().setFromObject(o));
+ const bodyCenterX=bodyBox.getCenter(new THREE.Vector3()).x;
+ const opticalAxisX=a18.localToWorld(new THREE.Vector3(0,0,0)).x;
+ const dialPos=dial.getWorldPosition(new THREE.Vector3());
+ const dialNormal=new THREE.Vector3(0,1,0)
+   .applyQuaternion(dial.getWorldQuaternion(new THREE.Quaternion())).normalize();
+ const round=n=>Number(n.toFixed(2));
+ return {
+   available:true,
+   viewConvention:'reference cutout viewed from +Z; screen-right is +X',
+   bodyCenterWorldX:round(bodyCenterX),
+   opticalAxisWorldX:round(opticalAxisX),
+   sidePortWorldXBounds:[round(portBox.min.x),round(portBox.max.x)],
+   sidePortOnPhotoRight:portBox.min.x>bodyCenterX,
+   cableWorldXBounds:[round(cableBox.min.x),round(cableBox.max.x)],
+   cableOnPhotoLeft:cableBox.max.x<opticalAxisX,
+   dialWorldX:round(dialPos.x),
+   dialOnPhotoLeftHalf:dialPos.x<bodyCenterX,
+   dialNormalWorldZ:round(dialNormal.z),
+   dialFacesPhotoFront:dialNormal.z>.9
+ };
+};
+window.__focusA18PhotoReferenceView=()=>{
+ if(platform!=='A'||!aWorkingPoseMode){aWorkingPoseMode=true;switchPlatform('A');}
+ currentRoot.updateWorldMatrix(true,true);
+ const q=_a18AuditTargets();if(!q)return false;
+ const box=_auditBoxFor([q.a18,q.a19]);
+ const target=box.getCenter(new THREE.Vector3());
+ camera.position.copy(target).add(new THREE.Vector3(110,80,300));
+ orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ return true;
 };
 window.__A18SupportCloseupProbe=()=>{
  if(platform!=='A')return {available:false};
