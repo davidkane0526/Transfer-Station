@@ -1125,7 +1125,7 @@ def make_a():
     # V173: widen the front relief to clear the separate Ø34/Ø25 hollow barrel.
     a18_body=a18_body.cut(box(34,20,70,cx,-14,165)).clean()
     # V173: real horizontal side-port bore through the A18 casting.
-    a18_body=a18_body.cut(vx(9.5,24.2,cx+42,-48,222)).clean()
+    a18_body=a18_body.cut(vx(9.5,24.2,cx-18,-48,222)).clean()
     add('A','A18','MICROSCOPE_STEPPED_FOCUS_BODY_84x88x70_PHOTO_CANDIDATE',
         a18_body,'C')
     # V145: two STATIONARY cast side webs engage rear gearbox and fixed
@@ -1175,16 +1175,48 @@ def make_a():
         vz(17.1,4,cx,0,227).cut(vz(12.5,4.2,cx,0,226.9))
     ).clean()
     add('A','A18VT','PHOTO_FIT_CENTRAL_HOLLOW_OPTICAL_BARREL_OD34_ID25',a18_vtube,'C')
-    # V173: right-facing horizontal optical port, distinct from the A11 LED.
-    a18_op_flange=vx(17,6,144,-48,222).cut(vx(9.5,6.2,143.9,-48,222))
-    a18_op_tube=vx(14,44,150,-48,222).cut(vx(9.5,44.2,149.9,-48,222))
-    a18_op_rim=vx(15.5,4,194,-48,222).cut(vx(9.5,4.2,193.9,-48,222))
-    a18_op=a18_op_flange.fuse(a18_op_tube,a18_op_rim).clean()
-    add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_OPEN_ANNULAR',a18_op,'C')
-    # V173: flexible cable loops down the left side of the vertical optical barrel.
+    # V177: square open mounting frame around the photo-right optical port.
+    a18_op_frame=box(6,28,28,54,-62,208).cut(vx(9.5,6.2,53.9,-48,222))
+    a18_op_flange=vx(17,6,54,-48,222).cut(vx(9.5,6.2,53.9,-48,222))
+    a18_op_tube=vx(14,44,10,-48,222).cut(vx(9.5,44.2,9.9,-48,222))
+    a18_op_rim=vx(15.5,4,6,-48,222).cut(vx(9.5,4.2,5.9,-48,222))
+    a18_op=a18_op_frame.fuse(a18_op_flange,a18_op_tube,a18_op_rim).clean()
+    add('A','A18OP','PHOTO_FIT_RIGHT_SIDE_OPTICAL_PORT_WITH_SQUARE_OPEN_MOUNT',a18_op,'C')
+    a18_op_screws=[]
+    for yy in (-60.5,-35.5):
+        for zz in (209.5,234.5):
+            a18_op_screws.append(vx(1.8,1.5,52.5,yy,zz))
+    add('A','A18OPS','FOUR_MOUNT_FRAME_FASTENERS_PHOTO_FIT',
+        cq.Compound.makeCompound(a18_op_screws),'C')
+    # V177: front-face focus/index dial and four visible housing fasteners.
+    dial_base=vy(14,2.6,96,-4.1,205)
+    dial_rim=vy(14.7,1.2,96,-1.6,205).cut(vy(13.7,1.4,96,-1.7,205))
+    dial_face=vy(12.8,.9,96,-.5,205)
+    dial_parts=[dial_base,dial_rim,dial_face,
+        box(17,.8,.8,87,.3,204.6),
+        box(.8,.8,17,95.6,.3,196.5),
+        vy(2,1,96,.3,205)]
+    for q in range(12):
+        a=q*2*3.141592653589793/12
+        x=96+11*__import__('math').cos(a)
+        z=205+11*__import__('math').sin(a)
+        dial_parts.append(box(1.8,.7,.6,x-.9,.3,z-.3))
+    a18_dial=dial_parts[0]
+    for piece in dial_parts[1:]:
+        a18_dial=a18_dial.fuse(piece)
+    add('A','A18D','PHOTO_FIT_FRONT_FACE_INDEX_FOCUS_DIAL',a18_dial.clean(),'C')
+    a18_front_screws=[]
+    for xx in (73,125):
+        for zz in (178,232):
+            screw=vy(2.2,1.5,xx,-4,zz)
+            slot=box(2.4,.6,.5,xx-1.2,-2.4,zz-.25)
+            a18_front_screws.append(screw.fuse(slot))
+    add('A','A18S','FOUR_FRONT_HOUSING_FASTENERS_PHOTO_FIT',
+        cq.Compound.makeCompound(a18_front_screws),'C')
+    # V177: flexible cable loops down the photo-left side of the optical barrel.
     a18_cable=cable_path([
-        (70,0,366),(64,6,350),(55,10,320),(48,10,285),
-        (46,10,245),(48,10,215),(52,10,185),(56,10,155),(60,8,140)
+        (86,0,366),(92,6,350),(101,10,320),(108,10,285),
+        (110,10,245),(108,10,215),(104,10,185),(100,10,155),(96,8,140)
     ],1.5)
     add('A','A18CBL','PHOTO_FIT_LEFT_SIDE_FLEXIBLE_CABLE_ROUTE',a18_cable,'C')
     # V162: synchronize the installed STEP focus chain with web A18 V160/V161.

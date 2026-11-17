@@ -986,6 +986,9 @@ window.__modelAPhoto194Probe=()=>{
      A18SideOpticalPortPresent:Boolean(sidePort),
      A18SideOpticalPortOpenBore:Boolean(sidePort?.userData.A18SideOpticalPortOpenBore),
      A18PhotoSideCablePresent:Boolean(photoSideCable),
+     A18SidePortMountFramePresent:gA18.children.some(o=>o.userData.A18SidePortMountFrameCandidate),
+     A18FrontFocusDialPresent:gA18.children.some(o=>o.userData.A18FrontFocusDial),
+     A18FrontFaceFastenersPresent:gA18.children.filter(o=>o.userData.A18FrontFaceFastener).length===4,
      A18PhotoRebuildRevision:gA18.userData.A18PhotoRebuildRevision,
      A18VendorIdentificationPending:Boolean(gA18.userData.vendorIdentificationPending),
      A18BodySegmentCount:a18Segments.length,
@@ -4410,23 +4413,66 @@ function platformA(){
     const upperBarrelCollar=add(g,sleeve(17.1,12.5,4,mats.dark,0,29,0,'y'));
     upperBarrelCollar.userData.A18CentralBarrelUpperCollar=true;
 
-    // V173: right-facing stepped hollow optical port, separate from A11 LED.
-    const sidePortMount=add(g,sleeve(17,9.5,5,mats.black,64,22,-48,'x'));
+    // V177: orient the port and cable to the reference-photo viewing side.
+    const sidePortMount=add(g,sleeve(17,9.5,6,mats.black,-21,22,-48,'x'));
     sidePortMount.userData.A18SideOpticalPortMountCandidate=true;
-    const sidePort=add(g,sleeve(14,9.5,48,mats.dark,90,22,-48,'x'));
+    const sidePort=add(g,sleeve(14,9.5,44,mats.dark,-46,22,-48,'x'));
     sidePort.userData.A18SideOpticalPortCandidate=true;
     sidePort.userData.A18SideOpticalPortOpenBore=true;
-    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,114,22,-48,'x'));
+    const sidePortRim=add(g,sleeve(15.5,9.5,4,mats.black,-70,22,-48,'x'));
     sidePortRim.userData.A18SideOpticalPortRimCandidate=true;
     for(let q=0;q<5;q++){
-      const rib=add(g,torus(14.3,.28,mats.ink,74+q*8,22,-48));
+      const rib=add(g,torus(14.3,.28,mats.ink,-28-q*8,22,-48));
       rib.rotation.y=Math.PI/2;
       rib.userData.A18SidePortGripRib=true;
     }
-    // V173: cable loops down the left side of the optical tube.
+    const frameShape=new THREE.Shape();
+    frameShape.moveTo(-14,-14);frameShape.lineTo(14,-14);
+    frameShape.lineTo(14,14);frameShape.lineTo(-14,14);frameShape.closePath();
+    const frameHole=new THREE.Path();
+    frameHole.absellipse(0,0,9.5,9.5,0,Math.PI*2,true,0);
+    frameShape.holes.push(frameHole);
+    const frameGeometry=new THREE.ExtrudeGeometry(frameShape,{depth:6,bevelEnabled:false,steps:1});
+    frameGeometry.rotateY(Math.PI/2);
+    const sidePortFrame=add(g,new THREE.Mesh(frameGeometry,mats.dark));
+    sidePortFrame.position.set(-24,22,-48);
+    sidePortFrame.userData.A18SidePortMountFrameCandidate=true;
+    for(const yy of [9.5,34.5])for(const zz of [-60.5,-35.5]){
+      const screw=add(g,cyl(1.8,1.5,mats.silver,-24.75,yy,zz,32));
+      screw.rotation.z=Math.PI/2;
+      screw.userData.A18SidePortFrameFastener=true;
+    }
+    // V177: round front-face focus/index dial with cross and graduations.
+    const dialX=18,dialY=5,dialZ=-2.8;
+    const dialBase=add(g,cyl(14,2.4,mats.black,dialX,dialY,dialZ,64));
+    dialBase.rotation.x=Math.PI/2;
+    dialBase.userData.A18FrontFocusDial=true;
+    const dialRim=add(g,torus(14.5,.65,mats.silver,dialX,dialY,dialZ+.9));
+    dialRim.userData.A18FrontFocusDialRim=true;
+    const dialFace=add(g,cyl(12.8,.9,mats.dark,dialX,dialY,dialZ+1.3,64));
+    dialFace.rotation.x=Math.PI/2;
+    dialFace.userData.A18FrontFocusDialFace=true;
+    add(g,cub(17,.8,.7,mats.silver,dialX,dialY,dialZ+1.8)).userData.A18FrontDialCross=true;
+    add(g,cub(.8,17,.7,mats.silver,dialX,dialY,dialZ+1.8)).userData.A18FrontDialCross=true;
+    for(let q=0;q<12;q++){
+      const a=q*Math.PI/6;
+      const tick=add(g,cub(1.8,.7,.6,mats.silver,
+        dialX+11*Math.cos(a),dialY+11*Math.sin(a),dialZ+1.8));
+      tick.rotation.z=a;
+      tick.userData.A18FrontDialTick=true;
+    }
+    const dialHub=add(g,cyl(2,.8,mats.silver,dialX,dialY,dialZ+1.9,32));
+    dialHub.rotation.x=Math.PI/2;
+    dialHub.userData.A18FrontDialHub=true;
+    for(const xx of [-5,53])for(const yy of [-22,32]){
+      const screw=add(g,cyl(2.2,1.5,mats.silver,xx,yy,-3.25,32));
+      screw.rotation.x=Math.PI/2;
+      screw.userData.A18FrontFaceFastener=true;
+    }
+    // V177: flexible cable lies on the photo-left side of the optical tube.
     const photoCable=add(g,tube([
-      [-8,166,0],[-14,150,6],[-23,120,10],[-30,85,10],
-      [-32,45,10],[-30,15,8],[-26,-15,4],[-22,-40,-2],[-18,-60,-8]
+      [8,166,0],[14,150,6],[23,120,10],[30,85,10],
+      [32,45,10],[30,15,8],[26,-15,4],[22,-40,-2],[18,-60,-8]
     ],1.5,mats.rubber));
     photoCable.userData.A18PhotoSideCableCandidate=true;
 
@@ -4829,7 +4875,7 @@ function platformA(){
    g.userData.A18CentralOpticalBarrelPresent=true;
    g.userData.A18SideOpticalPortPresent=true;
    g.userData.A18PhotoSideCablePresent=true;
-   g.userData.A18PhotoRebuildRevision='V173';
+   g.userData.A18PhotoRebuildRevision='V177';
    g.userData.vendorIdentificationPending=true;
    g.userData.photoBodyCenterOffsetFromOpticalAxisMm=bodyX;
    g.userData.photoBodyCenterOffsetMeasured=false;

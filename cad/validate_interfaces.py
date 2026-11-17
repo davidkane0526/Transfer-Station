@@ -1017,19 +1017,29 @@ check(abs(central_barrel.BoundingBox().zmin-169)<.02 and
 check(central_barrel.intersect(optical_axis_probe).Volume()<1e-4,
       'V173 central optical barrel must retain its open optical core')
 side_port=part(A,'A18OP')[0]
-check(abs(side_port.BoundingBox().xmin-144)<.02 and
-      abs(side_port.BoundingBox().xmax-198)<.02 and
+check(abs(side_port.BoundingBox().xmin-6)<.02 and
+      abs(side_port.BoundingBox().xmax-60)<.02 and
       abs(side_port.BoundingBox().zmin-205)<.02 and
       abs(side_port.BoundingBox().zmax-239)<.02,
-      'V173 right-facing side optical port must match the photo-fit envelope')
-side_port_axis=vx(9.4,54.2,144,-48,222)
+      'V177 photo-right side optical port must match the mirrored photo-fit envelope')
+side_port_axis=vx(9.4,54.2,6,-48,222)
 check(side_port.intersect(side_port_axis).Volume()<1e-4,
-      'V173 side optical port must retain an open axial bore')
-body_side_axis=vx(9.4,24.2,120,-48,222)
+      'V177 side optical port must retain an open axial bore')
+body_side_axis=vx(9.4,24.2,60,-48,222)
 check(a18_shape.intersect(body_side_axis).Volume()<1e-4,
       'V173 A18 housing must have a true side-port bore')
 check(side_port.distance(a18_shape)<.02,
-      'V173 side port flange must meet the A18 housing')
+      'V177 side port mounting frame must meet the A18 housing')
+side_fasteners=part(A,'A18OPS')
+check(len(side_fasteners)>=4,
+      'V177 side optical port frame must carry four visible fasteners')
+dial=part(A,'A18D')[0]
+db=dial.BoundingBox()
+check(db.xlen>28 and db.zlen>28 and db.ymin>=-4.2 and db.ymax<=1.4,
+      'V177 front focus/index dial must be mounted on the photo-facing A18 face')
+front_fasteners=part(A,'A18S')
+check(len(front_fasteners)>=4,
+      'V177 front housing must show four fastener heads')
 photo_cable=part(A,'A18CBL')[0]
 check(photo_cable.isValid() and photo_cable.BoundingBox().zlen>200,
       'V173 left-side cable must be a continuous routed solid')

@@ -1711,7 +1711,10 @@ try{
  assert.equal(dA.A18SideOpticalPortPresent,true);
  assert.equal(dA.A18SideOpticalPortOpenBore,true);
  assert.equal(dA.A18PhotoSideCablePresent,true);
- assert.equal(dA.A18PhotoRebuildRevision,'V173');
+ assert.equal(dA.A18SidePortMountFramePresent,true);
+ assert.equal(dA.A18FrontFocusDialPresent,true);
+ assert.equal(dA.A18FrontFaceFastenersPresent,true);
+ assert.equal(dA.A18PhotoRebuildRevision,'V177');
  assert.equal(dA.A18VendorIdentificationPending,true);
  assert.equal(dA.A18BodySegmentCount,3,
    'A18 must be a stepped photo-constrained body, not one oversized black box');
