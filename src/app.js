@@ -7231,7 +7231,22 @@ window.__focusA18PhotoReferenceView=()=>{
  let offset=new THREE.Vector3(42,52,420);
  camera.position.copy(target).add(offset);
  orbit.target.copy(target);camera.up.set(0,1,0);camera.lookAt(target);orbit.update();
+ // V198: fill the isolated reference frame as well as preventing clipping.
+ // Earlier logic only pulled the camera back when the head exceeded 1.5 NDC;
+ // it never moved closer when the projection was too small. Iteratively target
+ // 1.45 NDC while preserving the exact front-view direction and left/right.
  let fitScale=1;
+ for(let n=0;n<4;n++){
+   const p=_auditProjection(box);
+   const current=Math.max(p.width,p.height);
+   if(current>=1.42&&current<=1.48)break;
+   const scale=current/1.45;
+   offset.multiplyScalar(scale);
+   fitScale*=scale;
+   camera.position.copy(target).add(offset);
+   orbit.target.copy(target);camera.lookAt(target);orbit.update();
+ }
+ // Final hard ceiling: never crop the camera, TTL200-A, A18 body or A19 turret.
  for(let n=0;n<4;n++){
    const p=_auditProjection(box);
    const needed=Math.max(p.width/1.5,p.height/1.5,1);

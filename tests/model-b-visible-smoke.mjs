@@ -1775,6 +1775,11 @@ try{
    'V191 photo-reference camera must be close to front-on so the index dial remains visible');
  assert.deepEqual(a18Sides.photoReferenceVisiblePartIds,['A08','A09','A18','A19'],
    'V191 comparison view must isolate camera, TTL200-A tube, focus body and nosepiece');
+ console.log('V198 A18 isolated front-view framing:',JSON.stringify({
+   projection:a18Sides.photoReferenceProjection,
+   cameraOffset:a18Sides.photoReferenceCameraOffset,
+   azimuthDeg:a18Sides.photoReferenceCameraAzimuthDeg
+ }));
  assert(Math.max(a18Sides.photoReferenceProjection.width,a18Sides.photoReferenceProjection.height)>1.35,
    'V191 isolated microscope-head projection must occupy at least 67.5% of the viewer');
  assert(Math.max(a18Sides.photoReferenceProjection.width,a18Sides.photoReferenceProjection.height)<=1.55,
