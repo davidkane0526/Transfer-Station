@@ -1016,16 +1016,19 @@ check(abs(central_barrel.BoundingBox().zmin-169)<.02 and
       'V173 central optical barrel must be a stepped hollow sleeve with end collars')
 check(central_barrel.intersect(optical_axis_probe).Volume()<1e-4,
       'V173 central optical barrel must retain its open optical core')
+# Keep A18's X origin explicit: the earlier B35 grid scan also uses a
+# loop variable named cx, so a bare cx here would silently refer to B geometry.
+a18_cx=78
 side_port=part(A,'A18OP')[0]
-check(abs(side_port.BoundingBox().xmin-(cx+66))<.02 and
-      abs(side_port.BoundingBox().xmax-(cx+156))<.02 and
+check(abs(side_port.BoundingBox().xmin-(a18_cx+66))<.02 and
+      abs(side_port.BoundingBox().xmax-(a18_cx+156))<.02 and
       abs(side_port.BoundingBox().zmin-205)<.02 and
       abs(side_port.BoundingBox().zmax-239)<.02,
       'V182 photo-right (+X) two-section optical port must match the 90mm photo-fit envelope')
-side_port_axis=vx(9.4,90.2,cx+66,-48,222)
+side_port_axis=vx(9.4,90.2,a18_cx+66,-48,222)
 check(side_port.intersect(side_port_axis).Volume()<1e-4,
       'V182 two-section +X/photo-right side optical port must retain an open 90mm axial bore')
-body_side_axis=vx(9.4,24.2,cx+42,-48,222)
+body_side_axis=vx(9.4,24.2,a18_cx+42,-48,222)
 check(a18_shape.intersect(body_side_axis).Volume()<1e-4,
       'V182 A18 housing must have a true +X/photo-right side-port bore at the same face as A18OP')
 check(side_port.distance(a18_shape)<.02,
@@ -1035,7 +1038,7 @@ check(abs(side_port.BoundingBox().xlen-90)<.02,
 body_center_x=(a18_shape.BoundingBox().xmin+a18_shape.BoundingBox().xmax)/2
 check(side_port.BoundingBox().xmin>body_center_x,
       'V182 A18 side port must lie on photo-right (+X), not photo-left (-X)')
-check(part(A,'A18CBL')[0].BoundingBox().xmax<cx,
+check(part(A,'A18CBL')[0].BoundingBox().xmax<a18_cx,
       'V182 A18 cable must remain on photo-left (-X) of the central optical axis')
 dial_box=cq.Compound.makeCompound(part(A,'A18D')).BoundingBox()
 check((dial_box.xmin+dial_box.xmax)/2<body_center_x,
