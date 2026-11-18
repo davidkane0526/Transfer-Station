@@ -632,6 +632,8 @@ window.__modelAA09CameraInterfaceProbe=()=>{
    adapterSuggestedButNotInstalled:true,
    cameraTopPostCount:cameraRoot.children.filter(o=>o.userData.A09CameraTopPost).length,
    cameraFrontScrewCount:cameraRoot.children.filter(o=>o.userData.A09CameraFrontScrew).length,
+   cameraFrontScrewPhotoFaceCount:cameraRoot.children.filter(o=>
+     o.userData.A09CameraFrontScrew&&o.userData.A09CameraPhotoFace==='+Z'&&o.position.z>22).length,
    cameraCablePortCount:cameraRoot.children.filter(o=>o.userData.A09CameraCablePortCandidate).length,
    unsupportedBrandDecalRemoved:Boolean(cameraRoot.userData.A09UnsupportedBrandDecalRemoved),
    cameraManufacturerIdentityConfirmed:false};
@@ -4196,9 +4198,12 @@ function platformA(){
     cap.userData.A09CameraTopPostCap=true;
   }
   for(const x of [-18,18])for(const y of [10,35]){
-    const screw=add(g,cyl(2.4,2,mats.silver,x,y,-23,32));
+    // V205: the supplied +Z front photo shows these four screw heads.
+    // The old -Z placement put them on the hidden rear face.
+    const screw=add(g,cyl(2.4,2,mats.silver,x,y,23,32));
     screw.rotation.x=Math.PI/2;
     screw.userData.A09CameraFrontScrew=true;
+    screw.userData.A09CameraPhotoFace='+Z';
   }
   g.userData.A09TopPostCountCandidate=2;
   g.userData.A09FrontScrewCountCandidate=4;

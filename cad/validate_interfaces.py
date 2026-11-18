@@ -1820,10 +1820,10 @@ check(all(abs(s.BoundingBox().zmin-367.5)<.02 and
           abs(s.BoundingBox().zmax-380.7)<.02 for s in a09_posts),
       'V181 camera top studs must sit on the housing top face')
 check(len(a09_screws)==4 and all(s.isValid() for s in a09_screws),
-      'V181 camera side panel must have four valid fasteners')
-check(all(abs(s.BoundingBox().ymin+23.8)<.02 and
-          abs(s.BoundingBox().ymax+20.5)<.02 for s in a09_screws),
-      'V181 camera fasteners must mount flush on the visible side face')
+      'V205 camera photo-facing panel must have four valid fasteners')
+check(all(abs(s.BoundingBox().ymin-20.5)<.02 and
+          abs(s.BoundingBox().ymax-23.8)<.02 for s in a09_screws),
+      'V205 four camera fasteners must be mounted on the photo-facing +Y surface, not the hidden rear face')
 # A14 Ø52.2 internal aperture and A09 Ø30 candidate face collar have a
 # radial gap; genuine SM2A55 could only be considered after camera SKU ID.
 interface_radial_gap_mm=round((52.2-30.0)/2,2)

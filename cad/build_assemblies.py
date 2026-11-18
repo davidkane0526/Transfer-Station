@@ -979,8 +979,10 @@ def make_a():
     a09_screws=[]
     for x in (cx-18,cx+18):
         for z in (334,357):
+            # V205: STEP +Y is the camera-facing surface in the front view.
+            # The previous -Y placement hid the four screw heads on the rear.
             a09_screws.append(
-                vy(1.7,2,x,-22.5,z).fuse(vy(2.4,1.8,x,-23.8,z)).clean())
+                vy(1.7,2,x,20.5,z).fuse(vy(2.4,1.8,x,22,z)).clean())
     add('A','A09S','FOUR_CAMERA_SIDE_PANEL_FASTENERS_PHOTO_FIT',
         cq.Compound.makeCompound(a09_screws),'C')
     # V79: Thorlabs MWWHL4. Use vendor-constrained Ø30.5mm finned

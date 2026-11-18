@@ -1593,6 +1593,8 @@ try{
    'V181 camera housing must show the two top metal studs from the reference photo');
  assert.equal(camJoint.cameraFrontScrewCount,4,
    'V181 camera housing must show four side-panel fasteners');
+ assert.equal(camJoint.cameraFrontScrewPhotoFaceCount,4,
+   'V205 all four camera screw heads must face the same +Z side as the supplied front photo');
  assert.equal(camJoint.cameraCablePortCount,1,
    'V199 A09 camera must carry the photo-left cable connector');
  assert.equal(camJoint.unsupportedBrandDecalRemoved,true,
