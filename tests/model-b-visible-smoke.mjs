@@ -1801,8 +1801,17 @@ try{
  assert.equal(overlayDuring.platformCaption,'平台 A · 显微镜头部正面参考视图');
  assert(a18Sides.photoReferenceCameraAzimuthDeg<10,
    'V191 photo-reference camera must be close to front-on so the index dial remains visible');
- assert.deepEqual(a18Sides.photoReferenceVisiblePartIds,['A08','A09','A18','A19'],
-   'V191 comparison view must isolate camera, TTL200-A tube, focus body and nosepiece');
+ assert.deepEqual(a18Sides.photoReferenceVisiblePartIds,['A08','A09','A14','A18','A19'],
+   'V204 comparison view must include the A14 sleeve connecting the camera to TTL200-A');
+ const cameraBridge=await page.evaluate(()=>window.__A14CameraBridgeProbe?.());
+ assert.equal(cameraBridge?.available,true);
+ assert.equal(cameraBridge.visible,true);
+ assert.equal(cameraBridge.candidateLengthMm,56.8);
+ assert.equal(cameraBridge.lowerShoulderOverlapMm,3.2,
+   'V204 A14 sleeve must overlap the upper SM2 shoulder by its 3.2mm candidate length');
+ assert.equal(cameraBridge.upperCameraFaceGapMm,0,
+   'V204 A14 sleeve must meet the camera housing underside with no visual gap');
+ assert.equal(cameraBridge.opticalTubeToCameraContinuous,true);
  console.log('V198 A18 isolated front-view framing:',JSON.stringify({
    projection:a18Sides.photoReferenceProjection,
    cameraOffset:a18Sides.photoReferenceCameraOffset,

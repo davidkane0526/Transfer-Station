@@ -4360,7 +4360,8 @@ function platformA(){
  addPart('A14',sx,266.2,0,g=>{
    // V184: start on the actual upper SM2 shoulder at Y=266.2.
    // 56.8mm candidate tube ends at the unchanged camera underside Y=323.
-   add(g,sleeve(28,26.1,56.8,mats.dark,0,28.4,0,'y'));
+   const bridgeSleeve=add(g,sleeve(28,26.1,56.8,mats.dark,0,28.4,0,'y'));
+   bridgeSleeve.userData.A14CameraBridgeSleeve=true;
    g.userData.A14CandidateLengthMm=56.8;
    g.userData.A14CandidateTopShoulderEngagementMm=3.2;
    g.userData.A14ActualMatingThreadUnverified=true;
@@ -7249,7 +7250,7 @@ window.__A18PhotoLeftRightProbe=()=>{
    dialFractionFromBodyLeft:round(dialFractionFromBodyLeft),
    photoReferenceVisiblePartIds:a18.userData.A18PhotoReferenceVisiblePartIds??[],
    photoReferenceProjection:_auditProjection(_auditBoxFor(
-     ['A08','A09','A18','A19'].map(id=>parts.get(id)?.g).filter(Boolean)))
+     ['A08','A09','A14','A18','A19'].map(id=>parts.get(id)?.g).filter(Boolean)))
  };
 };
 let a18PhotoReferenceSnapshot=null;
@@ -7277,12 +7278,12 @@ window.__focusA18PhotoReferenceView=()=>{
  $('hover-help').hidden=true;
  $('measurement-text').hidden=true;
  $('platform-caption').textContent='平台 A · 显微镜头部正面参考视图';
- const keep=['A08','A09','A18','A19'];
+ const keep=['A08','A09','A14','A18','A19'];
  const keepSet=new Set(keep);
  for(const [id,p] of parts.entries())p.g.visible=keepSet.has(id);
  currentRoot.updateWorldMatrix(true,true);
  const photoGroups=keep.map(id=>parts.get(id)?.g).filter(Boolean);
- if(photoGroups.length!==4)return false;
+ if(photoGroups.length!==5)return false;
  const box=_auditBoxFor(photoGroups);
  const target=box.getCenter(new THREE.Vector3());
  let offset=new THREE.Vector3(42,52,420);
@@ -7313,6 +7314,27 @@ window.__focusA18PhotoReferenceView=()=>{
  q.a18.userData.A18PhotoReferenceFitScale=Number(fitScale.toFixed(3));
  q.a18.userData.A18PhotoReferenceVisiblePartIds=keep;
  return true;
+};
+window.__A14CameraBridgeProbe=()=>{
+ const a08=parts.get('A08')?.g,a09=parts.get('A09')?.g,a14=parts.get('A14')?.g;
+ const a14Sleeve=a14?.children.find(o=>o.userData.A14CameraBridgeSleeve);
+ const a08Segments=a08?.children.filter(o=>o.userData.A08OEMShellSegment)??[];
+ const a09Housing=a09?.children.find(o=>o.userData.A09CameraHousingProxy);
+ if(!a08||!a09||!a14||!a14Sleeve||!a08Segments.length||!a09Housing)return {available:false};
+ currentRoot.updateWorldMatrix(true,true);
+ const a08Box=_auditBoxFor(a08Segments);
+ const a14Box=_auditBoxFor([a14Sleeve]);
+ const a09Box=_auditBoxFor([a09Housing]);
+ const lowerOverlap=Math.min(a08Box.max.y,a14Box.max.y)-Math.max(a08Box.min.y,a14Box.min.y);
+ return {
+   available:true,
+   visible:a14.visible,
+   candidateLengthMm:a14.userData.A14CandidateLengthMm,
+   lowerShoulderOverlapMm:Number(lowerOverlap.toFixed(2)),
+   upperCameraFaceGapMm:Number((a09Box.min.y-a14Box.max.y).toFixed(2)),
+   opticalTubeToCameraContinuous:
+     lowerOverlap>3.0&&Math.abs(a09Box.min.y-a14Box.max.y)<.02
+ };
 };
 window.__A18PhotoReferenceOverlayProbe=()=>({
  activePartId:active?.part?.id??null,
