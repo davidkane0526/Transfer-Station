@@ -1849,11 +1849,23 @@ report['V170_A09_camera_port_and_thread_family']={
 wd_min=148.0
 wd_alternative=151.8
 lens_camera_side_z=a_lens.BoundingBox().zmax
-camera_proxy_sensor_window=[round(a_cam.BoundingBox().zmin-lens_camera_side_z,2),
-                            round(a_cam.BoundingBox().zmax-lens_camera_side_z,2)]
+# V203: A09 now includes an external side cable connector. Do not let that
+# connector enlarge the camera housing's axial reference envelope. Intersect
+# the exported A09 shape with the nominal 50x44x45 photo-fit housing body only.
+# This is a measurement datum for the proxy enclosure, NOT a sensor-plane claim.
+camera_proxy_housing_datum=box_probe(50,44,45,78,0,323)
+camera_proxy_housing_core=a_cam.intersect(camera_proxy_housing_datum)
+camera_proxy_housing_box=camera_proxy_housing_core.BoundingBox()
+check(camera_proxy_housing_core.isValid() and camera_proxy_housing_core.Volume()>1,
+      'V203 camera housing core must remain present after excluding the external cable connector')
+check(abs(camera_proxy_housing_box.zmin-323)<.02 and
+      abs(camera_proxy_housing_box.zmax-368)<.02,
+      'V203 A09 optical reference must use the 50x44x45 housing body, not the side cable connector')
+camera_proxy_sensor_window=[round(camera_proxy_housing_box.zmin-lens_camera_side_z,2),
+                            round(camera_proxy_housing_box.zmax-lens_camera_side_z,2)]
 shortfall=round(max(0,wd_min-camera_proxy_sensor_window[1]),2)
 check(camera_proxy_sensor_window==[53.6,98.6],
-      'V184 photo-fit camera proxy vs TTL200-A camera-side face is 53.6..98.6mm, not optical WD')
+      'V203 photo-fit camera housing body vs TTL200-A camera-side face is 53.6..98.6mm; side connector excluded')
 check(shortfall==49.4,
       'V184 unresolved minimum OEM reference WD shortfall must be explicit')
 report['V169_A08_A09_optical_reference']={
@@ -1862,11 +1874,13 @@ report['V169_A08_A09_optical_reference']={
  'ttl200a_oem_rev_b_reference_wd_mm':wd_min,
  'ttl200a_distributor_wd_mm':wd_alternative,
  'minimum_reference_shortfall_inside_proxy_mm':shortfall,
+ 'camera_proxy_housing_z_bounds_mm':[round(camera_proxy_housing_box.zmin,2),round(camera_proxy_housing_box.zmax,2)],
+ 'external_side_cable_connector_excluded_from_optical_envelope':True,
  'camera_body_is_photo_fit_proxy':True,
  'actual_sensor_plane_known':False,
  'actual_optical_orientation_verified':False,
  'optical_image_formation_certified':False,
- 'note':'A14 length follows the mechanical SM2 shoulder-to-camera envelope; do not change it to force the unknown sensor plane onto the reference WD'
+ 'note':'A14 length follows the mechanical SM2 shoulder-to-camera envelope. The 50x44x45 A09 housing datum excludes the external side cable connector; do not change A14 to force the unknown sensor plane onto the reference WD'
 }
 report['V59_A_global_candidate_readiness']={
   'clamp_to_heater_nominal_edge_clearance_mm':round(a_heater.xmin-a_clamp.BoundingBox().xmax,2),
