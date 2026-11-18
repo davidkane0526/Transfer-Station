@@ -269,18 +269,25 @@ export function enrichParts(partMap, platform, onMesh){
     });
     decoration('B11',(g)=>{
       // Brushed top plate / wear marks / four recessed heads.
-      for(let t=-23;t<=23;t+=5)box(g,57,.06,.17,0,11.96,t,aluminum,.02);
-      for(let x of [-25,25])for(let z of [-25,25]){
+      if(!g.userData.openServiceChannels){
+        for(let t=-23;t<=23;t+=5)box(g,57,.06,.17,0,11.96,t,aluminum,.02);
+        for(let x of [-25,25])for(let z of [-25,25]){
           cyl(g,5.4,.17,x,11.89,z,graphite,36);
           cyl(g,4.9,.10,x,11.93,z,ring,36);
+        }
       }
       // Actual vacuum center is an OPEN bore; never add a fake raised plug.
       decal(g,'VACUUM  CHUCK',40,4,0,11.99,-23.5,'top','#596472');
     });
     decoration('B12',(g)=>{
-      for(let x of [-15,15])box(g,5,.3,35,x,5.13,0,offwhite,.12);
+      if(!partMap.get('B11')?.g.userData.openServiceChannels){
+        for(let x of [-15,15])box(g,5,.3,35,x,5.13,0,offwhite,.12);
+      }
     });
-    decoration('B16',(g)=>microscopeHardware(g));
+    decoration('B16',(g)=>{
+      if(g.userData.footScrews)decal(g,'SDPTOP  MXFMS',44,8,-5.5,247,140.1,'front','#c0ccd6');
+      else microscopeHardware(g);
+    });
     decoration('B17',(g)=>{
        box(g,47,49,49,0,24,0,graphite,2.3);
        for(let i=0;i<8;i++)box(g,30,.35,.6,0,4+i*5,-25.2,gunmetal,.1);

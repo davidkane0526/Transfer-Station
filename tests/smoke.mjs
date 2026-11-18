@@ -8,7 +8,7 @@ const fatal=[],assert=(cond,msg)=>{if(!cond)throw Error('QA: '+msg)};
 page.on('pageerror',e=>fatal.push(String(e)));
 page.on('console',m=>{if(m.type()==='error'&&!/favicon|Failed to load resource.*404/i.test(m.text()))fatal.push(m.text())});
 page.on('response',r=>{if(r.status()>=400&&!/favicon\.ico/.test(r.url()))fatal.push('HTTP '+r.status()+' '+r.url())});
-await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+await page.goto('http://127.0.0.1:8765/?legacy-a-qa=1',{waitUntil:'domcontentloaded'});
 await page.waitForSelector('#viewer canvas',{timeout:30000});
 await page.waitForTimeout(2300);
 // USER CURRENT PHOTOGRAPHS: B default is the photo-matched stage chain,
@@ -52,7 +52,7 @@ for(const component of ['B07','B08','B09','B10','B11','B12','B14','B15','B16','B
   'Model B default BOM lost major required subsystem '+component);
 }
 await page.locator('#bom-query').fill('B32');
-await page.locator('#bom-body tr').filter({hasText:'B32'}).click();
+await page.locator('#bom-body tr').filter({hasText:/^\s*B32\b/}).click();
 assert((await page.locator('#photo-94-mechanics').getAttribute('data-folded'))==='true',
  'The B photographic L sheet was not rendered');
 assert((await page.locator('#photo-94-mechanics').getAttribute('data-top-fasteners'))==='2',
@@ -61,7 +61,7 @@ await page.screenshot({path:'Transfer-Station-V27-User-Photos-B.png',fullPage:tr
 await page.locator('#btn-photo95').click();
 await page.locator('#open-bom').click();
 await page.locator('#bom-query').fill('B03');
-const photoStageRow=page.locator('#bom-body tr').filter({hasText:'B03'});
+const photoStageRow=page.locator('#bom-body tr').filter({hasText:/^\s*B03\b/});
 assert((await photoStageRow.count())===1,'Photo B03 part is missing from active BOM');
 await photoStageRow.click();
 assert((await page.locator('#part-detail').textContent()).includes('当前装配在B29未识别底座之上'),
@@ -156,7 +156,7 @@ assert((await page.locator('#selected-fastener-count').getAttribute('data-count'
 const selectBOM=async partId=>{
  await page.locator('#open-bom').click();
  await page.locator('#bom-query').fill(partId);
- const row=page.locator('#bom-body tr').filter({hasText:partId});
+ const row=page.locator('#bom-body tr').filter({has:page.locator('td:first-child').getByText(partId,{exact:true})});
  assert(await row.count()===1,'Missing mechanical QA part '+partId);
  await row.click();
 };

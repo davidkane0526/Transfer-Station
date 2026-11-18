@@ -1,4 +1,5 @@
 import {procurementInterfaceFields} from './interface-evidence.js';
+import {auditPurchase,HARDWARE} from './procurement-audit.js';
 import {photoRefsForPart} from './photo-library.js';
 // Sourced BOM enrichments, 2026-10-30. A price record is a published listing,
 // not a purchase commitment or a quote. Cross-currency totals are NEVER added.
@@ -101,12 +102,16 @@ const A={
  A01:base.B01,
  A02:{...base.B03,qty:1,category:'X/Y 双轴精密平移台',drawing:'https://www.kryptronic.de/images/catalog/catalog-download-daheng-optics.pdf',datasheet:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/平移台/gcm-t13m-gcm-t25m系列-精密平移台/',quote:{value:8740,currency:'TWD',date:'2026-10-31',type:'GCM-T25M2L 双轴候选参考价，实物型号后缀待核',source:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/平移台/gcm-t13m-gcm-t25m系列-精密平移台/'},note:'用户2026-11-11确认样品侧A02为X/Y双轴，原厂GCM-T25M2L厚33mm、2C为另一安装方向；价格为2L未税历史参考，不代表实机后缀已确认。'},
  A15:{...base.B03,qty:1,note:'照片97明确显示两根相互垂直的水平测微头。厂家双轴33mm，2L参考NT$8,740 / 2C参考NT$8,453；确切尾缀需实物确认。'},
- A03:{qty:1,category:'精密垂直台',alternatives:[['Zolix','高精度垂直微调台','https://www.zolix-group.com/']],note:'A 组 95/97 可见 GCM-VC13M；外壳尺寸尚未由厂家图纸确认'},
- A04:{qty:1,category:'倾角平台',alternatives:[['Newport','双轴倾角平台','https://www.newport.com/'],['Thorlabs','Goniometer/tilt platform','https://www.thorlabs.com/']],note:'照片94 GCM-G40M60L 型号清晰，但完整机械孔位尚待厂家图确认'},
+ A03:{qty:1,category:'精密垂直台',datasheet:'https://www.directindustry.com/prod/daheng-new-epoch-technology-inc-cdhc/product-57930-2161925.html',alternatives:[['Zolix','高精度垂直微调台','https://www.zolix-group.com/']],note:'A 组 95/97 可见 GCM-VC13M；外壳尺寸尚未由厂家图纸确认'},
+ A04L:{qty:1,category:'下层摆角台（型号候选）',drawing:'https://cdhoptics.ks3-cn-beijing.ksyun.com/jjwdz/1612322620322wpZ_oJGfT1i7_MzQR-lMfQ.pdf',note:'厂商组合图确认 G40M40L 与 G40M60L 可配对。照片 194–196 未辨出下层铭牌。'},
+ A04:{qty:1,category:'倾角平台',drawing:'https://cdhoptics.ks3-cn-beijing.ksyun.com/jjwdz/1612322620322wpZ_oJGfT1i7_MzQR-lMfQ.pdf',alternatives:[['Newport','双轴倾角平台','https://www.newport.com/'],['Thorlabs','Goniometer/tilt platform','https://www.thorlabs.com/']],note:'照片94 GCM-G40M60L 型号清晰，但完整机械孔位尚待厂家图确认'},
  A05:{qty:1,category:'L形薄金属折弯连接片',material:'黑色薄金属板（牌号/厚度待测）',alternatives:[['本地CNC加工商','按照片94和实物尺寸测绘加工','']],note:'A05是照片94可见的L形折弯连接片，不是玻片夹具，也不是玻片耗材。板厚、折边和下端连接未实测。'},
  A05C:{qty:1,category:'独立玻片夹持器候选',material:'铝合金本体/钢紧固件',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',alternatives:[['Daheng','GCM-1302M（M6、L60mm）功能/外形候选',''],['Daheng','GCM-1311M（M6、L52mm）功能/外形候选','']],note:'A平台照片未见可读夹具铭牌，GCM-1302M/1311M仅作为GCM-13系列比对候选。不得把B06已确认的GCM-1302M身份直接移植到A05C；未确认前不作为已安装几何或采购定型。'},
  A05G:{qty:1,category:'玻璃载玻片耗材（尺寸候选）',material:'玻璃',alternatives:[['Fisher Scientific','76×26×1mm标准显微载玻片（尺寸候选）','https://www.fishersci.com/'],['VWR','标准显微载玻片（需按实物尺寸选）','https://www.vwr.com/']],note:'与A05折弯片、A05C夹具分别列项。76×26×1mm为标准尺寸候选，尚未由A平台实物尺图确认。'},
- A17:{qty:1,category:'磁吸固定座（A照片可见特征，型号未识别）',material:'未知，需实物确认',note:'照片22/24仅确认前侧滑槽、中央滚花旋钮及两颗面板螺钉；A17没有可读铭牌，顶面/底面孔系未见。不得把B02/GCM-420302M的13孔型、磁吸开关或承载参数套用到A17。外廓65×65×20mm仅为模型候选，采购前需补拍A17正面、顶面、底面及铭牌。'},
+ A17:{qty:1,category:'带开关低矮磁吸固定座',datasheet:'https://www.oeabt.com/show.php?id=89',
+    alternatives:[['LBTEK','MB65 外形备选','https://www.lbtek.com/product/747']],
+    note:'照片 194、161 和 142 显示低矮底座和左前磁吸开关；MBS-65B/C 是外形候选，顶面孔组和铭牌待确认。'},
+ A19:{qty:1,category:'倾斜式物镜转换盘',datasheet:'https://www.thorlabs.com/catalogpages/Obsolete/2015/MGZ30-MOT.pdf',note:'MGZ30 提供五工位结构对照。实拍的第三支物镜、总工位数及转换盘型号待核。'},
  A06:{qty:1,category:'手动旋转台',material:'黑色阳极氧化铝',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',alternatives:[['Daheng','GCM-11同系列按接口选型','https://www.daheng-optics.com/']],note:'照片100 旋转刻度台与上部 GCM-T25M 直接叠放；不能确认旋转台型号'},
  A16:{qty:1,category:'精密安装底座',material:'金属',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',
     alternatives:[['Daheng','GCM-5306M原厂同型号安装底座','https://www.anjun.com.tw/']],
@@ -119,12 +124,25 @@ const A={
  A11:{qty:1,category:'照明LED',material:'金属LED套筒',datasheet:'https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=2692&pn=M530L4',quote:{value:214.81,currency:'USD',date:'2026-10-30',type:'Thorlabs 挂牌价格快照；实际采购价格以订单为准',source:'https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=2692&pn=M530L4'},alternatives:[['Thorlabs','3000K 兼容LED型号按驱动电流选','https://www.thorlabs.com/'],['Mightex','可调白光光源','https://www.mightexsystems.com/']],note:'MWWHL4 历史目录：3000K 570mW (min) 1000mA；按实际 LEDD1B 电流能力校核'},
  A12:{qty:1,category:'LED驱动器',material:'铝合金驱动器外壳',datasheet:'https://www.thorlabs.com/images/Catalog/Imaging/06_Optogenetics.pdf',quote:{value:284,currency:'USD',date:'2014-01-01',type:'历史目录参考价，不是现价',source:'https://www.thorlabs.com/images/Catalog/Imaging/06_Optogenetics.pdf'},alternatives:[['Thorlabs','DC2200 LED 控制器（非直换）','https://www.thorlabs.com/'],['Mightex','可调LED驱动（电气比对）','https://www.mightexsystems.com/']],note:'LEDD1B 单通道、最大电流约1.2A；原配 PSU 另计'},
  A13:{qty:1,category:'电气开关/SSR',alternatives:[['Omron','SSR 同负载等级','https://www.ia.omron.com/'],['Crydom','SSR 同控制电压等级','https://www.sensata.com/']],note:'照片91 为 DELIXI CDG1-1DD/25A；负载电压及接线方式需按铭牌'},
- A14:{qty:1,category:'光学螺纹适配',alternatives:[['Thorlabs','SM2A55：SM2内螺纹→C-mount外螺纹（相机接口需先核实）','https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55'],['Thorlabs','SM2A54：相反螺纹方向，不可与SM2A55混用','https://www.govolition.com/product/V40-SM2A54'],['OptoSigma','光学镜筒接口件，依实机线程选择','https://www.optosigma.com/']],note:'TTL200-A为SM2，旧SM1CP2是错误方向/尺寸。V170 A14 Ø52.2内孔与A09 Ø30候选入口环之间存在11.1mm径向空隙；未安装任何实际转接件。仅当相机真正为C-mount时才评估SM2A55，严禁把SM2A54或SM1CP2自动当作代用品。'}
+ A14:{qty:1,category:'光学螺纹适配',alternatives:[['Thorlabs','SM2A55：SM2 外牙与 C-mount 外牙；经 SM2 内牙镜筒连接 TTL200-A','https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55'],['Thorlabs','SM2A54：SM2 外牙与 C-mount 内牙；用于不同终端','https://www.govolition.com/product/V40-SM2A54'],['OptoSigma','光学镜筒接口件，依实机线程选择','https://www.optosigma.com/']],note:'TTL200-A为SM2，旧SM1CP2是错误方向/尺寸。V170 A14 Ø52.2内孔与A09 Ø30候选入口环之间存在11.1mm径向空隙；未安装任何实际转接件。仅当相机真正为C-mount时才评估SM2A55，严禁把SM2A54或SM1CP2自动当作代用品。'}
 };
 export const PURCHASE={A,B:base};
 export function enriched(platform,part){
  const x=PURCHASE[platform][part.id]||{};
- return {...part,qty:1,unit:'件',category:'其他',alternatives:[],...x};
+ return auditPurchase({...part,qty:1,unit:'件',category:'其他',alternatives:[],...x});
+}
+export function procurementRows(platform,parts,{archive=false}={}){
+ const ids=new Set(parts.map(p=>p.id));
+ const prerequisites={
+   'B-H02':'B02','B-H03':'B04','B-H04':'B05','B-H05':'B06','B-H12':'B32'
+ };
+ const modelRows=parts.map(p=>enriched(platform,p));
+ const hardware=HARDWARE[platform].filter(p=>!prerequisites[p.id]||ids.has(prerequisites[p.id])).map(auditPurchase);
+ return [...modelRows,...hardware].map(p=>({
+   ...p,
+   scope:archive&&['A07W','A21','B29','B30','B31','B32','B-H12'].includes(p.id)?'备用方案 / 历史记录':
+     p.qty===0?'接口记录':p.hardware?'配件候选':'现行装配'
+ }));
 }
 export function pricedSummary(rows){
  const sums=new Map();
@@ -134,7 +152,7 @@ export function pricedSummary(rows){
    // procurement line. It stays visible for traceability, but must
    // never be counted as one missing priced component or a purchased SKU.
    if((p.qty??1)===0)continue;
-   if(!p.quote?.value){missing++;continue;}
+   if(p.quote?.value==null||p.qty===''){missing++;continue;}
    quoted++;
    let cur=p.quote.currency;
    const old=sums.get(cur)||{amount:0,rows:0};
@@ -144,9 +162,9 @@ export function pricedSummary(rows){
  return {priced:quoted,unpriced:missing,currencies:[...sums].map(([currency,o])=>({currency,...o})),complete:missing===0};
 }
 export function csvExportRows(rows){
- const fields=['id','name','maker','model','qty','unit','category','dims','level','material','price','currency','priceDate','priceType','priceSource','drawing','cad','datasheet','alternatives','note','evidence','interfaceReview','interfaceGaps','photoIds','embeddedPhotos','missingPhotoOriginals'];
+ const fields=['id','name','maker','model','qty','unit','category','dims','level','material','price','currency','priceDate','priceType','priceSource','drawing','cad','datasheet','alternatives','note','evidence','interfaceReview','interfaceGaps','photoIds','embeddedPhotos','missingPhotoOriginals','scope','traceability','connection','quoteStatus'];
  return [fields, ...rows.map(p=>fields.map(f=>({
-    price:p.quote?.value||'',currency:p.quote?.currency||'',priceDate:p.quote?.date||'',priceType:p.quote?.type||'',priceSource:p.quote?.source||'',alternatives:(p.alternatives||[]).map(v=>v[0]+' '+v[1]+' '+v[2]).join(' | '),
+    price:p.quote?.value??'',currency:p.quote?.currency||'',priceDate:p.quote?.date||'',priceType:p.quote?.type||'',priceSource:p.quote?.source||'',alternatives:(p.alternatives||[]).map(v=>v[0]+' '+v[1]+' '+v[2]).join(' | '),
     ...procurementInterfaceFields(p.id.startsWith('A')?'A':'B',p.id)
     ,photoIds:photoRefsForPart(p.id[0],p.id).map(r=>r.id).join(' / '),
     embeddedPhotos:photoRefsForPart(p.id[0],p.id).filter(r=>r.src).map(r=>r.src).join(' | '),

@@ -6,7 +6,7 @@ import {STLLoader} from 'three/addons/loaders/STLLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js';
 import {enrichParts} from './details.js';
-import {enriched,pricedSummary,csvExportRows} from './procurement.js';
+import {enriched,pricedSummary,csvExportRows,procurementRows} from './procurement.js';
 import {stageLocalTranslation,stageLocalDepthTranslation} from './kinematics.js';
 import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
@@ -30,6 +30,10 @@ import {A20261108PhotoAngles,aPhotoCameraPose,aPhotoOrientationEvidence} from '.
 import {auditTubeLensToCameraProxy,TTL200A_OPTICAL_EVIDENCE} from './a-optical-reference.js';
 import {auditA09CameraCoupling,A09_CAMERA_INTERFACE_EVIDENCE} from './a-camera-interface.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
+import {A_FILM_LEVELS,splitAStageMesh} from './a-stage-mesh.js';
+import {explosionOffset,explosionStep,opticalRelease,stroke} from './explosion.js';
+import {scopes,assemblyFor,assemblyTime,assemblyOffset,filmAxisSpread} from './inspection-scope.js';
+import {createPartRecords,mountPartRecord} from './part-records.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#16293c');scene.fog=new THREE.Fog('#16293c',750,1500);
@@ -75,6 +79,26 @@ vacuum:{name:'真空管路',color:'#64c7c0'},
 external:{name:'温控 / 泵 / 电源',color:'#afa5d5'}};
 let platform='B', bPhoto94Mode=false, aWorkingPoseMode=false, currentRoot=new THREE.Group(), parts=new Map(), active=null, explosion=0,
     filmShift=0,filmShiftDepth=0,filmDrop=0,sampleShift=0,sampleShiftDepth=0,sampleAngle=0,showHoles=true,showLabels=true,showDimensions=true,wireframe=false,showAxes=false;
+const launchParams=new URLSearchParams(location.search);
+const aReviewMode=launchParams.get('legacy-a-qa')!=='1';
+const inspectionMode=aReviewMode;
+const partRecords=createPartRecords();
+const inspectionProgress=new Map();
+let inspectionScope='all', inspectedPart=null, inspectionWire=false, assemblyCamera=null;
+const wireEdges=new Map();
+const wireFill=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false});
+const wireInk=new THREE.LineBasicMaterial({
+ color:0x93d6ff, transparent:true, opacity:.70, depthTest:false, depthWrite:false, fog:false
+});
+const aReviewFilmIds=['A17','A15','A03','A04L','A04','A05','A05C','A05CS','A05G'];
+const aFilmExplodeY={A17:0,A15:16,A03:85,A04L:110,A04:135,A05:162,A05C:140,A05CS:185,A05G:151};
+const heatBoltLocations=[-25,25].flatMap(x=>[-25,25].map(z=>[x,z]));
+const heatPassThrough=heatBoltLocations.map(([x,z])=>[x,z,3.3]);
+const aReviewOptics={
+  tubeBottom:269.4, cubeHeight:32, lampFaceX:104, cameraRise:35.2,
+  get axisY(){return this.tubeBottom+this.cubeHeight/2;}
+};
+let aStageGeometryRequest;
 let aThermalCutaway=false;
 // V171: optional transfer samples are NOT permanent hot-stage hardware.
 let showSampleDemonstration=false;
@@ -164,7 +188,7 @@ window.__platformALampRearRoutingProbe=()=>{
    photoReferenceGlassHidden:!aWorkingPoseMode&&!Boolean(parts.get('A05G')?.g.visible),
    directPhotoIds:['191','192','193','194','195','196','198','199','200','201']};
  };
-const activeAFilmX=()=>aWorkingPoseMode?A_WORKING_LAYOUT.filmStageX:CONFIG.A.armX;
+const activeAFilmX=()=>aWorkingPoseMode||aReviewMode?A_WORKING_LAYOUT.filmStageX:CONFIG.A.armX;
 window.__platformAWorkingPoseProbe=()=>platform==='A'?{
  available:true,mode:aWorkingPoseMode?'installed180':'photo-reference',
  ...auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
@@ -2268,7 +2292,7 @@ function makeStageBlock(id,x,y,z,w,d,h,title,holesPattern=false,motion={},handle
    }else if(id==='A02'){
     // V137 OEM-constrained true second linear axis. Both carriages and
     // top-plate holes are actual meshes, not a second handle on rotary.
-    const through=[[-25,-25,2.9],[-25,25,2.9],[25,-25,2.9],[25,25,2.9]];
+    const through=aReviewMode?heatPassThrough:[[-25,-25,2.9],[-25,25,2.9],[25,-25,2.9],[25,25,2.9]];
     const carriage=add(carriageY,plate(w*.94,d*.92,topH,mats.dark,through));
     carriage.position.y=lowerH+middleH;
     carriage.userData.A02XYTopCarriesHeater=true;
@@ -2945,15 +2969,35 @@ function rotaryB(){
  },{explode:[-7,36,-8],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B11',sx,109.2+rise,0,g=>{
    const corners=[[-25,-25,3.3],[-25,25,3.3],[25,-25,3.3],[25,25,3.3]];
-   // Lower layer with real open underside ceramic pocket
-   add(g,plate(65,65,5.4,mats.steel,corners,[38.6,38.6]));
-   add(g,plate(65,65,.1,mats.steel,[...corners,[0,0,.7]])).position.y=5.4;
-   const cb=corners.map(a=>[a[0],a[1],5.5]);cb.push([0,0,.7]);
-   add(g,plate(65,65,6.5,mats.steel,cb)).position.y=5.5;
-   // V36: the vacuum passage is an INTERNAL bore, not a glowing
-   // hose or a turquoise nozzle protruding through the contact face.
-   // Keep the true center Ø1.4 opening in the drilled upper plate;
-   // the unverified buried duct is represented only by evidence notes.
+   const cb=corners.map(([x,z])=>[x,z,5.5]);
+   const suction=[0,0,.7];
+   if(aReviewMode){
+     // Retain the 38.6 mm underside recess while opening two heater lead
+     // passages through only the back wall. Dimensions are model candidates.
+     g.userData.openServiceChannels=true;
+     for(const side of [-1,1]){
+       add(g,plate(13.2,65,5.4,mats.steel,[-25,25].map(z=>[-side*.9,z,3.3])))
+         .position.x=side*25.9;
+     }
+     add(g,cub(38.6,5.4,13.2,mats.steel,0,2.7,25.9));
+     for(const [a,b] of [[-19.3,8.7],[11.3,13.7],[16.3,19.3]]){
+       add(g,cub(b-a,2.6,13.2,mats.steel,(a+b)/2,2.8,-25.9));
+     }
+     add(g,cub(38.6,1.5,13.2,mats.steel,0,.75,-25.9));
+     add(g,cub(38.6,1.3,13.2,mats.steel,0,4.75,-25.9));
+     add(g,rearNotchedPlate(65,65,.1,mats.steel,
+       {slotX:6,slotWidth:1.8,corners:[...corners,suction]})).position.y=5.4;
+     add(g,rearNotchedPlate(65,65,.8,mats.steel,
+       {slotX:6,slotWidth:1.8,corners:[...cb,suction]})).position.y=5.5;
+     add(g,plate(65,65,2.1,mats.steel,[...cb,suction])).position.y=6.3;
+     add(g,rearNotchedPlate(65,65,2,mats.steel,
+       {slotWidth:2.2,corners:cb})).position.y=8.4;
+     add(g,plate(65,65,1.6,mats.steel,[...cb,suction])).position.y=10.4;
+   }else{
+     add(g,plate(65,65,5.4,mats.steel,corners,[38.6,38.6]));
+     add(g,plate(65,65,.1,mats.steel,[...corners,suction])).position.y=5.4;
+     add(g,plate(65,65,6.5,mats.steel,[...cb,suction])).position.y=5.5;
+   }
    g.userData.vacuumPathInternalNotExternallyVisible=true;
    label(g,'中心吸附孔 Ø1.4 mm',0,31,0);
  },{explode:[0,61,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
@@ -2962,17 +3006,17 @@ function rotaryB(){
    // Pair of heater leads exiting the BACK (-Z) of the milled chuck.
    for(const x of [10,15]){
       add(g,cub(2,1.5,2,mats.copper,x,2.5,-18.5));
-      add(g,tube([[x,2.5,-19],[x,2.5,-32.5],[x,2.5,-48],[x+1,0,-60]],.55,mats.copper));
+      add(g,tube([[x,2.5,-19],[x,2.5,-32.5],[x,2.5,-48],[x+1,0,-60]],.55,mats.copper)).userData.removableServiceLead=true;
    }
    label(g,'加热片后侧引线',0,12,-18);
  },{explode:[38,74,12],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B13',sx,114.35+rise,0,g=>{
-    add(g,cyl(.6,1.2,mats.copper,6,.6,0));
-    add(g,tube([[6,.6,0],[6,.6,-19.5],[6,.6,-33],[6,-3,-51]],.34,mats.blue));
+    add(g,cyl(.6,aReviewMode?.18:1.2,mats.copper,6,.6,0));
+    add(g,tube([[6,.6,0],[6,.6,-19.5],[6,.6,-33],[6,-3,-51]],.34,mats.blue)).userData.removableServiceLead=true;
  },{explode:[-17,70,0],rotateSample:true,translateSample:true,translateSampleDepth:true});
  addPart('B14',sx,109.2+rise,0,g=>{
    for(const x of [-25,25])for(const z of [-25,25]){
-      screw(g,x,12.03,z,25); // head surface flush at 12.03; do not mask by blue hole guide
+      screw(g,x,aReviewMode?11.5:12.03,z,25); // Seat the head on the counterbore shoulder.
    }
    g.userData.fastenerProxies=4;
    label(g,'4 枚顶部齐平螺钉（仅数量、齐平已确认）',0,45,0);
@@ -2985,6 +3029,7 @@ function rotaryB(){
    const shortHose=add(g,tube(
      [[0,0,-45.5],[0,1,-58],[1,-3,-70],[12,-17,-79]],1.8,mats.rubber));
    shortHose.userData.lastFlexiblePoint=[12,-17,-79];
+   shortHose.userData.removableServiceLead=true;
    g.userData.rearVacuumBoreNotBlocked=true;
    label(g,'B15 真空接头',4,12,-48);
  },{explode:[0,60,-20],rotateSample:true,translateSample:true,translateSampleDepth:true});
@@ -3009,9 +3054,11 @@ function microscopeB(){
    foot.userData.trueCandidateMountBores=4;
    foot.userData.boardThreadedFixingVerified=false;
    foot.userData.B35GridRegistered=true;
-   // Four M6x20 socket-head candidates: 12mm foot + 8mm nominal B35 engagement.
+   // Four M6x20 socket-head candidates: 12 mm foot + 8 mm nominal B35 engagement.
+   const footScrews=aReviewMode?add(g,new THREE.Group()):g;
+   if(aReviewMode)g.userData.footScrews=footScrews;
    for(const x of [-25,25])for(const z of [-25,25]){
-     const head=screw(g,x,18,z,20);
+     const head=screw(footScrews,x,18,z,20);
      head.userData.B16MountingScrewHead=true;
    }
    g.userData.B16MountingScrewCount=4;
@@ -3045,7 +3092,7 @@ function microscopeB(){
    // Its exact offset is a photo-fit candidate; the 32mm MXFMS post is OEM.
    const mount=add(g,cyl(8,44,mats.dark,-23.5,188,112.5));
    mount.userData.MXFMSNosepieceMount=true;
-   for(const x of [-25,25])for(const z of [-25,25]){
+   if(!aReviewMode)for(const x of [-25,25])for(const z of [-25,25]){
      const shank=add(g,cyl(3,18,mats.steel,x,3,z));
      shank.userData.B16CandidateM6Shank=true;
      const head=add(g,cyl(5,2.5,mats.silver,x,13.25,z));
@@ -3415,6 +3462,95 @@ function refreshHeatingControlHarness(){
  }
 }
 
+function buildAReviewHead(g){
+  // Photos 192 and 193 separate the rear focus housing and the upper
+  // illumination cube. The lower carrier mates directly to the objective turret.
+  const housing=add(g,cub(84,65,76,mats.black,-10,-2.5,-54));
+  housing.userData.A18PhotoConstrainedMainBody=true;
+  for(const sign of [-1,1]){
+    const x=-10+sign*42;
+    for(const [offset,radius,width,material] of [
+      [4,12,8,mats.dark],[16,21,16,mats.black],[27,13,6,mats.dark]
+    ]){
+      const wheel=add(g,cyl(radius,width,material,x+sign*offset,-18,-47,64));
+      wheel.rotation.z=Math.PI/2;
+    }
+    for(const offset of [10,13,16,19,22]){
+      const grip=add(g,torus(21,.55,mats.ink,x+sign*offset,-18,-47));
+      grip.rotation.y=Math.PI/2;
+    }
+  }
+  add(g,cub(60,12,23.4,mats.black,0,-28,-29.3));
+  const carrier=add(g,sleeve(29,17.5,14,mats.black,0,-28,0,'y'));
+  carrier.userData.aReviewNosepieceCarrier=true;
+  add(g,sleeve(13,10,45,mats.dark,0,1.5,0,'y'));
+  add(g,sleeve(24,15.5,11,mats.black,0,29.5,0,'y'));
+
+  const {tubeBottom,cubeHeight,axisY,lampFaceX}=aReviewOptics;
+  const cube=add(g,plate(48,42,cubeHeight,mats.black,[[0,0,14]]));
+  cube.position.y=tubeBottom-200;
+  const sideY=axisY-200;
+  const dial=add(g,cyl(14,2.4,mats.dark,0,sideY,21.8,64));
+  dial.rotation.x=Math.PI/2;
+  add(g,cub(13,.5,.3,mats.silver,0,sideY,23.1));
+  add(g,cub(.5,13,.3,mats.silver,0,sideY,23.1));
+  add(g,sleeve(13.5,9.5,54,mats.dark,51,sideY,0,'x'));
+  add(g,sleeve(15.2,9.5,16,mats.black,86,sideY,0,'x'));
+  const coupling=add(g,sleeve(12.5,9.5,lampFaceX-94,mats.black,(94+lampFaceX)/2,sideY,0,'x'));
+  coupling.userData.aReviewLampCoupling=true;
+  label(g,'A18 显微镜调焦体及侧向照明筒',0,108,0);
+}
+
+function buildAReviewNosepiece(g){
+  // Photos 191/193 show one knurled sloping carrier, three objectives,
+  // and an open socket at front right. MGZ30 is a topology reference.
+  const pitch=23.5,tilt=THREE.MathUtils.degToRad(12);
+  const rotor=new THREE.Group();
+  rotor.rotation.z=-tilt;
+  rotor.position.set(-pitch*Math.cos(tilt),-7.5,0);
+  g.add(rotor);
+  const seats=Array.from({length:5},(_,i)=>{
+    const angle=i*2*Math.PI/5;
+    return [Math.cos(angle)*pitch,Math.sin(angle)*pitch];
+  });
+  const bores=seats.map(([x,z])=>[x,-z,10]);
+  const lower=add(rotor,drilledDisc(36,2.5,mats.steel,bores));
+  lower.userData.A19PhotoBoredUnderside=true;
+  const rim=add(rotor,drilledDisc(37,7.5,mats.black,bores));
+  rim.position.y=2.5;
+  for(let i=0;i<96;i++){
+    const a=i*2*Math.PI/96;
+    const reeding=add(rotor,cub(.65,7,1.05,mats.dark,37*Math.sin(a),6.25,37*Math.cos(a)));
+    reeding.rotation.y=a;
+  }
+  add(g,sleeve(16,10,9,mats.black,0,3.5,0,'y'));
+
+  const objectives=new Map([
+    [0,{length:24,band:new THREE.MeshStandardMaterial({color:'#367657'}),label:'Olympus PlanFL 系列候选'}],
+    [2,{length:26,band:new THREE.MeshStandardMaterial({color:'#9b3836'}),label:'红环物镜，型号待核'}],
+    [3,{length:31,band:mats.copper,label:'JH-TOP MPLAN 系列候选'}]
+  ]);
+  for(const [i,[x,z]] of seats.entries()){
+    const port=new THREE.Group();
+    port.position.set(x,0,z);
+    const down=new THREE.Vector3(x/pitch*Math.sin(tilt),-Math.cos(tilt),z/pitch*Math.sin(tilt));
+    port.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),down);
+    rotor.add(port);
+    const adapter=add(port,sleeve(11,8.7,2.2,mats.dark,0,-.6,0,'y'));
+    adapter.userData.A19ReviewPort=i;
+    const optic=objectives.get(i);
+    if(!optic)continue;
+    const {length,band}=optic;
+    const barrel=add(port,cyl(10.25,length-5,mats.black,0,-(length-5)/2-1,0,56));
+    barrel.userData.objectiveLabel=optic.label;
+    add(port,cyl(9.65,1.3,band,0,4.6-length,0,56));
+    add(port,sleeve(9.1,6.5,4,mats.dark,0,2-length,0,'y'));
+    const lens=add(port,cyl(6.3,.7,mats.glass,0,.55-length,0,48));
+    lens.userData.A19ReviewObjective=i;
+  }
+  label(g,'A19 倾斜物镜转换盘 · 3 支物镜',-18,19,0);
+}
+
 function platformA(){
  const ax=activeAFilmX(),sx=CONFIG.A.sampleX;
  const az=aWorkingPoseMode?A_WORKING_LAYOUT.filmStageZ:0;
@@ -3427,7 +3563,7 @@ function platformA(){
  // only as an additive envelope cross-check. With the full 13mm VC13 stroke
  // centered on that catalog reference, the lower endpoint is 119.5mm.
  const a15Vc13LowerTopY=40+119.5; // 159.5 mm world Y
- const aLowerG40Y=a15Vc13LowerTopY;
+ const aLowerG40Y=aReviewMode?CONFIG.board.height+A_FILM_LEVELS.vcTop:a15Vc13LowerTopY;
  const aUpperG40Y=aLowerG40Y+20;
  const aBracketTopY=aUpperG40Y+20; // 199.5 mm
  // Photo 100: GCM-T25M is physically stacked ABOVE the rotary stage,
@@ -3455,15 +3591,16 @@ function platformA(){
  addPart('A17',ax,20,az,g=>{
     // A17 top/underside are not legible in the A-photo evidence.
     // Keep a neutral blank top-interface proxy; do NOT copy B02/GCM-420302M holes.
-    add(g,cub(65,10,65,mats.dark,0,5,0));
-    const top=add(g,plate(65,65,10,mats.dark,[]));
+    const magnetWidth=aReviewMode?65.2:65;
+    add(g,cub(magnetWidth,10,magnetWidth,mats.dark,0,5,0));
+    const top=add(g,plate(magnetWidth,magnetWidth,10,mats.dark,[]));
     top.position.y=10;
     // V94: photo194 shows a light rectangular OFF/ON-style front plaque
     // plus a left silver magnetic switch. Oeabt MBS-65B/C is now the
     // highest-priority FAMILY match: 65.2×65.2×20 mm and the same plaque/
     // switch topology. A15 hides the real top face, so neither B nor C
     // top-hole map is allowed into the model.
-    const frontPlaque=add(g,cub(40,7,.8,mats.silver,5,10,32.9));
+    const frontPlaque=add(g,cub(40,aReviewMode?4:7,.8,mats.silver,5,aReviewMode?6:10,32.9));
     frontPlaque.userData.A17Photo194FrontLabelPlaque=true;
     const switchPad=add(g,cub(10,10,2.5,mats.black,-23,7,33.75));
     switchPad.userData.A17SideSwitchMountCandidate=true;
@@ -3516,7 +3653,7 @@ function platformA(){
     g.userData.candidateMountHoleMarkers=[];
     g.userData.topCornerCounterbores=0;
     label(g,'A17 磁座',0,32,0);
-  },{explode:[-10,0,0],facingYaw:aFilmYaw});
+  },{explode:[-10,0,0],facingYaw:aReviewMode?0:aFilmYaw});
  // A sample branch: GCM-5306M base -> A06 lock-only rotation -> A02 XY stage.
  makeStageBlock('A02',sx,49,0,65,65,33,'样品侧 XY 双轴 GCM-T25M2系列（X右、Y前）',true,{rotateSample:true},+1,2,1);
  // A film branch: 95.jpg/97.jpg show a DIFFERENT T25M below VC13M.
@@ -3684,7 +3821,7 @@ function platformA(){
    g.userData.vendorVernierResolutionDeg=.1;
    g.userData.topHoleCoordinatesVerified=false;
    label(g,'A04L GCM-G40M40L',-4,40,0);
- },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
+ },{explode:[-25,32,0],moveFilm:true,moveFilmVertical:true,facingYaw:aReviewMode?Math.PI/2:aFilmYaw});
  addPart('A04',ax,aUpperG40Y,az,g=>{
    // Upper G40M60L label is visually legible in photo94.
    // Lower partner is not positively identified. G40M60L body:
@@ -3740,10 +3877,10 @@ function platformA(){
      const hex=jointHead(g,xx-ax,aBent.metalThickness,aBent.sheetFrontZ,{headR:3.1,shankR:1.5,shankL:4});
      hex.userData.photo94Fastener=true;hex.material=mats.dark;
    }
-   const footX=legLocalX+outwardSign*16;
+   const footX=legLocalX+outwardSign*(aReviewMode?17:16);
    const screwX=legLocalX+outwardSign*8;
    const screwZ=[-6.5,6.5];
-   const foot=add(g,plate(32,26,2.5,mats.black,screwZ.map(z=>[screwX-footX,z,1.8])));
+   const foot=add(g,plate(aReviewMode?30:32,26,2.5,mats.black,screwZ.map(z=>[screwX-footX,z,1.8])));
    foot.position.set(footX,-aBent.verticalLegLength,aBent.sheetFrontZ);
    foot.userData.A05OutwardFootCandidate=true;
    foot.userData.A05ActualThroughBoreCount=2;
@@ -3760,14 +3897,18 @@ function platformA(){
  const glassCenterX=glassNearX+outwardSign*38;
  const footBottomY=-aBent.verticalLegLength;
  const glassCenterY=footBottomY-0.5;
- const clampGripLengthX=28,clampBladeLengthX=40;
- const clampBladeCenterX=bracketLegLocalX+outwardSign*20;
+ const clampGripLengthX=28,clampBladeLengthX=aReviewMode?30:40;
+ const clampBladeCenterX=bracketLegLocalX+outwardSign*(aReviewMode?17:20);
  const screwX=bracketLegLocalX+outwardSign*8;
  const screwZ=[-6.5,6.5];
 
  addPart('A05C',ax,aBracketTopY,az,g=>{
-   const blade=add(g,cub(clampBladeLengthX,1.5,26,mats.dark,
-     clampBladeCenterX,footBottomY-1.75,aBent.sheetFrontZ));
+   const blade=aReviewMode?
+     plate(clampBladeLengthX,26,1.5,mats.dark,
+       screwZ.map(z=>[screwX-clampBladeCenterX,z,1.5])):
+     cub(clampBladeLengthX,1.5,26,mats.dark);
+   blade.position.set(clampBladeCenterX,footBottomY-(aReviewMode?2.5:1.75),aBent.sheetFrontZ);
+   add(g,blade);
    blade.userData.A05CLowerClampBlade=true;
    blade.userData.A05CLowerFixedJaw=true;
    blade.userData.A05CPhoto5LowerLayer=true;
@@ -3843,8 +3984,12 @@ function platformA(){
  },{explode:[-13,65,0],moveFilm:true,moveFilmVertical:true,facingYaw:aFilmYaw});
 
  addPart('A05G',ax,aBracketTopY,az,g=>{
-   const slide=add(g,cub(76,1,26,mats.glass,glassCenterX,glassCenterY,aBent.sheetFrontZ));
+   const slideMaterial=aReviewMode?new THREE.MeshPhysicalMaterial({
+     color:'#cfe8e8',transparent:true,opacity:.38,roughness:.16,clearcoat:1,depthWrite:false
+   }):mats.glass;
+   const slide=add(g,cub(76,1,26,slideMaterial,glassCenterX,glassCenterY,aBent.sheetFrontZ));
    slide.userData.candidateStandardSlide=[76,26,1];slide.userData.glassShortEdgeAxisLocal='Z';
+   if(aReviewMode){slide.castShadow=false;label(g,'A05G 透明玻璃片',glassCenterX,15,aBent.sheetFrontZ);return;}
    const pdmsX=glassNearX+outwardSign*68;
    const stamp=add(g,cub(8,1.8,8,mats.ceramic,pdmsX,glassCenterY-1.4,aBent.sheetFrontZ));
    stamp.userData.A05GStampRightMarginMm=4;stamp.userData.A05GTransferTarget='A07W';
@@ -3931,7 +4076,8 @@ function platformA(){
  // V136: black support, WOOD insulation, heater+sensor, then solid metal.
  // All are independent parts for a meaningful exploded view.
  addPart('A32',sx,82,0,g=>{
-   const base=add(g,cub(65,9,65,mats.dark,0,4.5,0));
+   const base=add(g,aReviewMode?plate(65,65,9,mats.dark,heatPassThrough):
+     cub(65,9,65,mats.dark,0,4.5,0));
    base.userData.A32LowerSupport=true;
    // Photo-referenced front adjustment plate is attached to the lower
    // support, never part of the heated vacuum metal geometry.
@@ -3947,7 +4093,9 @@ function platformA(){
    label(g,'A32 下部固定支座',0,25,0);
  },{explode:[0,0,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
  addPart('A31',sx,82,0,g=>{
-   const wood=add(g,cub(65,7,65,mats.woodInsulator,0,12.5,0));
+   const wood=add(g,aReviewMode?plate(65,65,7,mats.woodInsulator,heatPassThrough):
+     cub(65,7,65,mats.woodInsulator,0,3.5,0));
+   wood.position.y+=9;
    wood.userData.A31WoodInsulationLayer=true;
    g.userData.materialUserConfirmed='wood';
    g.userData.woodThicknessCandidateMm=7;
@@ -3961,7 +4109,12 @@ function platformA(){
   // 38.6 square underside heater pocket through the lower 5.4mm
   // of the original silver slab; four support side walls are real meshes.
   const wall=13.2;
-  for(const d of [-1,1])add(g,cub(wall,5.4,65,mats.steel,d*25.9,18.7,0));
+  for(const d of [-1,1]){
+    const side=aReviewMode?plate(wall,65,5.4,mats.steel,
+      [-25,25].map(z=>[-d*.9,z,3.25])):cub(wall,5.4,65,mats.steel,0,2.7,0);
+    side.position.set(d*25.9,16,0);
+    add(g,side);
+  }
   add(g,cub(38.6,5.4,wall,mats.steel,0,18.7,25.9));
   const rearSlice=(y,h,holes)=>{
     const sorted=holes.map(([x,r])=>[x-r,x+r]).sort((a,b)=>a[0]-b[0]);
@@ -3979,20 +4132,24 @@ function platformA(){
   // passage underneath the cap, not visual hose-lines on solid metal.
   add(g,rearNotchedPlate(65,65,.6,mats.steel,
     {slotX:-10,slotWidth:1.5,slotStopZ:.7,corners})).position.y=21.4;
-  add(g,plate(65,65,1,mats.steel,corners)).position.y=22;
+  const headBores=aReviewMode?corners.map(([x,z])=>[x,z,5.5]):corners;
+  add(g,plate(65,65,1,mats.steel,headBores)).position.y=22;
   const fixedDuctBoundary=add(g,rearNotchedPlate(65,65,1.8,mats.steel,
-    {slotX:0,slotWidth:2.2,slotStopZ:.75,corners}));
+    {slotX:0,slotWidth:2.2,slotStopZ:.75,corners:headBores}));
   fixedDuctBoundary.position.y=23;
   fixedDuctBoundary.userData.A07RigidVacuumBoreBoundary=true;
   fixedDuctBoundary.userData.createdBySubtractiveVoid=true;
   // The channel is an A07 void, NOT a separate movable pipe.
 
-  add(g,plate(65,65,.7,mats.steel,[...corners,[0,0,.7]])).position.y=24.8;
-  const top=add(g,plate(65,65,2.5,mats.steel,[...corners,[0,0,.7]]));
+  add(g,plate(65,65,.7,mats.steel,[...headBores,[0,0,.7]])).position.y=24.8;
+  const top=add(g,plate(65,65,2.5,mats.steel,[...headBores,[0,0,.7]]));
   top.position.y=25.5;top.userData.A07ActualCenterSuctionBore=true;
-  for(const [x,z] of corners){
-    const h=add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24));
-    h.userData.A07VisibleHeadCandidate=true;
+  if(aReviewMode){
+    const screws=new THREE.Group();g.add(screws);
+    for(const [x,z] of heatBoltLocations)screw(screws,x,28,z,30);
+    g.userData.aChuckScrews=screws;
+  }else for(const [x,z] of corners){
+    add(g,cyl(2.9,1.8,mats.dark,x,26.55,z,24)).userData.A07VisibleHeadCandidate=true;
   }
   // Lower front controls are on A32, not in the upper metal.
   for(const [role,x,y,r] of [
@@ -4029,6 +4186,7 @@ function platformA(){
      const lead=add(g,tube([[x,18.2,-19],[x,18.2,-25],
        [x,18.2,-32.5]],.55,mats.copper));
      lead.userData.A26LeadInRearFeedthrough=true;
+     lead.userData.removableServiceLead=true;
    }
    g.userData.heaterVoltageWattageUnknown=true;
    label(g,'A26 陶瓷加热片 · 候选38×38×5',0,12,-18);
@@ -4039,6 +4197,7 @@ function platformA(){
    const wire=add(g,tube([[-10,21.1,0],[-10,21.1,-18],
      [-10,21.1,-32.5]],.45,mats.blue));
    wire.userData.A27IndependentProbeLead=true;
+   wire.userData.removableServiceLead=true;
    g.userData.sensorTypeAndPolarityUnknown=true;
    label(g,'A27 测温探头 · 类型待核',-10,26,-21);
  },{explode:[0,38,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
@@ -4049,7 +4208,7 @@ function platformA(){
    g.userData.realThreadSealUnknown=true;
    label(g,'A28 中空真空接头',0,38,-45);
  },{explode:[0,68,0],translateSample:true,translateSampleDepth:true,rotateSample:true});
- addPart('A07W',sx,110,0,g=>{
+ if(!aReviewMode)addPart('A07W',sx,110,0,g=>{
     const sampleChip=add(g,cub(28,1.4,28,mats.glass,0,.7,0));
     sampleChip.userData.A07SampleChipProxy=true;
     sampleChip.userData.A07SampleChipThicknessUnverified=true;
@@ -4075,7 +4234,8 @@ function platformA(){
     // V59: taller photographed camera/microscope stack; post length remains candidate.
     // V172 photo191/192/193: the actual column reads dark, not bright silver.
     // Surface finish and post diameter remain unmeasured photo candidates.
-    const fixedPost=add(g,cyl(13,372,mats.black,0,199,0));
+    const postLength=aReviewMode?272:372;
+    const fixedPost=add(g,cyl(13,postLength,aReviewMode?mats.steel:mats.black,0,13+postLength/2,0));
     fixedPost.userData.A10FixedOpticalPost=true;
     fixedPost.userData.A10DarkColumnPhotoMatchCandidate=true;
     fixedPost.userData.A10PostDiameterCandidateMm=26;
@@ -4168,7 +4328,8 @@ function platformA(){
   g.userData.A08WDReferenceOverlay=opticalReferenceOverlay;
   label(g,'TTL200-A · 壳体28 + 双端SM2肩3.2 mm',0,41,0);
  },{explode:[0,35,0]});
- addPart('A09',sx,323,0,g=>{
+ const cameraY=323+(aReviewMode?aReviewOptics.cameraRise:0);
+ addPart('A09',sx,cameraY,0,g=>{
   // V170: the old solid Ø30 disc CLOSED THE OPTICAL ENTRANCE. A real
   // camera must have an open front entrance (but sensor position is unknown).
   // This is a PHOTO-FIT 50×45×44mm square with CANDIDATE Ø24.4×10mm
@@ -4210,7 +4371,9 @@ function platformA(){
   // V199: candidate side connector on the photo-left face. The cable and
   // connector family are visible in the reference, but the electrical port
   // type and camera SKU are not identified.
-  const cameraCablePort=add(g,sleeve(4.2,1.6,5.2,mats.black,-27.4,43,0,'x'));
+  const cameraCablePort=aReviewMode?
+    add(g,sleeve(4.2,1.6,11,mats.black,0,50.5,0,'y')):
+    add(g,sleeve(4.2,1.6,5.2,mats.black,-27.4,43,0,'x'));
   cameraCablePort.userData.A09CameraCablePortCandidate=true;
   cameraCablePort.userData.A09CameraCablePortPhotoSide='left';
   g.userData.A09CameraCablePortManufacturerUnverified=true;
@@ -4220,7 +4383,7 @@ function platformA(){
   g.userData.A09ThreadFamilyUnverified=true;
   label(g,'相机本体 · 接口待识别',0,72,0);
  },{explode:[0,92,0]});
- addPart('A11',sx+96,220,0,g=>{
+ addPart('A11',sx+(aReviewMode?aReviewOptics.lampFaceX-6:96),aReviewMode?aReviewOptics.axisY:220,0,g=>{
    // V171 OEM Thorlabs MTN006388: total Ø30.5x60.1 and SM1 female depth 6.
    // Optical opening faces -X TOWARDS the microscope, not away from it.
    // LED emitter inside the module is a visual proxy; no lens/beam designed.
@@ -4262,9 +4425,11 @@ function platformA(){
      fastener.userData.A11PCBVisibleFastenerVisualProxy=true;
    }
    g.userData.A11RealOEMVisualSource='MWWHL4 front board photo / MTN006388 Rev D';
-   // Cable on REAR half exits the housing and continuously joins A22.
-   const cable=add(g,tube([[55,-14,0],[56,-20,3],[56,-29,9],[55,-38,12]],2.2,mats.black));
-   cable.userData.A11ElectricalCable=true;
+   // In the photo review A22 is one continuous wire including the LED tail.
+   if(!aReviewMode){
+     const cable=add(g,tube([[55,-14,0],[56,-20,3],[56,-29,9],[55,-38,12]],2.2,mats.black));
+     cable.userData.A11ElectricalCable=true;
+   }
    g.userData.A11MountingMethodVerified=false;
    g.userData.A11NoInventedGooseneckSupport=true;
    g.userData.A11EmittingDirectionLocal='-X';
@@ -4276,7 +4441,7 @@ function platformA(){
    g.userData.A11PlacementShiftFromV87Mm=46;
    g.userData.A11PlacementShiftFromV91Mm=24;
    g.userData.A11FollowsA18PhotoBodyOffset=true;
-   label(g,'A11 MWWHL4 · 前端SM1（支架仍待确认）',35,28,0);
+   label(g,aReviewMode?'A11 MWWHL4 · 侧筒末端':'A11 MWWHL4 · 前端SM1（支架仍待确认）',35,28,0);
  },{explode:[22,20,22]});
  addPart('A12',262,0,-80,g=>{
   // Thorlabs LEDD1B T-Cube envelope: W60 x H73 x D104mm.
@@ -4362,7 +4527,7 @@ function platformA(){
    g.userData.A33ControllerCandidateNoEnergizedPinout=true;
    label(g,'A33 温控控制箱 · 控制器型号待核',0,172,75);
  },{explode:[40,0,35]});
- addPart('A14',sx,266.2,0,g=>{
+ addPart('A14',sx,aReviewMode?aReviewOptics.tubeBottom+aReviewOptics.cubeHeight:266.2,0,g=>{
    // V184: start on the actual upper SM2 shoulder at Y=266.2.
    // 56.8mm candidate tube ends at the unchanged camera underside Y=323.
    const bridgeSleeve=add(g,sleeve(28,26.1,56.8,mats.dark,0,28.4,0,'y'));
@@ -4373,6 +4538,7 @@ function platformA(){
    label(g,'A14 SM2 接续镜筒（型号待核）',0,78,0);
  },{explode:[0,25,0]});
  addPart('A18',sx,200,0,g=>{
+   if(aReviewMode){buildAReviewHead(g);return;}
    // V190: the high-resolution transparent cutout supersedes the older
    // 128x170px Photo191/193 previews used by V92. In the +Z/front view, the
    // optical axis is about 65.5% across the 84mm outer housing from its left
@@ -5144,6 +5310,7 @@ function platformA(){
    label(g,'A18 显微镜调焦主体',bodyX,52,0);
  },{explode:[0,35,0]});
  addPart('A19',sx,160,0,g=>{
+   if(aReviewMode){buildAReviewNosepiece(g);return;}
    // V143: real bores ONLY for the two photographed mounted objectives.
    // V172: right VERTICAL objective must lie on the A08/A18 optical axis.
    // V171 placed visible ports at -18/+18, so neither was optically aligned.
@@ -5200,23 +5367,26 @@ function platformA(){
    g.userData.objectiveDimensionsArePhotoCandidates=true;
    label(g,'A19 转换盘 + 两支实拍物镜 · 外形细化 / 型号仍待复核',0,22,0);
  },{explode:[0,22,0]});
- addPart('A20',sx,323,0,g=>{
+ addPart('A20',sx,cameraY,0,g=>{
    // V171: camera cable no longer terminates in mid-air next to the lens.
    // Cable runs BACK along the stand and exits beyond the rear breadboard;
    // the remote data endpoint is still UNKNOWN (do not invent a plug).
-   const points=[[18,44,0],[22,65,-15],[38,69,-36],[44,56,-64],
-     [43,34,-96],[36,-6,-123],[26,-98,-126],[18,-185,-128],[32,-275,-152]];
+   const points=aReviewMode?[[0,55,0],[-1,63,0],[-12,69,-4],[-28,66,-14],
+     [-47,50,-31],[-66,18,-56],[-77,-34,-79],[-78,-98,-95],
+     [-68,-178,-117],[-70,-262,-136],[-83,-318,-155],[-100,-329,-184]]:
+     [[18,44,0],[22,65,-15],[38,69,-36],[44,56,-64],
+       [43,34,-96],[36,-6,-123],[26,-98,-126],[18,-185,-128],[32,-275,-152]];
    const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));
    const cable=add(g,new THREE.Mesh(new THREE.TubeGeometry(curve,108,2.4,10,false),mats.black));
    cable.userData.A20CameraCableRouteCandidate=true;
    cable.userData.A20NoMidAirCameraCableEnd=true;
-   g.userData.A20RearServiceExitWorldCandidate=[sx+32,48,-152];
+   g.userData.A20RearServiceExitWorldCandidate=points.at(-1).map((v,i)=>v+[sx,cameraY,0][i]);
    g.userData.electricalInterfaceVerified=false;
    label(g,'A20 相机后侧服务线束（终点待核）',0,-45,-129);
  },{explode:[0,45,20]});
  // V133 LED support: SM1RC is an OEM-compatible ring; independent base,
  // pole and adjustable bridge are UNVERIFIED engineering alternatives.
- addPart('A21',187.5,20,-87.5,g=>{
+ if(!aReviewMode)addPart('A21',187.5,20,-87.5,g=>{
    const foot=add(g,plate(36,36,8,mats.dark,
      [[-12.5,-12.5,2.7],[-12.5,12.5,2.7],[12.5,-12.5,2.7],[12.5,12.5,2.7]]));
    foot.userData.A21CandidateTrueFootBores=4;
@@ -5397,8 +5567,45 @@ function renderPhotoLedger(){
 }
 // Only show/export parts that are actually present in the selected assembly.
 // Never add variant-exclusive prototypes to user-facing purchase totals.
-function contextualPart(p){
- if(platform==='B'&&bPhoto94Mode&&p.id==='B07')return {
+function contextualPart(p,{rig=platform,archiveB=bPhoto94Mode}={}){
+ if(rig==='A'&&aReviewMode){
+   if(aReviewFilmIds.includes(p.id))return {
+     ...p,
+     dims:p.id==='A05CS'?'2 枚；螺杆轴竖直；中心距 13 mm':p.id==='A05C'?
+       '30 × 26 × 1.5 mm；与上夹板等长等宽':p.id==='A05G'?
+       '76 × 26 × 1 mm（示意）':p.id==='A17'?'65.2 × 65.2 × 20 mm（MBS-65 候选）':p.dims,
+     detail:p.id==='A05CS'?'两枚蝶形螺栓沿夹片短边并排。':p.id==='A05G'?
+       '透明玻璃片装在上下夹片之间，近端避开两枚螺栓。':p.id==='A05C'?
+       '上下夹片投影对齐，均有与两枚竖直螺栓对齐的贯通孔。':p.id==='A17'?
+       '磁吸固定，底面贴住面包板；照片 194 可见左前开关。':p.id==='A03'?
+       '照片 195 的可读铭牌为 GCM-VC13M；按显示器基准视角，竖直测微头在导向架左前侧。':
+       '按显示器基准对照实拍，保留用户确认的手柄方向及独立爆炸分解。',
+     interfaceNote:'孔位公差和实际行程待实测。',evidence:'照片 142、161、194–196；用户 STL'
+   };
+   if(p.id==='A19')return {
+     ...p,name:'倾斜式物镜转换盘',maker:'未确认',model:'Thorlabs MGZ30 五工位结构候选',
+     dims:'根据照片 191 / 193 拟合锥面布局，孔位与螺纹待核。',
+     detail:'照片可辨三支物镜和空位。模型采用五工位候选布局，下方竖直物镜对准管镜光轴。',
+     interfaceNote:'第三支物镜型号、总工位数及转盘型号待核。',evidence:'实拍 161、191–193；黄色灯光视频'
+   };
+   if(p.id==='A18')return {
+     ...p,name:'显微镜调焦体及侧向照明筒',model:'型号待实测',
+     dims:'外形与连接关系按照片 191–193 重建',
+     detail:'后侧调焦体通过下方承载臂接到物镜座。正面带圆盘的方盒连接长照明筒，MWWHL4 装在长筒末端。',
+     interfaceNote:'显微镜外壳、内部光路及螺纹接口待实测。',evidence:'照片 82–85、191–193'
+   };
+   if(p.id==='A11')return {
+     ...p,name:'侧向 LED · MWWHL4',dims:'灯体 Ø30.5 × 60.1 mm',
+     detail:'照片 84、85 的 MWWHL4 位于长照明筒末端。整条侧向光路只有一个 LED 灯头。',
+     interfaceNote:'侧筒与灯头之间的转接件尺寸和螺纹待实测。',evidence:'照片 84、85、193'
+   };
+   if(p.id==='A20')return {
+     ...p,name:'相机顶部线缆',dims:'线径与后侧走线为照片拟合',
+     detail:'按实拍从相机顶部接头出线，经左侧弯向台面后缘。',
+     interfaceNote:'线缆终点、用途及接口规格待确认。',evidence:'照片 78、83、191–193'
+   };
+ }
+ if(rig==='B'&&archiveB&&p.id==='B07')return {
    ...p,
    name:'玻片及转移膜（透明位置参考，实际夹具缺失）',
    model:'76×26×1mm 玻片参考轮廓；未接入 B32',
@@ -5406,7 +5613,7 @@ function contextualPart(p){
    interfaceNote:'在实际夹具、孔位、支杆及装配长度确定前，不把B07视为已经固定或可随B03机构运动。此件不是可加工的夹具CAD。',
    evidence:'B07参考照片107/108；B32来自94/95/97，关联未证实'
  };
- if(platform==='B'&&bPhoto94Mode&&p.id==='B03')return {
+ if(rig==='B'&&archiveB&&p.id==='B03')return {
    ...p,
    name:'实拍95/97 · GCM-T25M 双轴平移台',
    model:'GCM-T25M（2L/2C后缀未实物确认）',
@@ -5417,22 +5624,27 @@ function contextualPart(p){
  return p;
 }
 function activeParts(){
- if(platform!=='B')return PARTS[platform];
+ if(platform==='A'){
+   return PARTS.A.filter(p=>!aReviewMode||!['A21','A07W'].includes(p.id)).map(p=>contextualPart(p));
+ }
  const hidden=bPhoto94Mode?
   new Set(['B02','B04','B05','B06','B24','B25','B26','B27']):
   new Set(['B29','B30','B31','B32']);
  // Never delete the sample stage, microscope, heater or peripherals when
  // switching which photo-constrained FILM arm is shown. They are full-system
  // layout candidates with explicit unverified cross-branch registration.
- return PARTS.B.filter(p=>!hidden.has(p.id)).map(contextualPart);
+ return PARTS.B.filter(p=>!hidden.has(p.id)).map(p=>contextualPart(p));
 }
-function populateGroups(){
+function populateGroups(visibility=new Map()){
  const list=$('group-list');list.replaceChildren();
  const meta=activeParts();for(const [key,cfg] of Object.entries(groups)){
    const subset=meta.filter(x=>x.group===key);if(!subset.length)continue;
    const line=document.createElement('label');line.className='group-row';
-   const input=document.createElement('input');input.type='checkbox';input.checked=true;input.dataset.group=key;
-   input.onchange=()=>parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked&&!v.g.userData.hiddenBecauseNotPhotographed});
+   const input=document.createElement('input');input.type='checkbox';input.checked=visibility.get(key)??true;input.dataset.group=key;
+   input.onchange=()=>{
+     parts.forEach(v=>{if(v.part.group===key)v.g.visible=input.checked&&!v.g.userData.hiddenBecauseNotPhotographed});
+     if(aReviewMode)updateTransforms();
+   };
    const dot=document.createElement('i');dot.className='dot';dot.style.background=cfg.color;
    const tx=document.createElement('span');tx.textContent=cfg.name;
    const count=document.createElement('span');count.className='count';count.textContent=subset.length+' 件';
@@ -5575,7 +5787,7 @@ function updateDetail(part){
 
  const isAPart=platform==='A'&&['A17','A15','A03','A04L','A04',
    'A05','A05C','A05G','A16','A06','A02','A07'].includes(part.id);
- const aRigAudit=isAPart?(aWorkingPoseMode?
+ const aRigAudit=isAPart&&!aReviewMode?(aWorkingPoseMode?
    auditAWorkingLayout({filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
      sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop}):
    auditPlatformAAssembly()):null;
@@ -5717,7 +5929,9 @@ function updateDetail(part){
    .filter(x=>x&&!/^(未知|待识别|待确认|—|-)$/i.test(x));
  const metaHtml=usefulMeta.length?'<p class="meta">'+esc([...new Set(usefulMeta)].join(' · '))+'</p>':'';
  el.innerHTML='<h2>'+esc(part.name)+'</h2>'+metaHtml+
- '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
+   '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
+ (platform==='A'&&aReviewMode&&[...aReviewFilmIds,'A18','A19','A11','A20'].includes(part.id)?
+   '<div class="field"><p>'+esc(part.detail)+'</p><p>'+esc(part.interfaceNote)+'</p></div>':'')+
  opticalHtml+cameraJointHtml+boundaryHtml+
  (hasUsefulPrice?'<div class="field"><b>价格</b><p>'+esc(priceText)+'</p></div>':'')+
  '<div class="field" id="selected-source-field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
@@ -5735,9 +5949,10 @@ function updateDetail(part){
  // ACTUAL photo thumbnails, and clearly mark unavailable originals.
  mountPhotoEvidence(el,platform,part.id);
 }
-function selectPart(id){
+function selectPart(id,{legacyDetail=true}={}){
  if(active&&active.g)active.g.traverse(o=>{
    if(o.isMesh&&o.userData.originalMat){
+      o.material.dispose();
       o.material=o.userData.originalMat;
       delete o.userData.originalMat;
    }
@@ -5749,7 +5964,8 @@ function selectPart(id){
  if(!v){
    // A05C/A05G are BOM-only provisional components; selecting them
    // must show their evidence instead of opening an empty detail pane.
-   updateDetail(metadata??null);selectedLabels();clearMeasurement();
+   if(legacyDetail)updateDetail(metadata??null);
+   selectedLabels();clearMeasurement();
    $('hover-help').textContent=metadata?
      id+' · BOM':
      '点击零件查看信息';
@@ -5764,12 +5980,22 @@ function selectPart(id){
       o.material=highlight;
    }
  });
- updateDetail(v.part);
+ if(legacyDetail)updateDetail(v.part);
  $('hover-help').textContent=v.part.id+' · '+contextualPart(v.part).name;
  selectedLabels();updateMeasurement();
 }
 function updateTransforms(){
- const e=explosion/100,angle=sampleAngle*Math.PI/180;
+ const e=inspectedPart&&parts.has(inspectedPart)?0:explosion/100;
+ const angle=sampleAngle*Math.PI/180;
+ const timing=assemblyTime(inspectionScope,e);
+ if(aReviewMode){
+   $('explode-step').textContent=e?(inspectionScope==='all'?explosionStep(e,platform):''):'';
+   if(inspectionMode)$('explode-step').hidden=inspectionScope!=='all'||!e;
+   else $('explode-step').hidden=!e;
+   $('btn-explode-fit').hidden=!e;
+   scene.fog.near=e?1300:750;
+   scene.fog.far=e?2400:1500;
+ }
  let aPoseAudit=platform==='A'&&aWorkingPoseMode?auditAWorkingLayout({
    filmShiftMm:filmShift,filmDepthShiftMm:filmShiftDepth,
    sampleShiftMm:sampleShift,sampleAngleDeg:sampleAngle,filmDropMm:filmDrop
@@ -5794,12 +6020,21 @@ function updateTransforms(){
    if($('film-drop-value'))$('film-drop-value').textContent='0.0 mm';
  }
  if($('lowering-clearance')){
-   $('lowering-clearance').textContent=motionAudit?
+   $('lowering-clearance').textContent=platform==='A'&&aReviewMode?
+     '玻片侧装配可爆炸分解。':motionAudit?
      (motionAudit.possibleClash?'禁止下降':'可下降'):
      aPoseAudit?(aPoseAudit.candidateCanLower?'可下降':'禁止下降'):'照片参考';
  }
  parts.forEach(({g,base,part,explode,moveFilm,moveFilmVertical,translateSample,translateSampleDepth,rotateSample,facingYaw=0})=>{
-  const off=explode||[0,0,0],fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0;
+  const off=aReviewMode?(inspectionScope==='all'?
+    explosionOffset(platform,part.id,e,aFilmExplodeY[part.id]):
+    assemblyOffset(platform,part.id,inspectionScope,e,aFilmExplodeY[part.id])):
+    (explode||[0,0,0]).map(v=>v*e);
+  if(aReviewMode&&['A27','A28','B13','B15'].includes(part.id)){
+    const rear=stageLocalDepthTranslation(off[2],angle);
+    off[0]=rear.x;off[2]=rear.z;
+  }
+  const fx=moveFilm?filmShift:0,fz=moveFilm?filmShiftDepth:0;
   const sx=translateSample?sampleShift:0,sz=translateSampleDepth?sampleShiftDepth:0;
   // The two sample axes remain independent and rotate together with B08.
   const travelX=rotateSample?stageLocalTranslation(sx,angle):{x:sx,z:0};
@@ -5816,14 +6051,14 @@ function updateTransforms(){
   const parkOptics=platform==='A'&&aWorkingPoseMode&&
     ['A08','A09','A11','A14','A18','A19','A20'].includes(part.id);
   const opticsLift=parkOptics?A_WORKING_LAYOUT.opticalParkingLiftMm:0;
-  g.position.set(base.x+off[0]*e+fx+dx,
-    base.y+off[1]*e+(moveFilmVertical?aLift-filmDrop:0)+opticsLift,
-    base.z+off[2]*e+dz+fz);
+  g.position.set(base.x+off[0]+fx+dx,
+    base.y+off[1]+(moveFilmVertical?aLift-filmDrop:0)+opticsLift,
+    base.z+off[2]+dz+fz);
   g.rotation.y=(rotateSample&&part.id!=='A06'?angle:0)+facingYaw;
   if(platform==='A'&&part.id==='A06'&&g.userData.rotatingDeck)g.userData.rotatingDeck.rotation.y=angle;
   // V131: user photos 1-3 show the bare clamp state. Keep A05G in the
   // engineering model, but render glass/PDMS only in the installed pose.
-  if(platform==='A'&&part.id==='A05G')g.visible=aWorkingPoseMode;
+  if(platform==='A'&&!aReviewMode&&part.id==='A05G')g.visible=aWorkingPoseMode;
   // The user explicitly rejected the blue rectangle appearing on either chuck.
   if(platform==='A'&&part.id==='A07W')g.visible=showSampleDemonstration;
   if(platform==='A'&&part.id==='A21'&&g.userData.ledAdjustableCarrier){
@@ -5834,12 +6069,17 @@ function updateTransforms(){
   if(platform==='A'&&part.id==='A10'&&g.userData.opticsMovingBoom){
     // Only the horizontal imaging-arm clamp follows the optical head.
     // A10 breadboard foot and 372mm column remain FIXED.
-    g.userData.opticsMovingBoom.position.y=
-      aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0;
+    g.userData.opticsMovingBoom.position.y=(aReviewMode?170*opticalRelease(inspectionScope==='optics'?0:e):0)+
+      (aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0);
   }
   if(g.userData.verticalCarriage)
     g.userData.verticalCarriage.position.y=
       (platform==='A'&&part.id==='A03'?aLift:0)-filmDrop;
+  if(platform==='A'&&aReviewMode&&part.id==='A15'){
+    for(const axis of g.children.filter(o=>o.userData.explodeAxisY)){
+      axis.position.y=axis.userData.assembledY+axis.userData.explodeAxisY*filmAxisSpread(inspectionScope,e);
+    }
+  }
   if(g.userData.slidingX){
     // A physical X carriage carries a SECOND, nested depth carriage.
     // B03 has a yaw-180 installation; local negative X maps to world +X.
@@ -5853,6 +6093,11 @@ function updateTransforms(){
   }else if(g.userData.slidingTop){
     g.userData.slidingTop.position.x=part.id==='B09'?-sampleShift:
       part.id==='B41'?-sampleShiftDepth:part.id==='A02'?sampleShift:0;
+  }
+  if(g.userData.aChuckScrews)g.userData.aChuckScrews.position.y=38*stroke(timing,.28,.44);
+  if(g.userData.footScrews)g.userData.footScrews.position.y=22*stroke(e,0,inspectionScope==='optics'?.24:.06);
+  if(aReviewMode&&['A26','A27','B12','B13','B15'].includes(part.id)){
+    for(const lead of g.children.filter(o=>o.userData.removableServiceLead))lead.visible=!e;
   }
  });
  if(platform==='A'&&aWorkingPoseMode){
@@ -5872,7 +6117,7 @@ function updateTransforms(){
    }
  }
  if(sampleSubstrate&&platform==='B'){
-   sampleSubstrate.visible=showSampleDemonstration;
+   sampleSubstrate.visible=showSampleDemonstration&&(!aReviewMode||!e);
    const tx=stageLocalTranslation(sampleShift,angle);
    const tz=stageLocalDepthTranslation(sampleShiftDepth,angle);
    sampleSubstrate.position.set(CONFIG.B.sampleX+tx.x+tz.x,
@@ -5883,13 +6128,19 @@ function updateTransforms(){
    // B08 fixed body remains still; its top face rotates with B41.
    const deck=parts.get('B08')?.g.userData.rotatingDeck;
    if(deck)deck.rotation.y=angle;
+   if(aReviewMode)for(const id of ['B37','B38','B40']){
+     const g=parts.get(id)?.g;
+     if(g)g.visible=!e&&($('group-list').querySelector('[data-group="'+g.userData.group+'"]')?.checked??true);
+   }
    refreshHeatingControlHarness();refreshVacuumHoseB();
  }
  if(platform==='A'){
    // Flexible cables are suppressed in exploded engineering views: their
    // endpoint-control shapes are valid only in the fully assembled pose.
-   for(const id of ['A22','A23','A24','A29']){
-     const g=parts.get(id)?.g;if(g)g.visible=explosion===0;
+   for(const id of (aReviewMode?['A20','A22','A23','A24','A29']:['A22','A23','A24','A29'])){
+     const g=parts.get(id)?.g;
+     const checkbox=$('group-list').querySelector('[data-group="'+g?.userData.group+'"]');
+     if(g)g.visible=!e&&(checkbox?.checked??true);
    }
    refreshAControlHarness();refreshAVacuumHose();
    if(Math.abs(sampleAngle)>5&&$('lowering-clearance'))
@@ -5914,6 +6165,13 @@ function refreshAControlHarness(){
  const pose={sampleShiftMm:sampleShift,sampleDepthShiftMm:sampleShiftDepth,sampleAngleDeg:sampleAngle,
    opticalLiftMm:aWorkingPoseMode?A_WORKING_LAYOUT.opticalParkingLiftMm:0};
  const routes=aControlRoutes(pose).paths;
+ if(aReviewMode){
+   const lamp=parts.get('A11');
+   routes.led=[
+     [lamp.base.x+55,lamp.base.y-14,0],[lamp.base.x+58,lamp.base.y-25,-8],
+     [249,232,-34],[262,147,-93],[269,59,-146],routes.led.at(-1)
+   ];
+ }
  for(const id of ['A22','A23','A24']){
    const g=parts.get(id)?.g;if(!g)continue;
    g.traverse(obj=>{
@@ -6139,7 +6397,213 @@ window.__modelAControlInterfaceProbe=()=>{
    liveElectricalCircuitCertified:false,
    temperatureControllerIdentified:false};
 };
+async function mountAReviewStage(group){
+ const status=$('a-review-status');
+ status.removeAttribute('data-fallback');
+ status.textContent='正在加载玻片侧装配…';
+ const isCurrent=()=>platform==='A'&&aReviewMode&&parts.get('A17')?.g===group;
+ try{
+   aStageGeometryRequest??=new STLLoader()
+     .loadAsync(new URL('../private/micro_stage_v2.stl',import.meta.url).href)
+     .then(splitAStageMesh).catch(error=>{aStageGeometryRequest=null;throw error;});
+   const geometries=await aStageGeometryRequest;
+   if(!isCurrent())return;
+
+   const bracket=parts.get('A05');
+   const foot=bracket.g.children.find(o=>o.userData.A05OutwardFootCandidate);
+   const originY=CONFIG.board.height;
+   // Register the approved fasteners, matching jaws and slide to the
+   // folded web; all four share this translation before exploding.
+   const clampX=-58.5-foot.position.x;
+   const clampY=originY+A_FILM_LEVELS.clamp-bracket.base.y-foot.position.y;
+   const discardedMeshes=new Set();
+   for(const id of Object.keys(geometries).filter(id=>id!=='A15X'&&id!=='A15Y')){
+     const {g}=parts.get(id);
+     for(const child of [...g.children]){
+       if(child===foot||child.isCSS2DObject)continue;
+       child.traverse(o=>{if(o.isMesh)discardedMeshes.add(o);});
+       g.remove(child);
+     }
+     delete g.userData.slidingX;
+     delete g.userData.slidingDepth;
+     delete g.userData.slidingTop;
+     delete g.userData.verticalCarriage;
+   }
+   for(const list of [hitMeshes,holes]){
+     for(let i=list.length-1;i>=0;i--)if(discardedMeshes.has(list[i]))list.splice(i,1);
+   }
+   for(const id of ['A05','A05C','A05CS','A05G']){
+     for(const child of parts.get(id).g.children){
+       child.position.x+=clampX;
+       child.position.y+=clampY;
+     }
+   }
+   const material=new THREE.MeshStandardMaterial({
+     vertexColors:true,metalness:.32,roughness:.48,side:THREE.DoubleSide,wireframe
+   });
+   for(const [id,geometry] of Object.entries(geometries)){
+     const owner=id.startsWith('A15')?'A15':id;
+     const part=parts.get(owner);
+     const mesh=mk(geometry,material);
+     mesh.name=id;
+     // STL axes are installed monitor-relative axes. Undo only the yaw
+     // actually applied to the owner; the A03 root already has yaw zero.
+     mesh.rotation.y=-(part.facingYaw??0);
+     mesh.position.y=originY-part.base.y;
+     mesh.userData.assembledY=mesh.position.y;
+     mesh.userData.partId=owner;
+     part.g.add(mesh);
+     hitMeshes.push(mesh);
+     if(id==='A15X'||id==='A15Y')mesh.userData.explodeAxisY=id==='A15X'?45:22;
+   }
+   const vc=parts.get('A03').g;
+   const base=add(vc,plate(65,65,8,mats.black,
+     [-25,25].flatMap(x=>[-25,25].map(z=>[x,z,3.3]))));
+   base.userData.partId='A03';
+   hitMeshes.push(base);
+   const xDeck=parts.get('A15').g.getObjectByName('A15X');
+   const indicator=add(xDeck,plate(34,9,.8,mats.steel,[],[25,2.6]));
+   indicator.rotation.x=Math.PI/2;
+   indicator.position.set(0,46,32.5);
+   const lock=add(xDeck,cyl(2.7,4,mats.silver,0,46,34.5,24));
+   lock.rotation.x=Math.PI/2;
+   for(const mesh of [indicator,lock]){mesh.userData.partId='A15';hitMeshes.push(mesh);}
+   const filmEnabled=$('group-list').querySelector('[data-group="film"]')?.checked??true;
+   for(const id of aReviewFilmIds){
+     const part=parts.get(id);
+     part.g.userData.hiddenBecauseNotPhotographed=false;
+     part.g.visible=filmEnabled;
+   }
+   group.userData.reviewStageMesh=true;
+   updateTransforms();
+   if(inspectedPart&&aReviewFilmIds.includes(inspectedPart)){
+     const part=procurementRows(platform,activeParts()).find(row=>row.id===inspectedPart);
+     if(part)renderInspectedRecord(part);
+     fitInspection();
+   }else if(active?.part.group==='film')selectPart(active.part.id);
+   if(launchParams.get('view')==='film')focusMechanicalBranch('film');
+   status.textContent='显示器在后（−Z）。+X 向右，+Y 向上，+Z 朝观察者。';
+ }catch{
+   if(!isCurrent())return;
+   const filmEnabled=$('group-list').querySelector('[data-group="film"]')?.checked??true;
+   for(const id of aReviewFilmIds){
+     const {g}=parts.get(id);
+     g.userData.hiddenBecauseNotPhotographed=false;
+     g.visible=filmEnabled;
+   }
+   status.dataset.fallback='true';
+   status.textContent='玻片侧显示示意模型。';
+   updateTransforms();
+   if(inspectedPart&&aReviewFilmIds.includes(inspectedPart)){
+     const part=procurementRows(platform,activeParts()).find(row=>row.id===inspectedPart);
+     if(part)renderInspectedRecord(part);
+   }
+   if(inspectionScope==='film'||aReviewFilmIds.includes(inspectedPart))fitInspection();
+ }
+}
+
+window.__reviewedAFilmAssemblyProbe=()=>{
+ if(platform!=='A'||!parts.get('A17')?.g.userData.reviewStageMesh)return null;
+ currentRoot.updateWorldMatrix(true,true);
+ const bounds={};
+ for(const id of aReviewFilmIds){
+   for(const mesh of parts.get(id).g.children.filter(o=>o.isMesh&&o.visible)){
+     const box=new THREE.Box3().setFromObject(mesh);
+     const name=mesh.name||id;
+     if(!bounds[name])bounds[name]=box;
+     else bounds[name].union(box);
+   }
+ }
+ const foot=parts.get('A05').g.children.find(o=>o.userData.A05OutwardFootCandidate);
+ const blade=parts.get('A05C').g.children.find(o=>o.userData.A05CLowerClampBlade);
+ const vc=parts.get('A03').g.getObjectByName('A03');
+ const verticalDrive=vc.localToWorld(new THREE.Vector3(-18.4,110,10.8));
+ const verticalGuide=vc.localToWorld(new THREE.Vector3(-5,100,-2));
+ const glass=parts.get('A05G').g.children.find(o=>o.isMesh&&o.userData.candidateStandardSlide);
+ const workingLens=parts.get('A19').g.getObjectsByProperty('isMesh',true)
+   .find(o=>o.userData.A19ReviewObjective===0);
+ const shafts=parts.get('A05CS').g.children.filter(o=>o.userData.A05CSCandidateShank);
+ const shaftBoresOpen=shafts.map(shaft=>{
+   const origin=shaft.getWorldPosition(new THREE.Vector3());
+   origin.y=new THREE.Box3().setFromObject(foot).max.y+1;
+   const ray=new THREE.Raycaster(origin,new THREE.Vector3(0,-1,0),0,12);
+   return ray.intersectObjects([foot,blade],false).length===0;
+ });
+ return {
+   explosion,
+   bounds:Object.fromEntries(Object.entries(bounds).map(([id,b])=>[
+     id,[b.min,b.max].map(v=>v.toArray().map(n=>Number(n.toFixed(6))))
+   ])),
+   shaftBoresOpen,
+   driveLeftAndFront:verticalDrive.x<verticalGuide.x&&verticalDrive.z>verticalGuide.z,
+   equalClampLengths:Math.abs(new THREE.Box3().setFromObject(foot).getSize(new THREE.Vector3()).x-
+     new THREE.Box3().setFromObject(blade).getSize(new THREE.Vector3()).x)<.001,
+   workingLensCenter:workingLens.getWorldPosition(new THREE.Vector3()).toArray(),
+   workingLensToSlideGap:new THREE.Box3().setFromObject(workingLens).min.y-
+     new THREE.Box3().setFromObject(glass).max.y
+ };
+};
+
+window.__stagedExplosionProbe=()=>{
+ currentRoot.updateWorldMatrix(true,true);
+ const bounds=id=>new THREE.Box3().setFromObject(parts.get(id).g);
+ const sample=bounds(platform==='A'?'A07':'B11');
+ const objectives=bounds(platform==='A'?'A19':'B18');
+ const round=n=>Number(n.toFixed(3));
+ const chuck=parts.get(platform==='A'?'A07':'B11').g;
+ const screws=platform==='A'?chuck.userData.aChuckScrews:parts.get('B14').g;
+ const heads=screws.children.filter(o=>o.userData.fastenerHead);
+ const stack=chuck.children.filter(o=>o.isMesh);
+ const servicePaths=platform==='A'?
+   [[10,18.2,-16],[16,18.2,-16],[-10,21.1,0],[0,23.9,0]]:
+   [[10,2.8,-16],[15,2.8,-16],[6,5.75,0],[0,9.4,0]];
+ const direction=new THREE.Vector3(0,0,1).transformDirection(chuck.matrixWorld);
+ const serviceOpen=servicePaths.map(([x,y,stopZ])=>{
+   const origin=chuck.localToWorld(new THREE.Vector3(x,y,-36));
+   const ray=new THREE.Raycaster(origin,direction,0,stopZ+36);
+   return ray.intersectObjects(stack,false).length===0;
+ });
+ const slide=bounds(platform==='A'?'A05G':'B07');
+ const turret=parts.get(platform==='A'?'A19':'B18').g;
+ const slideToOptics=Math.min(...turret.children.filter(o=>o.isMesh).map(mesh=>{
+   const b=new THREE.Box3().setFromObject(mesh);
+   return Math.max(...['x','y','z'].map(axis=>Math.max(slide.min[axis]-b.max[axis],b.min[axis]-slide.max[axis])));
+ }));
+ if(platform==='A'){
+   stack.push(
+     parts.get('A31').g.children.find(o=>o.userData.A31WoodInsulationLayer),
+     parts.get('A32').g.children.find(o=>o.userData.A32LowerSupport),
+     parts.get('A02').g.getObjectsByProperty('isMesh',true).find(o=>o.userData.A02XYTopCarriesHeater)
+   );
+ }else{
+   stack.push(...parts.get('B10').g.children.filter(o=>o.isMesh));
+ }
+ const boreClear=heads.map(head=>{
+   const origin=head.getWorldPosition(new THREE.Vector3());
+   origin.y=sample.max.y+1;
+   // Include radial clearance inside a nominal M6 shaft; exclude screw meshes.
+   return [[0,0],[2.9,0],[-2.9,0],[0,2.9],[0,-2.9]].every(([x,z])=>{
+     const ray=new THREE.Raycaster(origin.clone().add(new THREE.Vector3(x,0,z)),new THREE.Vector3(0,-1,0),0,45);
+     return ray.intersectObjects(stack,false).length===0;
+   });
+ });
+ return {
+   coverY:round(Math.min(...chuck.children.filter(o=>o.isMesh).map(o=>new THREE.Box3().setFromObject(o).min.y))),
+   opticalGap:round(objectives.min.y-sample.max.y),
+   screwAboveCover:round(new THREE.Box3().setFromObject(screws).min.y-
+     Math.max(...chuck.children.filter(o=>o.isMesh).map(o=>new THREE.Box3().setFromObject(o).max.y))),
+   boreClear,serviceOpen,slideToOptics:round(slideToOptics)
+ };
+};
+
 function resetScene(){
+ if(inspectedPart){
+   inspectedPart=null;
+   assemblyCamera=null;
+   orbit.minDistance=65;
+ }
+ for(const {lines} of wireEdges.values())lines.geometry.dispose();
+ wireEdges.clear();
  // Each platform has its own independent BOM; prevent previous queries from hiding rows.
  if($('bom-query'))$('bom-query').value='';
  if($('priced-only'))$('priced-only').checked=false;
@@ -6178,7 +6642,10 @@ function resetScene(){
  else {
    platformA();
    for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A32','A31','A26','A27','A07','A28','A07W','A29','A30','A10','A11','A12','A13','A33','A21','A22','A23','A24','A25']){
-     if(!parts.has(id))throw Error('Model A missing: '+id);
+     if(!(aReviewMode&&['A21','A07W'].includes(id))&&!parts.has(id))throw Error('Model A missing: '+id);
+   }
+   if(aReviewMode){
+     for(const id of aReviewFilmIds)parts.get(id).g.userData.hiddenBecauseNotPhotographed=true;
    }
  }
  addAxis();axisObjects.forEach(a=>a.visible=showAxes);
@@ -6193,16 +6660,29 @@ function resetScene(){
  populateGroups();renderPhotoLedger();updateDetail(null);updateTransforms();
  $('platform-caption').textContent=platform==='B'?
   '平台 B':
-  ('平台 A · '+(aWorkingPoseMode?'工作位':'照片'));
+  ('平台 A · '+(aReviewMode?'实物装配':aWorkingPoseMode?'工作位':'照片'));
  $('stack-note').textContent=platform==='B'?
   (bPhoto94Mode?'参考视图':'B35→B08→B41(Y)→B09(X)→B10→B11 · 玻片侧 B02→B03→B04→B05→B34→B27→B33→B24→B28→B06'):
   (aWorkingPoseMode?
     'A17→A15→A03→A04L/A04→A05→A05C→玻片/PDMS · 样品侧 A16→A06→A02→A07':
     'A17→A15→A03→A04L/A04→A05→A05C · 照片参考：空载，无玻片/PDMS');
- focus('iso');
+ focus(platform==='A'&&aReviewMode?'front':'iso');
  updateTable();
+ if(inspectionMode){
+   renderInspectionNavigation();
+   refreshInspectionTitle();
+   $('part-detail').textContent='选中模型或清单中的零件。';
+ }
+ if(platform==='A'&&aReviewMode)void mountAReviewStage(parts.get('A17').g);
 }
 function focus(mode){
+ if(platform==='A'&&aReviewMode&&(mode==='front'||mode==='home')){
+   const height=explosion>0?235:188;
+   orbit.target.set(10,height,0);
+   camera.position.set(10,height+28,explosion>0?820:675);
+   camera.lookAt(orbit.target);orbit.update();
+   return;
+ }
  const sampleX=platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX;
  // Photo119 confirms a substantial cabinet at the right of the
  // optical rig. The B system now spans X=-215..508, Z=-263..220.
@@ -6268,10 +6748,10 @@ function summaryBOM(rows){
    const strong=document.createElement('strong');strong.textContent=number;
    const sm=document.createElement('span');sm.textContent=desc;b.append(strong,sm);dst.append(b);
  };
- card(String(rows.length),'零件');
- card(String(sum.priced),'有价格');
+ card(String(rows.length),'BOM 条目');
+ card(String(sum.priced),'有公开或历史参考价');
  card(String(sum.unpriced),'待询价');
- for(const c of sum.currencies)card(c.currency+' '+c.amount.toFixed(2),'小计 · '+c.rows+' 行');
+ for(const c of sum.currencies)card(c.currency+' '+c.amount.toFixed(2),'参考价小计 · '+c.rows+' 行');
 }
 function sortedBOM(rows){
  const sort=$('bom-sort').value;
@@ -6287,59 +6767,97 @@ function sortedBOM(rows){
  }else list.sort((a,b)=>String(a[sort]||'').localeCompare(String(b[sort]||''),'zh-CN',{numeric:true}));
  return list;
 }
-function visibleBOM(){
+function visibleBOM(rows){
  const q=$('bom-query').value.trim().toLowerCase();
  const priceOnly=$('priced-only').checked;
- return sortedBOM(activeParts().map(p=>enriched(platform,p)).filter(p=>
-    (!priceOnly||Boolean(p.quote?.value))&&
-    (!q||[p.id,p.name,p.model,p.maker,p.category,p.note,
+ return sortedBOM(rows.filter(p=>
+    (!priceOnly||p.quote?.value!=null)&&
+    (!q||[p.id,p.name,p.model,p.maker,p.category,p.note,p.traceability,p.connection,
           ...(p.alternatives||[]).flatMap(a=>a.slice(0,2))]
      .join(' ').toLowerCase().includes(q))
  ));
 }
 function updateTable(){
  const tbody=$('bom-body');tbody.replaceChildren();
- const visible=visibleBOM();
+ const rows=procurementRows(platform,activeParts()).map(partRecords.apply);
+ const visible=visibleBOM(rows);
  for(const part of visible){
-  const tr=document.createElement('tr');tr.style.cursor='pointer';
-  function cell(text='',cls=''){
-    const td=document.createElement('td');td.textContent=text;td.className=cls;tr.append(td);return td;
+  const tr=document.createElement('tr');
+  function cell(text='',cls='',field=''){
+    const td=document.createElement('td');
+    td.textContent=text;td.className=cls;tr.append(td);
+    if(inspectionMode&&field){
+      td.dataset.editField=field;
+      td.title='双击编辑';
+    }
+    return td;
   }
   cell(part.id);cell(groups[part.group].name);
-  cell(part.name+'\n'+(part.category||''));cell(part.maker+' / '+part.model);
-  cell(String(part.qty||1)+' '+(part.unit||'件'));cell(part.dims);
-  const materialCell=cell(part.material||'未定');
+  cell(part.name+'\n'+(part.category||''),'','name');cell(part.maker+' / '+part.model,'','model');
+  cell(part.qty===''?'待填':String(part.qty??1)+' '+part.unit,'','qty');
+  cell(part.dims,'','dims');
+  const materialCell=cell(part.material||'待填','','material');
   for(const alt of part.alternatives||[]){
     const sp=document.createElement('span');sp.className='bom-alt';
     sp.append('候选：',buildLink(alt[0],alt[2]),' · '+alt[1]);
     materialCell.append(sp);
   }
   const q=part.quote;
-  cell(q?q.currency+' '+q.value.toFixed(2):'待询价','bom-price');
-  cell(q?q.currency+' '+(q.value*(part.qty||1)).toFixed(2):'—','bom-price');
-  const priceCell=cell(q?(q.type||'公开参考价')+'\n'+q.date:'—');
+  cell(q?q.currency+' '+q.value.toFixed(2):part.qty===0?'—':'待询价','bom-price','price');
+  cell(q&&part.qty>0?q.currency+' '+(q.value*part.qty).toFixed(2):'—','bom-price');
+  const priceCell=cell(part.quoteStatus+(q?.date?'\n'+q.date:''));
   if(q?.source)priceCell.append(' · ',buildLink('价格来源',q.source));
   const drawing=cell();
   drawing.append(buildLink('原厂图纸',part.drawing));
   if(part.cad)drawing.append(' · ',buildLink('CAD',part.cad));
   if(part.datasheet)drawing.append(' · ',buildLink('产品页',part.datasheet));
   const photoCell=cell();
-  mountPhotoBOMCell(photoCell,platform,part.id);
-  tr.onclick=(ev)=>{
-    if(ev.target.closest('a'))return;
-    selectPart(part.id);$('bom-drawer').classList.remove('open');
-  };
+  if(!part.hardware)mountPhotoBOMCell(photoCell,platform,part.id);
+  if(part.evidence){
+    const basis=document.createElement('span');
+    basis.className='bom-alt';basis.textContent=part.evidence;
+    photoCell.append(basis);
+  }
+  cell(part.traceability+'\n'+part.connection,'','connection');
+  if(inspectionMode||!part.hardware){
+    tr.style.cursor='pointer';
+    tr.onclick=(ev)=>{
+      if(ev.target.closest('a,button,[data-edit-field]'))return;
+      if(inspectionMode)inspectPart(part.id);
+      else selectPart(part.id);
+      $('bom-drawer').classList.remove('open');
+    };
+    if(inspectionMode)tr.ondblclick=ev=>{
+      const field=ev.target.closest('[data-edit-field]')?.dataset.editField;
+      if(!field||ev.target.closest('a,button'))return;
+      inspectPart(part.id);
+      $('bom-drawer').classList.remove('open');
+      const value=$('part-detail').querySelector('[data-field="'+field+'"]');
+      if(value){
+        const details=value.closest('details');
+        if(details)details.open=true;
+        value.dispatchEvent(new MouseEvent('dblclick'));
+      }
+    };
+  }
   tbody.append(tr);
  }
- summaryBOM(activeParts().map(x=>enriched(platform,x)));
+ summaryBOM(rows);
  $('bom-heading').textContent='平台 '+platform+' · BOM';
 }
-function csvEscape(v){return '"'+String(v??'').replaceAll('"','""')+'"'}
-function exportCSV(){
- const matrix=csvExportRows(activeParts().map(p=>enriched(platform,p)));
- const body='\\ufeff'+matrix.map(row=>row.map(csvEscape).join(',')).join('\\r\\n');
+function csvEscape(v){
+ const text=String(v??'');
+ const safe=/^\s*[=+@-]/.test(text)&&typeof v==='string'?"'"+text:text;
+ return '"'+safe.replaceAll('"','""')+'"';
+}
+function exportCSV(all=false){
+ const rows=all?['A','B'].flatMap(key=>procurementRows(key,
+   PARTS[key].map(p=>contextualPart(p,{rig:key,archiveB:false})),{archive:true}
+ )):procurementRows(platform,activeParts());
+ const matrix=csvExportRows(rows.map(partRecords.apply));
+ const body='\ufeff'+matrix.map(row=>row.map(csvEscape).join(',')).join('\r\n');
  const url=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));
- const a=document.createElement('a');a.href=url;a.download='Transfer_Station_'+platform+'_Procurement_BOM.csv';a.click();
+ const a=document.createElement('a');a.href=url;a.download='Transfer_Station_'+(all?'A_B':platform)+'_Procurement_BOM.csv';a.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 renderer.domElement.addEventListener('pointerdown',ev=>{
@@ -6349,12 +6867,16 @@ renderer.domElement.addEventListener('pointerup',ev=>{
  if(!pointerDown||Math.hypot(ev.clientX-pointerDown.x,ev.clientY-pointerDown.y)>6)return;
  const bounds=renderer.domElement.getBoundingClientRect();pointer.set(((ev.clientX-bounds.left)/bounds.width)*2-1,-((ev.clientY-bounds.top)/bounds.height)*2+1);
  raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(hitMeshes.filter(x=>{
-   let n=x;while(n){if(!n.visible)return false;n=n.parent;}return true;
+   return _isEffectivelyVisible(x)&&(!inspectionMode||isInInspection(x.userData.partId));
  }),false);
  let found=false;
  for(const hit of hits){let cur=hit.object;while(cur&&!cur.userData.partId)cur=cur.parent;
-   if(cur?.userData.partId){selectPart(cur.userData.partId);found=true;break;}}
- if(!found)selectPart(null);
+   if(cur?.userData.partId){
+     if(inspectionMode)inspectPart(cur.userData.partId);
+     else selectPart(cur.userData.partId);
+     found=true;break;
+   }}
+ if(!found&&!inspectionMode)selectPart(null);
 });
 function updatePhotoScope(){
  const node=$('photo-scope-note');
@@ -6362,6 +6884,8 @@ function updatePhotoScope(){
  // V132: A photo/reference controls are retained only as internal QA hooks.
  // They are no longer part of the user-facing Platform A workflow.
  $('a-pose-selector').hidden=true;
+ const showA=platform==='A';
+ $('a-review-status').hidden=!showA||!aReviewMode;
  $('photo-crosscheck').hidden=true;
  $('a-photo-20261108').hidden=true;
  $('btn-a-working-pose').classList.toggle('on',platform==='A'&&aWorkingPoseMode);
@@ -7769,6 +8293,9 @@ function switchPlatform(next){
   }
   clearCadFeatureCandidates();
   platform=next;
+  inspectionScope='all';
+  inspectionProgress.clear();
+  $('inspection-filter').value='';
   aThermalCutaway=false;
   const b=$('toggle-a-thermal');
   if(b){b.hidden=next!=='A';b.classList.remove('on');b.setAttribute('aria-pressed','false');}
@@ -7781,21 +8308,26 @@ function switchPlatform(next){
   // V132: Platform A has no user-facing photo-reference workflow.
   // Hide B-only inspection shortcuts so A does not expose unrelated photo views.
   for(const id of ['btn-photo108','btn-photo109','btn-control-cabinet'])$(id).hidden=next==='A';
+  $('btn-front').textContent=next==='A'&&aReviewMode?'显示器基准':'正视';
+  $('btn-a19-review').hidden=next!=='A'||!aReviewMode;
   $('btn-a-external').hidden=next!=='A';
    $('btn-a18-optical').hidden=next!=='A';
    $('btn-a18-support').hidden=next!=='A';
-   $('btn-a-optical-spacing').hidden=next!=='A';
+   const engineeringA=next==='A'&&!aReviewMode;
+   $('btn-a-optical-spacing').hidden=!engineeringA;
    $('btn-a-optical-spacing').textContent='A 光路距离核查';
-   $('btn-a18-mgz-study').hidden=next!=='A';
+   $('btn-a18-mgz-study').hidden=!engineeringA;
    $('btn-a18-mgz-study').textContent='MGZ30候选对照';
-   $('btn-a18-bxfm-study').hidden=next!=='A';
+   $('btn-a18-bxfm-study').hidden=!engineeringA;
    $('btn-a18-bxfm-study').textContent='BXFM-F图纸对照';
-   $('btn-a18-lylight-study').hidden=next!=='A';
+   $('btn-a18-lylight-study').hidden=!engineeringA;
    $('btn-a18-lylight-study').textContent='FR5025CF候选对照';
-   $('btn-a18-fr8425-study').hidden=next!=='A';
+   $('btn-a18-fr8425-study').hidden=!engineeringA;
    $('btn-a18-fr8425-study').textContent='FR8425 84/25候选';
    lastAExternalCameraFit=null;
   const photoA=next==='A'&&!aWorkingPoseMode;
+  $('film-travel-controls').hidden=next==='A'&&aReviewMode;
+  $('toggle-sample-demo').hidden=next==='A'&&aReviewMode;
   $('film-drop-label').textContent=photoA?'照片参考':'玻片 Z';
   $('sample-move-label').textContent='样品 X';
   $('sample-move-depth-label').textContent='样品 Y';
@@ -7819,7 +8351,7 @@ function switchPlatform(next){
   resetScene();updatePhotoScope();
 }
 $('show-b').onclick=()=>switchPlatform('B');
-$('show-a').onclick=()=>{aWorkingPoseMode=true;switchPlatform('A');};
+$('show-a').onclick=()=>{aWorkingPoseMode=!aReviewMode;switchPlatform('A');};
 $('btn-a-working-pose').onclick=()=>{
  aWorkingPoseMode=true;switchPlatform('A');
 };
@@ -7911,6 +8443,12 @@ $('btn-photo97').onclick=()=>focusPhoto947('97');
 }
 $('btn-photo196').onclick=focusPhoto196;
 function focusMechanicalBranch(which){
+ const stage=platform==='A'&&aReviewMode?parts.get('A17')?.g.userData.reviewStageMesh:null;
+ if(which==='film'&&stage){
+   const filmMeshes=aReviewFilmIds.flatMap(id=>parts.get(id).g.children.filter(o=>o.isMesh&&o.visible));
+   focusAReviewView(filmMeshes,[.35,.17,1]);
+   return;
+ }
  const x=which==='film'?(platform==='B'?CONFIG.B.armX:activeAFilmX()):(platform==='B'?CONFIG.B.sampleX:CONFIG.A.sampleX);
  const fittedBFilm=which==='film'&&platform==='B';
  // Previous camera at y=85, distance~300mm CHOPPED OFF photo149's
@@ -7933,7 +8471,16 @@ function focusBFilmHolder(){
  orbit.target.copy(target);
  camera.lookAt(target);orbit.update();
 }
-$('btn-film-holder').onclick=focusBFilmHolder;
+$('btn-film-holder').onclick=()=>{
+ if(platform==='A'&&aReviewMode&&parts.get('A17')?.g.userData.reviewStageMesh){
+   const foot=parts.get('A05').g.children.find(o=>o.userData.A05OutwardFootCandidate);
+   const blade=parts.get('A05C').g.children.find(o=>o.userData.A05CLowerClampBlade);
+   focusAReviewView([foot,blade,parts.get('A05CS').g],[.6,.48,1.35]);
+   return;
+ }
+ if(platform==='A'){focusMechanicalBranch('film');return;}
+ focusBFilmHolder();
+};
 
 // Compare the same stage from opposing sides without changing any part geometry.
 function focusBPhoto(photo){
@@ -7946,8 +8493,29 @@ $('btn-photo108').onclick=()=>focusBPhoto('108');
 $('btn-photo109').onclick=()=>focusBPhoto('109');
 $('btn-sample-stack').onclick=()=>focusMechanicalBranch('sample');
 $('btn-a-external').onclick=focusAExternal;
- $('btn-a18-optical').onclick=focusA18OpticalAudit;
- $('btn-a18-support').onclick=focusA18SupportAudit;
+function focusAReviewView(objects,direction){
+ currentRoot.updateWorldMatrix(true,true);
+ const box=_auditBoxFor(objects);
+ const fit=box.getBoundingSphere(new THREE.Sphere());
+ const verticalFov=THREE.MathUtils.degToRad(camera.fov);
+ const horizontalFov=2*Math.atan(Math.tan(verticalFov/2)*camera.aspect);
+ const distance=fit.radius/Math.sin(Math.min(verticalFov,horizontalFov)/2)*1.06;
+ orbit.target.copy(fit.center);
+ camera.position.copy(fit.center).add(new THREE.Vector3(...direction).normalize().multiplyScalar(distance));
+ camera.lookAt(orbit.target);orbit.update();
+}
+$('btn-explode-fit').onclick=()=>{
+ const visible=[];
+ currentRoot.traverse(o=>{if(o.isMesh&&_isEffectivelyVisible(o))visible.push(o);});
+ if(visible.length)focusAReviewView(visible,[.35,.43,1]);
+};
+function focusAReviewOptics(rear){
+ const ids=rear?['A10','A18','A19']:['A18','A19','A11','A08','A14','A09'];
+ focusAReviewView(ids.map(id=>parts.get(id)?.g),rear?[-.95,.35,-1]:[.2,.1,1]);
+}
+$('btn-a18-optical').onclick=()=>aReviewMode?focusAReviewOptics(false):focusA18OpticalAudit();
+$('btn-a18-support').onclick=()=>aReviewMode?focusAReviewOptics(true):focusA18SupportAudit();
+$('btn-a19-review').onclick=()=>focusAReviewView([parts.get('A19').g],[.1,-.28,1]);
 
 function focusAOpticalReferenceView(){
  const lens=parts.get('A08')?.g,cam=parts.get('A09')?.g;
@@ -8072,7 +8640,11 @@ function focusAOpticalReferenceView(){
    orbit.target.copy(target);camera.lookAt(target);orbit.update();
  };
 $('btn-home').onclick=()=>focus('home');$('btn-top').onclick=()=>focus('top');$('btn-optical').onclick=()=>focus('optical');$('btn-front').onclick=()=>focus('front');$('btn-rear').onclick=()=>focus('rear');$('btn-iso').onclick=()=>focus('iso');
-$('explode').oninput=e=>{explosion=Number(e.target.value);$('explode-value').textContent=explosion+'%';updateTransforms()};
+$('explode').oninput=e=>{
+ explosion=Number(e.target.value);
+ inspectionProgress.set(inspectionScope,explosion);
+ $('explode-value').textContent=explosion+'%';updateTransforms();
+};
 $('translate').oninput=e=>{filmShift=Number(e.target.value);$('translate-value').textContent=filmShift.toFixed(1)+' mm';updateTransforms()};
 $('translate-depth').oninput=e=>{filmShiftDepth=Number(e.target.value);$('translate-depth-value').textContent=filmShiftDepth.toFixed(1)+' mm';updateTransforms()};
 $('film-drop').oninput=e=>{filmDrop=Math.max(0,-Number(e.target.value));
@@ -8367,14 +8939,244 @@ $('fit-cad-landmarks').onclick=()=>{
  }
 };
 
-$('export-csv').onclick=exportCSV;
+$('export-csv').onclick=()=>exportCSV();
+$('export-all-csv').onclick=()=>exportCSV(true);
 for(const id of ['bom-query','bom-sort','priced-only']){
  const el=$(id);el.addEventListener(id==='bom-query'?'input':'change',updateTable);
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('bom-drawer').classList.remove('open')});
+function isInInspection(id){
+ if(inspectedPart&&parts.has(inspectedPart))return id===inspectedPart;
+ if(inspectionScope==='all')return true;
+ const part=parts.get(id)?.part;
+ return Boolean(part&&assemblyFor(part)===inspectionScope);
+}
+function inspectionRoots(){
+ return [...parts.values()].filter(({g,part})=>g.visible&&isInInspection(part.id)).map(({g})=>g);
+}
+function refreshInspectionTitle(){
+ const part=inspectedPart&&procurementRows(platform,activeParts()).find(x=>x.id===inspectedPart);
+ $('platform-caption').textContent=part?
+   part.id+' · '+(partRecords.value(part,'name')||part.id):'平台 '+platform+' · '+scopes[inspectionScope];
+ $('inspection-back').hidden=!inspectedPart;
+ $('inspection-explosion').hidden=Boolean(inspectedPart);
+}
+function renderInspectionNavigation(){
+ for(const button of $('inspection-scopes').children){
+   const selected=button.dataset.scope===inspectionScope;
+   button.classList.toggle('on',selected);
+   button.setAttribute('aria-pressed',String(selected));
+ }
+ const query=$('inspection-filter').value.trim().toLowerCase();
+ const matches=activeParts().map(p=>partRecords.apply(enriched(platform,p))).filter(part=>
+   (inspectionScope==='all'||assemblyFor(part)===inspectionScope)&&
+   [part.id,part.name,part.model,part.maker].some(x=>String(x).toLowerCase().includes(query))
+ );
+ const list=$('inspection-parts');
+ list.replaceChildren(...matches.map(part=>{
+   const btn=document.createElement('button');
+   btn.type='button';
+   btn.dataset.partId=part.id;
+   btn.title=part.name;
+   if(part.id===inspectedPart)btn.setAttribute('aria-current','true');
+   const id=document.createElement('span');
+   id.className='part-id';id.textContent=part.id;
+   const name=document.createElement('span');
+   name.className='part-name';name.textContent=part.name||part.id;
+   btn.append(id,name);
+   btn.onclick=()=>inspectPart(part.id);
+   return btn;
+ }));
+ $('inspection-count').textContent=String(matches.length);
+}
+function fitInspection(){
+ const roots=inspectionRoots();
+ const meshes=[];
+ for(const root of roots)root.traverseVisible(o=>{if(o.isMesh)meshes.push(o);});
+ if(meshes.length)focusAReviewView(meshes,[.36,.27,1]);
+}
+function inspectPart(id){
+ if(id===inspectedPart)return;
+ const part=procurementRows(platform,activeParts()).find(x=>x.id===id);
+ if(!part)return;
+ if(!inspectedPart)assemblyCamera={position:camera.position.clone(),target:orbit.target.clone()};
+ inspectedPart=id;
+ updateTransforms();
+ orbit.minDistance=1.5;
+ selectPart(id,{legacyDetail:false});
+ renderInspectionNavigation();
+ refreshInspectionTitle();
+ renderInspectedRecord(part);
+ fitInspection();
+}
+function renderInspectedRecord(part){
+ mountPartRecord($('part-detail'),part,partRecords,{
+   hasMesh:inspectionRoots().some(g=>g.userData.partId===part.id),
+   onSave:()=>{
+     renderInspectionNavigation();
+     refreshInspectionTitle();
+     updateTable();
+   }
+ });
+}
+function clearInspectionPart(){
+ inspectedPart=null;
+ orbit.minDistance=65;
+ updateTransforms();
+ selectPart(null,{legacyDetail:false});
+ const detail=$('part-detail');
+ detail.className='select-placeholder';
+ detail.textContent='选中模型或清单中的零件。';
+ renderInspectionNavigation();
+ refreshInspectionTitle();
+}
+function openInspectionScope(scope){
+ clearInspectionPart();
+ assemblyCamera=null;
+ inspectionScope=scope;
+ $('inspection-filter').value='';
+ const slider=$('explode');
+ slider.value=String(inspectionProgress.get(scope)??0);
+ slider.dispatchEvent(new Event('input'));
+ renderInspectionNavigation();
+ refreshInspectionTitle();
+ fitInspection();
+}
+function structuralEdges(geometry){
+ const edges=new THREE.EdgesGeometry(geometry,18);
+ if(geometry.type==='CylinderGeometry'){
+   const {height,radiusTop,radiusBottom}=geometry.parameters;
+   const positions=[...edges.getAttribute('position').array];
+   for(const [x,z] of [[0,1],[1,0],[0,-1],[-1,0]]){
+     positions.push(x*radiusTop,height/2,z*radiusTop,x*radiusBottom,-height/2,z*radiusBottom);
+   }
+   edges.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+ }
+ return edges;
+}
+function wireMesh(mesh,restores){
+ if(!mesh.geometry?.attributes.position)return;
+ // Surface decals have no structural edges.
+ if(mesh.geometry.type==='PlaneGeometry'&&mesh.material.map)return;
+ let entry=wireEdges.get(mesh);
+ if(!entry||entry.source!==mesh.geometry){
+   if(entry){
+     mesh.remove(entry.lines);
+     entry.lines.geometry.dispose();
+   }
+   const lines=new THREE.LineSegments(structuralEdges(mesh.geometry),wireInk);
+   lines.visible=false;
+   mesh.add(lines);
+   entry={source:mesh.geometry,lines};
+   wireEdges.set(mesh,entry);
+ }
+ restores.push([mesh,mesh.material,entry.lines]);
+ mesh.material=wireFill;
+ entry.lines.visible=true;
+}
+function renderInspection(){
+ const restrict=Boolean(inspectedPart)||inspectionScope!=='all';
+ if(!restrict&&!inspectionWire){
+   renderer.render(scene,camera);
+   return;
+ }
+ const hidden=[];
+ const restores=[];
+ const floorVisible=floor.visible;
+ floor.visible=!inspectedPart&&!inspectionWire;
+ for(const group of currentRoot.children){
+   if(!group.visible)continue;
+   if(restrict&&!isInInspection(group.userData.partId)){
+     group.visible=false;
+     hidden.push(group);
+   }else if(inspectionWire){
+     group.traverseVisible(o=>{if(o.isMesh)wireMesh(o,restores);});
+   }
+ }
+ try{
+   renderer.render(scene,camera);
+ }finally{
+   floor.visible=floorVisible;
+   for(const group of hidden)group.visible=true;
+   for(const [mesh,material,lines] of restores){
+     mesh.material=material;
+     lines.visible=false;
+   }
+ }
+}
+function setupInspection(){
+ document.body.classList.add('inspection-mode');
+ showLabels=false;
+ measurementOverlay.visible=false;
+ labelRenderer.domElement.hidden=true;
+ for(const id of ['inspection-navigation','inspection-toolbar','inspection-explosion'])$(id).hidden=false;
+ $('inspection-explosion').append($('explosion-control'));
+ for(const [scope,title] of Object.entries(scopes)){
+   const button=document.createElement('button');
+   button.type='button';
+   button.dataset.scope=scope;
+   button.textContent=title;
+   button.onclick=()=>openInspectionScope(scope);
+   $('inspection-scopes').append(button);
+ }
+ $('inspection-filter').oninput=renderInspectionNavigation;
+ $('inspection-fit').onclick=fitInspection;
+ $('inspection-back').onclick=()=>{
+   clearInspectionPart();
+   if(assemblyCamera){
+     camera.position.copy(assemblyCamera.position);
+     orbit.target.copy(assemblyCamera.target);
+     camera.lookAt(orbit.target);
+     orbit.update();
+     assemblyCamera=null;
+   }
+ };
+ $('inspection-wire').onclick=e=>{
+   inspectionWire=!inspectionWire;
+   e.currentTarget.setAttribute('aria-pressed',String(inspectionWire));
+ };
+ partRecords.refresh().then(()=>{
+   renderInspectionNavigation();
+   if(inspectedPart&&!$('part-detail').querySelector('form')){
+     const part=procurementRows(platform,activeParts()).find(x=>x.id===inspectedPart);
+     if(part)renderInspectedRecord(part);
+   }
+   updateTable();
+ }).catch(()=>{
+   partRecords.state.offline=true;
+   if(inspectedPart&&!$('part-detail').querySelector('form')){
+     const part=procurementRows(platform,activeParts()).find(x=>x.id===inspectedPart);
+     if(part)renderInspectedRecord(part);
+   }
+ });
+}
+
+window.__inspectionProbe=()=>({
+ scope:inspectionScope,part:inspectedPart,explosion,wire:inspectionWire,
+ meshes:inspectionRoots().map(g=>g.userData.partId),
+ edgeMeshes:wireEdges.size,camera:camera.position.toArray(),target:orbit.target.toArray(),
+ centers:Object.fromEntries(inspectionRoots().map(g=>[g.userData.partId,g.position.toArray()]))
+});
+
 function resize(){
  const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;
  camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);labelRenderer.setSize(w,h);
 }
 window.addEventListener('resize',resize);new ResizeObserver(resize).observe(host);
-resetScene();updatePhotoScope();resize();renderer.setAnimationLoop(()=>{orbit.update();renderer.render(scene,camera);labelRenderer.render(scene,camera)});
+if(inspectionMode)setupInspection();
+if(launchParams.get('platform')==='A'){
+ $('show-a').click();
+ const initialExplosion=Number(launchParams.get('explode'));
+ if(Number.isInteger(initialExplosion)&&initialExplosion>0&&initialExplosion<=100){
+   $('explode').value=String(initialExplosion);
+   $('explode').dispatchEvent(new Event('input'));
+ }
+}else{resetScene();updatePhotoScope();}
+resize();renderer.setAnimationLoop(()=>{
+ orbit.update();
+ if(inspectionMode)renderInspection();
+ else{
+   renderer.render(scene,camera);
+   labelRenderer.render(scene,camera);
+ }
+});

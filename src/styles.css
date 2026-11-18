@@ -73,3 +73,76 @@
 .advanced-tools[open]>summary.title{margin-bottom:12px}
 .cad-advanced{margin-top:9px;border-top:1px solid var(--line);padding-top:9px}
 .cad-advanced>summary{font-size:11px;color:#9fb5c8;margin-bottom:8px}
+
+/* Assembly workspace */
+[hidden]{display:none!important}
+.inspection-mode{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+.inspection-mode .top{padding:14px 24px}
+.inspection-mode #a-review-status[data-fallback]{color:#d5bd94;margin:8px 0 0}
+.inspection-value:disabled{cursor:default;opacity:1}
+.inspection-mode .top .subtitle,.inspection-mode .top-actions>a:last-child,
+.inspection-mode .bottom,.inspection-mode #a-review-status:not([data-fallback]),.inspection-mode #legacy-view-controls,
+.inspection-mode #legacy-display-controls,.inspection-mode #legacy-detail-heading,
+.inspection-mode .advanced-tools,.inspection-mode #hover-help{display:none}
+.inspection-mode .layout{height:auto;min-height:0;grid-template-columns:248px minmax(0,1fr) 315px}
+.inspection-mode .detail{padding-top:16px}
+.inspection-mode .side{overflow:auto}
+#inspection-navigation h2{font-size:12px;color:var(--muted);font-weight:650;margin:20px 0 7px}
+#inspection-scopes{display:grid;gap:5px}
+#inspection-scopes button,.inspection-parts button{text-align:left;min-height:32px}
+#inspection-scopes button{width:100%;padding:7px 10px}
+.parts-heading{display:flex;align-items:baseline;justify-content:space-between}
+#inspection-count{font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted)}
+#inspection-filter,.inspection-edit :is(input,textarea){width:100%;background:#0e1a28;border:1px solid var(--line);border-radius:6px;color:var(--text);padding:7px 8px;font:inherit}
+.inspection-parts{display:grid;gap:2px;margin-top:6px}
+.inspection-parts button{display:grid;grid-template-columns:36px minmax(0,1fr);align-items:center;gap:5px;border-color:transparent;background:transparent;padding:5px 7px}
+.inspection-parts button:hover,.inspection-parts button[aria-current="true"]{background:#1d354b;border-color:#355570}
+.inspection-parts .part-id{color:#9dcdef;font-size:11px;font-variant-numeric:tabular-nums}
+.inspection-parts .part-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.inspection-mode .stage-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;right:14px;pointer-events:none}
+.inspection-mode #platform-caption{max-width:67%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.inspection-toolbar{display:flex;gap:6px;pointer-events:auto}
+.inspection-toolbar button{font-size:12px;padding:5px 9px;background:#152b3e}
+.inspection-toolbar button[aria-pressed="true"]{border-color:#6db6e8;background:#1c4461}
+.inspection-explosion{position:absolute;left:50%;bottom:19px;transform:translateX(-50%);width:min(330px,calc(100% - 35px));padding:8px 12px;border-radius:8px;border:1px solid #344e66;background:#112235ed}
+.inspection-explosion .control-line{margin:0;font-size:12px}
+.inspection-explosion #explode-step{margin:3px 0 0}
+.inspection-explosion #btn-explode-fit{display:none}
+.inspection-mode .stage-bottom{justify-content:flex-end;bottom:105px}
+.inspection-detail-heading{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:7px}
+.inspection-detail-heading .part-id{color:#acd8f7;font-size:12px}
+.inspection-detail-heading button{padding:5px 8px;font-size:12px}
+.inspection-mode #part-detail h2{font-size:18px;line-height:1.4;margin:0 0 8px}
+.inspection-field-list{display:grid;grid-template-columns:1fr 1fr;column-gap:12px}
+.inspection-field-list>.inspection-field{grid-column:1/-1}
+.inspection-field-list>.inspection-field:is([data-record-field="qty"],[data-record-field="unit"],[data-record-field="price"],[data-record-field="currency"]){grid-column:auto}
+.inspection-field{padding:8px 0;border-bottom:1px solid var(--line);min-width:0}
+.inspection-field>span{color:var(--muted);font-size:11px;display:block}
+.inspection-value{touch-action:manipulation;text-align:left;border:1px solid transparent;background:transparent;color:var(--text);padding:2px 4px;margin-left:-5px;display:block;max-width:calc(100% + 5px);overflow-wrap:anywhere;white-space:pre-line;cursor:text;font:inherit}
+.inspection-value:hover,.inspection-value:focus-visible{border-color:#416584;background:#172c41}
+.inspection-value.empty{color:#a9bbcd;font-size:12px}
+.inspection-edit textarea{min-height:65px;resize:vertical}
+.inspection-edit button{margin:5px 6px 0 0;padding:4px 8px;font-size:12px}
+.inspection-mode td[data-edit-field]{cursor:text}
+.inspection-mode td[data-edit-field]:hover{outline:1px solid #416584;outline-offset:-1px}
+.inspection-status{font-size:12px;color:#afd5ea;margin:6px 0}
+.inspection-status.error{color:#ffb7a4}
+.inspection-info>summary{cursor:pointer;color:#acd8f7;padding:8px 0;font-size:12px}
+.inspection-revision{padding:9px 0;border-top:1px solid var(--line);font-size:12px}
+.inspection-revision p{margin:3px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.inspection-revision time{color:var(--muted);display:block}
+.inspection-revision button{padding:3px 7px;font-size:11px;margin-top:5px}
+.inspection-sources{display:flex;flex-wrap:wrap;gap:9px;padding:6px 0}
+@media(max-width:1050px){
+ .inspection-mode .layout{grid-template-columns:190px minmax(0,1fr) 254px}
+}
+@media(max-width:760px){
+ .inspection-mode{height:auto;overflow:auto}
+ .inspection-mode .layout{height:auto;grid-template-columns:150px minmax(0,1fr);grid-template-rows:56dvh auto}
+ .inspection-mode .detail{grid-column:1/-1;max-height:none}
+ .inspection-mode .stage{min-width:0}
+ .inspection-mode .top{padding:10px 12px}
+ .inspection-mode .top h1{font-size:20px}
+ .inspection-mode .eyebrow{font-size:9px}
+ .inspection-mode .inspection-toolbar{flex-wrap:wrap;justify-content:flex-end}
+}

@@ -12,7 +12,7 @@ page.setDefaultTimeout(12000);
 const failures=[];
 page.on('pageerror',e=>failures.push(String(e)));
 try{
- await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:20000});
+ await page.goto('http://127.0.0.1:8765/?legacy-a-qa=1',{waitUntil:'domcontentloaded',timeout:20000});
  await page.locator('#viewer canvas').waitFor({timeout:20000});
  try{
    await page.waitForFunction(()=>document.querySelectorAll('#group-list .group-row').length>=7,
@@ -578,26 +578,26 @@ try{
    'Selecting the B41 stage via BOM must display its photographed evidence');
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B24');
- const phuc=page.locator('#bom-body tr').filter({hasText:'B24'});
+ const phuc=page.locator('#bom-body tr').filter({hasText:/^\s*B24\b/});
  assert.equal(await phuc.count(),1);
  await phuc.evaluate(el=>el.click());
  assert.match(await page.locator('#part-detail').innerText(),/PHUC-1/);
  assert.equal(await page.locator('#holder-geometric-qa').getAttribute('data-hole-spacing'),'33');
  await page.locator('#open-bom').evaluate(el=>el.click()); // Selecting a row closes the BOM panel
  await page.locator('#bom-query').fill('B34');
- const holder=page.locator('#bom-body tr').filter({hasText:'B34'});
+ const holder=page.locator('#bom-body tr').filter({hasText:/^\s*B34\b/});
  assert.equal(await holder.count(),1,'Black photo149 sleeve must have its own BOM row');
  await holder.evaluate(el=>el.click());
  assert.match(await page.locator('#part-detail').innerText(),/PHSH-2/);
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B33');
- const square=page.locator('#bom-body tr').filter({hasText:'B33'});
+ const square=page.locator('#bom-body tr').filter({hasText:/^\s*B33\b/});
  assert.equal(await square.count(),1,'Independent square clamp cannot disappear');
  await square.evaluate(el=>el.click());
  assert.match(await page.locator('#part-detail').innerText(),/方形夹块|方夹/);
  await page.locator('#open-bom').evaluate(el=>el.click());
  await page.locator('#bom-query').fill('B35');
- const board=page.locator('#bom-body tr').filter({hasText:'B35'});
+ const board=page.locator('#bom-body tr').filter({hasText:/^\s*B35\b/});
  assert.equal(await board.count(),1,'Black Thorlabs sample board must be a separate BOM item');
  await board.evaluate(el=>el.click());
  const boardDetail=await page.locator('#part-detail').innerText();

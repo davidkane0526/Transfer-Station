@@ -2,15 +2,22 @@
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="干法转移平台工程复原：显微镜、玻片移动台、样品平移旋转台与嵌入式真空加热台的交互式3D装配。">
 <title>Transfer Station | 交互式工程装配</title>
-<link rel="stylesheet" href="./src/styles.css?v=V172">
+<link rel="stylesheet" href="./src/styles.css?v=V210">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script></head>
 <body><header class="top">
-<div><div class="eyebrow">TRANSFER STATION · V172</div><h1>干法转移平台</h1><p class="subtitle">交互式 3D 装配 · BOM · 实物对照</p></div>
+<div><div class="eyebrow">TRANSFER STATION · V210</div><h1>干法转移平台</h1><p class="subtitle">交互式 3D 装配 · BOM · 实物对照</p></div>
 <div class="top-actions"><a href="./photo-review.html" class="photo-review-link">实物对照</a><button id="open-bom">BOM</button><a href="https://github.com/davidkane0526/Transfer-Station" target="_blank" rel="noreferrer">GitHub</a></div>
 </header>
 <div class="layout">
 <aside class="side">
 <div class="title">平台</div><div class="tabs"><button id="show-b" class="on">平台 B</button><button id="show-a">平台 A</button></div>
+<section id="inspection-navigation" hidden>
+<h2>总成</h2><div id="inspection-scopes" role="group" aria-label="选取总成"></div>
+<h2 class="parts-heading"><label for="inspection-filter">零件</label><span id="inspection-count"></span></h2>
+<input id="inspection-filter" type="search" placeholder="名称、编号或型号" autocomplete="off">
+<div id="inspection-parts" class="inspection-parts" aria-label="零件列表"></div>
+</section>
+<p class="small" id="a-review-status" role="status" hidden></p>
 <div class="control-block" id="b-photo-profile" hidden>
  <div class="title">平台 B</div>
  <div class="buttons"><button id="btn-b-user-photos" class="on">实物视图</button><button id="btn-b-archive">平台 A</button></div>
@@ -36,25 +43,33 @@
  </div>
 </div>
 </div>
-<div class="control-block"><div class="title">视图</div><div class="buttons"><button id="btn-home">默认视角</button><button id="btn-top">俯视</button><button id="btn-optical">光学俯视</button><button id="btn-front">正视</button><button id="btn-rear">后侧接口</button><button id="btn-control-cabinet">控制箱内部</button><button id="btn-a-external" hidden title="查看平台A泵、LED驱动器、温控箱与软管的候选结构">A 泵·控制器</button><button id="btn-a18-optical" hidden>A 显微镜正面</button><button id="btn-a18-support" hidden>A 显微镜支架</button><button id="btn-a-optical-spacing" hidden title="对照真实网格与TTL200-A参考工作距离；相机传感器位置尚未确认">A 光路距离核查</button><button id="btn-a18-mgz-study" hidden title="MGZ30厂商族拓扑对照，非实机型号确认">MGZ30候选对照</button><button id="btn-a18-bxfm-study" hidden title="Olympus BXFM-F原厂四视图尺寸图重建，仅作候选对照">BXFM-F图纸对照</button><button id="btn-a18-lylight-study" hidden title="LYLIGHT FR5025CF一体式E-arm厂商拓扑对照；不代表已确认实机型号">FR5025CF候选对照</button><button id="btn-a18-fr8425-study" hidden title="LYLIGHT FR8425 84mm安装规格、25mm立柱孔的厂商族拓扑候选；非原厂CAD">FR8425 84/25候选</button><button id="btn-iso">轴测</button><button id="btn-film-stack">玻片侧</button><button id="btn-film-holder">夹具</button><button id="btn-photo108">照片108·磁座面</button><button id="btn-photo109">照片109·T25M面</button><button id="btn-sample-stack">样品侧</button></div>
-<div class="control-line"><label for="explode">爆炸分解</label><span id="explode-value">0%</span></div><input id="explode" type="range" min="0" max="100" step="1" value="0" style="width:100%">
+<div class="control-block" id="legacy-view-controls"><div class="title">视图</div><div class="buttons"><button id="btn-home">默认视角</button><button id="btn-top">俯视</button><button id="btn-optical">光学俯视</button><button id="btn-front">正视</button><button id="btn-rear">后侧接口</button><button id="btn-control-cabinet">控制箱内部</button><button id="btn-a-external" hidden title="查看平台A泵、LED驱动器、温控箱与软管的候选结构">A 泵·控制器</button><button id="btn-a18-optical" hidden>A 显微镜正面</button><button id="btn-a19-review" hidden>物镜转盘</button><button id="btn-a18-support" hidden>A 显微镜支架</button><button id="btn-a-optical-spacing" hidden title="对照真实网格与TTL200-A参考工作距离；相机传感器位置尚未确认">A 光路距离核查</button><button id="btn-a18-mgz-study" hidden title="MGZ30厂商族拓扑对照，非实机型号确认">MGZ30候选对照</button><button id="btn-a18-bxfm-study" hidden title="Olympus BXFM-F原厂四视图尺寸图重建，仅作候选对照">BXFM-F图纸对照</button><button id="btn-a18-lylight-study" hidden title="LYLIGHT FR5025CF一体式E-arm厂商拓扑对照；不代表已确认实机型号">FR5025CF候选对照</button><button id="btn-a18-fr8425-study" hidden title="LYLIGHT FR8425 84mm安装规格、25mm立柱孔的厂商族拓扑候选；非原厂CAD">FR8425 84/25候选</button><button id="btn-iso">轴测</button><button id="btn-film-stack">玻片侧</button><button id="btn-film-holder">夹具</button><button id="btn-photo108">照片108·磁座面</button><button id="btn-photo109">照片109·T25M面</button><button id="btn-sample-stack">样品侧</button></div>
+<div id="explosion-control"><div class="control-line"><label for="explode">爆炸分解</label><span id="explode-value">0%</span></div><input id="explode" type="range" min="0" max="100" step="1" value="0" style="width:100%">
+<p class="small" id="explode-step" role="status" hidden></p><button id="btn-explode-fit" type="button" hidden>爆炸总览</button></div><div id="film-travel-controls">
 <div class="control-line"><label for="translate">玻片 X</label><span id="translate-value">0 mm</span></div><input id="translate" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
 <div class="control-line"><label for="translate-depth">玻片 Y</label><span id="translate-depth-value">0 mm</span></div><input id="translate-depth" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
 <div class="control-line"><label for="film-drop" id="film-drop-label">玻片竖直下降</label><span id="film-drop-value">0.0 mm</span></div><input id="film-drop" type="range" min="-13" max="0" step="0.5" value="0" style="width:100%"><div class="marked-note" id="lowering-clearance">状态：待检查</div>
+</div>
 <div class="control-line"><label for="sample-move" id="sample-move-label">样品 X</label><span id="sample-value">0 mm</span></div><input id="sample-move" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
 <div class="control-line"><label for="sample-move-depth" id="sample-move-depth-label">样品 Y</label><span id="sample-depth-value">0 mm</span></div><input id="sample-move-depth" type="range" min="-12.5" max="12.5" step="0.5" value="0" style="width:100%">
 <div class="control-line"><label for="rotate-sample">样品旋转</label><span id="rotate-value">0°</span></div><input id="rotate-sample" type="range" min="-90" max="90" step="1" value="0" style="width:100%">
 </div>
-<div class="control-block"><div class="title">显示</div>
+<div class="control-block" id="legacy-display-controls"><div class="title">显示</div>
 <div class="buttons"><button id="toggle-holes" class="on">孔位</button><button id="toggle-axes">坐标轴</button><button id="toggle-wire">线框</button><button id="toggle-labels" class="on">仅选中标签</button><button id="toggle-dim" class="on">选中尺寸框</button><button id="toggle-a-thermal" hidden aria-pressed="false">加热台剖视</button><button id="toggle-sample-demo" aria-pressed="false" title="仅用于演示转移接触。默认热台上无样品片">样品演示</button></div>
 <input id="search" class="search" placeholder="查找型号或零件，例如 NFP / 显微镜" aria-label="搜索零件"><div id="group-list" class="list"></div>
 </div>
 </aside>
 <main class="stage"><div id="viewer" class="viewer" role="img" aria-label="可旋转、选择零件的三维装配模型"></div>
-<div class="stage-top"><span class="pill" id="platform-caption">平台 B · 样品旋转 / 显微镜 / 玻片转移臂</span></div>
+<div class="stage-top"><span class="pill" id="platform-caption">平台 B</span>
+<div id="inspection-toolbar" class="inspection-toolbar" hidden>
+<button id="inspection-back" hidden>返回总成</button>
+<button id="inspection-fit" title="将当前视图居中">居中</button>
+<button id="inspection-wire" aria-pressed="false">线框</button>
+</div></div>
+<div id="inspection-explosion" class="inspection-explosion" hidden></div>
 <div class="stage-bottom"><span id="hover-help">点击零件查看信息</span><span id="measurement-text" aria-live="polite">坐标 X / Y(高度) / Z · 单位 mm</span></div>
 </main>
-<aside class="detail"><div class="title">零件</div><div id="part-detail" class="select-placeholder">点击零件查看信息。</div>
+<aside class="detail"><div class="title" id="legacy-detail-heading">零件</div><div id="part-detail" class="select-placeholder">点击零件查看信息。</div>
 <div class="control-block" hidden><div class="title">证据等级</div><p class="small" id="axis-confidence-note">轴标记为模型辅助，非实物铭牌。</p><div class="legend"><span class="status D">D 原厂图纸</span><span class="status P">P 照片</span><span class="status U">U 用户确认</span><span class="status I">I 推导</span><span class="status C">C 候选</span></div></div>
 <div class="control-block" hidden><div class="title">装配链</div><div id="stack-note" class="small"></div></div>
 <details class="control-block advanced-tools">
@@ -93,9 +108,9 @@
 </div>
 <footer class="bottom"><span>mm</span></footer>
 <div class="drawer" id="bom-drawer" role="dialog" aria-modal="true" aria-label="整机零件清单"><div class="modal">
-<div class="modal-head"><h2 id="bom-heading">零件 BOM</h2><div class="buttons"><button id="export-csv">导出完整 BOM.csv</button><button id="close-bom">关闭</button></div></div>
- <div class="bom-tools"><input id="bom-query" class="search" placeholder="型号 / 零件 / 供应商 / 替代品牌搜索" aria-label="在BOM中搜索"><select id="bom-sort" aria-label="BOM排序"><option value="id">零件编号</option><option value="name">零件名称</option><option value="maker">厂家</option><option value="price-desc">价格从高到低</option><option value="price-asc">价格从低到高</option></select><label class="price-only"><input id="priced-only" type="checkbox">只看有公开价</label></div>
+<div class="modal-head"><h2 id="bom-heading">零件 BOM</h2><div class="buttons"><button id="export-csv">导出当前平台</button><button id="export-all-csv">导出两平台 CSV</button><button id="close-bom">关闭</button></div></div>
+ <div class="bom-tools"><input id="bom-query" class="search" placeholder="型号 / 厂家 / 接口" aria-label="在BOM中搜索"><select id="bom-sort" aria-label="BOM排序"><option value="id">零件编号</option><option value="name">零件名称</option><option value="maker">厂家</option><option value="price-desc">价格从高到低</option><option value="price-asc">价格从低到高</option></select><label class="price-only"><input id="priced-only" type="checkbox">只看有参考价</label></div>
  <div class="bom-summary" id="bom-summary" aria-live="polite"></div>
 
-<div class="table-wrap"><table><thead><tr><th>ID</th><th>子系统</th><th>零件 / 类别</th><th>原厂 / 型号</th><th>数量</th><th>尺寸(mm)</th><th>材料 / 替代厂商</th><th>单价和币种</th><th>小计</th><th>价格来源 / 日期</th><th>原厂图纸 / CAD</th><th>照片</th></tr></thead><tbody id="bom-body"></tbody></table></div></div></div>
-<script type="module" src="./src/app.js?v=V172"></script></body></html>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>子系统</th><th>零件 / 类别</th><th>原厂 / 型号</th><th>数量</th><th>尺寸(mm)</th><th>材料 / 替代厂商</th><th>单价和币种</th><th>小计</th><th>价格来源 / 日期</th><th>原厂图纸 / CAD</th><th>照片 / 依据</th><th>装配接口 / 下单条件</th></tr></thead><tbody id="bom-body"></tbody></table></div></div></div>
+<script type="module" src="./src/app.js?v=V210"></script></body></html>
