@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {PURCHASE,csvExportRows,pricedSummary,procurementRows} from '../src/procurement.js';
 import {PARTS} from '../src/parts.js';
+import {displayPrice,priceEvidence} from '../src/quote-display.js';
+import {requiredSceneParts} from '../src/inspection-scope.js';
 
 const b35=PURCHASE.B.B35;
 assert.ok(b35,'B35 must have its own procurement record');
@@ -39,4 +41,36 @@ assert.equal(pricedSummary(all.filter(p=>p.qty===0)).unpriced,0);
 const csv=csvExportRows(all);
 assert.equal(csv.length,all.length+1);
 assert.deepEqual(csv[0].slice(-4),['scope','traceability','connection','quoteStatus']);
+assert.match(find('B33').traceability,/测绘定制/);
+assert.equal(find('A03').quote,undefined);
+assert.equal(find('A04').quote,undefined);
+assert.equal(find('A01').quote,undefined);
+
+const sensor=find('A27');
+assert.equal(sensor.quote.packSize,5);
+assert.equal(displayPrice(sensor.quote).unit.toFixed(2),'202.67');
+assert.equal(displayPrice(sensor.quote,1).subtotal,1013.36);
+assert.equal(displayPrice(sensor.quote,6).subtotal,2026.73);
+assert.match(priceEvidence(sensor.quote),/USD 150\.96 \/ 5件/);
+assert.equal(displayPrice(find('A17').quote,1).subtotal,288);
+assert.equal(displayPrice(find('B02').quote,1).subtotal,360.35);
+assert.equal(displayPrice(find('B21').quote,1).subtotal,779.68);
+assert.equal(displayPrice({value:123,currency:'XYZ'},1),null);
+assert.equal(displayPrice({value:0,currency:'CNY'},1).subtotal,0);
+assert.deepEqual(pricedSummary([sensor,find('A17'),find('B09'),find('B26'),find('A03')]),{
+  priced:3,unpriced:1,amount:2181.66,candidateAmount:1301.36,candidates:2
+});
+const [header,...csvRows]=csv;
+const record=csvRows.find(row=>row[0]===sensor.id);
+for(const [column,value] of Object.entries({price:'202.67',currency:'CNY',subtotalCny:'1013.36',sourcePrice:150.96,
+  sourceCurrency:'USD',unitsPerPack:5,exchangeDate:'2026-11-19',priceCandidate:true})){
+  assert.equal(record[header.indexOf(column)],value,column);
+}
+
+assert.ok(requiredSceneParts('A',{reviewA:true}).includes('A05CS'));
+assert.ok(!requiredSceneParts('A',{reviewA:true}).includes('A07W'));
+assert.ok(requiredSceneParts('A').includes('A07W'));
+assert.ok(requiredSceneParts('B').includes('B33'));
+assert.ok(!requiredSceneParts('B',{photo94:true}).includes('B33'));
+assert.ok(requiredSceneParts('B',{photo94:true}).includes('B32'));
 console.log('All BOM rows cite evidence and preserve variant scope and quantities: PASS');

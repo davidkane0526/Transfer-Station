@@ -7,6 +7,19 @@ export const scopes={
   optics:'显微与光源',
 };
 
+const requiredA=['A01','A17','A15','A03','A04L','A04','A05','A05C','A05CS','A05G',
+  'A16','A06','A02','A32','A31','A26','A27','A07','A28','A29','A30','A10','A11',
+  'A12','A13','A33','A22','A23','A24','A25'];
+const legacyA=['A07W','A21'];
+const requiredB=['B01','B35','B03','B07','B08','B41','B09','B10','B11','B12','B13',
+  'B14','B15','B16','B17','B18','B19','B20','B21','B22','B23','B36','B37','B38','B39','B40'];
+const currentB=['B02','B04','B05','B06','B24','B25','B26','B27','B28','B33','B34'];
+const photo94B=['B29','B30','B31','B32'];
+
+export function requiredSceneParts(platform,{reviewA=false,photo94=false}={}){
+  return platform==='A'?[...requiredA,...(reviewA?[]:legacyA)]:[...requiredB,...(photo94?photo94B:currentB)];
+}
+
 export function assemblyFor(part){
   if(part.group==='film')return 'film';
   if(['microscope','illumination'].includes(part.group))return 'optics';

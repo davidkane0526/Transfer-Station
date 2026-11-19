@@ -101,6 +101,14 @@ const ref={
 };
 const quote=(value,currency,date,type,source)=>({value,currency,date,type,source});
 const conditional=(maker,model,datasheet)=>({alternatives:[[maker,model,datasheet]],datasheet});
+const surfaceProbeQuote={
+  ...quote(150.96,'USD','2026-11-19','DigiKey 公开包装价 · OMEGA SA1-K 备选','https://www.digikey.com/en/products/detail/omega/SA1-K/25629276'),
+  packSize:5,candidate:true
+};
+const glandQuote={
+  ...quote(11.49,'USD','2026-11-19','DigiKey 公开单件价 · Phoenix Contact 1424514 备选','https://www.digikey.com/en/products/detail/phoenix-contact/1424514/17940996'),
+  candidate:true
+};
 
 const additions={
   A01:conditional('Zolix','NTBK345-50，SUS430 台面，450×300×50 mm，M6@25；核孔原点与台高',ref.board),
@@ -108,9 +116,10 @@ const additions={
   A02:{drawing:'https://cdhoptics.ks3-cn-beijing.ksyun.com/jjwdz/1612323095702eFQBtxcrQgq7RZ9rgWIqSw.pdf'},
   A05CS:{qty:2,unit:'枚',model:'蝶形螺栓 · M3×0.5×10 候选',datasheet:ref.stock},
   A06:{datasheet:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/旋轉台-2/gcm-11系列旋轉台/',
-    quote:quote(3105,'TWD','2026-11-18','经销商未税参考 · GCM-1102M 候选','https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/旋轉台-2/gcm-11系列旋轉台/')},
+    quote:{...quote(3105,'TWD','2026-11-18','经销商未税参考 · GCM-1102M 候选','https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/旋轉台-2/gcm-11系列旋轉台/'),candidate:true}},
+  A08:{quote:quote(572.99,'USD','2026-11-19','GSS 经销商公开单件价 · TTL200-A','https://www.govsci.com/product-detail/Thorlabs/TTL200-A/EA/')},
   A11:{datasheet:'https://www.thorlabs.com/catalogpages/Obsolete/2022/M810L4.pdf',
-    quote:quote(187.45,'USD','2022','原厂历史目录 · MWWHL4','https://www.thorlabs.com/catalogpages/Obsolete/2022/M810L4.pdf')},
+    quote:quote(214.81,'USD','2025-07-16','原厂历史目录 · MWWHL4',ref.led)},
   A19:{datasheet:'https://www.thorlabs.com/catalogpages/Obsolete/2015/MGZ30-MOT.pdf'},
   A13:{datasheet:'https://www.delixi-electric.com/u/cms/delixi/202204/21094042w6d8.pdf'},
   A14:{datasheet:'https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55',
@@ -118,25 +127,27 @@ const additions={
       ['Thorlabs','SM2A55，SM2 外牙＋C-mount 外牙；相机须为 C 口母牙','https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55'],
       ['Thorlabs','SM2M20 / SM2M30：两端可接 SM2 外牙，50.8 / 76.2 mm；依据实测光程选',ref.tube]
     ]},
-  A17:{quote:quote(288,'CNY','2026-11-18','厂家网页标价 · MBS-65B/C 候选','https://www.oeabt.com/show.php?id=89')},
+  A17:{quote:{...quote(288,'CNY','2026-11-19','厂家网页标价 · MBS-65B/C 候选','https://www.oeabt.com/show.php?id=89'),candidate:true}},
   A24:{qty:0,unit:'接口'},
   A25:{qty:0,unit:'接口'},
   A22:{datasheet:ref.led},
-  'A-H11':{quote:quote(37.66,'USD','2022','原厂历史目录 · KPS101 备件','https://www.thorlabs.com/catalogpages/Obsolete/2022/KPS101.pdf')},
+  'A-H11':{quote:{...quote(37.66,'USD','2022','原厂历史目录 · KPS101 备件','https://www.thorlabs.com/catalogpages/Obsolete/2022/KPS101.pdf'),candidate:true}},
+  'A-H13':{quote:glandQuote},
   A26:conditional('Watlow','ULTRAMIC 陶瓷加热器，按凹槽、电压及功率定制',ref.heat),
-  A27:conditional('OMEGA','SA1-K，13×19 mm 感温贴、长期 175°C；只在型别、贴装空间和温度都匹配时采用',ref.sensor),
+  A27:{...conditional('OMEGA','SA1-K，13×19 mm 感温贴、长期 175°C；只在型别、贴装空间和温度都匹配时采用',ref.sensor),quote:surfaceProbeQuote},
   A29:conditional('SMC','TU0604，Ø6×Ø4；需把两个管端一并选成 Ø6，并核热端温度',ref.tubeVac),
   A28:conditional('SMC','KQ2H06-M5A1，M5×0.8 → Ø6，接口吻合后采用',ref.smc),
   A30:conditional('YCZX','VN-50，仅在 A 泵铭牌及工作点核实后采用',ref.pump),
   A33:conditional('Yudian','AI-518 相应 I/O 与开孔后缀，箱体另定制',ref.controller),
   B01:conditional('Zolix','NTBK345-50，SUS430 台面，450×300×50 mm，M6@25；核 B35 四角锚固',ref.board),
   B07:conditional('Marienfeld','1000412 只作玻片备选；转移膜按所用工艺另配',ref.slide),
-  B13:conditional('OMEGA','SA1-K 贴片候选；13×19 mm、长期 175°C，核实际接点形式后决定',ref.sensor),
+  B13:{...conditional('OMEGA','SA1-K 贴片候选；13×19 mm、长期 175°C，核实际接点形式后决定',ref.sensor),quote:surfaceProbeQuote},
   B14:{qty:4,unit:'枚',datasheet:ref.stock},
   B40:conditional('SMC','TU0604，Ø6×Ø4；只有同时更换两端为 Ø6 时采用',ref.tubeVac),
-  B35:{quote:quote(165,'USD','历史目录','Thorlabs 目录 · MB2530/M 候选','https://www.thorlabs.com/catalogpages/223.pdf')},
+  'B-H11':{quote:glandQuote},
+  B35:{quote:{...quote(165,'USD','目录日期未标注','Thorlabs 历史目录 · MB2530/M 候选','https://www.thorlabs.com/catalogPages/1101.pdf'),candidate:true}},
   B09:{datasheet:'https://www.zolix-group.com/product/specification/179.html',
-    quote:quote(325,'USD','2026-11-18','原厂旧站 NFP-1462 系列标价 · 核单型号','https://www.zolix.com.cn/en/prodcon_371_385_457_517.html')},
+    quote:quote(325,'USD','2026-11-19','原厂旧站历史参考 · NFP-1462 系列标价，核单型号','https://www.zolix.com.cn/en/prodcon_371_385_457_517.html')},
   B26:{qty:0,unit:'接口'},
   B12:conditional('Watlow','ULTRAMIC，按凹槽、热负载和电气参数定制',ref.heat),
   B15:conditional('SMC','KQ2H06-M5A1，M5 母牙与 Ø6 管确认后使用',ref.smc),
@@ -164,7 +175,7 @@ export function auditPurchase(part){
     ...x,
     traceability:basis,
     connection:connections[x.id]||x.connection||'按相邻接合面核对',
-    quoteStatus:x.quote?.value?(x.quote.type||'公开价'):x.qty===0?'随所属件核对':'公开价待核 / 询价'
+    quoteStatus:x.quote?(x.quote.type||'公开价'):x.qty===0?'随所属件核对':'公开价待核 / 询价'
   };
 }
 

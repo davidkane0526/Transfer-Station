@@ -19,6 +19,35 @@ try{
   await page.goto(a.href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__reviewedAFilmAssemblyProbe?.());
   assert.equal(await page.locator('#inspection-scopes button').count(),4);
+  await page.locator('#open-bom').click();
+  const sensorRow=page.locator('#bom-body tr').filter({has:page.locator('td:first-child',{hasText:/^A27$/})});
+  assert.deepEqual(await sensorRow.locator('.bom-price').allTextContents(),['¥202.67','¥1,013.36']);
+  assert.match(await sensorRow.innerText(),/USD 150\.96 \/ 5件/);
+  assert.equal(await sensorRow.getByRole('link',{name:'折算汇率'}).count(),1);
+  await page.locator('#priced-only').check();
+  await page.locator('#bom-sort').selectOption('price-asc');
+  const prices=await page.locator('#bom-body [data-edit-field=price]').allTextContents();
+  assert.ok(prices.length>3&&prices.every(price=>price.startsWith('¥')));
+  const amounts=prices.map(price=>Number(price.slice(1).replaceAll(',','')));
+  assert.deepEqual(amounts,[...amounts].sort((a,b)=>a-b));
+  await page.locator('#priced-only').uncheck();
+  await page.locator('#close-bom').click();
+  await selectPart('A27');
+  assert.equal(await field('price').innerText(),'¥202.67');
+  assert.match(await page.locator('#part-detail [data-record-field=model]').innerText(),/照片 \/ 型号候选/);
+  if(process.env.TRANSFER_RECORD_TEST==='1'){
+    await field('price').dblclick();
+    const editor=page.getByRole('textbox',{name:'录入报价（USD / 5件）'});
+    assert.equal(await editor.inputValue(),'150.96');
+    await editor.fill('100');
+    await page.getByRole('button',{name:'保存',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('[data-field=price]')?.textContent==='¥134.26');
+    assert.equal(await page.locator('#part-detail a').filter({hasText:/^价格来源$/}).count(),0);
+    await page.getByRole('button',{name:'修改历史'}).click();
+    await page.getByRole('button',{name:'恢复此项原值'}).first().click();
+    await page.waitForFunction(()=>document.querySelector('[data-field=price]')?.textContent==='¥202.67');
+  }
+  await page.locator('#inspection-back').click();
   await selectScope('film');
   const film=await probe();
   assert.equal(film.scope,'film');
@@ -70,7 +99,9 @@ try{
     await page.getByRole('button',{name:'保存',exact:true}).click();
     await page.waitForFunction(text=>document.querySelector('[data-field=model]')?.textContent===text,sampleEdit);
     await page.locator('#open-bom').click();
-    assert.equal(await page.locator('#bom-body tr').filter({hasText:sampleEdit}).count(),1);
+    const changedRow=page.locator('#bom-body tr').filter({hasText:sampleEdit});
+    assert.match(await changedRow.innerText(),/待核价/);
+    assert.match(await changedRow.locator('.part-evidence-badge').innerText(),/待复核/);
     await page.locator('#close-bom').click();
     await page.reload({waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>window.__reviewedAFilmAssemblyProbe?.());

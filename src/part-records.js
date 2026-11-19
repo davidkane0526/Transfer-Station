@@ -1,7 +1,9 @@
+import {displayPrice,formatRmb,priceEvidence} from './quote-display.js';
+
 const fields=[
   ['name','名称'],['maker','厂家'],['model','型号'],['dims','尺寸'],
   ['qty','数量'],['unit','单位'],['material','材料'],['connection','装配接口'],
-  ['price','单价'],['currency','币种'],['note','备注'],
+  ['price','参考单价（人民币）'],['currency','原币币种'],['note','备注'],
   ['drawing','图纸链接'],['datasheet','规格链接'],['priceSource','价格来源'],
 ];
 const labels=Object.fromEntries(fields);
@@ -12,7 +14,7 @@ const api='./api/parts';
 
 function original(part,field){
   if(field==='price')return String(part.quote?.value??'');
-  if(field==='currency')return part.quote?.currency??'';
+  if(field==='currency')return part.quote?.currency??'CNY';
   if(field==='priceSource')return part.quote?.source??'';
   return String(part[field]??'');
 }
@@ -45,14 +47,22 @@ export function createPartRecords(){
     const {price,currency,priceSource,...ordinary}=edited;
     const result={...part,...ordinary};
     if(typeof result.qty==='string')result.qty=result.qty===''?'':Number(result.qty);
-    if(['price','currency','priceSource'].some(field=>value(part,field)!==original(part,field))){
+    const changed=field=>value(part,field)!==original(part,field);
+    const modelChanged=changed('maker')||changed('model');
+    const amountChanged=changed('price')||changed('currency');
+    if(modelChanged)result.traceability='厂家 / 型号已编辑，待复核';
+    if(amountChanged||changed('priceSource')){
       const amount=value(part,'price');
       const unit=value(part,'currency');
       result.quote=amount!==''&&unit?{
-        value:Number(amount),currency:unit,source:value(part,'priceSource'),
+        ...part.quote,
+        value:Number(amount),currency:unit,source:edited.priceSource??(amountChanged?'':part.quote?.source??''),
         date:'',type:'用户录入'
       }:null;
       result.quoteStatus=result.quote?'用户录入':result.qty===0?'随所属件核对':'单价或币种待填写';
+    }else if(modelChanged&&part.quote){
+      result.quote=null;
+      result.quoteStatus='型号已编辑 · 待核价';
     }
     return result;
   };
@@ -101,12 +111,14 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   const links=element('details','inspection-info');
   links.append(element('summary','','资料与备注'));
   const refs=element('div','inspection-sources');
-  function drawLinks(){
+  const quoteDetails=element('p','small');
+  function drawLinks(quote,price){
     refs.replaceChildren();
     for(const [label,url] of [
       ['实物照片','./photo-review.html?platform='+part.id[0]],
       ['图纸',records.value(part,'drawing')],['CAD',part.cad],
-      ['规格',records.value(part,'datasheet')],['价格来源',records.value(part,'priceSource')]
+      ['规格',records.value(part,'datasheet')],['价格来源',quote?.source],
+      ['折算汇率',price?.exchange?.source]
     ]){
       if(typeof url!=='string'||!(url.startsWith('https://')||url.startsWith('./photo-review.html')))continue;
       const link=element('a','',label);
@@ -115,7 +127,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   }
   if(part.evidence)links.append(element('p','small',part.evidence));
   const sourceFields=element('div');
-  links.append(refs,sourceFields);
+  links.append(refs,quoteDetails,sourceFields);
   host.append(header,title,hint,status,historyView,fieldList,links);
   if(!hasMesh){
     const notice=element('p','inspection-status','此条目暂无独立 3D 网格。');
@@ -147,12 +159,20 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   }
   function drawFields(){
     editing=null;
-    fieldList.replaceChildren();sourceFields.replaceChildren();drawLinks();
+    const record=records.apply(part);
+    const quote=record.quote;
+    const price=displayPrice(quote,record.qty);
+    fieldList.replaceChildren();sourceFields.replaceChildren();drawLinks(quote,price);
+    quoteDetails.textContent=priceEvidence(quote,record.unit);
+    quoteDetails.hidden=!quote;
     for(const [field,label] of fields){
       const row=element('div','inspection-field');
       row.dataset.recordField=field;
-      const value=records.value(part,field);
-      const button=element('button','inspection-value'+(value?'':' empty'),value||'待填');
+      const value=field==='price'?
+        price?formatRmb(price.unit):quote?'汇率待补':record.qty===0?'—':'待询价':
+        records.value(part,field);
+      const empty=field==='price'?!price:!value;
+      const button=element('button','inspection-value'+(empty?' empty':''),value||'待填');
       button.type='button';
       button.dataset.field=field;
       button.setAttribute('aria-label','编辑'+label);
@@ -165,7 +185,9 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
         }
       };
       row.append(element('span','',label),button);
-      (['note','drawing','datasheet','priceSource'].includes(field)?sourceFields:fieldList).append(row);
+      if(field==='model')row.append(element('span','part-evidence-badge',record.traceability));
+      if(field==='price'&&quote?.candidate)row.append(element('span','part-evidence-badge','备选型号报价'));
+      (['currency','note','drawing','datasheet','priceSource'].includes(field)?sourceFields:fieldList).append(row);
     }
   }
   function edit(row,button,field,label){
@@ -176,7 +198,10 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
     const input=element(['connection','note','dims'].includes(field)?'textarea':'input');
     input.value=records.value(part,field);
     input.maxLength=4000;
-    input.setAttribute('aria-label',label);
+    const record=records.apply(part);
+    const rawPriceLabel='录入报价（'+(records.value(part,'currency')||'待填写原币')+' / '+
+      (record.quote?.packSize??part.quote?.packSize??1)+record.unit+'）';
+    input.setAttribute('aria-label',field==='price'?rawPriceLabel:label);
     if(field==='qty'||field==='price')input.inputMode='decimal';
     const save=element('button','','保存');save.type='submit';
     const cancel=element('button','','取消');cancel.type='button';
@@ -194,6 +219,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
         save.disabled=false;cancel.disabled=false;
       }
     };
+    if(field==='price')form.append(element('span','small',rawPriceLabel));
     form.append(input,save,cancel);button.replaceWith(form);
     editing=form;input.focus();input.select();
   }
@@ -207,7 +233,8 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
         const row=element('div','inspection-revision');
         const time=element('time','',dateFormat.format(new Date(entry.changed_at)));
         time.dateTime=entry.changed_at;
-        row.append(element('strong','','#'+entry.revision+' · '+labels[entry.field]),time,
+        const label=entry.field==='price'?'原币报价':labels[entry.field];
+        row.append(element('strong','','#'+entry.revision+' · '+label),time,
           element('p','','原值  '+(entry.previous||'空')),element('p','','新值  '+(entry.value||'空')));
         const restore=element('button','','恢复此项原值');
         restore.type='button';

@@ -6,7 +6,8 @@ import {STLLoader} from 'three/addons/loaders/STLLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js';
 import {enrichParts} from './details.js';
-import {enriched,pricedSummary,csvExportRows,procurementRows} from './procurement.js';
+import {enriched,pricedSummary,csvExportRows,procurementRows} from './procurement.js?v=V213';
+import {displayPrice,formatRmb,priceEvidence} from './quote-display.js';
 import {stageLocalTranslation,stageLocalDepthTranslation} from './kinematics.js';
 import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
@@ -33,8 +34,8 @@ import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registra
 import {A_FILM_LEVELS,buildAFoldedBracket,readAFoldedBracket} from './a-stage-mesh.js?v=V212';
 import {A_FILM_PHOTO_VIEWS,addAFoldMountingHeads,buildPhotographicFilmStage} from './a-film-detail.js?v=V212';
 import {explosionOffset,explosionStep,opticalRelease,stroke} from './explosion.js';
-import {scopes,assemblyFor,assemblyTime,assemblyOffset,filmAxisSpread} from './inspection-scope.js';
-import {createPartRecords,mountPartRecord} from './part-records.js';
+import {scopes,requiredSceneParts,assemblyFor,assemblyTime,assemblyOffset,filmAxisSpread} from './inspection-scope.js?v=V213';
+import {createPartRecords,mountPartRecord} from './part-records.js?v=V213';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#16293c');scene.fog=new THREE.Fog('#16293c',750,1500);
@@ -5921,8 +5922,9 @@ function updateDetail(part){
    b35FastenerHtml+b08FitHtml+aRigHtml+a05cVendorHtml+a06VendorHtml+a18VendorHtml+
    photo94QAHtml+photo95QAHtml+
    '</div>';
- const priceText=String(part.price??'').trim();
- const hasUsefulPrice=priceText&&!/^(询价|待询价|待识别|未知|—|-|暂无)$/i.test(priceText);
+ const ex=partRecords.apply(enriched(platform,part));
+ const price=displayPrice(ex.quote,ex.qty);
+ const priceText=price?formatRmb(price.unit):ex.quote?'汇率待补':ex.qty===0?'—':'待询价';
  const usefulMeta=[part.maker,part.model]
    .map(x=>String(x??'').trim())
    .filter(x=>x&&!/^(未知|待识别|待确认|—|-)$/i.test(x));
@@ -5932,15 +5934,18 @@ function updateDetail(part){
  (platform==='A'&&aReviewMode&&[...aReviewFilmIds,'A18','A19','A11','A20'].includes(part.id)?
    '<div class="field"><p>'+esc(part.detail)+'</p><p>'+esc(part.interfaceNote)+'</p></div>':'')+
  opticalHtml+cameraJointHtml+boundaryHtml+
- (hasUsefulPrice?'<div class="field"><b>价格</b><p>'+esc(priceText)+'</p></div>':'')+
+ '<div class="field"><b>参考单价（人民币）</b><p>'+esc(priceText)+'</p></div>'+
  '<div class="field" id="selected-source-field"><b>资料</b><div id="selected-source-links" class="footlinks"></div></div>'+
  engineeringHtml;
- const ex=enriched(platform,part);
  const refs=[
     ['原厂尺寸图',ex.drawing],['原厂 CAD',ex.cad],['型号规格',ex.datasheet],
-    ['报价页面',ex.quote?.source]
+    ['报价页面',ex.quote?.source],['折算汇率',price?.exchange?.source]
  ];
  const linkBox=$('selected-source-links');
+ if(ex.quote){
+   const evidence=document.createElement('p');evidence.textContent=priceEvidence(ex.quote,ex.unit);
+   linkBox.append(evidence);
+ }
  for(const [name,url] of refs){if(!url?.startsWith('https://'))continue;
     const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=name;linkBox.append(a);}
  if(!linkBox.children.length)$('selected-source-field')?.remove();
@@ -6643,22 +6648,13 @@ function resetScene(){
    externalB();
    heatingControlHarnessB();
    vacuumSupplyB();
-   // Fail fast if a scene revision silently deletes a whole subsystem.
-   const required=['B01','B35','B03','B07','B08','B41','B09','B10','B11','B12',
-     'B13','B14','B15','B16','B17','B18','B19','B20','B21','B22','B23','B36','B37','B38','B39','B40'];
-   if(bPhoto94Mode)required.push('B29','B30','B31','B32');
-   else required.push('B02','B04','B05','B06','B24','B25','B26','B27','B28','B33','B34');
-   const missing=required.filter(id=>!parts.has(id));
-   if(missing.length)throw new Error('Model B missing required scene components: '+missing.join(', '));
- }
- else {
+ }else{
    platformA();
-   for(const id of ['A01','A17','A15','A03','A04L','A04','A05','A05C','A05G','A16','A06','A02','A32','A31','A26','A27','A07','A28','A07W','A29','A30','A10','A11','A12','A13','A33','A21','A22','A23','A24','A25']){
-     if(!(aReviewMode&&['A21','A07W'].includes(id))&&!parts.has(id))throw Error('Model A missing: '+id);
-   }
-   if(aReviewMode){
-     for(const id of aReviewFilmIds)parts.get(id).g.userData.hiddenBecauseNotPhotographed=true;
-   }
+ }
+ const missing=requiredSceneParts(platform,{reviewA:aReviewMode,photo94:bPhoto94Mode}).filter(id=>!parts.has(id));
+ if(missing.length)throw new Error('Model '+platform+' missing required scene components: '+missing.join(', '));
+ if(platform==='A'&&aReviewMode){
+   for(const id of aReviewFilmIds)parts.get(id).g.userData.hiddenBecauseNotPhotographed=true;
  }
  addAxis();axisObjects.forEach(a=>a.visible=showAxes);
  // Add detailed photo-informed finish, engraved markings, micrometer scales,
@@ -6761,19 +6757,20 @@ function summaryBOM(rows){
    const sm=document.createElement('span');sm.textContent=desc;b.append(strong,sm);dst.append(b);
  };
  card(String(rows.length),'BOM 条目');
- card(String(sum.priced),'有公开或历史参考价');
- card(String(sum.unpriced),'待询价');
- for(const c of sum.currencies)card(c.currency+' '+c.amount.toFixed(2),'参考价小计 · '+c.rows+' 行');
+ card(String(sum.priced),'有人民币小计');
+ card(String(sum.unpriced),'待询价或补充数据');
+ if(sum.priced>sum.candidates)card(formatRmb(sum.amount),'同型号参考小计');
+ if(sum.candidates)card(formatRmb(sum.candidateAmount),'候选参考小计');
 }
 function sortedBOM(rows){
  const sort=$('bom-sort').value;
  const list=[...rows];
  if(sort==='price-asc'||sort==='price-desc'){
    list.sort((a,b)=>{
-      const ac=a.quote?.currency||'~',bc=b.quote?.currency||'~';
-      if(ac!==bc)return ac.localeCompare(bc);
-      const av=a.quote?.value,bv=b.quote?.value;
-      if(av==null)return 1;if(bv==null)return -1;
+      const av=displayPrice(a.quote)?.unit,bv=displayPrice(b.quote)?.unit;
+      if(av==null&&bv==null)return 0;
+      if(av==null)return 1;
+      if(bv==null)return -1;
       return sort==='price-desc'?bv-av:av-bv;
    });
  }else list.sort((a,b)=>String(a[sort]||'').localeCompare(String(b[sort]||''),'zh-CN',{numeric:true}));
@@ -6783,7 +6780,7 @@ function visibleBOM(rows){
  const q=$('bom-query').value.trim().toLowerCase();
  const priceOnly=$('priced-only').checked;
  return sortedBOM(rows.filter(p=>
-    (!priceOnly||p.quote?.value!=null)&&
+    (!priceOnly||displayPrice(p.quote))&&
     (!q||[p.id,p.name,p.model,p.maker,p.category,p.note,p.traceability,p.connection,
           ...(p.alternatives||[]).flatMap(a=>a.slice(0,2))]
      .join(' ').toLowerCase().includes(q))
@@ -6805,7 +6802,11 @@ function updateTable(){
     return td;
   }
   cell(part.id);cell(groups[part.group].name);
-  cell(part.name+'\n'+(part.category||''),'','name');cell(part.maker+' / '+part.model,'','model');
+  cell(part.name+'\n'+(part.category||''),'','name');
+  const modelCell=cell(part.maker+' / '+part.model,'','model');
+  const evidenceBadge=document.createElement('span');
+  evidenceBadge.className='part-evidence-badge';evidenceBadge.textContent=part.traceability;
+  modelCell.append(evidenceBadge);
   cell(part.qty===''?'待填':String(part.qty??1)+' '+part.unit,'','qty');
   cell(part.dims,'','dims');
   const materialCell=cell(part.material||'待填','','material');
@@ -6815,10 +6816,12 @@ function updateTable(){
     materialCell.append(sp);
   }
   const q=part.quote;
-  cell(q?q.currency+' '+q.value.toFixed(2):part.qty===0?'—':'待询价','bom-price','price');
-  cell(q&&part.qty>0?q.currency+' '+(q.value*part.qty).toFixed(2):'—','bom-price');
-  const priceCell=cell(part.quoteStatus+(q?.date?'\n'+q.date:''));
+  const price=displayPrice(q,part.qty);
+  cell(price?formatRmb(price.unit):q?'汇率待补':part.qty===0?'—':'待询价','bom-price','price');
+  cell(formatRmb(price?.subtotal),'bom-price');
+  const priceCell=cell(q?priceEvidence(q,part.unit):part.quoteStatus);
   if(q?.source)priceCell.append(' · ',buildLink('价格来源',q.source));
+  if(price?.exchange)priceCell.append(' · ',buildLink('折算汇率',price.exchange.source));
   const drawing=cell();
   drawing.append(buildLink('原厂图纸',part.drawing));
   if(part.cad)drawing.append(' · ',buildLink('CAD',part.cad));
@@ -6830,7 +6833,7 @@ function updateTable(){
     basis.className='bom-alt';basis.textContent=part.evidence;
     photoCell.append(basis);
   }
-  cell(part.traceability+'\n'+part.connection,'','connection');
+  cell(part.connection,'','connection');
   if(inspectionMode||!part.hardware){
     tr.style.cursor='pointer';
     tr.onclick=(ev)=>{
