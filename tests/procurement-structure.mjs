@@ -90,6 +90,8 @@ assert.equal(find('A19').identification.status,'partial');
 assert.equal(find('B18').identification.status,'partial');
 assert.match(find('B18').datasheet,/sunnyoptical\.com/);
 assert.equal(find('B33').identification.status,'pending');
+assert.equal(find('B08').identification.status,'pending');
+assert.equal(find('B08').quote.candidate,true);
 assert.equal(find('B26').identification.status,'interface');
 assert.equal(identifyPart(find('A03'),{modelEdited:true}).status,'maker');
 assert.equal(identifyPart(find('A03'),{makerEdited:true}).status,'model');
