@@ -1,0 +1,108 @@
+# V216 零件厂商与型号识别审计（2026-11-19）
+
+## 1. 基线与证据来源
+
+- 仓库：davidkane0526/Transfer-Station
+- 基线分支：main
+- 基线提交：642055de246b22032f5e677e8bd9ae742accee02（V215）
+- 本次审核分支：vendor-audit-2026-11-19
+- 用户原始资料：转移平台(1).zip
+- 压缩包大小：150,550,253 bytes
+- 原始压缩包 SHA-256：1a47b90db7da9da83d126512e7f0ef7d774da0939ece3e0201b0c13cdf60b0a9
+- 内容：59 张照片、2 段视频
+- 识别范围严格限制为：卓立汉光 Zolix、大恒光电 Daheng、Thorlabs。
+
+本轮直接检查了原始照片中的铭牌、标尺、孔阵、杆径、接口及部件相互连接关系，并用三家厂商的产品页、目录或机械图交叉核对。视频只用于补充装配关系，不以单帧外观代替型号铭牌。
+
+## 2. 本轮直接型号确认
+
+### 2.1 Thorlabs
+
+| 零件 | 原图证据 | 识别结果 | 状态 |
+|---|---|---|---|
+| A08 | 照片82 | TTL200-A 管镜。铭牌可读 f=200 mm、400–700 nm、ØEP 22 mm、WD 148 mm；原厂目录说明两端为外SM2螺纹 | 型号确认 |
+| A34（新增） | 照片82 | SM1CP2 外螺纹端盖。端盖正面直接刻有 THORLABS / SM1CP2，螺纹为SM1 1.035"-40 | 型号确认 |
+| A11 | 照片84、85 | MWWHL4 mounted LED。背面铭牌可读 THORLABS / MWWHL4 | 型号确认 |
+| A12 | 照片86 | LEDD1B T-Cube LED Driver。正面型号和LED Driver面板标识清晰 | 型号确认 |
+| B35 | 照片145、146、150 | 黑色局部面包板可见 THORLABS 标志；品牌确认，具体SKU仍是候选 | 厂商确认，型号候选 |
+
+MWWHL4 原厂规格：3000 K 暖白光，最低/典型输出功率 570/640 mW，最大连续电流 1000 mA，典型正向电压 3.0 V。原厂资料将 LEDD1B 列为兼容驱动器。照片84/85还显示灯体被环形夹座固定；原厂资料展示 MWWHL4 安装在 SM1RC slip ring 中，因此 A21 的 SM1RC 是高置信度候选，但实物夹座没有可读型号标记，不能升级为确认。
+
+A35（新增候选）：照片82的方形光机立方体端面具有SM1接口及周围孔位，照片83显示其处于TTL200-A光路连接链中。外形与Thorlabs C4W/C6W 30mm Cage Cube系列相符。C4W四侧采用4-40杆孔，C6W有两相对侧为Ø6 mm通孔。现有照片未完整展示对侧，故只能列为C4W/C6W系列候选，不能确定具体SKU。SM1CP2端盖的型号确认不等于立方体本体的型号确认。
+
+B35 的 MB2530/M 是高置信度候选，不是已确认型号。Thorlabs目录给出的MB2530/M尺寸为250×300 mm；公制MB板采用12.7 mm厚铝板、M6-1.0/25 mm孔距、12.5 mm边距、四角沉孔，较大规格还设中央第五沉孔。照片确认品牌，尺量和孔阵支持这一候选，但螺纹规格、沉孔布局和板厚没有逐项实测。照片中心区域被旋转机构遮挡，不能断言没有第五沉孔。原B35记录中的“无中央第五沉孔”已纠正；本轮不修改三维模型。
+
+### 2.2 大恒光电 Daheng
+
+| 零件 | 原图证据 | 识别结果 | 状态 |
+|---|---|---|---|
+| B08 | 照片111 | GCM-1107M，底面铭牌直接可读 | 型号确认 |
+| B02 | 照片112、149、150 | GCM-420302M，磁性底座铭牌直接可读，含OFF/ON开关 | 型号确认 |
+| B06 | 照片107、150及视频 | GCM-1302M，夹体铭牌直接可读 | 型号确认 |
+| B31 | 照片94 | GCM-G40M60L，铭牌直接可读 | 型号确认 |
+| B03 | 照片95、100、109 | GCM-T25M，铭牌直接可读；双轴后缀2L/2C仍未确认 | 基础型号确认，后缀待核 |
+| B04 | 照片109 | GCM-V25M，铭牌直接可读 | 型号确认 |
+| B30 | 照片97 | GCM-VC13M，铭牌直接可读 | 型号确认 |
+| A16 | 照片137、138、161 | GCM-5306M，底部铭牌可读 | 型号确认 |
+
+其中，B08 GCM-1107M 原厂目录参数包括Ø94×33.2 mm外形、顶面9-M6孔阵及底面4×Ø6.8/Ø11.5沉孔。B02 GCM-420302M原厂资料给出65×65×20 mm外形。A16 GCM-5306M原厂资料给出112×70×8 mm、150 g。以上规格用于型号交叉核对，不代替对现场孔位和装配尺寸的实测。
+
+### 2.3 卓立汉光 Zolix
+
+| 零件 | 原图证据 | 识别结果 | 状态 |
+|---|---|---|---|
+| B09 | 照片110 | NFP-1462C，侧面铭牌直接可读 | 型号确认 |
+| B24 | 照片149、150 | PHUC-1，实物标签直接可读 | 型号确认 |
+| B33 | 照片149、150 | 方形正交杆夹与PHCP-1结构相符，两个杆轴约90°，但无实物铭牌 | 高置信度候选 |
+| B34 | 照片149、150 | 黑色圆筒套座与PHSH-2约50 mm结构相符，但无完整实物铭牌 | 高置信度候选 |
+| B25、B27、B28 | 照片149、150及标尺 | Ø12 mm杆系与PHSP12系列相符；照片长度不能唯一确定标准SKU | 系列候选 |
+
+PHCP-1候选依据：Zolix原厂资料将其定义为正交杆夹，采用两个Ø12 mm标准孔；照片149/150中的方形夹块与两根正交杆的连接关系相符，但没有可读品牌或型号标记。
+
+PHSH-2候选依据：原厂资料给出约50 mm高度，并与PHSP12系列接杆配套。照片149/150可见的圆筒套座与该外形相符，但仍需确认侧锁紧螺钉、内部防转结构、底部接口和完整高度。
+
+PHSP12系列长度候选：原厂目录中的PHSP12-3为75 mm、PHSP12-4为100 mm。当前场景拟合长度约70 mm和112 mm，均不能直接当成原厂标准长度或SKU。应以实际插入长度、端部螺纹和总长再次核实。
+
+## 3. 对此前结论的纠正
+
+1. A04L：GCM-G40M40L只有组合图/配对关系支持，照片没有读出下层铭牌。保持候选，不升级为确认。照片94可直接确认的是B31的GCM-G40M60L，不能把该铭牌移用到A04L。
+2. B41：照片110只能确认一台NFP-1462C（B09）。B41是独立的第二级正交平移台，尚无铭牌证据，不能认定为第二台NFP-1462C，也不能据此宣称整组为NFP-2462CC。
+3. A17：照片112的GCM-420302M铭牌属于B02磁性底座，不能移用到A17。A17不在本轮三家厂商的已确认结果中，保持未识别。
+4. B34：照片112实际拍到的是B02的GCM-420302M磁性底座，不是PHSH-2套座。B34候选证据只保留照片149/150，PHSH-2仍未确认。
+5. B35：Thorlabs MB2530/M原厂目录对较大规格面包板列有中央第五沉孔。原记录“无中央第五沉孔”缺乏依据，已改为照片中心区域被遮挡、无法判断。
+
+## 4. 本轮GitHub变更
+
+- 新增A34：Thorlabs SM1CP2，型号直接确认。
+- 新增A35：Thorlabs C4W/C6W 30mm Cage Cube系列候选，具体变体待核。
+- A11 MWWHL4、A12 LEDD1B：依据照片84–86的直接铭牌证据升级确认状态。
+- B08、B02、B03、B06、B33、B34、B35：补充或修正照片证据、候选等级及规格说明。
+- B35纠正中央第五沉孔判断。
+- 未改动任何三维几何、装配层级、UI、渲染、采购价格或其他非识别数据。
+- 未合并到main。所有修改仅在本审核分支，供用户最后统一检查。
+
+## 5. 原厂资料
+
+### Thorlabs
+- TTL200-A tube lens：https://www.thorlabs.com/catalogpages/obsolete/2018/TL200-2P2.pdf
+- SM1CP2 end caps：https://www.thorlabs.com/catalogpages/Obsolete/2017/SM1EC2.pdf
+- C4W/C6W 30mm cage cubes：https://www.thorlabs.com/catalogpages/V21/182.PDF
+- MB solid aluminum breadboards：https://www.thorlabs.com/catalogpages/223.pdf
+- MWWHL4 mounted LED / SM1RC / LEDD1B compatibility：https://www.thorlabs.com/catalogpages/Obsolete/2025/M700L4.pdf
+
+### Daheng
+- Daheng Optics GCM目录：https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf
+- GCM-901604M组合机械图：https://cdhoptics.ks3-cn-beijing.ksyun.com/jjwdz/1612323095702eFQBtxcrQgq7RZ9rgWIqSw.pdf
+- GCM-13 plate holder资料：https://www.directindustry.com/prod/daheng-new-epoch-technology-inc-cdhc/product-57930-2484661.html
+
+### Zolix
+- NFP-1462C原厂产品资料：https://www.zolix-group.com/product/specification/179.html
+- NFP机械图：https://www.zolix.com.cn/filespath/files/ManualControl/ManualStages-en/NFP.pdf
+- PHCP-1正交杆夹：https://www.zolix-group.com/product/detail/117.html
+- PHSH-2杆架资料：https://www.zolix-group.com/product/detail/225.html
+
+## 6. 审核结论
+
+本轮直接新增的型号确认是A34 Thorlabs SM1CP2；同时确认了原BOM中多个已有型号的铭牌证据，并新增A35 Cage Cube系列候选。B35的Thorlabs品牌已确认，但MB2530/M仍是候选。B33、B34、A21、A35均未冒充实物铭牌确认。
+
+原始压缩包SHA-256已记录，可用于后续复核资料是否为同一版本。该分支不自动合并，待用户统一审核。
