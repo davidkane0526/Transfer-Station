@@ -19,16 +19,31 @@ try{
   const assembly=()=>page.evaluate(()=>window.__reviewedAFilmAssemblyProbe());
   const installed=await assembly();
   assert.equal(installed.source,expectedSource);
-  assert.deepEqual(installed.goniometerTips,{A04L:[4,12,65.5],A04:[-45.5,6,4]});
+  const expected={
+    A15Y:[[0,0,1],[-26,34.5,32.5],[-26,34.5,95.5]],
+    A15X:[[-1,0,0],[-32.5,46,-15],[-78.5,46,-15]],
+    A03:[[0,1,0],[-21,61,6],[-21,114,6]],
+    A04L:[[-1,0,0],[-20,155,-13],[-53,155,-13]],
+    A04:[[0,0,1],[-15,176,20],[-15,176,60]]
+  };
+  for(const [part,[axis,seat,tip]] of Object.entries(expected)){
+    assert.deepEqual(installed.drives[part],{axis,seat,tip,profileCount:5},part+' photo-driven mounting');
+  }
+  if(process.env.TRANSFER_FILM_SHOTS){
+    await page.locator('[data-scope=film]').click();
+    for(const name of ['front','left']){
+      await page.locator('#inspection-film-'+name).click();
+      await page.screenshot({path:process.env.TRANSFER_FILM_SHOTS+'-'+name+'.png'});
+    }
+    await page.locator('[data-scope=all]').click();
+  }
+
   assert(installed.matingGaps.every(gap=>typeof gap==='number'&&Math.abs(gap)<.3),
     'Installed faces must meet on the stack datum: '+installed.matingGaps);
-  assert(installed.driveLeftAndFront,'VC13M must stay left and in front of its guide in monitor coordinates');
   assert(installed.equalClampLengths);
   assert.deepEqual(installed.shaftBoresOpen,[true,true]);
   assert.equal(installed.bounds.A17[0][1],20);
   assert.equal(installed.bounds.A17[1][1],installed.bounds.A15[0][1]);
-  assert.equal(installed.bounds.A15Y[1][2],77);
-  assert.equal(installed.bounds.A15X[0][0]+60.75,-59.5);
   const clamp=await page.evaluate(()=>window.__platformABareClampProbe());
   assert(clamp.visibleGlass);
   assert.equal(clamp.glassUpperFootGapMm,0);
