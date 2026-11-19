@@ -53,11 +53,11 @@ B35 的 MB2530/M 是高置信度候选，不是已确认型号。Thorlabs目录�
 |---|---|---|---|
 | B09 | 照片110 | NFP-1462C，侧面铭牌直接可读 | 型号确认 |
 | B24 | 照片149、150 | PHUC-1，实物标签直接可读 | 型号确认 |
-| B33 | 照片149、150 | 方形正交杆夹与PHCP-1结构相符，两个杆轴约90°，但无实物铭牌 | 高置信度候选 |
+| B33 | 照片149、150 | 方形交叉杆夹与PHCP系列外形相符，照片中的两杆夹角约90°，但无实物铭牌 | 高置信度候选 |
 | B34 | 照片149、150 | 黑色圆筒套座与PHSH-2约50 mm结构相符，但无完整实物铭牌 | 高置信度候选 |
 | B25、B27、B28 | 照片149、150及标尺 | Ø12 mm杆系与PHSP12系列相符；照片长度不能唯一确定标准SKU | 系列候选 |
 
-PHCP-1候选依据：Zolix原厂资料将其定义为正交杆夹，采用两个Ø12 mm标准孔；照片149/150中的方形夹块与两根正交杆的连接关系相符，但没有可读品牌或型号标记。
+PHCP-1候选依据：Zolix原厂资料将PHCP系列定义为交叉杆夹，用于连接不同角度的杆件。照片149/150中的方形夹块与交叉杆连接关系相符，照片夹角约90°，但原厂结构允许设置不同角度，不能把90°当成固定正交结构。杆径Ø12 mm目前来自与B24 PHUC-1及PHSP12杆系的关联推断，并非B33自身的直接测量；照片没有可读品牌或型号标记。
 
 PHSH-2候选依据：原厂资料给出约50 mm高度，并与PHSP12系列接杆配套。照片149/150可见的圆筒套座与该外形相符，但仍需确认侧锁紧螺钉、内部防转结构、底部接口和完整高度。
 
@@ -98,8 +98,9 @@ PHSP12系列长度候选：原厂目录中的PHSP12-3为75 mm、PHSP12-4为100 m
 ### Zolix
 - NFP-1462C原厂产品资料：https://www.zolix-group.com/product/specification/179.html
 - NFP机械图：https://www.zolix.com.cn/filespath/files/ManualControl/ManualStages-en/NFP.pdf
-- PHCP-1正交杆夹：https://www.zolix-group.com/product/detail/117.html
-- PHSH-2杆架资料：https://www.zolix-group.com/product/detail/225.html
+- PHCP Series Crossing Post Clamp：https://www.zolix-group.com/product/detail/117.html
+- PHSH-2 Post Holder：https://www.zolix-group.com/product/detail/225.html
+- PHSP12 Ø12 mm Post：https://www.zolix-group.com/product/detail/220.html
 
 ## 6. 审核结论
 
