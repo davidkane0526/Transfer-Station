@@ -1598,10 +1598,11 @@ try{
  assert.equal(camJoint.cameraCablePortCount,1,
    'V199 A09 camera must carry the photo-left cable connector');
  assert.equal(camJoint.unsupportedBrandDecalRemoved,true,
-   'V199 must not engrave an unverified DAHENG brand onto the camera');
- assert.equal(camJoint.cameraManufacturerIdentityConfirmed,false);
+   'The camera proxy must not invent a physical brand decal or its placement');
+ assert.equal(camJoint.cameraManufacturerIdentityConfirmed,false,
+   'The rendered camera geometry does not encode a manufacturer marking; vendor identification is recorded separately in the BOM');
  const a09Catalog=PARTS.A.find(p=>p.id==='A09');
- assert.equal(a09Catalog.maker,'未知');
+ assert.equal(a09Catalog.maker,'DAHENG IMAGING（照片78品牌标识确认）');
  assert.equal(a09Catalog.model,'型号待识别');
  assert.equal(camJoint.suggestedAdapterInstalled,false);
  assert.equal(camJoint.cameraCmountInterfaceConfirmed,false);
