@@ -25,6 +25,7 @@
 .bom-price{font-variant-numeric:tabular-nums;white-space:nowrap;color:#e6d2a4;font-weight:700}
 .bom-alt{display:block;color:#a9bdd0;font-size:11px}
 .part-evidence-badge{display:block;width:fit-content;margin-top:4px;padding:1px 6px;border:1px solid #476483;border-radius:6px;color:#b9d5eb;background:#1b3044;font-size:11px}
+.part-evidence-badge[data-confirmed="true"]{color:#a9e2cc;border-color:#396658;background:#193b39}
 .inspection-edit .small{display:block}
 .source-tag{display:block;color:#8dabc5;font-size:11px}
 .dimension-bubble{background:#071c2de8;color:#d3e8fd;padding:5px 10px;border:1px solid #78bbde;border-radius:5px;font:600 12px system-ui;white-space:nowrap}

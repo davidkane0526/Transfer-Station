@@ -1,3 +1,5 @@
+import {identifyPart} from './part-identification.js';
+
 // Each record identifies the mating interface and what still has to be
 // measured. A matching catalog envelope alone never certifies interchange.
 const connections={
@@ -56,9 +58,9 @@ const connections={
   B14:'4 枚齐平；模型候选 M6×1×25 内六角圆柱头，配 Ø11 沉孔；确认 NFP 牙深及热堆厚度后定长。',
   B15:'核实加热台后口牙型、密封及软管直径；M5 母牙＋Ø6 管时可选 SMC KQ2H06-M5A1，另核温度。',
   B16:'MXFMS 系列，原厂柱径 Ø32。当前模型已对齐候选 B35 网格，实物底脚孔距和板孔原点仍待量；实测不合时配双孔系转接板。',
-  B17:'SDPTOP 相机型号未读清；确认镜筒实际接口、传感器规格和中继镜倍率后向汇光询价。',
+  B17:'SDPTOP 相机型号未读清。先核对相机铭牌、镜筒接口、传感器规格和中继倍率，再向舜宇询同款。',
   B18:'五工位内倾式；OptoSigma 标识与各物镜倍率需逐个抄铭牌；选替代时核对转盘螺纹、齐焦距、匹配管镜和工作距离。',
-  B19:'宇电 AI 系列；按真实面板开孔、传感器输入、SSR 控制输出、电源后缀确认，AI-518 是选型起点。',
+  B19:'宇电 AI-719／719P 系列面板匹配。核对完整型号、开孔、传感器输入、SSR 输出和供电模块后选型。',
   B20:'VN-50 实物铭牌 220 V、230 W、53 L/min。厂家同族 G1/4 仅候选，螺纹型式与吸口性别需实测。',
   B21:'MEAN WELL SE-600-48，48 V/12.5 A、600 W；核官方底部孔图、散热净空和接线空间。',
   B22:'D1000 按物镜照明灯具原接口；先确认铭牌输出、插头和极性，向 SDPTOP 询同款。',
@@ -72,7 +74,7 @@ const connections={
   B30:'GCM-VC13M。旧照片分支按 65 mm 台面与上/下孔组分别核；候选安装螺钉见紧固件行。',
   B31:'GCM-G40M60L。旧照片分支用原厂图对 B32 安装实际孔位及螺丝深度。',
   B32:'旧照片分支折弯板，实测后定制；按 B31 顶面和夹持端出孔表。',
-  B33:'独立 Ø12×Ø12 正交夹块。PHUC-1 是可调关节类备选；要保持正交刚性时按两通孔与夹缝定制。',
+  B33:'独立 Ø12×Ø12 正交夹块。PHCP-1 为候选，需按两孔轴线、夹缝和锁紧件核对；不匹配时按实物定制。',
   B34:'PHSH-2（Ø12，50 mm）候选。核套筒插深及底端接口与 B05。',
   B35:'MB2530/M 候选，250×300×12.7，M6@25，四角沉孔。分别核 B01 底板固定和 B08/B16 顶侧孔组。',
   B36:'箱体按前面板与底盘开孔定制；Hammond 1456 系列可按实测尺寸询价，核 PSU 散热与接地空间。',
@@ -120,7 +122,6 @@ const additions={
   A08:{quote:quote(572.99,'USD','2026-11-19','GSS 经销商公开单件价 · TTL200-A','https://www.govsci.com/product-detail/Thorlabs/TTL200-A/EA/')},
   A11:{datasheet:'https://www.thorlabs.com/catalogpages/Obsolete/2022/M810L4.pdf',
     quote:quote(214.81,'USD','2025-07-16','原厂历史目录 · MWWHL4',ref.led)},
-  A19:{datasheet:'https://www.thorlabs.com/catalogpages/Obsolete/2015/MGZ30-MOT.pdf'},
   A13:{datasheet:'https://www.delixi-electric.com/u/cms/delixi/202204/21094042w6d8.pdf'},
   A14:{datasheet:'https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55',
     alternatives:[
@@ -151,10 +152,6 @@ const additions={
   B26:{qty:0,unit:'接口'},
   B12:conditional('Watlow','ULTRAMIC，按凹槽、热负载和电气参数定制',ref.heat),
   B15:conditional('SMC','KQ2H06-M5A1，M5 母牙与 Ø6 管确认后使用',ref.smc),
-  B16:{datasheet:ref.scope},
-  B17:{datasheet:ref.scope},
-  B18:{datasheet:ref.scope},
-  B19:conditional('Yudian','AI-518 系列按开孔、供电和 I/O 复核',ref.controller),
   B20:{datasheet:ref.pump},
   B22:{datasheet:ref.scope},
   B36:conditional('Hammond','1456 系列斜面机箱；按实际开孔、净深及散热尺寸选', 'https://www.hammfg.com/es/electronics/small-case/general-purpose/1456.pdf'),
@@ -163,7 +160,7 @@ const additions={
 };
 
 const nameplate=new Set(['A03','A04','A08','A11','A12','A13','A16','B02','B06','B08','B09','B16','B20','B21','B22','B24','B30','B31']);
-const custom=new Set(['A05','A05C','A07','A31','A32','B05','B10','B11','B32','B33','B36']);
+const custom=new Set(['A05','A05C','A07','A31','A32','B05','B10','B11','B32','B36']);
 
 export function auditPurchase(part){
   const x={...part,...additions[part.id]};
@@ -174,6 +171,7 @@ export function auditPurchase(part){
   return {
     ...x,
     traceability:basis,
+    identification:identifyPart(x),
     connection:connections[x.id]||x.connection||'按相邻接合面核对',
     quoteStatus:x.quote?(x.quote.type||'公开价'):x.qty===0?'随所属件核对':'公开价待核 / 询价'
   };

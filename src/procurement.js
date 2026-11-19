@@ -1,7 +1,8 @@
 import {procurementInterfaceFields} from './interface-evidence.js';
-import {auditPurchase,HARDWARE} from './procurement-audit.js?v=V213';
+import {auditPurchase,HARDWARE} from './procurement-audit.js?v=V215';
 import {photoRefsForPart} from './photo-library.js';
 import {displayPrice} from './quote-display.js';
+import {identificationLabels} from './part-identification.js';
 // Keep supplier listings in the original currency and convert only for display/export.
 export const REFERENCE_DATE='2026-10-30';
 const base={
@@ -67,8 +68,7 @@ const base={
     alternatives:[['Zolix','PHSP12 系列按实测长度选择','https://www.zolix-group.com/']],
     note:'照片149/150能确认PHUC-1输出端有第二根横杆，杆体止于GCM-1302M侧面。当前场景54.5mm长度仅为相对位置拟合，末端M6连接形式尚未确认。'},
   B33:{qty:1,category:'立杆到第一横杆的独立方形连接夹',material:'金属（待核）',
-    datasheet:'https://www.zolix-group.com/product/detail/117.html',
-    drawing:'https://www.zolix-group.com/public/storage/upload/images/Products/MirrorMount/PHCP-1.jpg',
+    datasheet:'https://www.zolix-group.com/public/storage/upload/files/MirrorMount/PHCP.pdf',
     alternatives:[['Zolix','PHCP-1矩形正交杆夹（照片外形候选，孔轴/螺钉位置待核）','https://www.zolix-group.com/product/detail/117.html'],['Zolix','PHCP-2圆柱式交叉夹（与照片方形块外形不符，不作为直接替代）','https://www.zolix-group.com/product/detail/117.html']],
     note:'照片149/150可见PHUC-1以外的方形夹体，立杆与横杆正交连接。Zolix原厂PHCP-1产品图为矩形正交杆夹，较PHCP-2圆柱结构更接近照片；但照片没有可读铭牌，当前只作为高优先级候选。采购前须核对Ø12孔径、两孔轴线、块体尺寸及两侧锁紧螺钉位置。'},
   B06:{qty:1,category:'薄板/载玻片夹持器（型号实拍确认）',material:'阳极氧化铝及钢螺钉',
@@ -93,7 +93,7 @@ const base={
   B36:{qty:1,category:'银色金属电气控制机箱，内部包含B21和B23',material:'金属薄板（牌号待核）',
     alternatives:[['Hammond','尺寸/材质/安装孔均须按实物验证的金属控制箱类别','https://www.hammfg.com/']],
     note:'照片114正面宇电面板、照片119揭盖内有SE-600-48与黑色模块。285×225×125mm及3mm板厚全部是容纳内部元件的布局候选；不允许编造品牌型号、孔距或走线。'},
-  B19:{qty:1,category:'温控系统前置面板',material:'YUDIAN宇电面板控制器（非整个机箱）',datasheet:'https://www.yudian.com.hk/app/download/7245340836/TemperatureControllerAI719v82.pdf',alternatives:[['Yudian Automation Technology','AI-719 / AI-719P系列原厂手册及询价；P后缀、面板尺寸和模块配置待实物核对','https://www.yudian.com.hk/'],['Autonics','PID温控器（功能替代，需重新核对输入输出）','https://www.autonics.com/'],['Omron','E5系列温控器（功能替代，非同型号）','https://www.ia.omron.com/']],note:'照片114的PV/SV双显示窗及MAN、PRG、MIO、COM、OP1、OP2、AL1、AL2、AU1、AU2指示灯序列，与Yudian AI-719/AI-719P原厂手册前面板定义匹配。AI-719P比AI-719增加50段程序功能；照片无法区分P后缀、面板尺寸变体或模块配置，后端接线仍未知。'},
+  B19:{qty:1,category:'温控系统前置面板',material:'YUDIAN宇电面板控制器（非整个机箱）',datasheet:'https://www.yudian.com/UserFiles/upload/file/20250327/S022-16%20%20AI-719%20719P%EF%BC%888.3%EF%BC%89%E4%B8%AD%E6%96%87%E8%AF%B4%E6%98%8E%E4%B9%A6-2022.8.19.pdf',alternatives:[['Yudian Automation Technology','AI-719 / AI-719P系列原厂手册及询价；P后缀、面板尺寸和模块配置待实物核对','https://www.yudian.com.hk/'],['Autonics','PID温控器（功能替代，需重新核对输入输出）','https://www.autonics.com/'],['Omron','E5系列温控器（功能替代，非同型号）','https://www.ia.omron.com/']],note:'照片114的PV/SV双显示窗及MAN、PRG、MIO、COM、OP1、OP2、AL1、AL2、AU1、AU2指示灯序列，与Yudian AI-719/AI-719P原厂手册前面板定义匹配。AI-719P比AI-719增加50段程序功能；照片无法区分P后缀、面板尺寸变体或模块配置，后端接线仍未知。'},
   B20:{qty:1,category:'VN-50无油真空泵（照片铭牌型号）',material:'电机/泵头',alternatives:[['YCZX','VN-50产品族规格参考；仅为同型号族供应线索，OEM对应关系未确认','https://www.youchengzhixin.com/vn-50-220v-230w-65lmin--88kpa-oil-free-piston-electric-vacuum-pump']],note:'照片120/123铭牌读数：VN-50、220V、230W、53L/min、680mmHg、约4kg；照片120另有疑似INWAVE标识，但尚未找到可核验的法律实体/原厂产品页，不能据此确认制造商。YCZX同型号族目录为53L/min、220V、230W、-88kPa、4.45kg、G1/4及142×96mm安装孔距；实物680mmHg约90.7kPa，与-88kPa约有2.7kPa差异，故YCZX仅保留为候选供应线索。泵口性别/牙型/方向和软管转接件仍须实测；G1/4不是软管倒刺尺寸。'},
   B21:{qty:1,category:'工业电源',material:'铝外壳，强制通风',drawing:'https://www.meanwell.com/Upload/PDF/SE-600/SE-600-SPEC.PDF',datasheet:'https://www.digikey.sg/zh/products/detail/mean-well-usa-inc/SE-600-48/7706618',quote:{value:150.19,currency:'SGD',date:'2026-10-30',type:'DigiKey Singapore 公开单件含税前标价',source:'https://www.digikey.sg/zh/products/detail/mean-well-usa-inc/SE-600-48/7706618'},alternatives:[['MEAN WELL','LRS-600-48（厂家推荐替代；安装尺寸不同）','https://www.digikey.sg/en/products/detail/mean-well-usa-inc/LRS-600-48/']],note:'SE-600-48由照片117/119确认为B36金属机箱内部电源；已标记Not For New Designs，不代表其就是加热块电源'},
   B22:{qty:1,category:'显微镜照明供电',alternatives:[['Thorlabs','可调 LED 驱动器（需确认 LED 额定电流）','https://www.thorlabs.com/'],['Mightex','实验室 LED 电源','https://www.mightexsystems.com/']],note:'115.jpg 直接显示 ADAPTOR FOR LED LAMP，电气参数需解读铭牌；不可假定与 LEDD1B 相同'},
@@ -112,14 +112,16 @@ const A={
  A17:{qty:1,category:'带开关低矮磁吸固定座',datasheet:'https://www.oeabt.com/show.php?id=89',
     alternatives:[['LBTEK','MB65 外形备选','https://www.lbtek.com/product/747']],
     note:'照片 194、161 和 142 显示低矮底座和左前磁吸开关；MBS-65B/C 是外形候选，顶面孔组和铭牌待确认。'},
- A19:{qty:1,category:'倾斜式物镜转换盘',datasheet:'https://www.thorlabs.com/catalogpages/Obsolete/2015/MGZ30-MOT.pdf',note:'MGZ30 提供五工位结构对照。实拍的第三支物镜、总工位数及转换盘型号待核。'},
+ A19:{qty:1,category:'倾斜式物镜转换盘与物镜',
+   alternatives:[['Thorlabs','MGZ30 五工位，仅用于结构对照','https://www.thorlabs.com/catalogpages/Obsolete/2015/MGZ30-MOT.pdf']],
+   note:'照片可辨 JH-TOP 与 Olympus 物镜字样；转换盘及物镜完整型号待核。'},
  A06:{qty:1,category:'手动旋转台',material:'黑色阳极氧化铝',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',alternatives:[['Daheng','GCM-11同系列按接口选型','https://www.daheng-optics.com/']],note:'照片100 旋转刻度台与上部 GCM-T25M 直接叠放；不能确认旋转台型号'},
  A16:{qty:1,category:'精密安装底座',material:'金属',drawing:'https://elektronik.tamser.com.tr/CDHC_catalog_VIII.pdf',
     alternatives:[['Daheng','GCM-5306M原厂同型号安装底座','https://www.anjun.com.tw/']],
     note:'照片137、161确认GCM-5306M，原厂112×70×8mm、150g；位于A旋转台下方，不增加旋转自由度。安装孔距仍待厂家机械图。'},
  A07:{qty:1,category:'自制样品座',alternatives:[['本地CNC厂','按现场尺寸报价','']],note:'与 B 加热台不能直接等同，须单独测绘'},
  A08:{qty:1,category:'管镜',material:'精密光学玻璃、黑色金属镜筒',datasheet:'https://www.govolition.com/product/V40-TTL200-A',drawing:'https://www.oxxius.ru/upload/iblock/439/nnqcz1typ0xi4j8o1473uwc5izf6lyzm/TTN116903_E0W.pdf',quote:{value:468.18,currency:'USD',date:'2018-01-01',type:'2018 目录历史标价，不是现价',source:'https://www.thorlabs.com/catalogpages/obsolete/2018/TL200-2P2.pdf'},alternatives:[['Thorlabs','TTL200（螺纹与镀膜差异）','https://www.thorlabs.com/'],['Edmund Optics','200mm 管镜（须核对螺纹）','https://www.edmundoptics.com/']],note:'TTL200-A 焦距200mm，原厂TTN116903 Rev B外壳Ø55.9×28mm、两端SM2接口各3.2mm、端面Ø31/Ø25.1mm。原厂参考WD148mm、第三方Volition列151.8mm。V169当前相机代理机身窗口60–105mm，最少短43mm。真实镜组朝向及传感器像面未知，尚不具备成像距离验收条件；图纸不用于制造'},
- A09:{qty:1,category:'工业相机',datasheet:'https://www.dahengimaging.com/downloads/MERCURY2%20USB3%20Vision%20Cameras%20User%20Manual_V2.0.4.pdf',drawing:'https://en.daheng-imaging.com/list-61-1.html',alternatives:[['Daheng Imaging','MERCURY2原厂3D图纸系列对照（实机SKU未确认）','https://en.daheng-imaging.com/list-61-1.html'],['Thorlabs','SM2A55：SM2内螺纹→外C-mount，需先核实相机接口，不是已安装件','https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55'],['FLIR/Teledyne','工业相机兼容系列，需重核机械接口','https://www.teledynevisionsolutions.com/']],note:'V170前端光学入口建立Ø24.4×10mm盲孔代理，实际相机型号、C-mount接口/内光路及传感器位置未核实。当前A14与A09Ø30mm候选接口之间有11.1mm名义径向差，尚无真实转接件；SM2A55不得当成已安装。'},
+ A09:{qty:1,category:'工业相机',datasheet:'https://en.daheng-imaging.com/list-2-1.html',alternatives:[['Daheng Imaging','MERCURY2原厂3D图纸系列对照（实机SKU未确认）','https://en.daheng-imaging.com/list-61-1.html'],['Thorlabs','SM2A55：SM2 外牙与 C-mount 外牙，须配 SM2 内牙镜筒并核实相机接口','https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55'],['FLIR/Teledyne','工业相机兼容系列，需重核机械接口','https://www.teledynevisionsolutions.com/']],note:'V170前端光学入口建立Ø24.4×10mm盲孔代理，实际相机型号、C-mount接口/内光路及传感器位置未核实。当前A14与A09Ø30mm候选接口之间有11.1mm名义径向差，尚无真实转接件；SM2A55不得当成已安装。'},
  A10:{qty:1,category:'显微镜立柱/支架与E-arm候选',material:'金属，具体材质与表面处理待确认',datasheet:'https://www.lylight.com/product/focus-block-84mm-25mm-pole-focus-rack-focusing-mount/',drawing:'',alternatives:[['LYLIGHT','FR8425：84mm安装规格、Ø25mm立柱孔，可能是A18调焦块/立柱连接的候选；中心距和一体边界未公开','https://www.lylight.com/product/focus-block-84mm-25mm-pole-focus-rack-focusing-mount/'],['LYLIGHT','FR5025CF一体式E-arm候选：Ø25mm立柱孔、Ø50mm镜体接口；产品图标注165mm中心距，整机示意另标135mm，端点基准待核','https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/'],['Thorlabs','MGZ30直接立柱安装调焦块，Ø1.5in立柱；可能将后夹持并入A18','https://www.thorlabs.com/item/MGZ30']],note:'当前A10是照片拟合的立柱/横臂，长度与Ø26mm柱径均未实测。LYLIGHT FR5025CF显示E-arm与调焦块为一体，Thorlabs MGZ30也有一体式后夹持。A10/A18边界确认前不得将A10作为独立已确认采购件。'},
  A18:{qty:1,category:'显微镜调焦块与一体式支架候选',material:'黑色金属/涂层（以实机为准）',datasheet:'https://www.lylight.com/product/focus-block-84mm-25mm-pole-focus-rack-focusing-mount/',drawing:'',alternatives:[['LYLIGHT','FR8425：84mm显微镜安装规格、Ø25mm立柱孔、滚珠导向与齿轮齿条粗调；未公开中心距/完整尺寸图/CAD','https://www.lylight.com/product/focus-block-84mm-25mm-pole-focus-rack-focusing-mount/'],['LYLIGHT','FR5025CF：Ø25mm立柱孔、Ø50mm镜体接口、0.02mm微调精度；产品图标注165mm中心距，整机示意另标135mm，端点基准待核','https://www.lylight.com/product/coarse-and-fine-focus-mount-50mm25mm-with-fine-adjustment-focusing-knob/'],['LYLIGHT / Chutong reference image','FR5025CF顶部产品图：一体式E-arm、双侧大调焦旋钮及50mm镜环；仅作拓扑对照','https://www.chutongelec.com/wp-content/uploads/2018/08/FR5025CF-TOP-VIEW.jpg'],['LYLIGHT','FR7625CF：Ø25mm立柱孔、Ø76mm镜体环，中心距与微调精度待核','https://www.lylight.com/product/focus-bracket-coarse-fine-adjustment-knob-focusing-rack-76mm25mm/'],['Thorlabs','MGZ30：Ø1.5in立柱安装、30mm Z行程、内置五物镜盘','https://www.thorlabs.com/item/MGZ30'],['Volition CAD catalog','MGZ30 CAD download listing: AutoCAD DXF / SolidWorks / STEP; file not yet retrieved or verified','https://www.govolition.com/product/V40-MGZ30'],['Olympus/Evident','BXFM-F：84mm宽度、82mm深度、Ø32H8立柱孔、4-M8后固定；原厂四视图尺寸图已用于独立对照模型，实机身份未确认','https://arstek.ru/upload/medialibrary/documents/instruktsii-po-ekspluatatsii/olympus/BX-FM_GB_18.02.2010.pdf']],note:'LYLIGHT FR8425为新增高优先级尺寸候选：84mm安装规格与当前照片拟合主体最大宽度相符，Ø25mm立柱孔与场景Ø26mm候选柱接近；但厂商未公开中心距、焦程、完整尺寸图或原生CAD，不能确认实机身份。FR8425拓扑研究模型中除84mm名义安装规格和Ø25mm立柱孔外，外廓、环壁、导轨、桥臂及旋钮均为视觉代理。FR5025CF/FR7625CF与MGZ30均为结构候选，不是已确认实机。FR5025CF只有产品图和部分规格，未找到完整尺寸工程图或原生STEP；其产品图165mm中心距与整机示意135mm标注的尺寸基准待核；FR7625CF的中心距与微调精度未从公开产品页核实；MGZ30的2012 Rev C工程图与Volition第三方资料页均列225µm/rev；Thorlabs 2014官方目录列250µm/rev；现行Thorlabs商品页未公布微调值，因此现行规格未决，不指定当前值。MGZ30 Rev C图纸另列4×4-40 UNC、5×M26×36 TPI和未映射的外廓尺寸，且明确不可用于制造；图纸约重4.55kg与现行产品页包装重量1.79kg定义不同。MGZ30五位置转盘与A19当前两个可见通孔仍存在未解决差异。BXFM-F原厂四视图已用于独立图纸对照模型，但旋钮直径、光学孔径和部分孔位仍为示意，且未确认实机型号。V157新增FR5025CF一体式E-arm独立拓扑对照视图：模型使用当前照片拟合112mm而非厂商165/135mm标注，差值53/23mm作为基准冲突提示；Ø25mm候选柱孔与当前未实测Ø26mm场景立柱存在1mm名义直径差。此视图不是原厂CAD，不替换默认A18。现有A18默认几何未使用任何候选厂家尺寸，采购前必须核对高清实物、柱径、镜体环内径、中心距、后壳分缝和物镜盘底视图。'},
  A11:{qty:1,category:'照明LED',material:'金属LED套筒',datasheet:'https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=2692&pn=M530L4',alternatives:[['Thorlabs','3000K 兼容LED型号按驱动电流选','https://www.thorlabs.com/'],['Mightex','可调白光光源','https://www.mightexsystems.com/']],note:'MWWHL4 历史目录：3000K 570mW (min) 1000mA；按实际 LEDD1B 电流能力校核'},
@@ -166,7 +168,8 @@ export function pricedSummary(rows){
 export function csvExportRows(rows){
  const fields=['id','name','maker','model','qty','unit','category','dims','level','material','price','currency','subtotalCny',
    'sourcePrice','sourceCurrency','unitsPerPack','exchangeRate','exchangeDate','exchangeSource','priceCandidate',
-   'priceDate','priceType','priceSource','drawing','cad','datasheet','alternatives','note','evidence','interfaceReview','interfaceGaps','photoIds','embeddedPhotos','missingPhotoOriginals','scope','traceability','connection','quoteStatus'];
+   'priceDate','priceType','priceSource','drawing','cad','datasheet','alternatives','note','evidence','interfaceReview','interfaceGaps','photoIds','embeddedPhotos','missingPhotoOriginals',
+   'identificationStatus','makerConfirmed','modelConfirmed','identificationNote','scope','traceability','connection','quoteStatus'];
  return [fields, ...rows.map(p=>{
    const q=p.quote;
    const price=displayPrice(q,p.qty);
@@ -176,6 +179,10 @@ export function csvExportRows(rows){
     exchangeRate:price?.exchange?.rate??'',exchangeDate:price?.exchange?.date??'',exchangeSource:price?.exchange?.source??'',
     priceCandidate:q?Boolean(q.candidate):'',
     priceDate:q?.date??'',priceType:q?.type??'',priceSource:q?.source??'',alternatives:(p.alternatives||[]).map(v=>v[0]+' '+v[1]+' '+v[2]).join(' | '),
+    identificationStatus:identificationLabels[p.identification.status],
+    makerConfirmed:p.identification.status==='interface'?'':p.identification.maker,
+    modelConfirmed:p.identification.status==='interface'?'':p.identification.model,
+    identificationNote:p.identification.note,
     ...procurementInterfaceFields(p.id.startsWith('A')?'A':'B',p.id),
     photoIds:photoRefsForPart(p.id[0],p.id).map(r=>r.id).join(' / '),
     embeddedPhotos:photoRefsForPart(p.id[0],p.id).filter(r=>r.src).map(r=>r.src).join(' | '),

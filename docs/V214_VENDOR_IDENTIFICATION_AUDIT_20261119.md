@@ -100,7 +100,7 @@ AI-719P在AI-719基础上增加50段时间程序功能。**照片只能识别到
 - DAHENG IMAGING 技术图纸下载：<https://en.daheng-imaging.com/list-61-1.html>
 - Jinhua Top Optical Instrument Co., Ltd.：<https://en.topoptical.cn/>
 - Ningbo Sunny Instruments / SDPTOP 原厂CX40M及LMPlan资料：<https://www.sunnyoptical.com/webfile/temps/2014098141512936_CX40M%E6%AD%A3%E7%BD%AE%E9%87%91%E7%9B%B8%E6%98%BE%E5%BE%AE%E9%95%9C.pdf>
-- Yudian AI-719 / AI-719P原厂手册：<https://www.yudian.com.hk/app/download/7245340836/TemperatureControllerAI719v82.pdf>
+- Yudian AI-719 / AI-719P原厂手册：<https://www.yudian.com/UserFiles/upload/file/20250327/S022-16%20%20AI-719%20719P%EF%BC%888.3%EF%BC%89%E4%B8%AD%E6%96%87%E8%AF%B4%E6%98%8E%E4%B9%A6-2022.8.19.pdf>
 - Zolix PHCP系列：<https://www.zolix-group.com/product/detail/117.html>
 - Zolix PHCP-1产品图：<https://www.zolix-group.com/public/storage/upload/images/Products/MirrorMount/PHCP-1.jpg>
 - Zolix PHSH系列：<https://www.zolix-group.com/product/detail/225.html>

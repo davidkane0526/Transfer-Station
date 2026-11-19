@@ -1,4 +1,5 @@
 import {displayPrice,formatRmb,priceEvidence} from './quote-display.js';
+import {identifyPart,identificationLabels} from './part-identification.js';
 
 const fields=[
   ['name','名称'],['maker','厂家'],['model','型号'],['dims','尺寸'],
@@ -48,9 +49,14 @@ export function createPartRecords(){
     const result={...part,...ordinary};
     if(typeof result.qty==='string')result.qty=result.qty===''?'':Number(result.qty);
     const changed=field=>value(part,field)!==original(part,field);
-    const modelChanged=changed('maker')||changed('model');
+    const makerEdited=changed('maker');
+    const modelEdited=changed('model');
+    const modelChanged=makerEdited||modelEdited;
     const amountChanged=changed('price')||changed('currency');
-    if(modelChanged)result.traceability='厂家 / 型号已编辑，待复核';
+    if(modelChanged){
+      result.traceability='厂家 / 型号已编辑，待复核';
+      result.identification=identifyPart(part,{makerEdited,modelEdited});
+    }
     if(amountChanged||changed('priceSource')){
       const amount=value(part,'price');
       const unit=value(part,'currency');
@@ -108,6 +114,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   const historyView=element('div');
   historyView.hidden=true;
   const fieldList=element('div','inspection-field-list');
+  const identificationNote=element('p','inspection-status');
   const links=element('details','inspection-info');
   links.append(element('summary','','资料与备注'));
   const refs=element('div','inspection-sources');
@@ -128,7 +135,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   if(part.evidence)links.append(element('p','small',part.evidence));
   const sourceFields=element('div');
   links.append(refs,quoteDetails,sourceFields);
-  host.append(header,title,hint,status,historyView,fieldList,links);
+  host.append(header,title,hint,status,historyView,fieldList,identificationNote,links);
   if(!hasMesh){
     const notice=element('p','inspection-status','此条目暂无独立 3D 网格。');
     host.insertBefore(notice,fieldList);
@@ -160,6 +167,9 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   function drawFields(){
     editing=null;
     const record=records.apply(part);
+    const identification=record.identification;
+    identificationNote.textContent=identification.note;
+    identificationNote.hidden=!identification.note;
     const quote=record.quote;
     const price=displayPrice(quote,record.qty);
     fieldList.replaceChildren();sourceFields.replaceChildren();drawLinks(quote,price);
@@ -185,7 +195,14 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
         }
       };
       row.append(element('span','',label),button);
-      if(field==='model')row.append(element('span','part-evidence-badge',record.traceability));
+      if(field==='maker'||field==='model'){
+        const supported=identification[field];
+        const text=identification.status==='interface'?identificationLabels.interface:
+          label+(supported?'已确认':'待确认');
+        const badge=element('span','part-evidence-badge',text);
+        badge.dataset.confirmed=String(supported);
+        row.append(badge);
+      }
       if(field==='price'&&quote?.candidate)row.append(element('span','part-evidence-badge','备选型号报价'));
       (['currency','note','drawing','datasheet','priceSource'].includes(field)?sourceFields:fieldList).append(row);
     }

@@ -31,10 +31,21 @@ try{
   const amounts=prices.map(price=>Number(price.slice(1).replaceAll(',','')));
   assert.deepEqual(amounts,[...amounts].sort((a,b)=>a-b));
   await page.locator('#priced-only').uncheck();
+  await page.locator('#bom-identification').selectOption('maker');
+  assert.deepEqual((await page.locator('#bom-body tr > td:first-child').allTextContents()).sort(),['A09','A15']);
+  await page.locator('#bom-identification').selectOption('partial');
+  assert.deepEqual(await page.locator('#bom-body tr > td:first-child').allTextContents(),['A19']);
+  await page.locator('#bom-identification').selectOption('');
   await page.locator('#close-bom').click();
+  await selectPart('A09');
+  assert.match(await field('maker').innerText(),/DAHENG IMAGING/);
+  assert.match(await page.locator('#part-detail [data-record-field=maker]').innerText(),/厂家已确认/);
+  assert.match(await page.locator('#part-detail [data-record-field=model]').innerText(),/型号待确认/);
+  await selectPart('A19');
+  assert.match(await field('maker').innerText(),/Olympus.*JH-TOP/);
   await selectPart('A27');
   assert.equal(await field('price').innerText(),'¥202.67');
-  assert.match(await page.locator('#part-detail [data-record-field=model]').innerText(),/照片 \/ 型号候选/);
+  assert.match(await page.locator('#part-detail [data-record-field=model]').innerText(),/型号待确认/);
   if(process.env.TRANSFER_RECORD_TEST==='1'){
     await field('price').dblclick();
     const editor=page.getByRole('textbox',{name:'录入报价（USD / 5件）'});
@@ -101,7 +112,8 @@ try{
     await page.locator('#open-bom').click();
     const changedRow=page.locator('#bom-body tr').filter({hasText:sampleEdit});
     assert.match(await changedRow.innerText(),/待核价/);
-    assert.match(await changedRow.locator('.part-evidence-badge').innerText(),/待复核/);
+    assert.match(await changedRow.locator('.part-evidence-badge').innerText(),/仅厂家确认/);
+    assert.match(await changedRow.innerText(),/待复核/);
     await page.locator('#close-bom').click();
     await page.reload({waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>window.__reviewedAFilmAssemblyProbe?.());
@@ -111,9 +123,13 @@ try{
     await page.locator('.inspection-revision').first().getByText(sampleEdit,{exact:false}).waitFor();
     await page.getByRole('button',{name:'恢复此项原值'}).first().click();
     await page.waitForFunction(text=>document.querySelector('[data-field=model]')?.textContent===text,previous);
-    assert.ok(await page.locator('.inspection-revision').count()>=2);
+    await page.locator('.inspection-revision').nth(1).waitFor();
   }
   await page.locator('#show-b').click();
+  await page.locator('#open-bom').click();
+  await page.locator('#bom-identification').selectOption('model');
+  assert.deepEqual((await page.locator('#bom-body tr > td:first-child').allTextContents()).sort(),['B20','B22']);
+  await page.locator('#close-bom').click();
   await selectScope('film');
   const b=await probe();
   assert.ok(b.meshes.includes('B24')&&!b.meshes.includes('B21'));

@@ -4,10 +4,11 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {CSS2DRenderer,CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
 import {STLLoader} from 'three/addons/loaders/STLLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js';
+import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js?v=V215';
 import {enrichParts} from './details.js';
-import {enriched,pricedSummary,csvExportRows,procurementRows} from './procurement.js?v=V213';
+import {enriched,pricedSummary,csvExportRows,procurementRows} from './procurement.js?v=V215';
 import {displayPrice,formatRmb,priceEvidence} from './quote-display.js';
+import {identificationLabels,summarizeIdentification} from './part-identification.js';
 import {stageLocalTranslation,stageLocalDepthTranslation} from './kinematics.js';
 import {interfaceEvidence} from './interface-evidence.js';
 import {parseXZ,fitRigidXZ} from './cad-registration.js';
@@ -35,7 +36,7 @@ import {A_FILM_LEVELS,buildAFoldedBracket,readAFoldedBracket} from './a-stage-me
 import {A_FILM_PHOTO_VIEWS,addAFoldMountingHeads,buildPhotographicFilmStage} from './a-film-detail.js?v=V212';
 import {explosionOffset,explosionStep,opticalRelease,stroke} from './explosion.js';
 import {scopes,requiredSceneParts,assemblyFor,assemblyTime,assemblyOffset,filmAxisSpread} from './inspection-scope.js?v=V213';
-import {createPartRecords,mountPartRecord} from './part-records.js?v=V213';
+import {createPartRecords,mountPartRecord} from './part-records.js?v=V215';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#16293c');scene.fog=new THREE.Fog('#16293c',750,1500);
@@ -5583,10 +5584,10 @@ function contextualPart(p,{rig=platform,archiveB=bPhoto94Mode}={}){
      interfaceNote:'孔位公差和实际行程待实测。',evidence:'照片 142、161、194–196；用户 STL'
    };
    if(p.id==='A19')return {
-     ...p,name:'倾斜式物镜转换盘',maker:'未确认',model:'Thorlabs MGZ30 五工位结构候选',
+     ...p,name:'倾斜式物镜转换盘',
      dims:'根据照片 191 / 193 拟合锥面布局，孔位与螺纹待核。',
-     detail:'照片可辨三支物镜和空位。模型采用五工位候选布局，下方竖直物镜对准管镜光轴。',
-     interfaceNote:'第三支物镜型号、总工位数及转盘型号待核。',evidence:'实拍 161、191–193；黄色灯光视频'
+     detail:'照片可辨 JH-TOP 和 Olympus 物镜；模型采用五工位候选布局，下方竖直物镜对准管镜光轴。',
+     interfaceNote:'完整物镜型号、总工位数及转盘型号待核。'
    };
    if(p.id==='A18')return {
      ...p,name:'显微镜调焦体及侧向照明筒',model:'型号待实测',
@@ -5930,6 +5931,7 @@ function updateDetail(part){
    .filter(x=>x&&!/^(未知|待识别|待确认|—|-)$/i.test(x));
  const metaHtml=usefulMeta.length?'<p class="meta">'+esc([...new Set(usefulMeta)].join(' · '))+'</p>':'';
  el.innerHTML='<h2>'+esc(part.name)+'</h2>'+metaHtml+
+ '<p class="part-evidence-badge">'+esc(identificationLabels[ex.identification.status])+'</p>'+
    '<div class="field"><b>尺寸</b><p>'+esc(part.dims)+'</p></div>'+
  (platform==='A'&&aReviewMode&&[...aReviewFilmIds,'A18','A19','A11','A20'].includes(part.id)?
    '<div class="field"><p>'+esc(part.detail)+'</p><p>'+esc(part.interfaceNote)+'</p></div>':'')+
@@ -6623,6 +6625,7 @@ function resetScene(){
  wireEdges.clear();
  // Each platform has its own independent BOM; prevent previous queries from hiding rows.
  if($('bom-query'))$('bom-query').value='';
+ $('bom-identification').value='';
  if($('priced-only'))$('priced-only').checked=false;
  active=null;clearMeasurement();sampleSubstrate=null;
  $('hover-help').textContent='点击零件查看规格';
@@ -6748,7 +6751,7 @@ function buildLink(name,url){
  const a=document.createElement('a');a.href=url;a.target='_blank';
  a.rel='noopener noreferrer';a.textContent=name;return a;
 }
-function summaryBOM(rows){
+function summaryBOM(rows,identification){
  const dst=$('bom-summary');dst.replaceChildren();
  const sum=pricedSummary(rows);
  const card=(number,desc)=>{
@@ -6757,6 +6760,8 @@ function summaryBOM(rows){
    const sm=document.createElement('span');sm.textContent=desc;b.append(strong,sm);dst.append(b);
  };
  card(String(rows.length),'BOM 条目');
+ card(String(identification.confirmed),identificationLabels.confirmed);
+ card(String(identification.incomplete),identificationLabels.incomplete);
  card(String(sum.priced),'有人民币小计');
  card(String(sum.unpriced),'待询价或补充数据');
  if(sum.priced>sum.candidates)card(formatRmb(sum.amount),'同型号参考小计');
@@ -6779,7 +6784,10 @@ function sortedBOM(rows){
 function visibleBOM(rows){
  const q=$('bom-query').value.trim().toLowerCase();
  const priceOnly=$('priced-only').checked;
+ const identification=$('bom-identification').value;
  return sortedBOM(rows.filter(p=>
+    (!identification||p.identification.status===identification||
+      (identification==='incomplete'&&!['confirmed','interface'].includes(p.identification.status)))&&
     (!priceOnly||displayPrice(p.quote))&&
     (!q||[p.id,p.name,p.model,p.maker,p.category,p.note,p.traceability,p.connection,
           ...(p.alternatives||[]).flatMap(a=>a.slice(0,2))]
@@ -6789,9 +6797,14 @@ function visibleBOM(rows){
 function updateTable(){
  const tbody=$('bom-body');tbody.replaceChildren();
  const rows=procurementRows(platform,activeParts()).map(partRecords.apply);
+ const identification=summarizeIdentification(rows);
+ for(const option of $('bom-identification').options){
+   if(option.value)option.textContent=identificationLabels[option.value]+'（'+identification[option.value]+'）';
+ }
  const visible=visibleBOM(rows);
  for(const part of visible){
   const tr=document.createElement('tr');
+  tr.dataset.identification=part.identification.status;
   function cell(text='',cls='',field=''){
     const td=document.createElement('td');
     td.textContent=text;td.className=cls;tr.append(td);
@@ -6805,7 +6818,9 @@ function updateTable(){
   cell(part.name+'\n'+(part.category||''),'','name');
   const modelCell=cell(part.maker+' / '+part.model,'','model');
   const evidenceBadge=document.createElement('span');
-  evidenceBadge.className='part-evidence-badge';evidenceBadge.textContent=part.traceability;
+  evidenceBadge.className='part-evidence-badge';
+  evidenceBadge.textContent=identificationLabels[part.identification.status];
+  evidenceBadge.dataset.confirmed=String(part.identification.status==='confirmed');
   modelCell.append(evidenceBadge);
   cell(part.qty===''?'待填':String(part.qty??1)+' '+part.unit,'','qty');
   cell(part.dims,'','dims');
@@ -6833,6 +6848,11 @@ function updateTable(){
     basis.className='bom-alt';basis.textContent=part.evidence;
     photoCell.append(basis);
   }
+  if(part.identification.note){
+    const note=document.createElement('span');
+    note.className='bom-alt';note.textContent=part.identification.note;
+    photoCell.append(note);
+  }
   cell(part.connection,'','connection');
   if(inspectionMode||!part.hardware){
     tr.style.cursor='pointer';
@@ -6857,7 +6877,7 @@ function updateTable(){
   }
   tbody.append(tr);
  }
- summaryBOM(rows);
+ summaryBOM(rows,identification);
  $('bom-heading').textContent='平台 '+platform+' · BOM';
 }
 function csvEscape(v){
@@ -8956,7 +8976,7 @@ $('fit-cad-landmarks').onclick=()=>{
 
 $('export-csv').onclick=()=>exportCSV();
 $('export-all-csv').onclick=()=>exportCSV(true);
-for(const id of ['bom-query','bom-sort','priced-only']){
+for(const id of ['bom-query','bom-sort','bom-identification','priced-only']){
  const el=$(id);el.addEventListener(id==='bom-query'?'input':'change',updateTable);
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('bom-drawer').classList.remove('open')});
