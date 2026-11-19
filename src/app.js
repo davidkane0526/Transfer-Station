@@ -30,7 +30,7 @@ import {A20261108PhotoAngles,aPhotoCameraPose,aPhotoOrientationEvidence} from '.
 import {auditTubeLensToCameraProxy,TTL200A_OPTICAL_EVIDENCE} from './a-optical-reference.js';
 import {auditA09CameraCoupling,A09_CAMERA_INTERFACE_EVIDENCE} from './a-camera-interface.js';
 import {V48_RULER_EVIDENCE,auditV48RulerRegistration} from './v48-ruler-registration.js';
-import {A_FILM_LEVELS,splitAStageMesh} from './a-stage-mesh.js';
+import {A_FILM_LEVELS,buildRegisteredAStageMesh,splitAStageMesh} from './a-stage-mesh.js';
 import {explosionOffset,explosionStep,opticalRelease,stroke} from './explosion.js';
 import {scopes,assemblyFor,assemblyTime,assemblyOffset,filmAxisSpread} from './inspection-scope.js';
 import {createPartRecords,mountPartRecord} from './part-records.js';
@@ -3551,6 +3551,29 @@ function buildAReviewNosepiece(g){
   label(g,'A19 倾斜物镜转换盘 · 3 支物镜',-18,19,0);
 }
 
+function mountRegisteredGoniometerDrive(g,lower){
+ const axis=lower?'z':'x';
+ const yaw=lower?Math.PI/2:Math.PI;
+ const neutral=add(g,new THREE.Group());
+ neutral.rotation.y=-yaw;
+ const y=lower?12:6;
+ const offset=4;
+ const collar=lower?cub(16,12,5,mats.black,offset,y,20.5):
+   cub(5,11,16,mats.black,-20,y,offset);
+ add(neutral,collar);
+ const segments=lower?[[22,44,6.5],[44,64,8.1],[64,67,5.67]]:
+   [[-20,-31,6.5],[-31,-44,8.1],[-44,-47,5.67]];
+ for(const [index,[first,last,radius]] of segments.entries()){
+   const center=(first+last)/2;
+   const shaft=add(neutral,cyl(radius,Math.abs(last-first),mats.steel,
+     axis==='x'?center:offset,y,axis==='z'?center:offset,48));
+   if(axis==='x')shaft.rotation.z=Math.PI/2;
+   else shaft.rotation.x=Math.PI/2;
+   if(index===1)shaft.userData[lower?'A04LDriveDrum':'A04DriveDrum']=true;
+   if(index===2)shaft.name='registered-drive-tip';
+ }
+}
+
 function platformA(){
  const ax=activeAFilmX(),sx=CONFIG.A.sampleX;
  const az=aWorkingPoseMode?A_WORKING_LAYOUT.filmStageZ:0;
@@ -3787,20 +3810,18 @@ function platformA(){
      hd.userData.fastenerProxy=true;
      const inset=add(g,cyl(1.3,.2,mats.ink,x,y,22,6));inset.rotation.x=Math.PI/2;
    }
-   // Photos195/196: the upper labelled G40M60L drive is on +X while
-   // the lower independent angular stage drive is on the opposite side.
-   // The old +Z/end-on proxy produced the large false front circular knob
-   // visible in the user's 2026-11-11 screenshot. Mirror the same engaged
-   // side-drive topology used by A04 instead of pointing a drum at camera.
-   const lowerSupport=add(g,cub(16,15,29,mats.black,-24,8,0));
-   lowerSupport.userData.A04LDriveSupport=true;
-   const stem=add(g,cyl(5.5,18,mats.steel,-27,10,0,40));stem.rotation.z=Math.PI/2;
-   const drum=add(g,cyl(8.3,20,mats.silver,-43,10,0,48));drum.rotation.z=Math.PI/2;
-   drum.userData.A04LDriveDrum=true;
-   drum.userData.driveAxisCandidate='-X';
-   for(let x=-35;x>-52;x-=3){
-     const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
-     ring.rotation.y=Math.PI/2;
+   if(aReviewMode)mountRegisteredGoniometerDrive(g,true);
+   else {
+     const lowerSupport=add(g,cub(16,15,29,mats.black,-24,8,0));
+     lowerSupport.userData.A04LDriveSupport=true;
+     const stem=add(g,cyl(5.5,18,mats.steel,-27,10,0,40));stem.rotation.z=Math.PI/2;
+     const drum=add(g,cyl(8.3,20,mats.silver,-43,10,0,48));drum.rotation.z=Math.PI/2;
+     drum.userData.A04LDriveDrum=true;
+     drum.userData.driveAxisCandidate='-X';
+     for(let x=-35;x>-52;x-=3){
+       const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
+       ring.rotation.y=Math.PI/2;
+     }
    }
    addJointHeads(g,'A04L',14.9,[[-14,-14],[14,14]],{headR:2.6});
    // V82: Daheng catalog explicitly pairs GCM-G40M40L with G40M60L.
@@ -3836,14 +3857,16 @@ function platformA(){
      {x:0,z:0,r:2.7,thread:'M6-center-candidate'}
    ]);
    addGoniometerAngleScale(g,'A04');
-   // Photos195/196: the UPPER labelled GCM-G40M60L micrometer is RIGHT (+X).
-   add(g,cub(16,15,29,mats.black,24,8,0));
-   const stem=add(g,cyl(5.5,18,mats.steel,27,10,0,40));stem.rotation.z=Math.PI/2;
-   const drum=add(g,cyl(8.3,20,mats.silver,43,10,0,48));drum.rotation.z=Math.PI/2;
-   drum.userData.A04DriveDrum=true;
-   for(let x=35;x<52;x+=3){
-     const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
-     ring.rotation.y=Math.PI/2;
+   if(aReviewMode)mountRegisteredGoniometerDrive(g,false);
+   else {
+     add(g,cub(16,15,29,mats.black,24,8,0));
+     const stem=add(g,cyl(5.5,18,mats.steel,27,10,0,40));stem.rotation.z=Math.PI/2;
+     const drum=add(g,cyl(8.3,20,mats.silver,43,10,0,48));drum.rotation.z=Math.PI/2;
+     drum.userData.A04DriveDrum=true;
+     for(let x=35;x<52;x+=3){
+       const ring=add(g,torus(8.35,.22,mats.ink,x,10,0));
+       ring.rotation.y=Math.PI/2;
+     }
    }
    addJointHeads(g,'A04',14.9,[[-14,-14],[14,14]],{headR:2.6});
    g.userData.upperConfirmedPhoto94='GCM-G40M60L';
@@ -6405,8 +6428,11 @@ async function mountAReviewStage(group){
  try{
    aStageGeometryRequest??=new STLLoader()
      .loadAsync(new URL('../private/micro_stage_v2.stl',import.meta.url).href)
-     .then(splitAStageMesh).catch(error=>{aStageGeometryRequest=null;throw error;});
-   const geometries=await aStageGeometryRequest;
+     .then(source=>{
+       try{return {geometries:splitAStageMesh(source),source:'stl'};}
+       finally{source.dispose();}
+     }).catch(()=>({geometries:buildRegisteredAStageMesh(),source:'registered'}));
+   const {geometries,source}=await aStageGeometryRequest;
    if(!isCurrent())return;
 
    const bracket=parts.get('A05');
@@ -6475,6 +6501,8 @@ async function mountAReviewStage(group){
      part.g.visible=filmEnabled;
    }
    group.userData.reviewStageMesh=true;
+   group.userData.reviewStageSource=source;
+   if(source==='registered')status.dataset.fallback='true';
    updateTransforms();
    if(inspectedPart&&aReviewFilmIds.includes(inspectedPart)){
      const part=procurementRows(platform,activeParts()).find(row=>row.id===inspectedPart);
@@ -6482,23 +6510,14 @@ async function mountAReviewStage(group){
      fitInspection();
    }else if(active?.part.group==='film')selectPart(active.part.id);
    if(launchParams.get('view')==='film')focusMechanicalBranch('film');
-   status.textContent='显示器在后（−Z）。+X 向右，+Y 向上，+Z 朝观察者。';
- }catch{
+   if(inspectionScope==='film'&&!inspectedPart)fitInspection();
+   status.textContent=source==='stl'?'显示器在后（−Z）。+X 向右，+Y 向上，+Z 朝观察者。':
+     '玻片侧按 STL 手柄方向和装配基准重建。';
+ }catch(error){
    if(!isCurrent())return;
-   const filmEnabled=$('group-list').querySelector('[data-group="film"]')?.checked??true;
-   for(const id of aReviewFilmIds){
-     const {g}=parts.get(id);
-     g.userData.hiddenBecauseNotPhotographed=false;
-     g.visible=filmEnabled;
-   }
    status.dataset.fallback='true';
-   status.textContent='玻片侧显示示意模型。';
-   updateTransforms();
-   if(inspectedPart&&aReviewFilmIds.includes(inspectedPart)){
-     const part=procurementRows(platform,activeParts()).find(row=>row.id===inspectedPart);
-     if(part)renderInspectedRecord(part);
-   }
-   if(inspectionScope==='film'||aReviewFilmIds.includes(inspectedPart))fitInspection();
+   status.textContent='玻片侧装配加载失败。';
+   console.error('Platform A stage registration failed',error);
  }
 }
 
@@ -6517,8 +6536,15 @@ window.__reviewedAFilmAssemblyProbe=()=>{
  const foot=parts.get('A05').g.children.find(o=>o.userData.A05OutwardFootCandidate);
  const blade=parts.get('A05C').g.children.find(o=>o.userData.A05CLowerClampBlade);
  const vc=parts.get('A03').g.getObjectByName('A03');
- const verticalDrive=vc.localToWorld(new THREE.Vector3(-18.4,110,10.8));
- const verticalGuide=vc.localToWorld(new THREE.Vector3(-5,100,-2));
+ const metalBounds=new THREE.Box3();
+ const vertices=vc.geometry.getAttribute('position');
+ const colors=vc.geometry.getAttribute('color');
+ const vertex=new THREE.Vector3();
+ for(let i=0;i<vertices.count;i++){
+   if(colors.getX(i)>.2)metalBounds.expandByPoint(vc.localToWorld(vertex.fromBufferAttribute(vertices,i)));
+ }
+ const verticalDrive=metalBounds.getCenter(new THREE.Vector3());
+ const verticalGuide=vc.localToWorld(new THREE.Vector3(-5,100,0));
  const glass=parts.get('A05G').g.children.find(o=>o.isMesh&&o.userData.candidateStandardSlide);
  const workingLens=parts.get('A19').g.getObjectsByProperty('isMesh',true)
    .find(o=>o.userData.A19ReviewObjective===0);
@@ -6529,8 +6555,31 @@ window.__reviewedAFilmAssemblyProbe=()=>{
    const ray=new THREE.Raycaster(origin,new THREE.Vector3(0,-1,0),0,12);
    return ray.intersectObjects([foot,blade],false).length===0;
  });
+ const [magnet,xy,vertical,lower,upper,bracket]=['A17','A15','A03','A04L','A04','A05']
+   .map(id=>parts.get(id).g);
+ const datum=new THREE.Vector3(magnet.position.x+5,0,5);
+ function face(object,upperFace){
+   const ray=new THREE.Raycaster(datum.clone().setY(upperFace?650:-50),
+     new THREE.Vector3(0,upperFace?-1:1,0));
+   return ray.intersectObject(object,true).find(hit=>_isEffectivelyVisible(hit.object))?.point.y;
+ }
+ const seating=[
+   magnet,xy.getObjectByName('A15'),xy.getObjectByName('A15Y'),
+   xy.getObjectByName('A15X'),vertical,lower,upper,bracket
+ ];
+ const matingGaps=seating.slice(1).map((piece,i)=>{
+   const gap=face(piece,false)-face(seating[i],true);
+   return Number.isFinite(gap)?Number(gap.toFixed(4)):null;
+ });
  return {
    explosion,
+   source:magnet.userData.reviewStageSource,
+   matingGaps,
+   goniometerTips:Object.fromEntries(['A04L','A04'].map(id=>{
+     const g=parts.get(id).g;
+     const point=g.getObjectByName('registered-drive-tip').getWorldPosition(new THREE.Vector3()).sub(g.position);
+     return [id,point.toArray().map(n=>Number(n.toFixed(4)))];
+   })),
    bounds:Object.fromEntries(Object.entries(bounds).map(([id,b])=>[
      id,[b.min,b.max].map(v=>v.toArray().map(n=>Number(n.toFixed(6))))
    ])),

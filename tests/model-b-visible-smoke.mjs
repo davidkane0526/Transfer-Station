@@ -2626,3 +2626,6 @@ assert.equal(aBefore.g40WorldBaseY-aBefore.lowerGoniometerWorldBaseY,20,
  assert.deepEqual(failures,[],'Browser errors: '+failures.join('; '));
  console.log('V28 B full model, PHUC-1, GCM-1302M, second rod, A/B separation: PASS');
 }finally{await browser.close()}
+
+// Test the same Platform A model that the public Pages artifact will load.
+await import('./a-reviewed-assembly.mjs');
