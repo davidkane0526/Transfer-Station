@@ -20,9 +20,31 @@ function original(part,field){
   return String(part[field]??'');
 }
 
+const localStorageKey='transfer-station-part-records-v1';
+function localSnapshot(){
+  try{
+    const data=JSON.parse(window.localStorage.getItem(localStorageKey)||'{}');
+    return data&&typeof data==='object'&&!Array.isArray(data)?data:{};
+  }catch{return {};}
+}
+
 export function createPartRecords(){
-  const heads=new Map();
+  const snapshot=localSnapshot();
+  const heads=new Map(Object.entries(snapshot.parts||{}));
+  const confirmations=new Map(Object.entries(snapshot.confirmations||{}));
+  const localRevisions=new Map(Object.entries(snapshot.history||{}));
   const state={ready:false,offline:false};
+  function persist(){
+    try{
+      window.localStorage.setItem(localStorageKey,JSON.stringify({
+        parts:Object.fromEntries(heads),
+        confirmations:Object.fromEntries(confirmations),
+        history:Object.fromEntries(localRevisions)
+      }));
+    }catch{
+      throw new Error('浏览器无法保存本机修改，请检查网站数据或存储权限。');
+    }
+  }
   async function send(url,options){
     const response=await fetch(url,{cache:'no-store',...options});
     const data=await response.json().catch(()=>null);
@@ -39,9 +61,10 @@ export function createPartRecords(){
     heads.clear();
     for(const [id,head] of Object.entries(parts))heads.set(id,head);
     state.ready=true;
+    state.offline=false;
   };
   const revision=id=>heads.get(id)?.revision??0;
-  const value=(part,field)=>heads.get(part.id)?.values[field]??original(part,field);
+  const value=(part,field)=>heads.get(part.id)?.values?.[field]??original(part,field);
   const apply=part=>{
     const edited=heads.get(part.id)?.values;
     if(!edited)return part;
@@ -72,12 +95,53 @@ export function createPartRecords(){
     }
     return result;
   };
-  const history=async id=>(await send(api+'/'+id+'/history')).history;
+  const history=async id=>state.offline?(localRevisions.get(id)||[]):(await send(api+'/'+id+'/history')).history;
+  const manualConfirmed=id=>Boolean(confirmations.get(id)?.checked);
+  const setManualConfirmed=(id,checked)=>{
+    const previous=confirmations.get(id);
+    confirmations.set(id,{checked:Boolean(checked),changed_at:new Date().toISOString()});
+    try{persist();}catch(error){
+      if(previous===undefined)confirmations.delete(id);
+      else confirmations.set(id,previous);
+      throw error;
+    }
+  };
   const save=async(part,field,next,baseRevision)=>{
+    if(!Object.hasOwn(labels,field))throw new Error('未知的编辑字段。');
+    const entry=String(next??'');
+    if(entry.length>4000)throw new Error('字段内容不能超过 4000 个字符。');
+    if(field==='qty'&&(entry.trim()===''||!Number.isInteger(Number(entry))||Number(entry)<0))
+      throw new Error('数量必须为非负整数。');
+    if(field==='price'&&entry.trim()!==''&&(!Number.isFinite(Number(entry))||Number(entry)<0))
+      throw new Error('价格必须为有效的非负数字。');
+    if(['drawing','datasheet'].includes(field)&&entry.trim()&&!/^https:\/\//i.test(entry.trim()))
+      throw new Error('图纸和规格链接需要完整的 HTTPS 地址。');
+    if(state.offline){
+      const previous=heads.get(part.id)||{revision:0,values:{}};
+      const oldValue=previous.values?.[field]??original(part,field);
+      if(oldValue===entry)return;
+      const nextRevision=(previous.revision||0)+1;
+      const oldHistory=localRevisions.get(part.id)||[];
+      heads.set(part.id,{
+        revision:nextRevision,
+        values:{...previous.values,[field]:entry}
+      });
+      localRevisions.set(part.id,[{
+        revision:nextRevision,field,previous:oldValue,value:entry,
+        changed_at:new Date().toISOString()
+      },...oldHistory].slice(0,100));
+      try{persist();}catch(error){
+        if(!previous.revision&&!Object.keys(previous.values||{}).length)heads.delete(part.id);
+        else heads.set(part.id,previous);
+        localRevisions.set(part.id,oldHistory);
+        throw error;
+      }
+      return;
+    }
     try{
       const {part:head}=await send(api+'/'+part.id,{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({field,value:next,original:original(part,field),baseRevision})
+        body:JSON.stringify({field,value:entry,original:original(part,field),baseRevision})
       });
       heads.set(part.id,head);
     }catch(error){
@@ -85,7 +149,7 @@ export function createPartRecords(){
       throw error;
     }
   };
-  return {state,refresh,revision,value,apply,history,save};
+  return {state,refresh,revision,value,apply,history,save,manualConfirmed,setManualConfirmed};
 }
 
 function element(tag,cls,content){
@@ -102,12 +166,20 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   const header=element('div','inspection-detail-heading');
   const historyButton=element('button','','修改历史');
   historyButton.type='button';
-  historyButton.hidden=records.state.offline;
   historyButton.setAttribute('aria-expanded','false');
-  header.append(element('span','part-id',part.id),historyButton);
+  const confirmedInput=element('input');
+  confirmedInput.type='checkbox';
+  confirmedInput.checked=records.manualConfirmed(part.id);
+  confirmedInput.setAttribute('aria-label','人工确认此零件');
+  const confirmedLabel=element('label','inspection-manual-check');
+  confirmedLabel.append(confirmedInput,element('span','','人工确认'));
+  const headingActions=element('div','inspection-heading-actions');
+  headingActions.append(confirmedLabel,historyButton);
+  header.append(element('span','part-id',part.id),headingActions);
   const title=element('h2','',records.value(part,'name')||part.id);
-  const hint=element('p','inspection-status',records.state.offline?'静态预览 · 资料只读':
-    records.state.ready?'双击字段编辑':'正在连接数据库…');
+  const hint=element('p','inspection-status',records.state.offline?
+    '本机编辑模式 · 自动保存在当前浏览器，不同步 GitHub':
+    records.state.ready?'点击编辑可修改；文字可选中复制':'正在连接数据库…');
   const status=element('p','inspection-status');
   status.setAttribute('role','status');
   status.hidden=true;
@@ -137,7 +209,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   links.append(refs,quoteDetails,sourceFields);
   host.append(header,title,hint,status,historyView,fieldList,identificationNote,links);
   if(!hasMesh){
-    const notice=element('p','inspection-status','此条目暂无独立 3D 网格。');
+    const notice=element('p','inspection-status','该零件已列入 BOM，但尚未建立独立 3D 模型。');
     host.insertBefore(notice,fieldList);
   }
   function message(text,error=false){
@@ -147,7 +219,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
     try{
       await records.save(part,field,next,baseRevision);
       if(!host.contains(header))return true;
-      message('已保存 · #'+records.revision(part.id));
+      message((records.state.offline?'已保存到本机':'已保存到数据库')+' · #'+records.revision(part.id));
       title.textContent=records.value(part,'name')||part.id;
       drawFields();
       onSave();
@@ -182,19 +254,53 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
         price?formatRmb(price.unit):quote?'汇率待补':record.qty===0?'—':'待询价':
         records.value(part,field);
       const empty=field==='price'?!price:!value;
-      const button=element('button','inspection-value'+(empty?' empty':''),value||'待填');
-      button.type='button';
-      button.dataset.field=field;
-      button.setAttribute('aria-label','编辑'+label);
-      button.title=records.state.offline?'静态预览只读':'双击编辑';
-      button.disabled=records.state.offline;
-      button.ondblclick=()=>edit(row,button,field,label);
-      button.onkeydown=event=>{
+      const displayValue=String(value||'待填');
+      const valueNode=element('span','inspection-value'+(empty?' empty':''),displayValue);
+      valueNode.dataset.field=field;
+      valueNode.tabIndex=0;
+      valueNode.title='可以选择和复制文字，双击进入编辑';
+      valueNode.ondblclick=()=>edit(row,valueNode,field,label);
+      valueNode.onkeydown=event=>{
         if(event.key==='Enter'||event.key==='F2'){
-          event.preventDefault();edit(row,button,field,label);
+          event.preventDefault();edit(row,valueNode,field,label);
         }
       };
-      row.append(element('span','',label),button);
+      const valueWrap=element('div','inspection-value-row');
+      const actions=element('div','inspection-field-actions');
+      const editButton=element('button','','编辑');
+      editButton.type='button';
+      editButton.title='编辑'+label;
+      editButton.onclick=()=>edit(row,valueNode,field,label);
+      const copyButton=element('button','','复制');
+      copyButton.type='button';
+      copyButton.title='复制'+label;
+      copyButton.onclick=async()=>{
+        try{
+          await navigator.clipboard.writeText(
+            String(field==='price'?records.value(part,field):value||'')
+          );
+          message('已复制：'+label);
+        }catch{
+          message('复制失败，请选中文字后按 Ctrl+C。',true);
+        }
+      };
+      actions.append(editButton,copyButton);
+      const raw=String(records.value(part,field)||'').trim();
+      if(/^https:\/\/\S+$/i.test(raw)){
+        valueNode.textContent='';
+        const directLink=element('a','inspection-direct-link',raw);
+        directLink.href=raw;
+        directLink.target='_blank';
+        directLink.rel='noopener noreferrer';
+        valueNode.append(directLink);
+        const openLink=element('a','inspection-open-link','打开');
+        openLink.href=raw;
+        openLink.target='_blank';
+        openLink.rel='noopener noreferrer';
+        actions.append(openLink);
+      }
+      valueWrap.append(valueNode,actions);
+      row.append(element('span','',label),valueWrap);
       if(field==='maker'||field==='model'){
         const supported=identification[field];
         const text=identification.status==='interface'?identificationLabels.interface:
@@ -268,6 +374,15 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
       historyView.textContent=error.message;
     }
   }
+  confirmedInput.onchange=()=>{
+    try{
+      records.setManualConfirmed(part.id,confirmedInput.checked);
+      message(confirmedInput.checked?'已标记人工确认（本机保存）':'已取消人工确认（本机保存）');
+    }catch(error){
+      confirmedInput.checked=!confirmedInput.checked;
+      message(error.message,true);
+    }
+  };
   historyButton.onclick=()=>{
     historyView.hidden=!historyView.hidden;
     historyButton.setAttribute('aria-expanded',String(!historyView.hidden));
