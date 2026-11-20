@@ -22,6 +22,7 @@ jobs:
       - name: Validate JavaScript syntax
         run: |
           node --check src/app.js
+          node --check src/part-records.js
           node --check src/parts.js
           node --check src/kinematics.js
           node tests/kinematics.mjs
@@ -102,6 +103,7 @@ jobs:
         run: |
           python3 -m http.server 8765 > /tmp/transfer-site.log 2>&1 &
           node tests/model-b-visible-smoke.mjs
+          node tests/inspector-editable.mjs
       - name: Require V136 exploded thermal-layer render and A engineering evidence
         run: |
           mkdir -p assets/photo-review
