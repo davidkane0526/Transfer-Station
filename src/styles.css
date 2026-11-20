@@ -164,3 +164,12 @@
 .inspection-direct-link{color:#8ed4fc;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
 .inspection-edit{display:block;width:100%;margin:2px 0 3px}
 .inspection-edit :is(input,textarea){user-select:text;-webkit-user-select:text}
+
+/* V219: cloud database status, credential entry and safe local-data migration. */
+.inspection-cloud-settings{margin:7px 0 10px;padding:7px 9px;border:1px solid #29445d;border-radius:8px;background:#102235}
+.inspection-cloud-settings>summary{cursor:pointer;color:#a9d8f4;font-size:12px;font-weight:600}
+.inspection-cloud-status{font-size:11px;line-height:1.5;color:#c1d8e8;margin:7px 0;overflow-wrap:anywhere}
+.inspection-cloud-token{display:block;width:100%;min-width:0;margin:5px 0;padding:7px 8px;border:1px solid #35536e;border-radius:6px;background:#0d1b29;color:#e5f4ff;font:inherit;font-size:12px;user-select:text;-webkit-user-select:text}
+.inspection-cloud-actions{display:flex;flex-wrap:wrap;gap:5px}
+.inspection-cloud-actions button{padding:4px 7px;font-size:10px}
+.inspection-cloud-actions button:disabled{opacity:.45;cursor:not-allowed}

@@ -23,6 +23,8 @@ jobs:
         run: |
           node --check src/app.js
           node --check src/part-records.js
+          node --check worker/index.mjs
+          node tests/cloud-api-contract.mjs
           node --check src/parts.js
           node --check src/kinematics.js
           node tests/kinematics.mjs
@@ -258,6 +260,9 @@ jobs:
             '.github/workflows/audit-vendor-cad.yml',
             '.gitignore','README.md','index.html','photo-review.html',
             'src/app.js','src/parts.js',
+            'worker/index.mjs','worker/schema.sql','wrangler.toml',
+            '.github/workflows/deploy-cloud-api.yml','docs/CLOUD_DATABASE_SETUP.md',
+            'tests/cloud-api-contract.mjs',
             'cad/build_assemblies.py','cad/validate_interfaces.py',
             'tests/model-b-visible-smoke.mjs','assets/photos/191.webp',
             'assets/photos/192.webp','assets/photos/193.webp',

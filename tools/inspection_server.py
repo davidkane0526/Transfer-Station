@@ -16,7 +16,7 @@ PART = r"[AB](?:\d{2}[A-Z]{0,2}|-H\d{2})"
 PART_PATH = re.compile(rf"/api/parts/({PART})(/history)?")
 FIELDS = {
     "name", "maker", "model", "dims", "material", "qty", "unit", "price",
-    "currency", "priceSource", "datasheet", "drawing", "connection", "note",
+    "currency", "priceSource", "datasheet", "drawing", "connection", "note", "manualConfirmed",
 }
 LINKS = {"priceSource", "datasheet", "drawing"}
 
@@ -58,6 +58,8 @@ def clean_value(field, value):
     value = value.strip()
     if field in {"qty", "price"} and value and not re.fullmatch(r"\d{1,9}(?:\.\d{1,4})?", value):
         raise ValueError("请输入非负数字。")
+    if field == "manualConfirmed" and value not in {"true", "false"}:
+        raise ValueError("人工确认状态无效。")
     if field == "currency" and value and not re.fullmatch(r"[A-Z]{3}", value.upper()):
         raise ValueError("请用三字母币种代码，例如 CNY。")
     if field in LINKS and value:

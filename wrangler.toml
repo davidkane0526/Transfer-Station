@@ -1,0 +1,10 @@
+name = "transfer-station-api"
+main = "worker/index.mjs"
+compatibility_date = "2026-11-20"
+workers_dev = true
+account_id = "__CLOUDFLARE_ACCOUNT_ID__"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "transfer-station-records"
+database_id = "__D1_DATABASE_ID__"
