@@ -56,12 +56,18 @@ export function createPartRecords(){
     return data;
   }
   const refresh=async()=>{
-    const {parts}=await send(api);
-    if(!parts)throw new Error('数据库暂不可用。');
-    heads.clear();
-    for(const [id,head] of Object.entries(parts))heads.set(id,head);
+    try{
+      // GitHub Pages cannot write to /api/parts; use editable local records.
+      if(window.location.hostname.endsWith('.github.io'))throw new Error('静态站点');
+      const {parts}=await send(api);
+      if(!parts)throw new Error('数据库暂不可用。');
+      heads.clear();
+      for(const [id,head] of Object.entries(parts))heads.set(id,head);
+      state.offline=false;
+    }catch{
+      state.offline=true;
+    }
     state.ready=true;
-    state.offline=false;
   };
   const revision=id=>heads.get(id)?.revision??0;
   const value=(part,field)=>heads.get(part.id)?.values?.[field]??original(part,field);
@@ -146,6 +152,11 @@ export function createPartRecords(){
       heads.set(part.id,head);
     }catch(error){
       if(error.part)heads.set(part.id,error.part);
+      // A preview without a writable API must remain editable locally.
+      if(!error.status||[404,405,501].includes(error.status)){
+        state.offline=true;
+        return save(part,field,entry,baseRevision);
+      }
       throw error;
     }
   };
