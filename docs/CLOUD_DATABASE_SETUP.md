@@ -36,6 +36,6 @@ GitHub Pages 公开显示装配、BOM、人工确认、修订历史和低清素�
 
 ## 素材发布
 
-此批素材的低清图和静音视频片段在 `assets/media`，最长边最多 256 像素，视频最多 12 秒。原件使用 AES-256-GCM 加密，每个文件的密文含随机 IV 和完整性标签。GitHub 的 `transfer-station-media` 分支仅保存密文，文件路径为 `<keyId>/<assetId>.bin`。在同一标签页登录后，可在素材库查看或下载逐字节保留的原件。
+此批素材的低清图和静音视频片段在 `assets/media`，最长边最多 256 像素，视频最多 12 秒。原件使用 AES-256-GCM 加密，每个文件的密文含随机 IV 和完整性标签。GitHub 的 `transfer-station-media` 分支仅保存密文，文件路径为 `<keyId>/<assetId>.bin`。在同一标签页登录后，可在素材库查看原图和同分辨率的 H.264 视频播放版，也可下载逐字节保留的原件。
 
 新增素材可以在本机运行 `tools/prepare-media.py`。需要 Python 的 `pillow`、`cryptography` 和 `imageio-ffmpeg`，输入为原始 ZIP、公开预览输出目录、独立密文输出目录和 `--key-file`。将密钥文件单独保存在密码管理器或本机的受限目录。更新素材时用生成的清单和预览替换公开文件，确保同批密文在素材分支能取到。

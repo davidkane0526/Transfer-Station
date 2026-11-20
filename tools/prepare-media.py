@@ -22,8 +22,8 @@ def preview_image(original, target):
         image.save(target, format='WEBP', quality=55)
 
 
-def preview_video(original, target):
-    with tempfile.TemporaryDirectory() as scratch:
+def prepare_video(original, target, scratch_parent):
+    with tempfile.TemporaryDirectory(dir=scratch_parent) as scratch:
         source = Path(scratch) / 'input.mp4'
         source.write_bytes(original)
         subprocess.run([
@@ -32,6 +32,14 @@ def preview_video(original, target):
             '-vf', 'scale=256:256:force_original_aspect_ratio=decrease:force_divisible_by=2,fps=12',
             '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '32', '-movflags', '+faststart', '-y', str(target),
         ], check=True)
+        converted = Path(scratch) / 'compatible.mp4'
+        subprocess.run([
+            imageio_ffmpeg.get_ffmpeg_exe(), '-nostdin', '-hide_banner', '-loglevel', 'error',
+            '-i', str(source), '-map', '0:v:0', '-map', '0:a:0?', '-map_metadata', '-1', '-map_chapters', '-1',
+            '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p',
+            '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', '-y', str(converted),
+        ], check=True)
+        return converted.read_bytes()
 
 
 def build(archive, public, encrypted, key):
@@ -40,6 +48,19 @@ def build(archive, public, encrypted, key):
     encrypted = encrypted / key_id
     encrypted.mkdir(parents=True, exist_ok=True)
     cipher = AESGCM(key)
+    def encrypt(asset_id, content):
+        if len(content) > 90 * 1024 * 1024:
+            raise ValueError('An encrypted media file exceeds the 90 MiB limit.')
+        target = encrypted / f'{asset_id}.bin'
+        if target.exists():
+            payload = target.read_bytes()
+        else:
+            iv = secrets.token_bytes(12)
+            payload = iv + cipher.encrypt(iv, content, asset_id.encode('ascii'))
+            target.write_bytes(payload)
+        if cipher.decrypt(payload[:12], payload[12:], asset_id.encode('ascii')) != content:
+            raise ValueError(f'Mismatched encrypted contents for {asset_id}.')
+
     assets = []
     with zipfile.ZipFile(archive) as source:
         candidates = []
@@ -62,13 +83,17 @@ def build(archive, public, encrypted, key):
             extension = PurePosixPath(filename).suffix.lower()[1:]
             label = '视频' if video else '照片'
             label += f' {len([item for item in assets if item["type"].startswith("video/")]) + 1}' if video else f' {number if not missing_number else len(assets) + 1}'
-            iv = secrets.token_bytes(12)
-            payload = iv + cipher.encrypt(iv, original, asset_id.encode('ascii'))
-            assert cipher.decrypt(payload[:12], payload[12:], asset_id.encode('ascii')) == original
-            (encrypted / f'{asset_id}.bin').write_bytes(payload)
-            (preview_video if video else preview_image)(original, public / preview)
-            assets.append({'id': asset_id, 'label': label, 'preview': preview, 'type': mime[extension],
-                           'extension': extension, 'bytes': len(original)})
+            asset = {'id': asset_id, 'label': label, 'preview': preview, 'type': mime[extension],
+                     'extension': extension, 'bytes': len(original)}
+            encrypt(asset_id, original)
+            if video:
+                playback = prepare_video(original, public / preview, encrypted.parent)
+                playback_id = hashlib.sha256(asset_id.encode() + b'\0' + playback).hexdigest()[:32]
+                encrypt(playback_id, playback)
+                asset['playback'] = {'id': playback_id, 'bytes': len(playback)}
+            else:
+                preview_image(original, public / preview)
+            assets.append(asset)
     (public / 'manifest.json').write_text(json.dumps({'version': 1, 'keyId': key_id, 'assets': assets}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(f'Prepared and verified {len(assets)} encrypted originals and previews.')
 

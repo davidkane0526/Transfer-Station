@@ -26,6 +26,29 @@ function updateAccess() {
   }
 }
 
+function validPayload(asset) {
+  return /^[0-9a-f]{32}$/.test(asset?.id) && Number.isSafeInteger(asset.bytes) &&
+    asset.bytes > 0 && asset.bytes <= 90 * 1024 * 1024;
+}
+
+async function decryptPayload(asset, keyId, key, signal) {
+  const response = await fetch(`${rawBase}/${keyId}/${asset.id}.bin`, {signal, credentials: 'omit', redirect: 'error'});
+  if (!response.ok) throw new Error('加密素材尚未发布或暂不可用。');
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  if (bytes.length !== asset.bytes + 28) throw new Error('加密素材大小与清单不符。');
+  return crypto.subtle.decrypt({
+    name: 'AES-GCM', iv: bytes.subarray(0, 12), additionalData: new TextEncoder().encode(asset.id),
+  }, key, bytes.subarray(12));
+}
+
+function downloadLink(asset, href) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.download = `${asset.label}.${asset.extension}`;
+  link.textContent = '下载原件';
+  return link;
+}
+
 async function showOriginal(asset, keyId) {
   const token = adminToken();
   if (!token) return;
@@ -49,22 +72,34 @@ async function showOriginal(asset, keyId) {
     if (Array.from(id, byte => byte.toString(16).padStart(2, '0')).join('') !== keyId) throw new Error('原件密钥与素材版本不匹配。');
     const key = await crypto.subtle.importKey('raw', secret, 'AES-GCM', false, ['decrypt']);
     secret.fill(0);
-    const encrypted = await fetch(`${rawBase}/${keyId}/${asset.id}.bin`, {signal, credentials: 'omit', redirect: 'error'});
-    if (!encrypted.ok) throw new Error('加密原件尚未发布或暂不可用。');
-    const bytes = new Uint8Array(await encrypted.arrayBuffer());
-    if (bytes.length !== asset.bytes + 28) throw new Error('加密原件大小与清单不符。');
-    const original = await crypto.subtle.decrypt({
-      name: 'AES-GCM', iv: bytes.subarray(0, 12), additionalData: new TextEncoder().encode(asset.id),
-    }, key, bytes.subarray(12));
+    const playback = asset.type === 'video/mp4' && validPayload(asset.playback) ? asset.playback : null;
+    const mediaBytes = await decryptPayload(playback || asset, keyId, key, signal);
     if (signal.aborted || adminToken() !== token) return;
-    objectUrl = URL.createObjectURL(new Blob([original], {type: asset.type}));
+    objectUrl = URL.createObjectURL(new Blob([mediaBytes], {type: asset.type}));
     const media = mediaElement(asset, objectUrl);
-    const download = document.createElement('a');
-    download.href = objectUrl;
-    download.download = `${asset.label}.${asset.extension}`;
-    download.textContent = '下载原件';
-    $('original-content').append(media, download);
-    $('original-status').textContent = '';
+    $('original-content').append(media);
+    const caption = playback ? '同分辨率播放版 · 下载可取得未转码原件' : '';
+    $('original-status').textContent = caption;
+    if (playback) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = '下载原件';
+      button.onclick = async () => {
+        button.disabled = true;
+        $('original-status').textContent = '正在解密未转码原件…';
+        try {
+          const original = await decryptPayload(asset, keyId, key, signal);
+          if (signal.aborted || adminToken() !== token) return;
+          const url = URL.createObjectURL(new Blob([original], {type: asset.type}));
+          downloadLink(asset, url).click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          $('original-status').textContent = caption;
+        } catch (error) {
+          if (!signal.aborted) $('original-status').textContent = error.message || '解密失败。';
+        } finally { button.disabled = false; }
+      };
+      $('original-content').append(button);
+    } else $('original-content').append(downloadLink(asset, objectUrl));
   } catch (error) {
     if (!signal.aborted) $('original-status').textContent = error.message || '解密失败。';
   }
@@ -99,9 +134,8 @@ async function loadGallery() {
   let target;
   for (const asset of assets) {
     if (photoLabels && !photoLabels.has(asset.label)) continue;
-    if (!/^[0-9a-f]{32}$/.test(asset.id) || ![asset.id + '.mp4', asset.id + '.webp'].includes(asset.preview) ||
-        !['image/jpeg','image/png','image/webp','video/mp4'].includes(asset.type) ||
-        !Number.isSafeInteger(asset.bytes) || asset.bytes <= 0 || asset.bytes > 90 * 1024 * 1024) continue;
+    if (!validPayload(asset) || ![asset.id + '.mp4', asset.id + '.webp'].includes(asset.preview) ||
+        !['image/jpeg','image/png','image/webp','video/mp4'].includes(asset.type)) continue;
     const figure = document.createElement('figure');
     const caption = document.createElement('figcaption');
     caption.textContent = asset.label;

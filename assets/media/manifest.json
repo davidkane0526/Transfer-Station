@@ -480,7 +480,11 @@
       "preview": "4470902e6a5fbb4775c182900c4ba035.mp4",
       "type": "video/mp4",
       "extension": "mp4",
-      "bytes": 6719787
+      "bytes": 6719787,
+      "playback": {
+        "id": "6aa1ff967accad395c72660289b96e71",
+        "bytes": 33977356
+      }
     },
     {
       "id": "853a632a5fd99d38ed5b34a1f90f5fd6",
@@ -488,7 +492,11 @@
       "preview": "853a632a5fd99d38ed5b34a1f90f5fd6.mp4",
       "type": "video/mp4",
       "extension": "mp4",
-      "bytes": 8383551
+      "bytes": 8383551,
+      "playback": {
+        "id": "f373db47eac60228ce0a868ab1d78e12",
+        "bytes": 44161718
+      }
     }
   ]
 }
