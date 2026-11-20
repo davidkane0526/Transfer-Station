@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {chromium} from 'playwright-core';
+import {PARTS} from '../src/parts.js';
+import {procurementRows} from '../src/procurement.js';
 
 const url=process.env.TRANSFER_PREVIEW??'http://127.0.0.1:4175/';
 const browser=await chromium.launch({
@@ -43,6 +45,11 @@ try {
     const hardware=page.locator('#bom-body tr').filter({hasText:platform+'-H01'});
     assert.equal(await hardware.count(),1);
     assert.match(await hardware.innerText(),/M6×/);
+    for(const [id,status] of [['A34','厂家和型号均确认'],['A35','厂家和型号均待确认']]){
+      const rows=page.locator('#bom-body tr').filter({has:page.getByText(id,{exact:true})});
+      assert.equal(await rows.count(),platform==='A'?1:0);
+      if(platform==='A')assert.equal(await rows.locator('.part-evidence-badge').innerText(),status);
+    }
     if(platform==='A'){
       const next=page.waitForEvent('download');
       await page.locator('#export-all-csv').click();
@@ -50,7 +57,11 @@ try {
       assert.equal(file.suggestedFilename(),'Transfer_Station_A_B_Procurement_BOM.csv');
       const csv=await readFile(await file.path(),'utf8');
       assert.ok(csv.startsWith('\uFEFF"id",'));
-      assert.equal(csv.split('\r\n').length,105);
+      const expectedRows=Object.keys(PARTS).flatMap(key=>procurementRows(key,PARTS[key],{archive:true}));
+      const csvLines=csv.split('\r\n').slice(1);
+      assert.deepEqual(csvLines.map(line=>line.match(/^"([^"]+)",/)?.[1]).sort(),
+        expectedRows.map(row=>row.id).sort());
+      for(const id of ['A34','A35'])assert.equal(csvLines.filter(line=>line.startsWith('"'+id+'",')).length,1);
       for(const id of ['A-H06','B-H12','A05CS','B35'])assert.ok(csv.includes('"'+id+'"'));
       assert.match(csv,/"traceability","connection","quoteStatus"/);
       if(process.env.TRANSFER_CSV)await file.saveAs(process.env.TRANSFER_CSV);

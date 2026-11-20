@@ -90,7 +90,21 @@ assert.equal(find('A19').identification.status,'partial');
 assert.equal(find('B18').identification.status,'partial');
 assert.match(find('B18').datasheet,/sunnyoptical\.com/);
 assert.equal(find('B33').identification.status,'pending');
-assert.equal(find('B08').identification.status,'pending');
+assert.equal(find('B08').identification.status,'confirmed');
+assert.equal(find('B34').identification.status,'maker');
+assert.equal(find('A34').identification.status,'confirmed');
+assert.equal(find('A35').identification.status,'pending');
+assert.match(find('A34').connection,/A35.*SM1/);
+assert.match(find('A35').connection,/TTL200-A.*SM2/);
+for(const [id,photos,status] of [
+  ['A34','82','厂家和型号均确认'],['A35','82 / 83','厂家和型号均待确认'],
+]){
+  const row=csvRows.find(row=>row[0]===id);
+  assert.equal(row[header.indexOf('photoIds')],photos);
+  assert.equal(row[header.indexOf('identificationStatus')],status);
+  assert.equal(row[header.indexOf('qty')],1);
+  assert.equal(row[header.indexOf('scope')],'现行装配');
+}
 assert.equal(find('B08').quote.candidate,true);
 assert.equal(find('B26').identification.status,'interface');
 assert.equal(identifyPart(find('A03'),{modelEdited:true}).status,'maker');

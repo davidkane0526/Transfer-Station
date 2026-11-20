@@ -2867,7 +2867,7 @@ function rotaryB(){
     g.userData.B08DuplicateB41Fasteners=0;
     g.userData.B08BaseToB35BoltsVerified=false;
     // User-confirmed GCM-1107M has NO external operating handle.
-    label(g,'GCM-1107M · Ø94×33.2 · 无外伸手柄',0,46,0);
+    label(g,'GCM-1107M · Ø94×33.2 · 外伸件功能待核',0,46,0);
  },{explode:[12,0,0],rotateSample:false});
  // B09 is the upper OEM-identified NFP-1462C. B41 is the lower
  // orthogonal single-axis stage visible in ruler photo147; its exact SKU
