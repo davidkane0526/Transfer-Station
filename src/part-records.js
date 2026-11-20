@@ -325,7 +325,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
     }
   }
   function edit(row,button,field,label){
-    if(editing||records.state.offline)return;
+    if(editing)return;
     message('');
     const baseRevision=records.revision(part.id);
     const form=element('form','inspection-edit');
