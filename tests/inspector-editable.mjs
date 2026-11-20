@@ -51,6 +51,7 @@ try{
   await page.waitForFunction(()=>window.__inspectionProbe?.());
   await selectPart('A34');
   assert.equal(await right.getByRole('checkbox',{name:'人工确认此零件'}).isChecked(),true);
+  await right.locator('.inspection-info > summary').click();
   assert.match(await right.locator('[data-field="note"]').innerText(),/已核对原始照片82/);
   await selectPart('A35');
   assert.match(await right.innerText(),/尚未建立独立 3D 模型/);
