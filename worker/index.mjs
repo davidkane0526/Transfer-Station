@@ -1,6 +1,6 @@
 const PART_PATTERN=/^[AB](?:\d{2}[A-Z]{0,2}|-H\d{2})$/;
 const FIELDS=new Set(['name','maker','model','dims','material','qty','unit','price','currency','priceSource','datasheet','drawing','connection','note','manualConfirmed']);
-const LINK_FIELDS=new Set(['priceSource','datasheet','drawing']);
+const LINK_FIELDS=new Set(['datasheet','drawing']);
 const ALLOWED_ORIGINS=new Set(['https://davidkane0526.github.io','http://127.0.0.1:4175','http://localhost:4175']);
 function corsHeaders(request){
   const origin=request.headers.get('Origin')||'';
@@ -42,14 +42,14 @@ function cleanValue(field,value){
 function parseSnapshot(row){
   if(!row)return {revision:0,values:{},field:null};
   let values={};try{values=JSON.parse(row.snapshot)||{};}catch{}
-  return {revision:Number(row.revision)||0,values,field:row.field||null};
+  return {revision:Number(row.revision)||0,values,field:row.field||null,changed_at:row.changed_at||''};
 }
 async function getHead(db,part){
-  const row=await db.prepare('SELECT revision,field,snapshot FROM part_revision WHERE part=? ORDER BY revision DESC LIMIT 1').bind(part).first();
+  const row=await db.prepare('SELECT revision,field,snapshot,changed_at FROM part_revision WHERE part=? ORDER BY revision DESC LIMIT 1').bind(part).first();
   return parseSnapshot(row);
 }
 async function getParts(db){
-  const sql='SELECT p.part,p.revision,p.field,p.snapshot FROM part_revision p '+
+  const sql='SELECT p.part,p.revision,p.field,p.snapshot,p.changed_at FROM part_revision p '+
     'JOIN (SELECT part,MAX(revision) AS revision FROM part_revision GROUP BY part) h ON p.part=h.part AND p.revision=h.revision';
   const result=await db.prepare(sql).all(),parts={};
   for(const row of result.results||[])parts[row.part]=parseSnapshot(row);
