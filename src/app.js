@@ -36,7 +36,7 @@ import {A_FILM_LEVELS,buildAFoldedBracket,readAFoldedBracket} from './a-stage-me
 import {A_FILM_PHOTO_VIEWS,addAFoldMountingHeads,buildPhotographicFilmStage} from './a-film-detail.js?v=V212';
 import {explosionOffset,explosionStep,opticalRelease,stroke} from './explosion.js';
 import {scopes,requiredSceneParts,assemblyFor,assemblyTime,assemblyOffset,filmAxisSpread} from './inspection-scope.js?v=V213';
-import {createPartRecords,mountPartRecord} from './part-records.js?v=V215';
+import {createPartRecords,mountPartRecord} from './part-records.js?v=V218';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#16293c');scene.fog=new THREE.Fog('#16293c',750,1500);
