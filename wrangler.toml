@@ -8,3 +8,8 @@ account_id = "__CLOUDFLARE_ACCOUNT_ID__"
 binding = "DB"
 database_name = "transfer-station-records"
 database_id = "__D1_DATABASE_ID__"
+
+[[ratelimits]]
+name = "ADMIN_LOGIN_LIMIT"
+namespace_id = "6832019"
+simple = { limit = 5, period = 60 }

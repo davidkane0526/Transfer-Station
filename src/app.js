@@ -6,7 +6,7 @@ import {STLLoader} from 'three/addons/loaders/STLLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {CONFIG,PARTS,SOURCE_LINKS} from './parts.js?v=V215';
 import {enrichParts} from './details.js';
-import {enriched,pricedSummary,csvExportRows,procurementRows} from './procurement.js?v=V215';
+import {enriched,pricedSummary,csvExportRows,procurementRows} from './procurement.js?v=V220';
 import {displayPrice,formatRmb,priceEvidence} from './quote-display.js';
 import {identificationLabels,summarizeIdentification} from './part-identification.js';
 import {stageLocalTranslation,stageLocalDepthTranslation} from './kinematics.js';
@@ -36,7 +36,8 @@ import {A_FILM_LEVELS,buildAFoldedBracket,readAFoldedBracket} from './a-stage-me
 import {A_FILM_PHOTO_VIEWS,addAFoldMountingHeads,buildPhotographicFilmStage} from './a-film-detail.js?v=V212';
 import {explosionOffset,explosionStep,opticalRelease,stroke} from './explosion.js';
 import {scopes,requiredSceneParts,assemblyFor,assemblyTime,assemblyOffset,filmAxisSpread} from './inspection-scope.js?v=V213';
-import {createPartRecords,mountPartRecord} from './part-records.js?v=V219';
+import {createPartRecords,mountPartRecord} from './part-records.js?v=V220';
+import {adminEvents,mountAdminControl} from './admin-session.js';
 
 const $=id=>document.getElementById(id), host=$('viewer');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#16293c');scene.fog=new THREE.Fog('#16293c',750,1500);
@@ -6808,7 +6809,7 @@ function updateTable(){
   function cell(text='',cls='',field=''){
     const td=document.createElement('td');
     td.textContent=text;td.className=cls;tr.append(td);
-    if(inspectionMode&&field){
+    if(inspectionMode&&field&&partRecords.canEdit()){
       td.dataset.editField=field;
       td.title='双击编辑';
     }
@@ -6838,9 +6839,10 @@ function updateTable(){
   if(q?.source)priceCell.append(' · ',buildLink('价格来源',q.source));
   if(price?.exchange)priceCell.append(' · ',buildLink('折算汇率',price.exchange.source));
   const drawing=cell();
-  drawing.append(buildLink('原厂图纸',part.drawing));
+  if(part.drawing)drawing.append(buildLink(part.drawingLabel||'图纸',part.drawing));
   if(part.cad)drawing.append(' · ',buildLink('CAD',part.cad));
-  if(part.datasheet)drawing.append(' · ',buildLink('产品页',part.datasheet));
+  if(part.datasheet)drawing.append(part.drawing||part.cad?' · ':'',buildLink(part.datasheetLabel||'技术资料',part.datasheet));
+  if(!part.drawing&&!part.cad&&!part.datasheet)drawing.textContent='待核';
   const photoCell=cell();
   if(!part.hardware)mountPhotoBOMCell(photoCell,platform,part.id);
   if(part.evidence){
@@ -6862,7 +6864,7 @@ function updateTable(){
       else selectPart(part.id);
       $('bom-drawer').classList.remove('open');
     };
-    if(inspectionMode)tr.ondblclick=ev=>{
+    if(inspectionMode&&partRecords.canEdit())tr.ondblclick=ev=>{
       const field=ev.target.closest('[data-edit-field]')?.dataset.editField;
       if(!field||ev.target.closest('a,button'))return;
       inspectPart(part.id);
@@ -9057,6 +9059,15 @@ function renderInspectedRecord(part){
    }
  });
 }
+if(partRecords.state.usingCloud){
+ mountAdminControl($('admin-login'),$('admin-status'));
+ adminEvents.addEventListener('change',()=>{
+   updateTable();
+   if(!inspectedPart)return;
+   const part=procurementRows(platform,activeParts()).find(x=>x.id===inspectedPart);
+   if(part)renderInspectedRecord(part);
+ });
+}else $('admin-login').hidden=true;
 function clearInspectionPart(){
  inspectedPart=null;
  orbit.minDistance=65;

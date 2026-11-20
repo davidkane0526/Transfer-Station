@@ -14,3 +14,8 @@ CREATE TABLE IF NOT EXISTS part_import_history (
   imported_at TEXT NOT NULL,
   entries_json TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS admin_session (
+  digest TEXT PRIMARY KEY,
+  expires_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS admin_session_expiry ON admin_session(expires_at);

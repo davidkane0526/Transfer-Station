@@ -1,3 +1,5 @@
+import {adminSession, login, loginPage} from './admin.mjs';
+
 const PART_PATTERN=/^[AB](?:\d{2}[A-Z]{0,2}|-H\d{2})$/;
 const FIELDS=new Set(['name','maker','model','dims','material','qty','unit','price','currency','priceSource','datasheet','drawing','connection','note','manualConfirmed']);
 const LINK_FIELDS=new Set(['datasheet','drawing']);
@@ -13,16 +15,9 @@ function json(request,payload,status=200){
   headers.set('Content-Type','application/json; charset=utf-8');headers.set('Cache-Control','no-store');headers.set('X-Content-Type-Options','nosniff');
   return new Response(JSON.stringify(payload),{status,headers});
 }
-function equalSecret(a,b){
-  if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;
-  let diff=0;for(let i=0;i<a.length;i++)diff|=a.charCodeAt(i)^b.charCodeAt(i);return diff===0;
-}
-function authorized(request,env){
-  const expected=env.WRITE_TOKEN;
-  if(typeof expected!=='string'||expected.length<32)return json(request,{error:'服务器尚未配置有效的云端写入密钥。'},503);
-  const header=request.headers.get('Authorization')||'',supplied=header.startsWith('Bearer ')?header.slice(7):'';
-  if(!equalSecret(supplied,expected))return json(request,{error:'云端写入密钥无效或未提供。'},401);
-  return null;
+async function authorized(request,env){
+  if(await adminSession(request,env))return null;
+  return json(request,{error:'请先登录管理员账号。'},401);
 }
 async function readJson(request){
   const length=Number(request.headers.get('Content-Length')||0);
@@ -69,7 +64,7 @@ async function getHistory(db,part){
   history.sort((a,b)=>String(b.changed_at).localeCompare(String(a.changed_at)));return history;
 }
 async function saveField(request,env,part){
-  const denied=authorized(request,env);if(denied)return denied;
+  const denied=await authorized(request,env);if(denied)return denied;
   let body;try{body=await readJson(request);}catch(error){return json(request,{error:error.message},400);}
   const field=body?.field;if(!FIELDS.has(field))return json(request,{error:'此字段不可编辑。'},400);
   let value;try{value=cleanValue(field,body.value);}catch(error){return json(request,{error:error.message},400);}
@@ -86,7 +81,7 @@ async function saveField(request,env,part){
   return json(request,{part:await getHead(env.DB,part)});
 }
 async function importLocalSnapshot(request,env){
-  const denied=authorized(request,env);if(denied)return denied;
+  const denied=await authorized(request,env);if(denied)return denied;
   let body;try{body=await readJson(request);}catch(error){return json(request,{error:error.message},400);}
   const snapshot=body?.snapshot||{};
   const localParts=snapshot.parts&&typeof snapshot.parts==='object'?snapshot.parts:{};
@@ -153,7 +148,22 @@ export default {
     try{
       if(path==='/api/health'&&request.method==='GET'){await env.DB.prepare('SELECT 1 AS ok').first();return json(request,{ok:true,database:'ready'});}
       if(path==='/api/parts'&&request.method==='GET')return json(request,{parts:await getParts(env.DB)});
-      if(path==='/api/auth/check'&&request.method==='POST'){const denied=authorized(request,env);return denied||json(request,{ok:true});}
+      if(path==='/admin'&&request.method==='GET')return loginPage(request, ALLOWED_ORIGINS);
+      if(path==='/api/admin/login'&&request.method==='POST')return await login(request,env,readJson,json);
+      if(path==='/api/admin/session'&&request.method==='GET'){
+        const session=await adminSession(request,env);
+        return session?json(request,{expiresAt:session.expiresAt}):json(request,{error:'管理员会话已失效。'},401);
+      }
+      if(path==='/api/admin/logout'&&request.method==='POST'){
+        const session=await adminSession(request,env);
+        if(session)await env.DB.prepare('DELETE FROM admin_session WHERE digest = ?').bind(session.digest).run();
+        return json(request,{ok:true});
+      }
+      if(path==='/api/admin/media-key'&&request.method==='GET'){
+        const denied=await authorized(request,env);if(denied)return denied;
+        if(!/^[0-9a-f]{64}$/.test(env.MEDIA_KEY||''))return json(request,{error:'原件解密密钥尚未配置。'},503);
+        return json(request,{key:env.MEDIA_KEY});
+      }
       if(path==='/api/import'&&request.method==='POST')return await importLocalSnapshot(request,env);
       const historyMatch=path.match(/^\/api\/parts\/([AB](?:\d{2}[A-Z]{0,2}|-H\d{2}))\/history$/);
       if(historyMatch&&request.method==='GET')return json(request,{history:await getHistory(env.DB,historyMatch[1])});

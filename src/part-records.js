@@ -1,5 +1,7 @@
 import {displayPrice,formatRmb,priceEvidence} from './quote-display.js';
 import {identifyPart,identificationLabels} from './part-identification.js';
+import {adminToken,cloudApiRoot,rejectAdminToken} from './admin-session.js';
+import {photoRefsForPart} from './photo-library.js';
 const fields=[
   ['name','名称'],['maker','厂家'],['model','型号'],['dims','尺寸'],
   ['qty','数量'],['unit','单位'],['material','材料'],['connection','装配接口'],
@@ -8,12 +10,10 @@ const fields=[
 ];
 const labels=Object.fromEntries([...fields,['manualConfirmed','人工确认']]);
 const dateFormat=new Intl.DateTimeFormat('zh-CN',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Singapore'});
-const cloudApiRoot='https://transfer-station-api.dk-weather.workers.dev';
 const localHost=['localhost','127.0.0.1'].includes(window.location.hostname);
 const api=localHost?'./api/parts':cloudApiRoot+'/api/parts';
 const localStorageKey='transfer-station-part-records-v1';
 const localBackupKey='transfer-station-part-records-backup-v1';
-const tokenStorageKey='transfer-station-cloud-write-token-v1';
 function original(part,field){
   if(field==='price')return String(part.quote?.value??'');
   if(field==='currency')return part.quote?.currency??'CNY';
@@ -34,18 +34,29 @@ export function createPartRecords(){
   const confirmations=new Map(Object.entries(snapshot.confirmations||{}));
   const localRevisions=new Map(Object.entries(snapshot.history||{}));
   const state={ready:false,offline:false,apiConnected:false,cloudAvailable:false,pendingLocal:false,localPendingCount:0,remoteCount:0,usingCloud:!localHost};
-  function persist(){
-    try{window.localStorage.setItem(localStorageKey,JSON.stringify({parts:Object.fromEntries(heads),confirmations:Object.fromEntries(confirmations),history:Object.fromEntries(localRevisions)}));}
+  function persist(id){
+    const pending=localSnapshot();
+    pending.parts={...pending.parts,[id]:heads.get(id)};
+    pending.history={...pending.history,[id]:localRevisions.get(id)};
+    if(confirmations.has(id))pending.confirmations={...pending.confirmations,[id]:confirmations.get(id)};
+    try{window.localStorage.setItem(localStorageKey,JSON.stringify(pending));}
     catch{throw new Error('浏览器无法保存本机修改，请检查网站数据或存储权限。');}
   }
   function markPending(){const data=localSnapshot();state.localPendingCount=localPartIds(data).length;state.pendingLocal=state.localPendingCount>0;}
-  function getToken(){try{return window.localStorage.getItem(tokenStorageKey)||'';}catch{return '';}}
+  const canEdit=()=>!state.usingCloud||Boolean(adminToken());
+  function requireEditor(){if(!canEdit())throw new Error('请先登录管理员账号。');}
   async function send(url,options={}){
     const headers=new Headers(options.headers||{});
-    if(state.usingCloud){const token=getToken();if(token)headers.set('Authorization','Bearer '+token);}
+    const token=state.usingCloud&&options.method==='POST'?adminToken():null;
+    if(token)headers.set('Authorization','Bearer '+token);
     const response=await fetch(url,{cache:'no-store',...options,headers});
     const data=await response.json().catch(()=>null);
-    if(!response.ok||!data){const error=new Error(data?.error||'数据库暂不可用。');Object.assign(error,{status:response.status,part:data?.part,conflicts:data?.conflicts});throw error;}
+    if(!response.ok||!data){
+      if(response.status===401)rejectAdminToken(token);
+      const error=new Error(data?.error||'数据库暂不可用。');
+      Object.assign(error,{status:response.status,part:data?.part,conflicts:data?.conflicts});
+      throw error;
+    }
     return data;
   }
   const refresh=async()=>{
@@ -72,6 +83,8 @@ export function createPartRecords(){
     const edited=heads.get(part.id)?.values;if(!edited)return part;
     const {price,currency,priceSource,...ordinary}=edited;
     const result={...part,...ordinary};
+    if(Object.hasOwn(ordinary,'drawing'))delete result.drawingLabel;
+    if(Object.hasOwn(ordinary,'datasheet'))delete result.datasheetLabel;
     if(typeof result.qty==='string')result.qty=result.qty===''?'':Number(result.qty);
     const changed=field=>value(part,field)!==original(part,field);
     const makerEdited=changed('maker'),modelEdited=changed('model'),modelChanged=makerEdited||modelEdited;
@@ -86,21 +99,10 @@ export function createPartRecords(){
   };
   const history=async id=>state.offline?(localRevisions.get(id)||[]):(await send(api+'/'+id+'/history')).history;
   const manualConfirmed=id=>confirmations.has(id)?Boolean(confirmations.get(id)?.checked):heads.get(id)?.values?.manualConfirmed==='true';
-  const setCloudToken=token=>{
-    const value=String(token||'').trim();if(value.length<32)throw new Error('写入密钥至少需要 32 个字符。');
-    window.localStorage.setItem(tokenStorageKey,value);
-  };
-  const clearCloudToken=()=>window.localStorage.removeItem(tokenStorageKey);
-  const hasCloudToken=()=>Boolean(getToken());
-  const verifyCloudToken=async()=>{
-    if(!state.usingCloud)throw new Error('当前是本地预览，不需要云端密钥。');
-    await send(cloudApiRoot+'/api/auth/check',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
-    return true;
-  };
   const exportLocal=()=>localSnapshot();
   const importLocal=async()=>{
+    requireEditor();
     if(!state.usingCloud||!state.cloudAvailable)throw new Error('云端数据库尚未连接，暂时不能迁移。');
-    if(!getToken())throw new Error('请先填写并验证云端写入密钥。');
     const data=localSnapshot(),count=localPartIds(data).length;
     if(!count)throw new Error('当前浏览器没有待迁移的本机记录。');
     const result=await send(cloudApiRoot+'/api/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({snapshot:data})});
@@ -111,6 +113,7 @@ export function createPartRecords(){
     await refresh();return result;
   };
   const setManualConfirmed=async(part,checked)=>{
+    requireEditor();
     const id=typeof part==='string'?part:part.id,next=String(Boolean(checked)),previous=manualConfirmed(id);
     if(previous===Boolean(checked))return;
     if(state.offline){
@@ -120,7 +123,7 @@ export function createPartRecords(){
       heads.set(id,{revision:nextRevision,values:{...previousHead.values,manualConfirmed:next}});
       confirmations.set(id,{checked:Boolean(checked),changed_at:now});
       localRevisions.set(id,[{revision:nextRevision,field:'manualConfirmed',previous:String(previous),value:next,changed_at:now},...oldHistory].slice(0,100));
-      try{persist();markPending();}catch(error){
+      try{persist(id);markPending();}catch(error){
         heads.set(id,previousHead);
         if(previousConfirmation===undefined)confirmations.delete(id);else confirmations.set(id,previousConfirmation);
         localRevisions.set(id,oldHistory);throw error;
@@ -132,6 +135,7 @@ export function createPartRecords(){
     confirmations.set(id,{checked:Boolean(checked),changed_at:new Date().toISOString()});
   };
   const save=async(part,field,next,baseRevision)=>{
+    requireEditor();
     if(!Object.hasOwn(labels,field))throw new Error('未知的编辑字段。');
     const entry=String(next??'');
     if(entry.length>4000)throw new Error('字段内容不能超过 4000 个字符。');
@@ -146,7 +150,7 @@ export function createPartRecords(){
       heads.set(part.id,{revision:nextRevision,values:{...previous.values,[field]:entry}});
       if(field==='manualConfirmed')confirmations.set(part.id,{checked:entry==='true',changed_at:new Date().toISOString()});
       localRevisions.set(part.id,[{revision:nextRevision,field,previous:oldValue,value:entry,changed_at:new Date().toISOString()},...oldHistory].slice(0,100));
-      try{persist();markPending();}catch(error){
+      try{persist(part.id);markPending();}catch(error){
         if(!previous.revision&&!Object.keys(previous.values||{}).length)heads.delete(part.id);else heads.set(part.id,previous);
         if(field==='manualConfirmed'){if(previousConfirmation===undefined)confirmations.delete(part.id);else confirmations.set(part.id,previousConfirmation);}
         localRevisions.set(part.id,oldHistory);throw error;
@@ -162,11 +166,10 @@ export function createPartRecords(){
       if(!error.status||[404,405,502,503].includes(error.status)){
         state.offline=true;state.apiConnected=false;state.cloudAvailable=false;return save(part,field,entry,baseRevision);
       }
-      if(error.status===401)error.message='云端写入密钥无效或尚未配置。请在“云端数据库与同步”中填写密钥。';
       throw error;
     }
   };
-  return {state,refresh,revision,value,apply,history,save,manualConfirmed,setManualConfirmed,setCloudToken,clearCloudToken,hasCloudToken,verifyCloudToken,exportLocal,importLocal};
+  return {state,refresh,revision,value,apply,history,save,manualConfirmed,setManualConfirmed,canEdit,exportLocal,importLocal};
 }
 
 function element(tag,cls,content){
@@ -211,13 +214,20 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   function drawLinks(quote,price){
     refs.replaceChildren();
     for(const [label,url] of [
-      ['实物照片','./photo-review.html?platform='+part.id[0]],
-      ['图纸',records.value(part,'drawing')],['CAD',part.cad],
-      ['规格',records.value(part,'datasheet')],['价格来源',quote?.source],
+      ['该零件的实物照片',photoRefsForPart(part.id[0],part.id).length?'./media.html?part='+encodeURIComponent(part.id):''],
+      [records.value(part,'drawing')===part.drawing?(part.drawingLabel||'图纸'):'图纸',records.value(part,'drawing')],['CAD',part.cad],
+      [records.value(part,'datasheet')===part.datasheet?(part.datasheetLabel||'技术资料'):'技术资料',records.value(part,'datasheet')],['价格来源',quote?.source],
       ['折算汇率',price?.exchange?.source]
     ]){
-      if(typeof url!=='string'||!(url.startsWith('https://')||url.startsWith('./photo-review.html')))continue;
+      if(typeof url!=='string'||!(url.startsWith('https://')||url.startsWith('./media.html?part=')))continue;
       const link=element('a','',label);
+      link.href=url;
+      if(url.startsWith('https://')){link.target='_blank';link.rel='noopener noreferrer';}
+      refs.append(link);
+    }
+    for(const [maker,description,url] of part.alternatives||[]){
+      if(!url.startsWith('https://'))continue;
+      const link=element('a','','参考 · '+maker+' '+description);
       link.href=url;link.target='_blank';link.rel='noopener noreferrer';refs.append(link);
     }
   }
@@ -227,18 +237,12 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
   const cloudPanel=element('details','inspection-cloud-settings');
   cloudPanel.append(element('summary','','云端数据库与同步'));
   const cloudStatus=element('p','inspection-cloud-status');
-  const cloudToken=element('input','inspection-cloud-token');
-  cloudToken.type='password';cloudToken.autocomplete='off';cloudToken.placeholder='输入云端写入密钥';
-  cloudToken.setAttribute('aria-label','云端写入密钥');
   const cloudActions=element('div','inspection-cloud-actions');
-  const saveTokenButton=element('button','','保存密钥');
-  const verifyTokenButton=element('button','','验证密钥');
-  const clearTokenButton=element('button','','清除密钥');
   const importButton=element('button','','迁移本机修改到云端');
   const backupButton=element('button','','导出本机备份');
-  for(const button of [saveTokenButton,verifyTokenButton,clearTokenButton,importButton,backupButton])button.type='button';
-  cloudActions.append(saveTokenButton,verifyTokenButton,clearTokenButton,importButton,backupButton);
-  cloudPanel.append(cloudStatus,cloudToken,cloudActions,element('p','small','写入密钥只保存在当前浏览器。其他设备需要输入同一密钥才能修改。'));
+  for(const button of [importButton,backupButton])button.type='button';
+  cloudActions.append(importButton,backupButton);
+  cloudPanel.append(cloudStatus,cloudActions);
     host.append(header,title,hint,cloudPanel,status,historyView,fieldList,identificationNote,links);
   if(!hasMesh){
     const notice=element('p','inspection-status','该零件已列入 BOM，但尚未建立独立 3D 模型。');
@@ -253,31 +257,18 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
     else if(!s.apiConnected)cloudStatus.textContent='云端 API 尚未连接，修改暂存在当前浏览器；部署完成后可迁移。';
     else if(s.pendingLocal)cloudStatus.textContent='云端已连接，但当前浏览器有 '+s.localPendingCount+' 个零件记录尚未同步。迁移前不会覆盖本机数据。';
     else cloudStatus.textContent='云端数据库已连接；服务器已有 '+s.remoteCount+' 个零件记录。';
-    cloudToken.placeholder=records.hasCloudToken()?'已保存密钥；输入新值可替换':'输入云端写入密钥';
-    verifyTokenButton.disabled=!s.usingCloud||!s.apiConnected;
+    const editable=records.canEdit();
+    confirmedInput.disabled=!editable;
+    importButton.hidden=!s.usingCloud||!editable;
     importButton.disabled=!s.usingCloud||!s.apiConnected||!s.pendingLocal;
     backupButton.disabled=!s.pendingLocal;
-    hint.textContent=s.pendingLocal?'本机有未同步修改 · 请在“云端数据库与同步”中迁移':
+    hint.textContent=!editable?'游客只读 · 管理员登录后可修改':
+      s.pendingLocal?'本机有未同步修改 · 请在“云端数据库与同步”中迁移':
       s.offline?'本机暂存模式 · 修改尚未同步到云端':
       s.cloudAvailable?'云端数据库已连接 · 修改将同步到云端':
       s.apiConnected?'本地 SQLite 数据库已连接':'正在连接数据库…';
   }
 
-  saveTokenButton.onclick=async()=>{
-    try{
-      records.setCloudToken(cloudToken.value);cloudToken.value='';
-      if(records.state.usingCloud&&records.state.apiConnected){await records.verifyCloudToken();message('云端写入密钥验证成功。');}
-      else message('密钥已保存在当前浏览器；云端 API 部署后再验证。');
-    }catch(error){message(error.message,true);}
-    updateCloudPanel();
-  };
-  verifyTokenButton.onclick=async()=>{
-    try{await records.verifyCloudToken();message('云端写入密钥验证成功。');}
-    catch(error){message(error.message,true);}
-  };
-  clearTokenButton.onclick=()=>{
-    records.clearCloudToken();cloudToken.value='';message('已清除当前浏览器保存的云端密钥。');updateCloudPanel();
-  };
   importButton.onclick=async()=>{
     if(!window.confirm('将当前浏览器的未同步零件修改和修改历史迁移到云端数据库？本机数据会先备份，只有服务器确认接收后才清空待同步区。'))return;
     importButton.disabled=true;
@@ -338,19 +329,23 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
       const valueNode=element('span','inspection-value'+(empty?' empty':''),displayValue);
       valueNode.dataset.field=field;
       valueNode.tabIndex=0;
-      valueNode.title='可以选择和复制文字，双击进入编辑';
-      valueNode.ondblclick=()=>edit(row,valueNode,field,label);
-      valueNode.onkeydown=event=>{
-        if(event.key==='Enter'||event.key==='F2'){
-          event.preventDefault();edit(row,valueNode,field,label);
-        }
-      };
+      valueNode.title='可以选择和复制文字';
       const valueWrap=element('div','inspection-value-row');
       const actions=element('div','inspection-field-actions');
-      const editButton=element('button','','编辑');
-      editButton.type='button';
-      editButton.title='编辑'+label;
-      editButton.onclick=()=>edit(row,valueNode,field,label);
+      if(records.canEdit()){
+        valueNode.title+='，双击进入编辑';
+        valueNode.ondblclick=()=>edit(row,valueNode,field,label);
+        valueNode.onkeydown=event=>{
+          if(event.key==='Enter'||event.key==='F2'){
+            event.preventDefault();edit(row,valueNode,field,label);
+          }
+        };
+        const editButton=element('button','','编辑');
+        editButton.type='button';
+        editButton.title='编辑'+label;
+        editButton.onclick=()=>edit(row,valueNode,field,label);
+        actions.append(editButton);
+      }
       const copyButton=element('button','','复制');
       copyButton.type='button';
       copyButton.title='复制'+label;
@@ -364,7 +359,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
           message('复制失败，请选中文字后按 Ctrl+C。',true);
         }
       };
-      actions.append(editButton,copyButton);
+      actions.append(copyButton);
       const raw=String(records.value(part,field)||'').trim();
       if(/^https:\/\/\S+$/i.test(raw)){
         valueNode.textContent='';
@@ -394,7 +389,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
     }
   }
   function edit(row,button,field,label){
-    if(editing)return;
+    if(editing||!records.canEdit())return;
     message('');
     const baseRevision=records.revision(part.id);
     const form=element('form','inspection-edit');
@@ -447,7 +442,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
           restore.disabled=true;
           if(!await commit(entry.field,entry.previous,records.revision(part.id)))restore.disabled=false;
         };
-        row.append(restore);
+        if(records.canEdit())row.append(restore);
         historyView.append(row);
       }
     }catch(error){
@@ -462,7 +457,7 @@ export function mountPartRecord(host,part,records,{hasMesh,onSave}){
       message((checked?'已标记人工确认并保存到':'已取消人工确认并保存到')+destination);
       updateCloudPanel();if(!historyView.hidden)await drawHistory();
     }catch(error){confirmedInput.checked=!checked;message(error.message,true);}
-    finally{confirmedInput.disabled=false;}
+    finally{confirmedInput.disabled=!records.canEdit();}
   };
   historyButton.onclick=()=>{
     historyView.hidden=!historyView.hidden;

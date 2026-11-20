@@ -88,14 +88,10 @@ const connections={
 };
 
 const ref={
-  stock:'https://www.thorlabs.com/images/Catalog/V19_09_Kits.pdf',
-  cap:'https://www.thorlabs.com/catalogpages/obsolete/2018/EDU-MINT1.pdf',
   smc:'https://www.smcworld.com/webcatalog/s3s/ja-jp/detail/?partNumber=KQ2H06-M5A1',
   pump:'https://www.youchengzhixin.com/blog/yczx-oil-free-piston-vacuum-pumps-clean-quiet-compact-power-delivered-on-time',
-  heat:'https://www.watlow.com/products/heaters/ceramic-heaters/ultramic-advanced-ceramic-heaters',
   controller:'https://yudian.com/en/down/10041.html?current=4',
   tube:'https://www.thorlabs.com/images/Catalog/V21/V21_1_Optomechanics.pdf',
-  scope:'https://www.szhgo.cn/en/metallurgicalmicroscope/310.html',
   board:'https://www.zolix-group.com/index.php/product/detail/212.html',
   tubeVac:'https://www.smcworld.com/assets/pg/en-jp/files/sp013x-035e.pdf',
   sensor:'https://assets.omega.com/pdf/test-and-measurement-equipment/temperature/sensors/thermocouple-probes/SA1.pdf',
@@ -104,7 +100,7 @@ const ref={
   led:'https://www.thorlabs.com/catalogpages/Obsolete/2025/M700L4.pdf'
 };
 const quote=(value,currency,date,type,source)=>({value,currency,date,type,source});
-const conditional=(maker,model,datasheet)=>({alternatives:[[maker,model,datasheet]],datasheet});
+const conditional=(maker,model,url)=>({alternatives:[[maker,model,url]],datasheet:''});
 const surfaceProbeQuote={
   ...quote(150.96,'USD','2026-11-19','DigiKey 公开包装价 · OMEGA SA1-K 备选','https://www.digikey.com/en/products/detail/omega/SA1-K/25629276'),
   packSize:5,candidate:true
@@ -117,15 +113,14 @@ const glandQuote={
 const additions={
   A01:conditional('Zolix','NTBK345-50，SUS430 台面，450×300×50 mm，M6@25；核孔原点与台高',ref.board),
   A05G:conditional('Marienfeld','1000412，磨边，约 76×26×1 mm（厚度 ±0.05）',ref.slide),
-  A02:{drawing:'https://cdhoptics.ks3-cn-beijing.ksyun.com/jjwdz/1612323095702eFQBtxcrQgq7RZ9rgWIqSw.pdf'},
-  A05CS:{qty:2,unit:'枚',model:'蝶形螺栓 · M3×0.5×10 候选',datasheet:ref.stock},
+  A05CS:{qty:2,unit:'枚',model:'蝶形螺栓 · M3×0.5×10 候选'},
   A06:{datasheet:'https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/旋轉台-2/gcm-11系列旋轉台/',
     quote:{...quote(3105,'TWD','2026-11-18','经销商未税参考 · GCM-1102M 候选','https://www.anjun.com.tw/光學元件/光學元件、儀器銷售/dhc大恆光電/光學調整架系列/移動台/旋轉台-2/gcm-11系列旋轉台/'),candidate:true}},
   A08:{quote:quote(572.99,'USD','2026-11-19','GSS 经销商公开单件价 · TTL200-A','https://www.govsci.com/product-detail/Thorlabs/TTL200-A/EA/')},
-  A11:{datasheet:'https://www.thorlabs.com/catalogpages/Obsolete/2022/M810L4.pdf',
+  A11:{datasheet:'https://www.thorlabs.com/item/MWWHL4',
     quote:quote(214.81,'USD','2025-07-16','原厂历史目录 · MWWHL4',ref.led)},
   A13:{datasheet:'https://www.delixi-electric.com/u/cms/delixi/202204/21094042w6d8.pdf'},
-  A14:{datasheet:'https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55',
+  A14:{datasheet:'',
     alternatives:[
       ['Thorlabs','SM2A55，SM2 外牙＋C-mount 外牙；相机须为 C 口母牙','https://www.thorlabs.de/newgrouppage9.cfm?objectgroup_id=8210&pn=SM2A55'],
       ['Thorlabs','SM2M20 / SM2M30：两端可接 SM2 外牙，50.8 / 76.2 mm；依据实测光程选',ref.tube]
@@ -133,10 +128,10 @@ const additions={
   A17:{quote:{...quote(288,'CNY','2026-11-19','厂家网页标价 · MBS-65B/C 候选','https://www.oeabt.com/show.php?id=89'),candidate:true}},
   A24:{qty:0,unit:'接口'},
   A25:{qty:0,unit:'接口'},
-  A22:{datasheet:ref.led},
+  A22:{datasheet:'',alternatives:[['Thorlabs','LEDD1B 主设备接口资料；线束本身无型号','https://www.thorlabs.com/item/LEDD1B']]},
   'A-H11':{quote:{...quote(37.66,'USD','2022','原厂历史目录 · KPS101 备件','https://www.thorlabs.com/catalogpages/Obsolete/2022/KPS101.pdf'),candidate:true}},
   'A-H13':{quote:glandQuote},
-  A26:conditional('Watlow','ULTRAMIC 陶瓷加热器，按凹槽、电压及功率定制',ref.heat),
+  A26:{datasheet:''},
   A27:{...conditional('OMEGA','SA1-K，13×19 mm 感温贴、长期 175°C；只在型别、贴装空间和温度都匹配时采用',ref.sensor),quote:surfaceProbeQuote},
   A29:conditional('SMC','TU0604，Ø6×Ø4；需把两个管端一并选成 Ø6，并核热端温度',ref.tubeVac),
   A28:conditional('SMC','KQ2H06-M5A1，M5×0.8 → Ø6，接口吻合后采用',ref.smc),
@@ -145,18 +140,17 @@ const additions={
   B01:conditional('Zolix','NTBK345-50，SUS430 台面，450×300×50 mm，M6@25；核 B35 四角锚固',ref.board),
   B07:conditional('Marienfeld','1000412 只作玻片备选；转移膜按所用工艺另配',ref.slide),
   B13:{...conditional('OMEGA','SA1-K 贴片候选；13×19 mm、长期 175°C，核实际接点形式后决定',ref.sensor),quote:surfaceProbeQuote},
-  B14:{qty:4,unit:'枚',datasheet:ref.stock},
+  B14:{qty:4,unit:'枚'},
   B40:conditional('SMC','TU0604，Ø6×Ø4；只有同时更换两端为 Ø6 时采用',ref.tubeVac),
   'B-H11':{quote:glandQuote},
   B35:{quote:{...quote(165,'USD','目录日期未标注','Thorlabs 历史目录 · MB2530/M 候选','https://www.thorlabs.com/catalogPages/1101.pdf'),candidate:true}},
   B09:{datasheet:'https://www.zolix-group.com/product/specification/179.html',
     quote:quote(325,'USD','2026-11-19','原厂旧站历史参考 · NFP-1462 系列标价，核单型号','https://www.zolix.com.cn/en/prodcon_371_385_457_517.html')},
   B26:{qty:0,unit:'接口'},
-  B12:conditional('Watlow','ULTRAMIC，按凹槽、热负载和电气参数定制',ref.heat),
+  B12:{datasheet:''},
   B15:conditional('SMC','KQ2H06-M5A1，M5 母牙与 Ø6 管确认后使用',ref.smc),
   B20:{datasheet:ref.pump},
-  B22:{datasheet:ref.scope},
-  B36:conditional('Hammond','1456 系列斜面机箱；按实际开孔、净深及散热尺寸选', 'https://www.hammfg.com/es/electronics/small-case/general-purpose/1456.pdf'),
+  B36:conditional('Hammond','1456 系列斜面机箱；按实际开孔、净深及散热尺寸选', 'https://www.hammfg.com/electronics/small-case/general-purpose/1456'),
   B39:{qty:0,unit:'接口'},
   B41:conditional('Zolix','NFP-1462SR，右驱动，65×65×23 mm；与 B09 垂直安装后核孔位和两轴净空','https://www.zolix-group.com/product/specification/181.html')
 };
@@ -179,12 +173,12 @@ export function auditPurchase(part){
   };
 }
 
-function item(id,group,name,qty,model,dims,evidence,connection,datasheet=ref.cap,maker='标准件'){
+function item(id,group,name,qty,model,dims,evidence,connection,datasheet='',maker='标准件'){
   return {id,group,name,qty,model,dims,evidence,connection,datasheet,maker,unit:'件',hardware:true,category:'待核配件',alternatives:[]};
 }
 export const HARDWARE={
   A:[
-    item('A-H01','film','磁座至 XY 底座螺钉',4,'ISO 4762 / M6×12 或 16','M6×1；长 12–16 mm 候选','A17/A15；大恒组合图 50×50','仅当 A17 为 MBS-65B 且底座 4 孔匹配时选，核实际牙深。',ref.stock),
+    item('A-H01','film','磁座至 XY 底座螺钉',4,'ISO 4762 / M6×12 或 16','M6×1；长 12–16 mm 候选','A17/A15；大恒组合图 50×50','仅当 A17 为 MBS-65B 且底座 4 孔匹配时选，核实际牙深。'),
     item('A-H02','film','XY 台至升降台底板螺钉',4,'ISO 4762 / M6×12 候选','M6×1；12 mm 候选','A15/A03；照片 194、195','模型 Ø6.6 通孔；以 A15 实际攻丝、底板和沉孔厚度定长。'),
     item('A-H03','film','升降输出端至下摆角台螺钉',2,'ISO 4762 / M3×6 或 8','M3×0.5；6–8 mm 候选','A03/A04L；大恒摆角组合图','请确认接合面孔距、M2/M3 牙型、头部及活动台净空。'),
     item('A-H04','film','两层摆角台间紧固件',2,'ISO 4762 / M3×6 候选','M3×0.5；6 mm 候选','A04L/A04；原厂组合图','按两台实测螺孔选；螺钉不得进入导轨运动范围。'),
@@ -194,16 +188,16 @@ export const HARDWARE={
     item('A-H08','microscope','显微镜脚座固定螺钉',4,'ISO 4762 / M5×16 或 18','M5×0.8；16–18 mm 候选','A10/A01；模型 Ø5.5','模型 Ø5.5 通孔及四角图示；面包板牙型待测。'),
     item('A-H09','sample','旋转台与适配底板紧固件',4,'ISO 4762 / M5×10 候选','M5×0.8；10 mm 候选','A06/A16','须确认 A06 的锁角和孔位；若孔组不合需转接板。'),
     item('A-H10','sample','旋转台至双轴台紧固件',4,'ISO 4762 / M6×10 候选','M6×1；10 mm 候选','A06/A02','先测旋转台顶面攻丝与 XY 底面孔心；有效牙长不足时重选。'),
-    item('A-H11','illumination','LED 驱动器外置电源',1,'KPS101 / 同接口替代','15 VDC，2.4 A，3.5 mm 插头','A12；Thorlabs K/T-Cube 电源资料','确认 LEDD1B 具体版本的 DC 接口，已有电源时采购量归零。','https://www.thorlabs.com/catalogpages/Obsolete/2022/KPS101.pdf','Thorlabs'),
+    item('A-H11','illumination','LED 驱动器外置电源',1,'KPS101 / 同接口替代','15 VDC，2.4 A，3.5 mm 插头','A12；Thorlabs K/T-Cube 电源资料','确认 LEDD1B 具体版本的 DC 接口，已有电源时采购量归零。','https://www.thorlabs.com/item/KPS101','Thorlabs'),
     item('A-H12','vacuum','吸气口接头及密封件',1,'按泵端实测接口','G1/4 候选；另一端按软管径','A30/A29；VN-50 同族目录','区分平行 G、锥牙及密封面；核实实际入口再选接头与垫。',ref.pump),
     item('A-H13','external','箱体进线固定件',2,'Phoenix Contact 1424514 压盖候选','M16×1.5；适用电缆外径 4.5–10 mm','A23/A24/A33 后出线','按实际每路线径和箱体开孔选，保持测温线与动力线分开。',ref.gland,'Phoenix Contact')
   ],
   B:[
-    item('B-H01','base','局部孔板至台板螺钉',4,'ISO 7380-1 / M6×16 或 20','M6×1；16–20 mm；头高约 3.3 mm','B35/B01；MB2530/M 候选','用低圆头配模型 Ø11×3.5 沉孔；核实物座面、板厚、网格原点、牙深及承载。',ref.stock),
+    item('B-H01','base','局部孔板至台板螺钉',4,'ISO 7380-1 / M6×16 或 20','M6×1；16–20 mm；头高约 3.3 mm','B35/B01；MB2530/M 候选','用低圆头配模型 Ø11×3.5 沉孔；核实物座面、板厚、网格原点、牙深及承载。'),
     item('B-H02','film','磁座至 XY 台底座螺钉',4,'ISO 4762 / M6×12 或 16','M6×1；12–16 mm 候选','B02/B03；Daheng 50×50 孔组','测量两部件共同孔组及实际牙深。'),
     item('B-H03','film','XY 台至竖直台螺钉',4,'ISO 4762 / M6×12 候选','M6×1；12 mm 候选','B03/B04；原厂组合图','根据上下孔配准、沉孔与有效牙深定长。'),
     item('B-H04','film','竖直台至杆架支承底板螺钉',4,'ISO 4762 / M4×10 候选','M4×0.7；10 mm 候选','B04/B05；支承底板','型号及孔位置未验收；按实测牙型取 M4 或其它长度。'),
-    item('B-H05','film','下杆至玻片夹端部螺柱',1,'M6×1 螺柱或原厂带牙杆','M6×1；有效长度待实测','B26/B28/B06；GCM-1302M 本体','确认两侧牙型和啮合量；杆端已含螺柱时采购量归零。',ref.stock),
+    item('B-H05','film','下杆至玻片夹端部螺柱',1,'M6×1 螺柱或原厂带牙杆','M6×1；有效长度待实测','B26/B28/B06；GCM-1302M 本体','确认两侧牙型和啮合量；杆端已含螺柱时采购量归零。'),
     item('B-H06','sample','旋转台至黑色孔板紧固件',4,'ISO 4762 / M6×16 候选','M6×1；16 mm 候选','B08/B35','确定固定脚的过孔与孔板实测网格；偏位使用转接板。'),
     item('B-H07','sample','旋转台至下层滑台紧固件',4,'ISO 4762 / M6×12 候选','M6×1；12 mm 候选','B08/B41；B41 型号待核','明确实际孔组和运动轴；需保留工具及行程净空。'),
     item('B-H08','sample','下层滑台至 NFP 底座紧固件',4,'ISO 4762 / M6×16 候选','M6×1；16 mm 候选','B41/B09；NFP 底孔图','确认 Ø6.5/Ø11 沉孔、下台顶牙、轴向插入余量。'),
