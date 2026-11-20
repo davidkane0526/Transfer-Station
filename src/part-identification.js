@@ -1,6 +1,6 @@
 // A catalog match alone does not confirm what is installed on the photographed rig.
-const confirmed=new Set(['A03','A04','A08','A11','A12','A13','A16',
-  'B02','B04','B06','B09','B21','B24','B30','B31']);
+const confirmed=new Set(['A03','A04','A08','A11','A12','A13','A16','A34',
+  'B02','B04','B06','B08','B09','B21','B24','B30','B31']);
 const makerOnly={
   A09:'照片 78 可读 DAHENG IMAGING，完整型号未读出。',
   A15:'实拍与原厂资料支持大恒 GCM-T25M 系列，2L／2C 后缀待核。',
@@ -8,6 +8,7 @@ const makerOnly={
   B16:'照片 116 可读 SDPTOP 和 MXFMS，具体版本待核。',
   B17:'照片 113 可读 SDPTOP 相机标识，完整型号未读出。',
   B19:'照片 114 可读 YUDIAN。面板匹配 AI-719／719P 系列，完整订货型号待核。',
+  B34:'原视频约28–32秒可读 Zolix，完整型号未读出，PHSH-2 为候选。',
   B35:'实拍可读 Thorlabs 标识，MB2530/M 仍是孔系候选。'
 };
 const modelOnly={
@@ -18,10 +19,11 @@ const partial={
   A19:'两支物镜可辨 JH-TOP 和 Olympus 品牌。转换盘的厂家、型号及物镜完整型号均待核。',
   B18:'照片 147 确认 SUNNY LMPlan 50×／0.55 WD7.9。另一支仅确认 OptoSigma 品牌，疑似 5× 的物镜及整组其余型号待核。'
 };
-const candidateNotes={
-  B08:'GCM-1107M 为原厂尺寸与结构对照，现有证据未确认实物铭牌。',
-  B33:'PHCP-1 为外形候选，照片未见铭牌。',
-  B34:'PHSH-2 为高置信度候选，照片上的铭牌不完整。'
+const evidenceNotes={
+  A34:'照片 82 可读 Thorlabs 和 SM1CP2，标记归端盖。',
+  A35:'C4W/C6W 为外观及接口候选，方盒本体与对侧杆孔待核。',
+  B08:'照片 111 可读转台侧壁的 Daheng GCM-1107M 标记。',
+  B33:'PHCP-1 为外形候选，照片未见铭牌。'
 };
 
 export const identificationLabels={
@@ -43,7 +45,7 @@ export function identifyPart(part,{makerEdited=false,modelEdited=false}={}){
   const changed=makerEdited||modelEdited;
   const partialNote=partial[part.id];
   const note=changed?'已修改的厂家或型号待复核。':
-    evidence??partialNote??candidateNotes[part.id]??'';
+    evidence??partialNote??evidenceNotes[part.id]??'';
   const status=maker&&model?'confirmed':maker?'maker':model?'model':
     partialNote&&!changed?'partial':'pending';
   return {status,maker,model,note};

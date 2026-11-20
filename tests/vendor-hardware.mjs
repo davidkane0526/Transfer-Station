@@ -41,7 +41,7 @@ assert.equal(short.known.diameterMm,12);
 assert.equal(long.known.overallLengthMm,85,'Photo108 upper bar must stop at PHUC and cannot have 150mm overhang');
 assert.equal(short.known.overallLengthMm,100,'photo149 requires a much taller vertical post; SKU still candidate');
 assert.equal(OPTICAL_HARDWARE.B34.known.overallHeightMm,50);
-assert.equal(b.get('B34').level,'C');
+assert.equal(b.get('B34').level,'P/C');
 assert(PURCHASE.B.B34.note.includes('50mm'),'Ruler-fit PHSH-2 missing');
 assert.equal(b.get('B27').level,'C');
 assert.equal(b.get('B25').level,'C');

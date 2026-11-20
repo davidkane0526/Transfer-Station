@@ -10,9 +10,9 @@ export const INTERFACES=[
   },
   {
     id:'B-ROTARY-CROSSED-XY',platform:'B',parts:['B08','B41','B09'],status:'pending',
-    known:'照片147带尺可见B08无外伸手柄旋转台上依次安装B41前向单轴台、B09右向NFP-1462C。两台平移台分别有独立测微头，不得将B09直接接在B08上。',
+    known:'照片147带尺可见B08旋转台上依次安装B41前向单轴台、B09右向NFP-1462C。两台平移台分别有独立测微头，不得将B09直接接在B08上。',
     missing:['B08顶面与B41固定面的实际孔心配准','B41确切SKU、固定面孔系、23mm场景候选高度和行程','B41移动面与B09固定面4×Ø6.5/Ø11沉孔的螺钉可达性','两组紧固件规格、沉孔和螺纹有效啮合深度','双轴同时运动及旋转时的实际干涉'],
-    evidence:'P:147；U:B08无手柄；D:NFP-1462C外形与单轴机构；C:B41候选几何'
+    evidence:'P:111可读B08侧壁标记，147可见叠装；D:NFP-1462C外形与单轴机构；C:B41候选几何'
   },
   {
     id:'B-CHUCK-FASTENERS',platform:'B',parts:['B09','B10','B11','B14'],status:'pending',
