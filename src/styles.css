@@ -149,3 +149,18 @@
  .inspection-mode .eyebrow{font-size:9px}
  .inspection-mode .inspection-toolbar{flex-wrap:wrap;justify-content:flex-end}
 }
+
+/* V218: right inspector is a readable, copyable form, not disabled buttons. */
+.inspection-heading-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.inspection-manual-check{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:#d6eafa;white-space:nowrap}
+.inspection-manual-check input{width:15px;height:15px;margin:0;accent-color:#70c1e8;cursor:pointer}
+.inspection-value-row{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.inspection-value{display:block;max-width:100%;width:100%;margin:0;padding:2px 0;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;user-select:text;-webkit-user-select:text;touch-action:auto;border-color:transparent;background:transparent}
+.inspection-value:hover,.inspection-value:focus-visible{background:transparent;border-color:transparent;outline:1px solid #416584;outline-offset:2px}
+.inspection-value::selection,.inspection-value *::selection{background:#387ca5;color:#fff}
+.inspection-field-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.inspection-field-actions button,.inspection-open-link{font-size:10px;line-height:1.45;padding:2px 6px;border-radius:5px;border:1px solid #35536e;background:#14283b;color:#bedef1;cursor:pointer;text-decoration:none}
+.inspection-field-actions button:hover,.inspection-open-link:hover{background:#204663;color:#fff;border-color:#6eadd3}
+.inspection-direct-link{color:#8ed4fc;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+.inspection-edit{display:block;width:100%;margin:2px 0 3px}
+.inspection-edit :is(input,textarea){user-select:text;-webkit-user-select:text}
