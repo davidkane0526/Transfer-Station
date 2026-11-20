@@ -28,6 +28,7 @@ try{
   assert.equal(await check.isChecked(),false);
   await check.check();
   assert.equal(await check.isChecked(),true);
+  await right.locator('.inspection-info > summary').click();
   const note=field('note');
   await note.getByRole('button',{name:'编辑'}).click();
   await note.getByRole('textbox',{name:'备注'}).fill('人工检查记录：已核对原始照片82');
