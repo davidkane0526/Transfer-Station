@@ -33,7 +33,8 @@ async function readJson(request){
 function cleanValue(field,value){
   if(typeof value!=='string'||value.length>4000)throw new Error('字段必须是 4000 个字符以内的文本。');
   value=value.trim();
-  if(['qty','price'].includes(field)&&value&&!/^\d{1,9}(?:\.\d{1,4})?$/.test(value))throw new Error('请输入有效的非负数字。');
+  if(field==='qty'&&value&&!/^\d{1,9}$/.test(value))throw new Error('数量必须为非负整数。');
+  if(field==='price'&&value&&!/^\d{1,9}(?:\.\d{1,4})?$/.test(value))throw new Error('价格必须为有效的非负数字。');
   if(field==='currency'&&value&&!/^[A-Z]{3}$/i.test(value))throw new Error('请使用三字母币种代码，例如 CNY。');
   if(field==='manualConfirmed'&&!['true','false'].includes(value))throw new Error('人工确认状态无效。');
   if(LINK_FIELDS.has(field)&&value){let url;try{url=new URL(value);}catch{throw new Error('请填写完整的 HTTPS 链接。');}if(url.protocol!=='https:')throw new Error('请填写完整的 HTTPS 链接。');}
